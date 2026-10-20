@@ -1,3 +1,4 @@
+#include "btl_effect_internal.h"
 #include "datCalc_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
@@ -8,41 +9,41 @@
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
 
-extern void func_004abd60(s32 arg0);
+extern void mdlEffectDestroyModel(s32 input);
 extern void (*jtbl_008873EC[])(void *);
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
-extern s32 func_004abc50(s32 arg0, s32 arg1);
-extern s32 EffModelFindOrCreate(s32 arg0);
+extern s32 mdlEffectCreateUniqueModel(s32 model, s32 size);
+extern s32 EffModelFindOrCreate(s32 effect);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00625230[];
 
 static u8 *D_0072449C;
 
-extern void btlUnitGetAnchorPose(void *arg0, void *arg1, void *arg2, void *arg3);
-extern void btlUnitSetPos(void *arg0, void *arg1);
-extern void btlUnitSetRot(void *arg0, void *arg1);
-extern void mdlEffectBuildBasisRows(void *arg0, void *arg1);
-extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
-extern void mdlScale(void *arg0, void *arg1, s32 arg2);
+extern void btlUnitGetAnchorPose(void *unit, void *outPosition, void *outRotation, void *outTarget);
+extern void btlUnitSetPos(void *unit, void *pos);
+extern void btlUnitSetRot(void *unit, void *rot);
+extern void mdlEffectBuildBasisRows(void *output, void *orientation);
+extern void mdlApplyModelMatrix(void *model, void *matrix, s32 combineOp);
+extern void mdlScale(void *model, void *scale, s32 combineOp);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
-extern void mdlSetLayerWeight(void *arg0, s32 arg1, f32 arg2);
-extern void mdlAdvanceModelFromFlags(void *arg0);
-extern s32 mdlCopyIndexedMatrix(void *arg0, s32 arg1, void *arg2);
-extern void RwMatrixScale(void *arg0, f32 *arg1, s32 arg2);
-extern void RwMatrixMultiply(void *arg0, void *arg1, void *arg2);
-extern void RtQuatConvertFromMatrix(void *arg0, void *arg1);
-extern void func_001ec350(void *arg0, void *arg1);
-extern u32 mdlCountIntUserData(u32 arg0);
-extern void btlUnitClearModelState(void *arg0, s32 arg1);
-extern void btlUnitSetModelAnimFrame(void *arg0, s32 arg1);
-extern void btlUnitApplyModelState(void *arg0, s32 arg1);
-extern s32 mdlComputeIndexedAttachMatrix(void *arg0, s32 arg1, void *arg2);
+extern void mdlSetLayerWeight(void *model, s32 layer, f32 speed);
+extern void mdlAdvanceModelFromFlags(void *model);
+extern s32 mdlCopyIndexedMatrix(void *model, s32 index, void *destination);
+extern void RwMatrixScale(void *input, f32 *value, s32 options);
+extern void RwMatrixMultiply(void *input, void *value, void *options);
+extern void RtQuatConvertFromMatrix(void *input, void *value);
+extern void btlTargetNormalizeVector(void *source, void *destination);
+extern u32 mdlCountIntUserData(u32 model);
+extern void btlUnitClearModelState(void *unit, s32 mode);
+extern void btlUnitSetModelAnimFrame(void *unit, s32 frame);
+extern void btlUnitApplyModelState(void *unit, s32 mode);
+extern s32 mdlComputeIndexedAttachMatrix(void *model, s32 index, void *destination);
 extern u8 *btlMainGetSceneColorBlock(void);
 extern u8 *btlMainGetSceneList4Block(void);
 extern u8 *btlMainGetSceneList4SavedBlock(void);
 extern u8 *btlMainGetSceneRgbaBlock(void);
-extern void resrcMngApplyColorFactors(void *arg0);
+extern void resrcMngApplyColorFactors(void *value);
 extern u8 *resrcMngGetColorValue(void);
 extern u8 *resrcMngGetColorTarget(void);
 extern f32 D_0076129C;
@@ -53,6 +54,21 @@ typedef struct
 {
     f32 v[4];
 } V4;
+
+/* Common callback context prefix: every EPL updater reads count/target/params
+ * at the same offsets. The complete allocation extends beyond this prefix. */
+typedef struct BtlEplEffect {
+    f32 position[3];       /* 0x00 */
+    u8 pad0C[4];
+    f32 rotation[4];       /* 0x10 */
+    f32 scale;             /* 0x20 */
+    u8 pad24[4];
+    u32 count;             /* 0x28 */
+    u8 pad2C[4];
+    void *target;          /* 0x30: model handle or saved colors */
+    u8 pad34[4];
+    void *params;          /* 0x38: parameter type depends on callback */
+} BtlEplEffect;
 
 typedef struct BtlEplEplWork
 {
@@ -229,27 +245,29 @@ block_9:
 #pragma opt_rebuildconditionals on
 /* measured: restore the unit default after btlEplUnitIsSelected. */
 #pragma opt_loop_invariants off
+/* Allocate owned model-ID work from kind-3 source data; other kinds retain a zero handle. */
 // FUN_001FC4A0
-s32 *btlEplNewIdHandle(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+s32 *btlEplNewIdHandle(s32 context, s32 kind, s32 source, s32 options) {
     s32 *result;
 
     chkmemAllocSiteTag(D_00625230, 0xB1);
     result = (s32 *)(*jtbl_008873E8)(4, 0x40000);
-    if ((arg2 != 0) && ((arg1 & 0xFFFF) == 3)) {
-        *result = func_004abc50(arg2, arg3);
+    if ((source != 0) && ((kind & 0xFFFF) == 3)) {
+        *result = mdlEffectCreateUniqueModel(source, options);
     } else {
         *result = 0;
     }
     return result;
 }
 
+/* Allocate owned model-ID work from the unit's source model, or leave the handle zero when absent. */
 // FUN_001FC550
-s32 *btlEplNewIdHandleFromUnit(u8 *arg0) {
+s32 *btlEplNewIdHandleFromUnit(u8 *effect) {
     s32 *field;
     s32 *result;
     s32 value;
 
-    field = *(s32 **)(arg0 + 0x30);
+    field = (s32 *)((BtlEplEffect *)effect)->target;
     chkmemAllocSiteTag(D_00625230, 0xB1);
     result = (s32 *)(*jtbl_008873E8)(4, 0x40000);
     value = *field;
@@ -260,12 +278,13 @@ s32 *btlEplNewIdHandleFromUnit(u8 *arg0) {
     }
     return result;
 }
+/* Release the model-ID resource when nonzero, then free its work allocation. */
 // FUN_001FC5E0
-void btlEplFreeIdHandle(s32 *arg0) {
-    if (*arg0 != 0) {
-        func_004abd60(*arg0);
+void btlEplFreeIdHandle(s32 *work) {
+    if (*work != 0) {
+        mdlEffectDestroyModel(*work);
     }
-    jtbl_008873EC[0](arg0);
+    jtbl_008873EC[0](work);
 }
 
 
@@ -283,10 +302,11 @@ typedef struct BtlEplUnitParam
 /* measured: opt_dead_assignments off keeps the four colour conversions ahead of
    the blend products (217 words without it); opt_loop_invariants on hoists the
    mode byte and 1 - scale above the unit loop in retail order. */
+/* Fade selected units' normalized colors and position against the EPL model, preserving the distinct fade-in and fade-out snapshots. */
 // FUN_001FC630
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
-void btlEplStepUnitFadeInOut(u8 *arg0)
+void btlEplStepUnitFadeInOut(u8 *effect)
 {
     u32 count;
     BtlEplUnitParam *param;
@@ -302,9 +322,9 @@ void btlEplStepUnitFadeInOut(u8 *arg0)
     f32 vec[3];
     u8 matrix[0x40];
 
-    model = *(u8 ***)(arg0 + 0x30);
-    param = *(BtlEplUnitParam **)(arg0 + 0x38);
-    count = *(u32 *)(arg0 + 0x28);
+    model = (u8 **)((BtlEplEffect *)effect)->target;
+    param = (BtlEplUnitParam *)((BtlEplEffect *)effect)->params;
+    count = ((BtlEplEffect *)effect)->count;
     total = param->fade.total;
     if (total < count && total != 0) {
         return;
@@ -329,13 +349,13 @@ void btlEplStepUnitFadeInOut(u8 *arg0)
     }
     hasPos = 0;
     if (*model != NULL) {
-        mdlEffectBuildBasisRows(matrix, arg0 + 0x10);
+        mdlEffectBuildBasisRows(matrix, ((BtlEplEffect *)effect)->rotation);
         mdlApplyModelMatrix(*model, matrix, 0);
-        vec[0] = vec[1] = vec[2] = *(f32 *)(arg0 + 0x20) * param->scale;
+        vec[0] = vec[1] = vec[2] = ((BtlEplEffect *)effect)->scale * param->scale;
         mdlScale(*model, vec, 2);
-        vec[0] = ((f32 *)arg0)[0];
-        vec[1] = ((f32 *)arg0)[1];
-        vec[2] = ((f32 *)arg0)[2];
+        vec[0] = ((BtlEplEffect *)effect)->position[0];
+        vec[1] = ((BtlEplEffect *)effect)->position[1];
+        vec[2] = ((BtlEplEffect *)effect)->position[2];
         mdlTranslateMatrix((RwMatrix *)*model, (const RwV3d *)vec, 2);
         mdlSetLayerWeight(*model, 0, param->rotate);
         mdlAdvanceModelFromFlags(*model);
@@ -346,7 +366,7 @@ void btlEplStepUnitFadeInOut(u8 *arg0)
     {
 
         for (i = 0; i < 4; i++) {
-            for (node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178); node != NULL; node = node->next) {
+            for (node = (BtlEplUnit *)((BtlBattleState *)D_0072449C)->unitLists[i * 2]; node != NULL; node = node->next) {
                 if (btlEplUnitIsSelected(node, &param->select) == 0) {
                     continue;
                 }
@@ -410,9 +430,9 @@ void btlEplStepUnitFadeInOut(u8 *arg0)
                 if (hasPos) {
                     node->pos = pos;
                 } else {
-                    node->pos.x = ((f32 *)arg0)[0];
-                    node->pos.y = ((f32 *)arg0)[1];
-                    node->pos.z = ((f32 *)arg0)[2];
+                    node->pos.x = ((BtlEplEffect *)effect)->position[0];
+                    node->pos.y = ((BtlEplEffect *)effect)->position[1];
+                    node->pos.z = ((BtlEplEffect *)effect)->position[2];
                 }
             }
         }
@@ -421,15 +441,17 @@ void btlEplStepUnitFadeInOut(u8 *arg0)
 #pragma opt_dead_assignments on
 #pragma opt_loop_invariants off
 
+/* Reserve saved-color work for the corresponding EPL fade callback; the allocation size matches its vector count. */
 // FUN_001FCE30
 void btlEplAllocColorPair(void) {
     chkmemAllocSiteTag(D_00625230, 0x1D3);
     (*jtbl_008873E8)(0x20, 0x40000);
 }
 
+/* Release the saved color work through the battle allocator. */
 // FUN_001FCE80
-void btlEplFreeColorPair(void *arg0) {
-    jtbl_008873EC[0](arg0);
+void btlEplFreeColorPair(void *work) {
+    jtbl_008873EC[0](work);
 }
 
 typedef struct BtlEplFade2Param
@@ -443,9 +465,10 @@ typedef struct BtlEplFade2Param
 /* measured: opt_dead_assignments off keeps the colour conversions where the
    source puts them (first pair converted up front, second pair converted and
    scaled per component); 189 words without it. */
+/* Blend the two scene color vectors through the requested fade-in/out interval, saving endpoints at each transition. */
 // FUN_001FCEB0
 #pragma opt_dead_assignments off
-void btlEplStepColorPairFade(u8 *arg0)
+void btlEplStepColorPairFade(u8 *effect)
 {
     u32 count;
     BtlEplFade2Param *param;
@@ -457,9 +480,9 @@ void btlEplStepColorPairFade(u8 *arg0)
     V4 *src;
     BtlEplRgba rgba;
 
-    target = *(V4 **)(arg0 + 0x30);
-    param = *(BtlEplFade2Param **)(arg0 + 0x38);
-    count = *(u32 *)(arg0 + 0x28);
+    target = (V4 *)((BtlEplEffect *)effect)->target;
+    param = (BtlEplFade2Param *)((BtlEplEffect *)effect)->params;
+    count = ((BtlEplEffect *)effect)->count;
     total = param->total;
     if (total < count && total != 0) {
         return;
@@ -580,8 +603,9 @@ void btlEplStepColorPairFade(u8 *arg0)
     }
 }
 #pragma opt_dead_assignments on
+/* Empty retail EPL entry; its intended parameter or update role is not established. */
 // FUN_001FD780
-void func_001fd780(void)
+void btlEplNoOp(void)
 {
 }
 
@@ -597,10 +621,11 @@ typedef struct BtlEplUnitRgbaParam
  * lifetimes reproduce retail's FPR allocation and native operation order.
  * Measured b210: 2172/2176 bytes, four retail-zero tail bytes,
  * 22 resolved target relocations and all 26 sibling functions unchanged. */
+/* Fade selected units' packed RGBA channels, rounding normalized results back to bytes and setting their explicit-color flag. */
 // FUN_001FD790
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
-void btlEplStepUnitRgbaFade(u8 *arg0)
+void btlEplStepUnitRgbaFade(u8 *effect)
 {
     u32 count;
     BtlEplUnitRgbaParam *param;
@@ -611,8 +636,8 @@ void btlEplStepUnitRgbaFade(u8 *arg0)
     BtlEplUnit *node;
     BtlEplRgba rgba;
 
-    param = *(BtlEplUnitRgbaParam **)(arg0 + 0x38);
-    count = *(u32 *)(arg0 + 0x28);
+    param = (BtlEplUnitRgbaParam *)((BtlEplEffect *)effect)->params;
+    count = ((BtlEplEffect *)effect)->count;
     total = param->fade.total;
     if (total < count && total != 0) {
         return;
@@ -636,7 +661,7 @@ void btlEplStepUnitRgbaFade(u8 *arg0)
         }
     }
     for (i = 0; i < 4; i++) {
-        for (node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178); node != NULL; node = node->next) {
+        for (node = (BtlEplUnit *)((BtlBattleState *)D_0072449C)->unitLists[i * 2]; node != NULL; node = node->next) {
             if (btlEplUnitIsSelected(node, &param->select) == 0) {
                 continue;
             }
@@ -725,22 +750,25 @@ void btlEplStepUnitRgbaFade(u8 *arg0)
 #pragma opt_dead_assignments on
 #pragma opt_loop_invariants off
 
+/* Reserve saved-color work for the corresponding EPL fade callback; the allocation size matches its vector count. */
 // FUN_001FE010
 void btlEplAllocColorValueTarget(void) {
     chkmemAllocSiteTag(D_00625230, 0x2DF);
     (*jtbl_008873E8)(0x20, 0x40000);
 }
 
+/* Release the saved color work through the battle allocator. */
 // FUN_001FE060
-void btlEplFreeColorValueTarget(void *arg0) {
-    jtbl_008873EC[0](arg0);
+void btlEplFreeColorValueTarget(void *work) {
+    jtbl_008873EC[0](work);
 }
 
 /* measured: opt_dead_assignments off keeps the second pair's blend unfused
    like the first (138 words without it). */
+/* Fade the resource color value and target vectors after applying the scene color multipliers. */
 // FUN_001FE090
 #pragma opt_dead_assignments off
-void btlEplStepColorValueTargetFade(u8 *arg0)
+void btlEplStepColorValueTargetFade(u8 *effect)
 {
     u32 count;
     BtlEplFade2Param *param;
@@ -752,9 +780,9 @@ void btlEplStepColorValueTargetFade(u8 *arg0)
     V4 color;
     BtlEplRgba rgba;
 
-    target = *(V4 **)(arg0 + 0x30);
-    param = *(BtlEplFade2Param **)(arg0 + 0x38);
-    count = *(u32 *)(arg0 + 0x28);
+    target = (V4 *)((BtlEplEffect *)effect)->target;
+    param = (BtlEplFade2Param *)((BtlEplEffect *)effect)->params;
+    count = ((BtlEplEffect *)effect)->count;
     total = param->total;
     if (total < count && total != 0) {
         return;
@@ -892,21 +920,24 @@ void btlEplStepColorValueTargetFade(u8 *arg0)
     }
 }
 #pragma opt_dead_assignments on
+/* Reserve saved-color work for the corresponding EPL fade callback; the allocation size matches its vector count. */
 // FUN_001FEB80
 void btlEplAllocColor(void) {
     chkmemAllocSiteTag(D_00625230, 0x389);
     (*jtbl_008873E8)(0x10, 0x40000);
 }
 
+/* Release the saved color work through the battle allocator. */
 // FUN_001FEBD0
-void btlEplFreeColor(void *arg0) {
-    jtbl_008873EC[0](arg0);
+void btlEplFreeColor(void *work) {
+    jtbl_008873EC[0](work);
 }
 
+/* Fade the scene RGB factors, forcing alpha to one before applying the resource-manager color factors. */
 // FUN_001FEC00
 /* The blend keeps the third colour term unscaled until the final add, as in
    btlMainUpdateColorWork (btlMain.c); retail fuses only that last component. */
-void btlEplStepColorFade(u8 *arg0)
+void btlEplStepColorFade(u8 *effect)
 {
     u32 count;
     BtlEplFadeParam *param;
@@ -926,9 +957,9 @@ void btlEplStepColorFade(u8 *arg0)
     f32 b1;
     f32 b2;
 
-    target = *(V4 **)(arg0 + 0x30);
-    param = *(BtlEplFadeParam **)(arg0 + 0x38);
-    count = *(u32 *)(arg0 + 0x28);
+    target = (V4 *)((BtlEplEffect *)effect)->target;
+    param = (BtlEplFadeParam *)((BtlEplEffect *)effect)->params;
+    count = ((BtlEplEffect *)effect)->count;
     total = param->total;
     if (total < count && total != 0) {
         return;
@@ -1004,27 +1035,29 @@ void btlEplStepColorFade(u8 *arg0)
         break;
     }
 }
+/* Allocate owned model-ID work from kind-3 source data; other kinds retain a zero handle. */
 // FUN_001FF300
-s32 *btlEplNewWideIdHandle(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+s32 *btlEplNewWideIdHandle(s32 context, s32 kind, s32 source, s32 options) {
     s32 *result;
 
     chkmemAllocSiteTag(D_00625230, 0x429);
     result = (s32 *)(*jtbl_008873E8)(0x24, 0x40000);
-    if ((arg2 != 0) && ((arg1 & 0xFFFF) == 3)) {
-        *result = func_004abc50(arg2, arg3);
+    if ((source != 0) && ((kind & 0xFFFF) == 3)) {
+        *result = mdlEffectCreateUniqueModel(source, options);
     } else {
         *result = 0;
     }
     return result;
 }
 
+/* Allocate owned model-ID work from the unit's source model, or leave the handle zero when absent. */
 // FUN_001FF3B0
-s32 *btlEplNewWideIdHandleFromUnit(u8 *arg0) {
+s32 *btlEplNewWideIdHandleFromUnit(u8 *effect) {
     s32 *field;
     s32 *result;
     s32 value;
 
-    field = *(s32 **)(arg0 + 0x30);
+    field = (s32 *)((BtlEplEffect *)effect)->target;
     chkmemAllocSiteTag(D_00625230, 0x429);
     result = (s32 *)(*jtbl_008873E8)(0x24, 0x40000);
     value = *field;
@@ -1035,12 +1068,13 @@ s32 *btlEplNewWideIdHandleFromUnit(u8 *arg0) {
     }
     return result;
 }
+/* Release the model-ID resource when nonzero, then free its work allocation. */
 // FUN_001FF440
-void btlEplFreeWideIdHandle(s32 *arg0) {
-    if (*arg0 != 0) {
-        func_004abd60(*arg0);
+void btlEplFreeWideIdHandle(s32 *work) {
+    if (*work != 0) {
+        mdlEffectDestroyModel(*work);
     }
-    jtbl_008873EC[0](arg0);
+    jtbl_008873EC[0](work);
 }
 
 typedef struct BtlEplMatrix
@@ -1075,9 +1109,10 @@ extern BtlEplMatrix D_00922C60;
 
 /* measured: opt_dead_assignments off keeps the colour conversions where the
    source puts them, as in btlEplStepColorPairFade. */
+/* Fade both light color vectors and, when available, publish the transformed EPL model matrix. */
 // FUN_001FF490
 #pragma opt_dead_assignments off
-void btlEplStepLightFadeInOut(u8 *arg0)
+void btlEplStepLightFadeInOut(u8 *effect)
 {
     u32 count;
     BtlEplLightParam *param;
@@ -1091,9 +1126,9 @@ void btlEplStepLightFadeInOut(u8 *arg0)
     f32 vec[3];
     BtlEplMatrix matrix;
 
-    target = *(BtlEplLightTarget **)(arg0 + 0x30);
-    param = *(BtlEplLightParam **)(arg0 + 0x38);
-    count = *(u32 *)(arg0 + 0x28);
+    target = (BtlEplLightTarget *)((BtlEplEffect *)effect)->target;
+    param = (BtlEplLightParam *)((BtlEplEffect *)effect)->params;
+    count = ((BtlEplEffect *)effect)->count;
     total = param->total;
     if (total < count && total != 0) {
         return;
@@ -1119,13 +1154,13 @@ void btlEplStepLightFadeInOut(u8 *arg0)
     }
     hasMatrix = 0;
     if (target->model != NULL) {
-        mdlEffectBuildBasisRows(&matrix, arg0 + 0x10);
+        mdlEffectBuildBasisRows(&matrix, ((BtlEplEffect *)effect)->rotation);
         mdlApplyModelMatrix(target->model, &matrix, 0);
-        vec[0] = vec[1] = vec[2] = *(f32 *)(arg0 + 0x20) * param->scale;
+        vec[0] = vec[1] = vec[2] = ((BtlEplEffect *)effect)->scale * param->scale;
         mdlScale(target->model, vec, 2);
-        vec[0] = ((f32 *)arg0)[0];
-        vec[1] = ((f32 *)arg0)[1];
-        vec[2] = ((f32 *)arg0)[2];
+        vec[0] = ((BtlEplEffect *)effect)->position[0];
+        vec[1] = ((BtlEplEffect *)effect)->position[1];
+        vec[2] = ((BtlEplEffect *)effect)->position[2];
         mdlTranslateMatrix((RwMatrix *)target->model, (const RwV3d *)vec, 2);
         mdlSetLayerWeight(target->model, 0, param->rotate);
         mdlAdvanceModelFromFlags(target->model);
@@ -1249,7 +1284,7 @@ typedef struct BtlEplMotionParam
 
 // FUN_001FFF40
 /* Applies the motion parameters to every selected unit when the effect starts (count 0). */
-void btlEplUnitApplyMotion(u8 *arg0)
+void btlEplUnitApplyMotion(u8 *effect)
 {
     s32 count;
     BtlEplMotionParam *param;
@@ -1257,14 +1292,14 @@ void btlEplUnitApplyMotion(u8 *arg0)
     u32 i;
     s32 value;
 
-    param = *(BtlEplMotionParam **)(arg0 + 0x38);
-    count = *(s32 *)(arg0 + 0x28);
+    param = (BtlEplMotionParam *)((BtlEplEffect *)effect)->params;
+    count = (s32)((BtlEplEffect *)effect)->count;
     for (i = 0; i < 4; i++) {
-        node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178);
+        node = (BtlEplUnit *)((BtlBattleState *)D_0072449C)->unitLists[i * 2];
         while (node != NULL) {
             if ((btlEplUnitIsSelected(node, &param->select) != 0) &&
                 ((node->datUnit == 0) ||
-                 (func_00243d80(node->datUnit) != 0) ||
+                 (datCalcEnemyHasExtendedFlag(node->datUnit) != 0) ||
                  (datCalcIsDead(node->datUnit, 0) == 0))) {
                 node->unk9D8 |= 8;
                 if (count == 0) {
@@ -1284,28 +1319,30 @@ void btlEplUnitApplyMotion(u8 *arg0)
         }
     }
 }
+/* Allocate owned model-ID work from kind-3 source data; other kinds retain a zero handle. */
 // FUN_00200090
-s32 *btlEplNewZeroedIdHandle(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+s32 *btlEplNewZeroedIdHandle(s32 context, s32 kind, s32 source, s32 options) {
     s32 *result;
 
     chkmemAllocSiteTag(D_00625230, 0x54D);
     result = (s32 *)(*jtbl_008873E8)(4, 0x40000);
     *result = 0;
-    if ((arg2 != 0) && ((arg1 & 0xFFFF) == 3)) {
-        *result = func_004abc50(arg2, arg3);
+    if ((source != 0) && ((kind & 0xFFFF) == 3)) {
+        *result = mdlEffectCreateUniqueModel(source, options);
     } else {
         *result = 0;
     }
     return result;
 }
 
+/* Allocate owned model-ID work from the unit's source model, or leave the handle zero when absent. */
 // FUN_00200150
-s32 *btlEplNewZeroedIdHandleFromUnit(u8 *arg0) {
+s32 *btlEplNewZeroedIdHandleFromUnit(u8 *effect) {
     s32 *field;
     s32 *result;
     s32 value;
 
-    field = *(s32 **)(arg0 + 0x30);
+    field = (s32 *)((BtlEplEffect *)effect)->target;
     chkmemAllocSiteTag(D_00625230, 0x54D);
     result = (s32 *)(*jtbl_008873E8)(4, 0x40000);
     *result = 0;
@@ -1318,12 +1355,13 @@ s32 *btlEplNewZeroedIdHandleFromUnit(u8 *arg0) {
     return result;
 }
 
+/* Release the model-ID resource when nonzero, then free its work allocation. */
 // FUN_002001E0
-void btlEplFreeZeroedIdHandle(s32 *arg0) {
-    if (*arg0 != 0) {
-        func_004abd60(*arg0);
+void btlEplFreeZeroedIdHandle(s32 *work) {
+    if (*work != 0) {
+        mdlEffectDestroyModel(*work);
     }
-    jtbl_008873EC[0](arg0);
+    jtbl_008873EC[0](work);
 }
 
 typedef struct BtlEplScaleParam
@@ -1337,14 +1375,14 @@ typedef struct BtlEplScaleParam
 
 // FUN_00200230
 /* Scales the target model and counter-scales selected units; the final pass reapplies stored motion. */
-void btlEplApplyScaleEffect(u8 *arg0) {
-    f32 sp130[4];
-    u8 sp120[0x10];
-    u8 sp110[0x10];
-    u8 spE0[0x30];
-    u8 spA0[0x40];
-    u8 sp60[0x40];
-    u8 sp50[0x10];
+void btlEplApplyScaleEffect(u8 *effect) {
+    f32 scaleVector[4];
+    u8 anchorPosition[0x10];
+    u8 modelPosition[0x10];
+    u8 basisMatrix[0x30];
+    u8 inverseScaleMatrix[0x40];
+    u8 unitMatrix[0x40];
+    u8 rotation[0x10];
     f32 scale;
     f32 inv;
     u32 count;
@@ -1353,20 +1391,20 @@ void btlEplApplyScaleEffect(u8 *arg0) {
     BtlEplScaleParam *param;
     BtlEplUnit *node;
 
-    target = *(u8 ***)(arg0 + 0x30);
-    param = *(BtlEplScaleParam **)(arg0 + 0x38);
-    count = *(u32 *)(arg0 + 0x28);
+    target = (u8 **)((BtlEplEffect *)effect)->target;
+    param = (BtlEplScaleParam *)((BtlEplEffect *)effect)->params;
+    count = ((BtlEplEffect *)effect)->count;
     if ((param->total >= count) || (param->total == 0)) {
         if ((count == param->total) && (param->unk10 != 0)) {
             for (i = 0; i < 2; i++) {
-                node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178);
+                node = (BtlEplUnit *)((BtlBattleState *)D_0072449C)->unitLists[i * 2];
                 while (node != NULL) {
                     if ((node->datUnit != 0) &&
                         (btlEplUnitIsSelected(node, &param->select) != 0) &&
                         (datCalcIsDead(node->datUnit, 0) == 0)) {
-                        btlUnitGetAnchorPose(node, sp120, sp50, NULL);
-                        btlUnitSetPos(node, sp120);
-                        btlUnitSetRot(node, sp50);
+                        btlUnitGetAnchorPose(node, anchorPosition, rotation, NULL);
+                        btlUnitSetPos(node, anchorPosition);
+                        btlUnitSetRot(node, rotation);
                         btlUnitUpdateStatusMotion((u8 *)node, 0);
                         btlUnitSetMotion((u8 *)node, node->motion, 0, node->rate, (u16)node->option);
                     }
@@ -1376,35 +1414,35 @@ void btlEplApplyScaleEffect(u8 *arg0) {
             return;
         }
         if (*target != NULL) {
-            mdlEffectBuildBasisRows(spE0, arg0 + 0x10);
-            mdlApplyModelMatrix(*target, spE0, 0);
-            scale = *(f32 *)(arg0 + 0x20) * param->scale;
-            sp130[2] = scale;
-            sp130[1] = scale;
-            sp130[0] = scale;
-            mdlScale(*target, sp130, 2);
-            sp130[0] = *(f32 *)(arg0 + 0);
-            sp130[1] = *(f32 *)(arg0 + 4);
-            sp130[2] = *(f32 *)(arg0 + 8);
-            mdlTranslateMatrix((RwMatrix *)*target, (const RwV3d *)sp130, 2);
+            mdlEffectBuildBasisRows(basisMatrix, ((BtlEplEffect *)effect)->rotation);
+            mdlApplyModelMatrix(*target, basisMatrix, 0);
+            scale = ((BtlEplEffect *)effect)->scale * param->scale;
+            scaleVector[2] = scale;
+            scaleVector[1] = scale;
+            scaleVector[0] = scale;
+            mdlScale(*target, scaleVector, 2);
+            scaleVector[0] = ((BtlEplEffect *)effect)->position[0];
+            scaleVector[1] = ((BtlEplEffect *)effect)->position[1];
+            scaleVector[2] = ((BtlEplEffect *)effect)->position[2];
+            mdlTranslateMatrix((RwMatrix *)*target, (const RwV3d *)scaleVector, 2);
             mdlSetLayerWeight(*target, 0, param->unk08);
             mdlAdvanceModelFromFlags(*target);
-            if (mdlCopyIndexedMatrix(*target, 0, spE0) != 0) {
+            if (mdlCopyIndexedMatrix(*target, 0, basisMatrix) != 0) {
                 for (i = 0; i < 4; i++) {
-                    node = *(BtlEplUnit **)(D_0072449C + i * 8 + 0x178);
+                    node = (BtlEplUnit *)((BtlBattleState *)D_0072449C)->unitLists[i * 2];
                     while (node != NULL) {
                         if ((btlEplUnitIsSelected(node, &param->select) != 0) &&
                             (node->datUnit == 0 || datCalcIsDead(node->datUnit, 0) == 0)) {
-                            btlUnitSetPos(node, sp110);
+                            btlUnitSetPos(node, modelPosition);
                             inv = 1.0f / scale;
-                            sp130[2] = inv;
-                            sp130[1] = inv;
-                            sp130[0] = inv;
-                            RwMatrixScale(spA0, sp130, 0);
-                            RwMatrixMultiply(sp60, spE0, spA0);
-                            RtQuatConvertFromMatrix(sp50, sp60);
-                            func_001ec350(sp50, sp50);
-                            btlUnitSetRot(node, sp50);
+                            scaleVector[2] = inv;
+                            scaleVector[1] = inv;
+                            scaleVector[0] = inv;
+                            RwMatrixScale(inverseScaleMatrix, scaleVector, 0);
+                            RwMatrixMultiply(unitMatrix, basisMatrix, inverseScaleMatrix);
+                            RtQuatConvertFromMatrix(rotation, unitMatrix);
+                            btlTargetNormalizeVector(rotation, rotation);
+                            btlUnitSetRot(node, rotation);
                         }
                         node = node->next;
                     }
@@ -1414,8 +1452,9 @@ void btlEplApplyScaleEffect(u8 *arg0) {
     }
 }
 
+/* Allocate pattern work and choose an even user-data pattern index from kind-3 source data; other kinds retain a zero handle. */
 // FUN_00200550
-s32 *btlEplNewPatternWork(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+s32 *btlEplNewPatternWork(s32 context, s32 kind, s32 source, s32 options) {
     BtlEplEplWork *result;
     s32 value;
     u32 rnd;
@@ -1424,8 +1463,8 @@ s32 *btlEplNewPatternWork(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     result = (BtlEplEplWork *)(*jtbl_008873E8)(8, 0x40000);
     result->target = 0;
     result->pattern = 0;
-    if ((arg2 != 0) && ((arg1 & 0xFFFF) == 3)) {
-        value = func_004abc50(arg2, arg3);
+    if ((source != 0) && ((kind & 0xFFFF) == 3)) {
+        value = mdlEffectCreateUniqueModel(source, options);
         result->target = value;
         rnd = mdlCountIntUserData(value);
         if ((rnd >> 1) != 0) {
@@ -1437,14 +1476,15 @@ s32 *btlEplNewPatternWork(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
     return (s32 *)result;
 }
 
+/* Allocate pattern work and choose an even user-data pattern index from the unit's source model, or leave the handle zero when absent. */
 // FUN_00200650
-s32 *btlEplNewPatternWorkFromUnit(u8 *arg0) {
+s32 *btlEplNewPatternWorkFromUnit(u8 *effect) {
     s32 *field;
     BtlEplEplWork *result;
     s32 value;
     u32 rnd;
 
-    field = *(s32 **)(arg0 + 0x30);
+    field = (s32 *)((BtlEplEffect *)effect)->target;
     chkmemAllocSiteTag(D_00625230, 0x60D);
     result = (BtlEplEplWork *)(*jtbl_008873E8)(8, 0x40000);
     result->target = 0;

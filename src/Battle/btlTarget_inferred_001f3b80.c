@@ -1,3 +1,7 @@
+#include "btl_sound_internal.h"
+#include "h_cdvd_request_internal.h"
+#include "btl_action_internal.h"
+#include "btl_effect_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -21,12 +25,6 @@ static inline u32 addOffsetFirst(u32 offset, u32 base) {
 /* Force the base operand into the first addu slot. */
 static inline u32 addBaseFirst(u32 base, u32 offset) {
     return base + offset;
-}
-static inline s32 promoteS16(s16 value) {
-    return value;
-}
-static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
-    return offset + base;
 }
 
 extern RwRenderState D_00625210[];
@@ -84,12 +82,12 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f3b80-001f3f60 */
 
-extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
-extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
-extern s32 func_001f0d30(u8 *arg0);
-extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
-extern s32 btlActionHasNoTargetClass(u32 arg0);
-extern s32 btlTargetGroupStateMatches(u8 *arg0);
+extern s32 btlActionAnyTargetHitRowStatus(u8 *action);
+extern s32 btlActionSameGenusTargetsHaveDelta(u8 *action);
+extern s32 btlActionAnyTargetClearsDeathStatus(u8 *action);
+extern s32 btlActionTargetsHaveDamageResult(u8 *action, s32 mode);
+extern s32 btlActionHasNoTargetClass(u32 action);
+extern s32 btlTargetGroupStateMatches(u8 *context);
 #pragma push
 #pragma pop
 /* measured: invariant mask materialisation needs opt_loop_invariants on to
@@ -112,15 +110,17 @@ extern s32 btlTargetGroupStateMatches(u8 *arg0);
 /* measured: opt_propagation off keeps the iGpffffb3b8 base load ahead of the
    index arithmetic and the 0x70 field load in a temporary before its saved copy. */
 /* measured: restore propagation for the rest of the unit. */
+/* Resolve a message id through the loaded twelve-byte relative-offset table. */
+/* The loaded message resource has a relative-offset directory; only its twelve-byte row stride and +4 offset word are established here. */
 // FUN_001F3B80
-s32 func_001f3b80(s32 arg0) {
-    s32 temp_5;
+s32 btlTargetGetMessageRecord(s32 messageId) {
+    s32 messageTable;
     s32 value;
 
-    temp_5 = *(s32 *)(*(u8 **)(iGpffffb3ac + 0xA54) + 0x110);
-    value = *(s32 *)((u8 *)addOffsetFirst((u32)((arg0 & 0xFFFF) * 0xC),
-                                          (u32)temp_5) + 4);
-    return (s32)addBaseFirst((u32)temp_5, (u32)value);
+    messageTable = *(s32 *)(((BtlSoundPlayback *)(iGpffffb3ac + 0xA44))->handle + 0x110);
+    value = *(s32 *)((u8 *)addOffsetFirst((u32)((messageId & 0xFFFF) * 0xC),
+                                          (u32)messageTable) + 4);
+    return (s32)addBaseFirst((u32)messageTable, (u32)value);
 }
 
 /* Native b210 -O2 recovery: 932 bytes plus 12 zero tail bytes.
@@ -130,11 +130,13 @@ s32 func_001f3b80(s32 arg0) {
    while the second head is reloaded after the first pass's query callbacks.
    The four unused arguments retain D_0060AB20's callback contract.
    See docs/probe_archive/BattleAction_20260922_resume.md. */
+/* Select an encounter message using enemy flags, affinity scans, and relative party level. */
+/* Raw enemy metadata retains its 0x3C stride; its flag word is known, but the complete enemy row and resource ownership are still opaque. */
 // FUN_001F3BB0
-s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+s32 btlTargetPickAffinityMessage(s32 context, s32 value, s32 option, s32 extra)
 {
-    extern s32 datCalcGetLevel(u8 *arg0);
-    extern s32 datCalcGetElementAffinity(u8 *arg0, s32 arg1);
+    extern s32 datCalcGetLevel(u8 *unit);
+    extern s32 datCalcGetElementAffinity(u8 *unit, s32 elementIndex);
     typedef struct ResistanceScanNode {
         u8 reserved000[0xA4];
         u16 id;
@@ -169,7 +171,7 @@ s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     hasSkill = datPersonaFindSkillSlot((u8 *)datPersonaGetRecord(actorId & 0xFFFF), 0x10D) != -1;
 
     averageLevel = func_001ef4d0(2, 0x80000) & 0xFFFF;
-    referenceLevel = datCalcGetLevel(*(u8 **)(*(u8 **)(*(u8 **)(iGpffffb3ac + 0x170) + 0x30) + 0xA64)) & 0xFF;
+    referenceLevel = datCalcGetLevel(*(u8 **)(*(u8 **)(((BtlBattleState *)iGpffffb3ac)->selectedAction + 0x30) + 0xA64)) & 0xFF;
     levelAdvantage = (averageLevel - referenceLevel) >= 4;
 
     firstNode = *(ResistanceScanNode **)(iGpffffb3ac + 0x180);
@@ -272,7 +274,7 @@ s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
         return 2;
     }
 
-    switch (*(u16 *)(iGpffffb3ac + 0x1A)) {
+    switch (((BtlBattleState *)iGpffffb3ac)->openingSide) {
     case 0:
         return enemyCount + 2;
     case 1:
@@ -284,12 +286,13 @@ s32 func_001f3bb0(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
     }
 }
 
+/* Offer the multi-member party message unless it was the previous message. */
 // FUN_001F3F60
-s32 func_001f3f60(void)
+s32 btlTargetPickPartyCountMessage(void)
 {
     s32 state;
 
-    state = *(s32 *)(iGpffffb3ac + 0xA58);
+    state = ((BtlSoundPlayback *)(iGpffffb3ac + 0xA44))->currentId;
     if (state == 0xFC) {
         return -1;
     }

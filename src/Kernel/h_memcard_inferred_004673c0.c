@@ -119,8 +119,8 @@ extern f32 fGpffff84f0;
 /* Same RwV3d tag and fields as the ring provider and RenderWare. */
 #include "rw_types_internal.h"
 typedef RwV3d Code46RingPoint;
-extern void primCircleLine3D(const Code46RingPoint *position, f32 radius,
-                         u8 *color, f32 *matrix, s32 setStates);
+extern void primCircleLine3D(const Code46RingPoint *center, f32 radius,
+                         u8 *inputColors, f32 *inputMatrix, s32 inputPreserveState);
 struct Data_00712508 {
     f32 field_0;
     f32 field_4;
@@ -154,15 +154,7 @@ extern f32 fGpffff81cc;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 004673c0-004673c0 */
 
-typedef struct FilerEntry {
-    char name[256];
-    s32 type;
-    s32 active;
-} FilerEntry;
-typedef struct FilerTable {
-    u8 path[256];
-    FilerEntry entries[2000];
-} FilerTable;
+#include "sdk_filer_internal.h"
 typedef struct FilerStat {
     u32 mode;
     u32 attr;
@@ -263,6 +255,8 @@ typedef struct MovieNativeWork {
  * 12 zero alignment bytes. Ghidra and IDA agree on the 2000-entry cap,
  * type/name ordering, and 264-byte record copies; both split the local
  * directory entry, whose complete 324-byte backend layout supplies the frame. */
+/* FilerTable proves the count/record offsets; the fully typed loop loses
+ * MATCH under b210, so retain the measured byte-base sort cursor. */
 void sdkFilerScanDirectory(u8 *work)
 {
     extern s32 func_00428550(u8 *path);

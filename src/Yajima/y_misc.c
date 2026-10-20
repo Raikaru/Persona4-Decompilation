@@ -2,6 +2,13 @@
 #include "type.h"
 #include "message_procedure_api.h"
 
+/* itfMesWindowGetSubTable returns an entry whose payload pointer is at +0x18.
+   The preceding entry fields are not consumed by this accessor. */
+typedef struct ItfMesWindowSubTableEntry {
+    u8 pad00[0x18];
+    void *data;
+} ItfMesWindowSubTableEntry;
+
 
 
 #pragma push
@@ -13,13 +20,13 @@ void *itfMesWindowSubTablePtr(s32 handle)
 
 {
 
-  int iVar1;
+  s32 entryAddress;
 
   
 
-  iVar1 = itfMesWindowGetSubTable(handle);
+  entryAddress = itfMesWindowGetSubTable(handle);
 
-  return *(void **)(iVar1 + 0x18);
+  return ((ItfMesWindowSubTableEntry *)entryAddress)->data;
 
 }
 

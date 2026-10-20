@@ -1,3 +1,4 @@
+#include "kwln_task_internal.h"
 /* Original translation unit k_readtex.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "sdk_task_registration.h"
@@ -5,7 +6,7 @@
 
 extern void (*jtbl_008873EC[])(void *);
 
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 D_005F60B8[];
@@ -18,23 +19,24 @@ extern u8 D_005F60F0[];
 extern u8 D_005F6110[];
 extern u8 D_005F6130[];
 extern u8 D_005F6150[];
-extern s32 K_ReadTexUpdate(u8 *arg0);
-extern void K_ReadTexDestroy(u8 *arg0);
+extern s32 K_ReadTexUpdate(u8 *task);
+extern void K_ReadTexDestroy(u8 *task);
 extern void func_003ef3a0(void *handle);
 extern s32 func_003ef6d0(void);
 extern void *func_003ef650(s32 owner, const void *name);
 extern void func_00440b68(const void *file, const void *message, s32 line);
 extern void *H_Cdvd_AcquireDirectory(const char *path, s32 flags);
-extern void H_Cdvd_Destroy(void *handle);
-extern s32 func_004667d0(s32, const void *, s32, s32, s32, s32, s32, s32, s64, s64);
-extern void func_004669d0(s32 task, s32 *result, s32 flags);
+extern void H_Cdvd_Destroy(void *cdvd);
+extern s32 filerEnqueueRequest(s32, const void *, s32, s32, s32, s32, s32, s32, s64, s64);
+extern void filerTakeCompletedRequest(s32 request, s32 *completed, s32 resultValue);
 extern s32 iGpffffa030;
 
 /* Source unit: src/promoted/k_readtex.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_readtex.c; members 001901d0-00190600 */
 
+/* Load four texture archives, wait for their consumer tasks, then release the archive handles. */
 // FUN_001901D0
-s32 K_ReadTexUpdate(u8 *arg0)
+s32 K_ReadTexUpdate(u8 *task)
 {
     typedef struct {
         s32 state;
@@ -49,7 +51,7 @@ s32 K_ReadTexUpdate(u8 *arg0)
     s32 *slot;
     s32 result;
 
-    state = *(ReadTexState **)(arg0 + 0x38);
+    state = (ReadTexState *)((KwlnTask *)task)->work;
     switch (state->state) {
     case 0:
         handle = func_003ef650(func_003ef6d0(), D_005F6040);
@@ -91,17 +93,17 @@ s32 K_ReadTexUpdate(u8 *arg0)
         if (H_Cdvd_IsFileLoaded(state->handles[3]) == 0) {
             return 0;
         }
-        state->tasks[0] = func_004667d0(0, D_005F6040, 0, 0, 0, 0, 0, 0, 0, 0);
-        state->tasks[1] = func_004667d0(0, D_005F6060, 0, 0, 0, 0, 0, 0, 0, 0);
-        state->tasks[2] = func_004667d0(0, D_005F6080, 0, 0, 0, 0, 0, 0, 0, 0);
-        state->tasks[3] = func_004667d0(0, D_005F60A0, 0, 0, 0, 0, 0, 0, 0, 0);
+        state->tasks[0] = filerEnqueueRequest(0, D_005F6040, 0, 0, 0, 0, 0, 0, 0, 0);
+        state->tasks[1] = filerEnqueueRequest(0, D_005F6060, 0, 0, 0, 0, 0, 0, 0, 0);
+        state->tasks[2] = filerEnqueueRequest(0, D_005F6080, 0, 0, 0, 0, 0, 0, 0, 0);
+        state->tasks[3] = filerEnqueueRequest(0, D_005F60A0, 0, 0, 0, 0, 0, 0, 0, 0);
         state->state += 1;
         /* fall through */
     case 2:
         for (i = 0; i < 4; i++) {
             slot = &state->tasks[i];
             if (*slot != 0) {
-                func_004669d0(*slot, &result, 0);
+                filerTakeCompletedRequest(*slot, &result, 0);
                 if (result != 0) {
                     *slot = 0;
                     continue;
@@ -120,10 +122,11 @@ s32 K_ReadTexUpdate(u8 *arg0)
 }
 
 // FUN_001905D0
-void K_ReadTexDestroy(u8 *arg0) {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+void K_ReadTexDestroy(u8 *task) {
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 
+/* Allocate the four-archive texture-loading state and create its scheduler task. */
 // FUN_00190600
 void K_ReadTexTaskCreate(void)
 {

@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "fr_font_internal.h"
+#include "shd_skill_internal.h"
 typedef struct {
     f32 x;
     f32 y;
@@ -15,19 +16,19 @@ static inline u8 *shdSkill_addOff(s32 offset, u8 *base) {
     return (u8 *)(offset + (s32)base);
 }
 
-u16 ShdSkill_GetPendingSkill(u8 *arg0);
+u16 ShdSkill_GetPendingSkill(u8 *pool);
 void kAssertFail(void *file, s32 line);
-void ShdSkill_RemovePoolEntry(u8 *arg0, s32 arg1, s32 arg2, s32 arg3);
-s32 datCalcSkillElement(u8 *arg0, u16 arg1);
+void ShdSkill_RemovePoolEntry(u8 *pool, s32 index, s32 unusedCount, s32 unusedSkill);
+s32 datCalcSkillElement(u8 *unit, u16 skillId);
 extern char D_005E4800[];
 extern char D_005E47F0[];
-u8 *func_00243840(s32 arg0);
+u8 *func_00243840(s32);
 
-void sdkSpriteDrawOnceTinted(s32 arg0, s32 arg1, s32 arg2, f32 arg3, f32 arg4, u8 arg5, u8 arg6, u8 arg7, u8 arg8, f32 arg9, s32 arg10);
+void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y, u8 alphaSubtract, u8 red, u8 green, u8 blue, f32 z, s32 setStates);
 extern char D_005E5830[];
 extern char D_005E5850[];
-void itfMesWindowDrawDefaultEntry(f32 arg0, f32 arg1, f32 arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6);
-u8 *resourceFindByName(char *file);
+void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth, s32 color, s32 font, s32 mode, s32 item);
+u8 *resourceFindByName(char *name);
 void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode);
 void ShdSkill_DrawIcon(Vec2f position, f32 scale, Color4 color, u16 skill, s32 texture);
 
@@ -40,7 +41,7 @@ void ShdSkill_DrawIcon(Vec2f position, f32 scale, Color4 color, u16 skill, s32 t
 #pragma opt_scalarize off
 void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode)
 {
-    typedef struct { f32 x, y, z; } PayloadVector;
+    typedef ShdSkillVector PayloadVector;
     typedef union {
         PayloadVector vector;
         struct { u16 tag, id; u32 first, second; } fields;
@@ -192,27 +193,27 @@ void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descript
    the a2/a3/t0/t1 setup (retail emits it right after the lb $a1). Everything
    else byte-identical (243840 nested call, cvt pairs into f12/f13, the
    x*255/255U divu + |~0xFF chain, lh->sll->D_005E47F0 byte index). Probed
-   this wave: z/sp48 assignment orders, arg1/arg2 locals, lo/hi locals -- all
+   this wave: z/depthSnapshot assignment orders, arg1/arg2 locals, lo/hi locals -- all
    nd 5/11. prologue/FP-arg save-order floor. */
 /* measured: MATCH, object 184/192. The cluster's float-first interleaving and callee-first local evaluation reproduce the retail body; the remaining 8 bytes are zero tail padding accepted by the verifier. */
 // FUN_00113E30
-void ShdSkill_DrawEntryName(Vec2f arg0, f32 fparg0, u8 arg1, void *arg2, s32 arg3) {
-    f32 farg;
+void ShdSkill_DrawEntryName(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 unusedMode) {
+    f32 depth;
     s32 color;
     s32 index;
-    void *temp;
+    void *text;
 
-    farg = fparg0;
-    temp = func_00243840(*(u16 *)((u8 *)arg2 + 0xA));
-    color = (((arg1 & 0xFF) * 0xFF) / 255U) | ~0xFF;
-    index = *((s8 *)((s32)&D_005E47F0 + (*(s16 *)((u8 *)arg2 + 2) * 2)));
-    frFontExDrawTextWithCharWidth((f32)(s32)arg0.x,
-                  (f32)(s32)arg0.y,
-                  farg,
+    depth = scale;
+    text = func_00243840(((ShdSkillDescriptor *)descriptor)->data.fields.id);
+    color = (((alpha & 0xFF) * 0xFF) / 255U) | ~0xFF;
+    index = *((s8 *)((s32)&D_005E47F0 + (((ShdSkillDescriptor *)descriptor)->style * 2)));
+    frFontExDrawTextWithCharWidth((f32)(s32)position.x,
+                  (f32)(s32)position.y,
+                  depth,
                   color,
                   index,
                   1,
-                  temp,
+                  text,
                   8,
                   -1);
 }
@@ -220,13 +221,14 @@ void ShdSkill_DrawEntryName(Vec2f arg0, f32 fparg0, u8 arg1, void *arg2, s32 arg
 /* 1384/1392 bytes, 20 resolved relocations; eight zero tail bytes.
    The caller draws entries 0..7. Preserve byte promotion, coordinate-field
    updates, and the plain-char font lookup with scalar propagation disabled. */
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_00113EF0
 #pragma push
 #pragma opt_propagation off
 #pragma opt_scalarize off
 void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry, f32 fade)
 {
-    typedef struct { f32 x, y, z; } PayloadVector;
+    typedef ShdSkillVector PayloadVector;
     typedef union {
         PayloadVector vector;
         struct { u16 tag, id; u32 first, second; } fields;
@@ -254,7 +256,7 @@ void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry,
     if (texture == 0) {
         kAssertFail(D_005E4800, 0x1E4);
     }
-    if (*(s8 *)(state + 4) == selected) {
+    if (((ShdSkillState *)state)->cursor == selected) {
         red = 45;
         green = 45;
         blue = 45;
@@ -264,7 +266,7 @@ void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry,
         green = (u8)(255.0f * (1.0f - fade) + 45.0f * fade);
         blue = (u8)(129.0f * (1.0f - fade) + 45.0f * fade);
         style = 3;
-    } else if (*(s8 *)(state + 0x6A) & (1U << selected)) {
+    } else if (((ShdSkillState *)state)->pool.markedSlots & (1U << selected)) {
         red = 192;
         green = 0;
         blue = 0;
@@ -291,7 +293,7 @@ void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry,
                   red, green, blue, scale, 0);
     sdkSpriteDrawOnceTinted(0, (s32)texture, 91, 192.0f + position.x, drawY, inverseAlpha,
                   red, green, blue, scale, 0);
-    if ((s32)index < *(u16 *)(state + 0x68)) {
+    if ((s32)index < ((ShdSkillState *)state)->pool.activeCount) {
         position.x += 96.0f;
         position.y -= 2.0f;
         switch (descriptor.kind) {
@@ -323,13 +325,14 @@ void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry,
    2116/2128 bytes, 37 resolved relocations and 12 zero alignment bytes.
    Compound u16 narrowing and the local declaration order preserve the
    digit/label lifetimes across sprite submissions. */
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_00114460
 #pragma push
 #pragma opt_propagation off
 #pragma opt_scalarize off
 void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fade)
 {
-    typedef struct { f32 x, y, z; } PayloadVector;
+    typedef ShdSkillVector PayloadVector;
     typedef union {
         PayloadVector vector;
         struct { u16 tag, id; u32 first, second; } fields;
@@ -370,8 +373,8 @@ void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fa
     if (helpTexture == 0) {
         kAssertFail(D_005E4800, 0x249);
     }
-    if (*(u16 *)(state + 0x22C) != 0) {
-        if (*(s8 *)(state + 4) == 8) {
+    if (((ShdSkillState *)state)->pool.pendingCount != 0) {
+        if (((ShdSkillState *)state)->cursor == 8) {
             red = 45;
             green = 45;
             blue = 45;
@@ -402,7 +405,7 @@ void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fa
                       255, 255, 129, scale, 0);
         sdkSpriteDrawOnceTinted(0, (s32)helpTexture, 42, 76.0f + position.x, 4.0f + position.y, inverseAlpha,
                       255, 255, 129, scale, 0);
-        number = *(u16 *)(state + 0x1EC);
+        number = ((ShdSkillState *)state)->pool.values[0];
         if ((s32)number < 10) {
             position.x = (f32)538 + base.x;
         } else {
@@ -432,7 +435,7 @@ void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fa
             if (index == 0) {
                 position.x = nameX;
                 position.y = nameY;
-                descriptor.data.vector = *(PayloadVector *)(state + index * 12 + 0x6C);
+                descriptor.data.vector = ((ShdSkillState *)state)->pool.pending[index].vector;
                 descriptor.kind = 2;
                 descriptor.style = style;
                 switch (descriptor.kind) {
@@ -470,15 +473,16 @@ void ShdSkill_DrawDetailFrame(Vec2f base, f32 scale, u8 alpha, u8 *state, f32 fa
 }
 #pragma pop
 
+/* Map the skill element to its icon; invalid skills use the fallback icon. */
 // FUN_00114CB0
-s32 ShdSkill_GetIconId(u16 arg0) {
-    s16 temp_2;
+s32 ShdSkill_GetIconId(u16 skill) {
+    s16 element;
 
-    if ((arg0 & 0xFFFF) >= 0x1B8) {
+    if ((skill & 0xFFFF) >= 0x1B8) {
         return 0xC2;
     }
-    temp_2 = (s16)datCalcSkillElement(0, arg0);
-    switch (temp_2) {
+    element = (s16)datCalcSkillElement(0, skill);
+    switch (element) {
     case 0:
         return 0xB8;
     case 1:
@@ -521,78 +525,80 @@ s32 ShdSkill_GetIconId(u16 arg0) {
    spills in assignment order]` with the $s0 move FIRST, whatever the source
    ordering (re-measured this wave: 7 spellings incl. all decl/assign orders,
    decl-initialised, lo/hi/z locals, inline derefs -> best nd 3 = assignment
-   `sp3C=arg1` before `sp30=arg0` which fixes the spill order to [a1,a0] but
+   `colorSnapshot=arg1` before `positionSnapshot=arg0` which fixes the spill order to [a1,a0] but
    leaves the $s0 move first vs retail last; every other spelling nd 4).
    Everything after the prologue matches byte-for-byte (14cb0 call, blez,
    alpha chain, 11-arg d4c0 setup with a3=alpha, f12/f13=arg0 halves,
    t0-t2=arg1 bytes, f14=fparg0, t3=0). prologue-save scheduling floor. */
+/* Draw the skill element icon when its lookup returns a positive sprite ID. */
 // FUN_00114DC0
-void ShdSkill_DrawIcon(Vec2f arg0, f32 fparg0, Color4 arg1, u16 arg2, s32 arg3) {
-    s32 temp;
+void ShdSkill_DrawIcon(Vec2f position, f32 scale, Color4 color, u16 skill, s32 texture) {
+    s32 icon;
 
-    temp = ShdSkill_GetIconId(arg2);
-    if (temp > 0) {
+    icon = ShdSkill_GetIconId(skill);
+    if (icon > 0) {
         sdkSpriteDrawOnceTinted(0,
-                      arg3,
-                      temp,
-                      arg0.x,
-                      arg0.y,
-                      (0xFF - arg1.b3) & 0xFF,
-                      arg1.b0,
-                      arg1.b1,
-                      arg1.b2,
-                      fparg0,
+                      texture,
+                      icon,
+                      position.x,
+                      position.y,
+                      (0xFF - color.b3) & 0xFF,
+                      color.b0,
+                      color.b1,
+                      color.b2,
+                      scale,
                       0);
     }
 }
 /* measured: best nd 38 (this wave, down from recorded 73) with an `s32 alpha
-   local` = temp_16 & 0xFF passed as the d4c0 arg4 (a3) -- without it the
+   local` = inverseAlpha & 0xFF passed as the d4c0 arg4 (a3) -- without it the
    masks are deleted and the arg setup reorders. Residual is five independent
    families: (1) prologue save rotation (4w: retail `sd $a0; mov.s $f21; move
    $s0; move $s3`, mwcc `move $s0; move $s3; mov.s $f21; sd $a0` -- same
    floor as ShdSkill_DrawIcon); (2) retail computes each call's f32 args before
    the alpha chain, mwcc emits the alpha chain first (8w, argument-evaluation
    order; x/y-locals spellings hoist all FP work before call 1, worse);
-   (3) retail coalesces temp_16 into arg1's $s0 with `andi $a3,$s0,0xff` at
-   ALL three calls, mwcc keeps temp_17 in $s0 / temp_16 in $s1 and deletes
+   (3) retail coalesces inverseAlpha into arg1's $s0 with `andi $a3,$s0,0xff` at
+   ALL three calls, mwcc keeps opacity in $s0 / inverseAlpha in $s1 and deletes
    every mask (move $a3,$s1); (4) 2bc860 block: retail does both adds first
    ($f2 then $f1) then both cvt pairs, mwcc interleaves add/cvt and picks
    $f0; (5) mov.s $f14 before addiu $a1/$a2 vs retail after the or $a0.
    Prologue + 0x68 slot, hi hoisted to $f20, 46a770/trap/d4c0 setups and the
    beqz chain otherwise byte-identical. Tried: m2c-faithful (107), hi local
-   (76), x/y locals (76), alpha local (38), temp_16-first, decl swaps,
+   (76), x/y locals (76), alpha local (38), inverseAlpha-first, decl swaps,
    u8 alpha (79). arg-eval-order + reg-coalescing + FP-scheduling floor. */
+/* Draw the selection borders and optional message for the selected skill. */
 // FUN_00114E50
-void ShdSkill_DrawSelectionFrame(Vec2f arg0, f32 fparg0, u8 arg1, u16 arg2) {
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_2;
+void ShdSkill_DrawSelectionFrame(Vec2f position, f32 scale, u8 alpha, u16 messageId) {
+    s32 inverseAlpha;
+    s32 opacity;
+    s32 texture;
     f32 x;
     f32 y;
-    s32 temp_7;
+    s32 message;
 
-    temp_2 = (s32)resourceFindByName(D_005E5850);
-    if (temp_2 == 0) {
+    texture = (s32)resourceFindByName(D_005E5850);
+    if (texture == 0) {
         kAssertFail(D_005E4800, 0x353);
     }
-    x = 1.0f + arg0.x;
-    y = arg0.y - 1.0f;
-    temp_17 = arg1;
-    temp_16 = 0xFF - temp_17;
-    sdkSpriteDrawOnceTinted(0, temp_2, 0x61, x, y, temp_16 & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
-    x = 393.0f + arg0.x;
-    y = arg0.y - 1.0f;
-    temp_16 = 0xFF - temp_17;
-    sdkSpriteDrawOnceTinted(0, temp_2, 0x60, x, y, temp_16 & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
-    x = arg0.x - 1.0f;
-    y = arg0.y;
-    temp_16 = 0xFF - temp_17;
-    sdkSpriteDrawOnceTinted(0, temp_2, 0x17, x, y, temp_16 & 0xFF, 0xFF, 0xA0, 0x0B, fparg0, 0);
-    temp_7 = arg2;
-    if (temp_7 != 0) {
-        x = 62.0f + arg0.x;
-        y = 22.0f + arg0.y;
-        itfMesWindowDrawDefaultEntry((f32)(s32)x, (f32)(s32)y, fparg0, temp_17 | ~0xFF, 1, 8, temp_7);
+    x = 1.0f + position.x;
+    y = position.y - 1.0f;
+    opacity = alpha;
+    inverseAlpha = 0xFF - opacity;
+    sdkSpriteDrawOnceTinted(0, texture, 0x61, x, y, inverseAlpha & 0xFF, 0x2D, 0x2D, 0x2D, scale, 0);
+    x = 393.0f + position.x;
+    y = position.y - 1.0f;
+    inverseAlpha = 0xFF - opacity;
+    sdkSpriteDrawOnceTinted(0, texture, 0x60, x, y, inverseAlpha & 0xFF, 0x2D, 0x2D, 0x2D, scale, 0);
+    x = position.x - 1.0f;
+    y = position.y;
+    inverseAlpha = 0xFF - opacity;
+    sdkSpriteDrawOnceTinted(0, texture, 0x17, x, y, inverseAlpha & 0xFF, 0xFF, 0xA0, 0x0B, scale, 0);
+    message = messageId;
+    if (message != 0) {
+        x = 62.0f + position.x;
+        y = 22.0f + position.y;
+        itfMesWindowDrawDefaultEntry((f32)(s32)x, (f32)(s32)y, scale, opacity | ~0xFF, 1, 8, message);
     }
 }
 
@@ -600,6 +606,8 @@ void ShdSkill_DrawSelectionFrame(Vec2f arg0, f32 fparg0, u8 arg1, u16 arg2) {
    Native signed remainder preserves negative byte-index behavior.
    The fallback-first ternary keeps active/previous in the retail registers
    without adding a caller argument or a conditional trampoline. */
+/* Move between two four-row columns and the optional pending-skill slot. */
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_00115020
 s32 ShdSkill_MoveCursor(u8 *state, s32 force) {
     extern u16 D_008C027A[];
@@ -610,10 +618,10 @@ s32 ShdSkill_MoveCursor(u8 *state, s32 force) {
     u16 count;
     s32 column;
 
-    current = *(s8 *)(state + 4);
+    current = ((ShdSkillState *)state)->cursor;
     next = current;
-    previous = *(s8 *)(state + 5);
-    count = *(u16 *)(state + 0x22C);
+    previous = ((ShdSkillState *)state)->previousCursor;
+    count = ((ShdSkillState *)state)->pool.pendingCount;
     active = force != 0;
     active = active == 0 ? (count > 0) : active;
     if (D_008C027A[0] & 0x1000) {
@@ -663,48 +671,50 @@ s32 ShdSkill_MoveCursor(u8 *state, s32 force) {
     return 0;
 }
 
+/* Return the selected active or first pending skill; empty active slots return zero. */
 // FUN_001152B0
-u16 ShdSkill_GetSlotSkillId(u8 *arg0) {
-    s8 temp_17;
-    s32 p;
-    u16 r;
+u16 ShdSkill_GetSlotSkillId(u8 *state) {
+    s8 cursor;
+    s32 byteOffset;
+    u16 skill;
 
-    temp_17 = *(s8 *)(arg0 + 4);
-    if ((temp_17 < 0) || (temp_17 > 8)) {
+    cursor = ((ShdSkillState *)state)->cursor;
+    if ((cursor < 0) || (cursor > 8)) {
         kAssertFail(D_005E4800, 0x447);
     }
-    if (temp_17 < 8) {
-        if (temp_17 < (s32) *(u16 *)(arg0 + 0x68)) {
-            p = temp_17 * 12;
-            r = *(u16 *)(p + (s32)arg0 + 0xA);
+    if (cursor < 8) {
+        if (cursor < (s32) ((ShdSkillState *)state)->pool.activeCount) {
+            byteOffset = cursor * 12;
+            skill = ((ShdSkillEntry *)(byteOffset + (s32)state + 8))->fields.id;
         } else {
-            r = 0;
+            skill = 0;
         }
     } else {
-        if ((temp_17 - 8) >= (s32) *(u16 *)(arg0 + 0x22C)) {
+        if ((cursor - 8) >= (s32) ((ShdSkillState *)state)->pool.pendingCount) {
             kAssertFail(D_005E4800, 0x453);
         }
-        r = *(u16 *)(arg0 + 0x6E);
+        skill = ((ShdSkillState *)state)->pool.pending[0].fields.id;
     }
-    return r;
+    return skill;
 }
 
 
+/* Find an active skill, or return slot 8 for the first pending skill. */
 // FUN_00115380
-s16 ShdSkill_FindSlot(u8 *arg0, s32 arg1) {
+s16 ShdSkill_FindSlot(u8 *pool, s32 skill) {
     s16 i;
     s32 target;
     s32 count;
 
     i = 0;
-    target = arg1 & 0xFFFF;
-    count = *(u16 *)(arg0 + 0x60);
+    target = skill & 0xFFFF;
+    count = ((ShdSkillPool *)pool)->activeCount;
     for (; i < count; i++) {
-        if (target == *(u16 *)(arg0 + i * 12 + 2)) {
+        if (target == ((ShdSkillPool *)pool)->active[i].fields.id) {
             return i;
         }
     }
-    if (target == (ShdSkill_GetPendingSkill(arg0) & 0xFFFF)) {
+    if (target == (ShdSkill_GetPendingSkill(pool) & 0xFFFF)) {
         return 8;
     }
     return -1;
@@ -721,28 +731,30 @@ s16 ShdSkill_FindSlot(u8 *arg0, s32 arg1) {
    whole function is otherwise byte-identical. nd 23, all in this rotation
    plus the extra dsll32/dsra32 re-extension the call path needs; temp-register
    rotation floor. */
+/* Append a skill to the eight active rows and remove its pending-pool entry. */
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_00115420
-void ShdSkill_AddActiveSkill(u16 arg0, u8 *arg1) {
+void ShdSkill_AddActiveSkill(u16 skill, u8 *pool) {
     s32 target;
     s32 value;
     s32 i;
     s32 bound;
     u16 count;
 
-    if (*(u16 *)(arg1 + 0x60) >= 8) {
+    if (((ShdSkillPool *)pool)->activeCount >= 8) {
         kAssertFail(D_005E4800, 0x472);
     }
-    count = *(u16 *)(arg1 + 0x60);
-    *(u16 *)(arg1 + 0x60) = count + 1;
-    *(s16 *)((u8 *)shdSkill_addOff(count * 12, arg1) + 2) = (s16)arg0;
+    count = *(u16 *)(pool + 0x60);
+    *(u16 *)(pool + 0x60) = count + 1;
+    ((ShdSkillEntry *)shdSkill_addOff(count * 12, pool))->fields.id = (s16)skill;
     i = 0;
-    target = arg0 & 0xFFFF;
-    bound = *(u16 *)(arg1 + 0x224);
+    target = skill & 0xFFFF;
+    bound = ((ShdSkillPool *)pool)->pendingCount;
     goto loop_test;
 loop_body:
-    value = *(u16 *)(arg1 + (s16)i * 12 + 0x66);
+    value = ((ShdSkillPool *)pool)->pending[(s16)i].fields.id;
     if (value == target) {
-        ShdSkill_RemovePoolEntry(arg1, i, bound, target);
+        ShdSkill_RemovePoolEntry(pool, i, bound, target);
         return;
     }
     i = (s16)(i + 1);
@@ -758,8 +770,10 @@ loop_test:
    through $a0 exactly as retail. The file-scope s32 prototype and helper
    definition remain unchanged so neighboring ShdSkill_AddActiveSkill and
    ShdSkill_RemovePoolEntry stay MATCH. */
+/* Replace the matching active skill and remove the replacement from the pending pool. */
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_00115500
-void ShdSkill_ReplaceActiveSkill(u16 arg0, u16 arg1, u8 *arg2) {
+void ShdSkill_ReplaceActiveSkill(u16 oldSkill, u16 newSkill, u8 *pool) {
     extern void ShdSkill_RemovePoolEntry(u8 *, s16, s32, s32);
     s32 target;
     s16 i;
@@ -767,11 +781,11 @@ void ShdSkill_ReplaceActiveSkill(u16 arg0, u16 arg1, u8 *arg2) {
     s32 value;
     s32 bound;
     i = 0;
-    target = arg0 & 0xFFFF;
-    bound = *(u16 *)(arg2 + 0x60);
+    target = oldSkill & 0xFFFF;
+    bound = ((ShdSkillPool *)pool)->activeCount;
     goto first_test;
 first_body:
-    if (target == *(u16 *)(arg2 + i * 12 + 2)) {
+    if (target == ((ShdSkillPool *)pool)->active[i].fields.id) {
         index = i;
         goto index_done;
     }
@@ -780,28 +794,28 @@ first_test:
     if (i < bound) {
         goto first_body;
     }
-    if (target == (ShdSkill_GetPendingSkill(arg2) & 0xFFFF)) {
+    if (target == (ShdSkill_GetPendingSkill(pool) & 0xFFFF)) {
         index = 8;
     } else {
         index = -1;
     }
 index_done:
-    if ((index == -1) || (index >= (s32)*(u16 *)(arg2 + 0x60))) {
+    if ((index == -1) || (index >= (s32)*(u16 *)(pool + 0x60))) {
         kAssertFail(D_005E4800, 0x4A1);
     }
-    *(u16 *)(shdSkill_addOff(index * 12, arg2) + 2) = arg1;
+    ((ShdSkillEntry *)shdSkill_addOff(index * 12, pool))->fields.id = newSkill;
     {
         s16 j;
         j = 0;
-        target = arg1 & 0xFFFF;
-        bound = *(u16 *)(arg2 + 0x224);
+        target = newSkill & 0xFFFF;
+        bound = ((ShdSkillPool *)pool)->pendingCount;
         goto second_test;
 second_body:
-        value = *(u16 *)(arg2 + j * 12 + 0x66);
+        value = ((ShdSkillPool *)pool)->pending[j].fields.id;
         if (value != target) {
             goto second_continue;
         }
-        ShdSkill_RemovePoolEntry(arg2, j, bound, target);
+        ShdSkill_RemovePoolEntry(pool, j, bound, target);
         return;
 second_continue:
         j++;
@@ -812,45 +826,51 @@ second_test:
     }
 }
 
+/* Discard the first pending row and compact the parallel row/value arrays. */
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* Tail clearing also uses end-relative integer cursors for the last row and parallel value. */
 // FUN_00115760
-void ShdSkill_PopPoolEntry(u8 *arg0) {
-    typedef struct {
-        f32 v[3];
-    } S3f;
-    s32 i;
-    s32 off;
-    s32 p;
+void ShdSkill_PopPoolEntry(u8 *pool) {
+    typedef ShdSkillVector S3f;
 
-    if (*(u16 *)(arg0 + 0x224) <= 0) {
+
+    s32 i;
+    s32 offset;
+    s32 address;
+
+    if (((ShdSkillPool *)pool)->pendingCount <= 0) {
         kAssertFail(D_005E4800, 0x4B7);
     }
-    for (i = 0; i < *(u16 *)(arg0 + 0x224) - 1; i++) {
-        *(S3f *)(arg0 + i * 12 + 0x64) = *(S3f *)(arg0 + i * 12 + 0x70);
-        *(u16 *)(arg0 + i * 2 + 0x1E4) = *(u16 *)(arg0 + i * 2 + 0x1E6);
+    for (i = 0; i < *(u16 *)(pool + 0x224) - 1; i++) {
+        ((ShdSkillPool *)pool)->pending[i].vector = ((ShdSkillPool *)pool)->pending[i + 1].vector;
+        ((ShdSkillPool *)pool)->values[i] = ((ShdSkillPool *)pool)->values[i + 1];
     }
-    off = *(u16 *)(arg0 + 0x224) * 12;
-    p = off + (s32)arg0;
-    *(u16 *)(p + 0x5A) = 0;
-    off = *(u16 *)(arg0 + 0x224) * 2;
-    p = off + (s32)arg0;
-    *(u16 *)(p + 0x1E2) = 0;
-    *(u16 *)(arg0 + 0x224) -= 1;
+    offset = *(u16 *)(pool + 0x224) * 12;
+    address = offset + (s32)pool;
+    ((ShdSkillEntry *)(address + 0x58))->fields.id = 0;
+    offset = *(u16 *)(pool + 0x224) * 2;
+    address = offset + (s32)pool;
+    *(u16 *)(address + 0x1E2) = 0;
+    *(u16 *)(pool + 0x224) -= 1;
 }
 
 /* measured: live MATCH, object 220B/window 224B, normalized_diff 0. Corrected kAssertFail to (void *, s32). The trampoline form initializes a named input local before the guard and assigns the loop counter after the guard; this makes retail's entry branch target the loop pre-jump instead of b210 threading directly to loop_test. */
+/* Remove a pending row at index and compact the row and parallel halfword arrays. */
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
+/* Tail clearing also uses end-relative integer cursors for the last row and parallel value. */
 // FUN_00115670
-void ShdSkill_RemovePoolEntry(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
-    typedef struct {
-        f32 v[3];
-    } S3f;
+void ShdSkill_RemovePoolEntry(u8 *pool, s32 index, s32 unusedCount, s32 unusedSkill) {
+    typedef ShdSkillVector S3f;
+
+
     s32 i;
     s32 input;
     u16 count;
-    u8 *p;
-    u8 *q;
+    u8 *entryCursor;
+    u8 *valueCursor;
 
-    input = (s64)(s16)arg1;
-    if (input < (s32)*(u16 *)(arg0 + 0x224)) {
+    input = (s64)(s16)index;
+    if (input < (s32)((ShdSkillPool *)pool)->pendingCount) {
         goto loop_entry_15670;
     }
     kAssertFail(D_005E4800, 0x4B7);
@@ -858,25 +878,25 @@ loop_entry_15670:
     i = input;
     goto loop_test_15670;
 loop_body_15670:
-    p = (u8 *)(arg0 + i * 12);
-    *(S3f *)(p + 0x64) = *(S3f *)(p + 0x70);
-    q = (u8 *)(arg0 + i * 2);
-    *(u16 *)(q + 0x1E4) = *(u16 *)(q + 0x1E6);
+    entryCursor = (u8 *)(pool + i * 12);
+    ((ShdSkillPool *)entryCursor)->pending[0].vector = ((ShdSkillPool *)entryCursor)->pending[1].vector;
+    valueCursor = (u8 *)(pool + i * 2);
+    ((ShdSkillPool *)valueCursor)->values[0] = ((ShdSkillPool *)valueCursor)->values[1];
     i += 1;
 loop_test_15670:
-    count = *(u16 *)(arg0 + 0x224);
+    count = *(u16 *)(pool + 0x224);
     if (i < (s32)(count - 1)) {
         goto loop_body_15670;
     }
-    p = shdSkill_addOff(count * 12, arg0);
-    *(u16 *)(p + 0x5A) = 0;
-    p = shdSkill_addOff(*(u16 *)(arg0 + 0x224) * 2, arg0);
-    *(u16 *)(p + 0x1E2) = 0;
-    *(u16 *)(arg0 + 0x224) = *(u16 *)(arg0 + 0x224) - 1;
+    entryCursor = shdSkill_addOff(count * 12, pool);
+    ((ShdSkillEntry *)(entryCursor + 0x58))->fields.id = 0;
+    entryCursor = shdSkill_addOff(*(u16 *)(pool + 0x224) * 2, pool);
+    *(u16 *)(entryCursor + 0x1E2) = 0;
+    ((ShdSkillPool *)pool)->pendingCount = ((ShdSkillPool *)pool)->pendingCount - 1;
 }
 
 // FUN_00115750
-u16 ShdSkill_GetPendingSkill(u8 *arg0) {
-    return *(u16 *)(arg0 + 0x66);
+u16 ShdSkill_GetPendingSkill(u8 *pool) {
+    return ((ShdSkillPool *)pool)->pending[0].fields.id;
 }
 

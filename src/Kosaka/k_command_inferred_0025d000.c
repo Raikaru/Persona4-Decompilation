@@ -18,7 +18,7 @@ extern char D_00635C20[];
 extern char D_00635C40[];
 extern char D_00635C60[];
 extern u32 datGetMoney(void);
-extern void datSetMoney(s32 arg0);
+extern void datSetMoney(s32 amount);
 extern s32 iGpffffb480;
 
 
@@ -28,10 +28,10 @@ extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
 extern f32 fGpffff8200;
-extern void PrimDrawPoints(void *arg0, void *arg1, f32 farg0,
-                           s32 arg2, s32 arg3, s32 arg4);
-extern void PrimDrawRadialTriangle(s32 arg0, s32 arg1, void *arg2, s32 arg3,
-                           f32 farg0, f32 farg1, s32 arg4);
+extern void PrimDrawPoints(void *colors, void *positions, f32 depth,
+                           s32 count, s32 primitiveType, s32 preserveState);
+extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 radius,
+                           f32 angle, f32 depth, s32 preserveState);
 
 
 
@@ -49,20 +49,20 @@ static inline u32 p4_0025_span(f32 range, f32 unit)
 // Intent: Common script command ADD_PC_MONEY (p4flow Common 0x0050): adds money, clamped to 9,999,999 and at least zero [inferred]
 // FUN_0025D000
 s32 scrCommonAddPcMoney(void) {
-    s32 temp_16;
-    s32 var_4;
-    temp_16 = datGetMoney();
+    s32 currentMoney;
+    s32 newMoney;
+    currentMoney = datGetMoney();
 
-    var_4 = temp_16 + scrGetParamInt(0);
-    if (var_4 <= 0x0098967F) {
+    newMoney = currentMoney + scrGetParamInt(0);
+    if (newMoney <= 0x0098967F) {
         goto block_1;
     }
-    var_4 = 0x0098967FU;
+    newMoney = 0x0098967FU;
 block_1:
-    if (var_4 < 0) {
-        var_4 = 0;
+    if (newMoney < 0) {
+        newMoney = 0;
     }
-    datSetMoney(var_4);
+    datSetMoney(newMoney);
     scrSetReturnInt(datGetMoney());
     return 1;
 }
@@ -71,7 +71,7 @@ block_1:
 // FUN_0025D090
 s32 scrCommonCallNameEntry(void) {
     if (scrGetCmdTimer() == 0) {
-        func_001029a0(0x1C, 0, 0, 0);
+        sequenceRequest(0x1C, 0, 0, 0);
         goto block_4;
     }
     if (timeLimitTaskExists() == 0) {

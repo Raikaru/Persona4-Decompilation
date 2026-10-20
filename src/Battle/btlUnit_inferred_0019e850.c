@@ -10,6 +10,7 @@
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
 #include "rw_types_internal.h"
+#include "btl_unit_look_internal.h"
 typedef RwV3d P4_95730_Vec3;
 typedef struct P4_95730_Vec4 {
     f32 x;
@@ -28,17 +29,17 @@ typedef struct DatUnit DatUnit;
 extern f32 fGpffff8474;
 extern u8 D_005F6CA0[];
 extern f32 D_005F6C10[];
-extern u8 *iGpffffb3ac;
-extern u8 *iGpffffb3b8;
-extern u8 *iGpffffb3c0;
-extern u8 *iGpffffb3cc;
+extern u8 *iGpffffb3ac; /* active battle context */
+extern u8 *iGpffffb3b8; /* skill table, DatSkillEntry rows */
+extern u8 *iGpffffb3c0; /* party visual records, stride 0x14C */
+extern u8 *iGpffffb3cc; /* enemy visual records, stride 0xE8 */
 
 
 extern u8 *iGpffff9db0;
-extern u8 *D_0076449C;
-extern u8 *iGpffffb3ac;
+extern u8 *D_0076449C; /* active battle context */
+extern u8 *iGpffffb3ac; /* active battle context */
 extern u8 *iGpffffb414;
-extern u8 *iGpffffb3e0;
+extern u8 *iGpffffb3e0; /* child visual records, stride 0x58 */
 extern s32 iGpffffb430;
 extern s32 iGpffffb434;
 extern s32 iGpffffb438;
@@ -131,12 +132,12 @@ static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
     scrStartProcedureChecked(arg0, arg1, arg2, arg3);
 }
 extern u8 iGpffffa4d8;
-extern int mdlHasActiveMode(void *arg0);
-extern void mdlSetLookAtActive(void *arg0);
-extern void mdlSetLookAtRequested(void *arg0);
+extern int mdlHasActiveMode(void *model);
+extern void mdlSetLookAtActive(void *model);
+extern void mdlSetLookAtRequested(void *model);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
-extern void mdlLookAtSetupSetRange(void *arg0, float arg1, float arg2);
+extern void mdlLookAtSetupSetRange(void *model, float pitchLimit, float yawLimit);
 extern f32 DAT_0076112c;
 
 
@@ -144,14 +145,14 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
 {
     btlUnitInitChild(arg0, arg1);
 }
-extern s32 btlUnitLookAtSidePacketUpdate(u8 *arg0);
+extern s32 btlUnitLookAtSidePacketUpdate(u8 *work);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
@@ -195,46 +196,51 @@ extern u8 D_00794150[];
 #pragma push
 /* measured: restore pragma state after func_0019df20. */
 #pragma pop
+/* Refresh active look controllers for the requested side(s), or one unit. */
 // FUN_0019E850
-s32 btlUnitLookAtSidePacketUpdate(u8 *arg0)
+s32 btlUnitLookAtSidePacketUpdate(u8 *work)
 {
-    u16 temp_3;
-    u8 *temp_16;
-    u8 *var_16;
-    u8 *var_16_2;
+    u16 sideFlags;
+    u8 *unit;
+    u8 *partyUnit;
+    u8 *enemyUnit;
 
-    temp_3 = *(u16 *)(arg0 + 4);
-    if (temp_3 & 3) {
-        if (temp_3 & 1) {
-            var_16 = *(u8 **)(D_0076449C + 0x17C);
-            while (var_16 != NULL) {
-                if (((*(s32 *)(var_16 + 0x9C) & 8) != 0) &&
-                    ((*(s32 *)(var_16 + 0x98) & 2) != 0) &&
-                    (mdlHasActiveMode(*(u8 **)(var_16 + 0xA00)) != 0)) {
-                    mdlSetLookAtActive(*(u8 **)(var_16 + 0xA00));
-                    mdlSetLookAtRequested(*(u8 **)(var_16 + 0xA00));
+    sideFlags = ((BtlUnitLookSideWork *)work)->flags;
+    if (sideFlags & 3) {
+        if (sideFlags & 1) {
+            partyUnit = ((BtlBattleState *)D_0076449C)->unitLists[1];
+            while (partyUnit != NULL) {
+                if (((((BtlUnit *)partyUnit)->flags3 & 8) != 0) &&
+                    ((((BtlUnit *)partyUnit)->flags2 & 2) != 0) &&
+                    (mdlHasActiveMode(((BtlUnit *)partyUnit)->layerHandle) != 0)) {
+                    /* measured: repeated typed layer loads hoist +0xA00; preserve the post-call reloads. */
+                    mdlSetLookAtActive(*(u8 **)(partyUnit + 0xA00));
+                    mdlSetLookAtRequested(*(u8 **)(partyUnit + 0xA00));
                 }
-                var_16 = *(u8 **)(var_16 + 0xA68);
+                partyUnit = (u8 *)((BtlUnit *)partyUnit)->prevUnit;
             }
         }
-        if ((*(u16 *)(arg0 + 4) & 2) != 0) {
-            var_16_2 = *(u8 **)(D_0076449C + 0x184);
-            while (var_16_2 != NULL) {
-                if (((*(s32 *)(var_16_2 + 0x9C) & 8) != 0) &&
-                    ((*(s32 *)(var_16_2 + 0x98) & 2) != 0) &&
-                    (mdlHasActiveMode(*(u8 **)(var_16_2 + 0xA00)) != 0)) {
-                    mdlSetLookAtActive(*(u8 **)(var_16_2 + 0xA00));
-                    mdlSetLookAtRequested(*(u8 **)(var_16_2 + 0xA00));
+        /* measured: a typed flags reload keeps work+4 in s0, exchanging the party traversal registers. */
+        if ((*(u16 *)(work + 4) & 2) != 0) {
+            enemyUnit = ((BtlBattleState *)D_0076449C)->unitLists[3];
+            while (enemyUnit != NULL) {
+                if (((((BtlUnit *)enemyUnit)->flags3 & 8) != 0) &&
+                    ((((BtlUnit *)enemyUnit)->flags2 & 2) != 0) &&
+                    (mdlHasActiveMode(((BtlUnit *)enemyUnit)->layerHandle) != 0)) {
+                    /* Same post-call model reload constraint as the party branch. */
+                    mdlSetLookAtActive(*(u8 **)(enemyUnit + 0xA00));
+                    mdlSetLookAtRequested(*(u8 **)(enemyUnit + 0xA00));
                 }
-                var_16_2 = *(u8 **)(var_16_2 + 0xA68);
+                enemyUnit = (u8 *)((BtlUnit *)enemyUnit)->prevUnit;
             }
         }
     } else {
-        temp_16 = *(u8 **)arg0;
-        if (((*(s32 *)(temp_16 + 0x98) & 2) != 0) &&
-            (mdlHasActiveMode(*(u8 **)(temp_16 + 0xA00)) != 0)) {
-            mdlSetLookAtActive(*(u8 **)(temp_16 + 0xA00));
-            mdlSetLookAtRequested(*(u8 **)(temp_16 + 0xA00));
+        unit = ((BtlUnitLookSideWork *)work)->unit;
+        if (((((BtlUnit *)unit)->flags2 & 2) != 0) &&
+            (mdlHasActiveMode(((BtlUnit *)unit)->layerHandle) != 0)) {
+            /* Same post-call model reload constraint as the side branches. */
+            mdlSetLookAtActive(*(u8 **)(unit + 0xA00));
+            mdlSetLookAtRequested(*(u8 **)(unit + 0xA00));
         }
     }
     return 1;

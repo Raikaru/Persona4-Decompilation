@@ -40,14 +40,14 @@ extern u8 D_00714650[];
 extern u8 D_00714660[];
 extern u8 D_00714658[];
 
-extern void mdlEffectGetPositionVec(u8 *arg0, u32 *arg1);
+extern void mdlEffectGetPositionVec(u8 *object, u32 *output);
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
+extern void func_004bd6a0(u8 *effect, s32 position);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
+extern void *(*jtbl_008873E8[])(u32 effect, u32 position);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310_abs[];
@@ -59,13 +59,14 @@ extern void (*jtbl_008873EC[])(void *);
 /* Source unit: src/promoted/code1_004b.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b1420-004b1420 */
 
+/* Read the four-component effect position and copy its XYZ components to the caller. */
 // FUN_004B1420
-void mdlEffectGetPosition(u8 *arg0, f32 *arg1) {
-    f32 sp20[4];
+void mdlEffectGetPosition(u8 *effect, f32 *position) {
+    f32 positionVector[4];
 
-    mdlEffectGetPositionVec(arg0, (u32 *)sp20);
-    arg1[0] = sp20[0];
-    arg1[1] = sp20[1];
-    arg1[2] = sp20[2];
+    mdlEffectGetPositionVec(effect, (u32 *)positionVector);
+    position[0] = positionVector[0];
+    position[1] = positionVector[1];
+    position[2] = positionVector[2];
 }
 

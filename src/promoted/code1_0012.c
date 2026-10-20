@@ -1,3 +1,4 @@
+#include "radar_menu_internal.h"
 #include "model_motion_internal.h"
 typedef signed __int128 s128;
 #include "include_asm.h"
@@ -7,26 +8,29 @@ typedef signed __int128 s128;
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "rw/plcore/barenderstate.h"
+#include "mdl_file_internal.h"
+#include "rw_object_internal.h"
+#include "primitive_queue_internal.h"
 extern f32 fGpffff9cA0;
 extern f32 fGpffff9cA4;
 extern s128 D_005E5740;
 extern s128 D_005E5750;
 struct RwMatrixTag;
-extern s32 func_00366c70(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb, s32 alpha, s32 mode, s16 centerX, s16 centerY, struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2]);
+extern s32 sflDataDrawTexturedQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb, s32 alpha, s32 mode, s16 centerX, s16 centerY, struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2]);
 extern f32 fGpffff84a4;
 extern u8 iGpffffb1d8;
 extern u8 iGpffffb1d4;
 extern u8 iGpffffb1d0;
 extern f32 sinf();
-extern void PrimDrawFlatRectangle(void *arg0, void *arg1, f32 fparg0, s32 arg2);
-extern void PrimDrawPoints(void *arg0, void *arg1, f32 fparg0, s32 arg2,
-                          s32 arg3, s32 arg4);
+extern void PrimDrawFlatRectangle(void *colorData, void *rectangleData, f32 depth, s32 preserveState);
+extern void PrimDrawPoints(void *colors, void *positions, f32 depth, s32 count,
+                          s32 primitiveType, s32 preserveState);
 extern f32 fGpffff8478;
 extern f32 cosf(f32 fparg0);
-extern s32 mdlCopyIndexedMatrix(void *arg0, s32 arg1, void *arg2);
-extern void mdlApplyModelMatrix(void *arg0, void *arg1, s32 arg2);
-extern void func_002ab550(void *arg0, void *arg1);
-extern void mdlAdvanceModelFromFlags(void *arg0);
+extern s32 mdlCopyIndexedMatrix(void *model, s32 index, void *destination);
+extern void mdlApplyModelMatrix(void *model, void *matrix, s32 combineOp);
+extern void titleVisualDrawTintedModel(void *model, void *color);
+extern void mdlAdvanceModelFromFlags(void *model);
 static inline s32 code1_0012_stride(s32 index, s32 base)
 {
     return index + base;
@@ -43,8 +47,8 @@ extern void cldDayChangeStartTask();
 extern s32 D_00796670[];
 extern u8 D_005E50D0[];
 extern u8 D_005E5870[];
-extern u8 *resourceFindByName(char *filename);
-extern void calendarSetMode(s32 arg0);
+extern u8 *resourceFindByName(char *name);
+extern void calendarSetMode(s32 mode);
 
 extern void cldTimeChangeCreate();
 
@@ -54,16 +58,16 @@ extern s32 iGpffffb1cc;
 extern s32 iGpffff9c58;
 extern void fclBankTableReset(void);
 
-extern s32 func_00121af0(u8 *task);
+extern s32 tickerInitBankTable(u8 *unusedTask);
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(char *name, u8 *task);
-extern void fadeUpdateCallback(void *arg0, u8 *arg1);
+extern void PrimAppendNode(char *list, u8 *node);
+extern void fadeUpdateCallback(void *unusedContext, u8 *fadeWork);
 extern void calendarDrawBackdrop(void *unusedNode, void *work);
 extern char D_00796340[];
 extern char D_00795F50[];
 extern s64 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
-extern s32 calGetDayTableValue(s16 arg0, s16 arg1);
+extern s32 calGetDayTableValue(s16 day, s16 phase);
 extern s32 FldStepIndex(void);
 extern s32 evtHasTaskHandle(void);
 extern s32 iGpffffb1c8;
@@ -74,35 +78,35 @@ extern void datSetPendingDateIndex();
 extern void datSetPendingTimeSlot();
 extern void datSetPendingFlag();
 extern s32 calHasDayEntry();
-extern void func_00260450(void);
+extern void cldSchedulerStart(void);
 extern s16 clndGetPeriod(void);
 extern s16 clndGetDaysSinceApr5(void);
 extern void calendarSyncFromDate(void);
-extern s32 func_00268990(s32 arg0);
+extern s32 cldDungeonInStart(s32 parentTask);
 extern void fclBankTableInit(void);
-extern void poolFree(s32 arg0);
-extern void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
-extern void sdkListStateConfigure(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void sdkListStateSetSecondaryMasks(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 sdkListStateHandleInput(void *arg0);
-extern s32 sdkListStateGetCursor(void *arg0);
+extern void poolFree(s32 address);
+extern void sequenceRequest(s32 sequenceId, void *parameters, s32 parameterSize, s32 delay);
+extern void sdkListStateConfigure(void *state, s32 value, s32 itemCount, s32 cursor, s32 scroll);
+extern void sdkListStateSetSecondaryMasks(void *state, s32 value, s32 itemCount, s32 cursor, s32 scroll);
+extern s32 sdkListStateHandleInput(void *state);
+extern s32 sdkListStateGetCursor(void *state);
 extern u16 D_008C024E[];
-extern void sprintf(void *arg0, const char *arg1, ...);
-extern s32 H_Cdvd_LookupRequest(void *arg0, s32 *arg1);
-extern void *mdlCreateModelObjectFromMemory(u32 arg0, u16 arg1, void *arg2, u32 arg3, u32 arg4);
-extern s32 mdlPrepareModel(void *arg0);
+extern void sprintf(void *, const char *, ...);
+extern s32 H_Cdvd_LookupRequest(void *pathAddress, s32 *slot);
+extern void *mdlCreateModelObjectFromMemory(u32 type, u16 id, void *memory, u32 size, u32 flags);
+extern s32 mdlPrepareModel(void *model);
 extern u8 D_005E5560[];
 extern u8 D_005E5570[];
 extern void datCarryOverPersistentState(void);
-extern s32 shdWindowTaskCreate(u8 *arg0, s32 arg1, s32 arg2);
-extern void shdWindowMarkDone(s32 arg0);
-extern s32 shdWindowQueryState(s32 arg0);
-extern s32 mcIconTaskCreate(u8 *arg0, s32 arg1);
+extern s32 shdWindowTaskCreate(u8 *parentTask, s32 value, s32 entryIndex);
+extern void shdWindowMarkDone(s32);
+extern s32 shdWindowQueryState(s32);
+extern s32 mcIconTaskCreate(u8 *parent, s32 mode);
 extern s32 mcIconTaskPoll(void);
-extern s32 titleSlotSetMode(u8 *arg0, s32 arg1);
+extern s32 titleSlotSetMode(u8 *menu, s32 mode);
 extern void sdkSpriteFreeNode(void *node);
-extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
-                          u8 arg2, u8 arg3, u8 arg4, u8 arg5, f32 z, s32 arg6);
+extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
+                          u8 alphaSubtract, u8 red, u8 green, u8 blue, f32 z, s32 setStates);
 extern s32 nLineIsIdle(void);
 
 typedef struct {
@@ -123,19 +127,19 @@ typedef struct {
     f32 y;
 } SVec2_0012;
 
-extern void func_003ef3a0(void *arg0);
-extern void radarAnimateValue(u8 *arg0, s32 arg1, s32 arg2);
-extern void datCommunityEntryStep(u8 *arg0);
+extern void func_003ef3a0(void *);
+extern void radarAnimateValue(u8 *work, s32 frame, s32 mode);
+extern void datCommunityEntryStep(u8 *communityEntry);
 extern s32 chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 D_005E57B8[];
 extern u8 D_005E57D0[];
-extern s32 titleSoundStartStep(u8 *arg0);
-extern void radarDrawPanel(u8 *arg0);
-extern void radarStepSlotAnimB(u8 *arg0);
-extern void radarStepPairAnim(u8 *arg0);
-extern s32 calendarStateTask(u8 *task);
+extern s32 titleSoundStartStep(u8 *task);
+extern void radarDrawPanel(u8 *state);
+extern void radarStepSlotAnimB(u8 *menu);
+extern void radarStepPairAnim(u8 *menu);
+extern s32 calendarStateTask(u8 *unusedTask);
 /* Calendar state block at iGpffffb1dc: header fields, five 0x30-byte records from 0x20, owner pointer at 0x110. */
 typedef struct CalendarRecord {
     f32 field_00;
@@ -168,40 +172,40 @@ typedef struct CalendarState {
 } CalendarState;
 
 extern u8 *iGpffffb1dc;
-extern s32 clndPromptUpdate(u8 *arg0);
+extern s32 clndPromptUpdate(u8 *task);
 extern u8 D_005E5170[];
 extern u8 D_005E5180[];
 extern u8 D_005E5190[];
 extern u8 D_005E51A0[];
 extern u8 D_005E51B0[];
-extern void clndPromptDestroy(u8 *arg0);
-extern s32 func_004669d0(s32 arg0, s32 *arg1, s32 arg2);
+extern void clndPromptDestroy(u8 *task);
+extern s32 filerTakeCompletedRequest(s32 request, s32 *completed, s32 resultValue);
 extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005E5548[];
-extern s32 datItemCount(s16 id);
+extern s32 datItemCount(s16 itemId);
 extern u8 D_005E76C8[];
 extern u8 D_005E5720[];
-extern s32 func_0012aa70(u8 *arg0);
-extern void titleLoaderTeardown(u8 *task);
-extern void sdkSpritePackDestroy(s32 arg0);
-extern void H_Cdvd_Destroy(s32 arg0);
-extern void sdkSndStopChannel(s32 arg0);
-extern void mdlDestroyModelObject(s32 arg0);
-extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern s16 datBuildPartyIdList(void *arg0);
-extern u8 *sdkSpriteNewNode(u32 sprites, u32 index);
+extern s32 titleTaskUpdate(u8 *task);
+extern void titleLoaderTeardown(u8 *unusedTask);
+extern void sdkSpritePackDestroy(s32 pack);
+extern void H_Cdvd_Destroy(s32 cdvd);
+extern void sdkSndStopChannel(s32 fadeFrames);
+extern void mdlDestroyModelObject(s32 model);
+extern void memset(void *, s32, s32);
+extern s16 datBuildPartyIdList(void *ids);
+extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
 extern u8 D_005E5F40[];
 extern u8 D_005E7670[];
 extern u8 D_005E5830[];
 extern u8 D_005E5850[];
 extern u8 D_005E57F0[];
-extern s32 datGetFlag(s32 arg0);
+extern s32 datGetFlag(s32 bit);
 extern u8 D_005E5810[];
 extern s32 D_005E5B60[];
 extern u8 D_005E5BB8[];
 extern u8 D_005E76C8[];
-extern void titleCollectFlaggedIds(u8 *arg0);
-extern s32 titleSetMenuLayout(u8 *arg0, u32 arg1);
+extern void titleCollectFlaggedIds(u8 *menu);
+extern s32 titleSetMenuLayout(u8 *menu, u32 layout);
 typedef struct {
     u8 b[4];
 } PanelRgba;
@@ -258,8 +262,8 @@ static inline u8 *titleCopyValue(u8 *destination, const u8 *source)
 
 static inline void titleRectangle(u8 *color, f32 x, f32 y, f32 depth, f32 width, f32 height, s32 flags, void *parent)
 {
-    extern void func_002aaf20(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *parent);
-    func_002aaf20(x, y, depth, color, width, height, flags, parent);
+    extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *queue);
+    titleVisualSubmitRect(x, y, depth, color, width, height, flags, parent);
 }
 static inline f32 titleBlend(f32 delta, f32 blend, f32 value)
 {
@@ -292,27 +296,27 @@ static inline void titlePaletteCopy(TitlePalette *destination, const TitlePalett
 static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOffset)
 {
     *(TitlePalette *)destination = *(const TitlePalette *)source;
-    return *(u32 *)(destination + byteOffset);
+    return ((TitlePalette *)(destination + byteOffset))->words[0];
 }
 
 #pragma push
 #pragma always_inline on
 #pragma pop
-extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 * arg4, s32 arg5);
+extern s32 shdSpriteDrawNow(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 * pack, s32 flags);
 extern void titleSkyApplyBasePreset(void);
-extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern s32 RpSkyRenderStateSet(s32, s32);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern s32 D_005E55E0[];
 extern s8 D_005E5610[];
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 
-extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5);
-extern s32 shdSpriteDrawNowEx(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, s32 arg3, u8 *arg4, s32 arg5,
-                         s16 arg6, s16 arg7, f32 farg3, f32 farg5, f32 farg4);
+extern s32 shdSpriteDrawNow(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 *pack, s32 flags);
+extern s32 shdSpriteDrawNowEx(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 *pack, s32 flags,
+                         s16 width, s16 height, f32 rotation, f32 scaleX, f32 scaleY);
 
 extern void titleSkyApplyBasePreset(void);
-extern s32 RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern s32 RpSkyRenderStateSet(s32, s32);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 typedef struct { u8 c0, c1, c2, c3; } __attribute__((aligned(4))) TitleColor;
@@ -392,67 +396,86 @@ static inline u8 *titleOffsetPtr_001265a0(u32 offset, u8 *base)
  */
 #pragma push
 #pragma opt_lifetimes on
-typedef struct { u8 bytes[0x28]; } TitleRecordBlock;
+/* The scene table has a 0x28-byte stride; draw and update read the same rows. */
+typedef struct TitleRecordBlock {
+    s32 modelIndex;
+    f32 x;
+    f32 y;
+    f32 pitch;
+    f32 yaw;
+    f32 unk14;
+    f32 scale;
+    s32 paletteIndex;
+    s32 startFrame;
+    f32 animationSpeed;
+} TitleRecordBlock;
 static inline f32 *titleCopyRect(u8 *destination, const u8 *source)
 {
     *(TitleRect *)destination = *(const TitleRect *)source;
     return (f32 *)destination;
 }
 
-typedef struct {
-    u32 f00;
+/* Work offsets shared by the title update and queued drawing callbacks. */
+typedef struct TitleTask {
+    s32 currentState;
     u32 state;
-    s32 f08;
+    s32 flags;
     s32 timer;
-    s32 f10;
-    u8 pad0[0xc];
-    s32 f20;
-    s32 f24;
-    s32 f28;
-    s32 f2C;
-    u8 pad1[0xc];
+    s32 rotationFrame;
+    s32 sceneFrame;
+    s32 exitResult;
+    s32 pendingResult;
+    s32 scroll;
+    s32 previousScroll;
+    s32 scrollPosition;
+    s32 fadeFrames;
+    u8 pad30[4];
+    s32 childTask;
+    u8 *archive;
     u8 *sprites;
-    u8 pad2[0x4];
-    u8 *model0;
-    u8 pad3[0x3c];
-    u32 f84;
-    s32 f88;
-} TitleTaskView;
+    u8 pad40[4];
+    u8 *models[15];
+    u8 pad80[4];
+    u32 selectedScene;
+    s32 barFrame;
+    s32 savedDayFlags;
+} TitleTask;
 #include "btl_shuffle_draw_internal.h"
-void func_00124bb0(s32 arg0, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, u32 arg1, u32 arg2, f32 fparg6, s32 arg3, u32 *arg4);
+void titleTransformSlotModel(s32 modelIndex, f32 x, f32 y, f32 z, f32 pitch, f32 yaw, f32 roll, u32 baseColor, u32 highlightColor, f32 scale, s32 flags, u32 *context);
 
-void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 arg0, u8 *arg1);
+void titleBuildPointRows(f32 originX, f32 originY, f32 depth, s32 opacity, u8 *context);
 
 void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 drawMode, u8 *sceneContext);
 
-void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 arg0, u8 *arg1);
+void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 opacity, u8 *context);
 
-/* The draw queue supplies node+0x1C, then the task stored at node+0x10.
+/* Render title scenes, animated logos, palette highlights and transition bars.
+ * The draw queue supplies node+0x1C, then the task stored at node+0x10.
  * Only the task reaches the word-returning work accessor; the first payload
  * is a real, unused callback input. See Title_entry_contract_001265a0_20261003. */
 // Kept in bucket: diff 395 when moved; cause not diagnosed (uses static inline titleCopyRect and titleCopySelect).
 // FUN_001265A0
 void titleDrawTaskView(void *unusedDrawData, void *task) {
-    f32 temp_f21;
-    u32 *temp_20;
-    TitleTaskView *taskView;
+    f32 sceneFade;
+    u32 *workWords;
+    TitleTask *titleTask;
     extern u8 D_005E5234[];
     extern u8 D_005E5238[];
     typedef union TitleRectangleWords { s128 bits; s32 words[4]; } TitleRectangleWords;
     extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern void titleSkyApplyBasePreset(void);
-    extern void func_002ab380(f32 x, f32 y, f32 z, s32 color, s32 alpha, s32 mode, void *texture, s32 kind, void *extra);
-    extern void func_002abb30(f32 x, f32 y, f32 z, s32 color, s32 alpha, f32 scale, s32 mode, u8 *object, void *extra);
+    extern void titleVisualSubmitSprite(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, s32 spriteIndex, void *resource, s32 flags, void *queue);
+    extern void titleVisualDrawMaskedModel(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, f32 scale, s32 projectPosition, u8 *model, void *queue);
     extern s32 RpSkyRenderStateSet();
     extern s32 RpSkyGetDisplayBufferRaster(void);
     extern s32 func_0043c6a0(s32);
     extern f32 sinf(f32);
     extern u32 kwlnTaskGetWork(void *task);
     extern s32 H_Cdvd_LookupRequest();
-    extern s32 func_0045ad50();
-    extern void func_0045c870(u8 *colors, s32 enabled);
-    extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
+    extern s32 sdkSndStartStereoBuffer();
+    extern void effMiscDrawScreenColor(u8 *colors, s32 enabled);
+    extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
     extern s32 kAssertFail();
     extern s32 mdlPrepareModel();
     extern void mdlAdvanceModelFromFlags(u8 *);
@@ -517,124 +540,124 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     extern f32 fGpffff81e0;
     extern f32 iGpffff81dc;
     extern f32 fGpffff8094;
-    s32 var_19;
+    s32 sceneIndex;
 
-    TitleDrawColor sp6BC;
-    s32 sp6B8;
-    TitleDrawColor sp6B4;
-    TitleDrawColor sp6B0;
-    TitleDrawColor sp6AC;
-    TitleDrawColor sp6A8;
-    TitleDrawColor sp6A4;
-    TitleDrawColor sp6A0;
-    TitleDrawColor sp69C;
-    TitleDrawColor sp698;
-    TitleDrawColor sp694;
-    TitleDrawColor sp690;
-    TitleDrawColor sp68C;
+    TitleDrawColor drawColor;
+    s32 fileSize;
+    TitleDrawColor initialColor;
+    TitleDrawColor idleColor;
+    TitleDrawColor openingColor;
+    TitleDrawColor barColor;
+    TitleDrawColor firstFadeSource;
+    TitleDrawColor secondFadeSource;
+    TitleDrawColor firstLogoColor;
+    TitleDrawColor secondLogoColor;
+    TitleDrawColor sceneColor;
+    TitleDrawColor finalFadeSource;
+    TitleDrawColor closingColor;
     TitleDrawColor layerColor;
     TitleDrawColor layerColorSource;
     TitleDrawColor firstOverlayColor;
     TitleDrawColor firstOverlaySource;
-    TitleDrawColor sp678;
-    TitleDrawColor sp674;
-    TitleDrawColor sp670;
-    TitleDrawColor sp66C;
-    TitleDrawColor sp668;
-    TitleDrawColor sp664;
-    TitleDrawColor sp660;
-    TitleDrawColor sp65C;
-    TitleDrawColor sp658;
-    TitleDrawColor sp654;
-    TitleDrawColor sp650;
-    TitleDrawColor sp64C;
-    TitleDrawColor sp648;
-    TitleDrawColor sp644;
-    TitleDrawColor sp640;
-    TitleDrawColor sp63C;
-    TitleDrawColor sp638;
-    TitleDrawColor sp634;
-    TitleDrawColor sp630;
-    TitleDrawColor sp62C;
-    TitleDrawColor sp628;
-    TitleDrawColor sp624;
-    TitleDrawColor sp620;
-    TitleDrawColor sp61C;
-    TitleDrawColor sp618;
-    TitleDrawColor sp614;
-    TitleDrawColor sp610;
-    TitleDrawColor sp60C;
-    TitleDrawColor sp608;
-    TitleDrawColor sp604;
-    TitleDrawColor sp600;
-    TitleDrawColor sp5FC;
-    TitleDrawColor sp5F8;
-    TitleDrawColor sp5F4;
-    TitleDrawColor sp5F0;
-    TitleDrawColor sp5EC;
-    TitleDrawColor sp5E8;
-    TitleDrawColor sp5E4;
-    TitleDrawColor sp5E0;
-    TitleDrawColor sp5DC;
-    TitleDrawColor sp5D8;
-    TitleDrawColor sp5D4;
+    TitleDrawColor fadeColor1;
+    TitleDrawColor fadeSource1;
+    TitleDrawColor fadeColor2;
+    TitleDrawColor fadeSource2;
+    TitleDrawColor fadeColor3;
+    TitleDrawColor fadeSource3;
+    TitleDrawColor fadeColor4;
+    TitleDrawColor fadeSource4;
+    TitleDrawColor fadeColor5;
+    TitleDrawColor fadeSource5;
+    TitleDrawColor fadeColor6;
+    TitleDrawColor fadeSource6;
+    TitleDrawColor fadeColor7;
+    TitleDrawColor fadeSource7;
+    TitleDrawColor fadeColor8;
+    TitleDrawColor fadeSource8;
+    TitleDrawColor fadeColor9;
+    TitleDrawColor fadeSource9;
+    TitleDrawColor fadeColor10;
+    TitleDrawColor fadeSource10;
+    TitleDrawColor barDrawColor1;
+    TitleDrawColor barSourceColor1;
+    TitleDrawColor barDrawColor2;
+    TitleDrawColor barSourceColor2;
+    TitleDrawColor barDrawColor3;
+    TitleDrawColor barSourceColor3;
+    TitleDrawColor barDrawColor4;
+    TitleDrawColor barSourceColor4;
+    TitleDrawColor barDrawColor5;
+    TitleDrawColor barSourceColor5;
+    TitleDrawColor barDrawColor6;
+    TitleDrawColor barSourceColor6;
+    TitleDrawColor barDrawColor7;
+    TitleDrawColor barSourceColor7;
+    TitleDrawColor barDrawColor8;
+    TitleDrawColor barSourceColor8;
+    TitleDrawColor barDrawColor9;
+    TitleDrawColor barSourceColor9;
+    TitleDrawColor barDrawColor10;
+    TitleDrawColor barSourceColor10;
+    TitleDrawColor barDrawColor11;
+    TitleDrawColor barSourceColor11;
     BtlShuffleVec3 titleYawAxis;
     BtlShuffleVec3 titlePitchAxis;
     BtlShuffleVec3 titleTranslation;
-    s128 sp590;
+    s128 drawRectangle;
     BtlShuffleMatrix titleMatrix __attribute__((aligned(16)));
     union { u32 words[8]; f32 pairs[4][2]; } fadeUv;
     u32 *fadeUvSource;
     u32 *fadeUvDestination;
     s32 fadeAlpha;
-    TitleRectangleWords sp520;
-    TitleRectangleWords sp510;
-    TitleRect sp500;
-    TitleRect sp4F0;
-    TitleRect sp4E0;
-    TitleRect sp4D0;
-    s128 sp4C0;
-    TitleRect sp4B0;
-    TitleRect sp4A0;
-    s128 sp490;
-    TitleRect sp480;
-    TitleRect sp470;
+    TitleRectangleWords upperBar;
+    TitleRectangleWords lowerBar;
+    TitleRect firstMask;
+    TitleRect secondMask;
+    TitleRect thirdMask;
+    TitleRect fourthMask;
+    s128 barRectangle1;
+    TitleRect upperRectangle1;
+    TitleRect lowerRectangle1;
+    s128 barRectangle2;
+    TitleRect upperRectangle2;
+    TitleRect lowerRectangle2;
     TitlePalette firstHighlight;
     TitlePalette firstBase;
     TitlePalette thirdHighlight;
     TitlePalette thirdBase;
     TitlePalette fourthHighlight;
     TitlePalette fourthBase;
-    s128 sp3A0;
-    TitleRect sp390;
-    TitleRect sp380;
-    s128 sp370;
-    TitleRect sp360;
-    TitleRect sp350;
-    s128 sp340;
-    TitleRect sp330;
-    TitleRect sp320;
-    s128 sp310;
-    TitleRect sp300;
-    TitleRect sp2F0;
-    s128 sp2E0;
-    TitleRect sp2D0;
-    TitleRect sp2C0;
-    s128 sp2B0;
-    TitleRect sp2A0;
-    TitleRect sp290;
-    s128 sp280;
-    TitleRect sp270;
-    TitleRect sp260;
-    s128 sp250;
-    TitleRect sp240;
-    TitleRect sp230;
-    s128 sp220;
-    TitleRect sp210;
-    TitleRect sp200;
-    s128 sp1F0;
-    TitleRect sp1E0;
-    TitleRect sp1D0;
+    s128 barRectangle3;
+    TitleRect upperRectangle3;
+    TitleRect lowerRectangle3;
+    s128 barRectangle4;
+    TitleRect upperRectangle4;
+    TitleRect lowerRectangle4;
+    s128 barRectangle5;
+    TitleRect upperRectangle5;
+    TitleRect lowerRectangle5;
+    s128 barRectangle6;
+    TitleRect upperRectangle6;
+    TitleRect lowerRectangle6;
+    s128 barRectangle7;
+    TitleRect upperRectangle7;
+    TitleRect lowerRectangle7;
+    s128 barRectangle8;
+    TitleRect upperRectangle8;
+    TitleRect lowerRectangle8;
+    s128 barRectangle9;
+    TitleRect upperRectangle9;
+    TitleRect lowerRectangle9;
+    s128 barRectangle10;
+    TitleRect upperRectangle10;
+    TitleRect lowerRectangle10;
+    s128 barRectangle11;
+    TitleRect upperRectangle11;
+    TitleRect lowerRectangle11;
+    s128 barRectangle12;
+    TitleRect upperRectangle12;
+    TitleRect lowerRectangle12;
     TitlePalette secondHighlight;
     TitlePalette secondBase;
     TitlePalette fifthHighlight;
@@ -644,20 +667,20 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     TitlePalette thirdPalette;
     TitlePalette fourthPalette;
     TitlePalette fifthPalette;
-    u8 *var_3_10;
-    u8 *var_3_12;
-    u8 *var_3_14;
-    u8 *var_3_16;
-    u8 *var_3_18;
-    u8 *var_3_20;
-    u8 *var_3_22;
-    u8 *var_3_24;
-    u8 *var_3_27;
+    u8 *fadeSource1Byte;
+    u8 *fadeSource2Byte;
+    u8 *fadeSource3Byte;
+    u8 *fadeSource4Byte;
+    u8 *fadeSource5Byte;
+    u8 *fadeSource6Byte;
+    u8 *fadeSource7Byte;
+    u8 *fadeSource8Byte;
+    u8 *fadeSource9Byte;
     u8 *overlayClearByte;
-    u8 *var_3_31;
-    u8 *var_3_33;
-    u8 *var_3_4;
-    u8 *var_3_5;
+    u8 *fadeSource10Byte;
+    u8 *finalFadeSourceByte;
+    u8 *firstFadeSourceByte;
+    u8 *secondFadeSourceByte;
     f32 lerpT;
     void (**fnTable)(s32, s32);
     s32 paletteOffset;
@@ -667,183 +690,182 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     u32 green;
     u32 blue;
     f32 fadeT;
-    f32 temp_f0_11;
-    f32 temp_f0_5;
-    f32 temp_f0_7;
-    f32 temp_f0_9;
-    f32 temp_f14;
-    f32 temp_f14_2;
-    f32 temp_f16;
-    f32 temp_f16_2;
-    f32 temp_f16_3;
-    f32 temp_q1;
-    f32 temp_f1_28;
-    f32 temp_f13_28;
-    f32 temp_f1_11;
-    f32 temp_f1_17;
-    f32 temp_f20;
-    f32 temp_f20_2;
-    f32 temp_f20_3;
-    f32 temp_f20_4;
-    f32 temp_f20_5;
-    f32 temp_f21_2;
-    f32 temp_f22;
-    f32 temp_f2;
-    f32 temp_f2_2;
-    f32 temp_f2_3;
+    f32 scrollDelta;
+    f32 logoSine;
+    f32 firstModelIndex;
+    f32 secondModelIndex;
+    f32 spriteDepth;
+    f32 logoDepth;
+    f32 spriteScale;
+    f32 secondSpriteScale;
+    f32 logoScale;
+    f32 paletteBlend;
+    f32 scrollTarget;
+    f32 scrollQuarterStep;
+    f32 logoAlpha;
+    f32 logoProgress;
+    f32 barProgress;
+    f32 backgroundProgress;
+    f32 highlightProgress;
+    f32 backgroundFade;
+    f32 spriteProgress;
+    f32 spriteAlpha;
+    f32 promptProgress;
+    f32 spriteBlend;
+    f32 promptPhase;
+    f32 logoPhase;
     u8 *layerClearByte;
-    u8 *var_3_11;
-    u8 *var_3_13;
-    u8 *var_3_15;
-    u8 *var_3_17;
-    u8 *var_3_19;
-    u8 *var_3_21;
-    u8 *var_3_23;
-    u8 *var_3_25;
-    u8 *var_3_28;
-    u8 *var_3_32;
-    u8 *var_3_3;
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_2_19;
-    s32 temp_2_24;
-    s32 temp_2_26;
-    u32 temp_2_27;
-    s32 temp_2_2;
-    s32 temp_3_19;
-    s32 temp_3_20;
-    s32 temp_3_21;
-    u32 temp_3_22;
-    s32 temp_3_23;
-    s32 temp_3_2;
-    s32 temp_3_3;
-    s32 temp_4;
-    s32 temp_5;
-    s32 temp_f0_10;
-    s32 temp_28;
-    s32 temp_i28;
-    s32 var_16;
-    s32 temp_2;
-    s32 var_17_2;
+    u8 *barSourceColor2Byte;
+    u8 *barSourceColor3Byte;
+    u8 *barSourceColor4Byte;
+    u8 *barSourceColor5Byte;
+    u8 *barSourceColor6Byte;
+    u8 *barSourceColor7Byte;
+    u8 *barSourceColor8Byte;
+    u8 *barSourceColor9Byte;
+    u8 *barSourceColor10Byte;
+    u8 *barSourceColor11Byte;
+    u8 *barSourceColor1Byte;
+    s32 frame;
+    s32 logoFrame;
+    s32 lateRotationFrame;
+    s32 sceneFrame;
+    s32 modelFlags;
+    u32 uvSecondWord;
+    s32 rotationFrame;
+    s32 sceneOffset;
+    s32 visibleModelFlags;
+    s32 renderModelFlags;
+    u32 uvFirstWord;
+    s32 fadeFrames;
+    s32 firstRecordKind;
+    s32 secondRecordKind;
+    s32 currentScroll;
+    s32 previousScroll;
+    s32 scrollMidpoint;
+    s32 scrollPosition;
+    s32 scrollStep;
+    s32 lateSceneIndex;
+    s32 phaseFrame;
+    s32 middleSceneIndex;
     s32 layerClearCount;
-    s32 var_2_10;
-    s32 var_2_11;
-    s32 var_2_12;
-    s32 var_2_13;
-    s32 var_2_14;
-    s32 var_2_15;
-    s32 var_2_16;
-    s32 var_2_17;
-    s32 var_2_18;
-    s32 var_2_19;
-    s32 var_2_20;
-    s32 var_2_21;
-    s32 var_2_22;
-    s32 var_2_23;
-    s32 var_2_24;
-    s32 var_2_25;
-    s32 var_2_26;
-    s32 var_2_27;
-    s32 var_2_28;
-    s32 var_2_29;
+    s32 clearCount10;
+    s32 clearCount11;
+    s32 clearCount12;
+    s32 clearCount13;
+    s32 clearCount14;
+    s32 clearCount15;
+    s32 clearCount16;
+    s32 clearCount17;
+    s32 clearCount18;
+    s32 clearCount19;
+    s32 clearCount20;
+    s32 spriteFadeFrame;
+    s32 clearCount22;
+    s32 clearCount23;
+    s32 clearCount24;
+    s32 clearCount25;
+    s32 clearCount26;
+    s32 clearCount27;
+    s32 clearCount28;
+    s32 firstLogoFrame;
     s32 overlayClearCount;
-    s32 var_2_30;
-    s32 var_2_31;
-    s32 var_2_3;
-    s32 var_2_4;
-    s32 var_2_5;
-    s32 var_2_6;
-    s32 var_2_7;
-    s32 var_2_8;
-    s32 var_2_9;
-    s32 var_3_30;
-    s32 var_4_17;
-    s32 var_4_18;
-    s32 temp_10;
-    s32 temp_10_2;
-    u32 var_3_26;
-    u32 var_3_29;
-    u32 *temp_2_11;
-    u32 *temp_2_12;
-    u32 *temp_2_23;
-    u32 *temp_2_25;
-    u32 *temp_2_3;
-    u32 *temp_2_4;
-    u32 temp_17_2;
-    u32 temp_3;
-    u8 *temp_21;
-    u8 *temp_7;
-    u8 *temp_7_2;
-    u8 *temp_7_5;
-    u8 *var_16_2;
-    u8 *var_4;
-    u8 *var_4_16;
-    u8 *var_4_2;
-    u8 *var_4_7;
-    u8 *var_4_8;
-    u8 *var_4_9;
+    s32 closingFadeFrame;
+    s32 secondLogoFrame;
+    s32 clearCount3;
+    s32 clearCount4;
+    s32 highlightFrame;
+    s32 clearCount6;
+    s32 clearCount7;
+    s32 clearCount8;
+    s32 clearCount9;
+    s32 closingFrame;
+    s32 uvPairCount;
+    s32 fadeDuration;
+    s32 scrollDistance;
+    u32 firstLogoAlpha;
+    u32 secondLogoAlpha;
+    u32 *modelSlot1;
+    u32 *modelSlot2;
+    u32 *modelSlot3;
+    u32 *modelSlot4;
+    u32 *modelSlot5;
+    u32 *modelSlot6;
+    u32 selectedScene;
+    u32 drawState;
+    u8 *sceneRecord;
+    u8 *firstSceneRecord;
+    u8 *middleSceneRecord;
+    u8 *lateSceneRecord;
+    u8 *selectedModel;
+    u8 *firstModel;
+    u8 *firstSelectedModel;
+    u8 *secondModel;
+    u8 *thirdModel;
+    u8 *baseModel;
+    u8 *fourthModel;
 
-    temp_20 = (u32 *)kwlnTaskGetWork(task);
-    taskView = (TitleTaskView *)temp_20;
+    workWords = (u32 *)kwlnTaskGetWork(task);
+    titleTask = (TitleTask *)workWords;
     titleYawAxis = D_005E5628;
     titlePitchAxis = D_005E5638;
-    sp6B8 = 0;
-    sp6B4.value = fGpffff9c70;
-    sp6BC = sp6B4;
-    func_0045c870((u8 *)&sp6BC, 1);
-    temp_3 = (u32)(taskView->state);
-    switch (temp_3) {
+    fileSize = 0;
+    initialColor.value = fGpffff9c70;
+    drawColor = initialColor;
+    effMiscDrawScreenColor((u8 *)&drawColor, 1);
+    drawState = (u32)(titleTask->state);
+    switch (drawState) {
     case 0:
-        taskView->f88 = 0;
+        titleTask->barFrame = 0;
         /* fallthrough */
     case 1:
     case 2:
-        sp6B0.value = fGpffff9c74;
-        sp6BC = sp6B0;
-        func_0045c870((u8 *)&sp6BC, 1);
+        idleColor.value = fGpffff9c74;
+        drawColor = idleColor;
+        effMiscDrawScreenColor((u8 *)&drawColor, 1);
         break;
     case 3:
-        sp6AC.value = fGpffff9c78;
-        sp6BC = sp6AC;
-        func_0045c870((u8 *)&sp6BC, 1);
-        temp_2 = (s32)(taskView->f88 + 1);
-        taskView->f88 = temp_2;
-        if (temp_2 >= 0x14) {
-            taskView->f88 = 0x14;
+        openingColor.value = fGpffff9c78;
+        drawColor = openingColor;
+        effMiscDrawScreenColor((u8 *)&drawColor, 1);
+        phaseFrame = (s32)(titleTask->barFrame + 1);
+        titleTask->barFrame = phaseFrame;
+        if (phaseFrame >= 0x14) {
+            titleTask->barFrame = 0x14;
         }
-        temp_f20 = (f32) taskView->f88 / 20.0f;
-        sp6A8.value = fGpffff9c7c;
-        sp6BC = sp6A8;
-        sp520.bits = D_005E5650;
-        lerpT = 1.0f - temp_f20;
-        temp_f20 = 42.0f * lerpT;
-        sp520.words[1] = (s32)-temp_f20;
-        PrimDrawFlatRectangle((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp520), 0.0f, 1);
-        sp510.bits = D_005E5660;
-        sp510.words[1] = (s32)(406.0f + temp_f20);
-        PrimDrawFlatRectangle((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp510), 0.0f, 1);
+        barProgress = (f32) titleTask->barFrame / 20.0f;
+        barColor.value = fGpffff9c7c;
+        drawColor = barColor;
+        upperBar.bits = D_005E5650;
+        lerpT = 1.0f - barProgress;
+        barProgress = 42.0f * lerpT;
+        upperBar.words[1] = (s32)-barProgress;
+        PrimDrawFlatRectangle((u8 *)&drawColor, titleCopyRect((u8 *)&drawRectangle, (const u8 *)&upperBar), 0.0f, 1);
+        lowerBar.bits = D_005E5660;
+        lowerBar.words[1] = (s32)(406.0f + barProgress);
+        PrimDrawFlatRectangle((u8 *)&drawColor, titleCopyRect((u8 *)&drawRectangle, (const u8 *)&lowerBar), 0.0f, 1);
         break;
     case 4:
     case 5:
-        temp_16 = (s32)(taskView->timer + 1);
-        taskView->timer = temp_16;
-        if (temp_16 > 0x19) {
-            if (temp_16 < 0x74) {
-                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
+        frame = (s32)(titleTask->timer + 1);
+        titleTask->timer = frame;
+        if (frame > 0x19) {
+            if (frame < 0x74) {
+                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, titleTask->sprites, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x4C, 0, 0, taskView->sprites, 0);
-            } else if (temp_16 < 0xA1) {
-                temp_f20_2 = sinf((1.5707964f * (f32) (temp_16 - 0x73)) / 45.0f);
-                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
+                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x4C, 0, 0, titleTask->sprites, 0);
+            } else if (frame < 0xA1) {
+                backgroundProgress = sinf((1.5707964f * (f32) (frame - 0x73)) / 45.0f);
+                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, titleTask->sprites, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * (fGpffff822c + fGpffff8228 * (1.0f - temp_f20_2))), 0, 0, taskView->sprites, 0);
+                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * (fGpffff822c + fGpffff8228 * (1.0f - backgroundProgress))), 0, 0, titleTask->sprites, 0);
             } else {
-                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
+                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, titleTask->sprites, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, taskView->sprites, 0);
+                shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, titleTask->sprites, 0);
             }
             /* Retail colors at sp+0x684 and sp+0x688 are distinct four-byte objects. */
             layerClearByte = layerColorSource.bytes;
@@ -859,14 +881,14 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
             titleCopyValue((u8 *)&layerColor, (const u8 *)&layerColorSource);
             {
                 /* Retail passes depth in f12 and saveState in a2 at both calls. */
-                extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
-                sp4B0 = D_005E5590;
-                PrimDrawFlatRectangle((u8 *)&layerColor, titleCopyRect((u8 *)&sp4C0, (const u8 *)&sp4B0), 0.0f, 1);
-                sp4A0 = D_005E55A0;
-                PrimDrawFlatRectangle((u8 *)&layerColor, titleCopyRect((u8 *)&sp4C0, (const u8 *)&sp4A0), 0.0f, 1);
+                extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
+                upperRectangle1 = D_005E5590;
+                PrimDrawFlatRectangle((u8 *)&layerColor, titleCopyRect((u8 *)&barRectangle1, (const u8 *)&upperRectangle1), 0.0f, 1);
+                lowerRectangle1 = D_005E55A0;
+                PrimDrawFlatRectangle((u8 *)&layerColor, titleCopyRect((u8 *)&barRectangle1, (const u8 *)&lowerRectangle1), 0.0f, 1);
             }
-            titleDrawShadeBars(0.0f, 0.0f, 0.0f, 0xFF, (u8 *)temp_20);
-            if (temp_16 >= 0xCD) {
+            titleDrawShadeBars(0.0f, 0.0f, 0.0f, 0xFF, (u8 *)workWords);
+            if (frame >= 0xCD) {
                 /* Retail sp+0x67C is cleared bytewise before its independent value copy. */
                 overlayClearByte = firstOverlaySource.bytes;
                 overlayClearCount = 4;
@@ -882,801 +904,807 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
-                var_3_3 = sp624.bytes;
-                var_2_3 = 4;
-                if ((u8 *)(var_3_3) != NULL) {
+                barSourceColor1Byte = barSourceColor1.bytes;
+                clearCount3 = 4;
+                if ((u8 *)(barSourceColor1Byte) != NULL) {
                     do {
-                        *var_3_3 = 0;
-                        var_3_3 += 1;
-                        var_2_3 -= 1;
-                    } while (var_2_3 != 0);
+                        *barSourceColor1Byte = 0;
+                        barSourceColor1Byte += 1;
+                        clearCount3 -= 1;
+                    } while (clearCount3 != 0);
                 }
-                sp624.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&sp628, (const u8 *)&sp624);
-                sp480 = D_005E5590;
-                PrimDrawFlatRectangle((u8 *)&sp628, titleCopyRect((u8 *)&sp490, (const u8 *)&sp480), 0.0f, 0);
-                sp470 = D_005E55A0;
-                PrimDrawFlatRectangle((u8 *)&sp628, titleCopyRect((u8 *)&sp490, (const u8 *)&sp470), 0.0f, 0);
+                barSourceColor1.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&barDrawColor1, (const u8 *)&barSourceColor1);
+                upperRectangle2 = D_005E5590;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor1, titleCopyRect((u8 *)&barRectangle2, (const u8 *)&upperRectangle2), 0.0f, 0);
+                lowerRectangle2 = D_005E55A0;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor1, titleCopyRect((u8 *)&barRectangle2, (const u8 *)&lowerRectangle2), 0.0f, 0);
                 mdlEffectEmitTagPair();
-                temp_2_2 = (s32)(taskView->f10 + 1);
-                taskView->f10 = temp_2_2;
-                if (temp_2_2 >= 0x168) {
-                    taskView->f10 = 0;
+                rotationFrame = (s32)(titleTask->rotationFrame + 1);
+                titleTask->rotationFrame = rotationFrame;
+                if (rotationFrame >= 0x168) {
+                    titleTask->rotationFrame = 0;
                 }
-                titleBuildPointRows(200.0f - 700.0f * (1.0f - (1.0f + sinf((((iGpffff81dc + ((fGpffff81e0 * (f32) taskView->f10) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0xB2, (u8 *)temp_20);
+                titleBuildPointRows(200.0f - 700.0f * (1.0f - (1.0f + sinf((((iGpffff81dc + ((fGpffff81e0 * (f32) titleTask->rotationFrame) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0xB2, (u8 *)workWords);
             }
-            if (temp_16 > 0x3d) {
-                if (temp_16 < 0x11A) {
-                    var_3_4 = sp6A4.bytes;
-                    var_2_4 = 4;
-                    if (var_3_4 != NULL) {
+            if (frame > 0x3d) {
+                if (frame < 0x11A) {
+                    firstFadeSourceByte = firstFadeSource.bytes;
+                    clearCount4 = 4;
+                    if (firstFadeSourceByte != NULL) {
                         do {
-                            *var_3_4 = 0;
-                            var_3_4 += 1;
-                            var_2_4 -= 1;
-                        } while (var_2_4 != 0);
+                            *firstFadeSourceByte = 0;
+                            firstFadeSourceByte += 1;
+                            clearCount4 -= 1;
+                        } while (clearCount4 != 0);
                     }
-                    titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp6A4);
-                    titleRectangle((u8 *)&sp6BC, 0.0f, 0.0f, 0.0f, 640.0f, 448.0f, 0x12, NULL);
-                    sinf(((((1.5707964f * (f32) (temp_16 - 0x3D)) / 80.0f))));
-                    for (var_19 = 1; (s32)var_19 < 8; var_19++) {
-                        if ((u32) var_19 >= 0x13U) {
+                    titleCopyValue((u8 *)&drawColor, (const u8 *)&firstFadeSource);
+                    titleRectangle((u8 *)&drawColor, 0.0f, 0.0f, 0.0f, 640.0f, 448.0f, 0x12, NULL);
+                    sinf(((((1.5707964f * (f32) (frame - 0x3D)) / 80.0f))));
+                    for (sceneIndex = 1; (s32)sceneIndex < 8; sceneIndex++) {
+                        if ((u32) sceneIndex >= 0x13U) {
                             kAssertFail(D_005E5548, 0xD1);
                         }
-                        temp_21 = (u8 *)&((TitleRecordBlock *)D_005E5230)[(s32)var_19];
-                        temp_2 = (s32)((s32)(u32)(temp_16 - 0x3D) - (*(s32 *)((u8 *)(temp_21) + (0x20))));
-                        if (temp_2 > 0) {
-                            var_2_5 = temp_2 - 0x32;
-                            if (var_2_5 < 0) {
-                                var_2_5 = 0;
-                            } else if (var_2_5 > 0x1E) {
-                                var_2_5 = 0x1E;
+                        sceneRecord = (u8 *)&((TitleRecordBlock *)D_005E5230)[(s32)sceneIndex];
+                        phaseFrame = (s32)((s32)(u32)(frame - 0x3D) - (((TitleRecordBlock *)sceneRecord)->startFrame));
+                        if (phaseFrame > 0) {
+                            highlightFrame = phaseFrame - 0x32;
+                            if (highlightFrame < 0) {
+                                highlightFrame = 0;
+                            } else if (highlightFrame > 0x1E) {
+                                highlightFrame = 0x1E;
                             }
-                            temp_f20_3 = sinf(((((1.5707964f * (f32) var_2_5) / 30.0f))));
-                            if (temp_2 >= 0x32) {
-                                temp_2 = 0x32;
+                            highlightProgress = sinf(((((1.5707964f * (f32) highlightFrame) / 30.0f))));
+                            if (phaseFrame >= 0x32) {
+                                phaseFrame = 0x32;
                             }
-                            temp_f21 = sinf(((((1.5707964f * (f32) temp_2) / 50.0f))));
-                            if (temp_2 == 1) {
-                                temp_3_2 = (s32)((*(s32 *)((u8 *)(temp_21) + (0))));
-                                if (temp_3_2 >= 0xF) {
-                                    var_4 = NULL;
+                            sceneFade = sinf(((((1.5707964f * (f32) phaseFrame) / 50.0f))));
+                            if (phaseFrame == 1) {
+                                firstRecordKind = (s32)((((TitleRecordBlock *)sceneRecord)->modelIndex));
+                                if (firstRecordKind >= 0xF) {
+                                    firstModel = NULL;
                                 } else {
-                                    temp_2_3 = (u32 *)(&temp_20[temp_3_2]);
-                                    if (mdlPrepareModel((*(u8 **)((u8 *)(temp_2_3) + (0x44)))) != 0) {
-                                        var_4 = (u8 *)((*(u8 **)((u8 *)(temp_2_3) + (0x44))));
+                                    modelSlot5 = (u32 *)(&workWords[firstRecordKind]);
+                                    if (mdlPrepareModel((((TitleTask *)modelSlot5)->models[0])) != 0) {
+                                        firstModel = (u8 *)((((TitleTask *)modelSlot5)->models[0]));
                                     } else {
-                                        var_4 = NULL;
+                                        firstModel = NULL;
                                     }
                                 }
-                                if (var_4 != NULL) {
-                                    mdlDispatchAnimIfPresent(var_4, 0, 1, 0, 1);
+                                if (firstModel != NULL) {
+                                    mdlDispatchAnimIfPresent(firstModel, 0, 1, 0, 1);
                                 }
-                            } else if (temp_2 == 0x1E) {
-                                temp_3_3 = (s32)((*(s32 *)((u8 *)(temp_21) + (0))));
-                                if (temp_3_3 >= 0xF) {
-                                    var_4_2 = NULL;
+                            } else if (phaseFrame == 0x1E) {
+                                secondRecordKind = (s32)((((TitleRecordBlock *)sceneRecord)->modelIndex));
+                                if (secondRecordKind >= 0xF) {
+                                    secondModel = NULL;
                                 } else {
-                                    temp_2_4 = (u32 *)(&temp_20[temp_3_3]);
-                                    if (mdlPrepareModel((*(u8 **)((u8 *)(temp_2_4) + (0x44)))) != 0) {
-                                        var_4_2 = (u8 *)((*(u8 **)((u8 *)(temp_2_4) + (0x44))));
+                                    modelSlot6 = (u32 *)(&workWords[secondRecordKind]);
+                                    if (mdlPrepareModel((((TitleTask *)modelSlot6)->models[0])) != 0) {
+                                        secondModel = (u8 *)((((TitleTask *)modelSlot6)->models[0]));
                                     } else {
-                                        var_4_2 = NULL;
+                                        secondModel = NULL;
                                     }
                                 }
-                                if (var_4_2 != NULL) {
-                                    mdlDispatchAnimIfPresent(var_4_2, 0, 0, 0x1E, 1);
+                                if (secondModel != NULL) {
+                                    mdlDispatchAnimIfPresent(secondModel, 0, 0, 0x1E, 1);
                                 }
                             }
-                            if (temp_f21 < 1.0f) {
-                                titleDrawScene(var_19, (s32)(255.0f * temp_f21), 0, 1, (u8 *)temp_20);
+                            if (sceneFade < 1.0f) {
+                                titleDrawScene(sceneIndex, (s32)(255.0f * sceneFade), 0, 1, (u8 *)workWords);
                             } else {
-                                var_3_5 = sp6A0.bytes;
-                                var_2_6 = 4;
-                                if (var_3_5 != NULL) {
+                                secondFadeSourceByte = secondFadeSource.bytes;
+                                clearCount6 = 4;
+                                if (secondFadeSourceByte != NULL) {
                                     do {
-                                        *var_3_5 = 0;
-                                        var_3_5 += 1;
-                                        var_2_6 -= 1;
-                                    } while (var_2_6 != 0);
+                                        *secondFadeSourceByte = 0;
+                                        secondFadeSourceByte += 1;
+                                        clearCount6 -= 1;
+                                    } while (clearCount6 != 0);
                                 }
-                                titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp6A0);
-                                titleRectangle((u8 *)&sp6BC, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                                titleCopyValue((u8 *)&drawColor, (const u8 *)&secondFadeSource);
+                                titleRectangle((u8 *)&drawColor, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                                 /* Six packed colors form one snapshot and two independent copies.
                                  * Model calls use the same-owner typed definition; special ACC
                                  * producers remain supplied/unproven expressions. */
                                 firstPalette = D_005E5530;
                                 titlePaletteCopy(&firstHighlight, &firstPalette);
-                                temp_7 = (u8 *)&((TitleRecordBlock *)D_005E5230)[var_19];
-                                paletteOffset = *(s32 *)(temp_7 + 0x1C) * 4;
-                                packedColor = *(u32 *)((u8 *)firstHighlight.words + paletteOffset);
-                                temp_q1 = (f32)(s32)(255.0f * temp_f20_3) / 255.0f;
+                                firstSceneRecord = (u8 *)&((TitleRecordBlock *)D_005E5230)[sceneIndex];
+                                paletteOffset = ((TitleRecordBlock *)firstSceneRecord)->paletteIndex * 4;
+                                /* Byte palette offsets retain the table indexing used by retail. */
+                packedColor = ((TitlePalette *)((u8 *)firstHighlight.words + paletteOffset))->words[0];
+                                paletteBlend = (f32)(s32)(255.0f * highlightProgress) / 255.0f;
                                 packedBaseColor = titleCopySelect((u8 *)&firstBase, (const u8 *)&firstPalette, paletteOffset);
                                 green = (packedColor >> 0x10) & 0xFF;
                                 red = (packedColor >> 0x18) & 0xFF;
                                 blue = (packedColor >> 8) & 0xFF;
                                 {
-                                    s32 a0 = (s32)((f32) (*(s32 *)((u8 *)(temp_7) + (0))));
+                                    s32 a0 = (s32)((f32) (((TitleRecordBlock *)firstSceneRecord)->modelIndex));
                                     u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
-                                    u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, temp_q1) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, temp_q1) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, temp_q1) << 8) | 0xFF;
-                                    func_00124bb0(a0, (*(f32 *)((u8 *)(temp_7) + (4))), 0.0f, (*(f32 *)((u8 *)(temp_7) + (8))), (*(f32 *)((u8 *)(temp_7) + (0xC))), (*(f32 *)((u8 *)(temp_7) + (0x10))), (*(f32 *)((u8 *)(temp_7) + (0x14))), a1, a2, (*(f32 *)((u8 *)(temp_7) + (0x18))), 0x42, temp_20);
+                                    u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, paletteBlend) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, paletteBlend) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, paletteBlend) << 8) | 0xFF;
+                                    titleTransformSlotModel(a0, (((TitleRecordBlock *)firstSceneRecord)->x), 0.0f, (((TitleRecordBlock *)firstSceneRecord)->y), (((TitleRecordBlock *)firstSceneRecord)->pitch), (((TitleRecordBlock *)firstSceneRecord)->yaw), (((TitleRecordBlock *)firstSceneRecord)->unk14), a1, a2, (((TitleRecordBlock *)firstSceneRecord)->scale), 0x42, workWords);
                                 }
                             }
                         }
                     }
                 } else {
-                    for (var_17_2 = 1; var_17_2 < 8; var_17_2++) {
+                    for (middleSceneIndex = 1; middleSceneIndex < 8; middleSceneIndex++) {
                         secondPalette = D_005E5530;
                         titlePaletteCopy(&secondHighlight, &secondPalette);
-                        temp_7_2 = D_005E5230 + var_17_2 * 0x28;
-                        paletteOffset = *(s32 *)(temp_7_2 + 0x1C) * 4;
-                        packedColor = *(u32 *)((u8 *)secondHighlight.words + paletteOffset);
+                        middleSceneRecord = D_005E5230 + middleSceneIndex * 0x28;
+                        paletteOffset = ((TitleRecordBlock *)middleSceneRecord)->paletteIndex * 4;
+                        /* Byte palette offsets retain the table indexing used by retail. */
+                packedColor = ((TitlePalette *)((u8 *)secondHighlight.words + paletteOffset))->words[0];
                         packedBaseColor = titleCopySelect((u8 *)&secondBase, (const u8 *)&secondPalette, paletteOffset);
                         green = (packedColor >> 0x10) & 0xFF;
                         red = (packedColor >> 0x18) & 0xFF;
                         blue = (packedColor >> 8) & 0xFF;
                         {
-                            s32 a0 = (s32)((f32) (*(s32 *)((u8 *)(temp_7_2) + (0))));
+                            s32 a0 = (s32)((f32) (((TitleRecordBlock *)middleSceneRecord)->modelIndex));
                             u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
                             u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, 1.0f) << 8) | 0xFF;
-                            func_00124bb0(a0, (*(f32 *)((u8 *)(temp_7_2) + (4))), 0.0f, (*(f32 *)((u8 *)(temp_7_2) + (8))), (*(f32 *)((u8 *)(temp_7_2) + (0xC))), (*(f32 *)((u8 *)(temp_7_2) + (0x10))), (*(f32 *)((u8 *)(temp_7_2) + (0x14))), a1, a2, (*(f32 *)((u8 *)(temp_7_2) + (0x18))), 0x42, temp_20);
+                            titleTransformSlotModel(a0, (((TitleRecordBlock *)middleSceneRecord)->x), 0.0f, (((TitleRecordBlock *)middleSceneRecord)->y), (((TitleRecordBlock *)middleSceneRecord)->pitch), (((TitleRecordBlock *)middleSceneRecord)->yaw), (((TitleRecordBlock *)middleSceneRecord)->unk14), a1, a2, (((TitleRecordBlock *)middleSceneRecord)->scale), 0x42, workWords);
                         }
                     }
                 }
             }
-            if (temp_16 > 0x81) {
-                if (temp_16 < 0xBE) {
-                    temp_17 = temp_16 - 0x81;
-                    lerpT = sinf(((((1.5707964f * (f32) temp_17) / 60.0f))));
-                    if (temp_17 == 1) {
+            if (frame > 0x81) {
+                if (frame < 0xBE) {
+                    logoFrame = frame - 0x81;
+                    lerpT = sinf(((((1.5707964f * (f32) logoFrame) / 60.0f))));
+                    if (logoFrame == 1) {
                         if (*(s32 *)D_005E5230 >= 0xF) {
-                            var_4_7 = NULL;
+                            thirdModel = NULL;
                         } else {
-                            temp_2_11 = (u32 *)titleOffsetPtr_001265a0((*(s32 *)D_005E5230) * 4, (u8 *)temp_20);
-                            if (mdlPrepareModel((*(u8 **)((u8 *)(temp_2_11) + (0x44)))) != 0) {
-                                var_4_7 = (u8 *)((*(u8 **)((u8 *)(temp_2_11) + (0x44))));
+                            modelSlot1 = (u32 *)titleOffsetPtr_001265a0((*(s32 *)D_005E5230) * 4, (u8 *)workWords);
+                            if (mdlPrepareModel((((TitleTask *)modelSlot1)->models[0])) != 0) {
+                                thirdModel = (u8 *)((((TitleTask *)modelSlot1)->models[0]));
                             } else {
-                                var_4_7 = NULL;
+                                thirdModel = NULL;
                             }
                         }
-                        if (var_4_7 != NULL) {
-                            mdlDispatchAnimIfPresent(var_4_7, 0, 2, 0, 1);
+                        if (thirdModel != NULL) {
+                            mdlDispatchAnimIfPresent(thirdModel, 0, 2, 0, 1);
                         }
-                        if (mdlPrepareModel(taskView->model0) != 0) {
-                            var_4_8 = (u8 *)(taskView->model0);
+                        if (mdlPrepareModel(titleTask->models[0]) != 0) {
+                            baseModel = (u8 *)(titleTask->models[0]);
                         } else {
-                            var_4_8 = NULL;
+                            baseModel = NULL;
                         }
-                        mdlSetLayerWeight(var_4_8, 0, fGpffff8110);
-                    } else if (temp_17 == 0x3A) {
+                        mdlSetLayerWeight(baseModel, 0, fGpffff8110);
+                    } else if (logoFrame == 0x3A) {
                         if (*(s32 *)D_005E5230 >= 0xF) {
-                            var_4_9 = NULL;
+                            fourthModel = NULL;
                         } else {
-                            temp_2_12 = (u32 *)titleOffsetPtr_001265a0((*(s32 *)D_005E5230) * 4, (u8 *)temp_20);
-                            if (mdlPrepareModel((*(u8 **)((u8 *)(temp_2_12) + (0x44)))) != 0) {
-                                var_4_9 = (u8 *)((*(u8 **)((u8 *)(temp_2_12) + (0x44))));
+                            modelSlot2 = (u32 *)titleOffsetPtr_001265a0((*(s32 *)D_005E5230) * 4, (u8 *)workWords);
+                            if (mdlPrepareModel((((TitleTask *)modelSlot2)->models[0])) != 0) {
+                                fourthModel = (u8 *)((((TitleTask *)modelSlot2)->models[0]));
                             } else {
-                                var_4_9 = NULL;
+                                fourthModel = NULL;
                             }
                         }
-                        if (var_4_9 != NULL) {
-                            mdlDispatchAnimIfPresent(var_4_9, 0, 0, 0xF, 1);
+                        if (fourthModel != NULL) {
+                            mdlDispatchAnimIfPresent(fourthModel, 0, 0, 0xF, 1);
                         }
                     }
                     thirdPalette = D_005E5530;
                     titlePaletteCopy(&thirdHighlight, &thirdPalette);
                     paletteOffset = D_005E538C[0] * 4;
-                    packedColor = *(u32 *)((u8 *)thirdHighlight.words + paletteOffset);
+                    /* Byte palette offsets retain the table indexing used by retail. */
+                packedColor = ((TitlePalette *)((u8 *)thirdHighlight.words + paletteOffset))->words[0];
                     packedBaseColor = titleCopySelect((u8 *)&thirdBase, (const u8 *)&thirdPalette, paletteOffset);
                     {
                         s32 a0 = (s32)((f32) D_005E5370[0]);
                         u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
-                        func_00124bb0(a0, (0.0f + D_005E5374[0] + lerpT * (D_005E539C[0] - D_005E5374[0])), 0.0f, (0.0f + D_005E5378[0] + lerpT * (D_005E53A0[0] - D_005E5378[0])), (0.0f + D_005E537C[0] + lerpT * (D_005E53A4[0] - D_005E537C[0])), (0.0f + D_005E5380[0] + lerpT * (D_005E53A8[0] - D_005E5380[0])), (0.0f + D_005E5384[0] + lerpT * (D_005E53AC[0] - D_005E5384[0])), a1, ((u32)titlePaletteChannel((packedColor >> 0x18) & 0xFF, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel((packedColor >> 0x10) & 0xFF, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel((packedColor >> 8) & 0xFF, 0xFF, 1.0f) << 8) | 0xFF, (0.0f + D_005E5388[0] + lerpT * (D_005E53B0[0] - D_005E5388[0])), 0x40, temp_20);
+                        titleTransformSlotModel(a0, (0.0f + D_005E5374[0] + lerpT * (D_005E539C[0] - D_005E5374[0])), 0.0f, (0.0f + D_005E5378[0] + lerpT * (D_005E53A0[0] - D_005E5378[0])), (0.0f + D_005E537C[0] + lerpT * (D_005E53A4[0] - D_005E537C[0])), (0.0f + D_005E5380[0] + lerpT * (D_005E53A8[0] - D_005E5380[0])), (0.0f + D_005E5384[0] + lerpT * (D_005E53AC[0] - D_005E5384[0])), a1, ((u32)titlePaletteChannel((packedColor >> 0x18) & 0xFF, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel((packedColor >> 0x10) & 0xFF, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel((packedColor >> 8) & 0xFF, 0xFF, 1.0f) << 8) | 0xFF, (0.0f + D_005E5388[0] + lerpT * (D_005E53B0[0] - D_005E5388[0])), 0x40, workWords);
                     }
-                } else if (temp_16 < 0xD2) {
-                    lerpT = sinf(((((1.5707964f * (f32) (temp_16 - 0xBD)) / 20.0f))));
+                } else if (frame < 0xD2) {
+                    lerpT = sinf(((((1.5707964f * (f32) (frame - 0xBD)) / 20.0f))));
                     fourthPalette = D_005E5530;
                     titlePaletteCopy(&fourthHighlight, &fourthPalette);
                     paletteOffset = D_005E53B4[0] * 4;
-                    packedColor = *(u32 *)((u8 *)fourthHighlight.words + paletteOffset);
+                    /* Byte palette offsets retain the table indexing used by retail. */
+                packedColor = ((TitlePalette *)((u8 *)fourthHighlight.words + paletteOffset))->words[0];
                     packedBaseColor = titleCopySelect((u8 *)&fourthBase, (const u8 *)&fourthPalette, paletteOffset);
                     {
                         s32 a0 = (s32)((f32) D_005E5398[0]);
                         u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
-                        func_00124bb0(a0, (0.0f + D_005E539C[0] + lerpT * (D_005E53C4[0] - D_005E539C[0])), 0.0f, (0.0f + D_005E53A0[0] + lerpT * (D_005E53C8[0] - D_005E53A0[0])), (0.0f + D_005E53A4[0] + lerpT * (D_005E53CC[0] - D_005E53A4[0])), (0.0f + D_005E53A8[0] + lerpT * (D_005E53D0[0] - D_005E53A8[0])), (0.0f + D_005E53AC[0] + lerpT * (D_005E53D4[0] - D_005E53AC[0])), a1, ((u32)titlePaletteChannel((packedColor >> 0x18) & 0xFF, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel((packedColor >> 0x10) & 0xFF, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel((packedColor >> 8) & 0xFF, 0xFF, 1.0f) << 8) | 0xFF, (0.0f + D_005E53B0[0] + lerpT * (D_005E53D8[0] - D_005E53B0[0])), 0x40, temp_20);
+                        titleTransformSlotModel(a0, (0.0f + D_005E539C[0] + lerpT * (D_005E53C4[0] - D_005E539C[0])), 0.0f, (0.0f + D_005E53A0[0] + lerpT * (D_005E53C8[0] - D_005E53A0[0])), (0.0f + D_005E53A4[0] + lerpT * (D_005E53CC[0] - D_005E53A4[0])), (0.0f + D_005E53A8[0] + lerpT * (D_005E53D0[0] - D_005E53A8[0])), (0.0f + D_005E53AC[0] + lerpT * (D_005E53D4[0] - D_005E53AC[0])), a1, ((u32)titlePaletteChannel((packedColor >> 0x18) & 0xFF, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel((packedColor >> 0x10) & 0xFF, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel((packedColor >> 8) & 0xFF, 0xFF, 1.0f) << 8) | 0xFF, (0.0f + D_005E53B0[0] + lerpT * (D_005E53D8[0] - D_005E53B0[0])), 0x40, workWords);
                     }
                 } else {
-                    titleDrawScene(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
+                    titleDrawScene(0xA, 0xFF, 0xFF, 0x40, (u8 *)workWords);
                 }
             }
-            if (temp_16 < 0x74) {
-                temp_f20_4 = sinf(((((1.5707964f * (f32) (temp_16 - 0x19)) / 90.0f))));
-                var_3_10 = sp674.bytes;
-                var_2_7 = 4;
-                if (var_3_10 != NULL) {
+            if (frame < 0x74) {
+                backgroundFade = sinf(((((1.5707964f * (f32) (frame - 0x19)) / 90.0f))));
+                fadeSource1Byte = fadeSource1.bytes;
+                clearCount7 = 4;
+                if (fadeSource1Byte != NULL) {
                     do {
-                        *var_3_10 = 0;
-                        var_3_10 += 1;
-                        var_2_7 -= 1;
-                    } while (var_2_7 != 0);
+                        *fadeSource1Byte = 0;
+                        fadeSource1Byte += 1;
+                        clearCount7 -= 1;
+                    } while (clearCount7 != 0);
                 }
-                titleCopyValue((u8 *)&sp678, (const u8 *)&sp674);
-                titleRectangle((u8 *)&sp678, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                titleCopyValue((u8 *)&fadeColor1, (const u8 *)&fadeSource1);
+                titleRectangle((u8 *)&fadeColor1, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 titleSkyApplyBasePreset();
                 fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
-                var_3_11 = sp61C.bytes;
-                var_2_8 = 4;
-                if ((u8 *)(var_3_11) != NULL) {
+                barSourceColor2Byte = barSourceColor2.bytes;
+                clearCount8 = 4;
+                if ((u8 *)(barSourceColor2Byte) != NULL) {
                     do {
-                        *var_3_11 = 0;
-                        var_3_11 += 1;
-                        var_2_8 -= 1;
-                    } while (var_2_8 != 0);
+                        *barSourceColor2Byte = 0;
+                        barSourceColor2Byte += 1;
+                        clearCount8 -= 1;
+                    } while (clearCount8 != 0);
                 }
-                sp61C.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&sp620, (const u8 *)&sp61C);
-                sp390 = D_005E5590;
-                PrimDrawFlatRectangle((u8 *)&sp620, titleCopyRect((u8 *)&sp3A0, (const u8 *)&sp390), 0.0f, 0);
-                sp380 = D_005E55A0;
-                PrimDrawFlatRectangle((u8 *)&sp620, titleCopyRect((u8 *)&sp3A0, (const u8 *)&sp380), 0.0f, 0);
+                barSourceColor2.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&barDrawColor2, (const u8 *)&barSourceColor2);
+                upperRectangle3 = D_005E5590;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor2, titleCopyRect((u8 *)&barRectangle3, (const u8 *)&upperRectangle3), 0.0f, 0);
+                lowerRectangle3 = D_005E55A0;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor2, titleCopyRect((u8 *)&barRectangle3, (const u8 *)&lowerRectangle3), 0.0f, 0);
                 mdlEffectEmitTagPair();
                 titleSkyApplyBasePreset();
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                shdSpriteDrawNow(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - temp_f20_4)), 0, 0, taskView->sprites, 0);
+                shdSpriteDrawNow(-1.0f, -1.0f, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - backgroundFade)), 0, 0, titleTask->sprites, 0);
             }
-            if (temp_16 == 0x55) {
-                func_0045ad50(2, H_Cdvd_LookupRequest(&D_005E56D0, &sp6B8), sp6B8);
+            if (frame == 0x55) {
+                sdkSndStartStereoBuffer(2, H_Cdvd_LookupRequest(&D_005E56D0, &fileSize), fileSize);
             }
-            if (temp_16 > 0x5a) {
-                if (temp_16 < 0x65) {
-temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
+            if (frame > 0x5a) {
+                if (frame < 0x65) {
+spriteBlend = sinf(((((1.5707964f * (f32) (frame - 0x5A)) / 10.0f))));
     /* ACC seed */;
-                    temp_f14 = 0.0f;
-                    shdSpriteDrawNowEx(159.0f + 36.0f * temp_f2, 87.0f + -15.0f * temp_f2, temp_f14, 0xFFFFFFU, (u8)(255.0f * temp_f2), 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14, 1.0f, 1.0f);
+                    spriteDepth = 0.0f;
+                    shdSpriteDrawNowEx(159.0f + 36.0f * spriteBlend, 87.0f + -15.0f * spriteBlend, spriteDepth, 0xFFFFFFU, (u8)(255.0f * spriteBlend), 0x10001, 0, titleTask->sprites, 1, 0, 0, spriteDepth, 1.0f, 1.0f);
                 } else {
-                    shdSpriteDrawNow(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
+                    shdSpriteDrawNow(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, titleTask->sprites, 1);
                 }
             }
-            if ((temp_16 > 0xbb) && (temp_16 < 0xDF)) {
-                temp_f2_2 = 1.5707964f;
-                shdSpriteDrawNow(195.0f, 72.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * sinf((((temp_f2_2 + ((temp_f2_2 * (f32) (temp_16 - 0xBB)) / 35.0f)))))), 0x10009, 0, taskView->sprites, 1);
+            if ((frame > 0xbb) && (frame < 0xDF)) {
+                promptPhase = 1.5707964f;
+                shdSpriteDrawNow(195.0f, 72.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * sinf((((promptPhase + ((promptPhase * (f32) (frame - 0xBB)) / 35.0f)))))), 0x10009, 0, titleTask->sprites, 1);
             }
-            if (temp_16 < 0x74) {
-                var_3_12 = sp66C.bytes;
-                var_2_9 = 4;
-                if (var_3_12 != NULL) {
+            if (frame < 0x74) {
+                fadeSource2Byte = fadeSource2.bytes;
+                clearCount9 = 4;
+                if (fadeSource2Byte != NULL) {
                     do {
-                        *var_3_12 = 0;
-                        var_3_12 += 1;
-                        var_2_9 -= 1;
-                    } while (var_2_9 != 0);
+                        *fadeSource2Byte = 0;
+                        fadeSource2Byte += 1;
+                        clearCount9 -= 1;
+                    } while (clearCount9 != 0);
                 }
-                titleCopyValue((u8 *)&sp670, (const u8 *)&sp66C);
-                titleRectangle((u8 *)&sp670, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                titleCopyValue((u8 *)&fadeColor2, (const u8 *)&fadeSource2);
+                titleRectangle((u8 *)&fadeColor2, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
-                var_3_13 = sp614.bytes;
-                var_2_10 = 4;
-                if ((u8 *)(var_3_13) != NULL) {
+                barSourceColor3Byte = barSourceColor3.bytes;
+                clearCount10 = 4;
+                if ((u8 *)(barSourceColor3Byte) != NULL) {
                     do {
-                        *var_3_13 = 0;
-                        var_3_13 += 1;
-                        var_2_10 -= 1;
-                    } while (var_2_10 != 0);
+                        *barSourceColor3Byte = 0;
+                        barSourceColor3Byte += 1;
+                        clearCount10 -= 1;
+                    } while (clearCount10 != 0);
                 }
-                sp614.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&sp618, (const u8 *)&sp614);
-                sp360 = D_005E5590;
-                PrimDrawFlatRectangle((u8 *)&sp618, titleCopyRect((u8 *)&sp370, (const u8 *)&sp360), 0.0f, 0);
-                sp350 = D_005E55A0;
-                PrimDrawFlatRectangle((u8 *)&sp618, titleCopyRect((u8 *)&sp370, (const u8 *)&sp350), 0.0f, 0);
+                barSourceColor3.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&barDrawColor3, (const u8 *)&barSourceColor3);
+                upperRectangle4 = D_005E5590;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor3, titleCopyRect((u8 *)&barRectangle4, (const u8 *)&upperRectangle4), 0.0f, 0);
+                lowerRectangle4 = D_005E55A0;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor3, titleCopyRect((u8 *)&barRectangle4, (const u8 *)&lowerRectangle4), 0.0f, 0);
                 mdlEffectEmitTagPair();
-                shdSpriteDrawNow(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
+                shdSpriteDrawNow(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, titleTask->sprites, 1);
             } else {
-                shdSpriteDrawNow(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
+                shdSpriteDrawNow(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, titleTask->sprites, 1);
             }
-            if (temp_16 < 0x56) {
-                var_3_14 = sp664.bytes;
-                var_2_11 = 4;
-                if (var_3_14 != NULL) {
+            if (frame < 0x56) {
+                fadeSource3Byte = fadeSource3.bytes;
+                clearCount11 = 4;
+                if (fadeSource3Byte != NULL) {
                     do {
-                        *var_3_14 = 0;
-                        var_3_14 += 1;
-                        var_2_11 -= 1;
-                    } while (var_2_11 != 0);
+                        *fadeSource3Byte = 0;
+                        fadeSource3Byte += 1;
+                        clearCount11 -= 1;
+                    } while (clearCount11 != 0);
                 }
-                titleCopyValue((u8 *)&sp668, (const u8 *)&sp664);
-                titleRectangle((u8 *)&sp668, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                titleCopyValue((u8 *)&fadeColor3, (const u8 *)&fadeSource3);
+                titleRectangle((u8 *)&fadeColor3, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 titleSkyApplyBasePreset();
                 fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
-                var_3_15 = sp60C.bytes;
-                var_2_12 = 4;
-                if ((u8 *)(var_3_15) != NULL) {
+                barSourceColor4Byte = barSourceColor4.bytes;
+                clearCount12 = 4;
+                if ((u8 *)(barSourceColor4Byte) != NULL) {
                     do {
-                        *var_3_15 = 0;
-                        var_3_15 += 1;
-                        var_2_12 -= 1;
-                    } while (var_2_12 != 0);
+                        *barSourceColor4Byte = 0;
+                        barSourceColor4Byte += 1;
+                        clearCount12 -= 1;
+                    } while (clearCount12 != 0);
                 }
-                sp60C.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&sp610, (const u8 *)&sp60C);
-                sp330 = D_005E5590;
-                PrimDrawFlatRectangle((u8 *)&sp610, titleCopyRect((u8 *)&sp340, (const u8 *)&sp330), 0.0f, 0);
-                sp320 = D_005E55A0;
-                PrimDrawFlatRectangle((u8 *)&sp610, titleCopyRect((u8 *)&sp340, (const u8 *)&sp320), 0.0f, 0);
+                barSourceColor4.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&barDrawColor4, (const u8 *)&barSourceColor4);
+                upperRectangle5 = D_005E5590;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor4, titleCopyRect((u8 *)&barRectangle5, (const u8 *)&upperRectangle5), 0.0f, 0);
+                lowerRectangle5 = D_005E55A0;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor4, titleCopyRect((u8 *)&barRectangle5, (const u8 *)&lowerRectangle5), 0.0f, 0);
                 mdlEffectEmitTagPair();
                 titleSkyApplyBasePreset();
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                shdSpriteDrawNow(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x1000A, 0, taskView->sprites, 0);
-            } else if (temp_16 < 0x92) {
-                var_3_16 = sp65C.bytes;
-                var_2_13 = 4;
-                if (var_3_16 != NULL) {
+                shdSpriteDrawNow(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, 0xFF, 0x1000A, 0, titleTask->sprites, 0);
+            } else if (frame < 0x92) {
+                fadeSource4Byte = fadeSource4.bytes;
+                clearCount13 = 4;
+                if (fadeSource4Byte != NULL) {
                     do {
-                        *var_3_16 = 0;
-                        var_3_16 += 1;
-                        var_2_13 -= 1;
-                    } while (var_2_13 != 0);
+                        *fadeSource4Byte = 0;
+                        fadeSource4Byte += 1;
+                        clearCount13 -= 1;
+                    } while (clearCount13 != 0);
                 }
-                titleCopyValue((u8 *)&sp660, (const u8 *)&sp65C);
-                titleRectangle((u8 *)&sp660, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                titleCopyValue((u8 *)&fadeColor4, (const u8 *)&fadeSource4);
+                titleRectangle((u8 *)&fadeColor4, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 titleSkyApplyBasePreset();
                 fnTable = (void (**)(s32, s32))(u32)D_00887300;
                 fnTable[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
-                var_3_17 = sp604.bytes;
-                var_2_14 = 4;
-                if ((u8 *)(var_3_17) != NULL) {
+                barSourceColor5Byte = barSourceColor5.bytes;
+                clearCount14 = 4;
+                if ((u8 *)(barSourceColor5Byte) != NULL) {
                     do {
-                        *var_3_17 = 0;
-                        var_3_17 += 1;
-                        var_2_14 -= 1;
-                    } while (var_2_14 != 0);
+                        *barSourceColor5Byte = 0;
+                        barSourceColor5Byte += 1;
+                        clearCount14 -= 1;
+                    } while (clearCount14 != 0);
                 }
-                sp604.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&sp608, (const u8 *)&sp604);
-                sp300 = D_005E5590;
-                PrimDrawFlatRectangle((u8 *)&sp608, titleCopyRect((u8 *)&sp310, (const u8 *)&sp300), 0.0f, 0);
-                sp2F0 = D_005E55A0;
-                PrimDrawFlatRectangle((u8 *)&sp608, titleCopyRect((u8 *)&sp310, (const u8 *)&sp2F0), 0.0f, 0);
+                barSourceColor5.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&barDrawColor5, (const u8 *)&barSourceColor5);
+                upperRectangle6 = D_005E5590;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor5, titleCopyRect((u8 *)&barRectangle6, (const u8 *)&upperRectangle6), 0.0f, 0);
+                lowerRectangle6 = D_005E55A0;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor5, titleCopyRect((u8 *)&barRectangle6, (const u8 *)&lowerRectangle6), 0.0f, 0);
                 mdlEffectEmitTagPair();
-                temp_f22 = sinf(((((1.5707964f * (f32) (temp_16 - 0x55)) / 60.0f))));
+                promptProgress = sinf(((((1.5707964f * (f32) (frame - 0x55)) / 60.0f))));
                 titleSkyApplyBasePreset();
                 fnTable[0](6, 1);
                 RpSkyRenderStateSet(3, (void *)0x50003);
                 RpSkyRenderStateSet(2, 0x48);
-                shdSpriteDrawNow(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - temp_f22)), 0x1000A, 0, taskView->sprites, 0);
+                shdSpriteDrawNow(268.0f, (f32) 0x169, 10.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - promptProgress)), 0x1000A, 0, titleTask->sprites, 0);
             }
-            if (temp_16 < 0x56) {
-                var_3_18 = sp654.bytes;
-                var_2_15 = 4;
-                if (var_3_18 != NULL) {
+            if (frame < 0x56) {
+                fadeSource5Byte = fadeSource5.bytes;
+                clearCount15 = 4;
+                if (fadeSource5Byte != NULL) {
                     do {
-                        *var_3_18 = 0;
-                        var_3_18 += 1;
-                        var_2_15 -= 1;
-                    } while (var_2_15 != 0);
+                        *fadeSource5Byte = 0;
+                        fadeSource5Byte += 1;
+                        clearCount15 -= 1;
+                    } while (clearCount15 != 0);
                 }
-                titleCopyValue((u8 *)&sp658, (const u8 *)&sp654);
-                titleRectangle((u8 *)&sp658, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                titleCopyValue((u8 *)&fadeColor5, (const u8 *)&fadeSource5);
+                titleRectangle((u8 *)&fadeColor5, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
-                var_3_19 = sp5FC.bytes;
-                var_2_16 = 4;
-                if ((u8 *)(var_3_19) != NULL) {
+                barSourceColor6Byte = barSourceColor6.bytes;
+                clearCount16 = 4;
+                if ((u8 *)(barSourceColor6Byte) != NULL) {
                     do {
-                        *var_3_19 = 0;
-                        var_3_19 += 1;
-                        var_2_16 -= 1;
-                    } while (var_2_16 != 0);
+                        *barSourceColor6Byte = 0;
+                        barSourceColor6Byte += 1;
+                        clearCount16 -= 1;
+                    } while (clearCount16 != 0);
                 }
-                sp5FC.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&sp600, (const u8 *)&sp5FC);
-                sp2D0 = D_005E5590;
-                PrimDrawFlatRectangle((u8 *)&sp600, titleCopyRect((u8 *)&sp2E0, (const u8 *)&sp2D0), 0.0f, 0);
-                sp2C0 = D_005E55A0;
-                PrimDrawFlatRectangle((u8 *)&sp600, titleCopyRect((u8 *)&sp2E0, (const u8 *)&sp2C0), 0.0f, 0);
+                barSourceColor6.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&barDrawColor6, (const u8 *)&barSourceColor6);
+                upperRectangle7 = D_005E5590;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor6, titleCopyRect((u8 *)&barRectangle7, (const u8 *)&upperRectangle7), 0.0f, 0);
+                lowerRectangle7 = D_005E55A0;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor6, titleCopyRect((u8 *)&barRectangle7, (const u8 *)&lowerRectangle7), 0.0f, 0);
                 mdlEffectEmitTagPair();
-                titleBuildPointRows(200.0f, 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
-            } else if (temp_16 < 0xCE) {
-                var_3_20 = sp64C.bytes;
-                var_2_17 = 4;
-                if (var_3_20 != NULL) {
+                titleBuildPointRows(200.0f, 0.0f, 10.0f, 0xFF, (u8 *)workWords);
+            } else if (frame < 0xCE) {
+                fadeSource6Byte = fadeSource6.bytes;
+                clearCount17 = 4;
+                if (fadeSource6Byte != NULL) {
                     do {
-                        *var_3_20 = 0;
-                        var_3_20 += 1;
-                        var_2_17 -= 1;
-                    } while (var_2_17 != 0);
+                        *fadeSource6Byte = 0;
+                        fadeSource6Byte += 1;
+                        clearCount17 -= 1;
+                    } while (clearCount17 != 0);
                 }
-                titleCopyValue((u8 *)&sp650, (const u8 *)&sp64C);
-                titleRectangle((u8 *)&sp650, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                titleCopyValue((u8 *)&fadeColor6, (const u8 *)&fadeSource6);
+                titleRectangle((u8 *)&fadeColor6, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
-                var_3_21 = sp5F4.bytes;
-                var_2_18 = 4;
-                if ((u8 *)(var_3_21) != NULL) {
+                barSourceColor7Byte = barSourceColor7.bytes;
+                clearCount18 = 4;
+                if ((u8 *)(barSourceColor7Byte) != NULL) {
                     do {
-                        *var_3_21 = 0;
-                        var_3_21 += 1;
-                        var_2_18 -= 1;
-                    } while (var_2_18 != 0);
+                        *barSourceColor7Byte = 0;
+                        barSourceColor7Byte += 1;
+                        clearCount18 -= 1;
+                    } while (clearCount18 != 0);
                 }
-                sp5F4.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&sp5F8, (const u8 *)&sp5F4);
-                sp2A0 = D_005E5590;
-                PrimDrawFlatRectangle((u8 *)&sp5F8, titleCopyRect((u8 *)&sp2B0, (const u8 *)&sp2A0), 0.0f, 0);
-                sp290 = D_005E55A0;
-                PrimDrawFlatRectangle((u8 *)&sp5F8, titleCopyRect((u8 *)&sp2B0, (const u8 *)&sp290), 0.0f, 0);
+                barSourceColor7.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&barDrawColor7, (const u8 *)&barSourceColor7);
+                upperRectangle8 = D_005E5590;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor7, titleCopyRect((u8 *)&barRectangle8, (const u8 *)&upperRectangle8), 0.0f, 0);
+                lowerRectangle8 = D_005E55A0;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor7, titleCopyRect((u8 *)&barRectangle8, (const u8 *)&lowerRectangle8), 0.0f, 0);
                 mdlEffectEmitTagPair();
-                titleBuildPointRows(200.0f - 700.0f * sinf(((((1.5707964f * (f32) (temp_16 - 0x55)) / 120.0f)))), 0.0f, 10.0f, 0xFF, (u8 *)temp_20);
+                titleBuildPointRows(200.0f - 700.0f * sinf(((((1.5707964f * (f32) (frame - 0x55)) / 120.0f)))), 0.0f, 10.0f, 0xFF, (u8 *)workWords);
             }
-            if (temp_16 < 0xE2) {
-                var_3_22 = sp644.bytes;
-                var_2_19 = 4;
-                if (var_3_22 != NULL) {
+            if (frame < 0xE2) {
+                fadeSource7Byte = fadeSource7.bytes;
+                clearCount19 = 4;
+                if (fadeSource7Byte != NULL) {
                     do {
-                        *var_3_22 = 0;
-                        var_3_22 += 1;
-                        var_2_19 -= 1;
-                    } while (var_2_19 != 0);
+                        *fadeSource7Byte = 0;
+                        fadeSource7Byte += 1;
+                        clearCount19 -= 1;
+                    } while (clearCount19 != 0);
                 }
-                titleCopyValue((u8 *)&sp648, (const u8 *)&sp644);
-                titleRectangle((u8 *)&sp648, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+                titleCopyValue((u8 *)&fadeColor7, (const u8 *)&fadeSource7);
+                titleRectangle((u8 *)&fadeColor7, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
                 titleSkyApplyBasePreset();
                 D_00887300[0](8, 1);
                 mdlEffectEmitMaskedTagPair();
-                var_3_23 = sp5EC.bytes;
-                var_2_20 = 4;
-                if ((u8 *)(var_3_23) != NULL) {
+                barSourceColor8Byte = barSourceColor8.bytes;
+                clearCount20 = 4;
+                if ((u8 *)(barSourceColor8Byte) != NULL) {
                     do {
-                        *var_3_23 = 0;
-                        var_3_23 += 1;
-                        var_2_20 -= 1;
-                    } while (var_2_20 != 0);
+                        *barSourceColor8Byte = 0;
+                        barSourceColor8Byte += 1;
+                        clearCount20 -= 1;
+                    } while (clearCount20 != 0);
                 }
-                sp5EC.bytes[3] = 0xFF;
-                titleCopyValue((u8 *)&sp5F0, (const u8 *)&sp5EC);
-                sp270 = D_005E5590;
-                PrimDrawFlatRectangle((u8 *)&sp5F0, titleCopyRect((u8 *)&sp280, (const u8 *)&sp270), 0.0f, 0);
-                sp260 = D_005E55A0;
-                PrimDrawFlatRectangle((u8 *)&sp5F0, titleCopyRect((u8 *)&sp280, (const u8 *)&sp260), 0.0f, 0);
+                barSourceColor8.bytes[3] = 0xFF;
+                titleCopyValue((u8 *)&barDrawColor8, (const u8 *)&barSourceColor8);
+                upperRectangle9 = D_005E5590;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor8, titleCopyRect((u8 *)&barRectangle9, (const u8 *)&upperRectangle9), 0.0f, 0);
+                lowerRectangle9 = D_005E55A0;
+                PrimDrawFlatRectangle((u8 *)&barDrawColor8, titleCopyRect((u8 *)&barRectangle9, (const u8 *)&lowerRectangle9), 0.0f, 0);
                 mdlEffectEmitTagPair();
-                temp_f20_5 = sinf((1.5707964f * (f32) temp_16) / 225.0f);
-                if (temp_16 > 0x87) {
-                    var_2_21 = temp_16 - 0x87;
+                spriteProgress = sinf((1.5707964f * (f32) frame) / 225.0f);
+                if (frame > 0x87) {
+                    spriteFadeFrame = frame - 0x87;
                 } else {
-                    var_2_21 = 0;
+                    spriteFadeFrame = 0;
                 }
-                temp_f21_2 = sinf((1.5707964f * (f32) var_2_21) / 90.0f);
+                spriteAlpha = sinf((1.5707964f * (f32) spriteFadeFrame) / 90.0f);
                 /* Keep the first return across the second call; round multiply and add separately. */
-                temp_f2 = 1.5f * temp_f20_5;
-                temp_f16 = fGpffff8170 + temp_f2;
+                spriteBlend = 1.5f * spriteProgress;
+                spriteScale = fGpffff8170 + spriteBlend;
                 {
-                    f32 size = 137.0f * temp_f16;
+                    f32 size = 137.0f * spriteScale;
 
-                    temp_f2 = 1.0f - temp_f21_2;
-                    temp_f21_2 = 255.0f * temp_f2;
-                    shdSpriteDrawNowEx(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, (s16)size, (s16)size, -82.0f + 160.0f * temp_f20_5, temp_f16, temp_f16);
+                    spriteBlend = 1.0f - spriteAlpha;
+                    spriteAlpha = 255.0f * spriteBlend;
+                    shdSpriteDrawNowEx(-3.0f, -76.0f, 10.0f, 0xFFFFFFU, (u8)spriteAlpha, 0x1000E, 0, titleTask->sprites, 1, (s16)size, (s16)size, -82.0f + 160.0f * spriteProgress, spriteScale, spriteScale);
                 }
     /* ACC seed */;
-                temp_f16_2 = 1.3f;
-                shdSpriteDrawNowEx(-9.0f, 33.0f, 10.0f, 0xFFFFFFU, (u8)temp_f21_2, 0x1000E, 0, taskView->sprites, 1, 0x6B, 0xE6, -51.0f + 60.0f * temp_f20_5, temp_f16_2, temp_f16_2);
+                secondSpriteScale = 1.3f;
+                shdSpriteDrawNowEx(-9.0f, 33.0f, 10.0f, 0xFFFFFFU, (u8)spriteAlpha, 0x1000E, 0, titleTask->sprites, 1, 0x6B, 0xE6, -51.0f + 60.0f * spriteProgress, secondSpriteScale, secondSpriteScale);
             }
         }
-        if (temp_16 < 0x19) {
-            var_3_24 = sp63C.bytes;
-            var_2_22 = 4;
-            if (var_3_24 != NULL) {
+        if (frame < 0x19) {
+            fadeSource8Byte = fadeSource8.bytes;
+            clearCount22 = 4;
+            if (fadeSource8Byte != NULL) {
                 do {
-                    *var_3_24 = 0;
-                    var_3_24 += 1;
-                    var_2_22 -= 1;
-                } while (var_2_22 != 0);
+                    *fadeSource8Byte = 0;
+                    fadeSource8Byte += 1;
+                    clearCount22 -= 1;
+                } while (clearCount22 != 0);
             }
-            titleCopyValue((u8 *)&sp640, (const u8 *)&sp63C);
-            titleRectangle((u8 *)&sp640, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+            titleCopyValue((u8 *)&fadeColor8, (const u8 *)&fadeSource8);
+            titleRectangle((u8 *)&fadeColor8, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
             titleSkyApplyBasePreset();
             D_00887300[0](8, 1);
             mdlEffectEmitMaskedTagPair();
-            var_3_25 = sp5E4.bytes;
-            var_2_23 = 4;
-            if ((u8 *)(var_3_25) != NULL) {
+            barSourceColor9Byte = barSourceColor9.bytes;
+            clearCount23 = 4;
+            if ((u8 *)(barSourceColor9Byte) != NULL) {
                 do {
-                    *var_3_25 = 0;
-                    var_3_25 += 1;
-                    var_2_23 -= 1;
-                } while (var_2_23 != 0);
+                    *barSourceColor9Byte = 0;
+                    barSourceColor9Byte += 1;
+                    clearCount23 -= 1;
+                } while (clearCount23 != 0);
             }
-            sp5E4.bytes[3] = 0xFF;
-            titleCopyValue((u8 *)&sp5E8, (const u8 *)&sp5E4);
-            sp240 = D_005E5590;
-            PrimDrawFlatRectangle((u8 *)&sp5E8, titleCopyRect((u8 *)&sp250, (const u8 *)&sp240), 0.0f, 0);
-            sp230 = D_005E55A0;
-            PrimDrawFlatRectangle((u8 *)&sp5E8, titleCopyRect((u8 *)&sp250, (const u8 *)&sp230), 0.0f, 0);
+            barSourceColor9.bytes[3] = 0xFF;
+            titleCopyValue((u8 *)&barDrawColor9, (const u8 *)&barSourceColor9);
+            upperRectangle10 = D_005E5590;
+            PrimDrawFlatRectangle((u8 *)&barDrawColor9, titleCopyRect((u8 *)&barRectangle10, (const u8 *)&upperRectangle10), 0.0f, 0);
+            lowerRectangle10 = D_005E55A0;
+            PrimDrawFlatRectangle((u8 *)&barDrawColor9, titleCopyRect((u8 *)&barRectangle10, (const u8 *)&lowerRectangle10), 0.0f, 0);
             mdlEffectEmitTagPair();
-            sp69C.value = fGpffff9c80;
-            temp_f1_11 = 255.0f;
-            var_3_26 = (u8)temp_f1_11;
-            sp69C.bytes[3] = (u8)var_3_26;
-            titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp69C);
-            sp500 = *(TitleRect *)&D_005E5670;
-            PrimDrawFlatRectangle((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp500), 10.0f, 1);
-        } else if (temp_16 < 0x56) {
-            var_3_27 = sp634.bytes;
-            var_2_24 = 4;
-            if (var_3_27 != NULL) {
+            firstLogoColor.value = fGpffff9c80;
+            logoAlpha = 255.0f;
+            firstLogoAlpha = (u8)logoAlpha;
+            firstLogoColor.bytes[3] = (u8)firstLogoAlpha;
+            titleCopyValue((u8 *)&drawColor, (const u8 *)&firstLogoColor);
+            firstMask = *(TitleRect *)&D_005E5670;
+            PrimDrawFlatRectangle((u8 *)&drawColor, titleCopyRect((u8 *)&drawRectangle, (const u8 *)&firstMask), 10.0f, 1);
+        } else if (frame < 0x56) {
+            fadeSource9Byte = fadeSource9.bytes;
+            clearCount24 = 4;
+            if (fadeSource9Byte != NULL) {
                 do {
-                    *var_3_27 = 0;
-                    var_3_27 += 1;
-                    var_2_24 -= 1;
-                } while (var_2_24 != 0);
+                    *fadeSource9Byte = 0;
+                    fadeSource9Byte += 1;
+                    clearCount24 -= 1;
+                } while (clearCount24 != 0);
             }
-            titleCopyValue((u8 *)&sp638, (const u8 *)&sp634);
-            titleRectangle((u8 *)&sp638, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+            titleCopyValue((u8 *)&fadeColor9, (const u8 *)&fadeSource9);
+            titleRectangle((u8 *)&fadeColor9, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
             titleSkyApplyBasePreset();
             D_00887300[0](8, 1);
             mdlEffectEmitMaskedTagPair();
-            var_3_28 = sp5DC.bytes;
-            var_2_25 = 4;
-            if ((u8 *)(var_3_28) != NULL) {
+            barSourceColor10Byte = barSourceColor10.bytes;
+            clearCount25 = 4;
+            if ((u8 *)(barSourceColor10Byte) != NULL) {
                 do {
-                    *var_3_28 = 0;
-                    var_3_28 += 1;
-                    var_2_25 -= 1;
-                } while (var_2_25 != 0);
+                    *barSourceColor10Byte = 0;
+                    barSourceColor10Byte += 1;
+                    clearCount25 -= 1;
+                } while (clearCount25 != 0);
             }
-            sp5DC.bytes[3] = 0xFF;
-            titleCopyValue((u8 *)&sp5E0, (const u8 *)&sp5DC);
-            sp210 = D_005E5590;
-            PrimDrawFlatRectangle((u8 *)&sp5E0, titleCopyRect((u8 *)&sp220, (const u8 *)&sp210), 0.0f, 0);
-            sp200 = D_005E55A0;
-            PrimDrawFlatRectangle((u8 *)&sp5E0, titleCopyRect((u8 *)&sp220, (const u8 *)&sp200), 0.0f, 0);
+            barSourceColor10.bytes[3] = 0xFF;
+            titleCopyValue((u8 *)&barDrawColor10, (const u8 *)&barSourceColor10);
+            upperRectangle11 = D_005E5590;
+            PrimDrawFlatRectangle((u8 *)&barDrawColor10, titleCopyRect((u8 *)&barRectangle11, (const u8 *)&upperRectangle11), 0.0f, 0);
+            lowerRectangle11 = D_005E55A0;
+            PrimDrawFlatRectangle((u8 *)&barDrawColor10, titleCopyRect((u8 *)&barRectangle11, (const u8 *)&lowerRectangle11), 0.0f, 0);
             mdlEffectEmitTagPair();
-            temp_f2_3 = 1.5707964f;
-            temp_f0_5 = sinf((((temp_f2_3 + ((temp_f2_3 * (f32) (temp_16 - 0x19)) / 60.0f)))));
-            sp698.value = fGpffff9c84;
-            temp_f1_11 = 255.0f * temp_f0_5;
-            var_3_29 = (u8)temp_f1_11;
-            sp698.bytes[3] = (u8)var_3_29;
-            titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp698);
-            sp4F0 = *(TitleRect *)&D_005E5680;
-            PrimDrawFlatRectangle((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4F0), 10.0f, 1);
+            logoPhase = 1.5707964f;
+            logoSine = sinf((((logoPhase + ((logoPhase * (f32) (frame - 0x19)) / 60.0f)))));
+            secondLogoColor.value = fGpffff9c84;
+            logoAlpha = 255.0f * logoSine;
+            secondLogoAlpha = (u8)logoAlpha;
+            secondLogoColor.bytes[3] = (u8)secondLogoAlpha;
+            titleCopyValue((u8 *)&drawColor, (const u8 *)&secondLogoColor);
+            secondMask = *(TitleRect *)&D_005E5680;
+            PrimDrawFlatRectangle((u8 *)&drawColor, titleCopyRect((u8 *)&drawRectangle, (const u8 *)&secondMask), 10.0f, 1);
         }
         break;
     case 6:
     case 7:
-        var_3_30 = (s32)(taskView->timer + 1);
-        taskView->timer = var_3_30;
-        if (var_3_30 >= 0x14) {
-            var_3_30 = 0x14;
+        closingFrame = (s32)(titleTask->timer + 1);
+        titleTask->timer = closingFrame;
+        if (closingFrame >= 0x14) {
+            closingFrame = 0x14;
         }
-        fadeT = (f32) var_3_30 / 20.0f;
-        shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, taskView->sprites, 1);
+        fadeT = (f32) closingFrame / 20.0f;
+        shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0xFF, 0, 0, titleTask->sprites, 1);
         RpSkyRenderStateSet(3, (void *)0x50003);
         RpSkyRenderStateSet(2, 0x48);
-        shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, taskView->sprites, 0);
-        sp694.value = fGpffff9c88;
-        sp6BC = sp694;
-        sp4E0 = *(TitleRect *)&D_005E5690;
-        PrimDrawFlatRectangle((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4E0), 0.0f, 1);
-        sp4D0 = *(TitleRect *)&D_005E56A0;
-        PrimDrawFlatRectangle((u8 *)&sp6BC, titleCopyRect((u8 *)&sp590, (const u8 *)&sp4D0), 0.0f, 1);
-        titleDrawShadeBars(0.0f, 0.0f, 0.0f, 0xFF, (u8 *)temp_20);
-        var_3_31 = sp62C.bytes;
-        var_2_26 = 4;
-        if (var_3_31 != NULL) {
+        shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, titleTask->sprites, 0);
+        sceneColor.value = fGpffff9c88;
+        drawColor = sceneColor;
+        thirdMask = *(TitleRect *)&D_005E5690;
+        PrimDrawFlatRectangle((u8 *)&drawColor, titleCopyRect((u8 *)&drawRectangle, (const u8 *)&thirdMask), 0.0f, 1);
+        fourthMask = *(TitleRect *)&D_005E56A0;
+        PrimDrawFlatRectangle((u8 *)&drawColor, titleCopyRect((u8 *)&drawRectangle, (const u8 *)&fourthMask), 0.0f, 1);
+        titleDrawShadeBars(0.0f, 0.0f, 0.0f, 0xFF, (u8 *)workWords);
+        fadeSource10Byte = fadeSource10.bytes;
+        clearCount26 = 4;
+        if (fadeSource10Byte != NULL) {
             do {
-                *var_3_31 = 0;
-                var_3_31 += 1;
-                var_2_26 -= 1;
-            } while (var_2_26 != 0);
+                *fadeSource10Byte = 0;
+                fadeSource10Byte += 1;
+                clearCount26 -= 1;
+            } while (clearCount26 != 0);
         }
-        titleCopyValue((u8 *)&sp630, (const u8 *)&sp62C);
-        titleRectangle((u8 *)&sp630, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+        titleCopyValue((u8 *)&fadeColor10, (const u8 *)&fadeSource10);
+        titleRectangle((u8 *)&fadeColor10, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
         titleSkyApplyBasePreset();
         D_00887300[0](8, 1);
         mdlEffectEmitMaskedTagPair();
-        var_3_32 = sp5D4.bytes;
-        var_2_27 = 4;
-        if ((u8 *)(var_3_32) != NULL) {
+        barSourceColor11Byte = barSourceColor11.bytes;
+        clearCount27 = 4;
+        if ((u8 *)(barSourceColor11Byte) != NULL) {
             do {
-                *var_3_32 = 0;
-                var_3_32 += 1;
-                var_2_27 -= 1;
-            } while (var_2_27 != 0);
+                *barSourceColor11Byte = 0;
+                barSourceColor11Byte += 1;
+                clearCount27 -= 1;
+            } while (clearCount27 != 0);
         }
-        sp5D4.bytes[3] = 0xFF;
-        titleCopyValue((u8 *)&sp5D8, (const u8 *)&sp5D4);
-        sp1E0 = D_005E5590;
-        PrimDrawFlatRectangle((u8 *)&sp5D8, titleCopyRect((u8 *)&sp1F0, (const u8 *)&sp1E0), 0.0f, 0);
-        sp1D0 = D_005E55A0;
-        PrimDrawFlatRectangle((u8 *)&sp5D8, titleCopyRect((u8 *)&sp1F0, (const u8 *)&sp1D0), 0.0f, 0);
+        barSourceColor11.bytes[3] = 0xFF;
+        titleCopyValue((u8 *)&barDrawColor11, (const u8 *)&barSourceColor11);
+        upperRectangle12 = D_005E5590;
+        PrimDrawFlatRectangle((u8 *)&barDrawColor11, titleCopyRect((u8 *)&barRectangle12, (const u8 *)&upperRectangle12), 0.0f, 0);
+        lowerRectangle12 = D_005E55A0;
+        PrimDrawFlatRectangle((u8 *)&barDrawColor11, titleCopyRect((u8 *)&barRectangle12, (const u8 *)&lowerRectangle12), 0.0f, 0);
         mdlEffectEmitTagPair();
-        temp_2_19 = (s32)(taskView->f10 + 1);
-        taskView->f10 = temp_2_19;
-        if (temp_2_19 >= 0x168) {
-            taskView->f10 = 0;
+        lateRotationFrame = (s32)(titleTask->rotationFrame + 1);
+        titleTask->rotationFrame = lateRotationFrame;
+        if (lateRotationFrame >= 0x168) {
+            titleTask->rotationFrame = 0;
         }
-        titleBuildPointRows(200.0f - 700.0f * (1.0f - (1.0f + sinf((((iGpffff81dc + ((fGpffff81e0 * (f32) taskView->f10) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0x99, (u8 *)temp_20);
-        var_3_33 = sp690.bytes;
-        var_2_28 = 4;
-        if (var_3_33 != NULL) {
+        titleBuildPointRows(200.0f - 700.0f * (1.0f - (1.0f + sinf((((iGpffff81dc + ((fGpffff81e0 * (f32) titleTask->rotationFrame) / 360.0f)))))) / 2.0f), 0.0f, 10.0f, 0x99, (u8 *)workWords);
+        finalFadeSourceByte = finalFadeSource.bytes;
+        clearCount28 = 4;
+        if (finalFadeSourceByte != NULL) {
             do {
-                *var_3_33 = 0;
-                var_3_33 += 1;
-                var_2_28 -= 1;
-            } while (var_2_28 != 0);
+                *finalFadeSourceByte = 0;
+                finalFadeSourceByte += 1;
+                clearCount28 -= 1;
+            } while (clearCount28 != 0);
         }
-        titleCopyValue((u8 *)&sp6BC, (const u8 *)&sp690);
-        titleRectangle((u8 *)&sp6BC, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
-        for (var_16 = 1; var_16 < 8; var_16++) {
+        titleCopyValue((u8 *)&drawColor, (const u8 *)&finalFadeSource);
+        titleRectangle((u8 *)&drawColor, 0.0f, 0.0f, (f32) 0xFFFF, 640.0f, 448.0f, 0x12, NULL);
+        for (lateSceneIndex = 1; lateSceneIndex < 8; lateSceneIndex++) {
             fifthPalette = D_005E5530;
             titlePaletteCopy(&fifthHighlight, &fifthPalette);
-            temp_7_5 = D_005E5230 + var_16 * 0x28;
-            paletteOffset = *(s32 *)(temp_7_5 + 0x1C) * 4;
-            packedColor = *(u32 *)((u8 *)fifthHighlight.words + paletteOffset);
+            lateSceneRecord = D_005E5230 + lateSceneIndex * 0x28;
+            paletteOffset = ((TitleRecordBlock *)lateSceneRecord)->paletteIndex * 4;
+            packedColor = ((TitlePalette *)((u8 *)fifthHighlight.words + paletteOffset))->words[0];
             packedBaseColor = titleCopySelect((u8 *)&fifthBase, (const u8 *)&fifthPalette, paletteOffset);
             green = (packedColor >> 0x10) & 0xFF;
             red = (packedColor >> 0x18) & 0xFF;
             blue = (packedColor >> 8) & 0xFF;
             {
-                s32 a0 = (s32)((f32) (*(s32 *)((u8 *)(temp_7_5) + (0))));
+                s32 a0 = (s32)((f32) (((TitleRecordBlock *)lateSceneRecord)->modelIndex));
                 u32 a1 = (packedBaseColor & 0xFFFFFF00) | 0xFF;
                 u32 a2 = ((u32)titlePaletteChannel(red, 0xFF, 1.0f) << 0x18) | ((u32)titlePaletteChannel(green, 0xFF, 1.0f) << 0x10) | ((u32)titlePaletteChannel(blue, 0xFF, 1.0f) << 8) | 0xFF;
-                func_00124bb0(a0, (*(f32 *)((u8 *)(temp_7_5) + (4))), 0.0f, (*(f32 *)((u8 *)(temp_7_5) + (8))), (*(f32 *)((u8 *)(temp_7_5) + (0xC))), (*(f32 *)((u8 *)(temp_7_5) + (0x10))), (*(f32 *)((u8 *)(temp_7_5) + (0x14))), a1, a2, (*(f32 *)((u8 *)(temp_7_5) + (0x18))), 0x42, temp_20);
+                titleTransformSlotModel(a0, (((TitleRecordBlock *)lateSceneRecord)->x), 0.0f, (((TitleRecordBlock *)lateSceneRecord)->y), (((TitleRecordBlock *)lateSceneRecord)->pitch), (((TitleRecordBlock *)lateSceneRecord)->yaw), (((TitleRecordBlock *)lateSceneRecord)->unk14), a1, a2, (((TitleRecordBlock *)lateSceneRecord)->scale), 0x42, workWords);
             }
         }
-        titleDrawScene(0xA, 0xFF, 0xFF, 0x40, (u8 *)temp_20);
-        shdSpriteDrawNow(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, taskView->sprites, 1);
-        shdSpriteDrawNowEx(204.0f, (f32) 0x143, 0.0f, 0xFFFFFFU, (u8)(255.0f * fadeT), 0x10007, 0, taskView->sprites, 1, 0, 0, 0.0f, 1.0f, 1.0f);
-        shdSpriteDrawNow(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, taskView->sprites, 1);
+        titleDrawScene(0xA, 0xFF, 0xFF, 0x40, (u8 *)workWords);
+        shdSpriteDrawNow(195.0f, 72.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10001, 0, titleTask->sprites, 1);
+        shdSpriteDrawNowEx(204.0f, (f32) 0x143, 0.0f, 0xFFFFFFU, (u8)(255.0f * fadeT), 0x10007, 0, titleTask->sprites, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+        shdSpriteDrawNow(268.0f, (f32) 0x169, 0.0f, 0xFFFFFFU, 0xFF, 0x10002, 0, titleTask->sprites, 1);
         break;
     case 8:
     case 9:
-        if (taskView->timer == 0) {
-            temp_f0_7 = (f32)*(s32 *)(D_005E5230 + taskView->f84 * 0x28);
-            if (((s32)(temp_f0_7)) >= 0xF) {
-                var_4_16 = NULL;
+        if (titleTask->timer == 0) {
+            firstModelIndex = (f32)((TitleRecordBlock *)(D_005E5230 + titleTask->selectedScene * 0x28))->modelIndex;
+            if (((s32)(firstModelIndex)) >= 0xF) {
+                firstSelectedModel = NULL;
             } else {
-                temp_2_23 = (u32 *)titleOffsetPtr_001265a0((((s32)(temp_f0_7))) * 4, (u8 *)temp_20);
-                if (mdlPrepareModel((*(u8 **)((u8 *)(temp_2_23) + (0x44)))) != 0) {
-                    var_4_16 = (u8 *)((*(u8 **)((u8 *)(temp_2_23) + (0x44))));
+                modelSlot3 = (u32 *)titleOffsetPtr_001265a0((((s32)(firstModelIndex))) * 4, (u8 *)workWords);
+                if (mdlPrepareModel((((TitleTask *)modelSlot3)->models[0])) != 0) {
+                    firstSelectedModel = (u8 *)((((TitleTask *)modelSlot3)->models[0]));
                 } else {
-                    var_4_16 = NULL;
+                    firstSelectedModel = NULL;
                 }
             }
-            if (var_4_16 != NULL) {
-                mdlDispatchAnimIfPresent(var_4_16, 0, 2, 0, 1);
+            if (firstSelectedModel != NULL) {
+                mdlDispatchAnimIfPresent(firstSelectedModel, 0, 2, 0, 1);
             }
         }
-        temp_2_24 = (s32)(taskView->timer);
-        if (temp_2_24 < 0x258) {
-            taskView->timer = (s32) (temp_2_24 + 1);
+        sceneFrame = (s32)(titleTask->timer);
+        if (sceneFrame < 0x258) {
+            titleTask->timer = (s32) (sceneFrame + 1);
         }
-        sp68C.value = fGpffff9c8c;
-        sp6BC = sp68C;
-        func_0045c870((u8 *)&sp6BC, 1);
-        temp_f0_9 = (f32)*(s32 *)(D_005E5230 + taskView->f84 * 0x28);
-        if (((s32)(temp_f0_9)) >= 0xF) {
-            var_16_2 = NULL;
+        closingColor.value = fGpffff9c8c;
+        drawColor = closingColor;
+        effMiscDrawScreenColor((u8 *)&drawColor, 1);
+        secondModelIndex = (f32)((TitleRecordBlock *)(D_005E5230 + titleTask->selectedScene * 0x28))->modelIndex;
+        if (((s32)(secondModelIndex)) >= 0xF) {
+            selectedModel = NULL;
         } else {
-            temp_2_25 = (u32 *)titleOffsetPtr_001265a0((((s32)(temp_f0_9))) * 4, (u8 *)temp_20);
-            if (mdlPrepareModel((*(u8 **)((u8 *)(temp_2_25) + (0x44)))) != 0) {
-                var_16_2 = (u8 *)((*(u8 **)((u8 *)(temp_2_25) + (0x44))));
+            modelSlot4 = (u32 *)titleOffsetPtr_001265a0((((s32)(secondModelIndex))) * 4, (u8 *)workWords);
+            if (mdlPrepareModel((((TitleTask *)modelSlot4)->models[0])) != 0) {
+                selectedModel = (u8 *)((((TitleTask *)modelSlot4)->models[0]));
             } else {
-                var_16_2 = NULL;
+                selectedModel = NULL;
             }
         }
-        if (var_16_2 != NULL) {
+        if (selectedModel != NULL) {
             f32 titleY;
-            f32 temp_f24;
-            f32 temp_f23;
-            f32 temp_f21_3;
+            f32 modelPitch;
+            f32 modelYaw;
+            f32 modelScale;
             f32 titleX;
 
-            temp_3_19 = (s32)(taskView->f84 * 0x28);
-            titleX = *(f32 *)(D_005E5234 + temp_3_19);
-            titleY = *(f32 *)(D_005E5238 + temp_3_19);
-            temp_f24 = *(f32 *)(D_005E523C + temp_3_19);
-            temp_f23 = *(f32 *)(D_005E5240 + temp_3_19);
-            temp_f21_3 = *(f32 *)(D_005E5248 + temp_3_19);
-            temp_2_26 = (s32)((*(s32 *)((u8 *)(var_16_2) + (0xD8))) & ~8);
-            (*(s32 *)((u8 *)(var_16_2) + (0xD8))) = temp_2_26;
-            temp_3_20 = temp_2_26 | 0x10;
-            (*(s32 *)((u8 *)(var_16_2) + (0xD8))) = temp_3_20;
-            temp_3_21 = temp_3_20 | 0x100000;
-            (*(s32 *)((u8 *)(var_16_2) + (0xD8))) = temp_3_21;
-            (*(s32 *)((u8 *)(var_16_2) + (0xD8))) = (s32) (temp_3_21 | 0x40000);
-            temp_17_2 = (u32)(taskView->f84);
-            if (temp_17_2 >= 0x13U) {
+            sceneOffset = (s32)(titleTask->selectedScene * 0x28);
+            /* These globals are interior aliases of the scene table, not objects. */
+            titleX = *(f32 *)(D_005E5234 + sceneOffset); /* Linker interior alias of the scene row; keep its relocation base. */
+            titleY = *(f32 *)(D_005E5238 + sceneOffset); /* Linker interior alias of the scene row; keep its relocation base. */
+            modelPitch = *(f32 *)(D_005E523C + sceneOffset); /* Linker interior alias of the scene row; keep its relocation base. */
+            modelYaw = *(f32 *)(D_005E5240 + sceneOffset); /* Linker interior alias of the scene row; keep its relocation base. */
+            modelScale = *(f32 *)(D_005E5248 + sceneOffset); /* Linker interior alias of the scene row; keep its relocation base. */
+            /* The model flags word at +0xD8 has no public layout in this unit. */
+            modelFlags = (s32)((((MdlFileModel *)selectedModel)->flags) & ~8);
+            (((MdlFileModel *)selectedModel)->flags) = modelFlags;
+            visibleModelFlags = modelFlags | 0x10;
+            (((MdlFileModel *)selectedModel)->flags) = visibleModelFlags;
+            renderModelFlags = visibleModelFlags | 0x100000;
+            (((MdlFileModel *)selectedModel)->flags) = renderModelFlags;
+            (((MdlFileModel *)selectedModel)->flags) = (s32) (renderModelFlags | 0x40000);
+            selectedScene = (u32)(titleTask->selectedScene);
+            if (selectedScene >= 0x13U) {
                 kAssertFail(D_005E5548, 0xEB);
             }
-            mdlSetLayerWeight(var_16_2, 0, *(f32 *)(D_005E5254 + temp_17_2 * 0x28));
+            mdlSetLayerWeight(selectedModel, 0, *(f32 *)(D_005E5254 + selectedScene * 0x28)); /* Linker interior alias of the scene row; keep its relocation base. */
             /* Replace writes the matrix fields and flags before concatenation.
              * Provider padding remains unspecified; do not synthesize values. */
-            RwMatrixRotate(&titleMatrix, &titleYawAxis, temp_f23, 0);
-            RwMatrixRotate(&titleMatrix, &titlePitchAxis, temp_f24, 2);
+            RwMatrixRotate(&titleMatrix, &titleYawAxis, modelYaw, 0);
+            RwMatrixRotate(&titleMatrix, &titlePitchAxis, modelPitch, 2);
             titleTranslation.x = 0.0f;
             titleTranslation.y = -90.0f;
             titleTranslation.z = 0.0f;
             RwMatrixTranslate(&titleMatrix, &titleTranslation, 1);
-            mdlApplyModelMatrix(var_16_2, &titleMatrix, 0);
-            var_2_29 = (s32)(taskView->timer - 5);
-            if (var_2_29 > 0) {
-                if (var_2_29 > 5) {
-                    var_2_29 = 5;
+            mdlApplyModelMatrix(selectedModel, &titleMatrix, 0);
+            firstLogoFrame = (s32)(titleTask->timer - 5);
+            if (firstLogoFrame > 0) {
+                if (firstLogoFrame > 5) {
+                    firstLogoFrame = 5;
                 }
                 {
-                    f32 t = 1.0f - sinf(1.5707964f * (f32)var_2_29 / 5.0f);
+                    f32 t = 1.0f - sinf(1.5707964f * (f32)firstLogoFrame / 5.0f);
 
                     titleX = titleX + 200.0f * t;
                     titleY = titleY + 250.0f * t;
                 }
-                func_002abb30(titleX + 49.0f * temp_f21_3, titleY - 33.0f * temp_f21_3, 100.0f, 0xFFFF81, 0xFF, temp_f21_3, 1, var_16_2, 0);
-                func_002abb30(titleX + 24.0f * temp_f21_3, titleY - 12.0f * temp_f21_3, 100.0f, 0xFFFFFF, 0xFF, temp_f21_3, 1, var_16_2, 0);
-                func_002abb30(titleX + 9.0f * temp_f21_3, titleY - 5.0f * temp_f21_3, 100.0f, 0xFFC705, 0xFF, temp_f21_3, 1, var_16_2, 0);
-                func_002abb30(titleX, titleY, 100.0f, 0xFFF000, 0xFF, temp_f21_3, 1, var_16_2, 0);
-                mdlAdvanceModelFromFlags(var_16_2);
-                func_002ab380(-1.0f, -1.0f, 1.0f, 0xFFFFFF, 0xFF, 0, taskView->sprites, 9, 0);
+                titleVisualDrawMaskedModel(titleX + 49.0f * modelScale, titleY - 33.0f * modelScale, 100.0f, 0xFFFF81, 0xFF, modelScale, 1, selectedModel, 0);
+                titleVisualDrawMaskedModel(titleX + 24.0f * modelScale, titleY - 12.0f * modelScale, 100.0f, 0xFFFFFF, 0xFF, modelScale, 1, selectedModel, 0);
+                titleVisualDrawMaskedModel(titleX + 9.0f * modelScale, titleY - 5.0f * modelScale, 100.0f, 0xFFC705, 0xFF, modelScale, 1, selectedModel, 0);
+                titleVisualDrawMaskedModel(titleX, titleY, 100.0f, 0xFFF000, 0xFF, modelScale, 1, selectedModel, 0);
+                mdlAdvanceModelFromFlags(selectedModel);
+                titleVisualSubmitSprite(-1.0f, -1.0f, 1.0f, 0xFFFFFF, 0xFF, 0, titleTask->sprites, 9, 0);
             }
         }
-        var_2_30 = (s32)(taskView->timer);
-        if (var_2_30 > 5) {
-            var_2_30 = 5;
+        closingFadeFrame = (s32)(titleTask->timer);
+        if (closingFadeFrame > 5) {
+            closingFadeFrame = 5;
         }
-        fadeT = (f32) var_2_30 / 5.0f;
-        shdSpriteDrawNow(195.0f, 72.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - fadeT)), 0x10001, 0, taskView->sprites, 1);
-        var_2_31 = (s32)(taskView->timer - 2);
-        if (var_2_31 > 0) {
-            if (var_2_31 > 2) {
-                var_2_31 = 5;
+        fadeT = (f32) closingFadeFrame / 5.0f;
+        shdSpriteDrawNow(195.0f, 72.0f, 0.0f, 0xFFFFFFU, (u8)(255.0f * (1.0f - fadeT)), 0x10001, 0, titleTask->sprites, 1);
+        secondLogoFrame = (s32)(titleTask->timer - 2);
+        if (secondLogoFrame > 0) {
+            if (secondLogoFrame > 2) {
+                secondLogoFrame = 5;
             }
-            temp_f1_17 = (f32) var_2_31 / 5.0f;
-            temp_f14_2 = 0.0f;
-            temp_f16_3 = 0.87f;
-            shdSpriteDrawNowEx(52.0f + 246.0f * (1.0f - temp_f1_17), 81.0f, temp_f14_2, 0xFFFFFFU, (u8)(255.0f * temp_f1_17), 0x10001, 0, taskView->sprites, 1, 0, 0, temp_f14_2, temp_f16_3, temp_f16_3);
+            logoProgress = (f32) secondLogoFrame / 5.0f;
+            logoDepth = 0.0f;
+            logoScale = 0.87f;
+            shdSpriteDrawNowEx(52.0f + 246.0f * (1.0f - logoProgress), 81.0f, logoDepth, 0xFFFFFFU, (u8)(255.0f * logoProgress), 0x10001, 0, titleTask->sprites, 1, 0, 0, logoDepth, logoScale, logoScale);
         }
-        if (taskView->f28 != (taskView->f20 << 0x10)) {
+        if (titleTask->scrollPosition != (titleTask->scroll << 0x10)) {
     /* ACC seed */;
-            temp_10_2 = (taskView->f20 << 0x10) - taskView->f28;
-            temp_f0_10 = (f32)(s32)temp_10_2 + 0.5f * (f32)((taskView->f20 - taskView->f24) << 0x10);
-            temp_10_2 = (s32)temp_f0_10;
-            if (func_0043c6a0(temp_10_2) < 0xB) {
-                taskView->f28 = (s32) (taskView->f20 << 0x10);
-                taskView->f08 = (s32) ~(taskView->f08 ^ -5);
+            scrollDistance = (titleTask->scroll << 0x10) - titleTask->scrollPosition;
+            scrollMidpoint = (f32)(s32)scrollDistance + 0.5f * (f32)((titleTask->scroll - titleTask->previousScroll) << 0x10);
+            scrollDistance = (s32)scrollMidpoint;
+            if (func_0043c6a0(scrollDistance) < 0xB) {
+                titleTask->scrollPosition = (s32) (titleTask->scroll << 0x10);
+                titleTask->flags = (s32) ~(titleTask->flags ^ -5);
             } else {
-                temp_f2 = 0.5f;
-                taskView->f28 = (s32) (taskView->f28 + (s32)((f32)(s32)temp_10_2 * temp_f2));
+                spriteBlend = 0.5f;
+                titleTask->scrollPosition = (s32) (titleTask->scrollPosition + (s32)((f32)(s32)scrollDistance * spriteBlend));
             }
         }
-        temp_5 = (s32)(taskView->f24);
-        temp_4 = (s32)(taskView->f20);
-        temp_i28 = (temp_4 - temp_5) << 0x10;
-        temp_f13_28 = 0.25f;
-        temp_f13_28 *= (f32)temp_i28;
-        temp_f1_28 = (f32)(temp_4 << 0x10) + temp_f13_28;
-        temp_28 = (s32)taskView->f28;
-        temp_f0_11 = temp_f1_28 - (f32)temp_28;
-        temp_i28 = (s32)temp_f0_11;
-        if (((temp_5 < temp_4) && (temp_i28 < 0)) || ((temp_4 < temp_5) && (temp_i28 > 0))) {
-            temp_28 = (s32)((f32)temp_i28 + temp_f1_28);
+        previousScroll = (s32)(titleTask->previousScroll);
+        currentScroll = (s32)(titleTask->scroll);
+        scrollStep = (currentScroll - previousScroll) << 0x10;
+        scrollQuarterStep = 0.25f;
+        scrollQuarterStep *= (f32)scrollStep;
+        scrollTarget = (f32)(currentScroll << 0x10) + scrollQuarterStep;
+        scrollPosition = (s32)titleTask->scrollPosition;
+        scrollDelta = scrollTarget - (f32)scrollPosition;
+        scrollStep = (s32)scrollDelta;
+        if (((previousScroll < currentScroll) && (scrollStep < 0)) || ((currentScroll < previousScroll) && (scrollStep > 0))) {
+            scrollPosition = (s32)((f32)scrollStep + scrollTarget);
         }
-        temp_f13_28 = 32.0f * ((f32)temp_28 / 65535.0f) + 327.0f;
-        shdSpriteDrawNow((f32) 0x18B, temp_f13_28, 0.0f, 0xFFFFFFU, 0xFF, 0x10006, 0, taskView->sprites, 1);
-        shdSpriteDrawNow(414.0f, 330.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10003, 0, taskView->sprites, 1);
-        shdSpriteDrawNow(444.0f, 362.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10004, 0, taskView->sprites, 1);
-        shdSpriteDrawNow((f32) 0x193, 394.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10005, 0, taskView->sprites, 1);
+        scrollQuarterStep = 32.0f * ((f32)scrollPosition / 65535.0f) + 327.0f;
+        shdSpriteDrawNow((f32) 0x18B, scrollQuarterStep, 0.0f, 0xFFFFFFU, 0xFF, 0x10006, 0, titleTask->sprites, 1);
+        shdSpriteDrawNow(414.0f, 330.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10003, 0, titleTask->sprites, 1);
+        shdSpriteDrawNow(444.0f, 362.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10004, 0, titleTask->sprites, 1);
+        shdSpriteDrawNow((f32) 0x193, 394.0f, 0.0f, 0xFFFFFFU, 0xFF, 0x10005, 0, titleTask->sprites, 1);
         break;
     case 10:
     case 11:
@@ -1687,28 +1715,28 @@ temp_f2 = sinf(((((1.5707964f * (f32) (temp_16 - 0x5A)) / 10.0f))));
         break;
     }
     /* The update callback seeds this countdown with 10 or 13 frames. */
-    if (taskView->f2C > 0) {
+    if (titleTask->fadeFrames > 0) {
         /* Four UV pairs, copied as their original words before the texture lookup. */
         fadeUvSource = D_005E56B0;
         fadeUvDestination = fadeUv.words;
-        var_4_17 = 4;
+        uvPairCount = 4;
         do {
-            temp_3_22 = fadeUvSource[0];
-            temp_2_27 = fadeUvSource[1];
+            uvFirstWord = fadeUvSource[0];
+            uvSecondWord = fadeUvSource[1];
             fadeUvSource += 2;
-            var_4_17 -= 1;
-            fadeUvDestination[0] = temp_3_22;
-            fadeUvDestination[1] = temp_2_27;
+            uvPairCount -= 1;
+            fadeUvDestination[0] = uvFirstWord;
+            fadeUvDestination[1] = uvSecondWord;
             fadeUvDestination += 2;
-        } while (var_4_17 > 0);
-        var_4_18 = 0xD;
-        if (taskView->f00 == 0x10) {
-            var_4_18 = 0xA;
+        } while (uvPairCount > 0);
+        fadeDuration = 0xD;
+        if (titleTask->currentState == 0x10) {
+            fadeDuration = 0xA;
         }
-        temp_3_23 = (s32)(taskView->f2C - 1);
-        taskView->f2C = temp_3_23;
-        fadeAlpha = (s32)((f32)(temp_3_23 * 0xFF) / (f32)var_4_18);
-        func_00366c70(0, 0, 0.0f, 0x280, 0x1C0, 0xFFFFFF, fadeAlpha,
+        fadeFrames = (s32)(titleTask->fadeFrames - 1);
+        titleTask->fadeFrames = fadeFrames;
+        fadeAlpha = (s32)((f32)(fadeFrames * 0xFF) / (f32)fadeDuration);
+        sflDataDrawTexturedQuad(0, 0, 0.0f, 0x280, 0x1C0, 0xFFFFFF, fadeAlpha,
                       1, 0, 0, NULL, RpSkyGetDisplayBufferRaster(), fadeUv.pairs);
     }
 }
@@ -1771,9 +1799,9 @@ static inline void code12QuaternionMatrix(Code12FrameMatrix *matrix, const Code1
 #pragma opt_propagation off
 s32 fadeStatus(void);
 
-s32 taskLoadSlotModels(u8 *arg0);
+s32 taskLoadSlotModels(u8 *context);
 
-s32 titleMusicStreamStep(u8 *arg0);
+s32 titleMusicStreamStep(u8 *context);
 
 /* Native b210 O2: 3056/3056 bytes, 105 resolved relocations and the
  * complete 17-entry switch table at 0x00746770. Complete vector and
@@ -1781,8 +1809,12 @@ s32 titleMusicStreamStep(u8 *arg0);
  * models and the queued draw task have separate value lifetimes.
  * See docs/probe_archive/Menu_callback_0012aa70_20260923.md. */
 // Kept in bucket: diff 1978 when moved; cause not diagnosed (uses static inline code12QuaternionMatrix).
+/* Drive title loading, camera setup, input, configuration and exit fades. */
 // FUN_0012AA70
-s32 func_0012aa70(u8 *task)
+/* Historical full-layout typing: 3056 -> 3072 bytes, normalized_diff 1475. Access-site probes now keep all matching members. */
+
+
+s32 titleTaskUpdate(u8 *task)
 {
     extern s128 D_005E56F0;
     extern const Code12FrameVectorTransfer D_005E5700[1];
@@ -1793,31 +1825,31 @@ s32 func_0012aa70(u8 *task)
     extern char D_00795E60[];
     extern f32 fGpffff813c;
     extern s32 func_00440b68(const char *, ...);
-    extern u8 *H_Cdvd_AcquireDirectory(u8 *task, s32 arg1);
-    extern s32 H_Cdvd_IsFileLoaded(void *task);
-    extern u8 *sdkSpritePackCreate(u8 *task);
-    extern s32 shdSpriteEnsureLoaded(u8 *task);
-    extern s32 taskLoadSlotModels(u8 *task);
-    extern s32 titleMusicStreamStep(u8 *task);
-    extern s32 func_00124350(u8 *unusedWork);
+    extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
+    extern s32 H_Cdvd_IsFileLoaded(void *cdvd);
+    extern u8 *sdkSpritePackCreate(u8 *descriptor);
+    extern s32 shdSpriteEnsureLoaded(u8 *pack);
+    extern s32 taskLoadSlotModels(u8 *context);
+    extern s32 titleMusicStreamStep(u8 *context);
+    extern s32 titleChooseSceneVariant(u8 *unusedWork);
     extern s32 calReadDayFlagMask(void);
-    extern void calWriteDayFlagMask(s32 task);
+    extern void calWriteDayFlagMask(s32 mask);
     extern s32 calCaptureDayFlagMask(void);
     extern void datInitDefaultGameState(void);
-    extern void func_00122520(s32 task, s32 arg1);
-    extern void func_00122640(s32 task, s32 arg1);
+    extern void fadeBeginTransition(s32 mode, s32 duration);
+    extern void fadeBeginReturnTransition(s32 mode, s32 duration);
     extern s32 fadeStatus(void);
-    extern s32 cmpConfigCreate(void *task, s32 arg1);
+    extern s32 cmpConfigCreate(void *parentTask, s32 mode);
     extern s32 cmpConfigIsStepDone(u8 *task);
     extern s32 cmpConfigIsFlagsSynced(u8 *task);
     extern u8 *kwlnGetCamera(void);
-    extern void K_View_SetFov(void *task, f32 arg1);
+    extern void K_View_SetFov(void *camera, f32 fov);
     extern u8 *func_003e8180(u8 *camera, f32 nearClip);
     extern u8 *func_003e81c0(u8 *camera, f32 farClip);
-    extern u8 *func_003e9cb0(u8 *frame, const void *matrix, s32 combine);
+    extern u8 *func_003e9cb0(u8 *frame, const void *transform, s32 combine);
     extern u8 *func_003e9c10(u8 *frame, const f32 *translation, s32 combine);
     extern u8 hsndQueueSound(s16 id, s16 unused);
-    extern void sdkSndFadeOutChannelFrames(s16 task, s32 arg1, s32 arg2);
+    extern void sdkSndFadeOutChannelFrames(s16 channelIndex, s32 requestValue, s32 fadeFrames);
 
     extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
     /* The persistent copy destination is a complete 0x5D0-byte buffer. */
@@ -1843,69 +1875,69 @@ s32 func_0012aa70(u8 *task)
     rotation = initialRotation;
     initialTranslation.vector = D_005E5700[0].vector;
     translation.vector = initialTranslation.vector;
-    *(s32 *)(work + 4) = *(s32 *)work;
-    state = *(s32 *)work;
+    ((TitleTask *)(work))->state = ((TitleTask *)work)->currentState;
+    state = ((TitleTask *)work)->currentState;
     switch (state) {
     case 0:
-        *(s32 *)work = 1;
-        func_00122640(1, 1);
+        ((TitleTask *)work)->currentState = 1;
+        fadeBeginReturnTransition(1, 1);
     case 1:
-        *(s32 *)work = 2;
+        ((TitleTask *)work)->currentState = 2;
         func_00440b68((const char *)&iGpffff9c90, D_005E5548, 0x5D0);
-        *(u8 **)(work + 0x38) = H_Cdvd_AcquireDirectory(D_005E5710, 1);
+        ((TitleTask *)(work))->archive = H_Cdvd_AcquireDirectory(D_005E5710, 1);
     case 2:
-        if (H_Cdvd_IsFileLoaded(*(u8 **)(work + 0x38)) != 0) {
-            *(s32 *)work = 3;
-            *(u8 **)(work + 0x3C) = sdkSpritePackCreate(D_005E5220);
+        if (H_Cdvd_IsFileLoaded(((TitleTask *)(work))->archive) != 0) {
+            ((TitleTask *)work)->currentState = 3;
+            ((TitleTask *)(work))->sprites = sdkSpritePackCreate(D_005E5220);
         }
         break;
     case 3:
-        if ((shdSpriteEnsureLoaded(*(u8 **)(work + 0x3C)) != 0) && (taskLoadSlotModels(work) != 0)) {
-            *(s32 *)work = 4;
+        if ((shdSpriteEnsureLoaded(((TitleTask *)(work))->sprites) != 0) && (taskLoadSlotModels(work) != 0)) {
+            ((TitleTask *)work)->currentState = 4;
             hsndQueueSound(0x13, 0x1E);
         }
         break;
     case 4:
         code12QuaternionMatrix(&matrix, &rotation);
-        func_003e9cb0(*(u8 **)(kwlnGetCamera() + 4), &matrix, 0);
-        func_003e9c10(*(u8 **)(kwlnGetCamera() + 4), translation.value, 2);
+        func_003e9cb0((u8 *)(u32)((RwObject *)kwlnGetCamera())->parent, &matrix, 0);
+        func_003e9c10((u8 *)(u32)((RwObject *)kwlnGetCamera())->parent, translation.value, 2);
         K_View_SetFov(kwlnGetCamera(), 50.0f);
         func_003e81c0(kwlnGetCamera(), 25600.0f);
         func_003e8180(kwlnGetCamera(), 10.0f);
-        *(s32 *)work = 5;
-        *(s32 *)(work + 0x14) = 0;
-        *(s32 *)(work + 0xC) = 0;
-        *(s32 *)(work + 0x10) = 0;
+        ((TitleTask *)work)->currentState = 5;
+        ((TitleTask *)(work))->sceneFrame = 0;
+        ((TitleTask *)(work))->timer = 0;
+        ((TitleTask *)(work))->rotationFrame = 0;
     case 5:
-        *(s32 *)(work + 0x14) = *(s32 *)(work + 0x14) + 1;
+        ((TitleTask *)(work))->sceneFrame = ((TitleTask *)(work))->sceneFrame + 1;
         if ((D_008C024E[0] & 0x10) || (D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80) || (D_008C024E[0] & 0x40) || (D_008C024E[0] & 4) || (D_008C024E[0] & 1) || (D_008C024E[0] & 8) || (D_008C024E[0] & 2) || (D_008C024E[0] & 0x800) || (D_008C024E[0] & 0x100)) {
             sdkSndStartStream(0, 0, 0, 1);
             pressed = D_008C024E[0];
         } else {
             pressed = 0;
         }
-        if ((pressed != 0) || (*(s32 *)(work + 0x14) >= 0xEC)) {
-            *(s32 *)(work + 8) = *(s32 *)(work + 8) & ~2;
-            if (*(s32 *)(work + 0x14) < 0xEC) {
-                *(s32 *)(work + 8) = *(s32 *)(work + 8) | 2;
-                *(s32 *)(work + 0x2C) = 0xA;
+        if ((pressed != 0) || (*(s32 *)(work + 0x14) >= 0xEC)) { /* measured: this access-site member rewrite changes instruction bytes. */
+            ((TitleTask *)(work))->flags = ((TitleTask *)(work))->flags & ~2;
+            if (*(s32 *)(work + 0x14) < 0xEC) { /* measured: this access-site member rewrite changes instruction bytes. */
+                *(s32 *)(work + 8) = *(s32 *)(work + 8) | 2; /* measured: this access-site member rewrite changes instruction bytes. */
+                ((TitleTask *)(work))->fadeFrames = 0xA;
             }
-            *(s32 *)work = 6;
+            ((TitleTask *)work)->currentState = 6;
         }
         break;
     case 6:
         sdkSndFadeOutChannelFrames(2, 0, 0x1E);
-        *(s32 *)work = 7;
-        *(s32 *)(work + 0x14) = 0;
-        *(s32 *)(work + 0xC) = 0;
+        ((TitleTask *)work)->currentState = 7;
+        ((TitleTask *)(work))->sceneFrame = 0;
+        ((TitleTask *)(work))->timer = 0;
         code12QuaternionMatrix(&matrix, &rotation);
-        func_003e9cb0(*(u8 **)(kwlnGetCamera() + 4), &matrix, 0);
-        func_003e9c10(*(u8 **)(kwlnGetCamera() + 4), translation.value, 2);
+        func_003e9cb0((u8 *)(u32)((RwObject *)kwlnGetCamera())->parent, &matrix, 0);
+        func_003e9c10((u8 *)(u32)((RwObject *)kwlnGetCamera())->parent, translation.value, 2);
         K_View_SetFov(kwlnGetCamera(), 50.0f);
         func_003e81c0(kwlnGetCamera(), 25600.0f);
         func_003e8180(kwlnGetCamera(), 10.0f);
-        if (mdlPrepareModel(*(u8 **)(work + 0x44)) != 0) {
-            activeModel = *(u8 **)(work + 0x44);
+        if (mdlPrepareModel(((TitleTask *)(work))->models[0]) != 0) {
+            activeModel = *(u8 **)(work + 0x44); /* measured: this access-site member rewrite changes instruction bytes. */
         } else {
             activeModel = 0;
         }
@@ -1913,13 +1945,13 @@ s32 func_0012aa70(u8 *task)
         updateIndex = 1;
         while (updateIndex < 8) {
             animation = D_005E5230 + updateIndex * 0x28;
-            modelIndex = (s32)(f32)*(s32 *)animation;
+            modelIndex = (s32)(f32)((TitleRecordBlock *)animation)->modelIndex;
             if (modelIndex >= 0xF) {
                 activeModel = 0;
             } else {
-                result = mdlPrepareModel(*(u8 **)(work + modelIndex * 4 + 0x44));
+                result = mdlPrepareModel(*(u8 **)(work + modelIndex * 4 + 0x44)); /* measured: this access-site member rewrite changes instruction bytes. */
                 if (result != 0) {
-                    activeModel = *(u8 **)(work + modelIndex * 4 + 0x44);
+                    activeModel = *(u8 **)(work + modelIndex * 4 + 0x44); /* measured: this access-site member rewrite changes instruction bytes. */
                 } else {
                     activeModel = 0;
                 }
@@ -1928,11 +1960,11 @@ s32 func_0012aa70(u8 *task)
                 if ((u32)updateIndex >= 0x13) {
                     kAssertFail(D_005E5548, 0xEB);
                 }
-                mdlSetLayerWeight(activeModel, 0, *(f32 *)(animation + 0x24));
+                mdlSetLayerWeight(activeModel, 0, ((TitleRecordBlock *)animation)->animationSpeed);
             }
             updateIndex++;
         }
-        if ((*(s32 *)(work + 8) & 2) != 0) {
+        if ((((TitleTask *)(work))->flags & 2) != 0) {
             u8 *resetModel;
             s32 resetIndex;
             u8 *resetRow;
@@ -1940,9 +1972,9 @@ s32 func_0012aa70(u8 *task)
             if (modelIndex >= 0xF) {
                 resetModel = 0;
             } else {
-                result = mdlPrepareModel(*(u8 **)((u8 *)(modelIndex * 4) + (u32)work + 0x44));
+                result = mdlPrepareModel((u8 *)(u32)((TitleTask *)((u8 *)(modelIndex * 4) + (u32)work))->models[0]);
                 if (result != 0) {
-                    resetModel = *(u8 **)((u8 *)(modelIndex * 4) + (u32)work + 0x44);
+                    resetModel = (u8 *)(u32)((TitleTask *)((u8 *)(modelIndex * 4) + (u32)work))->models[0];
                 } else {
                     resetModel = 0;
                 }
@@ -1953,13 +1985,13 @@ s32 func_0012aa70(u8 *task)
             resetIndex = 1;
             while (resetIndex < 8) {
                 resetRow = D_005E5230 + resetIndex * 0x28;
-                modelIndex = *(s32 *)resetRow;
+                modelIndex = ((TitleRecordBlock *)resetRow)->modelIndex;
                 if (modelIndex >= 0xF) {
                     resetModel = 0;
                 } else {
-                    result = mdlPrepareModel(*(u8 **)(work + modelIndex * 4 + 0x44));
+                    result = mdlPrepareModel(((TitleTask *)(work + modelIndex * 4))->models[0]);
                     if (result != 0) {
-                        resetModel = *(u8 **)(work + modelIndex * 4 + 0x44);
+                        resetModel = ((TitleTask *)(work + modelIndex * 4))->models[0];
                     } else {
                         resetModel = 0;
                     }
@@ -1970,15 +2002,15 @@ s32 func_0012aa70(u8 *task)
                 resetIndex++;
             }
         }
-        *(s32 *)(work + 8) = *(s32 *)(work + 8) | 2;
+        *(s32 *)(work + 8) = *(s32 *)(work + 8) | 2; /* measured: this access-site member rewrite changes instruction bytes. */
     case 7:
-        result = *(s32 *)(work + 0x14) + 1;
-        *(s32 *)(work + 0x14) = result;
+        result = ((TitleTask *)(work))->sceneFrame + 1;
+        ((TitleTask *)(work))->sceneFrame = result;
         if (result >= 0x1C2) {
-            *(s32 *)work = 0x10;
-            *(s32 *)(work + 0x1C) = 1;
-            *(s32 *)(work + 0x2C) = 0xA;
-            func_00122520(1, 0xA);
+            ((TitleTask *)work)->currentState = 0x10;
+            ((TitleTask *)(work))->pendingResult = 1;
+            ((TitleTask *)(work))->fadeFrames = 0xA;
+            fadeBeginTransition(1, 0xA);
         } else {
             if ((D_008C024E[0] & 0x10) || (D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80) || (D_008C024E[0] & 0x40) || (D_008C024E[0] & 4) || (D_008C024E[0] & 1) || (D_008C024E[0] & 8) || (D_008C024E[0] & 2) || (D_008C024E[0] & 0x800) || (D_008C024E[0] & 0x100)) {
                 sdkSndStartStream(0, 0, 0, 1);
@@ -1987,102 +2019,102 @@ s32 func_0012aa70(u8 *task)
                 pressed = 0;
             }
             if (pressed != 0) {
-                *(s32 *)work = 8;
+                ((TitleTask *)work)->currentState = 8;
             }
         }
         break;
     case 8:
         iGpffffb1e8 = iGpffffb1e8 + 1;
-        *(s32 *)work = 9;
-        *(s32 *)(work + 0x14) = 0;
-        *(s32 *)(work + 0xC) = 0;
-        *(s32 *)(work + 0x84) = func_00124350(work);
+        ((TitleTask *)work)->currentState = 9;
+        ((TitleTask *)(work))->sceneFrame = 0;
+        ((TitleTask *)(work))->timer = 0;
+        ((TitleTask *)(work))->selectedScene = titleChooseSceneVariant(work);
         matrix.right.x = matrix.up.y = matrix.at.z = 1.0f;
         matrix.up.z = matrix.at.x = matrix.at.y = matrix.right.y = matrix.right.z = matrix.up.x = 0.0f;
         matrix.pos.x = matrix.pos.y = matrix.pos.z = 0.0f;
         /* Preserve the original identity macro's read/OR of flags. This
          * branch does not initialize the pre-existing flag word. */
         matrix.flags |= 0x20003;
-        func_003e9cb0(*(u8 **)(kwlnGetCamera() + 4), &matrix, 0);
+        func_003e9cb0((u8 *)(u32)((RwObject *)kwlnGetCamera())->parent, &matrix, 0);
         K_View_SetFov(kwlnGetCamera(), 70.0f);
-        *(s32 *)(work + 0x28) = 0;
-        *(s32 *)(work + 0x24) = 0;
-        *(s32 *)(work + 0x20) = 0;
+        ((TitleTask *)(work))->scrollPosition = 0;
+        ((TitleTask *)(work))->previousScroll = 0;
+        ((TitleTask *)(work))->scroll = 0;
     case 9:
-        *(s32 *)(work + 0x14) = *(s32 *)(work + 0x14) + 1;
-        if ((D_008C024E[0] & 0x20) || (*(s32 *)(work + 0x14) >= 0x1C2)) {
-            *(s32 *)(work + 0x2C) = 0xD;
-            *(s32 *)work = 6;
+        ((TitleTask *)(work))->sceneFrame = ((TitleTask *)(work))->sceneFrame + 1;
+        if ((D_008C024E[0] & 0x20) || (*(s32 *)(work + 0x14) >= 0x1C2)) { /* measured: this access-site member rewrite changes instruction bytes. */
+            ((TitleTask *)(work))->fadeFrames = 0xD;
+            ((TitleTask *)work)->currentState = 6;
         } else {
             result = titleMusicStreamStep(work);
             switch (result) {
             case 0:
-                *(s32 *)(work + 0x14) = 0;
+                *(s32 *)(work + 0x14) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
                 break;
             case 1:
-                *(s32 *)work = 0xA;
+                ((TitleTask *)work)->currentState = 0xA;
                 break;
             case 2:
-                *(s32 *)work = 0xC;
+                ((TitleTask *)work)->currentState = 0xC;
                 sdkSndFadeOutChannelFrames(2, 0, 0);
                 break;
             case 3:
-                *(s32 *)work = 0xE;
+                ((TitleTask *)work)->currentState = 0xE;
                 break;
             }
         }
         break;
     case 10:
-        *(s32 *)(work + 0x8C) = calReadDayFlagMask();
+        ((TitleTask *)(work))->savedDayFlags = calReadDayFlagMask();
         datInitDefaultGameState();
-        *(s32 *)work = 0xB;
-        *(s32 *)(work + 0x34) = mcIconTaskCreate(task, 0);
+        ((TitleTask *)work)->currentState = 0xB;
+        ((TitleTask *)(work))->childTask = mcIconTaskCreate(task, 0);
     case 11:
         result = mcIconTaskPoll();
         switch (result) {
         case 1:
-            func_00122520(1, 0xA);
-            *(s32 *)(work + 0x1C) = 3;
-            *(s32 *)work = 0x10;
+            fadeBeginTransition(1, 0xA);
+            ((TitleTask *)(work))->pendingResult = 3;
+            ((TitleTask *)work)->currentState = 0x10;
             break;
         case 2:
-            *(s32 *)work = 8;
-            calWriteDayFlagMask(*(s32 *)(work + 0x8C));
+            ((TitleTask *)work)->currentState = 8;
+            calWriteDayFlagMask(((TitleTask *)(work))->savedDayFlags);
             break;
         }
         break;
     case 12:
-        *(s32 *)work = 0xD;
-        func_00122520(1, 0xA);
+        ((TitleTask *)work)->currentState = 0xD;
+        fadeBeginTransition(1, 0xA);
     case 13:
         if (fadeStatus() != 0) {
-            *(s32 *)(work + 0x1C) = 2;
-            *(s32 *)work = 0x10;
+            ((TitleTask *)(work))->pendingResult = 2;
+            ((TitleTask *)work)->currentState = 0x10;
         }
         break;
     case 14:
-        *(s32 *)work = 0xF;
-        *(s32 *)(work + 0x34) = cmpConfigCreate(task, 1);
+        ((TitleTask *)work)->currentState = 0xF;
+        ((TitleTask *)(work))->childTask = cmpConfigCreate(task, 1);
     case 15:
-        if (cmpConfigIsStepDone(*(u8 **)(work + 0x34)) != 0) {
-            if (cmpConfigIsFlagsSynced(*(u8 **)(work + 0x34)) != 0) {
+        if (cmpConfigIsStepDone((u8 *)(u32)((TitleTask *)(work))->childTask) != 0) {
+            if (cmpConfigIsFlagsSynced(*(u8 **)(work + 0x34)) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
                 calCaptureDayFlagMask();
             }
-            kwlnTaskDestroyWithHierarchy(*(u8 **)(work + 0x34));
-            *(s32 *)(work + 0x34) = 0;
-            *(s32 *)work = 8;
+            kwlnTaskDestroyWithHierarchy(*(u8 **)(work + 0x34)); /* measured: this access-site member rewrite changes instruction bytes. */
+            *(s32 *)(work + 0x34) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+            ((TitleTask *)work)->currentState = 8;
         }
         break;
     case 16:
-        if ((fadeStatus() != 0) && (*(s32 *)(work + 0x2C) == 0)) {
-            *(s32 *)(work + 0x18) = *(s32 *)(work + 0x1C);
+        if ((fadeStatus() != 0) && (((TitleTask *)(work))->fadeFrames == 0)) {
+            ((TitleTask *)(work))->exitResult = ((TitleTask *)(work))->pendingResult;
         }
         break;
     }
     {
         u8 *drawTask = PrimAllocQueueNode();
-        *(void (**)(void *, void *))(drawTask + 8) = titleDrawTaskView;
-        *(u8 **)(drawTask + 0x10) = task;
+        ((PrimQueueNode *)drawTask)->callback = (void *)titleDrawTaskView;
+        ((PrimQueueNode *)drawTask)->argument.data = (u8 *)task;
         PrimAppendNode(D_00795E60, drawTask);
     }
     return 0;
@@ -2090,79 +2122,92 @@ s32 func_0012aa70(u8 *task)
 
 #pragma pop
 
+typedef struct TitleImageDrawWork {
+    s32 state;
+    u8 pad04[0xC];
+    s32 insetTask;
+    s32 fullTask;
+} TitleImageDrawWork;
+typedef struct TitleImageTaskWork {
+    s32 state;
+    u8 pad04[4];
+    s32 *image;
+} TitleImageTaskWork;
+
 // Kept in bucket: diff 72 when moved; cause not diagnosed.
+/* Draw the inset or full-screen image owned by the active child task. */
 // FUN_0012B9A0
-void func_0012b9a0(s32 unused, s32 arg1)
+void titleDrawChildImage(s32 unused, s32 task)
 {
     typedef struct {
-        s128 sp50;
-        s128 sp60;
-        s128 sp70;
+        s128 fullRectangleSource;
+        s128 insetRectangleSource;
+        s128 rectangle;
         u8 gap[4];
-        f32 sp84;
-        f32 sp88;
-        f32 sp8C;
-    } B9Stack;
-    B9Stack stack;
-    f32 temp_f0;
-    f32 temp_f0_2;
-    s32 temp_17;
-    s32 temp_17_2;
-    s32 var_2;
-    s32 var_2_2;
-    u8 *temp_16;
-    u8 *temp_16_2;
-    u8 *temp_2;
-    s32 temp_3;
-    f32 *sp8c_ptr;
-    s32 *sp70_ptr;
+        f32 fullColorSource;
+        f32 insetColorSource;
+        f32 color;
+    } TitleBackdropState;
+    TitleBackdropState backdrop;
+    f32 insetColor;
+    f32 fullColor;
+    s32 insetTask;
+    s32 fullTask;
+    s32 insetImage;
+    s32 fullImage;
+    u8 *insetWork;
+    u8 *fullWork;
+    u8 *work;
+    s32 state;
+    f32 *color;
+    s32 *rectangle;
 
-    temp_2 = (u8 *)kwlnTaskGetWork(arg1);
-    temp_3 = *(s32 *)(temp_2 + 0);
-    switch (temp_3) {
+    work = (u8 *)kwlnTaskGetWork(task);
+    state = ((TitleImageDrawWork *)work)->state;
+    switch (state) {
     case 4:
     case 5:
     case 6:
-        temp_f0 = fGpffff9cA0;
-        stack.sp88 = temp_f0;
-        sp8c_ptr = &stack.sp8C;
-        stack.sp8C = temp_f0;
-        stack.sp60 = D_005E5740;
-        sp70_ptr = (s32 *)&stack.sp70;
-        stack.sp70 = D_005E5740;
-        PrimDrawFlatRectangle(sp8c_ptr, sp70_ptr, 0.0f, 1);
-        temp_17 = *(s32 *)(temp_2 + 0x10);
-        temp_16 = (u8 *)kwlnTaskGetWork(temp_17);
-        if (kwlnTaskIsLinked(temp_17) == 0) {
-            var_2 = 0;
-        } else if (*(s32 *)(temp_16 + 0) == 3) {
-            var_2 = *(s32 *)(*(u8 **)(temp_16 + 8));
+        insetColor = fGpffff9cA0;
+        backdrop.insetColorSource = insetColor;
+        color = &backdrop.color;
+        backdrop.color = insetColor;
+        backdrop.insetRectangleSource = D_005E5740;
+        rectangle = (s32 *)&backdrop.rectangle;
+        backdrop.rectangle = D_005E5740;
+        PrimDrawFlatRectangle(color, rectangle, 0.0f, 1);
+        insetTask = ((TitleImageDrawWork *)work)->insetTask;
+        insetWork = (u8 *)kwlnTaskGetWork(insetTask);
+        if (kwlnTaskIsLinked(insetTask) == 0) {
+            insetImage = 0;
+        } else if (((TitleImageTaskWork *)insetWork)->state == 3) {
+            insetImage = *((TitleImageTaskWork *)insetWork)->image;
         } else {
-            var_2 = 0;
+            insetImage = 0;
         }
-        func_00366c70(0x77, 0xAA, 0.0f, 0x200, 0x80, 0xFFFFFF, 0xFF, 1, 0, 0, 0, var_2, 0);
+        sflDataDrawTexturedQuad(0x77, 0xAA, 0.0f, 0x200, 0x80, 0xFFFFFF, 0xFF, 1, 0, 0, 0, insetImage, 0);
         return;
     case 7:
     case 8:
     case 9:
-        temp_f0_2 = fGpffff9cA4;
-        stack.sp84 = temp_f0_2;
-        sp8c_ptr = &stack.sp8C;
-        stack.sp8C = temp_f0_2;
-        stack.sp50 = D_005E5750;
-        sp70_ptr = (s32 *)&stack.sp70;
-        stack.sp70 = D_005E5750;
-        PrimDrawFlatRectangle(sp8c_ptr, sp70_ptr, 0.0f, 1);
-        temp_17_2 = *(s32 *)(temp_2 + 0x14);
-        temp_16_2 = (u8 *)kwlnTaskGetWork(temp_17_2);
-        if (kwlnTaskIsLinked(temp_17_2) == 0) {
-            var_2_2 = 0;
-        } else if (*(s32 *)(temp_16_2 + 0) == 3) {
-            var_2_2 = *(s32 *)(*(u8 **)(temp_16_2 + 8));
+        fullColor = fGpffff9cA4;
+        backdrop.fullColorSource = fullColor;
+        color = &backdrop.color;
+        backdrop.color = fullColor;
+        backdrop.fullRectangleSource = D_005E5750;
+        rectangle = (s32 *)&backdrop.rectangle;
+        backdrop.rectangle = D_005E5750;
+        PrimDrawFlatRectangle(color, rectangle, 0.0f, 1);
+        fullTask = ((TitleImageDrawWork *)work)->fullTask;
+        fullWork = (u8 *)kwlnTaskGetWork(fullTask);
+        if (kwlnTaskIsLinked(fullTask) == 0) {
+            fullImage = 0;
+        } else if (((TitleImageTaskWork *)fullWork)->state == 3) {
+            fullImage = *((TitleImageTaskWork *)fullWork)->image;
         } else {
-            var_2_2 = 0;
+            fullImage = 0;
         }
-        func_00366c70(0, 0, 0.0f, 0x400, 0x200, 0xFFFFFF, 0xFF, 1, 0, 0, 0, var_2_2, 0);
+        sflDataDrawTexturedQuad(0, 0, 0.0f, 0x400, 0x200, 0xFFFFFF, 0xFF, 1, 0, 0, 0, fullImage, 0);
         /* fall through */
     default:
         return;
@@ -2176,96 +2221,6 @@ void func_0012b9a0(s32 unused, s32 arg1)
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 // Kept in bucket: diff 207 when moved; cause not diagnosed.
-// FUN_0012D410
-void titleSlotTableInit(u8 *arg0)
-{
-    u32 temp_2_2;
-    s32 temp_2_3;
-    s32 temp_2_4;
-    s32 temp_3;
-    s32 var_18_2;
-    s32 var_18;
-    s32 var_17;
-    s32 var_2;
-    s32 var_5;
-    s32 temp_5;
-    s32 temp_6;
-    s32 *temp_4;
-
-    *(s16 *)(arg0 + 0xC) = 0;
-    *(s32 *)(arg0 + 0x18) = -1;
-    var_5 = 0;
-    temp_5 = 0x42700000;
-    temp_6 = 0x1000;
-    while (var_5 < 0xB) {
-        *(s32 *)(arg0 + (var_5 * 0x30) + 0xA4) = temp_5;
-        *(s32 *)(arg0 + (var_5 * 0x30) + 0xA8) = 0;
-        *(s16 *)(arg0 + (var_5 * 0x30) + 0xBA) = temp_6;
-        *(s8 *)(arg0 + (var_5 * 0x30) + 0xAE) = 0;
-        var_5++;
-    }
-    temp_2_2 = (u32)resourceFindByName((char *)D_005E5810);
-    if (temp_2_2 == 0) {
-        kAssertFail(D_005E5BB8, 0xC1);
-    }
-    temp_2_3 = (s32)resourceFindByName((char *)D_005E57F0);
-    *(s32 *)(arg0 + 0x90) = temp_2_3;
-    if (temp_2_3 == 0) {
-        kAssertFail(D_005E5BB8, 0xC3);
-    }
-    var_18 = 0;
-    while (var_18 < 0x15) {
-        temp_3 = var_18 * 4;
-        temp_4 = (s32 *)(arg0 + temp_3 + 0x3C);
-        temp_2_4 = (s32)sdkSpriteNewNode(temp_2_2,
-                                 *(u32 *)((u8 *)D_005E5B60 + temp_3));
-        *temp_4 = temp_2_4;
-        if (temp_2_4 == 0) {
-            kAssertFail(D_005E5BB8, 0xC9);
-        }
-        var_18++;
-    }
-    var_17 = 0;
-    var_18_2 = 0;
-    while (var_17 < 7) {
-        switch (var_17) {
-        case 0:
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 6:
-            var_2 = 1;
-            break;
-        case 5:
-            if (datGetFlag(0x1F) != 0) {
-                var_2 = 0;
-            } else {
-                var_2 = 1;
-            }
-            break;
-        default:
-            kAssertFail(D_005E5BB8, 0xA7);
-            var_2 = 0;
-            break;
-        }
-        if (var_2 != 0) {
-            *(s32 *)(arg0 + (var_18_2 * 4) + 0x1C) = var_17;
-            var_18_2++;
-        }
-        var_17++;
-    }
-    *(s32 *)(arg0 + 0x38) = var_18_2;
-    titleSlotSetMode(arg0, 0);
-}
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
-#pragma pop
-/* The menu owns eleven complete tween records and three seven-sprite banks.
- * measured: native b210 -O2 emits 1348 exact bytes plus 12 zero alignment bytes.
- * Scoped propagation preserves the selected sprite/opacity snapshots and the
- * two metadata color loads before their zero-depth argument transfers.
- * See docs/probe_archive/Camp_renderer_0012d630_complete_20260922.md. */
 typedef struct {
     Vec2f startPosition;
     Vec2f endPosition;
@@ -2300,18 +2255,116 @@ typedef struct {
 typedef char CampMenuTweenSize[(sizeof(CampMenuTween) == 0x30) ? 1 : -1];
 typedef char CampMenuWorkSize[(sizeof(CampMenuWork) == 0x2A4) ? 1 : -1];
 
+/* Create the title selector sprite banks and filter its visible options. */
+// FUN_0012D410
+/* Historical full-layout typing: 560/544 bytes, normalized_diff 255. Access-site probes now keep all matching members. */
+void titleSlotTableInit(u8 *menu)
+{
+    u32 spritePack;
+    s32 informationResource;
+    s32 sprite;
+    s32 spriteOffset;
+    s32 optionCount;
+    s32 spriteIndex;
+    s32 option;
+    s32 enabled;
+    s32 tweenIndex;
+    s32 initialXBits;
+    s32 unitScale;
+    s32 *spriteSlot;
+
+    ((CampMenuWork *)(menu))->frame = 0;
+    ((CampMenuWork *)(menu))->state = -1;
+    tweenIndex = 0;
+    initialXBits = 0x42700000;
+    unitScale = 0x1000;
+    while (tweenIndex < 0xB) {
+        ((TitleSlotMenu *)(menu + (tweenIndex * 0x30)))->slots[0].currentX.s = initialXBits;
+        ((TitleSlotMenu *)(menu + (tweenIndex * 0x30)))->slots[0].currentY.s = 0;
+        ((TitleSlotMenu *)(menu + (tweenIndex * 0x30)))->slots[0].currentScaleY = unitScale;
+        ((TitleSlotMenu *)(menu + (tweenIndex * 0x30)))->slots[0].currentAlpha = 0;
+        tweenIndex++;
+    }
+    spritePack = (u32)resourceFindByName((char *)D_005E5810);
+    if (spritePack == 0) {
+        kAssertFail(D_005E5BB8, 0xC1);
+    }
+    informationResource = (s32)resourceFindByName((char *)D_005E57F0);
+    ((CampMenuWork *)(menu))->informationResource = informationResource;
+    if (informationResource == 0) {
+        kAssertFail(D_005E5BB8, 0xC3);
+    }
+    spriteIndex = 0;
+    while (spriteIndex < 0x15) {
+        spriteOffset = spriteIndex * 4;
+        spriteSlot = (s32 *)(menu + spriteOffset + 0x3C);
+        sprite = (s32)sdkSpriteNewNode(spritePack,
+                                 *(u32 *)((u8 *)D_005E5B60 + spriteOffset)); /* measured: this access-site member rewrite changes instruction bytes. */
+        *spriteSlot = sprite;
+        if (sprite == 0) {
+            kAssertFail(D_005E5BB8, 0xC9);
+        }
+        spriteIndex++;
+    }
+    option = 0;
+    optionCount = 0;
+    while (option < 7) {
+        switch (option) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 6:
+            enabled = 1;
+            break;
+        case 5:
+            if (datGetFlag(0x1F) != 0) {
+                enabled = 0;
+            } else {
+                enabled = 1;
+            }
+            break;
+        default:
+            kAssertFail(D_005E5BB8, 0xA7);
+            enabled = 0;
+            break;
+        }
+        if (enabled != 0) {
+            ((CampMenuWork *)(menu + (optionCount * 4)))->visibleOptions[0] = option;
+            optionCount++;
+        }
+        option++;
+    }
+    ((CampMenuWork *)(menu))->optionCount = optionCount;
+    titleSlotSetMode(menu, 0);
+}
+#pragma opt_propagation on
+#pragma opt_loop_invariants off
+#pragma pop
+/* The menu owns eleven complete tween records and three seven-sprite banks.
+ * measured: native b210 -O2 emits 1348 exact bytes plus 12 zero alignment bytes.
+ * Scoped propagation preserves the selected sprite/opacity snapshots and the
+ * two metadata color loads before their zero-depth argument transfers.
+ * See docs/probe_archive/Camp_renderer_0012d630_complete_20260922.md. */
+
+
 #pragma push
 #pragma opt_propagation off
 // Kept in bucket: diff 43 when moved; cause not diagnosed.
+/* Advance title selector tweens and draw each visible option; return completion. */
 // FUN_0012D630
-s32 func_0012d630(u8 *menu)
+/* Historical update-phase typing: 1364/1360 bytes, normalized_diff 979. Access-site probes now keep all matching members. */
+
+
+s32 titleSlotUpdateAndDraw(u8 *menu)
 {
-    extern s32 func_0012e1d0(u8 *arg0);
+    extern s32 titleSlotFramesElapsed(u8 *menu);
     extern void sdkRenderStateSetDefault(void);
-    extern void sdkSpriteDrawSized(u8 *arg0, f32 farg0, f32 farg1, f32 farg2,
-                              u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                              u16 arg6, s16 arg7, f32 farg3, s16 arg_sp0);
-    extern void sdkSpriteDrawFooter(Vec2f pos, f32 z, u8 arg1, s32 arg2, s32 arg3);
+    extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
+                              u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                              u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
+    extern void sdkSpriteDrawFooter(Vec2f unusedPosition, f32 depth, u8 alpha, s32 style, s32 packAddress);
     Vec2f pos;
     Vec2f pos2;
     u8 *bytes;
@@ -2328,96 +2381,96 @@ s32 func_0012d630(u8 *menu)
 
     bytes = menu;
     finished = 1;
-    switch (*(s32 *)(bytes + 0x18)) {
+    switch (((CampMenuWork *)(bytes))->state) {
     case 0:
-        if (func_0012e1d0(bytes) != 0) {
+        if (titleSlotFramesElapsed(bytes) != 0) {
             titleSlotSetMode(bytes, 1);
             break;
         }
-        if (*(s16 *)(bytes + 0xC) < 100) {
-            *(s16 *)(bytes + 0xC) = *(s16 *)(bytes + 0xC) + 1;
+        if (((CampMenuWork *)(bytes))->frame < 100) {
+            *(s16 *)(bytes + 0xC) = ((CampMenuWork *)(bytes))->frame + 1; /* measured: this access-site member rewrite changes instruction bytes. */
         }
         for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
             u8 *rowBytes = bytes + tweenIndex * 0x30;
-            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0);
-            if (*(u8 *)(rowBytes + 0xAE) != 0) {
+            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0); /* measured: this access-site member rewrite changes instruction bytes. */
+            if (((TitleSlotMenu *)(rowBytes))->slots[0].currentAlpha != 0) {
                 finished = 0;
             }
         }
         break;
     case 1:
-        if (*(s16 *)(bytes + 0xC) < 100) {
-            *(s16 *)(bytes + 0xC) = *(s16 *)(bytes + 0xC) + 1;
+        if (((CampMenuWork *)(bytes))->frame < 100) {
+            *(s16 *)(bytes + 0xC) = ((CampMenuWork *)(bytes))->frame + 1; /* measured: this access-site member rewrite changes instruction bytes. */
         }
         for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
             u8 *rowBytes = bytes + tweenIndex * 0x30;
-            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0);
-            if (*(u8 *)(rowBytes + 0xAE) != 0) {
+            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0); /* measured: this access-site member rewrite changes instruction bytes. */
+            if (((TitleSlotMenu *)(rowBytes))->slots[0].currentAlpha != 0) {
                 finished = 0;
             }
         }
         break;
     case 2:
-        if (func_0012e1d0(bytes) != 0) {
+        if (titleSlotFramesElapsed(bytes) != 0) {
             titleSlotSetMode(bytes, 1);
             break;
         }
-        if (*(s16 *)(bytes + 0xC) < 100) {
-            *(s16 *)(bytes + 0xC) = *(s16 *)(bytes + 0xC) + 1;
+        if (((CampMenuWork *)(bytes))->frame < 100) {
+            *(s16 *)(bytes + 0xC) = ((CampMenuWork *)(bytes))->frame + 1; /* measured: this access-site member rewrite changes instruction bytes. */
         }
         for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
             u8 *rowBytes = bytes + tweenIndex * 0x30;
-            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 2);
-            if (*(u8 *)(rowBytes + 0xAE) != 0) {
+            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 2); /* measured: this access-site member rewrite changes instruction bytes. */
+            if (((TitleSlotMenu *)(rowBytes))->slots[0].currentAlpha != 0) {
                 finished = 0;
             }
         }
         break;
     case 3:
-        if (*(s16 *)(bytes + 0xC) < 100) {
-            *(s16 *)(bytes + 0xC) = *(s16 *)(bytes + 0xC) + 1;
+        if (((CampMenuWork *)(bytes))->frame < 100) {
+            *(s16 *)(bytes + 0xC) = ((CampMenuWork *)(bytes))->frame + 1; /* measured: this access-site member rewrite changes instruction bytes. */
         }
         for (tweenIndex = 0; tweenIndex < 0xB; tweenIndex++) {
             u8 *rowBytes = bytes + tweenIndex * 0x30;
-            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0);
-            if (*(u8 *)(rowBytes + 0xAE) != 0) {
+            radarAnimateValue(rowBytes + 0x94, *(s16 *)(bytes + 0xC), 0); /* measured: this access-site member rewrite changes instruction bytes. */
+            if (((TitleSlotMenu *)(rowBytes))->slots[0].currentAlpha != 0) {
                 finished = 0;
             }
         }
         break;
     }
     sdkRenderStateSetDefault();
-    selection = *(s32 *)(bytes + 0x10);
-    visibleCount = *(s32 *)(bytes + 0x38);
+    selection = ((CampMenuWork *)(bytes))->selection;
+    visibleCount = ((CampMenuWork *)(bytes))->optionCount;
     for (row = 0; row < visibleCount; row++) {
         u8 *rowBytes = bytes + row * 0x30;
         s32 option;
         u8 *sprite;
         u8 alpha;
 
-        x = *(f32 *)(bytes + 4) + 173.0f + *(f32 *)(rowBytes + 0xA4);
+        x = ((CampMenuWork *)(bytes))->position.x + 173.0f + ((TitleSlotMenu *)(rowBytes))->slots[0].currentX.f;
         pos.x = x;
-        y = *(f32 *)(bytes + 8) + 52.0f + *(f32 *)(rowBytes + 0xA8) + (f32)(row * 0x16);
+        y = ((CampMenuWork *)(bytes))->position.y + 52.0f + ((TitleSlotMenu *)(rowBytes))->slots[0].currentY.f + (f32)(row * 0x16);
         pos.y = y;
-        alpha = *(u8 *)(rowBytes + 0xAE);
-        option = *(s32 *)(bytes + row * 4 + 0x1C);
+        alpha = ((TitleSlotMenu *)(rowBytes))->slots[0].currentAlpha;
+        option = ((CampMenuWork *)(bytes + row * 4))->visibleOptions[0];
         if (row == selection) {
             pos.x += 2.0f;
             pos.y += 11.0f;
-            sprite = *(u8 **)(bytes + option * 4 + 0x58);
+            sprite = ((CampMenuWork *)(bytes + option * 4))->sprites[1][0];
         } else {
             pos.x += 1.0f;
             if (selection < row) {
                 pos.y += 45.0f;
             }
-            sprite = *(u8 **)(bytes + option * 4 + 0x3C);
+            sprite = ((CampMenuWork *)(bytes + option * 4))->sprites[0][0];
         }
         sdkSpriteDrawSized(sprite, pos.x, pos.y, 0.0f, 0xFF, 0xFF, 0xFF,
-                      alpha, 0x1000, *(u16 *)(rowBytes + 0xBA), 0,
+                      alpha, 0x1000, ((TitleSlotMenu *)(rowBytes))->slots[0].currentScaleY, 0,
                       0.0f, 0);
     }
-    pos.x = *(f32 *)(bytes + 4) + 173.0f + *(f32 *)(bytes + 0x1F4) + 3.0f;
-    pos.y = *(f32 *)(bytes + 8) + 52.0f + *(f32 *)(bytes + 0x1F8) + 311.0f;
+    pos.x = ((CampMenuWork *)(bytes))->position.x + 173.0f + ((TitleSlotMenu *)(bytes))->slots[7].currentX.f + 3.0f;
+    pos.y = ((CampMenuWork *)(bytes))->position.y + 52.0f + ((TitleSlotMenu *)(bytes))->slots[7].currentY.f + 311.0f;
     {
         CampMenuWork *work = (CampMenuWork *)bytes;
         u32 tweenOffset = (u32)row * sizeof(CampMenuTween);
@@ -2429,16 +2482,16 @@ s32 func_0012d630(u8 *menu)
                       0xFF, 0xFF, 0xFF, selectedAlpha, 0x1000,
                       tween->scaleY, 0, 0.0f, 0);
     }
-    pos.x = *(f32 *)(bytes + 0x224) + 18.0f;
+    pos.x = ((TitleSlotMenu *)(bytes))->slots[8].currentX.f + 18.0f;
     labelY = (f32)0x17D;
-    labelY += *(f32 *)(bytes + 0x228);
+    labelY += ((TitleSlotMenu *)(bytes))->slots[8].currentY.f;
     pos.y = labelY;
-    numberColor = *(u8 *)(bytes + 0x22E);
+    numberColor = ((TitleSlotMenu *)(bytes))->slots[8].currentAlpha;
     shdDrawNumberText(pos, 0.0f, numberColor, -1);
-    pos2.x = *(f32 *)(bytes + 0x254) + 640.0f;
-    pos2.y = *(f32 *)(bytes + 0x258) + 400.0f;
-    informationColor = *(u8 *)(bytes + 0x25E);
-    sdkSpriteDrawFooter(pos2, 0.0f, informationColor, 0, *(s32 *)(bytes + 0x90));
+    pos2.x = ((TitleSlotMenu *)(bytes))->slots[9].currentX.f + 640.0f;
+    pos2.y = ((TitleSlotMenu *)(bytes))->slots[9].currentY.f + 400.0f;
+    informationColor = ((TitleSlotMenu *)(bytes))->slots[9].currentAlpha;
+    sdkSpriteDrawFooter(pos2, 0.0f, informationColor, 0, ((CampMenuWork *)(bytes))->informationResource);
     return finished;
 }
 
@@ -2451,7 +2504,7 @@ s32 func_0012d630(u8 *menu)
 extern u8 D_005E58C0[];
 extern u8 D_005E59A0[];
 extern u8 D_005E5A80[];
-extern void titleLayoutSlots(u8 *arg0);
+extern void titleLayoutSlots(u8 *menu);
 
 #pragma push
 /* measured: opt_loop_invariants on is load-bearing: removing it yields MISMATCH nd 383 (obj 684B/window 688B); on yields MATCH nd 0 (obj 680B/window 688B) by hoisting the case-zero constants. */
@@ -2503,24 +2556,25 @@ typedef struct {
  * Preserve the independent position/opacity views across renderer calls. */
 // Kept in bucket: diff 1481 when moved; cause not diagnosed.
 // FUN_0012E9D0
+/* Historical full-layout typing: 5200/5152 bytes, normalized_diff 4107. Access-site probes now keep all matching members. */
 void radarDrawPanel(u8 *state)
 {
     extern void sdkRenderStateSetDefault(void);
-    extern void nLineDrawSet(Vec2f position, s32 alpha, s32 mode, f32 depth);
+    extern void nLineDrawSet(Vec2f position, s32 alpha, s32 setIndex, f32 depthOffset);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
-    extern f32 cmpGridCellFade(u8 *cell, f32 horizontal, f32 vertical, f32 gain);
+    extern f32 cmpGridCellFade(u8 *cell, f32 xFraction, f32 yFraction, f32 amount);
     extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
-        u16 scaleY, s16 mode, f32 angle, s16 flags);
-    extern void radarDrawSpritePair(u8 *state, s64 position, s32 color);
+        u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
+    extern void radarDrawSpritePair(u8 *menu, s64 packedPosition, s32 packedColor);
     extern void datEntryReset(u8 *entry);
-    extern void datEntryDrawRow(Vec2f position, f32 depth, u8 alpha, u8 *entry);
-    extern void radarDrawEntryRow(u8 *state, s32 index);
-    extern u32 datEntryGetFlags(s16 item);
-    extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 font, s32 mode, const char *text, s32 flags,
+    extern void datEntryDrawRow(Vec2f position, f32 inputDepth, u8 opacity, u8 *inputEntry);
+    extern void radarDrawEntryRow(u8 *menu, s32 partyIndex);
+    extern u32 datEntryGetFlags(s16 itemId);
+    extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags,
         s32 unused);
-    extern void radarDrawEntryCard(u8 *state, PackedVec2f position, s32 alpha, s16 *entry);
-    extern void sdkSpriteDrawFooter(Vec2f position, f32 depth, u8 alpha, s32 value, s32 mode);
+    extern void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16 *entry);
+    extern void sdkSpriteDrawFooter(Vec2f unusedPosition, f32 depth, u8 alpha, s32 style, s32 packAddress);
     extern u8 D_005E76B0[];
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2E4[];
@@ -2566,20 +2620,20 @@ void radarDrawPanel(u8 *state)
     u8 *panelSprite;
     s16 selection;
     sdkRenderStateSetDefault();
-    originX = *(f32 *)(state + 4);
-    originY = *(f32 *)(state + 8);
-    value = (f32)*(u8 *)(state + 0);
+    originX = ((RadarMenu *)state)->x.f;
+    originY = ((RadarMenu *)state)->y.f;
+    value = (f32)((RadarMenu *)state)->opacity;
     opacityScale = value / 255.0f;
-    if (*(s32 *)(state + 0x10) != 0) {
+    if (((RadarMenu *)state)->unk10 != 0) {
         position.xy.x = originX;
         position.xy.y = originY;
         scaledAlpha = 255.0f * opacityScale;
         alphaByte = (u8)scaledAlpha;
-        nLineDrawSet(position.xy, alphaByte & 0xFF, *(s32 *)(state + 0x10), 0.0f);
+        nLineDrawSet(position.xy, alphaByte & 0xFF, ((RadarMenu *)state)->unk10, 0.0f);
     }
-    selectedItem = *(s16 *)(state + 0x24) + *(s16 *)(state + 0x22);
-    if ((*(s32 *)(state + 0x14) & 0x200) != 0) {
-        dotSprite = *(void **)(state + 0x1B50);
+    selectedItem = ((RadarMenu *)state)->selection[1] + ((RadarMenu *)state)->selection[0];
+    if ((((RadarMenu *)state)->flags & 0x200) != 0) {
+        dotSprite = ((RadarMenu *)state)->sprites[14].object;
         RpSkyRenderStateSet(3, (void *)0x71801);
         RpSkyRenderStateSet(2, (void *)0x48);
         dotIndex = 0;
@@ -2588,15 +2642,15 @@ void radarDrawPanel(u8 *state)
         cachedAlpha = alphaByte;
         for (; dotIndex < 0xC; dotIndex++) {
             row = state + dotIndex * 0x30;
-            position.xy.x = 363.0f + (originX + *(f32 *)(row + 0x1888));
-            position.xy.y = 8.0f + (originY + *(f32 *)(row + 0x188C));
+            position.xy.x = 363.0f + (originX + ((RadarMenu *)row)->scatter[0].currentX.f);
+            position.xy.y = 8.0f + (originY + ((RadarMenu *)row)->scatter[0].currentY.f);
             sdkSpriteDrawAt(dotSprite, position.xy.x, position.xy.y, 0, 0xFF, 0x64, cachedAlpha);
         }
         RpSkyRenderStateSet(3, (void *)0x717FB);
         RpSkyRenderStateSet(2, (void *)0x44);
-        position.xy.x = 363.0f + (originX + *(f32 *)(state + 0x17F8));
-        position.xy.y = 8.0f + (originY + *(f32 *)(state + 0x17FC));
-        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x1802) * opacityScale;
+        position.xy.x = 363.0f + (originX + ((RadarMenu *)state)->entries[27].currentX.f);
+        position.xy.y = 8.0f + (originY + ((RadarMenu *)state)->entries[27].currentY.f);
+        scaledAlpha = (f32)(u32)((RadarMenu *)state)->entries[27].currentAlpha * opacityScale;
         alphaByte = (u8)scaledAlpha;
         cachedAlpha = alphaByte;
         cellIndex = 0;
@@ -2605,8 +2659,8 @@ void radarDrawPanel(u8 *state)
             row = state + cellIndex * 0x14;
             cell = (CampGridCell *)(row + 0xC48);
             if (cell->palette >= 0) {
-                drawX = position.xy.x + (f32)(*(s32 *)(row + 0xC4C) * 44);
-                cellY = rowY + (f32)(*(s32 *)(row + 0xC50) * 37);
+                drawX = position.xy.x + (f32)(((RadarMenu *)row)->grid[0].column * 44);
+                cellY = rowY + (f32)(((RadarMenu *)row)->grid[0].row * 37);
 
                 /* Literal weights retain the compiler-owned small-data constants. */
                 cellWeight = cmpGridCellFade((u8 *)cell, 0.3f, 0.3f, 0.6f);
@@ -2618,32 +2672,32 @@ void radarDrawPanel(u8 *state)
             }
         }
     }
-    if ((*(s32 *)(state + 0x14) & 1) != 0) {
-        position.xy.x = 152.0f + (originX + *(f32 *)(state + 0x12E8));
-        position.xy.y = 370.0f + (originY + *(f32 *)(state + 0x12EC));
-        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x12F2) * opacityScale;
+    if ((*(s32 *)(state + 0x14) & 1) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+        position.xy.x = 152.0f + (originX + ((RadarMenu *)state)->entries[0].currentX.f);
+        position.xy.y = 370.0f + (originY + ((RadarMenu *)state)->entries[0].currentY.f);
+        scaledAlpha = (f32)(u32)((RadarMenu *)state)->entries[0].currentAlpha * opacityScale;
         alphaByte = (u8)scaledAlpha;
-        sdkSpriteDrawAt(*(void **)(state + 0x1BDC), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
+        sdkSpriteDrawAt(((RadarMenu *)state)->sprites[49].object, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
     }
-    if ((*(s32 *)(state + 0x14) & 0x40) != 0) {
-        position.xy.x = 16.0f + (originX + *(f32 *)(state + 0x1798));
-        position.xy.y = 405.0f + (originY + *(f32 *)(state + 0x179C));
-        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x17A2) * opacityScale;
+    if ((*(s32 *)(state + 0x14) & 0x40) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+        position.xy.x = 16.0f + (originX + ((RadarMenu *)state)->entries[25].currentX.f);
+        position.xy.y = 405.0f + (originY + ((RadarMenu *)state)->entries[25].currentY.f);
+        scaledAlpha = (f32)(u32)((RadarMenu *)state)->entries[25].currentAlpha * opacityScale;
         alphaByte = (u8)scaledAlpha;
-        sdkSpriteDrawAt(*(void **)(state + 0x1B88), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
+        sdkSpriteDrawAt(((RadarMenu *)state)->sprites[28].object, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
     }
-    if ((*(s32 *)(state + 0x14) & 0x80) != 0) {
-        position.xy.x = 62.0f + (originX + *(f32 *)(state + 0x17C8));
-        position.xy.y = 405.0f + (originY + *(f32 *)(state + 0x17CC));
-        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x17D2) * opacityScale;
+    if ((*(s32 *)(state + 0x14) & 0x80) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+        position.xy.x = 62.0f + (originX + ((RadarMenu *)state)->entries[26].currentX.f);
+        position.xy.y = 405.0f + (originY + ((RadarMenu *)state)->entries[26].currentY.f);
+        scaledAlpha = (f32)(u32)((RadarMenu *)state)->entries[26].currentAlpha * opacityScale;
         alphaByte = (u8)scaledAlpha;
-        sdkSpriteDrawAt(*(void **)(state + 0x1B8C), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
+        sdkSpriteDrawAt(((RadarMenu *)state)->sprites[29].object, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, alphaByte);
     }
-    if ((*(s32 *)(state + 0x14) & 8) != 0) {
+    if ((*(s32 *)(state + 0x14) & 8) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
         u8 headingAlpha;
-        position.xy.x = 271.0f + (originX + *(f32 *)(state + 0x1468));
-        position.xy.y = 21.0f + (originY + *(f32 *)(state + 0x146C));
-        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x1472) * opacityScale;
+        position.xy.x = 271.0f + (originX + ((RadarMenu *)state)->entries[8].currentX.f);
+        position.xy.y = 21.0f + (originY + ((RadarMenu *)state)->entries[8].currentY.f);
+        scaledAlpha = (f32)(u32)((RadarMenu *)state)->entries[8].currentAlpha * opacityScale;
         alphaByte = (u8)scaledAlpha;
         headingAlpha = alphaByte;
 
@@ -2666,73 +2720,73 @@ void radarDrawPanel(u8 *state)
 
         datEntryDrawRow(position.xy, 0.0f, headingAlpha, (u8 *)&label);
     }
-    if ((*(s32 *)(state + 0x14) & 4) != 0) {
-        for (labelIndex = 0; labelIndex < *(s16 *)(state + 0x3C); labelIndex++) {
+    if ((*(s32 *)(state + 0x14) & 4) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+        for (labelIndex = 0; labelIndex < ((RadarMenu *)state)->partyCount; labelIndex++) {
             radarDrawEntryRow(state, labelIndex);
         }
     }
-    if ((*(s32 *)(state + 0x14) & 0x400) != 0) {
-        value = *(f32 *)(state + 0x1AF8) + (originX + *(f32 *)(state + 0x15B8));
-        rowY = *(f32 *)(state + 0x1AFC) + (originY + *(f32 *)(state + 0x15BC));
-        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x15C2) * opacityScale;
+    if ((*(s32 *)(state + 0x14) & 0x400) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+        value = ((RadarMenu *)state)->indicators[1].currentX.f + (originX + ((RadarMenu *)state)->entries[15].currentX.f);
+        rowY = ((RadarMenu *)state)->indicators[1].currentY.f + (originY + ((RadarMenu *)state)->entries[15].currentY.f);
+        scaledAlpha = (f32)(u32)((RadarMenu *)state)->entries[15].currentAlpha * opacityScale;
         alphaByte = (u8)scaledAlpha;
         cachedAlpha = alphaByte;
         drawX = 573.0f + value;
         position.xy.x = drawX;
         position.xy.y = 32.0f + rowY;
-        sdkSpriteDrawAt(*(void **)(state + 0x1B44), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, cachedAlpha);
+        sdkSpriteDrawAt(((RadarMenu *)state)->sprites[11].object, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, cachedAlpha);
         position.xy.x = drawX;
         position.xy.y = 197.0f + rowY;
-        sdkSpriteDrawAt(*(void **)(state + 0x1B48), position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, cachedAlpha);
+        sdkSpriteDrawAt(((RadarMenu *)state)->sprites[12].object, position.xy.x, position.xy.y, 0xFF, 0xFF, 0xFF, cachedAlpha);
         position.xy.x = drawX;
         position.xy.y = 35.0f + rowY;
-        scrollRange = (s32)*(s16 *)(state + 0xC3E) - 6;
+        scrollRange = (s32)((RadarMenu *)state)->inventoryCount - 6;
         if (scrollRange > 0) {
-            scrollPosition = (s32)*(s16 *)(state + 0x24) * 134;
+            scrollPosition = (s32)*(s16 *)(state + 0x24) * 134; /* measured: this access-site member rewrite changes instruction bytes. */
             position.xy.y += (f32)(scrollPosition / scrollRange);
         }
         theme = D_0064B2E8;
-        sdkSpriteDrawAt(*(void **)(state + 0x1B4C), position.xy.x, position.xy.y, theme[0], theme[1], theme[2],
+        sdkSpriteDrawAt(((RadarMenu *)state)->sprites[13].object, position.xy.x, position.xy.y, theme[0], theme[1], theme[2],
             cachedAlpha);
     }
-    if ((*(s32 *)(state + 0x14) & 2) != 0) {
-        if (*(s16 *)(state + 0xC3E) == 0) {
-            position.xy.x = 280.0f + (originX + *(f32 *)(state + 0x1318));
-            position.xy.y = 20.0f + (originY + *(f32 *)(state + 0x131C));
-            fontAlpha = *(u8 *)(state + 0x1322);
+    if ((*(s32 *)(state + 0x14) & 2) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+        if (((RadarMenu *)state)->inventoryCount == 0) {
+            position.xy.x = 280.0f + (originX + ((RadarMenu *)state)->entries[1].currentX.f);
+            position.xy.y = 20.0f + (originY + ((RadarMenu *)state)->entries[1].currentY.f);
+            fontAlpha = ((RadarMenu *)state)->entries[1].currentAlpha;
             frFontExDrawText(position.xy.x, position.xy.y, 0.0f, (fontAlpha | ~0xFF), 6, 1, (const char *)iGpffff9cc8,
                 0, 0);
         } else {
-            if (*(u8 *)(state + 0x1AD2) > 0) {
-                position.xy.x = originX + *(f32 *)(state + 0x1AC8);
-                position.xy.y = originY + *(f32 *)(state + 0x1ACC);
+            if (*(u8 *)(state + 0x1AD2) > 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+                position.xy.x = originX + ((RadarMenu *)state)->indicators[0].currentX.f;
+                position.xy.y = originY + ((RadarMenu *)state)->indicators[0].currentY.f;
                 theme = D_0064B2E4;
-                panelSprite = *(u8 **)(state + 0x1B18);
+                panelSprite = ((RadarMenu *)state)->sprites[0].node;
                 sdkSpriteDrawSized(panelSprite, position.xy.x, position.xy.y, 0.0f, theme[0], theme[1], theme[2],
-                    *(u8 *)(state + 0x1AD2), 0x1000, 0x1000, 0, 0.0f, 0);
+                    *(u8 *)(state + 0x1AD2), 0x1000, 0x1000, 0, 0.0f, 0); /* measured: this access-site member rewrite changes instruction bytes. */
             }
             for (rowIndex = 0; rowIndex < 6; rowIndex++) {
                 u8 iconAlpha;
                 u8 *iconSprite;
-                itemIndex = rowIndex + *(s16 *)(state + 0x24);
-                if (itemIndex < *(s16 *)(state + 0xC3E)) {
+                itemIndex = rowIndex + *(s16 *)(state + 0x24); /* measured: this access-site member rewrite changes instruction bytes. */
+                if (itemIndex < *(s16 *)(state + 0xC3E)) { /* measured: this access-site member rewrite changes instruction bytes. */
                     row = state + itemIndex * 4;
-                    itemId = *(s16 *)(row + 0x3E);
-                    quantity = *(s16 *)(row + 0x40);
+                    itemId = ((RadarMenu *)row)->inventory[0].id;
+                    quantity = ((RadarMenu *)row)->inventory[0].count;
                     itemFlags = datEntryGetFlags(itemId);
-                    selection = *(s16 *)(state + 0x22);
+                    selection = *(s16 *)(state + 0x22); /* measured: this access-site member rewrite changes instruction bytes. */
                     if (rowIndex == selection) {
                         theme = D_0064B2E8;
                         palette = D_0064B2EC;
-                        if ((*(s32 *)(state + 0x14) & 0x100) != 0) {
+                        if ((*(s32 *)(state + 0x14) & 0x100) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
                             continue;
                         }
-                        position.xy.x = 223.0f + (originX + *(f32 *)(state + 0x1318));
-                        position.xy.y = 21.0f + (*(f32 *)(state + 0x131C) + (originY + 34.0f * (f32)selection));
+                        position.xy.x = 223.0f + (originX + ((RadarMenu *)state)->entries[1].currentX.f);
+                        position.xy.y = 21.0f + (((RadarMenu *)state)->entries[1].currentY.f + (originY + 34.0f * (f32)selection));
                         color.channels.bytes[0] = theme[0];
                         color.channels.bytes[1] = theme[1];
                         color.channels.bytes[2] = theme[2];
-                        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x1322) * opacityScale;
+                        scaledAlpha = (f32)(u32)((RadarMenu *)state)->entries[1].currentAlpha * opacityScale;
                         alphaByte = (u8)scaledAlpha;
                         color.channels.bytes[3] = (u8)(alphaByte & 0xFF);
 
@@ -2741,35 +2795,35 @@ void radarDrawPanel(u8 *state)
                         theme = D_0064B2E4;
                         palette = D_0064B2E0;
                         row = state + rowIndex * 0x30;
-                        position.xy.x = 221.0f + (originX + *(f32 *)(row + 0x1498));
-                        position.xy.y = (21.0f + (originY + *(f32 *)(row + 0x149C))) + 34.0f * (f32)rowIndex;
-                        scaledAlpha = (f32)(u32)*(u8 *)(row + 0x14A2) * opacityScale;
+                        position.xy.x = 221.0f + (originX + ((RadarMenu *)row)->entries[9].currentX.f);
+                        position.xy.y = (21.0f + (originY + ((RadarMenu *)row)->entries[9].currentY.f)) + 34.0f * (f32)rowIndex;
+                        scaledAlpha = (f32)(u32)((RadarMenu *)row)->entries[9].currentAlpha * opacityScale;
                         alphaByte = (u8)scaledAlpha;
-                        panelSprite = *(u8 **)(state + 0x1B18);
+                        panelSprite = ((RadarMenu *)state)->sprites[0].node;
                         sdkSpriteDrawSized(panelSprite, position.xy.x, position.xy.y, 0.0f, theme[0], theme[1], theme[2],
-                            alphaByte, 0x1000, *(u16 *)(row + 0x14AE), 0, 0.0f, 0);
+                            alphaByte, 0x1000, ((RadarMenu *)row)->entries[9].currentScaleY, 0, 0.0f, 0);
                     }
                     row = state + rowIndex * 0x30;
-                    position.xy.x = 224.0f + (originX + *(f32 *)(row + 0x1498));
+                    position.xy.x = 224.0f + (originX + ((RadarMenu *)row)->entries[9].currentX.f);
                     rowY = 34.0f * (f32)rowIndex;
-                    position.xy.y = rowY + (23.0f + (originY + *(f32 *)(row + 0x149C)));
-                    scaledAlpha = (f32)(u32)*(u8 *)(row + 0x14A2) * opacityScale;
+                    position.xy.y = rowY + (23.0f + (originY + ((RadarMenu *)row)->entries[9].currentY.f));
+                    scaledAlpha = (f32)(u32)((RadarMenu *)row)->entries[9].currentAlpha * opacityScale;
                     iconAlpha = (u8)scaledAlpha;
                     if ((itemFlags & 0x10000) != 0) {
-                        iconSprite = *(u8 **)(state + 0x1B9C);
+                        iconSprite = ((RadarMenu *)state)->sprites[33].node;
                     } else if ((itemFlags & 0x20000) != 0) {
-                        iconSprite = *(u8 **)(state + 0x1BA0);
+                        iconSprite = ((RadarMenu *)state)->sprites[34].node;
                     } else {
-                        iconSprite = *(u8 **)(state + 0x1B98);
+                        iconSprite = ((RadarMenu *)state)->sprites[32].node;
                     }
                     /* Text geometry uses a separate row evaluation; the icon row
                      * remains live for the opacity read after label initialization. */
                     textIndex = rowIndex;
                     textRow = state + textIndex * 0x30;
                     sdkSpriteDrawSized(iconSprite, position.xy.x, position.xy.y, 0.0f, palette[0], palette[1],
-                        palette[2], iconAlpha, 0x1000, *(u16 *)(textRow + 0x14AE), 0, 0.0f, 0);
-                    position.xy.x = 266.0f + (originX + *(f32 *)(textRow + 0x1348));
-                    position.xy.y = 21.0f + (*(f32 *)(textRow + 0x134C) + (originY + rowY));
+                        palette[2], iconAlpha, 0x1000, ((RadarMenu *)textRow)->entries[9].currentScaleY, 0, 0.0f, 0);
+                    position.xy.x = 266.0f + (originX + ((RadarMenu *)textRow)->entries[2].currentX.f);
+                    position.xy.y = 21.0f + (((RadarMenu *)textRow)->entries[2].currentY.f + (originY + rowY));
 
                     datEntryReset((u8 *)&label);
                     label.itemId = itemId;
@@ -2778,28 +2832,28 @@ void radarDrawPanel(u8 *state)
                     label.drawName = 1;
                     label.drawStats = 0;
                     label.layout = 4;
-                    if (rowIndex == *(s16 *)(state + 0x22)) {
+                    if (rowIndex == *(s16 *)(state + 0x22)) { /* measured: this access-site member rewrite changes instruction bytes. */
                         label.iconFlags = 0;
                         label.palette = 3;
                     } else {
                         label.iconFlags = 0;
                         label.palette = 2;
                     }
-                    scaledAlpha = (f32)(u32)*(u8 *)(row + 0x1352) * opacityScale;
+                    scaledAlpha = (f32)(u32)((RadarMenu *)row)->entries[2].currentAlpha * opacityScale;
                     datEntryDrawRow(position.xy, 0.0f, (u8)scaledAlpha, (u8 *)&label);
                 }
             }
         }
     }
-    if (((*(s32 *)(state + 0x14) & 0x100) != 0) && (*(s16 *)(state + 0xC3E) != 0)) {
-        position.xy.x = 223.0f + (originX + *(f32 *)(state + 0x1318));
-        selection = *(s16 *)(state + 0x22);
-        position.xy.y = 21.0f + (*(f32 *)(state + 0x131C) + (originY + 34.0f * (f32)selection));
-        scaledAlpha = (f32)(u32)*(u8 *)(state + 0x15F2) * opacityScale;
+    if (((*(s32 *)(state + 0x14) & 0x100) != 0) && (((RadarMenu *)state)->inventoryCount != 0)) { /* measured: this access-site member rewrite changes instruction bytes. */
+        position.xy.x = 223.0f + (originX + ((RadarMenu *)state)->entries[1].currentX.f);
+        selection = *(s16 *)(state + 0x22); /* measured: this access-site member rewrite changes instruction bytes. */
+        position.xy.y = 21.0f + (((RadarMenu *)state)->entries[1].currentY.f + (originY + 34.0f * (f32)selection));
+        scaledAlpha = (f32)(u32)((RadarMenu *)state)->entries[16].currentAlpha * opacityScale;
         alphaByte = (u8)scaledAlpha;
-        itemId = *(s16 *)(state + 0x24);
+        itemId = *(s16 *)(state + 0x24); /* measured: this access-site member rewrite changes instruction bytes. */
         detailLabel.itemId = ((s16 *)(state + 0x3E))[(itemId + selection) * 2];
-        detailLabel.quantity = ((s16 *)(state + 0x40))[(itemId + *(s16 *)(state + 0x22)) * 2];
+        detailLabel.quantity = ((s16 *)(state + 0x40))[(itemId + *(s16 *)(state + 0x22)) * 2]; /* measured: this access-site member rewrite changes instruction bytes. */
         detailLabel.priceMode = -1;
         detailLabel.drawName = 1;
         /* comparisonItem is only consumed when statistics are enabled. */
@@ -2810,12 +2864,12 @@ void radarDrawPanel(u8 *state)
 
         radarDrawEntryCard(state, position, alphaByte & 0xFF, (s16 *)&detailLabel);
     }
-    position.xy.x = 640.0f + (originX + *(f32 *)(state + 0x1828));
-    position.xy.y = 400.0f + (originY + *(f32 *)(state + 0x182C));
-    value = (f32)*(u8 *)(state + 0x1832);
+    position.xy.x = 640.0f + (originX + ((RadarMenu *)state)->entries[28].currentX.f);
+    position.xy.y = 400.0f + (originY + ((RadarMenu *)state)->entries[28].currentY.f);
+    value = (f32)((RadarMenu *)state)->entries[28].currentAlpha;
     scaledAlpha = value * opacityScale;
     alphaByte = (u8)scaledAlpha;
-    sdkSpriteDrawFooter(position.xy, 0.0f, (u8)(alphaByte & 0xFF), *(s16 *)(state + 0xC40), *(s32 *)(state + 0x1BE4));
+    sdkSpriteDrawFooter(position.xy, 0.0f, (u8)(alphaByte & 0xFF), ((RadarMenu *)state)->unkC40, *(s32 *)(state + 0x1BE4)); /* measured: this access-site member rewrite changes instruction bytes. */
 }
 
 #pragma pop

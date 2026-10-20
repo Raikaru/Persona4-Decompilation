@@ -7,24 +7,26 @@
 #include "fr_font_internal.h"
 #include "datPersona_internal.h"
 #include "rw_types_internal.h"
-extern void MT_Scene_SetWorkPresentFlag(u8 *arg0, void *arg1);
+#include "kwln_task_internal.h"
+extern void MT_Scene_SetWorkPresentFlag(u8 *task, void *presentWork);
+/* Clear the present bit and mark the scene work released with bit 1. */
 // FUN_003642A0
-void MT_Scene_ReleaseWork(u8 *arg0)
+void MT_Scene_ReleaseWork(u8 *task)
 {
-    u16 *flags = *(u16 **)(arg0 + 0x38);
+    u16 *flags = (u16 *)((KwlnTask *)task)->work;
 
-    MT_Scene_SetWorkPresentFlag(arg0, NULL);
+    MT_Scene_SetWorkPresentFlag(task, NULL);
     *flags |= 2;
 }
 
 // Intent: Set the work block's present flag (bit 0 of the flags halfword) when the pointer is non-null, otherwise clear it [inferred]
 // FUN_003642E0
-void MT_Scene_SetWorkPresentFlag(u8 *arg0, void *arg1)
+void MT_Scene_SetWorkPresentFlag(u8 *task, void *presentWork)
 {
     u16 *flags;
 
-    flags = *(u16 **)(arg0 + 0x38);
-    if (arg1 != NULL) {
+    flags = (u16 *)((KwlnTask *)task)->work;
+    if (presentWork != NULL) {
         *flags |= 1;
     } else {
         *flags &= (u16)~1;

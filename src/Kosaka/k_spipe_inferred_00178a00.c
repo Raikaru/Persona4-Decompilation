@@ -61,8 +61,8 @@ extern u8 D_005F1950[];
 extern u8 D_005F1A60[];
 extern u8 D_005F1A64[];
 extern u16 D_008C024E[];
-void FldSmapTileQueueQuad(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4,
-                    s32 arg5, s32 arg6, f32 arg7, f32 arg8, f32 arg9);
+void FldSmapTileQueueQuad(u8 *queue, u8 *context, s32 tileType, s32 variant, s32 width,
+                    s32 height, s32 flags, f32 x, f32 y, f32 depth);
 
 extern f32 iGpffff8304;
 extern char D_005E5850[];
@@ -71,14 +71,14 @@ extern u8 D_00794E70[];
 
 
 
-extern s32 FldShadow_DrawProjection(u8 *arg0, s32 arg1, s32 arg2, void *arg3,
-                         f32 farg0, f32 farg1, s32 arg4, u8 *arg5);
+extern s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, void *intersection,
+                         f32 opacity, f32 depth, s32 fadeWithDepth, u8 *workData);
 extern u8 D_007EFA00[];
-extern void FldRc_QueueScreenQuad(u8 *arg0, u8 *arg1,
-                           f32 arg2, f32 arg3, f32 arg4, f32 arg5, f32 arg6,
-                           void *arg7, s32 arg8,
-                           f32 arg9, f32 arg10, f32 arg11,
-                           s32 arg12, void *arg13, f32 arg14);
+extern void FldRc_QueueScreenQuad(u8 *, u8 *,
+                           f32, f32, f32, f32, f32,
+                           void *, s32,
+                           f32, f32, f32,
+                           s32, void *, f32);
 extern u8 D_005F1970[];
 extern u8 D_005F1974[];
 extern u8 D_005F1978[];
@@ -126,29 +126,52 @@ extern s32 iGpffffba48;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0017; members 00178a00-00178c00 */
 
+/* Script getters share this sparse state view: the current record pointer is
+ * read at 0x160. Only fields observed by these getters are represented. */
+typedef struct SpipeRecord
+{
+    u16 unk00;
+    u16 id;
+    u8 level;
+    u8 unk05;
+    u8 kind;
+    u8 flags;
+    s32 state;
+} SpipeRecord;
+typedef struct SpipeScriptState
+{
+    u8 pad00[8];
+    s32 finished;
+    u16 stateIndex;
+    u8 pad0E[0x152];
+    SpipeRecord *record;
+} SpipeScriptState;
+
+/* Return the current state index through the script VM result slot. */
 // FUN_00178A00
 s32 K_Spipe_GetStateIndex(void)
 {
-    scrSetReturnInt(*(u16 *)(D_007643D0 + 0xC));
+    scrSetReturnInt(((SpipeScriptState *)D_007643D0)->stateIndex);
     return 1;
 }
 
+/* Map the record ID ranges to script bands, with state overriding to band four. */
 // FUN_00178A30
 s32 K_Spipe_GetRecordBand(void)
 {
-    u16 temp_3_2;
-    u8 *temp_3;
+    u16 recordId;
+    SpipeRecord *record;
 
-    temp_3 = *(u8 **)(D_007643D0 + 0x160);
-    if (*(s32 *)(temp_3 + 8) != 0) {
+    record = ((SpipeScriptState *)D_007643D0)->record;
+    if (record->state != 0) {
         scrSetReturnInt(4);
     } else {
-        temp_3_2 = *(u16 *)(temp_3 + 2);
-        if ((s32)temp_3_2 >= 0x500) {
+        recordId = record->id;
+        if ((s32)recordId >= 0x500) {
             scrSetReturnInt(3);
-        } else if ((s32)temp_3_2 >= 0x400) {
+        } else if ((s32)recordId >= 0x400) {
             scrSetReturnInt(2);
-        } else if ((s32)temp_3_2 >= 0x300) {
+        } else if ((s32)recordId >= 0x300) {
             scrSetReturnInt(1);
         } else {
             scrSetReturnInt(0);
@@ -160,22 +183,25 @@ s32 K_Spipe_GetRecordBand(void)
 // FUN_00178AF0
 s32 K_Spipe_IsRecordEnabled(void)
 {
-    scrSetReturnInt((*(u8 *)(*(u8 **)(D_007643D0 + 0x160) + 7) & 1) != 0);
+    scrSetReturnInt((((SpipeScriptState *)D_007643D0)->record->flags & 1) != 0);
     return 1;
 }
 
 /* measured: plain C body is object 64B in a 64B window; only the retail
    GP load versus zero-argument materialisation order remains (nd 6).
    Committed at nd 6. */
+/* Report the record state, preserving the original zero-result path. */
 // FUN_00178B30
 s32 K_Spipe_GetRecordState(void)
 {
   s32 value;
   s32 result;
   u8 *state = D_007643D0;
+  /* Preserve the existing empty condition: changing this matching-required
+     shape is outside the readability-only cutover. */
   if (value && value) {}
   result = 0;
-  value = *(s32 *)(*(u8 **)(state + 0x160) + 8);
+  value = ((SpipeScriptState *)state)->record->state;
   if (value)
     result = value;
   scrSetReturnInt(result);
@@ -185,21 +211,21 @@ s32 K_Spipe_GetRecordState(void)
 // FUN_00178B70
 s32 K_Spipe_GetRecordId(void)
 {
-    scrSetReturnInt(*(u16 *)(*(u8 **)(D_007643D0 + 0x160) + 2));
+    scrSetReturnInt(((SpipeScriptState *)D_007643D0)->record->id);
     return 1;
 }
 
 // FUN_00178BA0
 s32 K_Spipe_GetRecordKind(void)
 {
-    scrSetReturnInt((u16)*(u8 *)(*(u8 **)(D_007643D0 + 0x160) + 6));
+    scrSetReturnInt((u16)((SpipeScriptState *)D_007643D0)->record->kind);
     return 1;
 }
 
 // FUN_00178BD0
 s32 K_Spipe_GetRecordLevel(void)
 {
-    scrSetReturnInt((u16)*(u8 *)(*(u8 **)(D_007643D0 + 0x160) + 4));
+    scrSetReturnInt((u16)((SpipeScriptState *)D_007643D0)->record->level);
     return 1;
 }
 
@@ -208,7 +234,7 @@ s32 K_Spipe_GetRecordLevel(void)
    from there, which only happens when it is also the return value. */
 s32 K_Spipe_Finish(void)
 {
-    *(s32 *)(D_007643D0 + 8) = 1;
+    ((SpipeScriptState *)D_007643D0)->finished = 1;
     D_007643D0 = 0;
     return 1;
 }

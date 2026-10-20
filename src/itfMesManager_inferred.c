@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "itf_mes_objects.h"
 #include "message_frame_internal.h"
 #include "message_handle.h"
 #include "message_procedure_api.h"
@@ -21,7 +22,7 @@ extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
-extern void itfMesWindowFree(s32 arg0);
+extern void itfMesWindowFree(s32 handle);
 
 
 
@@ -37,14 +38,14 @@ extern void itfMesWindowFree(s32 arg0);
 // FUN_0027B690
 void itfMesWindowFreeAll(u8 *unusedTask)
 {
-    u8 *temp_16;
-    u8 *var_3;
+    u8 *nextNode;
+    u8 *node;
 
-    var_3 = *(u8 **)DAT_008817EC_abs;
-    while (var_3 != NULL) {
-        temp_16 = *(u8 **)(var_3 + 4);
-        itfMesWindowFree(*(s32 *)(var_3 + 8));
-        var_3 = temp_16;
+    node = *(u8 **)DAT_008817EC_abs;
+    while (node != NULL) {
+        nextNode = ((ItfMesManagerEntry *)node)->next.bytes;
+        itfMesWindowFree(((ItfMesManagerEntry *)node)->handle.value);
+        node = nextNode;
     }
 }
 

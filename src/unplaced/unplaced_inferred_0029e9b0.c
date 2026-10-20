@@ -3,18 +3,35 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "kwln_task_internal.h"
+#include "name_entry_internal.h"
 #include "scr_internal.h"
 #include "scene_event_internal.h"
 #include "sdk_snd_internal.h"
+/* sdkSpr.c establishes this 0x2C-byte sample; scales are unsigned Q12. */
+typedef struct SdkSpriteSample {
+    u32 packAddress, recordIndex;
+    f32 x, y;
+    union { s8 signedByte; u8 byte; } alphaSubtract;
+    u8 fade;
+    u8 pad12[2];
+    s16 extendX, extendY;
+    f32 angle;
+    s16 pivotX, pivotY;
+    u16 scaleX, scaleY;
+    union { f32 value; s32 word; } depth;
+    u8 red, green, blue, pad2B;
+} SdkSpriteSample;
+
 typedef char *va_list;
 
 #define va_start(ap, last) (ap = (va_list)__builtin_args_info(2))
 
 #define va_end(ap) ((void)0)
 
-extern void scrDiscardArgs(void *arg0, ...);
-extern void strncpy(void *arg0, void *arg1, s32 arg2);
-extern void func_0029ebf0(u8 *arg0, s32 arg1);
+extern void scrDiscardArgs(void *, ...);
+extern void strncpy(void *, void *, s32 );
+extern void yTimeLimitStartRowTransition(u8 *, s32 );
 extern s32 iGpffffb538;
 extern u8 D_00882ED0[];
 extern u8 D_00882EF0[];
@@ -24,38 +41,39 @@ static inline u8 *code29AddOff(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
 
-extern u8 yTimeTrackClear(s32 arg0);
-extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, f32 farg0, s32 arg5, s32 arg6,
-                          s32 arg7);
+extern u8 yTimeTrackClear(s32 );
+extern u32 yTimeTrackAppendKey(s32 , s32 , s32 , s32 ,
+                          s32 , f32 , s32 , s32 ,
+                          s32 );
 extern f32 fGpffff8204;
-extern void mtMiscDrawSpriteAt(s32 arg0, f32 farg0, f32 farg1, f32 farg2,
-                          f32 farg3, s32 arg1, s32 arg2);
-extern void yTimeTrackAdvance(u8 *arg0);
-extern s32 yTimeTrackIsIdle(u8 *arg0);
-extern s32 yTimeTrackIsNotDone(u8 *arg0);
-extern f32 yTimeTrackProgress(u8 *arg0);
-extern s32 strncmp(void *arg0, void *arg1, s32 arg2);
-extern u32 strlen(const void *arg0);
-extern void memcpy(void *arg0, void *arg1, s32 arg2);
-extern void func_0029ecb0(u8 *arg0);
+extern void mtMiscDrawSpriteAt(s32 , f32 , f32 , f32 ,
+                          f32 , s32 , s32 );
+extern void yTimeTrackAdvance(u8 *);
+extern s32 yTimeTrackIsIdle(u8 *);
+extern s32 yTimeTrackIsNotDone(u8 *);
+extern f32 yTimeTrackProgress(u8 *);
+extern s32 strncmp(void *, void *, s32 );
+extern u32 strlen(const void *);
+extern void memcpy(void *, void *, s32 );
+extern void yTimeLimitMoveGridCursor(u8 *);
 extern s32 D_0076462C;
 extern u8 iGpffffa7e8;
 extern u8 *iGpffffb540;
 extern u8 D_0063E810[];
 extern u16 D_008C024E[];
 extern s32 D_0063E830[];
-extern s32 yTimeTrackCurrentKey(u8 *arg0, f32 *arg1);
-extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4);
-extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void * arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
+extern s32 yTimeTrackCurrentKey(u8 *, f32 *);
+extern void sdkSpriteDrawNowUnscaled(f32 , f32 , f32 , s32 , u8 , s32 , void * , s32 );
+extern s32 sdkSpriteDrawNow(f32 , f32 , f32 , s32 , u8 , s32 , void * , s32 , s16 , s16 , f32 , f32 , f32 );
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Accept and discard a variadic script argument list; no arguments are consumed. */
 // FUN_0029E9B0
-void scrDiscardArgs(void *arg0, ...)
+void scrDiscardArgs(void *context, ...)
 {
     va_list args;
-    va_start(args, arg0);
+    va_start(args, context);
     va_end(args);
 }
 #pragma pop
@@ -63,73 +81,75 @@ void scrDiscardArgs(void *arg0, ...)
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
-// Draws sprite arg0 once at (farg0, farg1): allocates a node from the sprite table,
-// sets alpha from arg1 (0xFF minus it), scales by farg2/farg3, centres it on the
-// position when arg2 is 1, then draws and frees the node.
+// Draws sprite  once at (, ): allocates a node from the sprite table,
+// sets alpha from  (0xFF minus it), scales by /, centres it on the
+// position when  is 1, then draws and frees the node.
 // FUN_0029E9E0
-void mtMiscDrawSpriteAt(s32 arg0, f32 farg0, f32 farg1, f32 farg2, f32 farg3,
-                   s32 arg1, s32 arg2)
+void mtMiscDrawSpriteAt(s32 image, f32 x, f32 y, f32 scaleX, f32 scaleY,
+                   s32 alphaSubtract, s32 centered)
 {
-    extern u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
-    extern f32 sdkSpriteScaledWidth(u8 *arg0);
-    extern f32 sdkSpriteScaledHeight(u8 *arg0);
-    extern void sdkSpriteDraw(u8 *arg0, s32 arg1);
+    /* measured: remaining name-entry byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
+    extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
+    extern f32 sdkSpriteScaledWidth(u8 *sprite);
+    extern f32 sdkSpriteScaledHeight(u8 *sprite);
+    extern void sdkSpriteDraw(u8 *sample, s32 setStates);
     extern void sdkSpriteFreeNode(void *node);
-    f32 temp_f0;
-    f32 temp_f21;
-    f32 temp_f20;
-    f32 temp_f24;
-    u8 *temp_2;
+    f32 height;
+    f32 initialWidth;
+    f32 initialHeight;
+    f32 width;
+    u8 *sprite;
 
-    temp_2 = sdkSpriteNewNode((u32)iGpffffb540, (u32)arg0);
-    *(s32 *)(temp_2 + 0x24) = 0;
-    *(f32 *)(temp_2 + 8) = farg0;
-    *(f32 *)(temp_2 + 0xC) = farg1;
-    temp_f21 = sdkSpriteScaledWidth(temp_2);
-    temp_f20 = sdkSpriteScaledHeight(temp_2);
-    *(s8 *)(temp_2 + 0x10) = (s8)(0xFF - (arg1 & 0xFF));
-    *(u16 *)(temp_2 + 0x20) = (u16)(4096.0f * farg2);
-    *(u16 *)(temp_2 + 0x22) = (u16)(4096.0f * farg3);
-    if (arg2 == 1) {
-        temp_f24 = sdkSpriteScaledWidth(temp_2);
-        temp_f0 = sdkSpriteScaledHeight(temp_2);
-        *(f32 *)(temp_2 + 8) =
-            farg0 - ((0.5f + (temp_f24 - temp_f21)) / 2.0f);
-        *(f32 *)(temp_2 + 0xC) =
-            farg1 - ((0.5f + (temp_f0 - temp_f20)) / 2.0f);
+    sprite = sdkSpriteNewNode((u32)iGpffffb540, (u32)image);
+    ((SdkSpriteSample *)sprite)->depth.word = 0;
+    ((SdkSpriteSample *)sprite)->x = x;
+    ((SdkSpriteSample *)sprite)->y = y;
+    initialWidth = sdkSpriteScaledWidth(sprite);
+    initialHeight = sdkSpriteScaledHeight(sprite);
+    ((SdkSpriteSample *)sprite)->alphaSubtract.signedByte = (s8)(0xFF - (alphaSubtract & 0xFF));
+    ((SdkSpriteSample *)sprite)->scaleX = (u16)(4096.0f * scaleX);
+    ((SdkSpriteSample *)sprite)->scaleY = (u16)(4096.0f * scaleY);
+    if (centered == 1) {
+        width = sdkSpriteScaledWidth(sprite);
+        height = sdkSpriteScaledHeight(sprite);
+        *(f32 *)(sprite + 8) =
+            x - ((0.5f + (width - initialWidth)) / 2.0f);
+        *(f32 *)(sprite + 0xC) =
+            y - ((0.5f + (height - initialHeight)) / 2.0f);
     }
-    sdkSpriteDraw(temp_2, 1);
-    sdkSpriteFreeNode(temp_2);
+    sdkSpriteDraw(sprite, 1);
+    sdkSpriteFreeNode(sprite);
 }
 #pragma pop
 
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Queue the input-row mode transition: mode selects the starting and ending Y positions. */
 // FUN_0029EBF0
-void func_0029ebf0(u8 *arg0, s32 arg1)
+void yTimeLimitStartRowTransition(u8 *task, s32 mode)
 {
-    s32 var_19;
-    s32 var_18;
-    s32 var_17;
-    s32 temp_16;
+    s32 x;
+    s32 startY;
+    s32 endY;
+    s32 workAddress;
 
-    temp_16 = *(s32 *)(arg0 + 0x38);
-    if (arg1 == 0) {
-        var_19 = 0xED;
-        var_17 = 0x4C;
-        var_18 = var_17;
-    } else if (arg1 == 1) {
-        var_19 = 0xED;
-        var_18 = 0x4C;
-        var_17 = 0x49;
+    workAddress = (s32)((struct KwlnTask *)task)->work;
+    if (mode == 0) {
+        x = 0xED;
+        endY = 0x4C;
+        startY = endY;
+    } else if (mode == 1) {
+        x = 0xED;
+        startY = 0x4C;
+        endY = 0x49;
     } else {
-        var_19 = 0xED;
-        var_17 = 0x4C;
-        var_18 = 0x49;
+        x = 0xED;
+        endY = 0x4C;
+        startY = 0x49;
     }
-    yTimeTrackClear(temp_16 + 0x2A8);
-    func_002a27c0(temp_16 + 0x2A8, var_19, var_18, var_19, var_17,
+    yTimeTrackClear(workAddress + 0x2A8);
+    yTimeTrackAppendKey(workAddress + 0x2A8, x, startY, x, endY,
                   fGpffff8204, 0, 0, 0xA);
 }
 #pragma pop
@@ -138,19 +158,21 @@ void func_0029ebf0(u8 *arg0, s32 arg1)
 #pragma opt_propagation on
 #pragma optimization_level 2
 #pragma opt_loop_invariants on
+/* Move the character-grid cursor, skipping invalid cells and wrapping only for newly pressed directions. */
 // FUN_0029ECB0
-void func_0029ecb0(u8 *arg0)
+void yTimeLimitMoveGridCursor(u8 *task)
 {
+    /* measured: remaining name-entry byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
     extern u16 D_008C027A[];
     extern u8 D_007485D0[];
     u8 *state;
     u8 *entry;
     s32 value;
 
-    state = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(state + 0x28) = *(s32 *)(state + 0x1C);
-    *(s32 *)(state + 0x2C) = *(s32 *)(state + 0x20);
-    *(s32 *)(state + 0x30) = *(s32 *)(state + 0x24);
+    state = ((struct KwlnTask *)task)->work;
+    ((NameEntryWork *)state)->previousColumn = ((NameEntryWork *)state)->cursorColumn;
+    ((NameEntryWork *)state)->previousRow = ((NameEntryWork *)state)->cursorRow;
+    ((NameEntryWork *)state)->previousCellIndex = ((NameEntryWork *)state)->cellIndex;
     if (*(u16 *)D_008C027A & 0x4000) {
         do {
             value = *(s32 *)(state + 0x20) + 1;
@@ -223,30 +245,31 @@ void func_0029ecb0(u8 *arg0)
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Copy a two-byte character into the current name slot and advance, switching rows after slot seven. */
 // FUN_0029EF90
-void yTimeLimitRecordInput(u8 *arg0, u8 *arg1)
+void yTimeLimitRecordInput(u8 *task, u8 *character)
 {
-    s32 temp_3;
-    s32 temp_4;
-    u8 *temp_16;
+    s32 position;
+    s32 nextPosition;
+    u8 *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_3 = iGpffffb538;
-    if (temp_3 < 0x10) {
-        if (temp_3 < 8) {
-            strncpy(D_00882EF0 + temp_3 * 2, arg1, 2);
+    work = ((struct KwlnTask *)task)->work;
+    position = iGpffffb538;
+    if (position < 0x10) {
+        if (position < 8) {
+            strncpy(D_00882EF0 + position * 2, character, 2);
         } else {
-            strncpy(D_00882ED0 + (temp_3 - 8) * 2, arg1, 2);
+            strncpy(D_00882ED0 + (position - 8) * 2, character, 2);
         }
-        temp_4 = iGpffffb538 + 1;
-        iGpffffb538 = temp_4;
-        if (temp_4 >= 0x10) {
+        nextPosition = iGpffffb538 + 1;
+        iGpffffb538 = nextPosition;
+        if (nextPosition >= 0x10) {
             iGpffffb538 = 0xF;
             return;
         }
-        if (temp_4 == 8) {
-            *(s32 *)(temp_16 + 0x1C34) = 1;
-            func_0029ebf0(arg0, 1);
+        if (nextPosition == 8) {
+            ((NameEntryWork *)work)->selectionState[1] = 1;
+            yTimeLimitStartRowTransition(task, 1);
         }
     }
 }
@@ -255,147 +278,148 @@ void yTimeLimitRecordInput(u8 *arg0, u8 *arg1)
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Update name-entry actions and six button states, including insertion, deletion, cursor movement and confirmation. */
 // FUN_0029F070
-void func_0029f070(u8 *arg0)
+void yTimeLimitUpdateInput(u8 *task)
 {
-    u8 sp7C[4];
-    s32 temp_19;
-    s32 temp_20;
-    s32 temp_2;
-    s32 temp_3_3;
-    s32 temp_3_4;
-    u8 *temp_3;
-    s32 var_4;
-    s32 var_4_2;
-    s32 var_4_3;
-    s32 var_16;
-    s32 var_19;
-    s32 var_19_2;
-    s32 var_19_3;
-    s32 var_19_4;
-    s32 var_20;
-    s32 var_20_2;
-    s32 var_20_3;
-    s32 var_20_4;
-    s32 var_3;
-    s32 var_5;
-    s32 var_5_2;
-    u8 *temp_18;
-    u8 *temp_3_2;
+    u8 character[4];
+    s32 secondPosition;
+    s32 firstPosition;
+    s32 position;
+    s32 previousPosition;
+    s32 nextPosition;
+    u8 *cursor;
+    s32 canInsert;
+    s32 canMoveBack;
+    s32 canMoveForward;
+    s32 operation;
+    s32 firstIndex;
+    s32 secondIndex;
+    s32 hasFirstSuffix;
+    s32 secondSuffixIndex;
+    s32 firstBlanks;
+    s32 secondBlanks;
+    s32 firstSuffixIndex;
+    s32 hasSecondSuffix;
+    s32 buttonIndex;
+    s32 firstShiftIndex;
+    s32 secondShiftIndex;
+    u8 *work;
+    u8 *text;
 
-    temp_18 = *(u8 **)(arg0 + 0x38);
-    var_3 = 0;
-    while (var_3 < 6) {
-        *(s32 *)(temp_18 + (var_3 * 4) + 0x1C50) = 0;
-        var_3 += 1;
+    work = ((struct KwlnTask *)task)->work;
+    buttonIndex = 0;
+    while (buttonIndex < 6) {
+        ((NameEntryWork *)work)->selectionFlash[buttonIndex] = 0;
+        buttonIndex += 1;
     }
-    temp_3 = temp_18 + 0x1C4C;
-    *(s16 *)temp_3 = 0;
-    var_16 = 0;
+    cursor = work + 0x1C4C;
+    *(s16 *)cursor = 0;
+    operation = 0;
     if (D_0076462C == 0) {
-        var_20 = 0;
-        var_19 = 0;
-        while (var_19 < 8) {
+        firstBlanks = 0;
+        firstIndex = 0;
+        while (firstIndex < 8) {
             if (strncmp(&iGpffffa7e8,
-                              D_00882EF0 + (var_19 * 2), 2) == 0) {
-                var_20 += 1;
+                              D_00882EF0 + (firstIndex * 2), 2) == 0) {
+                firstBlanks += 1;
             }
-            var_19 += 1;
+            firstIndex += 1;
         }
-        if (var_20 < 8) {
-            var_20_2 = 0;
-            var_19_2 = 0;
-            while (var_19_2 < 8) {
+        if (firstBlanks < 8) {
+            secondBlanks = 0;
+            secondIndex = 0;
+            while (secondIndex < 8) {
                 if (strncmp(&iGpffffa7e8,
-                                  D_00882ED0 + (var_19_2 * 2), 2) == 0) {
-                    var_20_2 += 1;
+                                  D_00882ED0 + (secondIndex * 2), 2) == 0) {
+                    secondBlanks += 1;
                 }
-                var_19_2 += 1;
+                secondIndex += 1;
             }
-            if (var_20_2 < 8) {
-                var_16 = 1;
-                *(s16 *)temp_3 = 1;
+            if (secondBlanks < 8) {
+                operation = 1;
+                *(s16 *)cursor = 1;
             }
         }
     }
-    if ((D_008C024E[0] & 0x800) && (var_16 > 0)) {
-        *(s32 *)(temp_18 + 0x14) = 3;
-        *(s32 *)(temp_18 + 0x1C64) = 1;
+    if ((D_008C024E[0] & 0x800) && (operation > 0)) {
+        ((NameEntryWork *)work)->inputState = 3;
+        ((NameEntryWork *)work)->selectionFlash[5] = 1;
         sdkSndStartStream(0, 0, 0, 1);
         return;
     }
-    temp_3 = temp_18 + 0x1C38;
-    *(s16 *)temp_3 = 0;
-    var_16 = 0;
+    cursor = work + 0x1C38;
+    *(s16 *)cursor = 0;
+    operation = 0;
     if (D_0076462C > 0) {
-        var_16 = 0xA;
+        operation = 0xA;
     } else if (iGpffffb538 < 8) {
         if ((strlen(D_00882EF0) >> 1) != 0) {
-            temp_20 = iGpffffb538;
+            firstPosition = iGpffffb538;
             if (strncmp(&iGpffffa7e8,
-                              D_00882EF0 + (temp_20 * 2), 2) == 0) {
-                var_19_3 = 0;
-                var_20_3 = temp_20 + 1;
-                while (var_20_3 < 8) {
+                              D_00882EF0 + (firstPosition * 2), 2) == 0) {
+                hasFirstSuffix = 0;
+                firstSuffixIndex = firstPosition + 1;
+                while (firstSuffixIndex < 8) {
                     if (strncmp(&iGpffffa7e8,
-                                      D_00882EF0 + (var_20_3 * 2), 2) != 0) {
-                        var_19_3 = 1;
+                                      D_00882EF0 + (firstSuffixIndex * 2), 2) != 0) {
+                        hasFirstSuffix = 1;
                         break;
                     }
-                    var_20_3 += 1;
+                    firstSuffixIndex += 1;
                 }
-                if (var_19_3 != 0) {
-                    var_16 = 0x14;
+                if (hasFirstSuffix != 0) {
+                    operation = 0x14;
                 }
             } else {
-                var_16 = 0x15;
+                operation = 0x15;
             }
         }
     } else if ((strlen(D_00882ED0) >> 1) != 0) {
-        temp_19 = iGpffffb538 - 8;
+        secondPosition = iGpffffb538 - 8;
         if (strncmp(&iGpffffa7e8,
-                          D_00882ED0 + (temp_19 * 2), 2) == 0) {
-            var_20_4 = 0;
-            var_19_4 = temp_19 + 1;
-            while (var_19_4 < 8) {
+                          D_00882ED0 + (secondPosition * 2), 2) == 0) {
+            hasSecondSuffix = 0;
+            secondSuffixIndex = secondPosition + 1;
+            while (secondSuffixIndex < 8) {
                 if (strncmp(&iGpffffa7e8,
-                                  D_00882ED0 + (var_19_4 * 2), 2) != 0) {
-                    var_20_4 = 1;
+                                  D_00882ED0 + (secondSuffixIndex * 2), 2) != 0) {
+                    hasSecondSuffix = 1;
                     break;
                 }
-                var_19_4 += 1;
+                secondSuffixIndex += 1;
             }
-            if (var_20_4 != 0) {
-                var_16 = 0x1E;
+            if (hasSecondSuffix != 0) {
+                operation = 0x1E;
             }
         } else {
-            var_16 = 0x1F;
+            operation = 0x1F;
         }
     }
-    if (var_16 > 0) {
-        *(s16 *)temp_3 = 1;
+    if (operation > 0) {
+        *(s16 *)cursor = 1;
     }
     if (D_008C024E[0] & 0x20) {
-        switch (var_16) {
+        switch (operation) {
         case 10:
-            temp_2 = iGpffffb538;
-            if (temp_2 < 8) {
-                strncpy(D_00882EF0 + (temp_2 * 2),
+            position = iGpffffb538;
+            if (position < 8) {
+                strncpy(D_00882EF0 + (position * 2),
                               &iGpffffa7e8, 2);
             } else {
-                strncpy(D_00882ED0 + ((temp_2 - 8) * 2),
+                strncpy(D_00882ED0 + ((position - 8) * 2),
                               &iGpffffa7e8, 2);
             }
             break;
         case 20:
-            var_5 = iGpffffb538;
-            var_5 += 1;
-            temp_3_2 = D_00882EF0;
-            while (var_5 < 8) {
-                temp_3 = temp_3_2 + (var_5 * 2);
-                *(s8 *)(temp_3 - 2) = *(s8 *)temp_3;
-                *(s8 *)(temp_3 - 1) = *(s8 *)(temp_3 + 1);
-                var_5 += 1;
+            firstShiftIndex = iGpffffb538;
+            firstShiftIndex += 1;
+            text = D_00882EF0;
+            while (firstShiftIndex < 8) {
+                cursor = text + (firstShiftIndex * 2);
+                ((s8 *)cursor)[-2] = *(s8 *)cursor;
+                ((s8 *)cursor)[-1] = ((s8 *)cursor)[1];
+                firstShiftIndex += 1;
             }
             strncpy(D_00882EFE, &iGpffffa7e8, 2);
             break;
@@ -404,14 +428,14 @@ void func_0029f070(u8 *arg0)
                           &iGpffffa7e8, 2);
             break;
         case 30:
-            var_5_2 = iGpffffb538 - 8;
-            var_5_2 += 1;
-            temp_3_2 = D_00882ED0;
-            while (var_5_2 < 8) {
-                temp_3 = temp_3_2 + (var_5_2 * 2);
-                *(s8 *)(temp_3 - 2) = *(s8 *)temp_3;
-                *(s8 *)(temp_3 - 1) = *(s8 *)(temp_3 + 1);
-                var_5_2 += 1;
+            secondShiftIndex = iGpffffb538 - 8;
+            secondShiftIndex += 1;
+            text = D_00882ED0;
+            while (secondShiftIndex < 8) {
+                cursor = text + (secondShiftIndex * 2);
+                ((s8 *)cursor)[-2] = *(s8 *)cursor;
+                ((s8 *)cursor)[-1] = ((s8 *)cursor)[1];
+                secondShiftIndex += 1;
             }
             strncpy(D_00882EDE, &iGpffffa7e8, 2);
             break;
@@ -420,169 +444,170 @@ void func_0029f070(u8 *arg0)
                           &iGpffffa7e8, 2);
             break;
         default:
-            var_16 = 0;
+            operation = 0;
             break;
         }
-        if (var_16 > 0) {
-            *(s32 *)(temp_18 + 0x1C50) = 1;
+        if (operation > 0) {
+            ((NameEntryWork *)work)->selectionFlash[0] = 1;
             sdkSndStartStream(0, 0, 0, 2);
             return;
         }
     }
-    temp_3 = temp_18 + 0x1C3C;
-    *(s16 *)temp_3 = 0;
-    var_4 = 0;
+    cursor = work + 0x1C3C;
+    *(s16 *)cursor = 0;
+    canInsert = 0;
     if (D_0076462C < 0x10) {
-        var_4 = 1;
-        *(s16 *)temp_3 = 1;
+        canInsert = 1;
+        *(s16 *)cursor = 1;
     }
-    if ((*(u16 *)D_008C024E & 0x40) && (var_4 > 0)) {
-        memcpy(sp7C,
-                      *(u8 **)(D_0063E810 +
-                               (*(s32 *)(temp_18 + 0x20) * 4)) +
-                          (*(s32 *)(temp_18 + 0x1C) * 2),
+    if ((*(u16 *)D_008C024E & 0x40) && (canInsert > 0)) {
+        memcpy(character,
+                      ((u8 **)D_0063E810)[((NameEntryWork *)work)->cursorRow] +
+                          (((NameEntryWork *)work)->cursorColumn * 2),
                       2);
-        yTimeLimitRecordInput(arg0, sp7C);
-        *(s32 *)(temp_18 + 0x1C54) = 1;
+        yTimeLimitRecordInput(task, character);
+        ((NameEntryWork *)work)->selectionFlash[1] = 1;
         sdkSndStartStream(0, 0, 0, 1);
         return;
     }
-    temp_3 = temp_18 + 0x1C40;
-    *(s16 *)temp_3 = 0;
-    var_4_2 = 0;
+    cursor = work + 0x1C40;
+    *(s16 *)cursor = 0;
+    canMoveBack = 0;
     if (iGpffffb538 > 0) {
-        var_4_2 = 1;
-        *(s16 *)temp_3 = 1;
+        canMoveBack = 1;
+        *(s16 *)cursor = 1;
     }
-    if ((*(u16 *)D_008C024E & 4) && (var_4_2 > 0)) {
-        temp_3_3 = iGpffffb538 - 1;
-        iGpffffb538 = temp_3_3;
-        if (temp_3_3 == 7) {
-            *(s32 *)(temp_18 + 0x1C34) = 2;
-            func_0029ebf0(arg0, 2);
+    if ((*(u16 *)D_008C024E & 4) && (canMoveBack > 0)) {
+        previousPosition = iGpffffb538 - 1;
+        iGpffffb538 = previousPosition;
+        if (previousPosition == 7) {
+            ((NameEntryWork *)work)->selectionState[1] = 2;
+            yTimeLimitStartRowTransition(task, 2);
         }
-        *(s32 *)(temp_18 + 0x1C58) = 1;
+        ((NameEntryWork *)work)->selectionFlash[2] = 1;
         sdkSndStartStream(0, 0, 0, 0);
     }
-    temp_3 = temp_18 + 0x1C48;
-    *(s16 *)temp_3 = 0;
-    var_4_3 = 0;
+    cursor = work + 0x1C48;
+    *(s16 *)cursor = 0;
+    canMoveForward = 0;
     if (iGpffffb538 < 0xF) {
-        var_4_3 = 1;
-        *(s16 *)temp_3 = 1;
+        canMoveForward = 1;
+        *(s16 *)cursor = 1;
     }
-    if ((*(u16 *)D_008C024E & 8) && (var_4_3 > 0)) {
-        temp_3_4 = iGpffffb538 + 1;
-        iGpffffb538 = temp_3_4;
-        if (temp_3_4 == 8) {
-            *(s32 *)(temp_18 + 0x1C34) = 1;
-            func_0029ebf0(arg0, 1);
+    if ((*(u16 *)D_008C024E & 8) && (canMoveForward > 0)) {
+        nextPosition = iGpffffb538 + 1;
+        iGpffffb538 = nextPosition;
+        if (nextPosition == 8) {
+            ((NameEntryWork *)work)->selectionState[1] = 1;
+            yTimeLimitStartRowTransition(task, 1);
         }
-        *(s32 *)(temp_18 + 0x1C60) = 1;
+        ((NameEntryWork *)work)->selectionFlash[4] = 1;
         sdkSndStartStream(0, 0, 0, 0);
     }
-    func_0029ecb0(arg0);
+    yTimeLimitMoveGridCursor(task);
 }
 #pragma pop
 
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Pulse the selected character after 90 idle frames; reset the pulse when input leaves the grid. */
 // FUN_0029F790
-void func_0029f790(u8 *arg0)
+void yTimeLimitDrawIdlePulse(u8 *task)
 {
-    u8 *temp_16;
-    s32 temp_2;
-    s32 temp_3;
-    s32 temp_5;
-    s32 temp_6;
-    f32 temp_f21;
-    f32 temp_f20;
-    f32 temp_f0;
-    f32 temp_offset;
-    f32 temp_f1;
-    f32 temp_f2;
-    f32 temp_f14;
+    /* measured: remaining name-entry byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
+    u8 *work;
+    s32 idleFrames;
+    s32 page;
+    s32 column;
+    s32 row;
+    f32 x;
+    f32 y;
+    f32 progress;
+    f32 inset;
+    f32 cellY;
+    f32 cellX;
+    f32 scale;
     s32 alpha;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(temp_16 + 0x14) != 1) {
-        if (yTimeTrackIsIdle(temp_16 + 0xE0) == 0) {
-            yTimeTrackClear((s32)(temp_16 + 0xE0));
+    work = ((struct KwlnTask *)task)->work;
+    if (((NameEntryWork *)work)->inputState != 1) {
+        if (yTimeTrackIsIdle(work + 0xE0) == 0) {
+            yTimeTrackClear((s32)(work + 0xE0));
         }
         return;
     }
 
-    if (*(s32 *)(temp_16 + 0x24) == *(s32 *)(temp_16 + 0x30)) {
-        temp_2 = *(s32 *)(temp_16 + 0x1C30) + 1;
-        *(s32 *)(temp_16 + 0x1C30) = temp_2;
-        if (temp_2 >= 0x5A) {
-            *(s32 *)(temp_16 + 0x1C30) = 0;
-            temp_6 = *(s32 *)(temp_16 + 0x20);
-            temp_5 = *(s32 *)(temp_16 + 0x1C);
-            temp_f21 = (f32)((temp_5 % 5) * 27);
-            temp_3 = temp_5 / 5;
-            switch (temp_3) {
+    if (((NameEntryWork *)work)->cellIndex == ((NameEntryWork *)work)->previousCellIndex) {
+        idleFrames = ((NameEntryWork *)work)->selectionState[0] + 1;
+        ((NameEntryWork *)work)->selectionState[0] = idleFrames;
+        if (idleFrames >= 0x5A) {
+            *(s32 *)(work + 0x1C30) = 0;
+            row = ((NameEntryWork *)work)->cursorRow;
+            column = ((NameEntryWork *)work)->cursorColumn;
+            x = (f32)((column % 5) * 27);
+            page = column / 5;
+            switch (page) {
             case 0:
-                temp_f21 += 30.0f;
+                x += 30.0f;
                 break;
             case 1:
-                temp_f21 += 178.0f;
+                x += 178.0f;
                 break;
             case 2:
-                temp_f21 += 326.0f;
+                x += 326.0f;
                 break;
             case 3:
-                temp_f21 += 474.0f;
+                x += 474.0f;
                 break;
             }
-            temp_f20 = (f32)(temp_6 * 25 + 0xE5);
-            yTimeTrackClear((s32)(temp_16 + 0xE0));
-            func_002a27c0((s32)code29AddOff(0xE0, temp_16),
-                          (s32)temp_f21,
-                          (s32)temp_f20, (s32)temp_f21, (s32)temp_f20,
+            y = (f32)(row * 25 + 0xE5);
+            yTimeTrackClear((s32)(work + 0xE0));
+            yTimeTrackAppendKey((s32)code29AddOff(0xE0, work),
+                          (s32)x,
+                          (s32)y, (s32)x, (s32)y,
                           fGpffff8204, 0, 0, 0x3C);
         }
     } else {
-        *(s32 *)(temp_16 + 0x1C30) = 0;
+        ((NameEntryWork *)work)->selectionState[0] = 0;
     }
 
-    if ((yTimeTrackIsIdle(temp_16 + 0xE0) == 0) &&
-        (yTimeTrackIsNotDone(temp_16 + 0xE0) != 0)) {
-        yTimeTrackAdvance(temp_16 + 0xE0);
-        temp_6 = *(s32 *)(temp_16 + 0x20);
-        temp_5 = *(s32 *)(temp_16 + 0x1C);
-        temp_f2 = (f32)((temp_5 % 5) * 27);
-        temp_3 = temp_5 / 5;
-        switch (temp_3) {
+    if ((yTimeTrackIsIdle(work + 0xE0) == 0) &&
+        (yTimeTrackIsNotDone(work + 0xE0) != 0)) {
+        yTimeTrackAdvance(work + 0xE0);
+        row = ((NameEntryWork *)work)->cursorRow;
+        column = ((NameEntryWork *)work)->cursorColumn;
+        cellX = (f32)((column % 5) * 27);
+        page = column / 5;
+        switch (page) {
         case 0:
-            temp_f2 += 30.0f;
+            cellX += 30.0f;
             break;
         case 1:
-            temp_f2 += 178.0f;
+            cellX += 178.0f;
             break;
         case 2:
-            temp_f2 += 326.0f;
+            cellX += 326.0f;
             break;
         case 3:
-            temp_f2 += 474.0f;
+            cellX += 474.0f;
             break;
         }
-        temp_f1 = (f32)(temp_6 * 25 + 0xE5);
-        temp_offset = -12.0f;
-        temp_f20 = temp_f1;
-        temp_f21 = temp_f2 + temp_offset;
-        temp_f20 += temp_offset;
-        temp_f0 = yTimeTrackProgress(temp_16 + 0xE0);
-        if (temp_f0 < 0.5f) {
-            alpha = (u8)(255.0f * temp_f0);
-            temp_f14 = 1.0f + temp_f0;
+        cellY = (f32)(row * 25 + 0xE5);
+        inset = -12.0f;
+        y = cellY;
+        x = cellX + inset;
+        y += inset;
+        progress = yTimeTrackProgress(work + 0xE0);
+        if (progress < 0.5f) {
+            alpha = (u8)(255.0f * progress);
+            scale = 1.0f + progress;
         } else {
-            temp_f2 = 1.0f - temp_f0;
-            alpha = (u8)(255.0f * temp_f2);
-            temp_f14 = 1.0f + temp_f2;
+            cellX = 1.0f - progress;
+            alpha = (u8)(255.0f * cellX);
+            scale = 1.0f + cellX;
         }
-        mtMiscDrawSpriteAt(0xF, temp_f21, temp_f20, temp_f14, temp_f14,
+        mtMiscDrawSpriteAt(0xF, x, y, scale, scale,
                       alpha, 1);
     }
 }
@@ -592,146 +617,147 @@ void func_0029f790(u8 *arg0)
    array copied in by retail's dword loop. A field address used twice becomes an
    IRO_CommonSubs address temporary, which gives retail's unfolded
    `addiu tmp,sp,K; lw x,0(tmp)` reads; each region-3 field is therefore read
-   again in the next expression or call. .f4/.f5 are u32: `t17 = tbl[arg1].f4`
+   again in the next expression or call. .originX/.originY are u32: `t17 = tbl[].originX`
    is then a conversion, so copy propagation keeps t17/t18 as declared locals,
    declared in the order the regalloc model needs. */
-typedef struct SlideEnt {
-    s32 f0, f1, f2, f3;
-    u32 f4, f5;
-} SlideEnt;
+typedef struct NameButtonPlacement {
+    s32 foregroundSprite, backgroundSprite, foregroundX, foregroundY;
+    u32 originX, originY;
+} NameButtonPlacement;
 
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Animate one of six name-entry buttons and draw its background, foreground and short selection flash. */
 // FUN_0029FBB0
-void func_0029fbb0(u8 *arg0, s32 arg1) {
-    SlideEnt tbl[6];
-    f32 stack[2];
+void yTimeLimitDrawButton(u8 *task, s32 selection) {
+    NameButtonPlacement slides[6];
+    f32 position[2];
     u8 *base;
-    s16 *p22;
-    s16 *p16;
-    u8 var23;
-    u8 *temp_19;
-    s32 t18;
-    u8 *temp_18;
-    s32 temp22;
+    s16 *status;
+    s16 *previousStatus;
+    u8 overlayAlpha;
+    u8 *flashTrack;
+    s32 originY;
+    u8 *slideTrack;
+    s32 foregroundSprite;
     u8 color;
-    s32 t17;
-    s32 ix;
-    s32 iy;
-    s32 temp30;
-    s32 f2v;
-    s32 f3v;
-    s32 y2;
-    s32 x2;
-    f32 ret;
-    s32 off4;
-    s32 *srcw;
-    s32 *dstw;
-    s32 ncopy;
-    s32 tmpc;
-    s32 tmpd;
-    base = *(u8 **)(arg0 + 0x38);
-    srcw = D_0063E830;
-    dstw = (s32 *)tbl;
-    ncopy = 0x12;
+    s32 originX;
+    s32 x;
+    s32 y;
+    s32 backgroundSprite;
+    s32 foregroundX;
+    s32 foregroundY;
+    s32 foregroundDrawY;
+    s32 foregroundDrawX;
+    f32 progress;
+    s32 selectionOffset;
+    s32 *sourceWords;
+    s32 *destinationWords;
+    s32 copyCount;
+    s32 firstWord;
+    s32 secondWord;
+    base = ((struct KwlnTask *)task)->work;
+    sourceWords = D_0063E830;
+    destinationWords = (s32 *)slides;
+    copyCount = 0x12;
 do_copy:
-    tmpc = srcw[0];
-    tmpd = srcw[1];
-    srcw += 2;
-    ncopy -= 1;
-    dstw[0] = tmpc;
-    dstw[1] = tmpd;
-    dstw += 2;
-    if (ncopy > 0) {
+    firstWord = sourceWords[0];
+    secondWord = sourceWords[1];
+    sourceWords += 2;
+    copyCount -= 1;
+    destinationWords[0] = firstWord;
+    destinationWords[1] = secondWord;
+    destinationWords += 2;
+    if (copyCount > 0) {
         goto do_copy;
     }
-    temp_18 = base + arg1 * 0x130 + 0x1510;
-    temp_19 = base + arg1 * 0x130 + 0x15A8;
-    off4 = arg1 * 4;
-    p22 = (s16 *)(base + off4 + 0x1C38);
-    p16 = (s16 *)(base + off4 + 0x1C3A);
+    slideTrack = base + selection * 0x130 + 0x1510;
+    flashTrack = base + selection * 0x130 + 0x15A8;
+    selectionOffset = selection * 4;
+    status = &((NameEntryWork *)base)->selectionStatus[selection][0];
+    previousStatus = &((NameEntryWork *)base)->selectionStatus[selection][1];
     {
-        s32 v0 = *p22;
+        s32 v0 = *status;
         if (v0 == 3) {
-            if (v0 != *p16) {
-                s32 a0 = tbl[arg1].f4;
-                s32 a1 = tbl[arg1].f5;
-                yTimeTrackClear((s32)temp_18);
-                func_002a27c0((s32)temp_18, a0, a1 + 0x1E, a0, a1, fGpffff8204, 0, 0, 0xA);
-                *p16 = *p22;
+            if (v0 != *previousStatus) {
+                s32 a0 = slides[selection].originX;
+                s32 a1 = slides[selection].originY;
+                yTimeTrackClear((s32)slideTrack);
+                yTimeTrackAppendKey((s32)slideTrack, a0, a1 + 0x1E, a0, a1, fGpffff8204, 0, 0, 0xA);
+                *previousStatus = *status;
             }
-            yTimeTrackAdvance(temp_18);
-            ret = yTimeTrackProgress(temp_18);
-            color = (u8)(255.0f * ret);
-            yTimeTrackCurrentKey(temp_18, stack);
-            ix = (s32)stack[0];
-            iy = (s32)stack[1];
-            sdkSpriteDrawNowUnscaled((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, color, tbl[arg1].f1, iGpffffb540, 1);
-            sdkSpriteDrawNowUnscaled((f32)((ix + tbl[arg1].f2) - (s32)tbl[arg1].f4), (f32)((iy + tbl[arg1].f3) - (s32)tbl[arg1].f5), 0.0f, 0x8F8F8F, color, tbl[arg1].f0, iGpffffb540, 1);
+            yTimeTrackAdvance(slideTrack);
+            progress = yTimeTrackProgress(slideTrack);
+            color = (u8)(255.0f * progress);
+            yTimeTrackCurrentKey(slideTrack, position);
+            x = (s32)position[0];
+            y = (s32)position[1];
+            sdkSpriteDrawNowUnscaled((f32)x, (f32)y, 0.0f, 0x2D2D2D, color, slides[selection].backgroundSprite, iGpffffb540, 1);
+            sdkSpriteDrawNowUnscaled((f32)((x + slides[selection].foregroundX) - (s32)slides[selection].originX), (f32)((y + slides[selection].foregroundY) - (s32)slides[selection].originY), 0.0f, 0x8F8F8F, color, slides[selection].foregroundSprite, iGpffffb540, 1);
             return;
         }
-        if (v0 != *p16) {
+        if (v0 != *previousStatus) {
             if (v0 == 0) {
-                s32 a0 = tbl[arg1].f4;
-                s32 a1 = tbl[arg1].f5;
-                yTimeTrackClear((s32)temp_18);
-                if (*p16 == 3) {
-                    func_002a27c0((s32)temp_18, a0, a1, a0, a1, fGpffff8204, 0, 0, 1);
+                s32 a0 = slides[selection].originX;
+                s32 a1 = slides[selection].originY;
+                yTimeTrackClear((s32)slideTrack);
+                if (*previousStatus == 3) {
+                    yTimeTrackAppendKey((s32)slideTrack, a0, a1, a0, a1, fGpffff8204, 0, 0, 1);
                 } else {
-                    func_002a27c0((s32)temp_18, a0, a1, a0, a1, fGpffff8204, 0, 0, 0xA);
+                    yTimeTrackAppendKey((s32)slideTrack, a0, a1, a0, a1, fGpffff8204, 0, 0, 0xA);
                 }
             }
-            *p16 = *p22;
+            *previousStatus = *status;
         }
-        yTimeTrackAdvance(temp_18);
-        ret = yTimeTrackProgress(temp_18);
-        if (*p16 == 0) {
-            f32 t = 1.0f - ret;
+        yTimeTrackAdvance(slideTrack);
+        progress = yTimeTrackProgress(slideTrack);
+        if (*previousStatus == 0) {
+            f32 t = 1.0f - progress;
             u32 iv = (u32)(255.0f * t);
             color = (iv >> 1) & 0xFF;
         } else {
             color = 0xFF;
         }
-        var23 = color & 0xFF;
-        yTimeTrackCurrentKey(temp_18, stack);
-        ix = (s32)stack[0];
-        iy = (s32)stack[1];
-        temp30 = tbl[arg1].f1;
-        sdkSpriteDrawNowUnscaled((f32)ix, (f32)iy, 0.0f, 0x2D2D2D, 0xFF, tbl[arg1].f1, iGpffffb540, 1);
-        temp22 = tbl[arg1].f0;
-        t18 = tbl[arg1].f5;
-        f3v = tbl[arg1].f3;
-        y2 = (iy + tbl[arg1].f3) - tbl[arg1].f5;
-        t17 = tbl[arg1].f4;
-        f2v = tbl[arg1].f2;
-        x2 = (ix + tbl[arg1].f2) - tbl[arg1].f4;
-        sdkSpriteDrawNowUnscaled((f32)x2, (f32)y2, 0.0f, 0x8F8F8F, 0xFF, tbl[arg1].f0, iGpffffb540, 1);
-        sdkSpriteDrawNowUnscaled((f32)ix, (f32)iy, 0.0f, 0x99, var23, temp30, iGpffffb540, 1);
-        sdkSpriteDrawNowUnscaled((f32)x2, (f32)y2, 0.0f, 0xCCFFFF, var23, temp22, iGpffffb540, 1);
+        overlayAlpha = color & 0xFF;
+        yTimeTrackCurrentKey(slideTrack, position);
+        x = (s32)position[0];
+        y = (s32)position[1];
+        backgroundSprite = slides[selection].backgroundSprite;
+        sdkSpriteDrawNowUnscaled((f32)x, (f32)y, 0.0f, 0x2D2D2D, 0xFF, slides[selection].backgroundSprite, iGpffffb540, 1);
+        foregroundSprite = slides[selection].foregroundSprite;
+        originY = slides[selection].originY;
+        foregroundY = slides[selection].foregroundY;
+        foregroundDrawY = (y + slides[selection].foregroundY) - slides[selection].originY;
+        originX = slides[selection].originX;
+        foregroundX = slides[selection].foregroundX;
+        foregroundDrawX = (x + slides[selection].foregroundX) - slides[selection].originX;
+        sdkSpriteDrawNowUnscaled((f32)foregroundDrawX, (f32)foregroundDrawY, 0.0f, 0x8F8F8F, 0xFF, slides[selection].foregroundSprite, iGpffffb540, 1);
+        sdkSpriteDrawNowUnscaled((f32)x, (f32)y, 0.0f, 0x99, overlayAlpha, backgroundSprite, iGpffffb540, 1);
+        sdkSpriteDrawNowUnscaled((f32)foregroundDrawX, (f32)foregroundDrawY, 0.0f, 0xCCFFFF, overlayAlpha, foregroundSprite, iGpffffb540, 1);
         {
-            u8 *b2 = code29AddOff(off4, base);
+            u8 *b2 = code29AddOff(selectionOffset, base);
             s32 *pflag = (s32 *)(b2 + 0x1C50);
             if (*pflag != 0) {
                 *pflag = 0;
-                ix = t17;
-                iy = t18;
-                yTimeTrackClear((s32)temp_19);
-                func_002a27c0((s32)temp_19, t17, t18, t17, t18, fGpffff8204, 0, 0, 2);
+                x = originX;
+                y = originY;
+                yTimeTrackClear((s32)flashTrack);
+                yTimeTrackAppendKey((s32)flashTrack, originX, originY, originX, originY, fGpffff8204, 0, 0, 2);
             }
         }
-        if ((yTimeTrackIsIdle(temp_19) == 0) && (yTimeTrackIsNotDone(temp_19) != 0)) {
-            yTimeTrackAdvance(temp_19);
-            yTimeTrackProgress(temp_19);
-            var23 = 0xFF;
-            yTimeTrackCurrentKey(temp_19, stack);
-            ix = (s32)stack[0];
-            iy = (s32)stack[1];
-            sdkSpriteDrawNow((f32)ix, (f32)iy, 0.0f, 0xCCFF33, 0xFF, temp30, iGpffffb540, 1, 0, 0, 0.0f, 1.0f, 1.0f);
-            sdkSpriteDrawNow((f32)((ix + f2v) - t17), (f32)((iy + f3v) - t18), 0.0f, 0x2D2D2D, 0xFF, temp22, iGpffffb540, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+        if ((yTimeTrackIsIdle(flashTrack) == 0) && (yTimeTrackIsNotDone(flashTrack) != 0)) {
+            yTimeTrackAdvance(flashTrack);
+            yTimeTrackProgress(flashTrack);
+            overlayAlpha = 0xFF;
+            yTimeTrackCurrentKey(flashTrack, position);
+            x = (s32)position[0];
+            y = (s32)position[1];
+            sdkSpriteDrawNow((f32)x, (f32)y, 0.0f, 0xCCFF33, 0xFF, backgroundSprite, iGpffffb540, 1, 0, 0, 0.0f, 1.0f, 1.0f);
+            sdkSpriteDrawNow((f32)((x + foregroundX) - originX), (f32)((y + foregroundY) - originY), 0.0f, 0x2D2D2D, 0xFF, foregroundSprite, iGpffffb540, 1, 0, 0, 0.0f, 1.0f, 1.0f);
         }
-        if ((arg1 == 0) || (arg1 == 1) || (arg1 == 3)) {
-            sdkSpriteDrawNowUnscaled((f32)((ix + f2v) - t17), (f32)((iy + f3v) - t18), 0.0f, 0xCCFFFF, var23, temp22 + 0xB2, iGpffffb540, 1);
+        if ((selection == 0) || (selection == 1) || (selection == 3)) {
+            sdkSpriteDrawNowUnscaled((f32)((x + foregroundX) - originX), (f32)((y + foregroundY) - originY), 0.0f, 0xCCFFFF, overlayAlpha, foregroundSprite + 0xB2, iGpffffb540, 1);
         }
     }
 }

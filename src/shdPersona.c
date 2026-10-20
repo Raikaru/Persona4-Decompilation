@@ -8,17 +8,130 @@
 #include "shd_misc_internal.h"
 #include "shdPersona_internal.h"
 #include "datUnit_internal.h"
+#include "shd_skill_internal.h"
+#include "mdl_effect_internal.h"
+
+/* Channel presets use a 0x14-byte stride in setup and comparison reset. */
+typedef struct ShdPersonaChannelPreset {
+    Vec2f position;
+    u8 alpha;
+    u8 pad9[3];
+    f32 startFrame, endFrame;
+} ShdPersonaChannelPreset;
+/* The level-up caller indexes 32 halfword skills and five signed stat gains. */
+typedef struct ShdPersonaLearnList {
+    u16 unk0;
+    u16 skills[32];
+    u8 pad42[0x40];
+    s8 statGains[5];
+} ShdPersonaLearnList;
+
+/* Model loader and its display interpolator share the 0x154-byte allocation. */
+typedef struct ShdPersonaModelWork {
+    s32 state, resourceId, handle, color;
+    s32 frame, drawGauge;
+    f32 depth, duration;
+    Vec2f start, current, target, offset, committed;
+    s32 stream, directory, loaded;
+    u8 path[0x100];
+} ShdPersonaModelWork;
+
+/* Deferred stream-close tasks allocate only these first two words. */
+typedef struct ShdPersonaStreamWork { s32 stream, directory; } ShdPersonaStreamWork;
+
+/* The effect owns 24 independent frame/duration pairs, stored in parallel. */
+typedef struct ShdPersonaEffect {
+    u16 flags, frame, rotationFrame, pulseFrame;
+    u16 particleFrames[24];
+    u16 particleDurations[24];
+} ShdPersonaEffect;
+typedef struct ShdPersonaParticle { u16 frame, duration; } ShdPersonaParticle;
+typedef struct ShdPersonaBackdrop {
+    u16 frame;
+    u8 pad2[2];
+    u32 bonus;
+    ShdPersonaParticle particles[10];
+} ShdPersonaBackdrop;
+typedef struct ShdPersonaAcquisition { u16 flags, frame, skill; } ShdPersonaAcquisition;
+/* Renderer view of the existing 0x24-byte animated panels and task work.
+ * Unnamed byte spans retain fields outside this renderer's proven interface. */
+typedef struct PersonaRenderChannel {
+    Vec2f start;
+    Vec2f target;
+    Vec2f current;
+    u8 startAlpha;
+    u8 targetAlpha;
+    u8 alpha;
+    u8 unknown1b;
+    f32 duration;
+    f32 delay;
+} PersonaRenderChannel;
+
+typedef struct PersonaRenderRecord {
+    u16 category;
+    u16 id;
+    u8 level;
+    u8 unknown05[2];
+    u8 values[5];
+    u8 added[5];
+    u8 unknown11[3];
+    s32 affinities[7];
+    u8 unknown30[8];
+    u32 nextExperience;
+} PersonaRenderRecord;
+
+typedef struct PersonaRenderWork {
+    s32 controllerAddress;
+    s32 unk4, unk8;
+    PersonaRenderRecord persona[2];
+    u8 skills[0x234];
+    s32 sprites[4];
+    s32 backdropTexture;
+    PersonaRenderChannel channels[10];
+    Vec2f selectionStart, selectionTarget;
+    Vec2f selectionPosition;
+    u8 selectionStartAlpha, selectionTargetAlpha, selectionAlpha, unk44F;
+    f32 selectionStartFrame, selectionEndFrame;
+    u8 effect[0x68];
+    ShdPersonaBackdrop backdrop;
+    ShdPersonaAcquisition acquisition;
+    u8 pad4F6[2];
+    u8 *model;
+    Vec2f origin;
+    u8 startAlpha;
+    u8 alpha;
+    u8 targetAlpha, unk507;
+    s16 openingFrame;
+    u8 pad50A[2];
+    s32 openDuration, closeDuration;
+    s16 selectionFrame;
+    s16 comparisonFrame;
+    s16 skillFrame;
+    s16 selectedSkill;
+    f32 selectedSkillFade;
+    s16 revealFrame;
+    s16 revealPulseFrame, revealLabelFrame;
+    s16 meterPhase;
+    s32 overlayId;
+    s32 state, unk530;
+    s32 flags;
+    s32 phase;
+    f32 opacity;
+    u8 drawNode[0x30];
+    u16 queueIndex;
+    u8 pad572[2];
+} PersonaRenderWork;
 
 typedef struct KwlnTask KwlnTask;
 
-u16 datPersonaGetRecordId(u16 character);
+u16 datPersonaGetRecordId(u16 partyId);
 
 typedef unsigned int ShdByte __attribute__((mode(QI)));
 
-void shdPersonaDispCtlSetHandle(u8 *arg0, s32 arg1);
+void shdPersonaDispCtlSetHandle(u8 *task, s32 inputHandle);
 void shdPersonaDispCtlSetPosition();
 void sdkSpriteDrawOnceTinted(s32, s32, s32, f32, f32, u8, u8, u8, u8, f32, s32);
-void shdPersonaDispCtlSetOffsets(u8 *arg0, Vec2f *arg1, Vec2f *arg2);
+void shdPersonaDispCtlSetOffsets(u8 *task, Vec2f *inputStart, Vec2f *inputTarget);
 void shdPersonaSetupChannels();
 void shdPersonaBeginOpen();
 void shdPersonaDispCtlSetColor(s32, s32);
@@ -33,7 +146,7 @@ extern char iGpffff9c0c;
 extern char iGpffff9c08;
 
 u8 *datPersonaGetRow(u16 personaId);
-u8 *resourceFindByName(char *arg0);
+u8 *resourceFindByName(char *name);
 void shdPersonaDrawNamePlate(s64, f32, u8, u8 *, s32 *);
 void shdPersonaDrawExpRow(s64, f32, u8, u8 *, s32 *);
 void shdPersonaDrawFramePair(s64, f32, u8, u8 *, s32 *);
@@ -61,7 +174,7 @@ void ShdSkill_ReplaceActiveSkill(u16, u16, u8 *);
 s32 shdPersonaDispCtlCreate(s32, s32, char *);
 void H_Cdvd_Destroy();
 void func_003ef3a0();
-void chkmemAllocSiteTag(const void *msg, s32 id);
+void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern char D_005E4810[];
@@ -74,7 +187,7 @@ void shdPersonaDestroy(u8 *);
 s32 shdPersonaLoadModelStep(u8 *);
 void shdPersonaModelDestroy(u8 *);
 u8 *shdPersonaModelCreate(s32, s32, f32, s32, s32);
-void func_0011e390(u8 *, Vec2f);
+void shdPersonaDispCtlSetDrawOffset(u8 *, Vec2f);
 void shdDrawColourQuad(f32, s32, f32, f32, f32, f32, f32, f32, s32, s32, s32);
 s32 RpSkyRenderStateSet(s32, void *);
 s32 shdPersonaSkillReplaceStep(u8 *);
@@ -88,11 +201,11 @@ extern u8 D_005E4AF0[];
 extern u8 D_005E4BC0[];
 extern u8 D_005E4C90[];
 void strcpy(void *dst, s32 value);
-void nmMesWindowSetCurrentString(s32 param, void *text);
+void nmMesWindowSetCurrentString(s32 variable, void *text);
 void sprintf(void *dst, void *fmt, s32 value);
-s32 nmMesWindowShowCurrentRecord(s32 param);
-s32 nmMesWindowSetCurrentParam(s32 a);
-void nmMesWindowSetCurrentFlag(u8 a);
+s32 nmMesWindowShowCurrentRecord(s32 recordIndex);
+s32 nmMesWindowSetCurrentParam(s32 recordIndex);
+void nmMesWindowSetCurrentFlag(u8 cursor);
 void nmMesWindowRequestRefresh(void);
 u8 *func_00243840(s32 skillId);
 s32 shdPersonaPickRandomSkillPair(u8 *);
@@ -100,15 +213,15 @@ void shdPersonaEndSelection(u8 *, s32);
 void shdPersonaSetDisplayState(u8 *, s32, u32, s8);
 void shdPersonaDrawQuadStrips(f32, s32, s32, f32, f32, s32, s32, s32);
 u32 shdPersonaDispCtlIsLoaded(u8 *);
-f32 sinf(f32 arg0);
-f32 cosf(f32 arg0);
+f32 sinf(f32);
+f32 cosf(f32);
 extern f32 D_007613EC;
 extern f32 D_00761184;
-s32 func_004669d0();
+s32 filerTakeCompletedRequest();
 s32 func_00440b68();
 extern char D_005E4ED0[];
 extern char D_005E4EF0[];
-void sdkSndStartChannel(s16 channelIndex, const char *name);
+void sdkSndStartChannel(s16 channelIndex, const char *path);
 extern char D_005E4868[];
 extern char D_005E4E20[];
 extern char D_005E4E40[];
@@ -122,20 +235,20 @@ extern void (*jtbl_008873EC[])(void *);
 
 // Intent: Return the EXP still needed to reach the next level after arg1 extra levels, or 0 when already past it [inferred]
 // FUN_00115890
-s32 shdPersonaCalcExpRemaining(DatPersonaRecord *arg0, s32 arg1)
+s32 shdPersonaCalcExpRemaining(DatPersonaRecord *persona, s32 extraLevels)
 {
-    u8 c = arg0->level;
+    u8 c = persona->level;
     s32 s17;
     s32 r;
     if (c == 0x63) {
         return 0;
     }
-    s17 = c + (arg1 & 0xFF);
+    s17 = c + (extraLevels & 0xFF);
     if (s17 > 0x63) {
         kAssertFail(D_005E4868, 0x65);
     }
-    s17 = datPersonaGetExpForLevel(arg0, (u16)(s17 + 1));
-    r = s17 - datPersonaGetExp(arg0);
+    s17 = datPersonaGetExpForLevel(persona, (u16)(s17 + 1));
+    r = s17 - datPersonaGetExp(persona);
     if (r < 0) {
         return 0;
     }
@@ -145,82 +258,83 @@ s32 shdPersonaCalcExpRemaining(DatPersonaRecord *arg0, s32 arg1)
 
 
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-s8 datPersonaGetLevel(DatPersonaRecord *arg0);
+s8 datPersonaGetLevel(DatPersonaRecord *persona);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-s8 datPersonaGetStat(DatPersonaRecord *arg0, s32 arg1);
+s8 datPersonaGetStat(DatPersonaRecord *persona, s32 statIndex);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-s8 datPersonaGetBuffedStat(DatPersonaRecord *arg0, s32 arg1);
+s8 datPersonaGetBuffedStat(DatPersonaRecord *persona, s32 statIndex);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-s8 datPersonaGetTotalStat(DatPersonaRecord *arg0, s32 arg1);
+s8 datPersonaGetTotalStat(DatPersonaRecord *persona, s32 statIndex);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-s32 datPersonaRunSkillSlot(u8 *arg0, u16 arg1);
+s32 datPersonaRunSkillSlot(u8 *persona, u16 slotIndex);
 extern u16 D_007465D0[];
 // Intent: Fill a persona status block with level, EXP to next level, five stats (base, buffed or total by mode) and seven skill slots [inferred]
 // FUN_00115940
-void shdPersonaFillStatusBlock(DatPersonaRecord *arg0, u8 *arg1, s32 arg2)
+void shdPersonaFillStatusBlock(DatPersonaRecord *persona, u8 *status, s32 statMode)
 {
     s32 v2;
     u8 b4;
     s32 i;
 
-    if (arg0 == NULL) {
+    if (persona == NULL) {
         kAssertFail(D_005E4868, 0x76);
     }
-    *(u16 *)(arg1 + 2) = arg0->id;
-    *(s8 *)(arg1 + 4) = datPersonaGetLevel(arg0);
-    b4 = arg0->level;
+    ((PersonaRenderRecord *)status)->id = persona->id;
+    *(s8 *)&((PersonaRenderRecord *)status)->level = datPersonaGetLevel(persona);
+    b4 = persona->level;
     if (b4 == 0x63) {
         v2 = 0;
     } else {
         if ((s32)b4 > 0x63) {
             kAssertFail(D_005E4868, 0x65);
         }
-        v2 = datPersonaGetExpForLevel(arg0, (b4 + 1) & 0xFFFF) - datPersonaGetExp(arg0);
+        v2 = datPersonaGetExpForLevel(persona, (b4 + 1) & 0xFFFF) - datPersonaGetExp(persona);
         if (v2 < 0) {
             v2 = 0;
         }
     }
-    *(s32 *)(arg1 + 0x38) = v2;
-    switch (arg2) {
+    *(s32 *)&((PersonaRenderRecord *)status)->nextExperience = v2;
+    switch (statMode) {
     case 0:
-        *(s8 *)(arg1 + 7) = datPersonaGetStat(arg0, 0);
-        *(s8 *)(arg1 + 8) = datPersonaGetStat(arg0, 1);
-        *(s8 *)(arg1 + 9) = datPersonaGetStat(arg0, 2);
-        *(s8 *)(arg1 + 0xA) = datPersonaGetStat(arg0, 3);
-        *(s8 *)(arg1 + 0xB) = datPersonaGetStat(arg0, 4);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[0] = datPersonaGetStat(persona, 0);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[1] = datPersonaGetStat(persona, 1);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[2] = datPersonaGetStat(persona, 2);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[3] = datPersonaGetStat(persona, 3);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[4] = datPersonaGetStat(persona, 4);
         break;
     case 1:
-        *(s8 *)(arg1 + 7) = datPersonaGetBuffedStat(arg0, 0);
-        *(s8 *)(arg1 + 8) = datPersonaGetBuffedStat(arg0, 1);
-        *(s8 *)(arg1 + 9) = datPersonaGetBuffedStat(arg0, 2);
-        *(s8 *)(arg1 + 0xA) = datPersonaGetBuffedStat(arg0, 3);
-        *(s8 *)(arg1 + 0xB) = datPersonaGetBuffedStat(arg0, 4);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[0] = datPersonaGetBuffedStat(persona, 0);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[1] = datPersonaGetBuffedStat(persona, 1);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[2] = datPersonaGetBuffedStat(persona, 2);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[3] = datPersonaGetBuffedStat(persona, 3);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[4] = datPersonaGetBuffedStat(persona, 4);
         break;
     case 2:
-        *(s8 *)(arg1 + 7) = datPersonaGetTotalStat(arg0, 0);
-        *(s8 *)(arg1 + 8) = datPersonaGetTotalStat(arg0, 1);
-        *(s8 *)(arg1 + 9) = datPersonaGetTotalStat(arg0, 2);
-        *(s8 *)(arg1 + 0xA) = datPersonaGetTotalStat(arg0, 3);
-        *(s8 *)(arg1 + 0xB) = datPersonaGetTotalStat(arg0, 4);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[0] = datPersonaGetTotalStat(persona, 0);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[1] = datPersonaGetTotalStat(persona, 1);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[2] = datPersonaGetTotalStat(persona, 2);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[3] = datPersonaGetTotalStat(persona, 3);
+        *(s8 *)&((PersonaRenderRecord *)status)->values[4] = datPersonaGetTotalStat(persona, 4);
         break;
     default:
         kAssertFail(D_005E4868, 0x96);
         break;
     }
     for (i = 0; i < 7; i++) {
-        *(s32 *)(arg1 + 0x14 + i * 4) = datPersonaRunSkillSlot((u8 *)arg0, D_007465D0[i]);
+        ((PersonaRenderRecord *)status)->affinities[i] = datPersonaRunSkillSlot((u8 *)persona, D_007465D0[i]);
     }
 }
 
 
 
 // Intent: Copy five stat bytes from the persona record into the status block at offset 0xC [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_00115C00
-void shdPersonaCopyStatBytes(u8 *arg0, u8 *arg1)
+void shdPersonaCopyStatBytes(u8 *stats, u8 *status)
 {
     s32 i = 0;
     while (i < 5) {
-        *(u8 *)(arg1 + i + 0xC) = *(u8 *)(arg0 + i);
+        *(u8 *)(status + i + 0xC) = stats[i];
         i++;
     }
 }
@@ -230,17 +344,17 @@ void shdPersonaDrawRowName(Vec2f, f32, u8, s16 *);
 
 // Intent: Dispatch a persona panel draw by mode: 0 draws the row name, 1 the detail panel, 2 the row number [inferred]
 // FUN_00115C40
-void shdPersonaDrawByMode(Vec2f arg0, u8 arg1, s16 *arg2, f32 farg3)
+void shdPersonaDrawByMode(Vec2f basePosition, u8 alpha, s16 *descriptor, f32 depth)
 {
-    switch (*arg2) {
+    switch (*descriptor) {
     case 0:
-        shdPersonaDrawRowName(arg0, farg3, arg1, arg2);
+        shdPersonaDrawRowName(basePosition, depth, alpha, descriptor);
         break;
     case 1:
-        shdPersonaDrawDetailPanel(arg0, farg3, arg1, arg2);
+        shdPersonaDrawDetailPanel(basePosition, depth, alpha, descriptor);
         break;
     case 2:
-        shdPersonaDrawRowNumber(arg0, farg3, arg1, arg2);
+        shdPersonaDrawRowNumber(basePosition, depth, alpha, descriptor);
         break;
     }
 }
@@ -256,27 +370,27 @@ void shdPersonaDrawByMode(Vec2f arg0, u8 arg1, s16 *arg2, f32 farg3)
    The prior high-nd probes remain archived in `build/` for family history. */
 // Intent: Draw a persona row number as formatted text, with the mode selecting font 6 or 7 [inferred]
 // FUN_00115CB0
-void shdPersonaDrawRowNumber(Vec2f arg0, f32 farg3, u8 arg1, s16 *arg2)
+void shdPersonaDrawRowNumber(Vec2f basePosition, f32 depth, u8 alpha, s16 *descriptor)
 {
-    s8 var_16;
-    s32 temp_2;
+    s8 font;
+    s32 row;
     s32 color;
-    u8 sp60[0x100];
+    u8 text[0x100];
 
     color = -0x100;
-    color |= (u32)((arg1 & 0xFF) * 0xFF) / 255U;
-    temp_2 = (s32)datPersonaGetRow((u16)arg2[5]);
-    switch (arg2[1]) {
+    color |= (u32)((alpha & 0xFF) * 0xFF) / 255U;
+    row = (s32)datPersonaGetRow((u16)descriptor[5]);
+    switch (descriptor[1]) {
     case 0:
-        var_16 = 6;
-        sprintf(&sp60[0], &iGpffff9c08, temp_2);
+        font = 6;
+        sprintf(&text[0], &iGpffff9c08, row);
         break;
     case 1:
-        var_16 = 7;
-        sprintf(&sp60[0], &iGpffff9c08, temp_2);
+        font = 7;
+        sprintf(&text[0], &iGpffff9c08, row);
         break;
     }
-    frFontExDrawTextWithCharWidth((f32)(s32)arg0.x, (f32)(s32)arg0.y, farg3, color, var_16, 1, (const char *)sp60, 0, -1);
+    frFontExDrawTextWithCharWidth((f32)(s32)basePosition.x, (f32)(s32)basePosition.y, depth, color, font, 1, (const char *)text, 0, -1);
 }
 
 
@@ -296,28 +410,28 @@ u8 *datPersonaGetRow(u16 personaId);
 
 // Intent: Draw a persona row's name text, with the mode selecting font 0 or 7 [inferred]
 // FUN_00115DC0
-void shdPersonaDrawRowName(Vec2f arg0, f32 fparg0, u8 arg1, s16 *arg2)
+void shdPersonaDrawRowName(Vec2f basePosition, f32 depth, u8 alpha, s16 *descriptor)
 {
     s32 color;
-    s8 var_16;
+    s8 font;
     s16 mode;
-    s32 temp_2;
+    s32 name;
     f32 scale;
 
-    scale = fparg0;
+    scale = depth;
     color = -0x100;
-    color |= (u32)((arg1 & 0xFF) * 0xFF) / 255U;
-    mode = arg2[1];
+    color |= (u32)((alpha & 0xFF) * 0xFF) / 255U;
+    mode = descriptor[1];
     switch (mode) {
     case 0:
-        var_16 = 0;
+        font = 0;
         break;
     case 1:
-        var_16 = 7;
+        font = 7;
         break;
     }
-    temp_2 = (s32)datPersonaGetRow(*(u16 *)(arg2 + 5));
-    frFontExDrawText((f32)(s32)arg0.x, (f32)(s32)arg0.y, scale, color, var_16, 1, (void *)temp_2, 0, 0);
+    name = (s32)datPersonaGetRow(((ShdSkillDescriptor *)descriptor)->data.fields.id);
+    frFontExDrawText((f32)(s32)basePosition.x, (f32)(s32)basePosition.y, scale, color, font, 1, (void *)name, 0, 0);
 }
 
 
@@ -330,7 +444,7 @@ void shdPersonaDrawRowName(Vec2f arg0, f32 fparg0, u8 arg1, s16 *arg2)
 #pragma opt_common_subs off
 // Intent: Draw the persona detail panel: name plate, Arcana badge, EXP row, affinity panel, stat gauges and skill slots [inferred]
 // FUN_00115E90
-void shdPersonaDrawDetailPanel(Vec2f arg0, f32 farg3, u8 arg1, s16 *arg2)
+void shdPersonaDrawDetailPanel(Vec2f basePosition, f32 depth, u8 alpha, s16 *descriptor)
 {
     u32 *base;
     f32 y;
@@ -339,7 +453,7 @@ void shdPersonaDrawDetailPanel(Vec2f arg0, f32 farg3, u8 arg1, s16 *arg2)
     s32 i;
     u8 *record;
 
-    y = arg0.y;
+    y = basePosition.y;
     resources[0] = (s32)resourceFindByName(D_005E5810);
     resources[1] = (s32)resourceFindByName(D_005E5830);
     resources[2] = (s32)resourceFindByName(D_005E5850);
@@ -355,52 +469,52 @@ void shdPersonaDrawDetailPanel(Vec2f arg0, f32 farg3, u8 arg1, s16 *arg2)
     ((s32 (**)(s32, void *))base)[0](2, (void *)4);
     RpSkyRenderStateSet(2, (void *)0x44);
     RpSkyRenderStateSet(3, (void *)0x717FB);
-    position.xy.x = arg0.x;
+    position.xy.x = basePosition.x;
     position.xy.y = 43.0f + y;
-    shdPersonaDrawNamePlate(position.packed, farg3, arg1, (u8 *)arg2 + 8, resources);
-    position.xy.x = arg0.x - 23.0f;
+    shdPersonaDrawNamePlate(position.packed, depth, alpha, (u8 *)descriptor + 8, resources);
+    position.xy.x = basePosition.x - 23.0f;
     position.xy.y = 76.0f + y;
-    shdPersonaDrawExpRow(position.packed, farg3, arg1, (u8 *)arg2 + 8, resources);
-    shdPersonaDrawFramePair(position.packed, farg3, arg1, (u8 *)arg2 + 8, resources);
-    shdPersonaDrawArcanaBadge(position.packed, farg3, arg1, (u8 *)arg2 + 8, resources);
-    position.xy.x = (f32)305 + arg0.x;
+    shdPersonaDrawExpRow(position.packed, depth, alpha, (u8 *)descriptor + 8, resources);
+    shdPersonaDrawFramePair(position.packed, depth, alpha, (u8 *)descriptor + 8, resources);
+    shdPersonaDrawArcanaBadge(position.packed, depth, alpha, (u8 *)descriptor + 8, resources);
+    position.xy.x = (f32)305 + basePosition.x;
     position.xy.y = 139.0f + y;
-    shdPersonaDrawAffinityPanel(position.xy, farg3, arg1, (u8 *)arg2 + 8, resources);
+    shdPersonaDrawAffinityPanel(position.xy, depth, alpha, (u8 *)descriptor + 8, resources);
     i = 0;
     while (i < 5) {
-        position.xy.x = 88.0f + arg0.x;
+        position.xy.x = 88.0f + basePosition.x;
         position.xy.y = 203.0f + y + (f32)(i * 19);
-        record = (u8 *)arg2 + i;
-        shdPersonaDrawGaugeBar(position.xy, 0.0f, arg1, record[0xF],
+        record = (u8 *)descriptor + i;
+        shdPersonaDrawGaugeBar(position.xy, 0.0f, alpha, record[0xF],
                      record[0x14], 0, resources[0]);
         i++;
     }
 }
 #pragma pop
-u32 datPersonaNamePart1(s16 arg0);
+u32 datPersonaNamePart1(s16 unitId);
 // Intent: Draw a persona name plate: panel sprite 0x59 and the persona name text from the id lookup [inferred]
 // FUN_00116190
-void shdPersonaDrawNamePlate(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
+void shdPersonaDrawNamePlate(s64 packedPosition, f32 depth, u8 opacity, u8 *status, s32 *sprites)
 {
     f32 high;
     f32 x;
     f32 y;
     s32 alpha;
     s32 color;
-    s32 temp_18;
+    s32 texture;
 
-    alpha = arg1 & 0xFF;
+    alpha = opacity & 0xFF;
     color = (u32)((alpha * 0xFF) / 255U);
-    if (*(u16 *)arg2 != 0) {
-        temp_18 = arg3[1];
-        if (temp_18 == 0) {
+    if (*(u16 *)status != 0) {
+        texture = sprites[1];
+        if (texture == 0) {
             kAssertFail(D_005E4868, 0x171);
         }
-        high = *((f32 *)&arg0 + 1);
-        sdkSpriteDrawOnceTinted(0, temp_18, 0x59, 207.0f + *(f32 *)&arg0, high, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
-        x = (f32)(s32)(114.0f + *(f32 *)&arg0);
+        high = *((f32 *)&packedPosition + 1);
+        sdkSpriteDrawOnceTinted(0, texture, 0x59, 207.0f + *(f32 *)&packedPosition, high, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, depth, 0);
+        x = (f32)(s32)(114.0f + *(f32 *)&packedPosition);
         y = (f32)(s32)(2.0f + high);
-        frFontExDrawText(x, y, fparg0, color | -0x100, 8, 1, (const char *)datPersonaNamePart1(*(s16 *)arg2), 8, 0);
+        frFontExDrawText(x, y, depth, color | -0x100, 8, 1, (const char *)datPersonaNamePart1(*(s16 *)status), 8, 0);
     }
 }
 
@@ -408,22 +522,22 @@ void shdPersonaDrawNamePlate(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
 
 // Intent: Draw a pair of frame sprites (0x47 and 0x41) for a persona panel [inferred]
 // FUN_001162F0
-void shdPersonaDrawFramePair(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
+void shdPersonaDrawFramePair(s64 packedPosition, f32 depth, u8 opacity, u8 *status, s32 *sprites)
 {
     s32 t17;
     s32 c;
     u8 m;
     f32 hi;
 
-    t17 = *arg3;
+    t17 = *sprites;
     if (t17 == 0) {
         kAssertFail(D_005E4868, 0x197);
     }
-    m = arg1 & 0xFF;
+    m = opacity & 0xFF;
     c = 0xFF - m;
-    hi = *((f32 *)&arg0 + 1);
-    sdkSpriteDrawOnceTinted(0, t17, 0x47, *(f32 *)&arg0, hi, c, 0x2D, 0x2D, 0x2D, fparg0, 0);
-    sdkSpriteDrawOnceTinted(0, t17, 0x41, 126.0f + *(f32 *)&arg0, hi, c, 0x2D, 0x2D, 0x2D, fparg0, 0);
+    hi = *((f32 *)&packedPosition + 1);
+    sdkSpriteDrawOnceTinted(0, t17, 0x47, *(f32 *)&packedPosition, hi, c, 0x2D, 0x2D, 0x2D, depth, 0);
+    sdkSpriteDrawOnceTinted(0, t17, 0x41, 126.0f + *(f32 *)&packedPosition, hi, c, 0x2D, 0x2D, 0x2D, depth, 0);
 }
 
 
@@ -439,7 +553,7 @@ f32 sdkSpriteEntryWidth(s32, s32);
    (s32)(arg0 >> 32) — the untried spelling is c = ((s32 *)&arg0)[1]
    (pointer read, no shift); (2) the b1 bits local lands in $f22 (3rd FP
    saved reg, prologue swc1 $f22) instead of retail's $f20, and fparg0 in
-   $f20 instead of $f21 — FP colouring floor family; (3) sp90/sp94 stay
+   $f20 instead of $f21 — FP colouring floor family; (3) positionPair/positionY stay
    in registers instead of retail's store-and-reload (frame 0x90 vs
    0xA0). Tried s32/s64 arg0 models, param orders, b1/c locals first,
    inline bit-casts — best nd 99. */
@@ -452,9 +566,9 @@ f32 sdkSpriteEntryWidth(s32, s32);
    family notes were wrong); the declaration order (arg0 before fparg0)
    controls the prologue [sd $a0, 0x88; mov.s $f21] order. Also reproduced:
    fB = *((f32 *)&arg0 + 1) kept in $f20 with the high word re-read per use
-   (same family idiom as shdPersonaDrawAffinityPanel), the sp90[2] array for the s64 pair
+   (same family idiom as shdPersonaDrawAffinityPanel), the positionPair[2] array for the s64 pair
    passed to shdPersonaDrawLevelDigits, and the inv as TWO statements
-   (temp_20_2 = arg1 & 0xFF; temp_20_2 = 0xFF - temp_20_2;) to get retail's
+   (opacitySnapshot = arg1 & 0xFF; opacitySnapshot = 0xFF - opacitySnapshot;) to get retail's
    [andi, addiu, subu] order. The discarded nd-6 spelling used a stale
    prototype and was not recovered. */
 /* Measured ABI split for the coupled caller/callee declarations:
@@ -468,45 +582,45 @@ f32 sdkSpriteEntryWidth(s32, s32);
    560B, MATCH (normalized_diff 0). */
 // Intent: Draw the Arcana badge: sprite sized by Arcana count, persona icon sprite and level digits [inferred]
 // FUN_001163E0
-void shdPersonaDrawArcanaBadge(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
+void shdPersonaDrawArcanaBadge(s64 packedPosition, f32 depth, u8 opacity, u8 *status, s32 *sprites)
 {
     void shdPersonaDrawLevelDigits(s64, f32, s32, u8, s32);
     f32 high;
-    f32 sp90[2];
+    f32 position[2];
     u8 color[4];
     s32 id0;
     s32 id1;
     s32 count;
     s32 width;
-    high = *((f32 *)&arg0 + 1);
-    id0 = arg3[0];
+    high = *((f32 *)&packedPosition + 1);
+    id0 = sprites[0];
     if (id0 == 0) {
         kAssertFail(D_005E4868, 0x1BF);
     }
-    id1 = arg3[2];
+    id1 = sprites[2];
     if (id1 == 0) {
         kAssertFail(D_005E4868, 0x1C1);
     }
-    count = (s32)(datPersonaGetArcana(*(u16 *)(arg2 + 2)) & 0xFF);
+    count = (s32)(datPersonaGetArcana(((PersonaRenderRecord *)status)->id) & 0xFF);
     if (count <= 0 || count >= 0x20) {
         kAssertFail(D_005E4868, 0x1E6);
     }
-    sp90[1] = 6.0f + high;
+    position[1] = 6.0f + high;
     width = (((count & 0xFFFF) - 1) & 0xFFFF) + 0x21;
-    sp90[0] = 80.0f + *(f32 *)&arg0 - sdkSpriteEntryWidth(id0, width) / 2.0f;
-    count = arg1 & 0xFF;
+    position[0] = 80.0f + *(f32 *)&packedPosition - sdkSpriteEntryWidth(id0, width) / 2.0f;
+    count = opacity & 0xFF;
     count = 0xFF - count;
-    sdkSpriteDrawOnceTinted(0, id0, width, sp90[0], sp90[1], count, 0xFF, 0xFF, 0xFF, fparg0, 0);
-    sp90[0] = 53.0f + *(f32 *)&arg0;
-    sp90[1] = 43.0f + high;
-    sdkSpriteDrawOnceTinted(0, id1, 0x2A, sp90[0], sp90[1], count, 0xFF, 0xFF, 0xFF, fparg0, 0);
-    sp90[0] = 83.0f + *(f32 *)&arg0;
-    sp90[1] = 36.0f + high;
+    sdkSpriteDrawOnceTinted(0, id0, width, position[0], position[1], count, 0xFF, 0xFF, 0xFF, depth, 0);
+    position[0] = 53.0f + *(f32 *)&packedPosition;
+    position[1] = 43.0f + high;
+    sdkSpriteDrawOnceTinted(0, id1, 0x2A, position[0], position[1], count, 0xFF, 0xFF, 0xFF, depth, 0);
+    position[0] = 83.0f + *(f32 *)&packedPosition;
+    position[1] = 36.0f + high;
     color[0] = 0xFF;
     color[1] = 0xFF;
     color[2] = 0xFF;
-    color[3] = (u8)arg1;
-    shdPersonaDrawLevelDigits(*(s64 *)sp90, fparg0, *(s32 *)color, *(u8 *)(arg2 + 4), id1);
+    color[3] = (u8)opacity;
+    shdPersonaDrawLevelDigits(*(s64 *)position, depth, *(s32 *)color, ((PersonaRenderRecord *)status)->level, id1);
 }
 
 
@@ -519,11 +633,11 @@ void shdPersonaDrawDigits(Vec2f, f32, s32, u32, u32, s32);
    Object 524B / window 528B, MATCH (nd 0). */
 // Intent: Draw the EXP row: panel sprite, EXP-to-next-level digits and the persona name text [inferred]
 // FUN_00116610
-void shdPersonaDrawExpRow(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
+void shdPersonaDrawExpRow(s64 packedPosition, f32 depth, u8 opacity, u8 *status, s32 *sprites)
 {
-    u8 sp90[0x100];
-    Vec2f sp190;
-    u8 sp19c[4];
+    u8 text[0x100];
+    Vec2f position;
+    u8 digitColor[4];
     s32 alpha;
     s32 color;
     s32 id0;
@@ -531,30 +645,30 @@ void shdPersonaDrawExpRow(s64 arg0, f32 fparg0, u8 arg1, u8 *arg2, s32 *arg3)
     s32 temp;
     f32 high;
 
-    high = *((f32 *)&arg0 + 1);
-    alpha = arg1 & 0xFF;
+    high = *((f32 *)&packedPosition + 1);
+    alpha = opacity & 0xFF;
     color = (u32)((alpha * 0xFF) / 255U);
-    id0 = arg3[0];
+    id0 = sprites[0];
     if (id0 == 0) {
         kAssertFail(D_005E4868, 0x235);
     }
-    id1 = arg3[1];
+    id1 = sprites[1];
     if (id1 == 0) {
         kAssertFail(D_005E4868, 0x237);
     }
-    sp190.x = 129.0f + *(f32 *)&arg0;
-    sp190.y = 39.0f + high;
-    sdkSpriteDrawOnceTinted(0, id0, 0x39, sp190.x, sp190.y, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, fparg0, 0);
-    sp190.x = 259.0f + *(f32 *)&arg0;
-    sp190.y = 43.0f + high;
-    sp19c[0] = 0x2D;
-    sp19c[1] = 0x2D;
-    sp19c[2] = 0x2D;
-    sp19c[3] = arg1;
-    shdPersonaDrawDigits(sp190, fparg0, *(s32 *)sp19c, *(u32 *)(arg2 + 0x38), id1, 1);
-    temp = (s32)datPersonaGetRow(*(u16 *)(arg2 + 2));
-    sprintf(&sp90[0], (void *)&iGpffff9c0c, temp);
-    frFontExDrawTextWithCharWidth((f32)((s32)*(f32 *)&arg0 + 0x86), (f32)((s32)high + 3), fparg0, color | -0x100, 7, 1, (const char *)sp90, 0, -1);
+    position.x = 129.0f + *(f32 *)&packedPosition;
+    position.y = 39.0f + high;
+    sdkSpriteDrawOnceTinted(0, id0, 0x39, position.x, position.y, (0xFF - alpha) & 0xFF, 0x2D, 0x2D, 0x2D, depth, 0);
+    position.x = 259.0f + *(f32 *)&packedPosition;
+    position.y = 43.0f + high;
+    digitColor[0] = 0x2D;
+    digitColor[1] = 0x2D;
+    digitColor[2] = 0x2D;
+    digitColor[3] = opacity;
+    shdPersonaDrawDigits(position, depth, *(s32 *)digitColor, ((PersonaRenderRecord *)status)->nextExperience, id1, 1);
+    temp = (s32)datPersonaGetRow(((PersonaRenderRecord *)status)->id);
+    sprintf(&text[0], (void *)&iGpffff9c0c, temp);
+    frFontExDrawTextWithCharWidth((f32)((s32)*(f32 *)&packedPosition + 0x86), (f32)((s32)high + 3), depth, color | -0x100, 7, 1, (const char *)text, 0, -1);
 }
 
 
@@ -606,7 +720,7 @@ void shdPersonaDrawAffinityPanel(Vec2f position, f32 depth, u8 alpha, u8 *person
         rowY = point.y;
         sdkSpriteDrawOnceTinted(0, affinitySprites, affinityIndex + 0x2E, point.x, rowY, value, 0xFF, 0xFF, 0x81, depth, 0);
         sdkSpriteDrawOnceTinted(0, panelSprites, 0x43, point.x - 2.0f, 22.0f + rowY, value, 0xFF, 0xE9, 0x2C, depth, 0);
-        entry = *(s32 *)((u8 *)persona + affinityIndex * 4 + 0x14);
+        entry = ((PersonaRenderRecord *)persona)->affinities[affinityIndex];
         if ((entry & 0x02000000) != 0) {
             icon = 0x35;
         } else if ((entry & 0x08000000) != 0) {
@@ -768,9 +882,9 @@ static inline u8 shdPackedLow(s32 *value)
 void shdPersonaDrawLevelDigits(s64, f32, s32, u32, u32);
 // Intent: Draw a persona level as one or two right-aligned digits, using the sprite set from arg1 [inferred]
 // FUN_001171C0
-void shdPersonaDrawLevelDigits(s64 arg0, f32 fparg0, s32 arg1, u32 arg2, u32 arg3)
+void shdPersonaDrawLevelDigits(s64 packedPosition, f32 depth, s32 color, u32 level, u32 texture)
 {
-    s64 sp70;
+    s64 position;
     s32 packed;
     f32 farg;
     f32 f;
@@ -782,20 +896,20 @@ void shdPersonaDrawLevelDigits(s64 arg0, f32 fparg0, s32 arg1, u32 arg2, u32 arg
     s32 rem;
     f32 y;
 
-    sp70 = arg0;
-    farg = fparg0;
-    packed = arg1;
-    n = arg2;
-    id = arg3;
-    y = *((f32 *)&sp70 + 1);
+    position = packedPosition;
+    farg = depth;
+    packed = color;
+    n = level;
+    id = texture;
+    y = *((f32 *)&position + 1);
     if (id == 0) {
         kAssertFail(D_005E4868, 0x400);
     }
     rem = n & 0xFF;
     if (rem < 10) {
-        f = 11.0f + *((f32 *)&sp70 + 0);
+        f = 11.0f + *((f32 *)&position + 0);
     } else {
-        f = 22.0f + *((f32 *)&sp70 + 0);
+        f = 22.0f + *((f32 *)&position + 0);
     }
     b2 = *((u8 *)&packed + 2);
     b1 = *((u8 *)&packed + 1);
@@ -817,39 +931,39 @@ void shdPersonaDrawLevelDigits(s64 arg0, f32 fparg0, s32 arg1, u32 arg2, u32 arg
 // FUN_00117310
 #pragma push
 #pragma opt_loop_invariants on
-void shdPersonaDrawDigits(Vec2f arg0, f32 fparg0, s32 arg1, u32 arg2, u32 arg3, s32 arg4)
+void shdPersonaDrawDigits(Vec2f basePosition, f32 depth, s32 color, u32 number, u32 texture, s32 rightAligned)
 {
     f32 f;
-    u32 n = arg2;
-    u32 id = arg3;
+    u32 n = number;
+    u32 id = texture;
     u8 b2;
     u8 b1;
     u32 rem;
     f32 y;
-    y = arg0.y;
+    y = basePosition.y;
     if (id == 0) {
         kAssertFail(D_005E4868, 0x424);
     }
-    if (arg4 != 0) {
-        f = arg0.x;
+    if (rightAligned != 0) {
+        f = basePosition.x;
         rem = n;
         while (rem >= 10U) {
             f += 16.0f;
             rem /= 10U;
         }
     } else if (n < 10U) {
-        f = 8.0f + arg0.x;
+        f = 8.0f + basePosition.x;
     } else {
-        f = 16.0f + arg0.x;
+        f = 16.0f + basePosition.x;
     }
-    b2 = *((u8 *)&arg1 + 2);
-    b1 = *((u8 *)&arg1 + 1);
-    arg4 = 0xFF;
-    arg4 -= *((u8 *)&arg1 + 3);
+    b2 = *((u8 *)&color + 2);
+    b1 = *((u8 *)&color + 1);
+    rightAligned = 0xFF;
+    rightAligned -= *((u8 *)&color + 3);
     do {
         sdkSpriteDrawOnceTinted(0, id, (n % 10U) + 9,
-                      f, y, (u8)arg4, *((u8 *)&arg1), b1, b2,
-                      fparg0, 0);
+                      f, y, (u8)rightAligned, *((u8 *)&color), b1, b2,
+                      depth, 0);
         n /= 10U;
         f -= 16.0f;
     } while (n != 0);
@@ -857,14 +971,14 @@ void shdPersonaDrawDigits(Vec2f arg0, f32 fparg0, s32 arg1, u32 arg2, u32 arg3, 
 #pragma pop
 // Intent: Return an eased progress fraction in [0,1] for frame arg0 over [arg1, arg2), with linear, sine or cosine easing by arg3 [inferred]
 // FUN_001174A0
-f32 shdPersonaEaseProgress(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+f32 shdPersonaEaseProgress(s32 frame, s32 startFrame, s32 endFrame, s32 mode)
 {
-    if (arg0 < arg1) {
+    if (frame < startFrame) {
         return 0.0f;
     }
-    if (arg0 < arg2) {
-        f32 f = (f32)(arg0 - arg1) / (f32)(arg2 - arg1);
-        switch (arg3) {
+    if (frame < endFrame) {
+        f32 f = (f32)(frame - startFrame) / (f32)(endFrame - startFrame);
+        switch (mode) {
         case 0:
             break;
         case 1:
@@ -883,19 +997,19 @@ f32 shdPersonaEaseProgress(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
 
 // Intent: Store a persona-list index in the task work block after checking it is below 216 [inferred]
 // FUN_00117580
-void shdPersonaSetPersonaId(u8 *arg0, s32 arg1)
+void shdPersonaSetPersonaId(u8 *task, s32 personaId)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    if (!((arg1 & 0xFFFF) < 0xD8)) {
+    u8 *b = ((SdkTask *)task)->work;
+    if (!((personaId & 0xFFFF) < 0xD8)) {
         kAssertFail(D_005E4868, 0x595);
     }
-    *(u16 *)(b + 0x570) = arg1;
+    ((PersonaRenderWork *)b)->queueIndex = personaId;
 }
 
 
 
 void shdPersonaDrawPanels(u8 *, u8 *);
-void datRecordResetAll(u8 *arg0);
+void datRecordResetAll(u8 *record);
 extern char D_005E5810[];
 extern char D_005E5830[];
 extern char D_005E5850[];
@@ -905,45 +1019,46 @@ extern char D_005E57F0[];
    each iteration — #pragma opt_loop_invariants on restores the hoist. */
 #pragma opt_loop_invariants on
 // Intent: Initialise a persona panel task: counters, child-task callbacks, texture ids and the ten channel rectangles [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_001175E0
-void shdPersonaTaskInit(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
+void shdPersonaTaskInit(u8 *task, s32 inputState, s32 inputOpenDuration, s32 inputCloseDuration)
 {
     u8 *b;
     s32 i;
     u8 *src;
     u8 *dst;
 
-    b = *(u8 **)(arg0 + 0x38);
-    *(s32 *)(b + 0x52C) = arg1;
-    *(s32 *)(b + 0x50C) = arg2;
-    *(s32 *)(b + 0x510) = arg3;
-    *(s16 *)(b + 0x508) = 0;
-    *(s32 *)(b + 0x52C) = -1;
-    *(s32 *)(b + 0x538) = 0;
-    *(s32 *)(b + 0x534) = 0;
+    b = ((SdkTask *)task)->work;
+    ((PersonaRenderWork *)b)->state = inputState;
+    ((PersonaRenderWork *)b)->openDuration = inputOpenDuration;
+    ((PersonaRenderWork *)b)->closeDuration = inputCloseDuration;
+    ((PersonaRenderWork *)b)->openingFrame = 0;
+    ((PersonaRenderWork *)b)->state = -1;
+    ((PersonaRenderWork *)b)->phase = 0;
+    ((PersonaRenderWork *)b)->flags = 0;
     memset(b + 0x540, 0, 0x30);
     *(void (**)(u8 *))(b + 0x548) = (void (*)(u8 *))shdPersonaDrawPanels;
     *(u8 **)(b + 0x550) = b;
-    *(s16 *)(*(u8 **)(arg0 + 0x38) + 0x570) = 0xB1;
-    *(u8 **)(b + 0x4F8) = shdPersonaModelCreate((s32)arg0, 0xF, 0, 0, -0x100);
-    shdPersonaSetState(arg0, arg1);
-    *(s32 *)(b + 0x2B8) = (s32)resourceFindByName(D_005E5810);
-    *(s32 *)(b + 0x2BC) = (s32)resourceFindByName(D_005E5830);
-    *(s32 *)(b + 0x2C0) = (s32)resourceFindByName(D_005E5850);
-    *(s32 *)(b + 0x2C4) = (s32)resourceFindByName(D_005E57F0);
+    *(s16 *)(*(u8 **)(task + 0x38) + 0x570) = 0xB1;
+    ((PersonaRenderWork *)b)->model = shdPersonaModelCreate((s32)task, 0xF, 0, 0, -0x100);
+    shdPersonaSetState(task, inputState);
+    ((PersonaRenderWork *)b)->sprites[0] = (s32)resourceFindByName(D_005E5810);
+    ((PersonaRenderWork *)b)->sprites[1] = (s32)resourceFindByName(D_005E5830);
+    ((PersonaRenderWork *)b)->sprites[2] = (s32)resourceFindByName(D_005E5850);
+    ((PersonaRenderWork *)b)->sprites[3] = (s32)resourceFindByName(D_005E57F0);
     for (i = 0; i < 0xA; i++) {
         src = D_005E4880 + i * 0x14;
         dst = b + i * 0x24;
-        *(f32 *)(dst + 0x2DC) = *(f32 *)(src + 0);
-        *(f32 *)(dst + 0x2E0) = *(f32 *)(src + 4);
-        *(u8 *)(dst + 0x2E6) = *(u8 *)(src + 8);
+        ((PersonaRenderWork *)dst)->channels[0].current.x = ((ShdPersonaChannelPreset *)src)->position.x;
+        ((PersonaRenderWork *)dst)->channels[0].current.y = ((ShdPersonaChannelPreset *)src)->position.y;
+        ((PersonaRenderWork *)dst)->channels[0].alpha = ((ShdPersonaChannelPreset *)src)->alpha;
     }
     datRecordResetAll(b + 0x84);
-    *(s32 *)(b + 0x444) = 0xC3E10000;
-    *(s32 *)(b + 0x448) = 0x80000000;
-    *(u8 *)(b + 0x44E) = 0xFF;
-    *(s32 *)(b + 0x450) = 0;
-    *(s32 *)(b + 0x454) = 0x40A00000;
+    *(s32 *)&((PersonaRenderWork *)b)->selectionPosition.x = 0xC3E10000;
+    *(s32 *)&((PersonaRenderWork *)b)->selectionPosition.y = 0x80000000;
+    ((PersonaRenderWork *)b)->selectionAlpha = 0xFF;
+    *(s32 *)&((PersonaRenderWork *)b)->selectionStartFrame = 0;
+    *(s32 *)&((PersonaRenderWork *)b)->selectionEndFrame = 0x40A00000;
 }
 
 
@@ -952,7 +1067,7 @@ void shdPersonaTaskInit(u8 *arg0, s32 arg1, s32 arg2, s32 arg3)
 
 // Intent: Create a persona panel child task with update and destroy callbacks, then initialise it from arg1 to arg4 [inferred]
 // FUN_00117780
-u8 *shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
+u8 *shdPersonaTaskCreate(s32 parentTask, s32 priority, s32 state, s32 openDuration, s32 closeDuration)
 {
     u8 *w;
     u8 *r;
@@ -962,40 +1077,41 @@ u8 *shdPersonaTaskCreate(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4)
     if (w == NULL) {
         kAssertFail(D_005E4868, 0x5EE);
     }
-    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4810), arg1, 0, 0, shdPersonaTaskUpdate, shdPersonaDestroy, (u8 *)(w));
+    r = (u8 *)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_005E4810), priority, 0, 0, shdPersonaTaskUpdate, shdPersonaDestroy, (u8 *)(w));
     if (r == NULL) {
         kAssertFail(D_005E4868, 0x5F8);
     }
-    shdPersonaTaskInit(r, arg2, arg3, arg4);
+    shdPersonaTaskInit(r, state, openDuration, closeDuration);
     return r;
 }
 
 
 
 // Intent: Per-frame update of a persona panel task: copy its resource block and advance its state machine [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_001178A0
-s32 shdPersonaTaskUpdate(u8 *arg0)
+s32 shdPersonaTaskUpdate(u8 *task)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
+    u8 *b = ((SdkTask *)task)->work;
     s32 off;
     *(s32 *)(b + 0x540) = 0;
     *(s32 *)(b + 0x544) = 0;
-    off = 0x30 * *(u16 *)(b + 0x570);
+    off = 0x30 * ((PersonaRenderWork *)b)->queueIndex;
     PrimAppendNode(D_00793E80 + off, b + 0x540);
-    switch (*(s32 *)(b + 0x538)) {
+    switch (((PersonaRenderWork *)b)->phase) {
     case 0:
         *(s32 *)(b + 0x538) = 1;
         /* fallthrough */
     case 1:
-        if (*(s32 *)(b + 0) != 0) {
+        if (((PersonaRenderWork *)b)->controllerAddress != 0) {
             *(s32 *)(b + 0x538) = 2;
-            *(s32 *)(b + 0x534) |= 8;
+            ((PersonaRenderWork *)b)->flags |= 8;
         }
         break;
     case 2:
         break;
     case 3:
-        if (!(*(s32 *)(b + 0x534) & 1)) {
+        if (!(((PersonaRenderWork *)b)->flags & 1)) {
             return -1;
         }
         break;
@@ -1023,9 +1139,9 @@ extern u8 D_005E4D90[];
 extern s16 D_005E4D58[];
 u32 RpRandom(void);
 void PrimDrawPoints(u8 *, u8 *, f32, s32, s32, s32);
-void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg2, u8 arg3, u8 arg4, u8 arg5,
-                   u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth,
+                   u8 red, u8 green, u8 blue, u8 alpha,
+                   u16 scaleX, u16 scaleY, f32 angle, s16 pivotX, s16 pivotY);
 /* Measured: 3632B, matching retail. Keep complete draw-position, triangle
    and radial-table objects, promoted timer snapshots and distinct interpolation
    lifetimes. Rotation precedes panel scale in the declaration group. The
@@ -1088,14 +1204,15 @@ static inline f32 personaFallingPhase(s32 frame, s32 first, s32 last)
 }
 
 // Intent: Update and draw the card-open effect: growing panel scale, 24 radial particles, four corner marks and a pulse ring [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_00117980
 #pragma push
 #pragma opt_loop_invariants on
-void shdPersonaDrawEffect(u8 *arg0)
+void shdPersonaDrawEffect(u8 *panel)
 {
     extern f32 D_007611AC;
     extern f32 D_00761288;
-    u8 *b = arg0;
+    u8 *b = panel;
     u8 *effect = b + 0x458;
     s8 cornerDirections[4] = {-1, 0, 1, 0};
     Vec2f drawPosition;
@@ -1126,7 +1243,7 @@ void shdPersonaDrawEffect(u8 *arg0)
     f32 particleOpacity;
     f32 pulseScale;
 
-    if ((*(u16 *)(effect + 0x0) & 1) == 0) {
+    if ((((ShdPersonaEffect *)effect)->flags & 1) == 0) {
         baseOpacity = *(b + 0x505);
         {
             f32 fb = (f32)baseOpacity;
@@ -1134,7 +1251,7 @@ void shdPersonaDrawEffect(u8 *arg0)
             opacity = (u8)opacityValue;
             col = opacity & 0xFF;
         }
-        frameCount = *(u16 *)(effect + 0x2);
+        frameCount = ((ShdPersonaEffect *)effect)->frame;
         if ((s32)frameCount < 5) {
             f32 t0;
             f32 t1;
@@ -1162,14 +1279,14 @@ void shdPersonaDrawEffect(u8 *arg0)
             alpha = opacity & 0xFF;
         }
         if (++*(u16 *)(effect + 0x2) >= 15) {
-            *(u16 *)(effect + 0x0) = *(u16 *)(effect + 0x0) | 1;
+            ((ShdPersonaEffect *)effect)->flags = ((ShdPersonaEffect *)effect)->flags | 1;
         }
-    } else if ((*(u16 *)(effect + 0x0) & 2) != 0) {
-        col = personaModulatedOpacity(b[0x505], personaFallingPhase(*(u16 *)(effect + 0x2), 0, 3));
+    } else if ((((ShdPersonaEffect *)effect)->flags & 2) != 0) {
+        col = personaModulatedOpacity(b[0x505], personaFallingPhase(((ShdPersonaEffect *)effect)->frame, 0, 3));
         alpha = col;
         panelScale = 1.0f;
         if (++*(u16 *)(effect + 0x2) >= 3) {
-            *(s32 *)(b + 0x534) = *(s32 *)(b + 0x534) & 0xFFF7FFFF;
+            ((PersonaRenderWork *)b)->flags = ((PersonaRenderWork *)b)->flags & 0xFFF7FFFF;
         }
     } else {
         baseOpacity = *(b + 0x505);
@@ -1182,8 +1299,8 @@ void shdPersonaDrawEffect(u8 *arg0)
         }
         panelScale = 1.0f;
     }
-    *(s16 *)(effect + 0x4) = (s16)(((s32)(*(u16 *)(effect + 0x4) + 1)) % 400);
-    frameCount = *(u16 *)(effect + 0x4);
+    *(s16 *)&((ShdPersonaEffect *)effect)->rotationFrame = (s16)(((s32)(((ShdPersonaEffect *)effect)->rotationFrame + 1)) % 400);
+    frameCount = ((ShdPersonaEffect *)effect)->rotationFrame;
     rotation = (iGpffff81e0 * (f32)frameCount) / 400.0f;
     RpSkyRenderStateSet(3, (void *)0x71801);
     RpSkyRenderStateSet(2, (void *)0x48);
@@ -1213,9 +1330,9 @@ void shdPersonaDrawEffect(u8 *arg0)
         Vec2f *extent;
         const s32 styleCount = sizeof(radialExtent) / sizeof(radialExtent[0]);
         u8 *elem = effect + particle * 2;
-        u16 *particleDuration = (u16 *)(elem + 0x38);
+        u16 *particleDuration = &((ShdPersonaEffect *)elem)->particleDurations[0];
         s32 duration = *particleDuration;
-        u16 *particleFrame = (u16 *)(elem + 8);
+        u16 *particleFrame = &((ShdPersonaEffect *)elem)->particleFrames[0];
         s32 frame = ++*particleFrame;
         if (frame < 0) {
             particlePhase = 0.0f;
@@ -1279,10 +1396,10 @@ void shdPersonaDrawEffect(u8 *arg0)
     }
     RpSkyRenderStateSet(3, (void *)0x717FB);
     RpSkyRenderStateSet(2, (void *)0x44);
-    *(s16 *)(effect + 0x6) = (s16)(((s32)(*(u16 *)(effect + 0x6) + 1)) % 100);
+    *(s16 *)&((ShdPersonaEffect *)effect)->pulseFrame = (s16)(((s32)(((ShdPersonaEffect *)effect)->pulseFrame + 1)) % 100);
     drawPosition.x = 523.0f;
     drawPosition.y = 91.0f - panelScale * 30.0f;
-    sdkSpriteDrawOnceScaled(*(s32 *)(b + 0x2C0), 0xB4, drawPosition.x, drawPosition.y, 0.0f, 0x2D, 0x2D, 0x2D, col, 0x1000, (u16)(panelScale * 4096.0f), 0.0f, 0, 0);
+    sdkSpriteDrawOnceScaled(((PersonaRenderWork *)b)->sprites[2], 0xB4, drawPosition.x, drawPosition.y, 0.0f, 0x2D, 0x2D, 0x2D, col, 0x1000, (u16)(panelScale * 4096.0f), 0.0f, 0, 0);
     pulseScale = panelScale * personaPulseEnvelope(*(u16 *)(effect + 0x6));
     drawPosition.x = 542.0f;
     drawPosition.y = (1.0f - pulseScale) * 20.0f + 76.0f;
@@ -1291,9 +1408,9 @@ void shdPersonaDrawEffect(u8 *arg0)
 #pragma pop
 
 
-void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg2, u8 arg3, u8 arg4, u8 arg5,
-                   u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth,
+                   u8 red, u8 green, u8 blue, u8 alpha,
+                   u16 scaleX, u16 scaleY, f32 angle, s16 pivotX, s16 pivotY);
 /* Complete views of one eight-byte incoming panel coordinate value. */
 typedef union PersonaPanelPosition {
     f32 coordinates[2];
@@ -1326,14 +1443,14 @@ void shdPersonaDrawPanelSprites(u8 *work, PersonaPanelPosition position, u8 opac
     angle = rotation;
     offsetY = position.coordinates[1];
     baseY = basePosition.xy.y;
-    resource = *(s32 *)(work + 0x2C0);
+    resource = ((PersonaRenderWork *)work)->sprites[2];
     offsetX = position.coordinates[0];
     baseX = basePosition.xy.x;
     originX = offsetX + baseX;
     originY = offsetY + baseY;
     {
         f32 y = baseY;
-        sdkSpriteDrawOnceScaled(*(s32 *)(work + 0x2C4), 0x1D, originX, originY, 0.0f,
+        sdkSpriteDrawOnceScaled(((PersonaRenderWork *)work)->sprites[3], 0x1D, originX, originY, 0.0f,
                       0xBD, 0x29, 0, opacity, 0x1000, 0x1000, angle,
                       (s16)(baseX - originX), (s16)(y - originY));
     }
@@ -1372,10 +1489,11 @@ extern f32 iGpffff8094;
  * the actual buffers; each particle loop has its own counter.
  * See docs/probe_archive/Persona_animation_00118a20_20260923.md. */
 // Intent: Draw the sliding background panels for the persona screen; their phases follow the frame counter at 0x520 [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_00118A20
 #pragma push
 #pragma opt_loop_invariants on
-void shdPersonaDrawSlidingPanels(u8 *arg0)
+void shdPersonaDrawSlidingPanels(u8 *panel)
 {
     void shdEnableBlendFlag(void);
     void shdDisableBlendFlag(void);
@@ -1400,17 +1518,17 @@ void shdPersonaDrawSlidingPanels(u8 *arg0)
     union {
         f32 values[4];
         PersonaPanelPosition pairs[2];
-    } sp90;
-    PackedColor4 sp80[3] __attribute__((aligned(16)));
-    f32 sp60[6];
+    } panelCoordinates;
+    PackedColor4 colors[3] __attribute__((aligned(16)));
+    f32 points[6];
     u8 b505;
     s16 v;
     f32 x;
     /* Retail initializes the four phase values only in this flag arm.
      * The two scroll values also require the frame thresholds below;
      * no default is supplied for paths that skip those assignments. */
-    if ((*(s32 *)(arg0 + 0x534) & 0x10000) != 0) {
-        v = *(s16 *)(arg0 + 0x520);
+    if ((((PersonaRenderWork *)panel)->flags & 0x10000) != 0) {
+        v = ((PersonaRenderWork *)panel)->revealFrame;
         if (v < 0) {
             x = 0.0f;
         } else if (v < 6) {
@@ -1419,7 +1537,7 @@ void shdPersonaDrawSlidingPanels(u8 *arg0)
             x = 1.0f;
         }
         f25 = 1.0f - x;
-        v = *(s16 *)(arg0 + 0x520);
+        v = *(s16 *)(panel + 0x520);
         if (v < 3) {
             x = 0.0f;
         } else if (v < 9) {
@@ -1428,7 +1546,7 @@ void shdPersonaDrawSlidingPanels(u8 *arg0)
             x = 1.0f;
         }
         f24 = 1.0f - x;
-        v = *(s16 *)(arg0 + 0x520);
+        v = *(s16 *)(panel + 0x520);
         if (v < 7) {
             x = 0.0f;
         } else if (v < 0x11) {
@@ -1437,7 +1555,7 @@ void shdPersonaDrawSlidingPanels(u8 *arg0)
             x = 1.0f;
         }
         f23 = 1.0f - x;
-        v = *(s16 *)(arg0 + 0x520);
+        v = *(s16 *)(panel + 0x520);
         if (v < 9) {
             x = 0.0f;
         } else if (v < 0x13) {
@@ -1446,12 +1564,12 @@ void shdPersonaDrawSlidingPanels(u8 *arg0)
             x = 1.0f;
         }
         f22 = 1.0f - x;
-        if (*(s16 *)(arg0 + 0x520) >= 7) {
-            *(s16 *)(arg0 + 0x522) = *(s16 *)(arg0 + 0x522) + 1;
-            if (*(s16 *)(arg0 + 0x522) >= 0x46) {
-                *(s16 *)(arg0 + 0x522) = 0;
+        if (*(s16 *)(panel + 0x520) >= 7) {
+            ((PersonaRenderWork *)panel)->revealPulseFrame = ((PersonaRenderWork *)panel)->revealPulseFrame + 1;
+            if (((PersonaRenderWork *)panel)->revealPulseFrame >= 0x46) {
+                *(s16 *)(panel + 0x522) = 0;
             }
-            v = *(s16 *)(arg0 + 0x522);
+            v = *(s16 *)(panel + 0x522);
             if (v < 0) {
                 f21 = 0.0f;
             } else if (v < 0x46) {
@@ -1460,12 +1578,12 @@ void shdPersonaDrawSlidingPanels(u8 *arg0)
                 f21 = 1.0f;
             }
         }
-        if (*(s16 *)(arg0 + 0x520) >= 9) {
-            *(s16 *)(arg0 + 0x524) = *(s16 *)(arg0 + 0x524) + 1;
-            if (*(s16 *)(arg0 + 0x524) >= 0x28) {
-                *(s16 *)(arg0 + 0x524) = 0;
+        if (*(s16 *)(panel + 0x520) >= 9) {
+            ((PersonaRenderWork *)panel)->revealLabelFrame = ((PersonaRenderWork *)panel)->revealLabelFrame + 1;
+            if (((PersonaRenderWork *)panel)->revealLabelFrame >= 0x28) {
+                *(s16 *)(panel + 0x524) = 0;
             }
-            v = *(s16 *)(arg0 + 0x524);
+            v = *(s16 *)(panel + 0x524);
             if (v < 0) {
                 f20 = 0.0f;
             } else if (v < 0x28) {
@@ -1475,21 +1593,21 @@ void shdPersonaDrawSlidingPanels(u8 *arg0)
             }
         }
     }
-    b505 = *(arg0 + 0x505);
+    b505 = *(panel + 0x505);
     x1 = 135.0f + 516.0f * f25;
-    sp90.values[2] = x1;
-    sp90.values[3] = -11.0f;
-    sp60[0] = x1;
-    sp60[1] = sp90.values[3];
+    panelCoordinates.values[2] = x1;
+    panelCoordinates.values[3] = -11.0f;
+    points[0] = x1;
+    points[1] = panelCoordinates.values[3];
     y1 = 516.0f + x1;
-    sp60[2] = y1;
-    sp60[3] = sp90.values[3];
-    sp60[4] = y1;
-    sp60[5] = 484.0f + sp90.values[3];
+    points[2] = y1;
+    points[3] = panelCoordinates.values[3];
+    points[4] = y1;
+    points[5] = 484.0f + panelCoordinates.values[3];
     {
         s32 i;
         for (i = 0; i < 3; i++) {
-            PackedColor4 *color = &sp80[i];
+            PackedColor4 *color = &colors[i];
             color->rgba[0] = 0xED;
             color->rgba[1] = 0x36;
             color->rgba[2] = 0x11;
@@ -1497,21 +1615,21 @@ void shdPersonaDrawSlidingPanels(u8 *arg0)
         }
     }
     shdEnableBlendFlag();
-    PrimDrawPoints((u8 *)sp80, (u8 *)sp60, 0.0f, 3, 5, 0);
+    PrimDrawPoints((u8 *)colors, (u8 *)points, 0.0f, 3, 5, 0);
     shdDisableBlendFlag();
     x2 = -21.0f - 131.0f * f24;
-    sp90.values[2] = x2;
-    sp90.values[3] = (f32)0x151;
-    sp60[0] = x2;
-    sp60[1] = sp90.values[3];
-    sp60[2] = x2;
-    sp60[3] = 123.0f + sp90.values[3];
-    sp60[4] = 131.0f + x2;
-    sp60[5] = sp60[3];
+    panelCoordinates.values[2] = x2;
+    panelCoordinates.values[3] = (f32)0x151;
+    points[0] = x2;
+    points[1] = panelCoordinates.values[3];
+    points[2] = x2;
+    points[3] = 123.0f + panelCoordinates.values[3];
+    points[4] = 131.0f + x2;
+    points[5] = points[3];
     {
         s32 i;
         for (i = 0; i < 3; i++) {
-            PackedColor4 *color = &sp80[i];
+            PackedColor4 *color = &colors[i];
             color->rgba[0] = 0xFF;
             color->rgba[1] = 0x36;
             color->rgba[2] = 0x11;
@@ -1519,34 +1637,34 @@ void shdPersonaDrawSlidingPanels(u8 *arg0)
         }
     }
     shdEnableBlendFlag();
-    PrimDrawPoints((u8 *)sp80, (u8 *)sp60, 0.0f, 3, 5, 0);
+    PrimDrawPoints((u8 *)colors, (u8 *)points, 0.0f, 3, 5, 0);
     shdDisableBlendFlag();
     t90 = 552.0f + 461.0f * f23 - 15.0f;
     t94 = 10.0f + 413.0f * f23;
     t98 = -(400.0f * f21);
-    sp90.values[0] = t90;
-    sp90.values[1] = t94;
-    sp90.values[2] = t98;
-    sp90.values[3] = 0.0f;
+    panelCoordinates.values[0] = t90;
+    panelCoordinates.values[1] = t94;
+    panelCoordinates.values[2] = t98;
+    panelCoordinates.values[3] = 0.0f;
     {
         s32 k;
         for (k = 0; k < 2; k++) {
-            shdPersonaDrawPanelSprites(arg0, sp90.pairs[1], b505, sp90.pairs[0].packed, iGpffff8364);
-            sp90.values[2] = sp90.values[2] + 400.0f;
+            shdPersonaDrawPanelSprites(panel, panelCoordinates.pairs[1], b505, panelCoordinates.pairs[0].packed, iGpffff8364);
+            panelCoordinates.values[2] = panelCoordinates.values[2] + 400.0f;
         }
     }
     u90 = 219.0f + 461.0f * f22 + 90.0f - 30.0f;
     u94 = 10.0f + 413.0f * f22;
     u98 = -(400.0f * f20);
-    sp90.values[0] = u90;
-    sp90.values[1] = u94;
-    sp90.values[2] = u98;
-    sp90.values[3] = 0.0f;
+    panelCoordinates.values[0] = u90;
+    panelCoordinates.values[1] = u94;
+    panelCoordinates.values[2] = u98;
+    panelCoordinates.values[3] = 0.0f;
     {
         s32 k;
         for (k = 0; k < 3; k++) {
-            shdPersonaDrawPanelSprites(arg0, sp90.pairs[1], b505, sp90.pairs[0].packed, iGpffff8364);
-            sp90.values[2] = sp90.values[2] + 400.0f;
+            shdPersonaDrawPanelSprites(panel, panelCoordinates.pairs[1], b505, panelCoordinates.pairs[0].packed, iGpffff8364);
+            panelCoordinates.values[2] = panelCoordinates.values[2] + 400.0f;
         }
     }
 }
@@ -1566,10 +1684,10 @@ void PrimDrawPoints(u8 *, u8 *, f32, s32, s32, s32);
 #pragma opt_loop_invariants on
 // Intent: Draw the six-quad particle strip for a persona panel, with per-quad positions and blend alpha from arg1 [inferred]
 // FUN_001190F0
-void shdPersonaDrawParticleQuads(f32 *arg0, u8 arg1)
+void shdPersonaDrawParticleQuads(f32 *origin, u8 alpha)
 {
-    f32 sp30[12];
-    u8 sp10[24];
+    f32 points[12];
+    u8 colors[24];
     f32 *dstf;
     u8 *dstb;
     s32 i;
@@ -1578,26 +1696,26 @@ void shdPersonaDrawParticleQuads(f32 *arg0, u8 arg1)
     s32 n;
 
     for (i = 0; i < 6; i++) {
-        dstf = &sp30[2 * i];
+        dstf = &points[2 * i];
         x = i & 1;
         if (i < 0 && (i & 1)) {
             x -= 2;
         }
-        *dstf = arg0[0] + 2.0f * (f32)x;
+        *dstf = origin[0] + 2.0f * (f32)x;
         n2 = i / 3;
-        *(dstf + 1) = arg0[1] + 450.0f * (f32)n2;
-        dstb = &sp10[4 * i];
+        *(dstf + 1) = origin[1] + 450.0f * (f32)n2;
+        dstb = &colors[4 * i];
         dstb[0] = 0x5A;
         dstb[1] = 0x5A;
         dstb[2] = 0xFF;
         n = i / 2;
         if (n == 1) {
-            dstb[3] = arg1;
+            dstb[3] = alpha;
         } else {
             dstb[3] = 0;
         }
     }
-    PrimDrawPoints((u8 *)sp10, (u8 *)sp30, 0.0f, 6, 4, 0);
+    PrimDrawPoints((u8 *)colors, (u8 *)points, 0.0f, 6, 4, 0);
 }
 /* Closes the measured opt_loop_invariants scope opened for shdPersonaDrawParticleQuads above.
    It must stay scoped: leaving it on regresses the neighbouring functions. */
@@ -1617,6 +1735,7 @@ extern f32 iGpffff8368;
  * four retail zero-tail bytes. Prior renderers, siblings and data stay exact.
  * Proof: build/first-party-focus-20260921/persona-w4/continuation-2. */
 // Intent: Draw the blue backdrop, ten rising particles, community rank and bonus digits [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_00119210
 void shdPersonaDrawBackdrop(u8 *work)
 {
@@ -1637,10 +1756,10 @@ void shdPersonaDrawBackdrop(u8 *work)
     f32 digitY;
 
     animation = work + 0x4C0;
-    if (*(s32 *)(work + 0x4C4) == 0) {
+    if (*(s32 *)&((PersonaRenderWork *)work)->backdrop.bonus == 0) {
         return;
     }
-    communityRank = cmmCommunityValueForArcana(datPersonaGetArcana(*(u16 *)(*(u8 **)work + 2)) & 0xFF) & 0xFF;
+    communityRank = cmmCommunityValueForArcana(datPersonaGetArcana(((DatPersonaRecord *)*(u8 **)work)->id) & 0xFF) & 0xFF;
     alpha = *(work + 0x505);
     {
         if (++*(u16 *)animation >= 0x14) {
@@ -1700,7 +1819,7 @@ void shdPersonaDrawBackdrop(u8 *work)
                 kAssertFail(D_005E4868, 0x7FB);
             }
             {
-                if (++*(u16 *)particle < *(u16 *)(particle + 2)) {
+                if (++*(u16 *)particle < ((ShdPersonaParticle *)particle)->duration) {
                     goto skip_reset;
                 }
             }
@@ -1718,7 +1837,7 @@ void shdPersonaDrawBackdrop(u8 *work)
     RpSkyRenderStateSet(2, (void *)0x44);
     inverseAlpha = 0xFF - (alpha & 0xFF);
     {
-        sdkSpriteDrawOnce(0, *(s32 *)(work + 0x2C8), 0, 322.0f, 176.0f, inverseAlpha, 0.0f, 0);
+        sdkSpriteDrawOnce(0, ((PersonaRenderWork *)work)->backdropTexture, 0, 322.0f, 176.0f, inverseAlpha, 0.0f, 0);
         if ((communityRank & 0xFF) == 0xA) {
             sdkSpriteDrawOnce(0, *(s32 *)(work + 0x2C8), 0xC, 520.0f, 170.0f, inverseAlpha, 0.0f, 0);
         } else {
@@ -1728,7 +1847,7 @@ void shdPersonaDrawBackdrop(u8 *work)
     }
     digitX = (f32)0x232;
     digitY = 220.0f;
-    digits = *(u32 *)(animation + 4);
+    digits = ((ShdPersonaBackdrop *)animation)->bonus;
     do {
         sdkSpriteDrawOnce(0, *(s32 *)(work + 0x2C8), (digits % 10) + 1, digitX, digitY, inverseAlpha, 0.0f, 0);
         digitX -= 28.0f;
@@ -1745,6 +1864,7 @@ void shdPersonaDrawBackdrop(u8 *work)
  * resolve to retail, with a twelve-byte zero suffix and no owned data.
  * Proof: build/game-next-20260921/persona/accepted-acquisition. */
 // Intent: Draw the persona acquisition animation: rotating panel, glow phase and label [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_00119810
 void shdPersonaDrawAcquisition(u8 *work)
 {
@@ -1761,12 +1881,12 @@ void shdPersonaDrawAcquisition(u8 *work)
     f32 angle;
 
     animation = work + 0x4F0;
-    if (*(u16 *)(work + 0x4F4) == 0) {
+    if (((PersonaRenderWork *)work)->acquisition.skill == 0) {
         return;
     }
     flags = *(u16 *)animation;
     if (!(flags & 1)) {
-        if (++*(u16 *)(animation + 2) >= 0x28) {
+        if (++((ShdPersonaAcquisition *)animation)->frame >= 0x28) {
             *(u16 *)animation = *(u16 *)animation | 1;
         }
         if (*(u16 *)(animation + 2) == 8) {
@@ -1805,16 +1925,16 @@ void shdPersonaDrawAcquisition(u8 *work)
         maximum = 1.0f;
         labelProgress = maximum;
         glowProgress = 0.0f;
-        *(s32 *)(work + 0x534) = *(s32 *)(work + 0x534) & ~0x100000;
+        ((PersonaRenderWork *)work)->flags = ((PersonaRenderWork *)work)->flags & ~0x100000;
     } else {
         rotationProgress = 0.0f;
         maximum = 1.0f;
         labelProgress = maximum;
         glowProgress = 0.0f;
     }
-    color = *(u8 *)(work + 0x505);
+    color = ((PersonaRenderWork *)work)->alpha;
     angle = 90.0f * rotationProgress;
-    sdkSpriteDrawOnceScaled(*(s32 *)(work + 0x2C8), 0xB, (f32)0x19B, 296.0f, 0.0f,
+    sdkSpriteDrawOnceScaled(((PersonaRenderWork *)work)->backdropTexture, 0xB, (f32)0x19B, 296.0f, 0.0f,
                    0xFF, 0xFF, 0xFF, color, 0x1000, 0x1000, angle, (s16)0x12E, (s16)0x21);
     if (glowProgress > 0.0f && glowProgress < maximum) {
         s32 alpha;
@@ -1832,11 +1952,11 @@ void shdPersonaDrawAcquisition(u8 *work)
         RpSkyRenderStateSet(3, (void *)0x717FB);
         RpSkyRenderStateSet(2, (void *)0x44);
     }
-    if (*(s8 *)(work + 0x88) == 8) {
+    if (((ShdSkillState *)((PersonaRenderWork *)work)->skills)->cursor == 8) {
         s32 inverseAlpha;
         mode = 8;
         inverseAlpha = 255 - *(u8 *)(work + 0x505);
-        sdkSpriteDrawOnceTinted(0, *(s32 *)(work + 0x2BC), 0x5C, (f32)0x1A5, (f32)0x147,
+        sdkSpriteDrawOnceTinted(0, ((PersonaRenderWork *)work)->sprites[1], 0x5C, (f32)0x1A5, (f32)0x147,
                       inverseAlpha, 0x2D, 0x2D, 0x2D, 0.0f, 0);
         sdkSpriteDrawOnceTinted(0, *(s32 *)(work + 0x2BC), 0x5D, (f32)0x25B, (f32)0x147,
                       inverseAlpha, 0x2D, 0x2D, 0x2D, 0.0f, 0);
@@ -1854,7 +1974,7 @@ void shdPersonaDrawAcquisition(u8 *work)
         color = (color & 0xFF) | -0x100;
     }
     frFontExDrawText(iGpffff8368, (f32)0x145, 0.0f, color, (s8)mode, 1,
-                  (const char *)func_00243840(*(u16 *)(animation + 4)), 8, 0);
+                  (const char *)func_00243840(((ShdPersonaAcquisition *)animation)->skill), 8, 0);
 }
 void shdPersonaTweenChannelsOpen(u8 *);
 void shdPersonaTweenChannelsClose(u8 *);
@@ -1875,65 +1995,7 @@ void ShdSkill_DrawSelectionFrame(Vec2f, f32, u8, u16);
 void shdPersonaDrawBackdrop(u8 *);
 void shdPersonaDrawAcquisition(u8 *);
 void shdPersonaDrawEffect(u8 *);
-void sdkSpriteDrawFooter(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
-/* Renderer view of the existing 0x24-byte animated panels and task work.
- * Unnamed byte spans retain fields outside this renderer's proven interface. */
-typedef struct PersonaRenderChannel {
-    Vec2f start;
-    Vec2f target;
-    Vec2f current;
-    u8 startAlpha;
-    u8 targetAlpha;
-    u8 alpha;
-    u8 unknown1b;
-    f32 duration;
-    f32 delay;
-} PersonaRenderChannel;
-
-typedef struct PersonaRenderRecord {
-    u16 category;
-    u16 id;
-    u8 level;
-    u8 unknown05[2];
-    u8 values[5];
-    u8 added[5];
-    u8 unknown11[3];
-    s32 affinities[7];
-    u8 unknown30[8];
-    u32 nextExperience;
-} PersonaRenderRecord;
-
-typedef struct PersonaRenderWork {
-    s32 controllerAddress;
-    u8 unknown004[8];
-    PersonaRenderRecord persona[2];
-    u8 skills[0x234];
-    s32 sprites[4];
-    u8 unknown2c8[4];
-    PersonaRenderChannel channels[10];
-    u8 unknown434[0x10];
-    Vec2f selectionPosition;
-    u8 unknown44c[0xC];
-    u8 effect[0x68];
-    u8 unknown4c0[0x38];
-    u8 *model;
-    u8 unknown4fc[9];
-    u8 alpha;
-    u8 unknown506[2];
-    s16 openingFrame;
-    u8 unknown50a[0xA];
-    s16 selectionFrame;
-    s16 comparisonFrame;
-    s16 skillFrame;
-    s16 selectedSkill;
-    f32 selectedSkillFade;
-    s16 revealFrame;
-    u8 unknown522[4];
-    s16 meterPhase;
-    s32 overlayId;
-    u8 unknown52c[8];
-    s32 flags;
-} PersonaRenderWork;
+void sdkSpriteDrawFooter(Vec2f unusedPosition, f32 depth, u8 alpha, s32 style, s32 packAddress);
 
 /* Update task counters, callbacks and independently animated Persona panels.
  * Flags are read again after callbacks because they can change draw visibility.
@@ -2248,7 +2310,7 @@ void shdPersonaDrawPanels(u8 *task, u8 *argument)
 
 // Intent: Load the ten animated channel targets from one of six preset tables (arg1 0 to 5) with their durations [inferred]
 // FUN_0011AAA0
-void shdPersonaSetupChannels(u8 *arg0, u32 arg1)
+void shdPersonaSetupChannels(u8 *panel, u32 preset)
 {
     u8 *p;
     f32 vf20;
@@ -2258,19 +2320,19 @@ void shdPersonaSetupChannels(u8 *arg0, u32 arg1)
 
     p = NULL;
     for (i = 0; i < 0xA; i++) {
-        t = arg0 + i * 0x24;
-        *(f32 *)(t + 0x2CC) = *(f32 *)(t + 0x2DC);
-        *(f32 *)(t + 0x2D0) = *(f32 *)(t + 0x2E0);
-        *(u8 *)(t + 0x2E4) = *(u8 *)(t + 0x2E6);
+        t = panel + i * 0x24;
+        ((PersonaRenderWork *)t)->channels[0].start.x = ((PersonaRenderWork *)t)->channels[0].current.x;
+        ((PersonaRenderWork *)t)->channels[0].start.y = ((PersonaRenderWork *)t)->channels[0].current.y;
+        ((PersonaRenderWork *)t)->channels[0].startAlpha = ((PersonaRenderWork *)t)->channels[0].alpha;
     }
-    switch (arg1) {
+    switch (preset) {
     case 0:
         p = D_005E4950;
-        vf20 = (f32)*(s32 *)(arg0 + 0x50C);
+        vf20 = (f32)((PersonaRenderWork *)panel)->openDuration;
         break;
     case 1:
         p = D_005E4880;
-        vf20 = (f32)*(s32 *)(arg0 + 0x510);
+        vf20 = (f32)((PersonaRenderWork *)panel)->closeDuration;
         break;
     case 2:
         p = D_005E4A20;
@@ -2282,11 +2344,11 @@ void shdPersonaSetupChannels(u8 *arg0, u32 arg1)
         break;
     case 4:
         p = D_005E4BC0;
-        vf20 = (f32)*(s32 *)(arg0 + 0x50C);
+        vf20 = (f32)((PersonaRenderWork *)panel)->openDuration;
         break;
     case 5:
         p = D_005E4C90;
-        vf20 = (f32)*(s32 *)(arg0 + 0x510);
+        vf20 = (f32)((PersonaRenderWork *)panel)->closeDuration;
         break;
     default:
         kAssertFail(D_005E4868, 0xAA6);
@@ -2297,12 +2359,12 @@ void shdPersonaSetupChannels(u8 *arg0, u32 arg1)
     }
     for (i = 0; i < 0xA; i++) {
         t = p + i * 0x14;
-        d = arg0 + i * 0x24;
-        *(f32 *)(d + 0x2D4) = *(f32 *)(t + 0);
-        *(f32 *)(d + 0x2D8) = *(f32 *)(t + 4);
-        *(u8 *)(d + 0x2E5) = *(u8 *)(t + 8);
-        *(f32 *)(d + 0x2E8) = vf20 * *(f32 *)(t + 0xC);
-        *(f32 *)(d + 0x2EC) = vf20 * *(f32 *)(t + 0x10);
+        d = panel + i * 0x24;
+        ((PersonaRenderWork *)d)->channels[0].target.x = ((ShdPersonaChannelPreset *)t)->position.x;
+        ((PersonaRenderWork *)d)->channels[0].target.y = ((ShdPersonaChannelPreset *)t)->position.y;
+        ((PersonaRenderWork *)d)->channels[0].targetAlpha = ((ShdPersonaChannelPreset *)t)->alpha;
+        ((PersonaRenderWork *)d)->channels[0].duration = vf20 * ((ShdPersonaChannelPreset *)t)->startFrame;
+        ((PersonaRenderWork *)d)->channels[0].delay = vf20 * ((ShdPersonaChannelPreset *)t)->endFrame;
     }
 }
 
@@ -2314,7 +2376,7 @@ void shdPersonaSetupChannels(u8 *arg0, u32 arg1)
    pointer into a saved register $s0 (frame 0x40 vs 0x30, whole body shifted,
    nd ~40). Tried declaration orders — identical. Same a2-cache colouring floor
    as shdPersonaSkillReplaceStep. Also: the m2c's 4-arg func_0044b7b0 call and the
-   (u16)-cast var_6 pointer are hallucinated (real call is 1-arg). */
+   (u16)-cast element pointer are hallucinated (real call is 1-arg). */
 /* Wave-14 re-measure: frame fix confirmed — lever 6 (inline element
    pointer `arg0 + i*36 + off` as an integer-domain address, NO named `p`
    local) drops the frame 0x40 -> 0x30 (retail's) and the element pointer
@@ -2327,7 +2389,7 @@ void shdPersonaSetupChannels(u8 *arg0, u32 arg1)
    applicable here — multi-use loop, not a single-use base wrapper. */
 // Intent: Tween the ten channels toward their targets over the opening window; clears the opening flag 0x2 when done [inferred]
 // FUN_0011AC70
-void shdPersonaTweenChannelsOpen(u8 *arg0)
+void shdPersonaTweenChannelsOpen(u8 *panel)
 {
     f32 diff;
     f32 f_abs;
@@ -2344,38 +2406,38 @@ void shdPersonaTweenChannelsOpen(u8 *arg0)
     for (i = 0; i < 0xA; i++) {
         {
             s16 raw;
-            raw = *(s16 *)(arg0 + 0x508);
-            if ((f32)raw < *(f32 *)(arg0 + i * 36 + 0x2E8)) {
+            raw = ((PersonaRenderWork *)panel)->openingFrame;
+            if ((f32)raw < ((PersonaRenderWork *)(panel + i * 36))->channels[0].duration) {
                 ratio = 0.0f;
             } else {
-                if ((f32)raw > *(f32 *)(arg0 + i * 36 + 0x2EC)) {
+                if ((f32)raw > ((PersonaRenderWork *)(panel + i * 36))->channels[0].delay) {
                     ratio = 1.0f;
                 } else {
-                    ratio = sinf(iGpffff8094 * (((f32)raw - *(f32 *)(arg0 + i * 36 + 0x2E8)) / (*(f32 *)(arg0 + i * 36 + 0x2EC) - *(f32 *)(arg0 + i * 36 + 0x2E8))));
+                    ratio = sinf(iGpffff8094 * (((f32)raw - ((PersonaRenderWork *)(panel + i * 36))->channels[0].duration) / (((PersonaRenderWork *)(panel + i * 36))->channels[0].delay - ((PersonaRenderWork *)(panel + i * 36))->channels[0].duration)));
                 }
             }
         }
-        base = *(f32 *)((s32)arg0 + i * 36 + 0x2CC);
-        delta = *(f32 *)((s32)arg0 + i * 36 + 0x2D4) - base;
-        *(f32 *)((s32)arg0 + i * 36 + 0x2DC) = base + ratio * delta;
-        base = *(f32 *)((s32)arg0 + i * 36 + 0x2D0);
-        delta = *(f32 *)((s32)arg0 + i * 36 + 0x2D8) - base;
-        *(f32 *)((s32)arg0 + i * 36 + 0x2E0) = base + ratio * delta;
-        a = *(u8 *)((s32)arg0 + i * 36 + 0x2E4);
-        b = *(u8 *)((s32)arg0 + i * 36 + 0x2E5);
+        base = ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].start.x;
+        delta = ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].target.x - base;
+        ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].current.x = base + ratio * delta;
+        base = ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].start.y;
+        delta = ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].target.y - base;
+        ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].current.y = base + ratio * delta;
+        a = ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].startAlpha;
+        b = ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].targetAlpha;
         diff = (f32)(b - a);
         f_abs = (f32)(u32)a;
         acc = f_abs + ratio * diff;
-        *(u8 *)((s32)arg0 + i * 36 + 0x2E6) = (u8)acc;
+        ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].alpha = (u8)acc;
     }
-    total = *(s32 *)(arg0 + 0x50C);
-    raw2 = *(s16 *)(arg0 + 0x508);
+    total = ((PersonaRenderWork *)panel)->openDuration;
+    raw2 = ((PersonaRenderWork *)panel)->openingFrame;
     if (raw2 < total) {
-        *(u8 *)(arg0 + 0x505) = *(u8 *)(arg0 + 0x504) +
-            (raw2 * (*(u8 *)(arg0 + 0x506) - *(u8 *)(arg0 + 0x504))) / total;
+        ((PersonaRenderWork *)panel)->alpha = ((PersonaRenderWork *)panel)->startAlpha +
+            (raw2 * (((PersonaRenderWork *)panel)->targetAlpha - ((PersonaRenderWork *)panel)->startAlpha)) / total;
     } else {
-        *(u8 *)(arg0 + 0x505) = *(u8 *)(arg0 + 0x506);
-        *(s32 *)(arg0 + 0x534) &= ~2;
+        ((PersonaRenderWork *)panel)->alpha = ((PersonaRenderWork *)panel)->targetAlpha;
+        ((PersonaRenderWork *)panel)->flags &= ~2;
     }
 }
 
@@ -2405,8 +2467,9 @@ extern f32 iGpffff8094;
    2^31 branch (the old "output-GPR floor") is what moved it to $v1. */
 #pragma opt_propagation off
 // Intent: Tween the ten channels toward their targets over the closing window; clears the closing flag 0x4 when done [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011AE90
-void shdPersonaTweenChannelsClose(u8 *arg0)
+void shdPersonaTweenChannelsClose(u8 *panel)
 {
     f32 diff;
     f32 f_abs;
@@ -2423,45 +2486,45 @@ void shdPersonaTweenChannelsClose(u8 *arg0)
     for (i = 0; i < 0xA; i++) {
         {
             s16 raw;
-            raw = *(s16 *)(arg0 + 0x508);
-            if ((f32)raw < *(f32 *)(arg0 + i * 36 + 0x2E8)) {
+            raw = ((PersonaRenderWork *)panel)->openingFrame;
+            if ((f32)raw < ((PersonaRenderWork *)(panel + i * 36))->channels[0].duration) {
                 ratio = 0.0f;
             } else {
-                if ((f32)raw > *(f32 *)(arg0 + i * 36 + 0x2EC)) {
+                if ((f32)raw > ((PersonaRenderWork *)(panel + i * 36))->channels[0].delay) {
                     ratio = 1.0f;
                 } else {
-                    ratio = sinf(iGpffff8094 * (((f32)raw - *(f32 *)(arg0 + i * 36 + 0x2E8)) / (*(f32 *)(arg0 + i * 36 + 0x2EC) - *(f32 *)(arg0 + i * 36 + 0x2E8))));
+                    ratio = sinf(iGpffff8094 * (((f32)raw - ((PersonaRenderWork *)(panel + i * 36))->channels[0].duration) / (((PersonaRenderWork *)(panel + i * 36))->channels[0].delay - ((PersonaRenderWork *)(panel + i * 36))->channels[0].duration)));
                 }
             }
         }
-        base = *(f32 *)((s32)arg0 + i * 36 + 0x2CC);
-        delta = *(f32 *)((s32)arg0 + i * 36 + 0x2D4) - base;
-        *(f32 *)((s32)arg0 + i * 36 + 0x2DC) = base + ratio * delta;
-        base = *(f32 *)((s32)arg0 + i * 36 + 0x2D0);
-        delta = *(f32 *)((s32)arg0 + i * 36 + 0x2D8) - base;
-        *(f32 *)((s32)arg0 + i * 36 + 0x2E0) = base + ratio * delta;
-        a = *(u8 *)((s32)arg0 + i * 36 + 0x2E4);
-        b = *(u8 *)((s32)arg0 + i * 36 + 0x2E5);
+        base = ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].start.x;
+        delta = ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].target.x - base;
+        ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].current.x = base + ratio * delta;
+        base = ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].start.y;
+        delta = ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].target.y - base;
+        ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].current.y = base + ratio * delta;
+        a = ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].startAlpha;
+        b = ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].targetAlpha;
         diff = (f32)(b - a);
         f_abs = (f32)(u32)a;
         acc = f_abs + ratio * diff;
-        *(u8 *)((s32)arg0 + i * 36 + 0x2E6) = (u8)acc;
+        ((PersonaRenderWork *)((s32)panel + i * 36))->channels[0].alpha = (u8)acc;
     }
-    total = *(s32 *)(arg0 + 0x510);
-    raw2 = *(s16 *)(arg0 + 0x508);
+    total = ((PersonaRenderWork *)panel)->closeDuration;
+    raw2 = ((PersonaRenderWork *)panel)->openingFrame;
     if (raw2 < total) {
-        *(u8 *)(arg0 + 0x505) = *(u8 *)(arg0 + 0x504) +
-            (raw2 * (*(u8 *)(arg0 + 0x506) - *(u8 *)(arg0 + 0x504))) / total;
+        ((PersonaRenderWork *)panel)->alpha = *(u8 *)(panel + 0x504) +
+            (raw2 * (((PersonaRenderWork *)panel)->targetAlpha - *(u8 *)(panel + 0x504))) / total;
     } else {
-        *(u8 *)(arg0 + 0x505) = *(u8 *)(arg0 + 0x506);
-        *(s32 *)(arg0 + 0x534) &= ~4;
-        *(s32 *)(arg0 + 0x534) &= ~0x80000;
-        *(s32 *)(arg0 + 0x534) &= ~0x200000;
-        *(s32 *)(arg0 + 0x534) &= ~0x800000;
-        if (*(u8 *)(arg0 + 0x505) == 0) {
-            *(s32 *)(arg0 + 0x534) &= ~1;
+        ((PersonaRenderWork *)panel)->alpha = ((PersonaRenderWork *)panel)->targetAlpha;
+        ((PersonaRenderWork *)panel)->flags &= ~4;
+        ((PersonaRenderWork *)panel)->flags &= ~0x80000;
+        ((PersonaRenderWork *)panel)->flags &= ~0x200000;
+        ((PersonaRenderWork *)panel)->flags &= ~0x800000;
+        if (((PersonaRenderWork *)panel)->alpha == 0) {
+            *(s32 *)(panel + 0x534) &= ~1;
         } else {
-            *(s32 *)(arg0 + 0x534) |= 0x400000;
+            *(s32 *)(panel + 0x534) |= 0x400000;
         }
     }
 }
@@ -2491,8 +2554,9 @@ void shdPersonaTweenChannelsClose(u8 *arg0)
    residual. Final object is 444B against a 448B window; the remaining four
    bytes are zero tail padding accepted by the verifier (normalized_diff 0). */
 // Intent: Draw the panel for its current state: states 0, 2 and 4 use draw mode 0x10, state 3 uses 0x23, and state 1 draws a gauge bar scaled by the alpha at 0x505 [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011B110
-void shdPersonaDrawByState(u8 *arg0)
+void shdPersonaDrawByState(u8 *panel)
 {
     Vec2f z;
     s32 state;
@@ -2502,18 +2566,18 @@ void shdPersonaDrawByState(u8 *arg0)
     u8 color[4];
     z.x = 0.0f;
     z.y = 0.0f;
-    state = *(s32 *)(arg0 + 0x52C);
+    state = ((PersonaRenderWork *)panel)->state;
     switch (state) {
     case 0:
     case 2:
     case 4:
-        nLineDrawSet(z, *(f32 *)(arg0 + 0x53C), *(u8 *)(arg0 + 0x505), 0x10);
+        nLineDrawSet(z, ((PersonaRenderWork *)panel)->opacity, ((PersonaRenderWork *)panel)->alpha, 0x10);
         return;
     case 3:
-        nLineDrawSet(z, *(f32 *)(arg0 + 0x53C), *(u8 *)(arg0 + 0x505), 0x23);
+        nLineDrawSet(z, ((PersonaRenderWork *)panel)->opacity, ((PersonaRenderWork *)panel)->alpha, 0x23);
         return;
     case 1:
-        value = (f32)(u32)*(u8 *)(arg0 + 0x505);
+        value = (f32)(u32)((PersonaRenderWork *)panel)->alpha;
         norm = value / 255.0f;
         work[0] = 0;
         work[1] = (s32)(231.0f - 166.0f * norm);
@@ -2522,7 +2586,7 @@ void shdPersonaDrawByState(u8 *arg0)
         color[0] = 0xFF;
         color[1] = 0xE9;
         color[2] = 0x2C;
-        color[3] = *(u8 *)(arg0 + 0x505);
+        color[3] = *(u8 *)(panel + 0x505);
         D_00887300[0](1, 0);
         PrimDrawFlatRectangle(color, (f32 *)work, 0.0f, 0);
         return;
@@ -2538,10 +2602,10 @@ void shdPersonaDrawByState(u8 *arg0)
 
 // Intent: Assert the panel state at 0x52C is 0 to 4, then destroy the task [inferred]
 // FUN_0011B2D0
-void shdPersonaDestroy(u8 *arg0)
+void shdPersonaDestroy(u8 *task)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    s32 v = *(s32 *)(b + 0x52C);
+    u8 *b = ((SdkTask *)task)->work;
+    s32 v = ((PersonaRenderWork *)b)->state;
     if (!(v == 1 || v == 4 || v == 3 || v == 2 || v == 0)) {
         kAssertFail(D_005E4868, 0xB59);
     }
@@ -2551,34 +2615,35 @@ void shdPersonaDestroy(u8 *arg0)
 
 
 // Intent: Finish the panel phase: begin the close when the flag 0x1 is set and the phase is 2, else clear flag 0x1, then set the phase to 3 [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011B360
-void shdPersonaFinishPhase(u8 *arg0)
+void shdPersonaFinishPhase(u8 *task)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    if ((*(s32 *)(b + 0x534) & 1) != 0 && *(s32 *)(b + 0x538) == 2) {
-        shdPersonaBeginClose(arg0);
+    u8 *b = ((SdkTask *)task)->work;
+    if ((((PersonaRenderWork *)b)->flags & 1) != 0 && ((PersonaRenderWork *)b)->phase == 2) {
+        shdPersonaBeginClose(task);
     } else {
         *(s32 *)(b + 0x534) &= ~1;
     }
-    *(s32 *)(b + 0x538) = 3;
+    ((PersonaRenderWork *)b)->phase = 3;
 }
 
 
 
 // Intent: Fill a status block from the persona record, with mode 2 for states 0 to 2 and mode 1 for states 3 and 4 [inferred]
 // FUN_0011B3D0
-void shdPersonaFillStatusForState(u8 *arg0, u8 *arg1)
+void shdPersonaFillStatusForState(u8 *panel, u8 *persona)
 {
-    s32 v = *(s32 *)(arg0 + 0x52C);
+    s32 v = ((PersonaRenderWork *)panel)->state;
     switch (v) {
     case 0:
     case 1:
     case 2:
-        shdPersonaFillStatusBlock((DatPersonaRecord *)arg1, arg0 + 0xC, 2);
+        shdPersonaFillStatusBlock((DatPersonaRecord *)persona, panel + 0xC, 2);
         break;
     case 3:
     case 4:
-        shdPersonaFillStatusBlock((DatPersonaRecord *)arg1, arg0 + 0xC, 1);
+        shdPersonaFillStatusBlock((DatPersonaRecord *)persona, panel + 0xC, 1);
         break;
     default:
         kAssertFail(D_005E4868, 0xB91);
@@ -2593,8 +2658,9 @@ void shdPersonaDispCtlReconfigure(u8 *, s32, s32);
 s32 shdPersonaDispCtlGetHandle(u8 *);
 void shdPersonaLevelUpRoute(u8 *);
 // Intent: Set the display state for a target and index: reconfigure the display control, or start the display transition for a nonzero target [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011B480
-void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3)
+void shdPersonaSetDisplayState(u8 *task, s32 inputCategory, u32 personaAddress, s8 cursor)
 {
     u8 *work;
     s32 t17;
@@ -2602,39 +2668,39 @@ void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3)
     s32 state;
     u16 t3_2;
 
-    work = ((SdkTask *)arg0)->work;
-    t17 = shdPersonaDispCtlGetHandle(*(u8 **)(work + 0x4F8));
-    if (arg2 == 0) {
+    work = ((SdkTask *)task)->work;
+    t17 = shdPersonaDispCtlGetHandle(((PersonaRenderWork *)work)->model);
+    if (personaAddress == 0) {
         shdPersonaDispCtlReconfigure(*(u8 **)(work + 0x4F8), 0, t17);
-        *(s32 *)(work + 0x538) = 1;
-        *(s32 *)(work + 0x534) &= ~8;
+        ((PersonaRenderWork *)work)->phase = 1;
+        ((PersonaRenderWork *)work)->flags &= ~8;
         return;
     }
-    *(u16 **)(work + 0) = (u16 *)arg2;
-    state = *(s32 *)(work + 0x52C);
+    *(u16 **)&((PersonaRenderWork *)work)->controllerAddress = (u16 *)personaAddress;
+    state = ((PersonaRenderWork *)work)->state;
     switch (state) {
     case 0:
     case 1:
     case 2:
-        shdPersonaFillStatusBlock((DatPersonaRecord *)arg2, work + 0xC, 2);
+        shdPersonaFillStatusBlock((DatPersonaRecord *)personaAddress, work + 0xC, 2);
         break;
     case 3:
     case 4:
-        shdPersonaFillStatusBlock((DatPersonaRecord *)arg2, work + 0xC, 1);
+        shdPersonaFillStatusBlock((DatPersonaRecord *)personaAddress, work + 0xC, 1);
         break;
     default:
         kAssertFail(D_005E4868, 0xB91);
         break;
     }
-    *(s16 *)(work + 0xC) = (s16)arg1;
-    datPersonaFillSkillRows((s32)arg2, work + 0x8C);
-    *(s8 *)(work + 0xEE) = (s8)arg3;
+    *(s16 *)&((PersonaRenderWork *)work)->persona[0].category = (s16)inputCategory;
+    datPersonaFillSkillRows((s32)personaAddress, work + 0x8C);
+    ((ShdSkillState *)((PersonaRenderWork *)work)->skills)->pool.markedSlots = (s8)cursor;
     memset(work + 0x4C0, 0, 0x30);
     memset(work + 0x4F0, 0, 6);
-    if (!(**(u16 **)(work + 0) & 4)) {
-        t4 = *(s32 *)(work + 0x534);
+    if (!(**(u16 **)&((PersonaRenderWork *)work)->controllerAddress & 4)) {
+        t4 = ((PersonaRenderWork *)work)->flags;
         if (t4 & 0x80000) {
-            t3_2 = *(u16 *)(work + 0x458);
+            t3_2 = ((ShdPersonaEffect *)((PersonaRenderWork *)work)->effect)->flags;
             if (!(t3_2 & 2)) {
                 if (!(t3_2 & 1)) {
                     *(s32 *)(work + 0x534) = t4 & 0xFFF7FFFF;
@@ -2645,22 +2711,23 @@ void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3)
             }
         }
     }
-    if (**(u16 **)(work + 0) & 4) {
-        *(s32 *)(work + 0x534) |= 0x80000;
+    if (**(u16 **)&((PersonaRenderWork *)work)->controllerAddress & 4) {
+        ((PersonaRenderWork *)work)->flags |= 0x80000;
         memset(work + 0x458, 0, 0x68);
     }
-    shdPersonaDispCtlReconfigure(*(u8 **)(work + 0x4F8), *(u16 *)((u8 *)arg2 + 2), t17);
-    shdPersonaEndSelection(arg0, 0);
-    shdPersonaLevelUpRoute(arg0);
+    shdPersonaDispCtlReconfigure(*(u8 **)(work + 0x4F8), *(u16 *)((u8 *)personaAddress + 2), t17);
+    shdPersonaEndSelection(task, 0);
+    shdPersonaLevelUpRoute(task);
 }
 
 
 
 extern char D_005E4E00[];
-void func_0011e360(u8 *, s32);
+void shdPersonaDispCtlSetGaugeEnabled(u8 *, s32);
 // Intent: Set the persona panel state at 0x52C and reconfigure the panel for the new state [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011B6D0
-s32 shdPersonaSetState(u8 *arg0, s32 arg1)
+s32 shdPersonaSetState(u8 *task, s32 inputState)
 {
     u8 *work;
     s32 t1;
@@ -2671,90 +2738,90 @@ s32 shdPersonaSetState(u8 *arg0, s32 arg1)
     s32 t6;
     s32 t7;
 
-    work = ((SdkTask *)arg0)->work;
-    if (*(s32 *)(work + 0x52C) != arg1) {
-        *(s32 *)(work + 0x52C) = arg1;
-        switch (arg1) {
+    work = ((SdkTask *)task)->work;
+    if (((PersonaRenderWork *)work)->state != inputState) {
+        *(s32 *)(work + 0x52C) = inputState;
+        switch (inputState) {
         case 0:
-            t1 = *(s32 *)(work + 0x534) | 0x40;
-            *(s32 *)(work + 0x534) = t1;
+            t1 = ((PersonaRenderWork *)work)->flags | 0x40;
+            ((PersonaRenderWork *)work)->flags = t1;
             t2 = t1 | 0x20;
-            *(s32 *)(work + 0x534) = t2;
+            ((PersonaRenderWork *)work)->flags = t2;
             t3 = t2 | 0x80;
-            *(s32 *)(work + 0x534) = t3;
+            ((PersonaRenderWork *)work)->flags = t3;
             t4 = t3 | 0x400;
-            *(s32 *)(work + 0x534) = t4;
+            ((PersonaRenderWork *)work)->flags = t4;
             t5 = t4 | 0x40000;
-            *(s32 *)(work + 0x534) = t5;
+            ((PersonaRenderWork *)work)->flags = t5;
             t6 = t5 | 0x200000;
-            *(s32 *)(work + 0x534) = t6;
+            ((PersonaRenderWork *)work)->flags = t6;
             break;
         case 1:
-            t1 = *(s32 *)(work + 0x534) | 0x10;
-            *(s32 *)(work + 0x534) = t1;
+            t1 = ((PersonaRenderWork *)work)->flags | 0x10;
+            ((PersonaRenderWork *)work)->flags = t1;
             t2 = t1 | 0x40;
-            *(s32 *)(work + 0x534) = t2;
+            ((PersonaRenderWork *)work)->flags = t2;
             t3 = t2 | 0x20;
-            *(s32 *)(work + 0x534) = t3;
+            ((PersonaRenderWork *)work)->flags = t3;
             t4 = t3 | 0x80;
-            *(s32 *)(work + 0x534) = t4;
+            ((PersonaRenderWork *)work)->flags = t4;
             t5 = t4 | 0x400;
-            *(s32 *)(work + 0x534) = t5;
+            ((PersonaRenderWork *)work)->flags = t5;
             t6 = t5 | 0x40000;
-            *(s32 *)(work + 0x534) = t6;
+            ((PersonaRenderWork *)work)->flags = t6;
             t7 = t6 | 0x200000;
-            *(s32 *)(work + 0x534) = t7;
+            ((PersonaRenderWork *)work)->flags = t7;
             break;
         case 2:
-            t1 = *(s32 *)(work + 0x534) | 0x10;
-            *(s32 *)(work + 0x534) = t1;
+            t1 = ((PersonaRenderWork *)work)->flags | 0x10;
+            ((PersonaRenderWork *)work)->flags = t1;
             t2 = t1 | 0x40;
-            *(s32 *)(work + 0x534) = t2;
+            ((PersonaRenderWork *)work)->flags = t2;
             t3 = t2 | 0x20;
-            *(s32 *)(work + 0x534) = t3;
+            ((PersonaRenderWork *)work)->flags = t3;
             t4 = t3 | 0x80;
-            *(s32 *)(work + 0x534) = t4;
+            ((PersonaRenderWork *)work)->flags = t4;
             t5 = t4 | 0x400;
-            *(s32 *)(work + 0x534) = t5;
+            ((PersonaRenderWork *)work)->flags = t5;
             t6 = t5 | 0x40000;
-            *(s32 *)(work + 0x534) = t6;
+            ((PersonaRenderWork *)work)->flags = t6;
             t7 = t6 | 0x200000;
-            *(s32 *)(work + 0x534) = t7;
+            ((PersonaRenderWork *)work)->flags = t7;
             break;
         case 3:
-            t1 = *(s32 *)(work + 0x534) | 0x10;
-            *(s32 *)(work + 0x534) = t1;
+            t1 = ((PersonaRenderWork *)work)->flags | 0x10;
+            ((PersonaRenderWork *)work)->flags = t1;
             t2 = t1 | 0x40;
-            *(s32 *)(work + 0x534) = t2;
+            ((PersonaRenderWork *)work)->flags = t2;
             t3 = t2 | 0x20;
-            *(s32 *)(work + 0x534) = t3;
+            ((PersonaRenderWork *)work)->flags = t3;
             t4 = t3 | 0x80;
-            *(s32 *)(work + 0x534) = t4;
+            ((PersonaRenderWork *)work)->flags = t4;
             t5 = t4 | 0x100;
-            *(s32 *)(work + 0x534) = t5;
+            ((PersonaRenderWork *)work)->flags = t5;
             t6 = t5 | 0x200000;
-            *(s32 *)(work + 0x534) = t6;
+            ((PersonaRenderWork *)work)->flags = t6;
             t7 = (s32)resourceFindByName(D_005E4E00);
-            *(s32 *)(work + 0x2C8) = t7;
+            ((PersonaRenderWork *)work)->backdropTexture = t7;
             if (t7 == 0) {
                 kAssertFail(D_005E4868, 0xC02);
             }
             break;
         case 4:
-            t1 = *(s32 *)(work + 0x534) | 0x10;
-            *(s32 *)(work + 0x534) = t1;
+            t1 = ((PersonaRenderWork *)work)->flags | 0x10;
+            ((PersonaRenderWork *)work)->flags = t1;
             t2 = t1 | 0x40;
-            *(s32 *)(work + 0x534) = t2;
+            ((PersonaRenderWork *)work)->flags = t2;
             t3 = t2 | 0x20;
-            *(s32 *)(work + 0x534) = t3;
+            ((PersonaRenderWork *)work)->flags = t3;
             t4 = t3 | 0x200000;
-            *(s32 *)(work + 0x534) = t4;
+            ((PersonaRenderWork *)work)->flags = t4;
             break;
         default:
             kAssertFail(D_005E4868, 0xC0E);
             break;
         }
-        func_0011e360(*(u8 **)(work + 0x4F8), 1);
+        shdPersonaDispCtlSetGaugeEnabled(((PersonaRenderWork *)work)->model, 1);
     }
     return 0;
 }
@@ -2762,17 +2829,18 @@ s32 shdPersonaSetState(u8 *arg0, s32 arg1)
 
 
 // Intent: Fill a state block from the persona record pointer, choosing the layout by the panel state at 0x52C [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011B8F0
-void shdPersonaFillStateBlock(u8 *arg0, u8 *arg1)
+void shdPersonaFillStateBlock(u8 *task, u8 *stats)
 {
     u8 *work;
     u16 *ptr;
     s32 state;
     s32 i;
 
-    work = ((SdkTask *)arg0)->work;
-    ptr = *(u16 **)(work + 0);
-    state = *(s32 *)(work + 0x52C);
+    work = ((SdkTask *)task)->work;
+    ptr = *(u16 **)&((PersonaRenderWork *)work)->controllerAddress;
+    state = ((PersonaRenderWork *)work)->state;
     switch (state) {
     case 0:
     case 1:
@@ -2788,7 +2856,7 @@ void shdPersonaFillStateBlock(u8 *arg0, u8 *arg1)
         break;
     }
     for (i = 0; i < 5; i++) {
-        *(u8 *)(work + 0x18 + i) = *(u8 *)(arg1 + i);
+        *(u8 *)(work + 0x18 + i) = stats[i];
     }
 }
 
@@ -2798,19 +2866,19 @@ void shdPersonaFillStateBlock(u8 *arg0, u8 *arg1)
 // FUN_0011B9E0
 void shdPersonaSetHandleValue(int task, u32 value)
 {
-    *(u32 *)(*(int *)(task + 0x38) + 0x44) = value;
+    ((PersonaRenderWork *)((SdkTask *)task)->work)->persona[0].nextExperience = value;
 }
 // Intent: Store an extra value at offset 0x4C4 of the persona block owned by the task; no in-tree caller [inferred]
 // FUN_0011B9F0
 void shdPersonaSetExtraValue(int task, u32 value)
 {
-    *(u32 *)(*(int *)(task + 0x38) + 0x4c4) = value;
+    ((PersonaRenderWork *)((SdkTask *)task)->work)->backdrop.bonus = value;
 }
 // Intent: Return whether a persona transition (open 0x2 or close 0x4) is in progress [inferred]
 // FUN_0011BA00
-s32 shdPersonaIsTransitioning(u8 *arg0)
+s32 shdPersonaIsTransitioning(u8 *task)
 {
-    s32 flags = *(s32 *)(((SdkTask *)arg0)->work + 0x534);
+    s32 flags = ((PersonaRenderWork *)((SdkTask *)task)->work)->flags;
     if ((flags & 2) || (flags & 4)) {
         return 1;
     }
@@ -2820,8 +2888,9 @@ s32 shdPersonaIsTransitioning(u8 *arg0)
 
 
 // Intent: Begin the persona open transition: set the open and active flags and clear the close and selection flags [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011BA40
-void shdPersonaBeginOpen(u8 *arg0)
+void shdPersonaBeginOpen(u8 *panel)
 {
     s32 t1;
     s32 t2;
@@ -2833,28 +2902,28 @@ void shdPersonaBeginOpen(u8 *arg0)
     s32 state;
     u16 *p;
 
-    t1 = *(s32 *)(arg0 + 0x534) | 1;
-    *(s32 *)(arg0 + 0x534) = t1;
+    t1 = ((PersonaRenderWork *)panel)->flags | 1;
+    ((PersonaRenderWork *)panel)->flags = t1;
     t2 = t1 | 2;
-    *(s32 *)(arg0 + 0x534) = t2;
+    ((PersonaRenderWork *)panel)->flags = t2;
     t3 = t2 | 0x200000;
-    *(s32 *)(arg0 + 0x534) = t3;
+    ((PersonaRenderWork *)panel)->flags = t3;
     t4 = t3 | 0x800000;
-    *(s32 *)(arg0 + 0x534) = t4;
+    ((PersonaRenderWork *)panel)->flags = t4;
     t5 = t4 & ~4;
-    *(s32 *)(arg0 + 0x534) = t5;
+    ((PersonaRenderWork *)panel)->flags = t5;
     t6 = t5 & ~0x4000;
-    *(s32 *)(arg0 + 0x534) = t6;
+    ((PersonaRenderWork *)panel)->flags = t6;
     t7 = t6 & 0xFFBFFFFF;
-    *(s32 *)(arg0 + 0x534) = t7;
-    p = *(u16 **)(arg0 + 0);
+    ((PersonaRenderWork *)panel)->flags = t7;
+    p = *(u16 **)&((PersonaRenderWork *)panel)->controllerAddress;
     if (p != NULL && (*p & 4)) {
-        *(s32 *)(arg0 + 0x534) |= 0x80000;
-        memset(arg0 + 0x458, 0, 0x68);
+        *(s32 *)(panel + 0x534) |= 0x80000;
+        memset(panel + 0x458, 0, 0x68);
     } else {
-        *(s32 *)(arg0 + 0x534) &= 0xFFF7FFFF;
+        *(s32 *)(panel + 0x534) &= 0xFFF7FFFF;
     }
-    state = *(s32 *)(arg0 + 0x52C);
+    state = ((PersonaRenderWork *)panel)->state;
     switch (state) {
     case 0:
     case 1:
@@ -2873,26 +2942,27 @@ void shdPersonaBeginOpen(u8 *arg0)
 
 
 // Intent: Start the persona panel slide-in with its tween and sound [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011BB90
-void shdPersonaStartSlideIn(u8 *arg0)
+void shdPersonaStartSlideIn(u8 *task)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    if (!(*(s32 *)(b + 0x534) & 2) && *(u8 *)(b + 0x505) != 0xFF) {
+    u8 *b = ((SdkTask *)task)->work;
+    if (!(((PersonaRenderWork *)b)->flags & 2) && ((PersonaRenderWork *)b)->alpha != 0xFF) {
         f32 t;
         f32 u;
         Vec2f src;
         Vec2f dst;
         shdPersonaBeginOpen(b);
-        *(u16 *)(b + 0x508) = 0;
-        *(u8 *)(b + 0x504) = *(u8 *)(b + 0x505);
-        *(u8 *)(b + 0x506) = 0xFF;
-        t = 131.0f + *(f32 *)(b + 0x4FC);
+        *(u16 *)&((PersonaRenderWork *)b)->openingFrame = 0;
+        ((PersonaRenderWork *)b)->startAlpha = *(u8 *)(b + 0x505);
+        ((PersonaRenderWork *)b)->targetAlpha = 0xFF;
+        t = 131.0f + ((PersonaRenderWork *)b)->origin.x;
         src.x = t;
-        u = -59.0f + *(f32 *)(b + 0x500);
+        u = -59.0f + ((PersonaRenderWork *)b)->origin.y;
         src.y = u;
         dst.x = 640.0f + t;
         dst.y = u;
-        shdPersonaDispCtlSetOffsets(*(u8 **)(b + 0x4F8), &dst, &src);
+        shdPersonaDispCtlSetOffsets(((PersonaRenderWork *)b)->model, &dst, &src);
         shdPersonaDispCtlSetPosition(*(u8 **)(b + 0x4F8), 0);
         shdPersonaSetupChannels(b, 0);
     }
@@ -2901,8 +2971,9 @@ void shdPersonaStartSlideIn(u8 *arg0)
 
 
 // Intent: Begin the persona close transition: set the close flag and clear the open and selection flags [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011BC70
-void shdPersonaBeginClose(u8 *arg0)
+void shdPersonaBeginClose(u8 *task)
 {
     u8 *work;
     s32 flags;
@@ -2914,10 +2985,10 @@ void shdPersonaBeginClose(u8 *arg0)
     s32 t6;
     s32 state;
 
-    work = ((SdkTask *)arg0)->work;
-    flags = *(s32 *)(work + 0x534);
+    work = ((SdkTask *)task)->work;
+    flags = ((PersonaRenderWork *)work)->flags;
     if (((flags & 1) != 0 && (flags & 4) == 0) || (flags & 0x400000) != 0) {
-        t1 = *(s32 *)(((SdkTask *)arg0)->work + 0x534) | 4;
+        t1 = ((PersonaRenderWork *)((SdkTask *)task)->work)->flags | 4;
         *(s32 *)(work + 0x534) = t1;
         t2 = t1 & ~2;
         *(s32 *)(work + 0x534) = t2;
@@ -2929,9 +3000,9 @@ void shdPersonaBeginClose(u8 *arg0)
         *(s32 *)(work + 0x534) = t5;
         t6 = t5 & ~0x4000;
         *(s32 *)(work + 0x534) = t6;
-        *(s8 *)(work + 0x88) = -1;
-        *(s32 *)(work + 0x444) = 0xC3E10000;
-        state = *(s32 *)(work + 0x52C);
+        ((ShdSkillState *)((PersonaRenderWork *)work)->skills)->cursor = -1;
+        *(s32 *)&((PersonaRenderWork *)work)->selectionPosition.x = 0xC3E10000;
+        state = ((PersonaRenderWork *)work)->state;
         switch (state) {
         case 0:
             sdkSndStartStream(0, 1, 0, 4);
@@ -2945,9 +3016,9 @@ void shdPersonaBeginClose(u8 *arg0)
             kAssertFail(D_005E4868, 0xCCC);
             break;
         }
-        *(s16 *)(work + 0x508) = 0;
-        *(u8 *)(work + 0x504) = *(u8 *)(work + 0x505);
-        *(s8 *)(work + 0x506) = 0;
+        ((PersonaRenderWork *)work)->openingFrame = 0;
+        ((PersonaRenderWork *)work)->startAlpha = ((PersonaRenderWork *)work)->alpha;
+        *(s8 *)&((PersonaRenderWork *)work)->targetAlpha = 0;
         shdPersonaSetupChannels(work, 1);
         *(s32 *)(work + 0x534) &= 0xFF7FFFFF;
     }
@@ -2971,7 +3042,7 @@ void shdPersonaDispCtlCommitPosition(u8 *);
    liveness/scheduling floor. Committed at nd 19. */
 // Intent: Start the persona panel slide-out, handing off to the close tween [inferred]
 // FUN_0011BDC0
-void shdPersonaStartSlideOut(u8 *arg0)
+void shdPersonaStartSlideOut(u8 *task)
 {
   u8 *baseWork;
   f32 *xField;
@@ -2979,7 +3050,7 @@ void shdPersonaStartSlideOut(u8 *arg0)
   Vec2f v;
   f32 result;
   int isZero;
-    baseWork = (*((SdkTask *) arg0)).work;
+    baseWork = (*((SdkTask *) task)).work;
   if (!((*((s32 *) (baseWork + 0x534))) & 2))
   {
     shdPersonaBeginOpen(baseWork);
@@ -3026,7 +3097,7 @@ void shdPersonaStartSlideOut(u8 *arg0)
    Function-wide FP liveness/scheduling floor. Committed at nd 19. */
 // Intent: Enter the persona close state once (flag 0x1 set, 0x4 clear): set 0x4, clear the open, selection and reveal flags, reset the slot to -1, set up five channels and reposition the display control from the bar progress; the body is a raw Ghidra dump and needs a rewrite [inferred]
 // FUN_0011BF10
-void shdPersonaEnterCloseState(u8 *arg0)
+void shdPersonaEnterCloseState(u8 *task)
 {
   u8 *w;
   int new_var27;
@@ -3076,7 +3147,7 @@ void shdPersonaEnterCloseState(u8 *arg0)
   }
   ret++;
   ret--;
-  w = ((SdkTask *) arg0)->work;
+  w = ((SdkTask *) task)->work;
   flags = *((s32 *) (w + 0x534));
   ;
   if ((((flags & 1) != 0) && ((flags & 4) == 0)) && (((state = flags) & 0x400000) == 0))
@@ -3118,7 +3189,7 @@ void shdPersonaEnterCloseState(u8 *arg0)
       {
       }
 
-do { case 3: case 2: case 4: break; default: arg0++; arg0--; kAssertFail(D_005E4868, 0xCCC & 0xFFFFFFFFFFFFFFFF); if (1) { } break; }
+do { case 3: case 2: case 4: break; default: task++; task--; kAssertFail(D_005E4868, 0xCCC & 0xFFFFFFFFFFFFFFFF); if (1) { } break; }
  while (0 * (!new_var2));
     }
 
@@ -3202,8 +3273,9 @@ do { case 3: case 2: case 4: break; default: arg0++; arg0--; kAssertFail(D_005E4
 
 
 // Intent: Set up two channels and the start position once, snapshot the 15-word parameter block at 0xC into 0x48, end the selection, then start the display transition [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011C180
-void shdPersonaBeginDisplayAndEndSelection(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
+void shdPersonaBeginDisplayAndEndSelection(u8 *task, s32 category, s32 personaAddress, s8 cursor)
 {
     s32 *src;
     s32 *dst;
@@ -3211,22 +3283,22 @@ void shdPersonaBeginDisplayAndEndSelection(u8 *arg0, s32 arg1, s32 arg2, s8 arg3
     s32 n;
     u8 *work;
 
-    work = ((SdkTask *)arg0)->work;
-    if (!(*(s32 *)(work + 0x534) & 0x4000)) {
+    work = ((SdkTask *)task)->work;
+    if (!(((PersonaRenderWork *)work)->flags & 0x4000)) {
         shdPersonaSetupChannels(work, 2);
-        *(f32 *)(work + 0x338) = (f32)0x28A;
-        *(s32 *)(work + 0x33C) = 0;
-        *(s32 *)(work + 0x2F0) = 0x42C80000;
-        *(s32 *)(work + 0x2F4) = 0;
-        *(u8 *)(work + 0x308) = 0;
-        *(u8 *)(work + 0x32C) = 0;
-        *(s32 *)(work + 0x410) = 0;
-        *(s32 *)(work + 0x414) = 0;
-        *(s32 *)(work + 0x3C8) = 0;
-        *(s32 *)(work + 0x3CC) = 0;
-        *(u8 *)(work + 0x3E0) = 0xFF;
-        *(u8 *)(work + 0x404) = 0xFF;
-        *(s16 *)(work + 0x516) = 0;
+        ((PersonaRenderWork *)work)->channels[3].start.x = (f32)0x28A;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[3].start.y = 0;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[1].start.x = 0x42C80000;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[1].start.y = 0;
+        ((PersonaRenderWork *)work)->channels[1].startAlpha = 0;
+        ((PersonaRenderWork *)work)->channels[2].startAlpha = 0;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[9].start.x = 0;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[9].start.y = 0;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[7].start.x = 0;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[7].start.y = 0;
+        ((PersonaRenderWork *)work)->channels[7].startAlpha = 0xFF;
+        ((PersonaRenderWork *)work)->channels[8].startAlpha = 0xFF;
+        ((PersonaRenderWork *)work)->comparisonFrame = 0;
         *(s32 *)(work + 0x534) |= 0x4000;
     }
     src = (s32 *)(work + 0xC);
@@ -3239,16 +3311,17 @@ void shdPersonaBeginDisplayAndEndSelection(u8 *arg0, s32 arg1, s32 arg2, s8 arg3
         *dst = temp;
         dst++;
     } while (n > 0);
-    shdPersonaEndSelection(arg0, 0);
-    shdPersonaSetDisplayState(arg0, arg1, arg2, arg3);
+    shdPersonaEndSelection(task, 0);
+    shdPersonaSetDisplayState(task, category, personaAddress, cursor);
     sdkSndStartStream(0, 2, 0, 5);
 }
 
 
 
 // Intent: Snapshot the 15-word parameter block at 0xC into 0x48, set up three channels once, then start the display transition with the given target, index and flag [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011C2C0
-void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
+void shdPersonaBeginDisplay(u8 *task, s32 category, s32 personaAddress, s8 cursor)
 {
     s32 *src;
     s32 *dst;
@@ -3256,24 +3329,24 @@ void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
     s32 n;
     u8 *work;
 
-    work = ((SdkTask *)arg0)->work;
-    if (!(*(s32 *)(work + 0x534) & 0x4000)) {
+    work = ((SdkTask *)task)->work;
+    if (!(((PersonaRenderWork *)work)->flags & 0x4000)) {
         shdPersonaSetupChannels(work, 3);
-        *(s32 *)(work + 0x338) = 0xC3480000;
-        *(s32 *)(work + 0x33C) = 0;
-        *(u8 *)(work + 0x350) = 0;
-        *(s32 *)(work + 0x2F0) = 0xC2C80000;
-        *(s32 *)(work + 0x2F4) = 0;
-        *(u8 *)(work + 0x308) = 0;
-        *(u8 *)(work + 0x32C) = 0;
-        *(s32 *)(work + 0x410) = 0;
-        *(s32 *)(work + 0x414) = 0;
-        *(u8 *)(work + 0x428) = 0xFF;
-        *(s32 *)(work + 0x3C8) = 0;
-        *(s32 *)(work + 0x3CC) = 0;
-        *(u8 *)(work + 0x3E0) = 0xFF;
-        *(u8 *)(work + 0x404) = 0xFF;
-        *(s16 *)(work + 0x516) = 0;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[3].start.x = 0xC3480000;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[3].start.y = 0;
+        ((PersonaRenderWork *)work)->channels[3].startAlpha = 0;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[1].start.x = 0xC2C80000;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[1].start.y = 0;
+        ((PersonaRenderWork *)work)->channels[1].startAlpha = 0;
+        ((PersonaRenderWork *)work)->channels[2].startAlpha = 0;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[9].start.x = 0;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[9].start.y = 0;
+        ((PersonaRenderWork *)work)->channels[9].startAlpha = 0xFF;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[7].start.x = 0;
+        *(s32 *)&((PersonaRenderWork *)work)->channels[7].start.y = 0;
+        ((PersonaRenderWork *)work)->channels[7].startAlpha = 0xFF;
+        ((PersonaRenderWork *)work)->channels[8].startAlpha = 0xFF;
+        ((PersonaRenderWork *)work)->comparisonFrame = 0;
         *(s32 *)(work + 0x534) |= 0x4000;
     }
     src = (s32 *)(work + 0xC);
@@ -3286,7 +3359,7 @@ void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
         *dst = temp;
         dst++;
     } while (n > 0);
-    shdPersonaSetDisplayState(arg0, arg1, arg2, arg3);
+    shdPersonaSetDisplayState(task, category, personaAddress, cursor);
     sdkSndStartStream(0, 2, 0, 5);
 }
 
@@ -3297,8 +3370,9 @@ void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3)
 #pragma push
 #pragma opt_loop_invariants on
 // Intent: Tween the comparison display from its start values toward its targets over the comparison window [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011C3E0
-void shdPersonaTweenComparison(u8 *arg0)
+void shdPersonaTweenComparison(u8 *panel)
 {
     f32 diff;
     f32 f_abs;
@@ -3319,11 +3393,11 @@ void shdPersonaTweenComparison(u8 *arg0)
     u8 c;
 
     for (i = 0; i < 10; i++) {
-        /* HONEST NOTE: this MATCH rests on a BANNED construct.  `arg0 + 0x516`
+        /* HONEST NOTE: this MATCH rests on a BANNED construct.  `panel + 0x516`
            is ordinary memory, and `volatile` here exists to force a reload on
            each of the ten iterations.  Measured alternatives, all of which
            LOSE the match (91 -> 90 MATCH):
-             - the plain `raw = *(s16 *)(arg0 + 0x516);` in the loop, 21
+             - the plain `raw = ((PersonaRenderWork *)panel)->comparisonFrame;` in the loop, 21
                differing words: b210 computes the index before the `lh`, while
                retail issues the `lh` first
              - the load hoisted above the loop, 75 differing words and a loop
@@ -3334,51 +3408,51 @@ void shdPersonaTweenComparison(u8 *arg0)
            Retail's per-iteration reload is therefore real, but no legal C
            spelling found so far reproduces both the reload AND the
            instruction order.  shdPersonaTweenComparison is a DEMOTION CANDIDATE. */
-        raw = *(volatile s16 *)(arg0 + 0x516);
-        lo = *(f32 *)(arg0 + i * 36 + 0x2E8);
+        raw = *(volatile s16 *)(panel + 0x516);
+        lo = ((PersonaRenderWork *)(panel + i * 36))->channels[0].duration;
         ratio = (f32)raw;
         if (ratio < lo) {
             ratio = 0.0f;
         } else {
-            hi = *(f32 *)(arg0 + i * 36 + 0x2EC);
+            hi = ((PersonaRenderWork *)(panel + i * 36))->channels[0].delay;
             if (ratio > hi) {
                 ratio = 1.0f;
             } else {
                 ratio = (ratio - lo) / (hi - lo);
             }
         }
-        base = *(f32 *)((u32)arg0 + i * 36 + 0x2CC);
-        delta = *(f32 *)((u32)arg0 + i * 36 + 0x2D4) - base;
-        *(f32 *)((u32)arg0 + i * 36 + 0x2DC) = base + ratio * delta;
-        base = *(f32 *)((u32)arg0 + i * 36 + 0x2D0);
-        delta = *(f32 *)((u32)arg0 + i * 36 + 0x2D8) - base;
-        *(f32 *)((u32)arg0 + i * 36 + 0x2E0) = base + ratio * delta;
-        a = *(u8 *)((u32)arg0 + i * 36 + 0x2E4);
-        b = *(u8 *)((u32)arg0 + i * 36 + 0x2E5);
+        base = ((PersonaRenderWork *)((u32)panel + i * 36))->channels[0].start.x;
+        delta = ((PersonaRenderWork *)((u32)panel + i * 36))->channels[0].target.x - base;
+        ((PersonaRenderWork *)((u32)panel + i * 36))->channels[0].current.x = base + ratio * delta;
+        base = ((PersonaRenderWork *)((u32)panel + i * 36))->channels[0].start.y;
+        delta = ((PersonaRenderWork *)((u32)panel + i * 36))->channels[0].target.y - base;
+        ((PersonaRenderWork *)((u32)panel + i * 36))->channels[0].current.y = base + ratio * delta;
+        a = ((PersonaRenderWork *)((u32)panel + i * 36))->channels[0].startAlpha;
+        b = ((PersonaRenderWork *)((u32)panel + i * 36))->channels[0].targetAlpha;
         diff = (f32)(b - a);
         f_abs = (f32)(u32)a;
         acc = f_abs + ratio * diff;
-        *(u8 *)((u32)arg0 + i * 36 + 0x2E6) = (u8)acc;
+        ((PersonaRenderWork *)((u32)panel + i * 36))->channels[0].alpha = (u8)acc;
     }
-    if (!((f32)*(s16 *)(arg0 + 0x516) <= 4.0f)) {
-        *(s32 *)(arg0 + 0x534) &= ~0x4000;
+    if (!((f32)((PersonaRenderWork *)panel)->comparisonFrame <= 4.0f)) {
+        ((PersonaRenderWork *)panel)->flags &= ~0x4000;
         for (j = 0; j < 10; j++) {
             src = D_005E4950 + j * 20;
-            dst = arg0 + j * 36;
+            dst = panel + j * 36;
             value = *(f32 *)src;
-            *(f32 *)(dst + 0x2DC) = value;
-            *(f32 *)(dst + 0x2CC) = value;
-            *(f32 *)(dst + 0x2D4) = value;
-            value = *(f32 *)(src + 4);
-            *(f32 *)(dst + 0x2E0) = value;
-            *(f32 *)(dst + 0x2D0) = value;
-            *(f32 *)(dst + 0x2D8) = value;
-            c = *(u8 *)(src + 8);
-            *(u8 *)(dst + 0x2E6) = c;
-            *(u8 *)(dst + 0x2E4) = c;
-            *(u8 *)(dst + 0x2E5) = c;
-            *(s32 *)(dst + 0x2E8) = 0;
-            *(s32 *)(dst + 0x2EC) = 0;
+            ((PersonaRenderWork *)dst)->channels[0].current.x = value;
+            ((PersonaRenderWork *)dst)->channels[0].start.x = value;
+            ((PersonaRenderWork *)dst)->channels[0].target.x = value;
+            value = ((ShdPersonaChannelPreset *)src)->position.y;
+            ((PersonaRenderWork *)dst)->channels[0].current.y = value;
+            ((PersonaRenderWork *)dst)->channels[0].start.y = value;
+            ((PersonaRenderWork *)dst)->channels[0].target.y = value;
+            c = ((ShdPersonaChannelPreset *)src)->alpha;
+            ((PersonaRenderWork *)dst)->channels[0].alpha = c;
+            ((PersonaRenderWork *)dst)->channels[0].startAlpha = c;
+            ((PersonaRenderWork *)dst)->channels[0].targetAlpha = c;
+            *(s32 *)&((PersonaRenderWork *)dst)->channels[0].duration = 0;
+            *(s32 *)&((PersonaRenderWork *)dst)->channels[0].delay = 0;
         }
     }
 }
@@ -3387,28 +3461,28 @@ void shdPersonaTweenComparison(u8 *arg0)
 
 // Intent: Return whether the persona selection flag 0x800 is set [inferred]
 // FUN_0011C610
-u32 shdPersonaIsSelectionActive(u8 *arg0)
+u32 shdPersonaIsSelectionActive(u8 *task)
 {
-    return (*(s32 *)(((SdkTask *)arg0)->work + 0x534) & 0x800) != 0;
+    return (((PersonaRenderWork *)((SdkTask *)task)->work)->flags & 0x800) != 0;
 }
 
 
 
 // Intent: Begin persona selection: set the selection and selection-active flags [inferred]
 // FUN_0011C630
-void shdPersonaBeginSelection(u8 *arg0)
+void shdPersonaBeginSelection(u8 *task)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    s32 v = *(s32 *)(b + 0x534);
+    u8 *b = ((SdkTask *)task)->work;
+    s32 v = ((PersonaRenderWork *)b)->flags;
     if ((v & 0x20) != 0 && (v & 0x4000) == 0 && (v & 0x1000) == 0 && ((v & 0x800) == 0 || (v & 0x2000) != 0)) {
-        *(f32 *)(b + 0x434) = *(f32 *)(b + 0x444);
-        *(f32 *)(b + 0x438) = *(f32 *)(b + 0x448);
-        *(s32 *)(b + 0x43C) = 0;
-        *(u16 *)(b + 0x514) = 0;
-        *(u8 *)(b + 0x88) = 0;
-        *(s32 *)(b + 0x534) |= 0x1000;
-        *(s32 *)(b + 0x534) |= 0x800;
-        *(s32 *)(b + 0x534) &= ~0x2000;
+        ((PersonaRenderWork *)b)->selectionStart.x = ((PersonaRenderWork *)b)->selectionPosition.x;
+        ((PersonaRenderWork *)b)->selectionStart.y = ((PersonaRenderWork *)b)->selectionPosition.y;
+        *(s32 *)&((PersonaRenderWork *)b)->selectionTarget.x = 0;
+        *(u16 *)&((PersonaRenderWork *)b)->selectionFrame = 0;
+        *(u8 *)&((ShdSkillState *)((PersonaRenderWork *)b)->skills)->cursor = 0;
+        ((PersonaRenderWork *)b)->flags |= 0x1000;
+        ((PersonaRenderWork *)b)->flags |= 0x800;
+        ((PersonaRenderWork *)b)->flags &= ~0x2000;
         sdkSndStartStream(0, 1, 0, 3);
     }
 }
@@ -3416,19 +3490,20 @@ void shdPersonaBeginSelection(u8 *arg0)
 
 
 // Intent: End persona selection and set the selection-end flag 0x2000; arg1 selects the end mode [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011C6E0
-void shdPersonaEndSelection(u8 *arg0, s32 arg1)
+void shdPersonaEndSelection(u8 *task, s32 mode)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    s32 v = *(s32 *)(b + 0x534);
+    u8 *b = ((SdkTask *)task)->work;
+    s32 v = ((PersonaRenderWork *)b)->flags;
     if ((v & 0x20) != 0 && (v & 0x800) != 0 && (v & 0x2000) == 0) {
-        *(f32 *)(b + 0x434) = *(f32 *)(b + 0x444);
-        *(f32 *)(b + 0x438) = *(f32 *)(b + 0x448);
-        *(s32 *)(b + 0x43C) = 0xC3E10000;
-        *(u16 *)(b + 0x514) = 0;
+        ((PersonaRenderWork *)b)->selectionStart.x = ((PersonaRenderWork *)b)->selectionPosition.x;
+        ((PersonaRenderWork *)b)->selectionStart.y = ((PersonaRenderWork *)b)->selectionPosition.y;
+        *(s32 *)&((PersonaRenderWork *)b)->selectionTarget.x = 0xC3E10000;
+        *(u16 *)&((PersonaRenderWork *)b)->selectionFrame = 0;
         *(s32 *)(b + 0x534) |= 0x2000;
         *(s32 *)(b + 0x534) &= ~0x1000;
-        if (arg1 != 0) {
+        if (mode != 0) {
             sdkSndStartStream(0, 1, 0, 4);
         }
     }
@@ -3464,8 +3539,9 @@ void shdPersonaEndSelection(u8 *arg0, s32 arg1)
    the float-to-byte tail is the plain (u8)acc cast (lands in $a0). */
 #pragma opt_propagation off
 // Intent: Tween the persona selection panel open and clear its opening flag when done [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011C780
-void shdPersonaTweenSelectionOpen(u8 *arg0)
+void shdPersonaTweenSelectionOpen(u8 *panel)
 {
     f32 diff;
     f32 f_abs;
@@ -3478,17 +3554,17 @@ void shdPersonaTweenSelectionOpen(u8 *arg0)
     s32 a;
     s32 b;
     s16 raw;
-    raw = *(s16 *)(arg0 + 0x514);
-    lo = *(f32 *)(arg0 + 0x450);
+    raw = ((PersonaRenderWork *)panel)->selectionFrame;
+    lo = ((PersonaRenderWork *)panel)->selectionStartFrame;
     ratio = (f32)raw;
     if (ratio < lo) ratio = 0.0f;
-    else { hi = *(f32 *)(arg0 + 0x454); if (ratio > hi) ratio = 1.0f; else ratio = sinf(iGpffff8094 * ((ratio - lo) / (hi - lo))); }
-    base = *(f32 *)(arg0 + 0x434); delta = *(f32 *)(arg0 + 0x43C) - base; *(f32 *)(arg0 + 0x444) = base + ratio * delta;
-    base = *(f32 *)(arg0 + 0x438); delta = *(f32 *)(arg0 + 0x440) - base; *(f32 *)(arg0 + 0x448) = base + ratio * delta;
-    a = *(u8 *)(arg0 + 0x44C); b = *(u8 *)(arg0 + 0x44D); diff = (f32)(b - a); f_abs = (f32)(u32)a;
+    else { hi = ((PersonaRenderWork *)panel)->selectionEndFrame; if (ratio > hi) ratio = 1.0f; else ratio = sinf(iGpffff8094 * ((ratio - lo) / (hi - lo))); }
+    base = ((PersonaRenderWork *)panel)->selectionStart.x; delta = ((PersonaRenderWork *)panel)->selectionTarget.x - base; ((PersonaRenderWork *)panel)->selectionPosition.x = base + ratio * delta;
+    base = ((PersonaRenderWork *)panel)->selectionStart.y; delta = ((PersonaRenderWork *)panel)->selectionTarget.y - base; ((PersonaRenderWork *)panel)->selectionPosition.y = base + ratio * delta;
+    a = ((PersonaRenderWork *)panel)->selectionStartAlpha; b = ((PersonaRenderWork *)panel)->selectionTargetAlpha; diff = (f32)(b - a); f_abs = (f32)(u32)a;
     acc = f_abs + ratio * diff;
-    *(u8 *)(arg0 + 0x44E) = (u8)acc;
-    if (!((f32)(s16)*(s16 *)(arg0 + 0x514) <= 5.0f)) *(s32 *)(arg0 + 0x534) &= ~0x1000;
+    ((PersonaRenderWork *)panel)->selectionAlpha = (u8)acc;
+    if (!((f32)(s16)*(s16 *)(panel + 0x514) <= 5.0f)) ((PersonaRenderWork *)panel)->flags &= ~0x1000;
 }
 #pragma pop
 /* measured: rule 2 confirmed — with the multiplications written ratio-first
@@ -3531,31 +3607,32 @@ void shdPersonaTweenSelectionOpen(u8 *arg0)
    the float-to-byte tail is the plain (u8)acc cast (lands in $a0). */
 #pragma opt_propagation off
 // Intent: Tween the persona selection panel closed, clearing the selection flags and resetting the selected index [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011C930
-void shdPersonaTweenSelectionClose(u8 *arg0)
+void shdPersonaTweenSelectionClose(u8 *panel)
 { s32 a; s32 b; s16 raw; f32 diff; f32 f_abs; f32 acc; f32 ratio; f32 lo; f32 hi; f32 base; f32 delta;
-    raw = *(s16 *)(arg0 + 0x514); lo = *(f32 *)(arg0 + 0x450); ratio = (f32)raw;
-    if (ratio < lo) ratio = 0.0f; else { hi = *(f32 *)(arg0 + 0x454); if (ratio > hi) ratio = 1.0f; else ratio = sinf(iGpffff8094 * ((ratio - lo) / (hi - lo))); }
-    base = *(f32 *)(arg0 + 0x434); delta = *(f32 *)(arg0 + 0x43C) - base; *(f32 *)(arg0 + 0x444) = base + ratio * delta;
-    base = *(f32 *)(arg0 + 0x438); delta = *(f32 *)(arg0 + 0x440) - base; *(f32 *)(arg0 + 0x448) = base + ratio * delta;
-    a = *(u8 *)(arg0 + 0x44C); b = *(u8 *)(arg0 + 0x44D); diff = (f32)(b - a); f_abs = (f32)(u32)a; acc = f_abs + ratio * diff;
-    *(u8 *)(arg0 + 0x44E) = (u8)acc;
-    if (!((f32)(s16)*(s16 *)(arg0 + 0x514) <= 5.0f)) { *(s32 *)(arg0 + 0x534) &= ~0x800; *(s32 *)(arg0 + 0x534) &= ~0x2000; *(s8 *)(arg0 + 0x88) = -1; }
+    raw = ((PersonaRenderWork *)panel)->selectionFrame; lo = ((PersonaRenderWork *)panel)->selectionStartFrame; ratio = (f32)raw;
+    if (ratio < lo) ratio = 0.0f; else { hi = ((PersonaRenderWork *)panel)->selectionEndFrame; if (ratio > hi) ratio = 1.0f; else ratio = sinf(iGpffff8094 * ((ratio - lo) / (hi - lo))); }
+    base = ((PersonaRenderWork *)panel)->selectionStart.x; delta = ((PersonaRenderWork *)panel)->selectionTarget.x - base; ((PersonaRenderWork *)panel)->selectionPosition.x = base + ratio * delta;
+    base = ((PersonaRenderWork *)panel)->selectionStart.y; delta = ((PersonaRenderWork *)panel)->selectionTarget.y - base; ((PersonaRenderWork *)panel)->selectionPosition.y = base + ratio * delta;
+    a = ((PersonaRenderWork *)panel)->selectionStartAlpha; b = ((PersonaRenderWork *)panel)->selectionTargetAlpha; diff = (f32)(b - a); f_abs = (f32)(u32)a; acc = f_abs + ratio * diff;
+    ((PersonaRenderWork *)panel)->selectionAlpha = (u8)acc;
+    if (!((f32)(s16)*(s16 *)(panel + 0x514) <= 5.0f)) { ((PersonaRenderWork *)panel)->flags &= ~0x800; ((PersonaRenderWork *)panel)->flags &= ~0x2000; ((ShdSkillState *)((PersonaRenderWork *)panel)->skills)->cursor = -1; }
 }
 #pragma pop
 // Intent: Advance the persona selection cursor by one step [inferred]
 // FUN_0011CAF0
-void shdPersonaStepSelectionCursor(u8 *arg0)
+void shdPersonaStepSelectionCursor(u8 *task)
 {
     s32 flags;
     u8 *work;
     s32 bit800;
     s32 bit100000;
 
-    work = *(u8 **)(arg0 + 0x38);
-    flags = *(s32 *)(work + 0x534);
+    work = ((SdkTask *)task)->work;
+    flags = ((PersonaRenderWork *)work)->flags;
     bit800 = !!(flags & 0x800);
-    if (bit800 == 0 || *(s8 *)(work + 0x88) == -1) {
+    if (bit800 == 0 || ((ShdSkillState *)((PersonaRenderWork *)work)->skills)->cursor == -1) {
         return;
     }
     bit100000 = (flags & 0x100000) != 0;
@@ -3565,14 +3642,14 @@ void shdPersonaStepSelectionCursor(u8 *arg0)
 }
 // Intent: Add a skill to the persona's skill list and return the add result [inferred]
 // FUN_0011CB70
-s32 shdPersonaAddSkill(u8 *arg0, u16 arg1)
+s32 shdPersonaAddSkill(u8 *task, u16 skill)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
+    u8 *b = ((SdkTask *)task)->work;
     if (*(s32 *)b == 0) {
         kAssertFail(D_005E4868, 0xE21);
     }
-    if (datPersonaAddSkill(*(u8 **)b, arg1) != 0) {
-        ShdSkill_AddActiveSkill(arg1, b + 0x8C);
+    if (datPersonaAddSkill(*(u8 **)b, skill) != 0) {
+        ShdSkill_AddActiveSkill(skill, b + 0x8C);
         return 1;
     }
     return 0;
@@ -3582,14 +3659,14 @@ s32 shdPersonaAddSkill(u8 *arg0, u16 arg1)
 
 // Intent: Replace one skill in the persona's skill list with another and return the result [inferred]
 // FUN_0011CC00
-s32 shdPersonaReplaceSkill(u8 *arg0, u16 arg1, u16 arg2)
+s32 shdPersonaReplaceSkill(u8 *task, u16 previousSkill, u16 replacement)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
+    u8 *b = ((SdkTask *)task)->work;
     if (*(s32 *)b == 0) {
         kAssertFail(D_005E4868, 0xE45);
     }
-    if (datPersonaReplaceSkill(*(u8 **)b, (s16)arg1, arg2) != -1) {
-        ShdSkill_ReplaceActiveSkill(arg1, arg2, b + 0x8C);
+    if (datPersonaReplaceSkill(*(u8 **)b, (s16)previousSkill, replacement) != -1) {
+        ShdSkill_ReplaceActiveSkill(previousSkill, replacement, b + 0x8C);
         return 1;
     }
     return 0;
@@ -3599,70 +3676,71 @@ s32 shdPersonaReplaceSkill(u8 *arg0, u16 arg1, u16 arg2)
 
 // Intent: Return the skill id in the selected slot, or the queued skill id when the queue flag 0x100000 is set [inferred]
 // FUN_0011CCB0
-u16 shdPersonaGetSelectedSkillId(u8 *arg0)
+u16 shdPersonaGetSelectedSkillId(u8 *panel)
 {
-    s32 v = *(s32 *)(arg0 + 0x534);
+    s32 v = ((PersonaRenderWork *)panel)->flags;
     if (v & 0x2000) {
         return 0;
     }
-    if ((v & 0x100000) != 0 && *(s8 *)(arg0 + 0x88) == 8) {
-        return *(u16 *)(arg0 + 0x4F4);
+    if ((v & 0x100000) != 0 && ((ShdSkillState *)((PersonaRenderWork *)panel)->skills)->cursor == 8) {
+        return ((PersonaRenderWork *)panel)->acquisition.skill;
     }
-    return ShdSkill_GetSlotSkillId(arg0 + 0x84);
+    return ShdSkill_GetSlotSkillId(panel + 0x84);
 }
 
 
 
 // Intent: Advance the skill-pulse phase and clear the pulse flag 0x8000 when the cycle ends [inferred]
 // FUN_0011CD20
-void shdPersonaUpdateSkillPulse(u8 *arg0)
+void shdPersonaUpdateSkillPulse(u8 *panel)
 {
-    f32 f1 = (f32)*(s16 *)(arg0 + 0x518);
+    f32 f1 = (f32)((PersonaRenderWork *)panel)->skillFrame;
     if (f1 > 25.0f) {
-        *(s32 *)(arg0 + 0x534) &= ~0x8000;
+        ((PersonaRenderWork *)panel)->flags &= ~0x8000;
     } else if (f1 > 25.0f) {
         f1 = 25.0f;
     }
-    *(f32 *)(arg0 + 0x51C) = sinf(D_007613EC * f1 / 25.0f);
+    ((PersonaRenderWork *)panel)->selectedSkillFade = sinf(D_007613EC * f1 / 25.0f);
 }
 
 
 
 // Intent: Set the pending skill id and mark the queue flag 0x100000 [inferred]
 // FUN_0011CDD0
-void shdPersonaSetPendingSkill(u8 *arg0, s32 arg1)
+void shdPersonaSetPendingSkill(u8 *task, s32 inputSkill)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    *(s32 *)(b + 0x534) |= 0x100000;
+    u8 *b = ((SdkTask *)task)->work;
+    ((PersonaRenderWork *)b)->flags |= 0x100000;
     memset(b + 0x4F0, 0, 6);
-    *(u16 *)(b + 0x4F4) = arg1;
+    ((PersonaRenderWork *)b)->acquisition.skill = inputSkill;
 }
 
 
 
 // Intent: Reset the reveal counter at 0x4F2 and set the armed bit 0x2 in the flag word at 0x4F0 [inferred]
 // FUN_0011CE30
-void shdPersonaArmSkillReveal(u8 *arg0)
+void shdPersonaArmSkillReveal(u8 *task)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    *(u16 *)(b + 0x4F2) = 0;
-    *(u16 *)(b + 0x4F0) |= 2;
+    u8 *b = ((SdkTask *)task)->work;
+    ((PersonaRenderWork *)b)->acquisition.frame = 0;
+    ((PersonaRenderWork *)b)->acquisition.flags |= 2;
 }
 
 
 
 // Intent: Advance the skill-reveal frame and play the reveal sound at the cue frame [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011CE50
-void shdPersonaUpdateReveal(u8 *arg0)
+void shdPersonaUpdateReveal(u8 *panel)
 {
-    s32 v = *(s32 *)(arg0 + 0x534);
+    s32 v = ((PersonaRenderWork *)panel)->flags;
     if ((v & 0x10000) != 0) {
-        if (*(s16 *)(arg0 + 0x520) == 10) {
+        if (((PersonaRenderWork *)panel)->revealFrame == 10) {
             sdkSndStartChannel(2, D_005E4E20);
         }
     } else if ((v & 0x20000) != 0) {
-        if (*(s16 *)(arg0 + 0x520) >= 50) {
-            *(s32 *)(arg0 + 0x534) &= ~0x200;
+        if (((PersonaRenderWork *)panel)->revealFrame >= 50) {
+            *(s32 *)(panel + 0x534) &= ~0x200;
         }
     }
 }
@@ -3671,51 +3749,51 @@ void shdPersonaUpdateReveal(u8 *arg0)
 
 // Intent: Choose the level-up route from the count of valid party members and advance its state 0 to 4 [inferred]
 // FUN_0011CEE0
-void shdPersonaLevelUpRoute(u8 *arg0)
+void shdPersonaLevelUpRoute(u8 *task)
 {
     u8 *work;
     s32 flags;
     s32 state;
     u16 t17;
 
-    work = ((SdkTask *)arg0)->work;
-    flags = *(s32 *)(work + 0x534);
+    work = ((SdkTask *)task)->work;
+    flags = ((PersonaRenderWork *)work)->flags;
     if (flags & 0x40000) {
-        state = *(s32 *)(work + 0x52C);
+        state = ((PersonaRenderWork *)work)->state;
         switch (state) {
         case 0:
-            if (*(u16 *)(work + 0xC) == 1) {
+            if (((PersonaRenderWork *)work)->persona[0].category == 1) {
                 if ((datPersonaCountValidMembers(1, state) & 0xFFFF) == 1) {
-                    *(s32 *)(work + 0x528) = 0xD;
+                    ((PersonaRenderWork *)work)->overlayId = 0xD;
                     return;
                 }
-                *(s32 *)(work + 0x528) = 9;
+                ((PersonaRenderWork *)work)->overlayId = 9;
                 return;
             }
-            *(s32 *)(work + 0x528) = -1;
+            ((PersonaRenderWork *)work)->overlayId = -1;
             return;
         case 1:
             if ((datPersonaCountValidMembers(1, state) & 0xFFFF) == 1) {
-                *(s32 *)(work + 0x528) = 0xA;
+                ((PersonaRenderWork *)work)->overlayId = 0xA;
                 return;
             }
-            t17 = *(u16 *)(*(u8 **)(work + 0) + 2);
+            t17 = ((DatPersonaRecord *)*(u8 **)&((PersonaRenderWork *)work)->controllerAddress)->id;
             if (t17 == (datPersonaGetRecordId(1) & 0xFFFF)) {
-                *(s32 *)(work + 0x528) = 0xB;
+                ((PersonaRenderWork *)work)->overlayId = 0xB;
                 return;
             }
-            *(s32 *)(work + 0x528) = 9;
+            ((PersonaRenderWork *)work)->overlayId = 9;
             return;
         case 2:
-            *(s32 *)(work + 0x528) = 0xC;
+            ((PersonaRenderWork *)work)->overlayId = 0xC;
             return;
         case 3:
         case 4:
             if ((datPersonaCountValidMembers(flags, state) & 0xFFFF) == 1) {
-                *(s32 *)(work + 0x528) = 0xA;
+                ((PersonaRenderWork *)work)->overlayId = 0xA;
                 return;
             }
-            *(s32 *)(work + 0x528) = 9;
+            ((PersonaRenderWork *)work)->overlayId = 9;
             return;
         default:
             kAssertFail(D_005E4868, 0xF87);
@@ -3728,54 +3806,54 @@ void shdPersonaLevelUpRoute(u8 *arg0)
 
 // Intent: Set bits in the persona flag word at offset 0x534 [inferred]
 // FUN_0011D080
-void shdPersonaSetFlags(u8 *arg0, s32 arg1)
+void shdPersonaSetFlags(u8 *task, s32 inputFlags)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    *(s32 *)(b + 0x534) |= arg1;
+    u8 *b = ((SdkTask *)task)->work;
+    ((PersonaRenderWork *)b)->flags |= inputFlags;
 }
 
 
 
 // Intent: Clear bits in the persona flag word at offset 0x534 [inferred]
 // FUN_0011D0A0
-void shdPersonaClearFlags(u8 *arg0, s32 arg1)
+void shdPersonaClearFlags(u8 *task, s32 inputFlags)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    *(s32 *)(b + 0x534) &= ~arg1;
+    u8 *b = ((SdkTask *)task)->work;
+    ((PersonaRenderWork *)b)->flags &= ~inputFlags;
 }
 
 
 
 // Intent: Return the persona panel alpha at offset 0x505 [inferred]
 // FUN_0011D0C0
-u8 shdPersonaGetAlpha(u8 *arg0)
+u8 shdPersonaGetAlpha(u8 *task)
 {
-    return *(u8 *)(((SdkTask *)arg0)->work + 0x505);
+    return ((PersonaRenderWork *)((SdkTask *)task)->work)->alpha;
 }
 
 
 
 // Intent: Refresh the display-control position from the child task [inferred]
 // FUN_0011D0D0
-void shdPersonaRefreshDispCtlPosition(u8 *arg0)
+void shdPersonaRefreshDispCtlPosition(u8 *task)
 {
-    shdPersonaDispCtlSetPosition(*(s32 *)(((SdkTask *)arg0)->work + 0x4F8));
+    shdPersonaDispCtlSetPosition(*(s32 *)&((PersonaRenderWork *)((SdkTask *)task)->work)->model);
 }
 
 // Intent: Store a two-float origin position at offsets 0x4FC and 0x500 of the persona block [inferred]
 // FUN_0011D100
-void shdPersonaSetOrigin(u8 *arg0, f32 *arg1)
+void shdPersonaSetOrigin(u8 *task, f32 *position)
 {
-    u8 *temp_3;
+    u8 *work;
 
-    temp_3 = ((SdkTask *)arg0)->work;
-    if (arg1 == NULL) {
-        *(f32 *)(temp_3 + 0x4FC) = 0.0f;
-        *(f32 *)(temp_3 + 0x500) = 0.0f;
+    work = ((SdkTask *)task)->work;
+    if (position == NULL) {
+        ((PersonaRenderWork *)work)->origin.x = 0.0f;
+        ((PersonaRenderWork *)work)->origin.y = 0.0f;
         return;
     }
-    *(f32 *)(temp_3 + 0x4FC) = arg1[0];
-    *(f32 *)(temp_3 + 0x500) = arg1[1];
+    ((PersonaRenderWork *)work)->origin.x = position[0];
+    ((PersonaRenderWork *)work)->origin.y = position[1];
 }
 
 
@@ -3784,20 +3862,21 @@ void shdPersonaSetOrigin(u8 *arg0, f32 *arg1)
 
 // Intent: Set the child display-control handle value to color [inferred]
 // FUN_0011D140
-void shdPersonaSetChildDispCtlHandle(u8 *arg0, s32 color)
+void shdPersonaSetChildDispCtlHandle(u8 *task, s32 color)
 {
-    shdPersonaDispCtlSetHandle(*(u8 **)(((SdkTask *)arg0)->work + 0x4F8), color);
+    shdPersonaDispCtlSetHandle(((PersonaRenderWork *)((SdkTask *)task)->work)->model, color);
 }
 
 // Intent: Set the child display-control handle and colour from arg1 and arg2 [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011D170
 /* Kept as a raw deref on purpose: through SdkTask::work mwcc hoists arg0 + 0x38
    into a saved register and reuses it, where retail re-issues lw 0x38 for each
    of the two reads. The typed form is not codegen-neutral here. */
-void shdPersonaSetChildDispCtlHandleAndColor(u8 *arg0, s32 arg1, s32 arg2)
+void shdPersonaSetChildDispCtlHandleAndColor(u8 *task, s32 handle, s32 color)
 {
-    shdPersonaDispCtlSetHandle(*(u8 **)(*(u8 **)(arg0 + 0x38) + 0x4F8), arg1);
-    shdPersonaDispCtlSetColor(*(s32 *)(*(u8 **)(arg0 + 0x38) + 0x4F8), arg2);
+    shdPersonaDispCtlSetHandle(((PersonaRenderWork *)((SdkTask *)task)->work)->model, handle);
+    shdPersonaDispCtlSetColor(*(s32 *)(*(u8 **)(task + 0x38) + 0x4F8), color);
 }
 
 
@@ -3806,73 +3885,74 @@ void shdPersonaSetChildDispCtlHandleAndColor(u8 *arg0, s32 arg1, s32 arg2)
 
 // Intent: Store the opacity value at offset 0x53C of the persona block [inferred]
 // FUN_0011D1D0
-void shdPersonaSetOpacity(u8 *arg0, f32 arg1)
+void shdPersonaSetOpacity(u8 *task, f32 inputOpacity)
 {
-    *(f32 *)(((SdkTask *)arg0)->work + 0x53C) = arg1;
+    ((PersonaRenderWork *)((SdkTask *)task)->work)->opacity = inputOpacity;
 }
 
 
 
 // Intent: Return the persona panel's child task pointer at offset 0x4F8 [inferred]
 // FUN_0011D1E0
-s32 shdPersonaGetChildTask(u8 *arg0)
+s32 shdPersonaGetChildTask(u8 *task)
 {
-    return *(s32 *)(((SdkTask *)arg0)->work + 0x4F8);
+    return *(s32 *)&((PersonaRenderWork *)((SdkTask *)task)->work)->model;
 }
 
 
 
-s32 kwlnTaskGetTaskByName(void *arg0);
-s32 H_Cdvd_IsFileLoaded(s32 arg0);
-s32 H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
-s32 func_004667d0(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
+s32 kwlnTaskGetTaskByName(void *name);
+s32 H_Cdvd_IsFileLoaded(s32 cdvd);
+s32 H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
+s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern char D_005E4E60[];
 extern char D_005E4E90[];
 extern char iGpffff9c18;
 // Intent: Advance the persona model-load state machine one step and return its status [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011D1F0
-s32 shdPersonaLoadModelStep(u8 *arg0)
+s32 shdPersonaLoadModelStep(u8 *task)
 {
     u8 *work;
     s32 state;
-    s32 temp_2;
-    s32 sp4C;
+    s32 directory;
+    s32 completed;
 
-    work = ((SdkTask *)arg0)->work;
-    state = *(s32 *)(work + 0);
+    work = ((SdkTask *)task)->work;
+    state = ((ShdPersonaModelWork *)work)->state;
     switch (state) {
     case 0:
-        if (*(s32 *)(work + 4) != 0) {
+        if (((ShdPersonaModelWork *)work)->resourceId != 0) {
             if (kwlnTaskGetTaskByName(D_005E4E40) != 0) {
                 func_00440b68(D_005E4E60);
             } else {
                 sprintf(work + 0x54, D_005E4E90, *(s32 *)(work + 4));
                 func_00440b68(&iGpffff9c18, D_005E4868, 0x1046);
-                temp_2 = H_Cdvd_AcquireDirectory(work + 0x54, 0);
-                *(s32 *)(work + 0x4C) = temp_2;
-                if (temp_2 == 0) {
+                directory = H_Cdvd_AcquireDirectory(work + 0x54, 0);
+                ((ShdPersonaModelWork *)work)->directory = directory;
+                if (directory == 0) {
                     kAssertFail(D_005E4868, 0x1047);
                 }
-                shdPersonaDispCtlSetPosition(arg0, NULL);
-                *(s32 *)(work + 0) = 1;
+                shdPersonaDispCtlSetPosition(task, NULL);
+                ((ShdPersonaModelWork *)work)->state = 1;
             }
         } else {
-            *(s32 *)(work + 0) = 3;
+            ((ShdPersonaModelWork *)work)->state = 3;
         }
         break;
     case 1:
-        if (H_Cdvd_IsFileLoaded(*(s32 *)(work + 0x4C)) != 0) {
-            *(s32 *)(work + 0x48) = func_004667d0(0, (const char *)(work + 0x54), 0, 0, 0, 0, 0, 0, 0, 0);
-            *(s32 *)(work + 0) = 2;
+        if (H_Cdvd_IsFileLoaded(((ShdPersonaModelWork *)work)->directory) != 0) {
+            ((ShdPersonaModelWork *)work)->stream = filerEnqueueRequest(0, (const char *)(work + 0x54), 0, 0, 0, 0, 0, 0, 0, 0);
+            ((ShdPersonaModelWork *)work)->state = 2;
         }
         break;
     case 2:
-        *(s32 *)(work + 0x50) = func_004669d0(*(s32 *)(work + 0x48), &sp4C, 0);
-        if (sp4C != 0) {
+        ((ShdPersonaModelWork *)work)->loaded = filerTakeCompletedRequest(((ShdPersonaModelWork *)work)->stream, &completed, 0);
+        if (completed != 0) {
             *(s32 *)(work + 0x48) = 0;
-            H_Cdvd_Destroy(*(s32 *)(work + 0x4C));
+            H_Cdvd_Destroy(((ShdPersonaModelWork *)work)->directory);
             *(s32 *)(work + 0x4C) = 0;
-            *(s32 *)(work + 0) = 3;
+            ((ShdPersonaModelWork *)work)->state = 3;
         }
         break;
     case 3:
@@ -3884,22 +3964,23 @@ s32 shdPersonaLoadModelStep(u8 *arg0)
 
 
 // Intent: Destroy a persona model-load task, freeing its child and its work block [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011D3C0
-void shdPersonaModelDestroy(u8 *arg0)
+void shdPersonaModelDestroy(u8 *task)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    if (*(s32 *)(b + 0x48) != 0) {
-        shdPersonaDispCtlCreate(*(s32 *)(b + 0x48), *(s32 *)(b + 0x4C), D_005E4E40);
+    u8 *b = ((SdkTask *)task)->work;
+    if (((ShdPersonaModelWork *)b)->stream != 0) {
+        shdPersonaDispCtlCreate(((ShdPersonaModelWork *)b)->stream, ((ShdPersonaModelWork *)b)->directory, D_005E4E40);
         *(s32 *)(b + 0x48) = 0;
         *(s32 *)(b + 0x4C) = 0;
-        *(s32 *)(b + 0x50) = 0;
+        ((ShdPersonaModelWork *)b)->loaded = 0;
     } else {
-        if (*(s32 *)(b + 0x4C) != 0) {
-            H_Cdvd_Destroy(*(s32 *)(b + 0x4C));
+        if (((ShdPersonaModelWork *)b)->directory != 0) {
+            H_Cdvd_Destroy(((ShdPersonaModelWork *)b)->directory);
             *(s32 *)(b + 0x4C) = 0;
         }
-        if (*(s32 *)(b + 0x50) != 0) {
-            func_003ef3a0(*(s32 *)(b + 0x50));
+        if (((ShdPersonaModelWork *)b)->loaded != 0) {
+            func_003ef3a0(((ShdPersonaModelWork *)b)->loaded);
             *(s32 *)(b + 0x50) = 0;
         }
     }
@@ -3910,7 +3991,7 @@ void shdPersonaModelDestroy(u8 *arg0)
 
 // Intent: Create a persona model-load child task that loads the 166.ADX stream and its model [inferred]
 // FUN_0011D460
-u8 *shdPersonaModelCreate(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3)
+u8 *shdPersonaModelCreate(s32 parentTask, s32 priority, f32 inputDepth, s32 inputResourceId, s32 inputHandle)
 {
     Vec2f v;
     u8 *r;
@@ -3921,20 +4002,20 @@ u8 *shdPersonaModelCreate(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3)
     if (w == NULL) {
         return NULL;
     }
-    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4EB0), arg1, 0, 0, shdPersonaLoadModelStep, shdPersonaModelDestroy, (u8 *)(w));
+    r = (u8 *)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_005E4EB0), priority, 0, 0, shdPersonaLoadModelStep, shdPersonaModelDestroy, (u8 *)(w));
     if (r == NULL) {
         return NULL;
     }
-    *(s32 *)(w + 4) = arg2;
-    *(s32 *)(w + 8) = arg3;
-    *(s32 *)(w + 0xC) = (arg3 & 0xFF) | ~0x7EFF;
-    *(f32 *)(w + 0x18) = fparg0;
+    ((ShdPersonaModelWork *)w)->resourceId = inputResourceId;
+    ((ShdPersonaModelWork *)w)->handle = inputHandle;
+    ((ShdPersonaModelWork *)w)->color = (inputHandle & 0xFF) | ~0x7EFF;
+    ((ShdPersonaModelWork *)w)->depth = inputDepth;
     *(s32 *)&v.x = 0x43030000;
     *(s32 *)&v.y = 0xC26C0000;
     shdPersonaDispCtlSetPosition(r, (u8 *)&v);
     *(s32 *)&v.x = 0xC1880000;
     *(s32 *)&v.y = 0x41500000;
-    func_0011e390(r, v);
+    shdPersonaDispCtlSetDrawOffset(r, v);
     return r;
 }
 
@@ -3974,7 +4055,7 @@ void shdPersonaDrawQuadStrips(f32 depth, s32 color, s32 edgeAlpha, f32 x, f32 y,
     u32 callbackTable;
     f32 *nearPlane;
 
-    reciprocalZ = 1.0f / *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
+    reciprocalZ = 1.0f / ((MdlEffectCamera *)(u8 *)kwlnGetCamera())->nearPlane;
     red = (s32)(((u32)(color & 0xFF000000) >> 24) & 0xFF);
     green = (s32)(((u32)(color & 0xFF0000) >> 16) & 0xFF);
     blue = (s32)(((u32)(color & 0xFF00) >> 8) & 0xFF);
@@ -4081,8 +4162,9 @@ void shdPersonaDrawQuadStrips(f32 depth, s32 color, s32 edgeAlpha, f32 x, f32 y,
 
 
 // Intent: Draw a quad whose vertex offset eases from the start value at 0x20 to the end value at 0x30 by a sine lerp [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011DC50
-void shdPersonaDrawSineQuad(u8 *arg0)
+void shdPersonaDrawSineQuad(u8 *task)
 {
     u8 *work;
     f32 f20;
@@ -4090,22 +4172,22 @@ void shdPersonaDrawSineQuad(u8 *arg0)
     f32 d;
     s32 a;
 
-    work = ((SdkTask *)arg0)->work;
-    if (shdPersonaDispCtlIsLoaded(arg0) != 0 && *(s32 *)(work + 4) != 0) {
-        t = (f32)*(s32 *)(work + 0x10);
+    work = ((SdkTask *)task)->work;
+    if (shdPersonaDispCtlIsLoaded(task) != 0 && ((ShdPersonaModelWork *)work)->resourceId != 0) {
+        t = (f32)((ShdPersonaModelWork *)work)->frame;
         if (t < 10.0f) {
             *(s32 *)(work + 0x10) += 1;
-            f20 = *(f32 *)(work + 0x20);
+            f20 = ((ShdPersonaModelWork *)work)->start.x;
             t = sinf(iGpffff8094 * (f32)*(s32 *)(work + 0x10) / 10.0f);
-            d = *(f32 *)(work + 0x30) - f20;
-            *(f32 *)(work + 0x28) = f20 + d * t;
+            d = ((ShdPersonaModelWork *)work)->target.x - f20;
+            ((ShdPersonaModelWork *)work)->current.x = f20 + d * t;
         } else {
-            *(f32 *)(work + 0x28) = *(f32 *)(work + 0x30);
+            ((ShdPersonaModelWork *)work)->current.x = ((ShdPersonaModelWork *)work)->target.x;
         }
-        a = *(s32 *)(work + 8);
-        shdPersonaDrawQuadStrips(*(f32 *)(work + 0x18), a, a,
-                      *(f32 *)(work + 0x28), *(f32 *)(work + 0x2C),
-                      0x200, 0x200, *(s32 *)(work + 0x50));
+        a = ((ShdPersonaModelWork *)work)->handle;
+        shdPersonaDrawQuadStrips(((ShdPersonaModelWork *)work)->depth, a, a,
+                      *(f32 *)(work + 0x28), ((ShdPersonaModelWork *)work)->current.y,
+                      0x200, 0x200, ((ShdPersonaModelWork *)work)->loaded);
     }
 }
 
@@ -4119,25 +4201,26 @@ void shdPersonaDrawSineQuad(u8 *arg0)
    identical. Register-colouring floor. */
 /* measured: full body decompiled (guard chain, two float lerps, shdDrawColourQuad + two func_003f6440 calls all reproduce). every remaining row is the work-pointer base register: retail keeps `lw $a1, 0x38($a0)` in $a1 (first free arg reg after $a0) for all 12 loads/stores; mwcc b210 always colours it $t0. Tried declaration order both ways, SdkTask typed form vs raw deref, s32 vs u8 byte locals, half as 3.0f literal vs local — identical $t0. Register-colouring floor (same family as shdPersonaDrawSineQuad note). Committed at nd 53. */
 // Intent: Draw the state-3 gauge bar: two lerped spans scaled by one third of the total [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011DD50
-void shdPersonaDrawSmoothBar(u8 *arg0)
+void shdPersonaDrawSmoothBar(u8 *task)
 {
     u8 *work;
     s32 first;
 
-    work = ((SdkTask *)arg0)->work;
-    if (*(s32 *)work == 3 && *(s32 *)(work + 4) != 0 &&
-        *(s32 *)(work + 0x14) != 0) {
-        *(f32 *)(work + 0x40) +=
-            (*(f32 *)(work + 0x28) - *(f32 *)(work + 0x40)) / 3.0f;
-        *(f32 *)(work + 0x44) +=
-            (*(f32 *)(work + 0x2C) - *(f32 *)(work + 0x44)) / 3.0f;
-        first = *(s32 *)(work + 0x0C);
-        shdDrawColourQuad(*(f32 *)(work + 0x18), first,
-                      *(f32 *)(work + 0x40) + *(f32 *)(work + 0x38),
-                      *(f32 *)(work + 0x44) + *(f32 *)(work + 0x3C),
-                      *(f32 *)(work + 0x28), *(f32 *)(work + 0x2C),
-                      512.0f, 512.0f, *(s32 *)(work + 0x50), 1, 0);
+    work = ((SdkTask *)task)->work;
+    if (*(s32 *)work == 3 && ((ShdPersonaModelWork *)work)->resourceId != 0 &&
+        ((ShdPersonaModelWork *)work)->drawGauge != 0) {
+        ((ShdPersonaModelWork *)work)->committed.x +=
+            (((ShdPersonaModelWork *)work)->current.x - ((ShdPersonaModelWork *)work)->committed.x) / 3.0f;
+        ((ShdPersonaModelWork *)work)->committed.y +=
+            (((ShdPersonaModelWork *)work)->current.y - ((ShdPersonaModelWork *)work)->committed.y) / 3.0f;
+        first = ((ShdPersonaModelWork *)work)->color;
+        shdDrawColourQuad(((ShdPersonaModelWork *)work)->depth, first,
+                      *(f32 *)(work + 0x40) + ((ShdPersonaModelWork *)work)->offset.x,
+                      *(f32 *)(work + 0x44) + ((ShdPersonaModelWork *)work)->offset.y,
+                      ((ShdPersonaModelWork *)work)->current.x, ((ShdPersonaModelWork *)work)->current.y,
+                      512.0f, 512.0f, ((ShdPersonaModelWork *)work)->loaded, 1, 0);
         RpSkyRenderStateSet(3, (void *)0x717FB);
         RpSkyRenderStateSet(2, (void *)0x44);
     }
@@ -4149,23 +4232,23 @@ void shdPersonaDrawSmoothBar(u8 *arg0)
 
 // Intent: Set the low byte of the display-control mode and colour words at offsets 0x8 and 0xC [inferred]
 // FUN_0011DE40
-void shdPersonaDispCtlSetMode(u8 *arg0, u8 arg1)
+void shdPersonaDispCtlSetMode(u8 *task, u8 mode)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    s32 v = arg1;
-    *(s32 *)(b + 8) = (*(s32 *)(b + 8) & ~0xFF) | v;
-    *(s32 *)(b + 0xC) = (*(s32 *)(b + 0xC) & ~0xFF) | v;
+    u8 *b = ((SdkTask *)task)->work;
+    s32 v = mode;
+    ((ShdPersonaModelWork *)b)->handle = (((ShdPersonaModelWork *)b)->handle & ~0xFF) | v;
+    ((ShdPersonaModelWork *)b)->color = (((ShdPersonaModelWork *)b)->color & ~0xFF) | v;
 }
 
 // Intent: Return the progress fraction at offset 0x10 divided by 10.0, and write the value at 0x28 to arg1 [inferred]
 // FUN_0011DE80
-f32 shdPersonaGetBarProgress(u8 *arg0, Vec2f *arg1)
+f32 shdPersonaGetBarProgress(u8 *task, Vec2f *position)
 {
-    u8 *temp_2;
+    u8 *work;
 
-    temp_2 = ((SdkTask *)arg0)->work;
-    *arg1 = *(Vec2f *)(temp_2 + 0x28);
-    return (f32)(*(s32 *)(temp_2 + 0x10)) / 10.0f;
+    work = ((SdkTask *)task)->work;
+    *position = ((ShdPersonaModelWork *)work)->current;
+    return (f32)(((ShdPersonaModelWork *)work)->frame) / 10.0f;
 }
 
 
@@ -4174,26 +4257,27 @@ f32 shdPersonaGetBarProgress(u8 *arg0, Vec2f *arg1)
 
 // Intent: Return the display-control handle stored at offset 0x8 [inferred]
 // FUN_0011DEC0
-s32 shdPersonaDispCtlGetHandle(u8 *arg0)
+s32 shdPersonaDispCtlGetHandle(u8 *task)
 {
-    return *(s32 *)(((SdkTask *)arg0)->work + 8);
+    return ((ShdPersonaModelWork *)((SdkTask *)task)->work)->handle;
 }
 
 
 
 // Intent: Poll the display-control model load and free its resources when the load completes [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011DED0
-s32 shdPersonaDispCtlUpdate(u8 *arg0)
+s32 shdPersonaDispCtlUpdate(u8 *task)
 {
     u8 *w;
     s32 out;
     s32 p4c;
     s32 r;
 
-    w = *(u8 **)(arg0 + 0x38);
-    r = func_004669d0(*(s32 *)w, &out, 0);
+    w = ((SdkTask *)task)->work;
+    r = filerTakeCompletedRequest(*(s32 *)w, &out, 0);
     if (out != 0) {
-        p4c = *(s32 *)(w + 4);
+        p4c = ((ShdPersonaStreamWork *)w)->directory;
         if (p4c != 0) {
             func_00440b68((s32)D_005E4ED0, (s32)(p4c + 0x10));
         } else {
@@ -4212,9 +4296,9 @@ s32 shdPersonaDispCtlUpdate(u8 *arg0)
 
 // Intent: Destroy a display-control task through its registered destroy callback [inferred]
 // FUN_0011DF90
-void shdPersonaDispCtlDestroy(u8 *arg0)
+void shdPersonaDispCtlDestroy(u8 *task)
 {
-    jtbl_008873EC[0](((SdkTask *)arg0)->work);
+    jtbl_008873EC[0](((SdkTask *)task)->work);
 }
 
 
@@ -4223,7 +4307,7 @@ void shdPersonaDispCtlDestroy(u8 *arg0)
 
 // Intent: Create a display-control task that loads the named resource with the given format [inferred]
 // FUN_0011DFC0
-s32 shdPersonaDispCtlCreate(s32 arg0, s32 arg1, char *arg2)
+s32 shdPersonaDispCtlCreate(s32 stream, s32 inputDirectory, char *taskName)
 {
     s32 r;
     u8 *buf;
@@ -4233,34 +4317,35 @@ s32 shdPersonaDispCtlCreate(s32 arg0, s32 arg1, char *arg2)
     if (buf == NULL) {
         return 0;
     }
-    r = (s32)kwlnTaskCreate((const void *)(arg2), 0xF, 0, 0, shdPersonaDispCtlUpdate, shdPersonaDispCtlDestroy, (u8 *)(buf));
+    r = (s32)kwlnTaskCreate((const void *)(taskName), 0xF, 0, 0, shdPersonaDispCtlUpdate, shdPersonaDispCtlDestroy, (u8 *)(buf));
     if (r == 0) {
         return 0;
     }
-    if (arg1 != 0) {
-        func_00440b68((s32)D_005E4F10, (s32)(arg1 + 0x10));
+    if (inputDirectory != 0) {
+        func_00440b68((s32)D_005E4F10, (s32)(inputDirectory + 0x10));
     }
-    *(s32 *)buf = arg0;
-    *(s32 *)(buf + 4) = arg1;
+    *(s32 *)buf = stream;
+    ((ShdPersonaStreamWork *)buf)->directory = inputDirectory;
     return r;
 }
 
 
 
-s32 shdPersonaDispCtlUpdate(u8 *arg0);
+s32 shdPersonaDispCtlUpdate(u8 *task);
 // Intent: Reconfigure a display-control task by destroying its child and creating a new one [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011E0C0
-void shdPersonaDispCtlReconfigure(u8 *arg0, s32 arg1, s32 arg2)
+void shdPersonaDispCtlReconfigure(u8 *task, s32 inputResourceId, s32 inputHandle)
 {
-    u8 *w = ((SdkTask *)arg0)->work;
+    u8 *w = ((SdkTask *)task)->work;
     s32 p48;
     s32 p4c;
     u8 *r;
 
-    if (*(s32 *)(w + 4) != arg1 || (*(s32 *)(w + 8) & ~0xFF) != (arg2 & ~0xFF)) {
-        p48 = *(s32 *)(w + 0x48);
+    if (((ShdPersonaModelWork *)w)->resourceId != inputResourceId || (((ShdPersonaModelWork *)w)->handle & ~0xFF) != (inputHandle & ~0xFF)) {
+        p48 = ((ShdPersonaModelWork *)w)->stream;
         if (p48 != 0) {
-            p4c = *(s32 *)(w + 0x4C);
+            p4c = ((ShdPersonaModelWork *)w)->directory;
             chkmemAllocSiteTag(D_005E4868, 0x11B2);
             r = D_008873F4[0](1, 8, 0x40000);
             if (r != 0 && (s32)kwlnTaskCreate((const void *)(D_005E4E40), 0xF, 0, 0, shdPersonaDispCtlUpdate, shdPersonaDispCtlDestroy, (u8 *)(r)) != 0) {
@@ -4268,157 +4353,159 @@ void shdPersonaDispCtlReconfigure(u8 *arg0, s32 arg1, s32 arg2)
                     func_00440b68((s32)D_005E4F10, (s32)(p4c + 0x10));
                 }
                 *(s32 *)r = p48;
-                *(s32 *)(r + 4) = p4c;
+                ((ShdPersonaStreamWork *)r)->directory = p4c;
             }
             *(s32 *)(w + 0x48) = 0;
             *(s32 *)(w + 0x4C) = 0;
-            *(s32 *)(w + 0x50) = 0;
+            ((ShdPersonaModelWork *)w)->loaded = 0;
         } else {
-            p4c = *(s32 *)(w + 0x4C);
+            p4c = ((ShdPersonaModelWork *)w)->directory;
             if (p4c != 0) {
                 H_Cdvd_Destroy(p4c);
                 *(s32 *)(w + 0x4C) = 0;
             }
-            p4c = *(s32 *)(w + 0x50);
+            p4c = ((ShdPersonaModelWork *)w)->loaded;
             if (p4c != 0) {
                 func_003ef3a0(p4c);
                 *(s32 *)(w + 0x50) = 0;
             }
         }
-        *(s32 *)(w + 8) = arg2;
-        *(s32 *)(w + 4) = arg1;
-        *(s32 *)(w + 0) = 0;
+        ((ShdPersonaModelWork *)w)->handle = inputHandle;
+        *(s32 *)(w + 4) = inputResourceId;
+        ((ShdPersonaModelWork *)w)->state = 0;
     }
 }
 // Intent: Store a handle value at offset 0x8 of the display-control block [inferred]
 // FUN_0011E230
-void shdPersonaDispCtlSetHandle(u8 *arg0, s32 arg1)
+void shdPersonaDispCtlSetHandle(u8 *task, s32 inputHandle)
 {
-    *(s32 *)(((SdkTask *)arg0)->work + 8) = arg1;
+    ((ShdPersonaModelWork *)((SdkTask *)task)->work)->handle = inputHandle;
 }
 
 
 
 // Intent: Set the display-control position at offsets 0x28 and 0x40 from the source position block [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011E240
-void shdPersonaDispCtlSetPosition(u8 *arg0, u8 *arg1)
+void shdPersonaDispCtlSetPosition(u8 *task, u8 *position)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
+    u8 *b = ((SdkTask *)task)->work;
     f32 v0;
     f32 v1;
-    if (arg1 != NULL) {
-        *(f32 *)(b + 0x30) = *(f32 *)(arg1 + 0);
-        *(f32 *)(b + 0x34) = *(f32 *)(arg1 + 4);
-    *(f32 *)(b + 0x20) = 640.0f + *(f32 *)(b + 0x30);
-    *(f32 *)(b + 0x24) = *(f32 *)(b + 0x34);
+    if (position != NULL) {
+        ((ShdPersonaModelWork *)b)->target.x = ((Vec2f *)position)->x;
+        ((ShdPersonaModelWork *)b)->target.y = ((Vec2f *)position)->y;
+    ((ShdPersonaModelWork *)b)->start.x = 640.0f + *(f32 *)(b + 0x30);
+    ((ShdPersonaModelWork *)b)->start.y = ((ShdPersonaModelWork *)b)->target.y;
     }
-    v0 = *(f32 *)(b + 0x20);
-    *(f32 *)(b + 0x28) = v0;
-    *(f32 *)(b + 0x40) = v0;
-    v1 = *(f32 *)(b + 0x24);
-    *(f32 *)(b + 0x2C) = v1;
-    *(f32 *)(b + 0x44) = v1;
-    *(f32 *)(b + 0x1C) = 15.0f;
-    *(s32 *)(b + 0x10) = 0;
+    v0 = ((ShdPersonaModelWork *)b)->start.x;
+    ((ShdPersonaModelWork *)b)->current.x = v0;
+    ((ShdPersonaModelWork *)b)->committed.x = v0;
+    v1 = ((ShdPersonaModelWork *)b)->start.y;
+    ((ShdPersonaModelWork *)b)->current.y = v1;
+    ((ShdPersonaModelWork *)b)->committed.y = v1;
+    ((ShdPersonaModelWork *)b)->duration = 15.0f;
+    ((ShdPersonaModelWork *)b)->frame = 0;
 }
 
 
 
 // Intent: Set the display-control offsets at 0x20, 0x28 and 0x30 from two two-float vectors [inferred]
 // FUN_0011E2B0
-void shdPersonaDispCtlSetOffsets(u8 *arg0, Vec2f *arg1, Vec2f *arg2)
+void shdPersonaDispCtlSetOffsets(u8 *task, Vec2f *inputStart, Vec2f *inputTarget)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    if (arg1 == NULL) {
+    u8 *b = ((SdkTask *)task)->work;
+    if (inputStart == NULL) {
         kAssertFail(D_005E4868, 0x120A);
     }
-    if (arg2 == NULL) {
+    if (inputTarget == NULL) {
         kAssertFail(D_005E4868, 0x120B);
     }
-    *(Vec2f *)(b + 0x20) = *arg1;
-    *(Vec2f *)(b + 0x28) = *arg1;
-    *(Vec2f *)(b + 0x30) = *arg2;
-    *(s32 *)(b + 0x10) = 0;
+    ((ShdPersonaModelWork *)b)->start = *inputStart;
+    ((ShdPersonaModelWork *)b)->current = *inputStart;
+    ((ShdPersonaModelWork *)b)->target = *inputTarget;
+    ((ShdPersonaModelWork *)b)->frame = 0;
 }
 
 
 
 // FUN_0011E360
-void func_0011e360(u8 *arg0, s32 arg1)
+void shdPersonaDispCtlSetGaugeEnabled(u8 *task, s32 enabled)
 {
-    *(s32 *)(((SdkTask *)arg0)->work + 0x14) = arg1;
+    ((ShdPersonaModelWork *)((SdkTask *)task)->work)->drawGauge = enabled;
 }
 
 
 
 // Intent: Copy the display-control position at offset 0x28 to the committed position at offset 0x40 [inferred]
 // FUN_0011E370
-void shdPersonaDispCtlCommitPosition(u8 *arg0)
+void shdPersonaDispCtlCommitPosition(u8 *task)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    *(f32 *)(b + 0x40) = *(f32 *)(b + 0x28);
-    *(f32 *)(b + 0x44) = *(f32 *)(b + 0x2C);
+    u8 *b = ((SdkTask *)task)->work;
+    ((ShdPersonaModelWork *)b)->committed.x = ((ShdPersonaModelWork *)b)->current.x;
+    ((ShdPersonaModelWork *)b)->committed.y = ((ShdPersonaModelWork *)b)->current.y;
 }
 
 
 
 // FUN_0011E390
-void func_0011e390(u8 *arg0, Vec2f arg1)
+void shdPersonaDispCtlSetDrawOffset(u8 *task, Vec2f offset)
 {
-    f32 *b = *(f32 **)(arg0 + 0x38);
-    b[0xE] = arg1.x;
-    b[0xF] = arg1.y;
+    f32 *b = (f32 *)((SdkTask *)task)->work;
+    b[0xE] = offset.x;
+    b[0xF] = offset.y;
 }
 
 
 
 // Intent: Set the low 24 bits of the display-control colour word at offset 0xC [inferred]
 // FUN_0011E3C0
-void shdPersonaDispCtlSetColor(s32 arg0, s32 arg1)
+void shdPersonaDispCtlSetColor(s32 taskHandle, s32 inputColor)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    *(s32 *)(b + 0xC) = (arg1 & 0xFFFFFF00) | *(u8 *)(b + 8);
+    u8 *b = ((SdkTask *)taskHandle)->work;
+    ((ShdPersonaModelWork *)b)->color = (inputColor & 0xFFFFFF00) | *(u8 *)&((ShdPersonaModelWork *)b)->handle;
 }
 
 
 
 // Intent: Return whether the display-control task has finished loading (state 3) [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011E3E0
-u32 shdPersonaDispCtlIsLoaded(u8 *arg0)
+u32 shdPersonaDispCtlIsLoaded(u8 *task)
 {
-    return *(s32 *)(((SdkTask *)arg0)->work + 0) == 3;
+    return *(s32 *)(((SdkTask *)task)->work + 0) == 3;
 }
 
 
 
 // Intent: Copy the display-control position at offset 0x28 to the caller's buffer [inferred]
 // FUN_0011E400
-void shdPersonaDispCtlGetPosition(u8 *arg0, u8 *arg1)
+void shdPersonaDispCtlGetPosition(u8 *task, u8 *output)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
-    if (arg1 == NULL) {
+    u8 *b = ((SdkTask *)task)->work;
+    if (output == NULL) {
         kAssertFail(D_005E4868, 0x124F);
     }
-    *(Vec2f *)arg1 = *(Vec2f *)(b + 0x28);
+    *(Vec2f *)output = ((ShdPersonaModelWork *)b)->current;
 }
 
 
 
 // Intent: Return the loaded value at offset 0x50 once the display control has reached state 3, else 0 [inferred]
 // FUN_0011E460
-s32 shdPersonaDispCtlGetLoadedValue(u8 *arg0)
+s32 shdPersonaDispCtlGetLoadedValue(u8 *task)
 {
-    u8 *b = ((SdkTask *)arg0)->work;
+    u8 *b = ((SdkTask *)task)->work;
     if (*(s32 *)b != 3) {
         return 0;
     }
-    return *(s32 *)(b + 0x50);
+    return ((ShdPersonaModelWork *)b)->loaded;
 }
 
 
 
 u32 RpRandom(void);
-u16 *datPersonaGetSkills(DatPersonaRecord *arg0);
+u16 *datPersonaGetSkills(DatPersonaRecord *persona);
 extern u16 *iGpffffb3ec;
 /* measured: the explicit `bltz`/negative conversion path for
    `func_003b7060() & 0x1000` is required for retail's COP1 sequence. */
@@ -4431,7 +4518,7 @@ extern u16 *iGpffffb3ec;
    and load ordering. */
 // Intent: Pick a random skill pair from the pair table and write its two ids into the caller's block [inferred]
 // FUN_0011E490
-s32 shdPersonaPickRandomSkillPair(u8 *arg0)
+s32 shdPersonaPickRandomSkillPair(u8 *levelUp)
 {
     u8 *q;
     u8 *r;
@@ -4450,8 +4537,8 @@ s32 shdPersonaPickRandomSkillPair(u8 *arg0)
     u16 second;
     s32 idx;
 
-    q = *(u8 **)(arg0 + 0x1C);
-    r = *(u8 **)(q + 0x38);
+    q = *(u8 **)&((ShdPersonaLevelUpWork *)levelUp)->parentTask;
+    r = ((SdkTask *)q)->work;
     p16 = *(u8 **)r;
     if (!(*(u16 *)p16 & 4)) {
         return 0;
@@ -4501,8 +4588,8 @@ s32 shdPersonaPickRandomSkillPair(u8 *arg0)
             kAssertFail(D_005E4868, 0x12CF);
         }
         i = stack[idx];
-        *(u16 *)(arg0 + 6) = iGpffffb3ec[2 * i];
-        *(u16 *)(arg0 + 8) = iGpffffb3ec[2 * i + 1];
+        ((ShdPersonaLevelUpWork *)levelUp)->previousSkill = iGpffffb3ec[2 * i];
+        ((ShdPersonaLevelUpWork *)levelUp)->replacement = iGpffffb3ec[2 * i + 1];
         return 1;
     }
     return 0;
@@ -4515,44 +4602,45 @@ s32 shdPersonaPickRandomSkillPair(u8 *arg0)
 
 
 // Intent: Advance the skill-list stage: show the next unlocked skill name and level; otherwise move to the next stage, picking a random skill pair when one is needed [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011E740
-void shdPersonaAdvanceSkillList(u8 *arg0)
+void shdPersonaAdvanceSkillList(u8 *levelUp)
 {
     u8 *base;
     u8 buf[0x80];
     s32 idx;
     s32 t3;
 
-    base = *(u8 **)(arg0 + 0x20);
-    while ((idx = *(s32 *)(arg0 + 0xC)) < 5 && *(u8 *)(base + idx + 0x82) == 0) {
-        *(s32 *)(arg0 + 0xC) += 1;
+    base = ((ShdPersonaLevelUpWork *)levelUp)->learnList;
+    while ((idx = ((ShdPersonaLevelUpWork *)levelUp)->field0C) < 5 && *(u8 *)&((ShdPersonaLearnList *)base)->statGains[idx] == 0) {
+        *(s32 *)(levelUp + 0xC) += 1;
     }
     if (idx < 5) {
         strcpy(buf, D_005E4850[idx]);
         nmMesWindowSetCurrentString(0, buf);
-        sprintf(buf, &iGpffff9c20, base[*(s32 *)(arg0 + 0xC) + 0x82]);
+        sprintf(buf, &iGpffff9c20, base[*(s32 *)(levelUp + 0xC) + 0x82]);
         nmMesWindowSetCurrentString(1, buf);
-        nmMesWindowShowCurrentRecord(*(s32 *)(arg0 + 0x34));
-        *(s16 *)(arg0 + 2) = 0;
-        *(s32 *)(arg0 + 0x14) = 3;
+        nmMesWindowShowCurrentRecord(((ShdPersonaLevelUpWork *)levelUp)->messages[2]);
+        *(s16 *)&((ShdPersonaLevelUpWork *)levelUp)->cursor = 0;
+        ((ShdPersonaLevelUpWork *)levelUp)->state = 3;
         return;
     }
-    t3 = *(s32 *)(arg0 + 0x10);
+    t3 = ((ShdPersonaLevelUpWork *)levelUp)->index;
     if (t3 < 0x20 && ((u16 *)(base + 2))[t3] != 0) {
-        *(s16 *)(arg0 + 2) = 0;
-        *(s32 *)(arg0 + 0x14) = 4;
+        *(s16 *)&((ShdPersonaLevelUpWork *)levelUp)->cursor = 0;
+        ((ShdPersonaLevelUpWork *)levelUp)->state = 4;
         return;
     }
-    if (shdPersonaPickRandomSkillPair(arg0) != 0) {
-        nmMesWindowSetCurrentString(1, func_00243840(*(u16 *)(arg0 + 6)));
-        nmMesWindowShowCurrentRecord(*(s32 *)(arg0 + 0x4C));
-        nmMesWindowSetCurrentParam(*(s32 *)(arg0 + 0x2C));
+    if (shdPersonaPickRandomSkillPair(levelUp) != 0) {
+        nmMesWindowSetCurrentString(1, func_00243840(((ShdPersonaLevelUpWork *)levelUp)->previousSkill));
+        nmMesWindowShowCurrentRecord(((ShdPersonaLevelUpWork *)levelUp)->messages[8]);
+        nmMesWindowSetCurrentParam(((ShdPersonaLevelUpWork *)levelUp)->messages[0]);
         nmMesWindowSetCurrentFlag(1);
         nmMesWindowRequestRefresh();
-        *(s32 *)(arg0 + 0x14) = 8;
+        ((ShdPersonaLevelUpWork *)levelUp)->state = 8;
         return;
     }
-    *(s32 *)(arg0 + 0x14) = 0xC;
+    ((ShdPersonaLevelUpWork *)levelUp)->state = 0xC;
 }
 
 
@@ -4597,8 +4685,9 @@ static inline s32 personaReplaceLevelSkill(SdkTask *parent, u16 previous, u16 re
 }
 
 // Intent: Advance the level-up skill-learn state machine one step and return its status [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011E8E0
-s32 shdPersonaLevelUpStep(u8 *arg0)
+s32 shdPersonaLevelUpStep(u8 *task)
 {
     u8 *e2;
     u8 *b2;
@@ -4609,19 +4698,19 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
     s32 r;
     s32 i;
     s32 j;
-    work = (ShdPersonaLevelUpWork *)((SdkTask *)arg0)->work;
+    work = (ShdPersonaLevelUpWork *)((SdkTask *)task)->work;
     base = work->parentTask->work;
     first = *(DatPersonaRecord **)base;
     pc = work->learnList;
     switch (work->state) {
     case 0: {
         s32 v;
-        v = *(s32 *)(base + 0x534) | 0x200;
-        *(s32 *)(base + 0x534) = v;
-        *(s32 *)(base + 0x534) = v | 0x10000;
-        *(s16 *)(base + 0x520) = 0;
-        *(s16 *)(base + 0x522) = 0;
-        *(s16 *)(base + 0x524) = 0;
+        v = ((PersonaRenderWork *)base)->flags | 0x200;
+        ((PersonaRenderWork *)base)->flags = v;
+        ((PersonaRenderWork *)base)->flags = v | 0x10000;
+        ((PersonaRenderWork *)base)->revealFrame = 0;
+        ((PersonaRenderWork *)base)->revealPulseFrame = 0;
+        ((PersonaRenderWork *)base)->revealLabelFrame = 0;
         first->level = first->level + *(u8 *)pc;
         i = 0;
         while (i < 5) {
@@ -4630,7 +4719,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         }
         r = shdPersonaCalcExpRemaining(first, 0);
         e2 = (u8 *)work->parentTask;
-        b2 = *(u8 **)(e2 + 0x38);
+        b2 = ((SdkTask *)e2)->work;
         shdPersonaFillStatusForState(b2, *(u8 **)b2);
         shdPersonaCopyStatBytes(pc + 0x82, b2 + 0xC);
         *(s32 *)(*(u8 **)(e2 + 0x38) + 0x44) = r;
@@ -4642,8 +4731,8 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         s32 fl;
         s32 isOld;
         b = work->parentTask->work;
-        fl = *(s32 *)(b + 0x534);
-        if ((fl & 0x10000) && (*(s16 *)(b + 0x520) < 0x32)) {
+        fl = ((PersonaRenderWork *)b)->flags;
+        if ((fl & 0x10000) && (((PersonaRenderWork *)b)->revealFrame < 0x32)) {
             isOld = 0;
         } else {
             isOld = 1;
@@ -4652,7 +4741,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             u16 id2;
             nmMesWindowOpenCurrent((u8 *)(work->parameter3));
             nmMesWindowSetCurrentString(0, datPersonaGetRow(datPersonaRecordId((u32)first)));
-            id2 = *(s16 *)(work->parentTask->work + 0xC);
+            id2 = *(s16 *)&((PersonaRenderWork *)work->parentTask->work)->persona[0].category;
             nmMesWindowSetCurrentString(1, (void *)datPersonaNamePart1(id2));
             nmMesWindowShowCurrentRecord(work->messages[1]);
             work->state = 2;
@@ -4696,18 +4785,18 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             u32 selected;
             parent = work->parentTask;
             b = parent->work;
-            if (*(s32 *)(b + 0x534) & 0x100000) {
-                vv = *(u16 *)(b + 0x4F4);
+            if (((PersonaRenderWork *)b)->flags & 0x100000) {
+                vv = ((PersonaRenderWork *)b)->acquisition.skill;
             } else {
                 vv = ShdSkill_GetPendingSkill(b + 0x8C);
             }
             selected = vv & 0xFFFF;
             b = parent->work;
-            if ((*(s32 *)(b + 0x534) & 0x8000) == 0) {
+            if ((((PersonaRenderWork *)b)->flags & 0x8000) == 0) {
                 s16 sv;
-                *(s32 *)(b + 0x534) = *(s32 *)(b + 0x534) | 0x8000;
-                *(u16 *)(b + 0x518) = 0;
-                *(s16 *)(b + 0x51A) = ShdSkill_FindSlot(b + 0x8C, selected);
+                *(s32 *)(b + 0x534) = ((PersonaRenderWork *)b)->flags | 0x8000;
+                *(u16 *)&((PersonaRenderWork *)b)->skillFrame = 0;
+                ((PersonaRenderWork *)b)->selectedSkill = ShdSkill_FindSlot(b + 0x8C, selected);
                 sv = *(s16 *)(b + 0x51A);
                 if (sv < 0) {
                     kAssertFail(D_005E4868, 0xEB1);
@@ -4730,8 +4819,8 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             u16 vv;
             *flags = fl & 0xFFFF7FFF;
             b = work->parentTask->work;
-            if (*(s32 *)(b + 0x534) & 0x100000) {
-                vv = *(u16 *)(b + 0x4F4);
+            if (((PersonaRenderWork *)b)->flags & 0x100000) {
+                vv = ((PersonaRenderWork *)b)->acquisition.skill;
             } else {
                 vv = ShdSkill_GetPendingSkill(b + 0x8C);
             }
@@ -4755,8 +4844,8 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             s32 idx;
             nmMesWindowCloseCurrent(1);
             b = work->parentTask->work;
-            if (*(s32 *)(b + 0x534) & 0x100000) {
-                vv = *(u16 *)(b + 0x4F4);
+            if (((PersonaRenderWork *)b)->flags & 0x100000) {
+                vv = ((PersonaRenderWork *)b)->acquisition.skill;
             } else {
                 vv = ShdSkill_GetPendingSkill(b + 0x8C);
             }
@@ -4854,11 +4943,11 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
             personaReplaceLevelSkill(work->parentTask, work->previousSkill, work->replacement);
             highlightSkill = work->replacement;
             bb = work->parentTask->work;
-            if ((*(s32 *)(bb + 0x534) & 0x8000) == 0) {
+            if ((((PersonaRenderWork *)bb)->flags & 0x8000) == 0) {
                 s16 sv;
-                *(s32 *)(bb + 0x534) = *(s32 *)(bb + 0x534) | 0x8000;
-                *(u16 *)(bb + 0x518) = 0;
-                *(s16 *)(bb + 0x51A) = ShdSkill_FindSlot(bb + 0x8C, highlightSkill);
+                *(s32 *)(bb + 0x534) = ((PersonaRenderWork *)bb)->flags | 0x8000;
+                *(u16 *)&((PersonaRenderWork *)bb)->skillFrame = 0;
+                ((PersonaRenderWork *)bb)->selectedSkill = ShdSkill_FindSlot(bb + 0x8C, highlightSkill);
                 sv = *(s16 *)(bb + 0x51A);
                 if (sv < 0) {
                     kAssertFail(D_005E4868, 0xEB1);
@@ -4896,7 +4985,7 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
         }
         break;
     case 12:
-        *(u8 *)(base + 0x11) = 0;
+        ((PersonaRenderWork *)base)->persona[0].unknown05[0] = 0;
         j = 0;
         while (j < 5) {
             *(u8 *)(base + j + 0x18) = 0;
@@ -4947,9 +5036,9 @@ s32 shdPersonaLevelUpStep(u8 *arg0)
 
 // Intent: Destroy a level-up task, releasing its pending message and freeing its work block [inferred]
 // FUN_0011F3C0
-void shdPersonaLevelUpDestroy(u8 *arg0)
+void shdPersonaLevelUpDestroy(u8 *task)
 {
-    ShdPersonaLevelUpWork *b = (ShdPersonaLevelUpWork *)((SdkTask *)arg0)->work;
+    ShdPersonaLevelUpWork *b = (ShdPersonaLevelUpWork *)((SdkTask *)task)->work;
     if (b->messageTask != NULL) {
         kwlnTaskDestroyHierarchyAlt((s32)b->messageTask);
         b->messageTask = NULL;
@@ -4963,8 +5052,9 @@ extern char D_005E4F30[];
 s32 shdPersonaLevelUpStep(u8 *);
 void shdPersonaLevelUpDestroy(u8 *);
 // Intent: Create a level-up child task that copies its parameters and the skill table into its work block [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011F410
-u8 *shdPersonaLevelUpCreate(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s32 *arg5)
+u8 *shdPersonaLevelUpCreate(s32 inputParentTask, s32 personaTask, u8 *inputLearnList, s32 messageResource, s32 extraMessage, s32 *messages)
 {
     ShdPersonaLevelUpWork *w;
     u8 *r;
@@ -4975,16 +5065,16 @@ u8 *shdPersonaLevelUpCreate(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s3
     if (w == NULL) {
         kAssertFail(D_005E4868, 0x1465);
     }
-    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4F30), 0xF, 0, 0, shdPersonaLevelUpStep, shdPersonaLevelUpDestroy, (u8 *)(w));
+    r = (u8 *)kwlnTaskCreateChild((void *)(inputParentTask), (const void *)(D_005E4F30), 0xF, 0, 0, shdPersonaLevelUpStep, shdPersonaLevelUpDestroy, (u8 *)(w));
     if (r == NULL) {
         kAssertFail(D_005E4868, 0x146F);
     }
-    w->parentTask = (struct SdkTask *)arg1;
-    w->learnList = arg2;
-    w->parameter3 = arg3;
-    w->parameter4 = arg4;
+    w->parentTask = (struct SdkTask *)personaTask;
+    w->learnList = inputLearnList;
+    w->parameter3 = messageResource;
+    w->parameter4 = extraMessage;
     for (i = 0; i < 0xB; i++) {
-        *(s32 *)((u8 *)w + 0x2C + i * 4) = arg5[i];
+        *(s32 *)((u8 *)w + 0x2C + i * 4) = messages[i];
     }
     return r;
 }
@@ -4993,9 +5083,9 @@ u8 *shdPersonaLevelUpCreate(s32 arg0, s32 arg1, u8 *arg2, s32 arg3, s32 arg4, s3
 
 // Intent: Return whether the level-up task has reached its final state 0xE [inferred]
 // FUN_0011F560
-u32 shdPersonaLevelUpIsDone(u8 *arg0)
+u32 shdPersonaLevelUpIsDone(u8 *task)
 {
-    return ((ShdPersonaLevelUpWork *)((SdkTask *)arg0)->work)->state == 0xE;
+    return ((ShdPersonaLevelUpWork *)((SdkTask *)task)->work)->state == 0xE;
 }
 
 
@@ -5014,15 +5104,15 @@ extern u8 nmMesWindowOpenCurrent(u8 *message);
 void nmMesWindowStepCurrent(s32);
 s32 nmMesWindowResetCurrent(void);
 s32 nmMesWindowCurrentOpenState(void);
-u32 nmMesWindowCloseCurrent(s32 arg0);
+u32 nmMesWindowCloseCurrent(s32 release);
 s32 nmMesWindowCurrentAnimFlag(void);
-u16 shdPersonaGetSelectedSkillId(u8 *arg0);
-void ShdSkill_PopPoolEntry(u8 *arg0);
-u16 datPersonaRecordId(u32 arg0);
+u16 shdPersonaGetSelectedSkillId(u8 *panel);
+void ShdSkill_PopPoolEntry(u8 *pool);
+u16 datPersonaRecordId(u32 recordAddress);
 s16 ShdSkill_FindSlot(u8 *, s32);
 extern u16 D_008C024E[];
 extern u16 D_008C024C[];
-void shdPersonaBeginSelection(u8 *arg0);
+void shdPersonaBeginSelection(u8 *task);
 /* The replacement and highlight states share the pending halfword. Promote
  * it to a word before refreshing the parent work for the highlight lookup.
  * Each state assigns pendingSkill before reading it.
@@ -5030,19 +5120,20 @@ void shdPersonaBeginSelection(u8 *arg0);
  * complete 36B switch table, and twelve retail zero-tail bytes.
  * Proof: build/game-resume-20260921/persona-w2/accepted-dialog. */
 // Intent: Advance the skill-replace state machine one step and return its status [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011F5A0
-s32 shdPersonaSkillReplaceStep(u8 *arg0)
+s32 shdPersonaSkillReplaceStep(u8 *task)
 {
     u16 pendingSkill;
-    ShdPersonaSkillReplaceWork *work = (ShdPersonaSkillReplaceWork *)((SdkTask *)arg0)->work;
-    u8 *base = *(u8 **)(work->parent + 0x38);
-    u8 *first = *(u8 **)(base + 0);
+    ShdPersonaSkillReplaceWork *work = (ShdPersonaSkillReplaceWork *)((SdkTask *)task)->work;
+    u8 *base = ((SdkTask *)work->parent)->work;
+    u8 *first = *(u8 **)&((PersonaRenderWork *)base)->controllerAddress;
     u32 st = work->state;
     switch (st) {
     case 0: {
         u16 a;
-        if (*(s32 *)(base + 0x534) & 0x100000) {
-            a = *(u16 *)(base + 0x4F4);
+        if (((PersonaRenderWork *)base)->flags & 0x100000) {
+            a = ((PersonaRenderWork *)base)->acquisition.skill;
         } else {
             a = ShdSkill_GetPendingSkill(base + 0x8C);
         }
@@ -5061,23 +5152,23 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
         }
         break;
     case 2: {
-        s32 fl = *(s32 *)(base + 0x534);
+        s32 fl = ((PersonaRenderWork *)base)->flags;
         s32 b800 = !!(fl & 0x800);
         if (b800 != 0) {
-            if (*(s8 *)(base + 0x88) != -1) {
+            if (((ShdSkillState *)((PersonaRenderWork *)base)->skills)->cursor != -1) {
                 if (ShdSkill_MoveCursor(base + 0x84, (fl & 0x100000) != 0) != 0) {
                     sdkSndStartStream(0, 0, 0, 0);
                 }
             }
         }
         if (D_008C024E[0] & 0x40) {
-            u8 *q = *(u8 **)(work->parent + 0x38);
-            s32 fq = *(s32 *)(q + 0x534);
+            u8 *q = ((SdkTask *)work->parent)->work;
+            s32 fq = ((PersonaRenderWork *)q)->flags;
             u16 vv;
             if (fq & 0x2000) {
                 vv = 0;
-            } else if (((fq & 0x100000) != 0) && (*(s8 *)(q + 0x88) == 8)) {
-                vv = *(u16 *)(q + 0x4F4);
+            } else if (((fq & 0x100000) != 0) && (((ShdSkillState *)((PersonaRenderWork *)q)->skills)->cursor == 8)) {
+                vv = ((PersonaRenderWork *)q)->acquisition.skill;
             } else {
                 vv = ShdSkill_GetSlotSkillId(q + 0x84) & 0xFFFF;
             }
@@ -5101,14 +5192,14 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
             switch (choice) {
                 case 0: {
                     u8 *pp = work->parent;
-                    u8 *bb = *(u8 **)(pp + 0x38);
+                    u8 *bb = ((SdkTask *)pp)->work;
                     u8 *current;
                     u16 queuedSkill;
                     u16 previousSkill = shdPersonaGetSelectedSkillId(bb) & 0xFFFF;
                     s32 ok;
                     s32 ok2;
-                    if (*(s32 *)(bb + 0x534) & 0x100000) {
-                        queuedSkill = *(u16 *)(bb + 0x4F4);
+                    if (((PersonaRenderWork *)bb)->flags & 0x100000) {
+                        queuedSkill = ((PersonaRenderWork *)bb)->acquisition.skill;
                     } else {
                         queuedSkill = ShdSkill_GetPendingSkill(bb + 0x8C);
                     }
@@ -5144,16 +5235,16 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
                         nmMesWindowShowCurrentRecord(work->messages[6]);
                     }
                     {
-                    u8 *qb = *(u8 **)(work->parent + 0x38);
-                    s32 fq2 = *(s32 *)(qb + 0x534);
+                    u8 *qb = ((SdkTask *)work->parent)->work;
+                    s32 fq2 = ((PersonaRenderWork *)qb)->flags;
                     if (fq2 & 0x20) {
                         if (fq2 & 0x800) {
                             if ((fq2 & 0x2000) == 0) {
                                 s32 nv;
-                                *(f32 *)(qb + 0x434) = *(f32 *)(qb + 0x444);
-                                *(f32 *)(qb + 0x438) = *(f32 *)(qb + 0x448);
-                                *(s32 *)(qb + 0x43C) = 0xC3E10000;
-                                *(u16 *)(qb + 0x514) = 0;
+                                ((PersonaRenderWork *)qb)->selectionStart.x = ((PersonaRenderWork *)qb)->selectionPosition.x;
+                                ((PersonaRenderWork *)qb)->selectionStart.y = ((PersonaRenderWork *)qb)->selectionPosition.y;
+                                *(s32 *)&((PersonaRenderWork *)qb)->selectionTarget.x = 0xC3E10000;
+                                *(u16 *)&((PersonaRenderWork *)qb)->selectionFrame = 0;
                                 nv = *(s32 *)(qb + 0x534) | 0x2000;
                                 *(s32 *)(qb + 0x534) = nv;
                                 *(s32 *)(qb + 0x534) = nv & ~0x1000;
@@ -5180,13 +5271,13 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
             s32 fq;
             pendingSkill = work->original;
             selected = pendingSkill;
-            q = *(u8 **)(work->parent + 0x38);
-            fq = *(s32 *)(q + 0x534);
+            q = ((SdkTask *)work->parent)->work;
+            fq = ((PersonaRenderWork *)q)->flags;
             if ((fq & 0x8000) == 0) {
                 s16 sv;
                 *(s32 *)(q + 0x534) = fq | 0x8000;
-                *(u16 *)(q + 0x518) = 0;
-                *(s16 *)(q + 0x51A) = ShdSkill_FindSlot(q + 0x8C, selected);
+                *(u16 *)&((PersonaRenderWork *)q)->skillFrame = 0;
+                ((PersonaRenderWork *)q)->selectedSkill = ShdSkill_FindSlot(q + 0x8C, selected);
                 sv = *(s16 *)(q + 0x51A);
                 if (sv < 0) {
                     kAssertFail(D_005E4868, 0xEB1);
@@ -5199,7 +5290,7 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
     }
         /* fallthrough */
     case 5: {
-        u8 *q = *(u8 **)(work->parent + 0x38);
+        u8 *q = ((SdkTask *)work->parent)->work;
         s32 *flags = (s32 *)(q + 0x534);
         s32 fq = *flags;
         if ((fq & 0x8000) == 0) {
@@ -5231,16 +5322,17 @@ s32 shdPersonaSkillReplaceStep(u8 *arg0)
 
 // Intent: Destroy a skill-replace task through its registered destroy callback [inferred]
 // FUN_0011FB90
-void shdPersonaSkillReplaceDestroy(u8 *arg0)
+void shdPersonaSkillReplaceDestroy(u8 *task)
 {
-    jtbl_008873EC[0](((SdkTask *)arg0)->work);
+    jtbl_008873EC[0](((SdkTask *)task)->work);
 }
 
 
 
 // Intent: Create a skill-replace child task that copies its parameters and a 0xB-word table into its work block [inferred]
+/* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011FBC0
-u8 *shdPersonaSkillReplaceCreate(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3)
+u8 *shdPersonaSkillReplaceCreate(s32 parentTask, u8 *personaTask, s32 messageResource, u8 *messages)
 {
     ShdPersonaSkillReplaceWork *w;
     u8 *r;
@@ -5251,14 +5343,14 @@ u8 *shdPersonaSkillReplaceCreate(s32 arg0, u8 *arg1, s32 arg2, u8 *arg3)
     if (w == NULL) {
         kAssertFail(D_005E4868, 0x1552);
     }
-    r = (u8 *)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_005E4F50), 0xF, 0, 0, shdPersonaSkillReplaceStep, shdPersonaSkillReplaceDestroy, (u8 *)(w));
+    r = (u8 *)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_005E4F50), 0xF, 0, 0, shdPersonaSkillReplaceStep, shdPersonaSkillReplaceDestroy, (u8 *)(w));
     if (r == NULL) {
         kAssertFail(D_005E4868, 0x155C);
     }
-    w->parent = arg1;
-    w->messageHandle = arg2;
+    w->parent = personaTask;
+    w->messageHandle = messageResource;
     for (i = 0; i < 0xB; i++) {
-        *(s32 *)((u8 *)w + 0x18 + i * 4) = *(s32 *)(arg3 + i * 4);
+        *(s32 *)((u8 *)w + 0x18 + i * 4) = ((s32 *)messages)[i];
     }
     return r;
 }

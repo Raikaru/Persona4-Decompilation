@@ -8,16 +8,16 @@ extern s32 D_00764BB8; /* sMemcardFile */
 extern void* D_00764BAC; /* sMemcardBuffer */
 extern s32 D_00764BB4; /* sMemcardBufferSize */
 extern s32 D_00764BC0; /* sMemcardSeqMode */
-extern s32 *D_00764BA8;
+extern s32 *D_00764BA8; /* caller's slot availability and serialized summary table */
 extern s32 iGpffffbab0;
 
-extern s32 func_00464670(s32* command, s32* result, s32* error);
+extern s32 memcardPollCommand(s32* command, s32* result, s32* succeeded);
 extern s32 sceMc2GetInfoAsync(s32 socket, s32* status);
 extern s32 D_00764B9C;
 extern s32 D_00764BA4;
 extern s32 D_008E4B20[];
 extern s32 D_008E4B24[];
-extern s32 D_00764BB0; /* sMemcardBufferSize */
+extern s32 D_00764BB0; /* caller's result address, stored as a 32-bit word */
 extern s32 iGpffffbaa8;
 extern s32 iGpffffbaa4;
 extern char D_00712950[];
@@ -25,7 +25,7 @@ extern char D_007127D0[];
 extern char D_008E4900[];
 extern char D_008E4A20[];
 extern s32 D_008E4B28[];
-extern void sprintf(void* dst, const void* fmt, s32 arg2, s32 arg3);
+extern void sprintf(void* dst, const void* fmt, s32, s32);
 extern void func_00431d78(s32 socket, void* data, void* result);
 extern void func_00440b68();
 extern void func_00431f28();
@@ -33,7 +33,7 @@ extern char D_007127B0[];
 extern char D_007128B0[];
 extern char D_007128E0[];
 extern s32 D_008E4910[];
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void memcpy(void *dst, void *src, s32 size);
 extern void memset(void *dst, s32 value, s32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -47,6 +47,7 @@ extern char D_00712938[];
 
 
 // FUN_00464650
+/* Begin a buffered load by resetting the card sequence and recording its inputs. */
 void H_Memcard_BeginLoad(s32 file, void* buffer, s32 size)
 {
     D_00764BC0 = 0;
@@ -74,6 +75,7 @@ void H_Memcard_SetSeqMode4(void)
 }
 
 // FUN_00465400
+/* Poll card presence/type and translate backend errors to the caller's status codes. */
 s32 H_Memcard_CheckCard(void)
 {
     s32 status;
@@ -83,7 +85,7 @@ s32 H_Memcard_CheckCard(void)
 
     if (D_00764B9C != 0)
     {
-        status = func_00464670(&cardMode, &cardCode, &cardError);
+        status = memcardPollCommand(&cardMode, &cardCode, &cardError);
         if (status == -1)
         {
             D_00764B9C = 0;
@@ -92,7 +94,7 @@ s32 H_Memcard_CheckCard(void)
     }
     else
     {
-        status = func_00464670(&cardMode, &cardCode, &cardError);
+        status = memcardPollCommand(&cardMode, &cardCode, &cardError);
         if (status == 1)
         {
             sceMc2GetInfoAsync(D_00764BA4, D_008E4B20);
@@ -155,19 +157,22 @@ void H_Memcard_SetAbort(void)
 }
 
 // FUN_00465570
-void H_Memcard_BeginSave(s32 file, void* buffer, s32 size)
+/* Begin a buffered save by recording the file, buffer and result-address word. */
+void H_Memcard_BeginSave(s32 file, void* buffer, s32 resultAddress)
 {
     D_00764BC0 = 0;
     D_00764BBC = 0;
     D_00764BB8 = file;
     D_00764BAC = buffer;
-    D_00764BB0 = size;
+    D_00764BB0 = resultAddress;
     D_00764BA0 = 0;
 }
 
 
 
 // FUN_00465590
+/* Advance the asynchronous save sequence; return 100 on completion or a negative error.
+ * D_00764BB0 holds the caller's result address as a 32-bit word, not an object offset. */
 s32 H_Memcard_SaveStep(void)
 {
     s32 cardMode;
@@ -182,14 +187,14 @@ s32 H_Memcard_SaveStep(void)
     case 0:
         cardMode = 0;
         cardCode = 0;
-        if (func_00464670(&cardMode, &cardCode, &cardError) == -1)
+        if (memcardPollCommand(&cardMode, &cardCode, &cardError) == -1)
         {
             sceMc2GetInfoAsync(D_00764BA4, D_008E4B20);
             D_00764BC0 = 1;
         }
         goto done;
     case 1:
-        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
+        if (memcardPollCommand(&cardMode, &cardCode, &cardError) == 1)
         {
             if (cardError == 0)
             {
@@ -232,7 +237,7 @@ s32 H_Memcard_SaveStep(void)
         }
         goto done;
     case 2:
-        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
+        if (memcardPollCommand(&cardMode, &cardCode, &cardError) == 1)
         {
             if (cardError == 0)
             {
@@ -268,7 +273,7 @@ s32 H_Memcard_SaveStep(void)
         }
         goto done;
     case 3:
-        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
+        if (memcardPollCommand(&cardMode, &cardCode, &cardError) == 1)
         {
             if (cardError != 0)
             {
@@ -304,15 +309,18 @@ done:
     return 0;
 }
 // FUN_004659F0
-void H_Memcard_SetRecordTable(s32 file)
+/* Select the caller's availability/summary table and restart slot enumeration. */
+void H_Memcard_SetRecordTable(s32 recordTableAddress)
 {
     D_00764BC0 = 0;
-    D_00764BA8 = (s32 *)(uintptr_t)file;
+    D_00764BA8 = (s32 *)(uintptr_t)recordTableAddress;
     D_00764BBC = 0;
     D_00764BB8 = 0;
     iGpffffbab0 = 0;
 }
 // FUN_00465A10
+/* Read sixteen 0x34-byte slot summaries, check their byte-sum checksum and mark availability.
+ * The data cursor scans serialized bytes; the trailing u16 checksum lives at 0x32. */
 s32 H_Memcard_LoadStep(void)
 {
     s32 cardMode;
@@ -326,7 +334,7 @@ s32 H_Memcard_LoadStep(void)
     switch (D_00764BC0)
     {
     case 0:
-        if (func_00464670(&cardMode, &cardCode, &cardError) == -1)
+        if (memcardPollCommand(&cardMode, &cardCode, &cardError) == -1)
         {
             func_00440b68(D_007128F8,
                           sceMc2GetInfoAsync(D_00764BA4, D_008E4B20));
@@ -334,7 +342,7 @@ s32 H_Memcard_LoadStep(void)
         }
         goto done;
     case 1:
-        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
+        if (memcardPollCommand(&cardMode, &cardCode, &cardError) == 1)
         {
             if (cardError == 0)
             {
@@ -383,7 +391,7 @@ s32 H_Memcard_LoadStep(void)
         D_00764BC0 = 3;
         goto done;
     case 3:
-        if (func_00464670(&cardMode, &cardCode, &cardError) == 1)
+        if (memcardPollCommand(&cardMode, &cardCode, &cardError) == 1)
         {
             func_00440b68(D_00712938, cardCode);
             if (cardError == 0)
@@ -462,39 +470,42 @@ void H_Memcard_Reset(void)
 }
 /* measured: plain C reproduces the complete 800-byte state machine except for the final-state result setup order (retail loads iGpffffbaa8 before materializing 100; b210 reverses those two instructions). Object 796B/window 800B, normalized_diff 6. Committed at nd 6. */
 // FUN_00465F40
+/* Probe each save slot when space is low; retain the already matched dispatch shape.
+ * The redundant temporaries/constant branch forms predate this pass and are
+ * deliberately unchanged rather than introducing new matching levers. */
 s32 H_Memcard_CreateSlotsStep(void)
 {
-  s32 sp1C;
-  s32 sp18;
-  int new_var3;
-  s32 sp14;
-  s32 temp_3;
-  s32 new_var8;
-  int temp_3_2;
-  int var_2;
-  s32 temp_6;
-  int new_var5;
-  int new_var7;
-  if (D_008E4A20 || temp_3_2)
+  s32 command;
+  s32 cardCode;
+  int completionStatus;
+  s32 cardError;
+  s32 sequenceMode;
+  s32 fileIndex;
+  int nextSlot;
+  int result;
+  s32 slotOrResult;
+  int dispatchMode;
+  int cardFailure;
+  if (D_008E4A20 || nextSlot)
   {
     func_00440b68(D_00712950, D_00764BC0);
-    temp_3 = D_00764BC0;
+    sequenceMode = D_00764BC0;
   }
   else
   {
-    new_var8 = D_00764BC0;
-    func_00440b68(D_00712950, new_var8);
-    temp_3 = D_00764BC0;
+    fileIndex = D_00764BC0;
+    func_00440b68(D_00712950, fileIndex);
+    sequenceMode = D_00764BC0;
   }
-  switch (new_var5 = temp_3)
+  switch (dispatchMode = sequenceMode)
   {
     case 0:
       iGpffffbaa8 = -1;
-      sp18 = var_2 = sp1C = 0;
+      cardCode = result = command = 0;
       if (1 != 0)
     {
       iGpffffbaa4 = 0;
-      if (func_00464670(&sp1C, &sp18, &sp14) == -1)
+      if (memcardPollCommand(&command, &cardCode, &cardError) == -1)
       {
         sceMc2GetInfoAsync(D_00764BA4, (s32 *) D_008E4B20);
         D_00764BC0 = 1;
@@ -505,9 +516,9 @@ s32 H_Memcard_CreateSlotsStep(void)
       goto block_44;
 
     case 1:
-      if (func_00464670(&sp1C, &sp18, &sp14) == 1)
+      if (memcardPollCommand(&command, &cardCode, &cardError) == 1)
     {
- do { if (((((-1) * 0, sp14)) & 0xFFFFFFFF) == (var_2 = 0)) { switch (sp18) { case 0x6F: return -5; case 0x13: return -5; case 0x9003: sceMc2GetInfoAsync(D_00764BA4, (s32 *) D_008E4B20); goto block_44; case 0x2F: return 100; default: return -9; } } else { if (D_008E4B20[0] == 2) { if (D_008E4B28[0] >= 0xE6) { return 100; } D_00764BC0 = 2; goto block_44; } return -1; } }
+ do { if (((((-1) * 0, cardError)) & 0xFFFFFFFF) == (result = 0)) { switch (cardCode) { case 0x6F: return -5; case 0x13: return -5; case 0x9003: sceMc2GetInfoAsync(D_00764BA4, (s32 *) D_008E4B20); goto block_44; case 0x2F: return 100; default: return -9; } } else { if (D_008E4B20[0] == 2) { if (D_008E4B28[0] >= 0xE6) { return 100; } D_00764BC0 = 2; goto block_44; } return -1; } }
  while (0);
     }
     else
@@ -517,46 +528,46 @@ s32 H_Memcard_CreateSlotsStep(void)
       break;
 
     case 2:
-      if (-1 == func_00464670(&sp1C, &sp18, &sp14))
+      if (-1 == memcardPollCommand(&command, &cardCode, &cardError))
     {
-      temp_6 = (new_var8 = D_00764BB8);
-      sprintf(D_008E4A20, D_007127D0, temp_6, new_var8);
+      slotOrResult = (fileIndex = D_00764BB8);
+      sprintf(D_008E4A20, D_007127D0, slotOrResult, fileIndex);
       func_00431d78(D_00764BA4, D_008E4A20, D_008E4900);
       D_00764BC0 = 3;
     }
       goto block_44;
 
     case 3:
-      new_var7 = -5;
-      if (func_00464670(&sp1C, &sp18, &sp14) == 1)
+      cardFailure = -5;
+      if (memcardPollCommand(&command, &cardCode, &cardError) == 1)
     {
-      if (new_var3 = sp14 == 0)
+      if (completionStatus = cardError == 0)
       {
-        switch (sp18)
+        switch (cardCode)
         {
           case 0x9003:
-            return new_var7;
+            return cardFailure;
 
           case 0x6F:
-            return new_var7;
+            return cardFailure;
 
           case 0x16:
-            return new_var7;
+            return cardFailure;
 
           case 0x13:
-            return new_var7;
+            return cardFailure;
 
           case 2:
-            temp_3_2 = (D_00764BB8 += 1);
-            if (temp_3_2 == 0x10)
+            nextSlot = (D_00764BB8 += 1);
+            if (nextSlot == 0x10)
           {
-            new_var3 = (temp_6 = iGpffffbaa8);
-            var_2 = 100;
-            if (temp_6 != 100)
+            completionStatus = (slotOrResult = iGpffffbaa8);
+            result = 100;
+            if (slotOrResult != 100)
             {
-              var_2 = -6;
+              result = -6;
             }
-            return var_2;
+            return result;
           }
             D_00764BC0 = 2;
             goto block_44;

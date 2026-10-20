@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
 #include "type.h"
+#include "mdl_effect_internal.h"
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
@@ -25,15 +26,15 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1);
-extern void mdlEffectSetChildScales(u8 *arg0, f32 arg1);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void mdlEffectSetChildPositions(u8 *effect, f32 *value);
+extern void mdlEffectSetChildScales(u8 *effect, f32 value);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];
-extern void func_00485630(u8 *arg0);
-extern void func_00485870(u8 *arg0);
+extern void mdlEffectCommitTreeFrame(u8 *effect);
+extern void mdlEffectFlushTreeFrame(u8 *effect);
 extern u8 D_00713488[];
 extern u8 D_0071348C[];
 extern u8 D_00713480[];
@@ -58,15 +59,15 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484bb0-00485870 */
 
-extern u_long128 func_00484b30(u8 *arg0);
-extern void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1);
-extern void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1);
-extern void mdlEffectSetChildScales(u8 *arg0, f32 arg1);
-extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
-extern u8 *func_00486780(u8 *arg0, s32 arg1);
-extern s32 func_004867e0(u8 *arg0, u8 *arg1);
-extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
-extern u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2);
+extern u_long128 mdlEffectInitParticleState(u8 *instance);
+extern void mdlEffectSetChildPositions(u8 *effect, f32 *value);
+extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
+extern void mdlEffectSetChildScales(u8 *effect, f32 value);
+extern void mdlEffectApplyPackedColor(u8 *effect, s32 value);
+extern u8 *mdlEffectGetChildAtIndex(u8 *effect, s32 target);
+extern s32 mdlEffectGetChildIndex(u8 *effect, u8 *target);
+extern u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *target, u_long128 *output);
+extern u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *target, u_long128 *output);
 typedef struct Code48InitialState {
     f32 vector00[4];
     f32 vector10[4];
@@ -97,15 +98,15 @@ typedef struct Code48InitialState {
 #pragma opt_lifetimes on
 /* measured: func_00484bb0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-u8 *mdlEffectBuildFromResource(u8 *arg0)
+u8 *mdlEffectBuildFromResource(u8 *effect)
 {
-    extern void mdlEffectSetChildPositions(u8 *arg0, f32 *arg1);
-    extern void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1);
-    extern void mdlEffectSetChildScales(u8 *arg0, f32 arg1);
-    extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
+    extern void mdlEffectSetChildPositions(u8 *effect, f32 *value);
+    extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
+    extern void mdlEffectSetChildScales(u8 *effect, f32 value);
+    extern void mdlEffectApplyPackedColor(u8 *effect, s32 value);
     extern char *strcpy(char *destination, const char *source);
-    s32 func_004867e0(u8 *arg0, u8 *arg1);
-    u8 *func_00486780(u8 *arg0, s32 arg1);
+    s32 mdlEffectGetChildIndex(u8 *effect, u8 *target);
+    u8 *mdlEffectGetChildAtIndex(u8 *effect, s32 target);
     u_long128 vf0quad;
     void *(**alloc)(u32, u32);
     u8 *node;
@@ -113,20 +114,20 @@ u8 *mdlEffectBuildFromResource(u8 *arg0)
     u8 *prim;
     u16 kind;
     u8 *found;
-    s32 idx;
-    u8 *csrc;
+    s32 childIndex;
+    u8 *childSource;
     s32 count;
     u8 *base;
     u8 *cur;
     s32 i;
     u8 *slot;
     u8 *target;
-    u8 *addr20;
-    u8 *addr24;
-    s32 idx94;
-    u8 *var2;
-    s32 tmp;
-    u8 *const input = arg0;
+    u8 *parameterOffset;
+    u8 *parameterCount;
+    s32 sourceIndex;
+    u8 *secondarySource;
+    s32 nodeFlags;
+    u8 *const input = effect;
 
     chkmemAllocSiteTag(D_00713470, 0x546);
     alloc = jtbl_008873E8;
@@ -136,17 +137,17 @@ u8 *mdlEffectBuildFromResource(u8 *arg0)
             kAssertFail(D_00713470, 0x547);
         }
         memset(clone, 0, 0x90);
-        *(s32 *)(clone + 0x80) = 0;
-        *(s32 *)(clone + 0x84) = 0;
-        func_00484b30(clone);
+        *(s32 *)(clone + 0x80) = 0; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        *(s32 *)&((MdlEffectTree *)clone)->frame = 0;
+        mdlEffectInitParticleState(clone);
         /* Retail initializes both vectors from the first input quad. */
         *(u_long128 *)clone = *(u_long128 *)input;
-        *(u_long128 *)(clone + 0x10) = *(u_long128 *)input;
-        *(f32 *)(clone + 0x74) = *(f32 *)(input + 0x74);
-        *(s32 *)(clone + 0x68) = *(s32 *)(input + 0x68);
-        if (*(u8 **)(input + 0x8C) != NULL) {
+        *(u_long128 *)((MdlEffectState *)clone)->rotation = *(u_long128 *)input; /* Transfer the complete quadword representation, including the VU W lane. */
+        ((MdlEffectState *)clone)->multiplier = ((MdlEffectState *)input)->multiplier;
+        ((MdlEffectState *)clone)->flags.signedValue = ((MdlEffectState *)input)->flags.signedValue;
+        if (((MdlEffectNode *)input)->children != NULL) {
             u8 *linkedSource;
-            for (node = *(u8 **)(input + 0x8C); node != NULL; node = *(u8 **)(node + 0xAC)) {
+            for (node = ((MdlEffectNode *)input)->children; node != NULL; node = ((MdlEffectNode *)node)->next) {
                 chkmemAllocSiteTag(D_00713470, 0x559);
                 nodeClone = (u8 *)alloc[0](0xC0, 0x40000);
                 if (nodeClone == NULL) {
@@ -154,17 +155,17 @@ u8 *mdlEffectBuildFromResource(u8 *arg0)
                 }
                 memset(nodeClone, 0, 0xC0);
                 memset(nodeClone, 0, 0x90);
-                *(s32 *)(nodeClone + 0x84) = 1;
-                *(u8 *)(nodeClone + 0x88) = 8;
-                *(u8 *)(nodeClone + 0x89) = 0;
-                *(u8 *)(nodeClone + 0x8A) = 0;
-                func_00484b30(nodeClone);
-                if ((*(s32 *)(node + 0x98) & 1) == 0) {
-                    linkedSource = *(u8 **)(node + 0x90);
+                ((MdlEffectNode *)nodeClone)->flags = 1;
+                ((MdlEffectNode *)nodeClone)->attributes[0] = 8;
+                ((MdlEffectNode *)nodeClone)->attributes[1] = 0;
+                ((MdlEffectNode *)nodeClone)->attributes[2] = 0;
+                mdlEffectInitParticleState(nodeClone);
+                if ((((MdlEffectNode *)node)->sourceFlags & 1) == 0) {
+                    linkedSource = ((MdlEffectNode *)node)->primitive;
                     if (*(u32 *)linkedSource > 0xD2) {
                         kAssertFail(D_00713470, 0x2D7);
                     }
-                    kind = *(u16 *)(linkedSource + 4);
+                    kind = ((MdlEffectPrimitiveRecord *)linkedSource)->kind;
                     chkmemAllocSiteTag(D_00713470, 0x21);
                     prim = (u8 *)alloc[0](0x2C, 0x40000);
                     if (prim == NULL) {
@@ -172,26 +173,26 @@ u8 *mdlEffectBuildFromResource(u8 *arg0)
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
-                    *(u16 *)(prim + 4) = kind;
-                    *(u16 *)(prim + 0xC) = *(u16 *)(linkedSource + 0xC);
-                    *(u16 *)(prim + 0x1C) = *(u16 *)(linkedSource + 0x1C);
-                    if (*(u16 *)(prim + 4) >= 0x21U) {
+                    *(u16 *)(prim + 0x4) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)linkedSource)->id;
+                    ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)linkedSource)->sourceKind;
+                    if (*(u16 *)(prim + 0x4) >= 0x21U) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                         kAssertFail(D_00713470, 0x2DD);
                     }
-                    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6)) == NULL) {
+                    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 0x4) << 6)) == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
                         kAssertFail(D_00713470, 0x2DE);
                     }
-                    *(void **)(prim + 8) =
-                        (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6)))(linkedSource);
-                    *(u8 **)(nodeClone + 0x90) = prim;
+                    ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
+                        (*(EffectInstanceConstructor *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6)))(linkedSource); /* The 0x40-byte kind table has slot-specific callback signatures. */
+                    ((MdlEffectNode *)nodeClone)->primitive = prim;
                 } else {
-                    found = mdlEffectFindNodeById(input, *(s32 *)(node + 0x90));
-                    idx = func_004867e0(input, found);
-                    csrc = *(u8 **)(func_00486780(clone, idx) + 0x90);
-                    if (*(u32 *)csrc > 0xD2) {
+                    found = mdlEffectFindNodeById(input, ((MdlEffectNode *)node)->id);
+                    childIndex = mdlEffectGetChildIndex(input, found);
+                    childSource = ((MdlEffectNode *)mdlEffectGetChildAtIndex(clone, childIndex))->primitive;
+                    if (*(u32 *)childSource > 0xD2) {
                         kAssertFail(D_00713470, 0x318);
                     }
-                    kind = *(u16 *)(csrc + 4);
+                    kind = ((MdlEffectPrimitiveRecord *)childSource)->kind;
                     chkmemAllocSiteTag(D_00713470, 0x21);
                     prim = (u8 *)alloc[0](0x2C, 0x40000);
                     if (prim == NULL) {
@@ -199,33 +200,33 @@ u8 *mdlEffectBuildFromResource(u8 *arg0)
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
-                    *(u16 *)(prim + 4) = kind;
-                    *(u16 *)(prim + 0xC) = *(u16 *)(csrc + 0xC);
-                    *(u16 *)(prim + 0x1C) = *(u16 *)(csrc + 0x1C);
-                    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14) == NULL) {
+                    *(u16 *)(prim + 0x4) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)childSource)->id;
+                    ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)childSource)->sourceKind;
+                    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 0x4) << 6) + 0x14) == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
                         kAssertFail(D_00713470, 0x321);
                     }
-                    *(void **)(prim + 8) =
-                        (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14))(*(void **)(csrc + 8));
-                    *(u8 **)(nodeClone + 0x90) = prim;
+                    ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
+                        (*(EffectInstanceConstructor *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6) + 0x14))(((MdlEffectPrimitiveRecord *)childSource)->instance.pointer); /* The 0x40-byte kind table has slot-specific callback signatures. */
+                    ((MdlEffectNode *)nodeClone)->primitive = prim;
                 }
                 mdlEffectCopyRecord(nodeClone, node);
                 strcpy((char *)nodeClone + 0x9C, (const char *)node + 0x9C);
-                *(s32 *)(nodeClone + 0xAC) = 0;
-                if (*(u8 **)(clone + 0x88) != NULL) {
-                    *(u8 **)(*(u8 **)(clone + 0x88) + 0xAC) = nodeClone;
-                    *(u8 **)(nodeClone + 0xB0) = *(u8 **)(clone + 0x88);
+                *(s32 *)&((MdlEffectNode *)nodeClone)->next = 0;
+                if (*(u8 **)(clone + 0x88) != NULL) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    ((MdlEffectNode *)((MdlEffectTree *)clone)->lastChild)->next = nodeClone;
+                    ((MdlEffectNode *)nodeClone)->previous = ((MdlEffectTree *)clone)->lastChild;
                 } else {
-                    *(u8 **)(clone + 0x8C) = nodeClone;
-                    *(u8 **)(nodeClone + 0xB0) = NULL;
+                    ((MdlEffectNode *)clone)->children = nodeClone;
+                    ((MdlEffectNode *)nodeClone)->previous = NULL;
                 }
-                *(u8 **)(clone + 0x88) = nodeClone;
-                *(s32 *)(clone + 0x80) += 1;
+                ((MdlEffectTree *)clone)->lastChild = nodeClone;
+                ((MdlEffectTree *)clone)->childCount += 1;
             }
         } else {
             u8 *indexedSource;
-            count = *(s32 *)(input + 0x80);
-            base = input + *(s32 *)(input + 0x88);
+            count = ((MdlEffectTree *)input)->childCount;
+            base = input + *(s32 *)&((MdlEffectTree *)input)->lastChild;
             cur = base;
             i = 0;
             goto indexed_check;
@@ -237,42 +238,42 @@ u8 *mdlEffectBuildFromResource(u8 *arg0)
             }
             memset(nodeClone, 0, 0xC0);
             memset(nodeClone, 0, 0x90);
-            *(s32 *)(nodeClone + 0x84) = 1;
-            *(u8 *)(nodeClone + 0x88) = 8;
-            *(u8 *)(nodeClone + 0x89) = 0;
-            *(u8 *)(nodeClone + 0x8A) = 0;
-            func_00484b30(nodeClone);
-            tmp = *(s32 *)(cur + 0x98);
-            if ((tmp & 1) == 0) {
-                indexedSource = input + *(s32 *)(cur + 0x90);
-                if ((tmp & 2) != 0) {
-                    addr24 = indexedSource + 0x24;
-                    if (*(s32 *)addr24 != 0) {
+            ((MdlEffectNode *)nodeClone)->flags = 1;
+            ((MdlEffectNode *)nodeClone)->attributes[0] = 8;
+            ((MdlEffectNode *)nodeClone)->attributes[1] = 0;
+            ((MdlEffectNode *)nodeClone)->attributes[2] = 0;
+            mdlEffectInitParticleState(nodeClone);
+            nodeFlags = ((MdlEffectNode *)cur)->sourceFlags;
+            if ((nodeFlags & 1) == 0) {
+                indexedSource = input + ((MdlEffectNode *)cur)->id;
+                if ((nodeFlags & 2) != 0) {
+                    parameterCount = indexedSource + 0x24;
+                    if (*(s32 *)parameterCount != 0) {
                         kAssertFail(D_00713470, 0x5BB);
                     }
-                    addr20 = indexedSource + 0x20;
-                    if (*(s32 *)addr20 != 0) {
+                    parameterOffset = indexedSource + 0x20;
+                    if (*(s32 *)parameterOffset != 0) {
                         kAssertFail(D_00713470, 0x5BC);
                     }
-                    idx94 = *(s32 *)(cur + 0x94);
-                    slot = base + idx94 * 0xC0;
-                    target = input + *(s32 *)(slot + 0x90);
-                    if (*(s32 *)(target + 0x24) == 0) {
+                    sourceIndex = ((MdlEffectNode *)cur)->sourceIndex;
+                    slot = base + sourceIndex * 0xC0;
+                    target = input + ((MdlEffectNode *)slot)->id;
+                    if (*(s32 *)(target + 0x24) == 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                         kAssertFail(D_00713470, 0x5BE);
                     }
-                    *(s32 *)addr24 = *(s32 *)(target + 0x24);
-                    if (*(s32 *)(target + 0x28) != 0) {
-                        var2 = *(u8 **)(target + 0x20);
-                    } else if (*(s32 *)(target + 0x20) != 0) {
-                        var2 = target + *(s32 *)(target + 0x20);
+                    *(s32 *)parameterCount = ((MdlEffectSource *)target)->secondaryCount;
+                    if (((MdlEffectSource *)target)->secondaryAllocation.handle != 0) {
+                        secondarySource = ((MdlEffectSource *)target)->secondaryParameters;
+                    } else if (*(s32 *)&((MdlEffectSource *)target)->secondaryParameters != 0) {
+                        secondarySource = target + *(s32 *)&((MdlEffectSource *)target)->secondaryParameters;
                     } else {
-                        var2 = NULL;
+                        secondarySource = NULL;
                     }
-                    *(u32 *)addr20 = (u32)var2 - (u32)indexedSource;
+                    *(u32 *)parameterOffset = (u32)secondarySource - (u32)indexedSource;
                     if (*(u32 *)indexedSource > 0xD2) {
                         kAssertFail(D_00713470, 0x2D7);
                     }
-                    kind = *(u16 *)(indexedSource + 4);
+                    kind = ((MdlEffectPrimitiveRecord *)indexedSource)->kind;
                     chkmemAllocSiteTag(D_00713470, 0x21);
                     prim = (u8 *)alloc[0](0x2C, 0x40000);
                     if (prim == NULL) {
@@ -280,25 +281,25 @@ u8 *mdlEffectBuildFromResource(u8 *arg0)
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
-                    *(u16 *)(prim + 4) = kind;
-                    *(u16 *)(prim + 0xC) = *(u16 *)(indexedSource + 0xC);
-                    *(u16 *)(prim + 0x1C) = *(u16 *)(indexedSource + 0x1C);
-                    if (*(u16 *)(prim + 4) >= 0x21U) {
+                    *(u16 *)(prim + 0x4) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)indexedSource)->id;
+                    ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)indexedSource)->sourceKind;
+                    if (*(u16 *)(prim + 0x4) >= 0x21U) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                         kAssertFail(D_00713470, 0x2DD);
                     }
-                    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6)) == NULL) {
+                    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 0x4) << 6)) == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
                         kAssertFail(D_00713470, 0x2DE);
                     }
-                    *(void **)(prim + 8) =
-                        (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6)))(indexedSource);
-                    *(u8 **)(nodeClone + 0x90) = prim;
-                    *(s32 *)addr24 = 0;
-                    *(s32 *)addr20 = 0;
+                    ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
+                        (*(EffectInstanceConstructor *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6)))(indexedSource); /* The 0x40-byte kind table has slot-specific callback signatures. */
+                    ((MdlEffectNode *)nodeClone)->primitive = prim;
+                    *(s32 *)parameterCount = 0;
+                    *(s32 *)parameterOffset = 0;
                 } else {
                     if (*(u32 *)indexedSource > 0xD2) {
                         kAssertFail(D_00713470, 0x2D7);
                     }
-                    kind = *(u16 *)(indexedSource + 4);
+                    kind = ((MdlEffectPrimitiveRecord *)indexedSource)->kind;
                     chkmemAllocSiteTag(D_00713470, 0x21);
                     prim = (u8 *)alloc[0](0x2C, 0x40000);
                     if (prim == NULL) {
@@ -306,25 +307,25 @@ u8 *mdlEffectBuildFromResource(u8 *arg0)
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
-                    *(u16 *)(prim + 4) = kind;
-                    *(u16 *)(prim + 0xC) = *(u16 *)(indexedSource + 0xC);
-                    *(u16 *)(prim + 0x1C) = *(u16 *)(indexedSource + 0x1C);
-                    if (*(u16 *)(prim + 4) >= 0x21U) {
+                    *(u16 *)(prim + 0x4) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)indexedSource)->id;
+                    ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)indexedSource)->sourceKind;
+                    if (*(u16 *)(prim + 0x4) >= 0x21U) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
                         kAssertFail(D_00713470, 0x2DD);
                     }
-                    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6)) == NULL) {
+                    if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 0x4) << 6)) == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
                         kAssertFail(D_00713470, 0x2DE);
                     }
-                    *(void **)(prim + 8) =
-                        (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6)))(indexedSource);
-                    *(u8 **)(nodeClone + 0x90) = prim;
+                    ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
+                        (*(EffectInstanceConstructor *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6)))(indexedSource); /* The 0x40-byte kind table has slot-specific callback signatures. */
+                    ((MdlEffectNode *)nodeClone)->primitive = prim;
                 }
             } else {
-                csrc = *(u8 **)(func_00486780(clone, *(s32 *)(cur + 0x90)) + 0x90);
-                if (*(u32 *)csrc > 0xD2) {
+                childSource = ((MdlEffectNode *)mdlEffectGetChildAtIndex(clone, ((MdlEffectNode *)cur)->id))->primitive;
+                if (*(u32 *)childSource > 0xD2) {
                     kAssertFail(D_00713470, 0x318);
                 }
-                kind = *(u16 *)(csrc + 4);
+                kind = ((MdlEffectPrimitiveRecord *)childSource)->kind;
                 chkmemAllocSiteTag(D_00713470, 0x21);
                 prim = (u8 *)alloc[0](0x2C, 0x40000);
                 if (prim == NULL) {
@@ -332,28 +333,28 @@ u8 *mdlEffectBuildFromResource(u8 *arg0)
                 }
                 memset(prim, 0, 0x2C);
                 *(s32 *)prim = 0xD2;
-                *(u16 *)(prim + 4) = kind;
-                *(u16 *)(prim + 0xC) = *(u16 *)(csrc + 0xC);
-                *(u16 *)(prim + 0x1C) = *(u16 *)(csrc + 0x1C);
-                if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14) == NULL) {
+                *(u16 *)(prim + 0x4) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)childSource)->id;
+                ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)childSource)->sourceKind;
+                if (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 0x4) << 6) + 0x14) == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
                     kAssertFail(D_00713470, 0x321);
                 }
-                *(void **)(prim + 8) =
-                    (*(EffectInstanceConstructor *)(D_00713480 + (*(u16 *)(prim + 4) << 6) + 0x14))(*(void **)(csrc + 8));
-                *(u8 **)(nodeClone + 0x90) = prim;
+                ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
+                    (*(EffectInstanceConstructor *)(D_00713480 + (((MdlEffectPrimitiveRecord *)prim)->kind << 6) + 0x14))(((MdlEffectPrimitiveRecord *)childSource)->instance.pointer); /* The 0x40-byte kind table has slot-specific callback signatures. */
+                ((MdlEffectNode *)nodeClone)->primitive = prim;
             }
             mdlEffectCopyRecord(nodeClone, cur);
             strcpy((char *)nodeClone + 0x9C, (const char *)cur + 0x9C);
-            *(s32 *)(nodeClone + 0xAC) = 0;
-            if (*(u8 **)(clone + 0x88) != NULL) {
-                *(u8 **)(*(u8 **)(clone + 0x88) + 0xAC) = nodeClone;
-                *(u8 **)(nodeClone + 0xB0) = *(u8 **)(clone + 0x88);
+            *(s32 *)&((MdlEffectNode *)nodeClone)->next = 0;
+            if (*(u8 **)(clone + 0x88) != NULL) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                ((MdlEffectNode *)((MdlEffectTree *)clone)->lastChild)->next = nodeClone;
+                ((MdlEffectNode *)nodeClone)->previous = ((MdlEffectTree *)clone)->lastChild;
             } else {
-                *(u8 **)(clone + 0x8C) = nodeClone;
-                *(u8 **)(nodeClone + 0xB0) = NULL;
+                ((MdlEffectNode *)clone)->children = nodeClone;
+                ((MdlEffectNode *)nodeClone)->previous = NULL;
             }
-            *(u8 **)(clone + 0x88) = nodeClone;
-            *(s32 *)(clone + 0x80) += 1;
+            ((MdlEffectTree *)clone)->lastChild = nodeClone;
+            ((MdlEffectTree *)clone)->childCount += 1;
             cur += 0xC0;
             i += 1;
     indexed_check:
@@ -381,12 +382,13 @@ u8 *mdlEffectBuildFromResource(u8 *arg0)
 #pragma push
 /* measured: func_00485630 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Propagate the current tree transform to eligible children, commit each primitive and advance the frame. */
 // FUN_00485630
-void func_00485630(u8 *arg0)
+void mdlEffectCommitTreeFrame(u8 *effect)
 {
-    extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
-    extern u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2);
-    extern void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1);
+    extern u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *target, u_long128 *output);
+    extern u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *target, u_long128 *output);
+    extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
     /* 00484b30 initializes the 0x80-byte state; 00484bb0 allocates a
      * 0x90-byte root. The union keeps field and quadword transfers in the
      * same object, including all four components of the saved rotation. */
@@ -419,9 +421,9 @@ void func_00485630(u8 *arg0)
     void (*rotationCallback)(s32, void *);
     s32 childFlags;
 
-    root = (SceneRoot *)(void *)arg0;
-    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0), "m"(root->state.quad[4]) : "$vf10", "memory");
-    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0), "m"(root->state.quad[0]) : "$vf11", "memory");
+    root = (SceneRoot *)(void *)effect;
+    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(effect), "m"(root->state.quad[4]) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(effect), "m"(root->state.quad[0]) : "$vf11", "memory");
     __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(work.origin) : "r"(&work.origin) : "memory");
     if ((root->state.fields.word68 & 0x60) != 0) {
@@ -429,8 +431,8 @@ void func_00485630(u8 *arg0)
         u_long128 *restore_slot;
         save_slot = &work.savedRotation;
         *save_slot = root->state.quad[5];
-        func_00486970(arg0, (u8 *)&work.origin, &work.rotation);
-        mdlEffectSetChildRotations(arg0, (u8 *)&work.rotation);
+        mdlEffectResolveChildOrientation(effect, (u8 *)&work.origin, &work.rotation);
+        mdlEffectSetChildRotations(effect, (u8 *)&work.rotation);
         restore_slot = &work.savedRotation;
         /* lint: allow H009 -- retail copies this quad through $2 at 0x0048569C; b210 keeps $v0 live after calls (user-approved 2026-10-09) */
         __asm__ volatile("lq $2, 0(%0)\n\tsq $2, 0x50(%1)" : : "r"(restore_slot), "r"(root) : "$2", "memory");
@@ -439,17 +441,17 @@ void func_00485630(u8 *arg0)
     scale = root->state.fields.scalar60 * root->state.fields.scalar74;
     child = root->firstChild;
     five = 5.0f;
-    for (; child != NULL; child = *(u8 **)(child + 0xAC)) {
-        if (count < *(s32 *)(child + 0x80)) {
+    for (; child != NULL; child = ((MdlEffectNode *)child)->next) {
+        if (count < ((MdlEffectNode *)child)->startFrame) {
             continue;
         }
-        if ((*(s32 *)(child + 0x84) & 2) != 0) {
+        if ((((MdlEffectNode *)child)->flags & 2) != 0) {
             continue;
         }
-        if ((*(s32 *)(child + 0x68) & 0x18) != 0) {
-            func_00486840(child, (u8 *)&work.origin, &work.position);
+        if ((*(s32 *)(child + 0x68) & 0x18) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            mdlEffectResolveChildOffset(child, (u8 *)&work.origin, &work.position);
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&work.origin), "m"(work.origin) : "$vf10", "memory");
-            childFlags = *(s32 *)(child + 0x68);
+            childFlags = ((MdlEffectState *)child)->flags.signedValue;
             if ((childFlags & 4) != 0) {
                 __asm__ volatile(
                     "qmtc2.ni %0, $vf2 \n"
@@ -469,22 +471,22 @@ void func_00485630(u8 *arg0)
             }
             __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "memory");
             __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(work.position) : "r"(&work.position) : "memory");
-            primitive = *(u8 **)(child + 0x90);
-            positionCallback = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(primitive + 4) << 6) + 0x20);
+            primitive = ((MdlEffectNode *)child)->primitive;
+            positionCallback = *(void (**)(s32, void *))(D_00713480 + (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x20);
             if (positionCallback != NULL) {
-                positionCallback(*(s32 *)(primitive + 8), &work.position);
+                positionCallback(((MdlEffectPrimitiveRecord *)primitive)->instance.handle, &work.position);
             }
         }
-        if ((*(s32 *)(child + 0x68) & 0x60) != 0) {
-            func_00486970(child, (u8 *)&work.origin, &work.rotation);
-            primitive = *(u8 **)(child + 0x90);
-            rotationCallback = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(primitive + 4) << 6) + 0x24);
+        if ((((MdlEffectState *)child)->flags.signedValue & 0x60) != 0) {
+            mdlEffectResolveChildOrientation(child, (u8 *)&work.origin, &work.rotation);
+            primitive = ((MdlEffectNode *)child)->primitive;
+            rotationCallback = *(void (**)(s32, void *))(D_00713480 + (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x24);
             if (rotationCallback != NULL) {
-                rotationCallback(*(s32 *)(primitive + 8), &work.rotation);
+                rotationCallback(((MdlEffectPrimitiveRecord *)primitive)->instance.handle, &work.rotation);
             }
         }
-        primitive = *(u8 **)(child + 0x90);
-        (*(void (**)(s32))(D_00713480 + (*(u16 *)(primitive + 4) << 6) + 0x08))(*(s32 *)(primitive + 8));
+        primitive = ((MdlEffectNode *)child)->primitive;
+        (*(void (**)(s32))(D_00713480 + (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x08))(((MdlEffectPrimitiveRecord *)primitive)->instance.handle);
     }
     root->state.fields.word68 |= 0x80000000;
     /* Retail ADDIU wraps the word even when its signed view reaches INT_MAX. */
@@ -497,12 +499,13 @@ void func_00485630(u8 *arg0)
 #pragma push
 /* measured: func_00485870 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Flush eligible children for the previous frame, propagating transforms only if not already committed. */
 // FUN_00485870
-void func_00485870(u8 *arg0)
+void mdlEffectFlushTreeFrame(u8 *effect)
 {
-    extern u_long128 func_00486840(u8 *arg0, u8 *arg1, u_long128 *arg2);
-    extern u_long128 func_00486970(u8 *arg0, u8 *arg1, u_long128 *arg2);
-    extern void mdlEffectSetChildRotations(u8 *arg0, u8 *arg1);
+    extern u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *target, u_long128 *output);
+    extern u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *target, u_long128 *output);
+    extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
     /* 00484b30 initializes the 0x80-byte state; 00484bb0 allocates a
      * 0x90-byte root. The union keeps field and quadword transfers in the
      * same object, including all four components of the saved rotation. */
@@ -537,13 +540,13 @@ void func_00485870(u8 *arg0)
     s32 childFlags;
     u32 mask;
 
-    root = (SceneRoot *)(void *)arg0;
+    root = (SceneRoot *)(void *)effect;
     if ((s32)root->frame <= 0) {
         return;
     }
     flags = root->state.fields.word68;
-    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(arg0), "m"(root->state.quad[4]) : "$vf10", "memory");
-    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(arg0), "m"(root->state.quad[0]) : "$vf11", "memory");
+    __asm__ volatile("lqc2 $vf10, 0x40(%0)" : : "r"(effect), "m"(root->state.quad[4]) : "$vf10", "memory");
+    __asm__ volatile("lqc2 $vf11, 0(%0)" : : "r"(effect), "m"(root->state.quad[0]) : "$vf11", "memory");
     __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "memory");
     __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(work.origin) : "r"(&work.origin) : "memory");
     if ((flags & 0x60) != 0) {
@@ -552,8 +555,8 @@ void func_00485870(u8 *arg0)
             u_long128 *restore_slot;
             save_slot = &work.savedRotation;
             *save_slot = root->state.quad[5];
-            func_00486970(arg0, (u8 *)&work.origin, &work.rotation);
-            mdlEffectSetChildRotations(arg0, (u8 *)&work.rotation);
+            mdlEffectResolveChildOrientation(effect, (u8 *)&work.origin, &work.rotation);
+            mdlEffectSetChildRotations(effect, (u8 *)&work.rotation);
             restore_slot = &work.savedRotation;
             /* lint: allow H009 -- retail copies this quad through $2 at 0x00485900; b210 keeps $v0 live after calls (user-approved 2026-10-09) */
             __asm__ volatile("lq $2, 0(%0)\n\tsq $2, 0x50(%1)" : : "r"(restore_slot), "r"(root) : "$2", "memory");
@@ -565,18 +568,18 @@ void func_00485870(u8 *arg0)
     child = root->firstChild;
     mask = 0x80000000;
     five = 5.0f;
-    for (; child != NULL; child = *(u8 **)(child + 0xAC)) {
-        if (count_minus_1 < *(s32 *)(child + 0x80)) {
+    for (; child != NULL; child = ((MdlEffectNode *)child)->next) {
+        if (count_minus_1 < ((MdlEffectNode *)child)->startFrame) {
             continue;
         }
-        if ((*(s32 *)(child + 0x84) & 2) != 0) {
+        if ((((MdlEffectNode *)child)->flags & 2) != 0) {
             continue;
         }
         if ((flags & mask) == 0) {
-            if ((*(s32 *)(child + 0x68) & 0x18) != 0) {
-                func_00486840(child, (u8 *)&work.origin, &work.position);
+            if ((*(s32 *)(child + 0x68) & 0x18) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                mdlEffectResolveChildOffset(child, (u8 *)&work.origin, &work.position);
                 __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&work.origin), "m"(work.origin) : "$vf10", "memory");
-                childFlags = *(s32 *)(child + 0x68);
+                childFlags = ((MdlEffectState *)child)->flags.signedValue;
                 if ((childFlags & 4) != 0) {
                     __asm__ volatile(
                         "qmtc2.ni %0, $vf2 \n"
@@ -596,24 +599,27 @@ void func_00485870(u8 *arg0)
                 }
                 __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf11" : : : "$vf10", "memory");
                 __asm__ volatile("sqc2 $vf10, 0(%1)" : "=m"(work.position) : "r"(&work.position) : "memory");
-                primitive = *(u8 **)(child + 0x90);
-                positionCallback = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(primitive + 4) << 6) + 0x20);
+                primitive = ((MdlEffectNode *)child)->primitive;
+                positionCallback = *(void (**)(s32, void *))(D_00713480 + (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x20);
                 if (positionCallback != NULL) {
-                    positionCallback(*(s32 *)(primitive + 8), &work.position);
+                    positionCallback(((MdlEffectPrimitiveRecord *)primitive)->instance.handle, &work.position);
                 }
             }
-            if ((*(s32 *)(child + 0x68) & 0x60) != 0) {
-                func_00486970(child, (u8 *)&work.origin, &work.rotation);
-                primitive = *(u8 **)(child + 0x90);
-                rotationCallback = *(void (**)(s32, void *))(D_00713480 + (*(u16 *)(primitive + 4) << 6) + 0x24);
+            if ((((MdlEffectState *)child)->flags.signedValue & 0x60) != 0) {
+                mdlEffectResolveChildOrientation(child, (u8 *)&work.origin, &work.rotation);
+                primitive = ((MdlEffectNode *)child)->primitive;
+                rotationCallback = *(void (**)(s32, void *))(D_00713480 + (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x24);
                 if (rotationCallback != NULL) {
-                    rotationCallback(*(s32 *)(primitive + 8), &work.rotation);
+                    rotationCallback(((MdlEffectPrimitiveRecord *)primitive)->instance.handle, &work.rotation);
                 }
             }
         }
-        primitive = *(u8 **)(child + 0x90);
-        (*(void (**)(s32))(D_00713480 + (*(u16 *)(primitive + 4) << 6) + 0x0C))(*(s32 *)(primitive + 8));
+        primitive = ((MdlEffectNode *)child)->primitive;
+        (*(void (**)(s32))(D_00713480 + (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x0C))(((MdlEffectPrimitiveRecord *)primitive)->instance.handle);
     }
     root->state.fields.word68 &= 0x7fffffffU;
 }
 
+
+
+#pragma pop

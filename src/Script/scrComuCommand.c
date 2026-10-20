@@ -13,10 +13,10 @@ void scrSetReturnInt();
 // FUN_0024A0B0
 u32 cmmGetTableHead(void)
 {
-    u16 uVar1;
+    u16 communityId;
 
-    uVar1 = cmmCommunityGetTableHead();
-    scrSetReturnInt(uVar1);
+    communityId = cmmCommunityGetTableHead();
+    scrSetReturnInt(communityId);
     return 1;
 }
 
@@ -26,9 +26,9 @@ u32 cmmGetTableHead(void)
 // FUN_0025CFD0
 u32 scrGetLeadPersonaId(void)
 {
-    u16 uVar1;
+    u16 personaId;
 
-    uVar1 = datPersonaLeadPersonaId();
-    scrSetReturnInt(uVar1);
+    personaId = datPersonaLeadPersonaId();
+    scrSetReturnInt(personaId);
     return 1;
 }

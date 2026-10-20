@@ -1,20 +1,10 @@
+#include "btl_effect_internal.h"
+#include "btl_unit_internal.h"
 #include "btl_motion_internal.h"
 /* Source unit: src/Battle/btlUnit_00198300.c */
 #include "include_asm.h"
 #include "type.h"
 
-typedef struct BtlUnit BtlUnit;
-typedef u32 (*BtlPacketFunc)(void* work);
-typedef struct BtlPacket {
-    u8 padding_00[0x47];
-    u8 flags;
-    u8 padding_48[0x20];
-    BtlPacketFunc initFunc;
-    BtlPacketFunc updateFunc;
-    BtlPacketFunc destroyFunc;
-    u8 padding_74[4];
-    void* workData;
-} BtlPacket;
 typedef struct RotateTowardUnitWork {
     BtlUnit* unit;
     BtlUnit* targetUnit;
@@ -22,25 +12,25 @@ typedef struct RotateTowardUnitWork {
     u32 timer;
 } RotateTowardUnitWork;
 
-BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
-u32 btlUnitHoldPendingPair(void* work);
-u32 btlUnitRotateTowardUnitPacketUpdate(void* work);
-u32 btlUnitReleasePendingPair(void* work);
+BtlPacket* btlPacketAlloc(u32 packetType, u32 workSize);
+u32 btlUnitHoldPendingPair(void* packet);
+u32 btlUnitRotateTowardUnitPacketUpdate(void* packetData);
+u32 btlUnitReleasePendingPair(void* packet);
 typedef struct BtlUnitPacket {
     BtlUnit* unit;
     s16 value;
     u8 padding_06[2];
 } BtlUnitPacket;
-u32 btlUnitHoldPendingMotionRequest(void* work);
-u32 btlUnitReleasePendingMotionRequest(void* work);
+u32 btlUnitHoldPendingMotionRequest(void* packetWork);
+u32 btlUnitReleasePendingMotionRequest(void* packetWork);
 typedef struct BtlUnitPacketResNullifiedAnim {
     BtlUnit* unit;
     f32 value;
     u32 padding_08;
 } BtlUnitPacketResNullifiedAnim;
-u32 btlUnitHoldPendingResNullified(void* work);
-u32 btlUnitResNullifiedPacketUpdate(void* work);
-u32 btlUnitReleasePendingResNullified(void* work);
+u32 btlUnitHoldPendingResNullified(void* packetWork);
+u32 btlUnitResNullifiedPacketUpdate(void* packetWork);
+u32 btlUnitReleasePendingResNullified(void* packetWork);
 typedef struct BtlUnitMotionWork {
     f32 position[3];
     BtlUnit* unit;
@@ -48,23 +38,23 @@ typedef struct BtlUnitMotionWork {
     s16 counter;
     f32 phase;
 } BtlUnitMotionWork;
-u32 btlUnitHoldPendingUnit(void* work);
+u32 btlUnitHoldPendingUnit(void* packet);
 u32 btlUnitPacketArcOffsetUpdate(void* work);
-u32 btlUnitReleasePendingUnit(void* work);
+u32 btlUnitReleasePendingUnit(void* packet);
 typedef struct BtlUnitPacketEnmDodgeAnim {
     BtlUnit* unit;
     s32 value;
     u8 padding_08[8];
 } BtlUnitPacketEnmDodgeAnim;
-u32 btlUnitHoldPendingEnemyDodge(void* work);
-u32 btlUnitEnemyDodgePacketUpdate(void* work);
-u32 btlUnitReleasePendingEnemyDodge(void* work);
-u32 btlUnitHoldPendingMotionSettle(void* work);
+u32 btlUnitHoldPendingEnemyDodge(void* packetWork);
+u32 btlUnitEnemyDodgePacketUpdate(void* packetWork);
+u32 btlUnitReleasePendingEnemyDodge(void* packetWork);
+u32 btlUnitHoldPendingMotionSettle(void* packetWork);
 u32 btlUnitMotionSettlePacketUpdate(void* work);
-u32 btlUnitReleasePendingMotionSettle(void* work);
-u32 btlUnitHoldPendingModelFrame(void* work);
-u32 btlUnitModelFramePacketUpdate(void* work);
-u32 btlUnitReleasePendingModelFrame(void* work);
+u32 btlUnitReleasePendingMotionSettle(void* packetWork);
+u32 btlUnitHoldPendingModelFrame(void* packetWork);
+u32 btlUnitModelFramePacketUpdate(void* packetWork);
+u32 btlUnitReleasePendingModelFrame(void* packetWork);
 typedef struct BtlUnitSpeedWork {
     BtlUnit* unit;
     u16 value;
@@ -73,11 +63,11 @@ typedef struct BtlUnitSpeedWork {
     u16 mode;
     u8 padding_0e[2];
 } BtlUnitSpeedWork;
-u32 btlUnitHoldPendingMotionSpeed(void* work);
-u32 btlUnitReleasePendingMotionSpeed(void* work);
-u32 btlUnitHoldPendingModelRelease(void* work);
-u32 btlUnitModelReleasePacketUpdate(void* work);
-u32 btlUnitReleasePendingModelRelease(void* work);
+u32 btlUnitHoldPendingMotionSpeed(void* packetWork);
+u32 btlUnitReleasePendingMotionSpeed(void* packetWork);
+u32 btlUnitHoldPendingModelRelease(void* packetWork);
+u32 btlUnitModelReleasePacketUpdate(void* packetWork);
+u32 btlUnitReleasePendingModelRelease(void* packetWork);
 typedef struct BtlUnitColorWork {
     BtlUnit* unit;
     u32 startColor;
@@ -88,28 +78,15 @@ typedef struct BtlUnitColorWork {
     u8 flags;
     s16 counter;
 } BtlUnitColorWork;
-u32 btlUnitHoldPendingColor(void* work);
-u32 btlUnitColorPacketUpdate(void* work);
-u32 btlUnitReleasePendingColor(void* work);
-u32 btlUnitHoldPendingShow(void* work);
-u32 btlUnitShowPacketUpdate(void* work);
-u32 btlUnitReleasePendingShow(void* work);
-u32 btlUnitHoldPendingHide(void* work);
-u32 btlUnitHidePacketUpdate(void* work);
-u32 btlUnitReleasePendingHide(void* work);
-struct BtlUnit {
-    u8 padding_00[0x98];
-    u32 flags2;
-    u32 flags3;
-    u8 padding_a0[2];
-    u8 genus;
-    u8 padding_a3[0xd];
-    s16 lookAtMode;
-    u8 padding_b2[0x94e];
-    void* mdl;
-    u8 padding_a04[0x64];
-    struct BtlUnit* prev;
-};
+u32 btlUnitHoldPendingColor(void* packetWork);
+u32 btlUnitColorPacketUpdate(void* workData);
+u32 btlUnitReleasePendingColor(void* packetWork);
+u32 btlUnitHoldPendingShow(void* packetWork);
+u32 btlUnitShowPacketUpdate(void* context);
+u32 btlUnitReleasePendingShow(void* packetWork);
+u32 btlUnitHoldPendingHide(void* packetWork);
+u32 btlUnitHidePacketUpdate(void* context);
+u32 btlUnitReleasePendingHide(void* packetWork);
 typedef struct BtlUnitResourceWork {
     BtlUnit* unit;
     u16 type;
@@ -118,35 +95,31 @@ typedef struct BtlUnitResourceWork {
     u8 padding_0a[2];
     u32 state;
 } BtlUnitResourceWork;
-u32 btlUnitResourceLoadPacketInit(void* work);
-u32 btlUnitResourceLoadPacketUpdate(void* work);
-u32 btlUnitReleasePendingResourceLoad(void* work);
+u32 btlUnitResourceLoadPacketInit(void* packetWork);
+u32 btlUnitResourceLoadPacketUpdate(void* packetWork);
+u32 btlUnitReleasePendingResourceLoad(void* packetWork);
 typedef struct LookAtUnitWork {
     BtlUnit* unit;
     BtlUnit* targetUnit;
     u16 flags;
     u8 padding_0a[2];
 } LookAtUnitWork;
-u32 btlUnitHoldPendingLookAtUnits(void* work);
-u32 btlUnitLookAtUnitPacketUpdate(void* work);
-u32 btlUnitReleasePendingLookAtUnits(void* work);
+u32 btlUnitHoldPendingLookAtUnits(void* packet);
+u32 btlUnitLookAtUnitPacketUpdate(void* packet);
+u32 btlUnitReleasePendingLookAtUnits(void* packet);
 typedef struct BtlUnitPacketLookAtDeactivate {
     BtlUnit* unit;
     u16 flags;
     u8 padding_06[2];
 } BtlUnitPacketLookAtDeactivate;
-u32 btlUnitHoldPendingLookAtDeactivate(void* work);
+u32 btlUnitHoldPendingLookAtDeactivate(void* context);
 u32 btlUnitLookAtDeactivatePacketUpdate(void* work);
-u32 btlUnitReleasePendingLookAtDeactivate(void* work);
+u32 btlUnitReleasePendingLookAtDeactivate(void* context);
 
-typedef struct BattleUnit {
-    u8 pad[0xa0];
-    u16 pendingPacketCount;
-} BattleUnit;
 
 typedef struct RotateTowardUnitPacket {
-    BattleUnit* unit;
-    BattleUnit* targetUnit;
+    BtlUnit* unit;
+    BtlUnit* targetUnit;
 } RotateTowardUnitPacket;
 
 
@@ -420,23 +393,24 @@ BtlPacket* btlUnitCreateLookAtUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, u16
 
 
 // FUN_0019E5D0
-u32 btlUnitHoldPendingLookAtDeactivate(void *arg0)
+u32 btlUnitHoldPendingLookAtDeactivate(void *context)
 {
     u8 *temp;
 
-    temp = *(u8 **)arg0;
+    temp = *(u8 **)context;
     if (temp != NULL)
     {
-        *(u16 *)(temp + 0xa0) = *(u16 *)(temp + 0xa0) + 1;
+        ((BtlUnit *)temp)->pendingPacketCount = ((BtlUnit *)temp)->pendingPacketCount + 1;
     }
 }
+/* Restore default look-at ranges and request a model update for one unit or both selected lists. */
 // FUN_0019E5F0
 u32 btlUnitLookAtDeactivatePacketUpdate(void* work)
 {
     extern u8* iGpffffb3ac;
-    extern void mdlSetBlendWeight(void* arg0, f32 arg1);
-    extern void mdlLookAtSetupSetRange(void* arg0, f32 arg1, f32 arg2);
-    extern void mdlSetLookAtRequested(void* arg0);
+    extern void mdlSetBlendWeight(void* model, f32 value);
+    extern void mdlLookAtSetupSetRange(void* model, f32 pitchLimit, f32 yawLimit);
+    extern void mdlSetLookAtRequested(void* model);
     BtlUnitPacketLookAtDeactivate* packet;
     BtlUnit* curr;
 
@@ -446,33 +420,33 @@ u32 btlUnitLookAtDeactivatePacketUpdate(void* work)
     {
         if (packet->flags & 1)
         {
-            curr = *(BtlUnit**)((u8*)iGpffffb3ac + 0x17c);
+            curr = (BtlUnit *)((BtlBattleState *)iGpffffb3ac)->unitLists[1];
             while (curr != NULL)
             {
                 if ((curr->flags3 & 8) && (curr->flags2 & 2))
                 {
-                    mdlSetBlendWeight(curr->mdl, 0.25f);
-                    mdlLookAtSetupSetRange(curr->mdl, 70.0f, 60.0f);
-                    mdlSetLookAtRequested(curr->mdl);
+                    mdlSetBlendWeight(curr->layerHandle, 0.25f);
+                    mdlLookAtSetupSetRange(curr->layerHandle, 70.0f, 60.0f);
+                    mdlSetLookAtRequested(curr->layerHandle);
                     curr->lookAtMode = 0;
                 }
-                curr = curr->prev;
+                curr = curr->prevUnit;
             }
         }
 
         if (packet->flags & 2)
         {
-            curr = *(BtlUnit**)((u8*)iGpffffb3ac + 0x184);
+            curr = (BtlUnit *)((BtlBattleState *)iGpffffb3ac)->unitLists[3];
             while (curr != NULL)
             {
                 if ((curr->flags3 & 8) && (curr->flags2 & 2))
                 {
-                    mdlSetBlendWeight(curr->mdl, 0.25f);
-                    mdlLookAtSetupSetRange(curr->mdl, 70.0f, 60.0f);
-                    mdlSetLookAtRequested(curr->mdl);
+                    mdlSetBlendWeight(curr->layerHandle, 0.25f);
+                    mdlLookAtSetupSetRange(curr->layerHandle, 70.0f, 60.0f);
+                    mdlSetLookAtRequested(curr->layerHandle);
                     curr->lookAtMode = 0;
                 }
-                curr = curr->prev;
+                curr = curr->prevUnit;
             }
         }
     }
@@ -481,9 +455,9 @@ u32 btlUnitLookAtDeactivatePacketUpdate(void* work)
         curr = packet->unit;
         if (curr->flags2 & 2)
         {
-            mdlSetBlendWeight(curr->mdl, 0.25f);
-            mdlLookAtSetupSetRange(curr->mdl, 70.0f, 60.0f);
-            mdlSetLookAtRequested(curr->mdl);
+            mdlSetBlendWeight(curr->layerHandle, 0.25f);
+            mdlLookAtSetupSetRange(curr->layerHandle, 70.0f, 60.0f);
+            mdlSetLookAtRequested(curr->layerHandle);
             curr->lookAtMode = 0;
         }
     }
@@ -491,14 +465,14 @@ u32 btlUnitLookAtDeactivatePacketUpdate(void* work)
     return 1;
 }
 // FUN_0019E7A0
-u32 btlUnitReleasePendingLookAtDeactivate(void *arg0)
+u32 btlUnitReleasePendingLookAtDeactivate(void *context)
 {
     u8 *temp;
 
-    temp = *(u8 **)arg0;
+    temp = *(u8 **)context;
     if (temp != NULL)
     {
-        *(u16 *)(temp + 0xa0) = *(u16 *)(temp + 0xa0) - 1;
+        ((BtlUnit *)temp)->pendingPacketCount = ((BtlUnit *)temp)->pendingPacketCount - 1;
     }
 }
 // FUN_0019E7C0

@@ -3,26 +3,12 @@
 #include "include_asm.h"
 #include "type.h"
 #include "btl_action_internal.h"
-
-typedef u32 (*BtlPacketFunc)(void* work);
-
-typedef struct BtlPacket BtlPacket;
-struct BtlPacket
-{
-    u8 _pad00[0x58];
-    u64 unk58;                 // 0x58
-    u64 actionUID;             // 0x60
-    BtlPacketFunc initFunc;    // 0x68
-    BtlPacketFunc updateFunc;  // 0x6c
-    BtlPacketFunc destroyFunc; // 0x70
-    u8 _pad74[4];              // 0x74
-    void* workData;            // 0x78
-};
+#include "btl_effect_internal.h"
 
 extern u32 btlUnitIsMoving(void* unit);
-extern void btlUnitGetAnchorPose(void* unit, void* arg1, void* arg2, RwV3d* rot);
+extern void btlUnitGetAnchorPose(void* unit, void* outPosition, void* outRotation, RwV3d* outTarget);
 extern BtlPacket* btlUnitCreateRotatePacket(void* unit, const RwV3d* rot, u32 flags);
-extern void btlPacketEnqueue(BtlPacket* packet, u32 type);
+extern void btlPacketEnqueue(BtlPacket* context, u32 value);
 extern void btlActionSetState(BtlAction* action, u16 state);
 
 #define BTL_UIDMAX 0x3FFFFFFFFFFFFFFF
@@ -32,6 +18,7 @@ extern BtlPacket* btlPacketFindFirstByActionUID(u64 actionUID, u64 mask);
 
 
 
+/* Wait for movement to finish, restore the anchor rotation, and resume the action state. */
 // FUN_001A1100
 void btlActionStartHomeUpdate(BtlAction* action)
 {
@@ -52,19 +39,20 @@ void btlActionStartHomeUpdate(BtlAction* action)
 
 
 
+/* Queue formation return and dependent movement, cleanup, rotation and camera packets. */
 // FUN_001A1190
 void btlActionChangeFormationInit(BtlAction* action)
 {
     extern u8* D_0076449C;
     extern f32 fGpffff809c;
     extern void btlActionFinishPresentation(BtlAction* action);
-    extern BtlPacket* btlFormationCreateReturnPacket(u16 param_1);
-    extern BtlPacket* btlFormationCreateSlotPacket(u16 param_1, u16 param_2);
-    extern BtlPacket* func_001f99c0(BtlAction* action, u16 param_2, s32 param_3,
-                                     s32 param_4, s32 param_5);
+    extern BtlPacket* btlFormationCreateReturnPacket(u16 flags);
+    extern BtlPacket* btlFormationCreateSlotPacket(u16 groupMask, u16 flags);
+    extern BtlPacket* func_001f99c0(BtlAction* action, u16 kind, s32 firstValue,
+                                     s32 secondValue, s32 thirdValue);
     extern BtlPacket* btlUnitCreateMovePacket(void* unit, const RwV3d* targetPos,
                                                f32 speed, u32 flags);
-    extern BtlPacket* btlUnitCreateResourceFreePacket(void* unit);
+    extern BtlPacket* btlUnitCreateResourceFreePacket(void* packetWork);
     extern BtlPacket* btlUnitCreateRotateTowardUnitPacket(void* unit,
                                                            void* targetUnit,
                                                            u32 flags);
@@ -79,7 +67,7 @@ void btlActionChangeFormationInit(BtlAction* action)
     rootPacket->actionUID = action->uid;
     btlPacketEnqueue(rootPacket, 0);
 
-    if (((u8*)action)[0x28] == 0)
+    if (action->unk_28 == 0)
     {
         BtlPacket* packet;
 
@@ -87,7 +75,7 @@ void btlActionChangeFormationInit(BtlAction* action)
         btlPacketEnqueue(packet, 1);
     }
 
-    unit = *(BtlUnit**)(D_0076449C + 0x178);
+    unit = (BtlUnit *)((BtlBattleState *)D_0076449C)->unitLists[0];
     while (unit != NULL)
     {
         if (datCalcChkBadStatus(unit->datUnit, 0x180017) == 0 &&
@@ -96,8 +84,8 @@ void btlActionChangeFormationInit(BtlAction* action)
             BtlPacket* packet;
 
             packet = btlUnitCreateMovePacket(unit, NULL, fGpffff809c, 24);
-            *(u8*)packet = 4;
-            *(u64*)((u8*)packet + 8) = rootPacket->unk58;
+            packet->dependencyKind = 4;
+            packet->dependencyUID = rootPacket->uid;
             packet->actionUID = action->uid;
             btlPacketEnqueue(packet, 1);
         }
@@ -109,13 +97,13 @@ void btlActionChangeFormationInit(BtlAction* action)
         BtlPacket* packet;
 
         packet = btlFormationCreateSlotPacket(2, 1);
-        *(u8*)packet = 4;
-        *(u64*)((u8*)packet + 8) = rootPacket->unk58;
+        packet->dependencyKind = 4;
+        packet->dependencyUID = rootPacket->uid;
         packet->actionUID = action->uid;
         btlPacketEnqueue(packet, 0);
     }
 
-    unit = *(BtlUnit**)(D_0076449C + 0x180);
+    unit = (BtlUnit *)((BtlBattleState *)D_0076449C)->unitLists[2];
     while (unit != NULL)
     {
         if (datCalcIsDead(unit->datUnit, 0) != 0)
@@ -123,8 +111,8 @@ void btlActionChangeFormationInit(BtlAction* action)
             BtlPacket* packet;
 
             packet = btlUnitCreateResourceFreePacket(unit);
-            *(u8*)packet = 4;
-            *(u64*)((u8*)packet + 8) = rootPacket->unk58;
+            packet->dependencyKind = 4;
+            packet->dependencyUID = rootPacket->uid;
             packet->actionUID = action->uid;
             btlPacketEnqueue(packet, 0);
         }
@@ -134,8 +122,8 @@ void btlActionChangeFormationInit(BtlAction* action)
 
             packet = btlUnitCreateRotateTowardUnitPacket(
                 unit, action->unit, 34);
-            *(u8*)packet = 4;
-            *(u64*)((u8*)packet + 8) = rootPacket->unk58;
+            packet->dependencyKind = 4;
+            packet->dependencyUID = rootPacket->uid;
             packet->actionUID = action->uid;
             btlPacketEnqueue(packet, 0);
         }
@@ -147,12 +135,13 @@ void btlActionChangeFormationInit(BtlAction* action)
         BtlPacket* packet;
 
         packet = btlCameraCreateSetStatePacket(action, 41);
-        *(u8*)packet = 4;
-        *(u64*)((u8*)packet + 8) = rootPacket->unk58;
+        packet->dependencyKind = 4;
+        packet->dependencyUID = rootPacket->uid;
         packet->actionUID = action->uid;
         btlPacketEnqueue(packet, 0);
     }
 }
+/* Resume the start phase after every packet owned by this action completes. */
 // FUN_001A13E0
 void btlActionChangeFormationUpdate(BtlAction* action)
 {
@@ -164,15 +153,16 @@ void btlActionChangeFormationUpdate(BtlAction* action)
 
 
 
-u8 *btlUnitRecordFindByActionUID(u64 arg0, u64 arg1);
+u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
+/* Wait for persona records to finish, clear the party presentation flag, and resume. */
 // FUN_001ADE10
 void btlActionPersonaUpdate(BtlAction *action)
 {
-    if (btlUnitRecordFindByActionUID(*(s64 *)action, 0x3FFFFFFFFFFFFFFFLL) == 0) {
-        if (*(u8 *)(*(u8 **)((u8 *)action + 0x30) + 0xA2) == 0) {
-            *(u16 *)((u8 *)action + 0x18) &= 0xFBFF;
+    if (btlUnitRecordFindByActionUID((s64)action->uid, 0x3FFFFFFFFFFFFFFFLL) == 0) {
+        if (action->unit->genus == 0) {
+            action->flags &= 0xFBFF;
         }
-        btlActionSetState(action, *(u16 *)((u8 *)action + 0x14));
+        btlActionSetState(action, action->state);
     }
 }
 
@@ -185,6 +175,7 @@ void btlActionTestUpdate(BtlAction* action)
 
 
 
+/* Record the previous state, reset elapsed time and invoke the new state initializer. */
 // FUN_001B0800
 void btlActionSetState(BtlAction* action, u16 state)
 {
@@ -197,6 +188,7 @@ void btlActionSetState(BtlAction* action, u16 state)
 
 
 
+/* Schedule a delayed transition, or perform it immediately when delay is zero. */
 // FUN_001B0850
 void btlActionSetStateWithDelay(BtlAction* action, u16 state, u16 delay)
 {
@@ -221,7 +213,7 @@ void btlActionSetStateWithDelay(BtlAction* action, u16 state, u16 delay)
 // FUN_001B08D0
 void btlActionSetCallbackPending(void* action)
 {
-    *(u16*)((u8*)action + 0x18) |= 1;
+    ((BtlAction *)action)->flags |= 1;
 }
 
 
@@ -229,14 +221,15 @@ void btlActionSetCallbackPending(void* action)
 // FUN_001B08F0
 void btlActionClearCallbackPending(void* action)
 {
-    *(u16*)((u8*)action + 0x18) &= ~1;
+    ((BtlAction *)action)->flags &= ~1;
 }
 
 
 
+/* Attach the unit and mark this action as owning a valid unit. */
 // FUN_001B0910
 void btlActionSetUnit(void* action, void* unit)
 {
-    *(void**)((u8*)action + 0x30) = unit;
-    *(u16*)((u8*)action + 0x1A) |= 1;
+    ((BtlAction *)action)->unit = unit;
+    ((BtlAction *)action)->unk_1a |= 1;
 }

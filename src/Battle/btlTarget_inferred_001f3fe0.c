@@ -1,3 +1,5 @@
+#include "btl_action_internal.h"
+#include "btl_effect_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -13,20 +15,8 @@
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
 /* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
 
 /* Force the base operand into the first addu slot. */
-static inline u32 addBaseFirst(u32 base, u32 offset) {
-    return base + offset;
-}
-static inline s32 promoteS16(s16 value) {
-    return value;
-}
-static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
-    return offset + base;
-}
 
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
@@ -83,13 +73,13 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f3fe0-001f41e0 */
 
-extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
-extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
-extern s32 func_001f0d30(u8 *arg0);
-extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
-extern s32 btlActionHasNoTargetClass(u32 arg0);
-extern s32 btlTargetGroupStateMatches(u8 *arg0);
-extern s32 btlActionIsPendingBit(s32 arg0);
+extern s32 btlActionAnyTargetHitRowStatus(u8 *action);
+extern s32 btlActionSameGenusTargetsHaveDelta(u8 *action);
+extern s32 btlActionAnyTargetClearsDeathStatus(u8 *action);
+extern s32 btlActionTargetsHaveDamageResult(u8 *action, s32 mode);
+extern s32 btlActionHasNoTargetClass(u32 action);
+extern s32 btlTargetGroupStateMatches(u8 *context);
+extern s32 btlActionIsPendingBit(s32 context);
 #pragma push
 #pragma pop
 /* measured: invariant mask materialisation needs opt_loop_invariants on to
@@ -112,27 +102,30 @@ extern s32 btlActionIsPendingBit(s32 arg0);
 /* measured: opt_propagation off keeps the iGpffffb3b8 base load ahead of the
    index arithmetic and the 0x70 field load in a temporary before its saved copy. */
 /* measured: restore propagation for the rest of the unit. */
+/* Return the primary normal-party message, or -1 for another unit genus. */
 // FUN_001F3FE0
-s32 btlActionGetNormalStatePrimaryMsgCode(u8 *arg0)
+s32 btlActionGetNormalStatePrimaryMsgCode(u8 *context)
 {
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+    if (((BtlUnit *)(u8 *)((BtlAction *)context)->unit)->genus != 0) {
         return -1;
     }
     return 0xCC;
 }
 
+/* Return the secondary normal-party message, or -1 for another unit genus. */
 // FUN_001F4010
-s32 btlActionGetNormalStateSecondaryMsgCode(u8 *arg0)
+s32 btlActionGetNormalStateSecondaryMsgCode(u8 *context)
 {
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+    if (((BtlUnit *)(u8 *)((BtlAction *)context)->unit)->genus != 0) {
         return -1;
     }
     return 0x67;
 }
 
+/* Select the normal-party message according to the pending step-trigger bit. */
 // FUN_001F4040
-s32 btlActionGetPendingBitMsgCode(u8 *arg0) {
-    if (*(u8 *)((u8 *)(*(u8 **)(arg0 + 0x30)) + 0xA2) != 0) {
+s32 btlActionGetPendingBitMsgCode(u8 *context) {
+    if (((BtlAction *)context)->unit->genus != 0) {
         return -1;
     }
     if (btlActionIsPendingBit(0) != 0) {
@@ -141,32 +134,34 @@ s32 btlActionGetPendingBitMsgCode(u8 *arg0) {
     return 0xCE;
 }
 
+/* Map an enemy count from one through four to its message tier. */
 // FUN_001F40A0
 s32 btlActionGetRollTierMsgCode(void) {
-    s32 temp_3;
+    s32 enemyCount;
 
-    temp_3 = func_001ef720(2, 0x80000) & 0xFFFF;
-    if (temp_3 >= 5) {
+    enemyCount = func_001ef720(2, 0x80000) & 0xFFFF;
+    if (enemyCount >= 5) {
         return -1;
     }
-    if (temp_3 == 0) {
+    if (enemyCount == 0) {
         return -1;
     }
-    return 0x58 - temp_3;
+    return 0x58 - enemyCount;
 }
 
+/* Map eligible party character ids to their status-message codes. */
 // FUN_001F4100
-s32 btlActionGetStatusMsgCode(u8 *arg0)
+s32 btlActionGetStatusMsgCode(u8 *action)
 {
-    u16 temp_2;
-    u8 *temp_3;
+    u16 characterId;
+    u8 *unit;
 
-    temp_3 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_3 + 0xA2) != 0) {
+    unit = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)unit)->genus != 0) {
         return -1;
     }
-    temp_2 = *(u16 *)(temp_3 + 0xA4);
-    switch (temp_2) {
+    characterId = ((BtlUnit *)unit)->charId;
+    switch (characterId) {
     case 1:
         return -1;
     case 2:
@@ -186,26 +181,28 @@ s32 btlActionGetStatusMsgCode(u8 *arg0)
     }
 }
 
+/* Return the tertiary normal-party message, or -1 for another unit genus. */
 // FUN_001F41B0
-s32 btlActionGetNormalStateTertiaryMsgCode(u8 *arg0)
+s32 btlActionGetNormalStateTertiaryMsgCode(u8 *context)
 {
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0) {
+    if (((BtlUnit *)(u8 *)((BtlAction *)context)->unit)->genus != 0) {
         return -1;
     }
     return 0xCB;
 }
 
+/* Map an enemy count from two through five to its message band. */
 // FUN_001F41E0
 s32 btlActionGetRollTierBandMsgCode(void) {
-    s32 temp_3;
+    s32 enemyCount;
 
-    temp_3 = func_001ef720(2, 0x80000) & 0xFFFF;
-    if (temp_3 > 5) {
+    enemyCount = func_001ef720(2, 0x80000) & 0xFFFF;
+    if (enemyCount > 5) {
         return -1;
     }
-    if (temp_3 < 2) {
+    if (enemyCount < 2) {
         return -1;
     }
-    return 0x5E - temp_3;
+    return 0x5E - enemyCount;
 }
 

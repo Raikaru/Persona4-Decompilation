@@ -37,14 +37,15 @@ extern void chkmemAllocSiteTag(const char* file, s32 line);
 extern void kAssertFail(const char* file, s32 line);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern void memset(void* dest, s32 value, s32 size);
-extern u8* datUnitGetRecord(s16 arg0);
-extern s32 datCalcIsDead(DatUnit* unit, s32 arg1);
-extern void datCalcClearBuffLevel(DatUnit* unit, u8 index);
+extern u8* datUnitGetRecord(s16 unitId);
+extern s32 datCalcIsDead(DatUnit* unit, s32 hpDelta);
+extern void datCalcClearBuffLevel(DatUnit* unit, u8 buffIndex);
 extern u8* iGpffffb3c4;              /* 0x007644B4 (gp-0x4C3C): enemy data table */
 extern u8* iGpffffb414;              /* 0x00764504 (gp-0x4BEC) */
 
 
 // FUN_00231580
+/* Allocate a PC group and initialize its single persistent unit record. */
 DatUnitPc* datUnitCreatePc(u16 pcId)
 {
     DatUnitPc* pc;
@@ -65,6 +66,8 @@ DatUnitPc* datUnitCreatePc(u16 pcId)
 /* measured: canonical iGpffffb414 GP symbol and explicit offset local produce the retail global-load ordering and exact 368-byte object. */
 #pragma opt_loop_invariants on
 // FUN_00231630
+/* Typed enemy/encounter indexing adds address temporaries under b210; retain the byte offsets to DatEnemyUnitInit/EncountTblEntry for MATCH. */
+/* Allocate a six-slot enemy group and initialize the nonempty IDs from the five-entry encounter row. */
 DatUnitEc* datUnitCreateEncounterGroup(u16 encountId)
 {
     u32 count;
@@ -116,6 +119,7 @@ DatUnitEc* datUnitCreateEncounterGroup(u16 encountId)
 #pragma opt_loop_invariants off
 
 // FUN_002317A0
+/* Initialize the first free enemy slot and increment the encounter group count. */
 DatUnit* datUnitAddEncounterUnit(DatUnitEc* ec, u16 id)
 {
     u16 i;
@@ -143,6 +147,7 @@ DatUnit* datUnitAddEncounterUnit(DatUnitEc* ec, u16 id)
 }
 
 // FUN_002318C0
+/* Clear the matching enemy slot ID and decrement the encounter group count. */
 void datUnitRemoveEncounterUnit(DatUnitEc* ec, DatUnit* unit)
 {
     u16 i;
@@ -168,12 +173,13 @@ void datUnitRemoveEncounterUnit(DatUnitEc* ec, DatUnit* unit)
 }
 
 // FUN_002319C0
-void datUnitFree(s32 arg0)
+void datUnitFree(s32 allocation)
 {
-    jtbl_008873EC[0]((void *)arg0);
+    jtbl_008873EC[0]((void *)allocation);
 }
 
 // FUN_002319F0
+/* Return true only when every occupied enemy slot, or the single PC unit, is dead. */
 u32 datUnitGroupIsDefeated(DatUnitGenusBase* genusBase)
 {
     u16 i;
@@ -209,6 +215,8 @@ u32 datUnitGroupIsDefeated(DatUnitGenusBase* genusBase)
  * opt_loop_invariants MWCC rematerializes them inside the loop. */
 #pragma opt_loop_invariants on
 // FUN_00231AF0
+/* Typed enemy/encounter indexing adds address temporaries under b210; retain the byte offsets to DatEnemyUnitInit/EncountTblEntry for MATCH. */
+/* Initialize PC flags or copy enemy defaults, clear all buff levels and set both unit IDs. */
 u32 datUnitInit(DatUnit* unit, u8 genus, u16 id)
 {
     u32 i;

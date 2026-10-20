@@ -2,6 +2,19 @@
 #include "type.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
+#include "rw_camera_internal.h"
+#include "shd_misc_internal.h"
+
+/* SDK RwImage layout, include/rw/core/baimage.h. */
+typedef struct RwImage {
+    s32 flags;
+    s32 width;
+    s32 height;
+    s32 depth;
+    s32 stride;
+    u8 *pixels;
+    RwRGBA *palette;
+} RwImage;
 
 #define HDBPRT_GRID_WIDTH  (640 / 12)
 #define HDBPRT_GRID_HEIGHT (480 / 12)
@@ -41,17 +54,17 @@ extern char D_008BF720[];
 
 /* library / file helpers */
 extern void func_00440b68(const char *fmt, ...);
-extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
-extern void H_Cdvd_ReadSync(void *handle);
-extern void H_Cdvd_Destroy(u8 *ptr);
-extern u8 *func_003eaf60(u8 *arg0);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
+extern void H_Cdvd_ReadSync(void *cdvd);
+extern void H_Cdvd_Destroy(u8 *cdvd);
+extern u8 *func_003eaf60(u8 *);
 extern s32 *func_003ec590(s32 width, s32 height, s32 depth, s32 flags);
-extern u8 *func_003ec180(u8 *arg0, s32 *arg1);
-extern s32 func_003ea370(s32 *arg0);
+extern u8 *func_003ec180(u8 *, s32 *);
+extern s32 func_003ea370(s32 *);
 
 
 /* text3d helpers */
-extern void chkmemSetLock(s32 arg0);
+extern void chkmemSetLock(s32 );
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void func_00446ed8(void *buf, const void *fmt, void *va);
@@ -63,23 +76,24 @@ typedef char *va_list;
 #define va_end(ap) ((void)0)
 
 
+/* Loads the debug font resources, creates its raster and records the camera. */
 // FUN_0044F570
-void func_0044f570(s32 arg0) {
-    u8 *h1;
-    u8 *h2;
+void sdkDbprtInit(s32 cameraAddress) {
+    u8 *fontRequest;
+    u8 *paletteRequest;
     s32 *raster;
 
     func_00440b68(iGpffffac38, D_00710500, 0x4F);
-    h1 = H_Cdvd_AcquireDirectory((u8 *)D_00710510, 0);
-    H_Cdvd_ReadSync(h1);
+    fontRequest = H_Cdvd_AcquireDirectory((u8 *)D_00710510, 0);
+    H_Cdvd_ReadSync(fontRequest);
     func_00440b68(iGpffffac38, D_00710500, 0x52);
-    h2 = H_Cdvd_AcquireDirectory((u8 *)D_00710530, 0);
-    H_Cdvd_ReadSync(h2);
-    H_Cdvd_Destroy(h2);
+    paletteRequest = H_Cdvd_AcquireDirectory((u8 *)D_00710530, 0);
+    H_Cdvd_ReadSync(paletteRequest);
+    H_Cdvd_Destroy(paletteRequest);
     iGpffffb9e4 = func_003eaf60((u8 *)D_00710510);
-    iGpffffb9e0 = (void *)arg0;
-    H_Cdvd_Destroy(h1);
-    raster = func_003ec590(*(s32 *)(iGpffffb9e4 + 4), *(s32 *)(iGpffffb9e4 + 8), 4, 0x4504);
+    iGpffffb9e0 = (void *)cameraAddress;
+    H_Cdvd_Destroy(fontRequest);
+    raster = func_003ec590(((RwImage *)iGpffffb9e4)->width, ((RwImage *)iGpffffb9e4)->height, 4, 0x4504);
     iGpffffb9e8 = raster;
     func_003ec180((u8 *)raster, (s32 *)iGpffffb9e4);
     func_003ea370((s32 *)iGpffffb9e4);
@@ -88,6 +102,7 @@ void func_0044f570(s32 arg0) {
     iGpffffb9dc = NULL;
 }
 
+/* Clear the character grid and release every queued text entry. */
 // FUN_0044F6B0
 void H_Dbprt_Flush()
 {
@@ -123,13 +138,14 @@ static inline s32 debugGlyphColumn(s32 value)
     return value % 16;
 }
 
+/* Draws non-space characters from the 53 by 40 debug grid and restores fog state. */
 // FUN_0044F720
-void func_0044f720(void)
+void sdkDbprtDrawGrid(void)
 {
     extern u32 func_003e8120(u32 camera);
     extern u32 func_003e8110(u32 camera);
-    extern void func_0044fa90(void);
-    extern void func_00450630(void);
+    extern void sdkDbprtDrawQueuedText(void);
+    extern void sdkDbprtDrawOverlay(void);
     extern s32 (*D_00887300[])(s32 state, void *value);
     extern s32 (*D_00887304[])(s32 state, void *value);
     extern s32 (*D_00887310[])(s32, void *, s32);
@@ -165,7 +181,7 @@ void func_0044f720(void)
     struct { s32 (*setState)(s32, void *); } *renderer;
     u8 *characters;
 
-    reciprocalDepth = 1.0f / *(f32 *)((u8 *)iGpffffb9e0 + 0x80);
+    reciprocalDepth = 1.0f / ((RwCamera *)iGpffffb9e0)->nearPlane;
     if (func_003e8120((u32)iGpffffb9e0) != 0) {
         D_00887304[0](14, &savedFog);
         renderer = (void *)D_00887300;
@@ -197,7 +213,7 @@ void func_0044f720(void)
             bottomY = 11.0f + topY;
             for (; column < 0x35; column++) {
                 u8 character;
-                character = *(u8 *)((u8 *)characters + column);
+                character = characters[column];
                 if (character != 0x20) {
                     u8 glyphIndex;
                     f32 leftX;
@@ -246,8 +262,8 @@ void func_0044f720(void)
             }
             row++;
         }
-        func_0044fa90();
-        func_00450630();
+        sdkDbprtDrawQueuedText();
+        sdkDbprtDrawOverlay();
         renderer->setState(14, (void *)savedFog);
         func_003e8110((u32)iGpffffb9e0);
     }
@@ -258,12 +274,14 @@ void func_0044f720(void)
  * Copy the computed character advance before translation so its
  * multiply and add retain the original separate evaluation.
  * See docs/probe_archive/Debug_queued_text_0044fa90_20260924.md. */
+/* Draws queued colored text at screen or projected camera depth. */
+/* measured: node->text[characterIndex] changes one instruction byte; retain the explicit text-buffer address calculation. */
 // FUN_0044FA90
-void func_0044fa90(void) {
+void sdkDbprtDrawQueuedText(void) {
     extern s32 (*D_00887300[])(s32 state, void *value);
     extern s32 (*D_00887310[])(s32, void *, s32);
     extern f32 D_008872F8[];
-    extern f32 func_00450490(f32);
+    extern f32 sdkDbprtProjectDepth(f32);
     HDbText3D *node;
     s32 characterIndex;
     f32 reciprocalDepth;
@@ -281,13 +299,13 @@ void func_0044fa90(void) {
     } QueueGlyphVertex;
     QueueGlyphVertex vertices[4];
     f32 nearDepth;
-    reciprocalDepth = 1.0f / *(f32 *)((u8 *)iGpffffb9e0 + 0x80);
+    reciprocalDepth = 1.0f / ((RwCamera *)iGpffffb9e0)->nearPlane;
     node = iGpffffb9dc;
     D_00887300[0](1, iGpffffb9e8);
     while (1) {
         if (node == NULL) break;
         if (node->cameraDepth != 0.0f) {
-            projectedDepth = func_00450490(node->cameraDepth);
+            projectedDepth = sdkDbprtProjectDepth(node->cameraDepth);
         }
         characterIndex = 0;
         while (characterIndex < 0x100) {
@@ -426,44 +444,45 @@ void func_0044fa90(void) {
 /* measured: the residual at offsets 0xF4/0xF8 was an address-materialisation
    order/width choice. Converting the pointer through a named s32 local emits
    retail's addu $v1,$s3,$sp; addiu $v1,$v1,0x60 pair before lb $a1,0($v1). */
+/* measured: two-dimensional grid indexing loses MATCH; the integer-domain address order also preserves signed row/column arithmetic. */
 // FUN_00450050
-void H_Dbprt_FmtAt(s64 arg0, const char* arg1, ...) {
+void H_Dbprt_FmtAt(s64 position, const char* format, ...) {
     va_list args;
-    s8 sp60[0x100];
-    f32 arg0hi;
-    s32 var_19;
-    s32 var_18;
-    s32 var_17;
-    s32 temp_16;
-    s8 temp_5;
-    s32 read_int;
-    u8 *read;
+    s8 text[0x100];
+    f32 originY;
+    s32 characterIndex;
+    s32 column;
+    s32 row;
+    s32 originColumn;
+    s8 character;
+    s32 characterAddress;
+    u8 *characterPointer;
 
-    arg0hi = *(f32 *)((u8 *)&arg0 + 4);
-    va_start(args, arg1);
-    func_00446ed8(sp60, arg1, args);
-    var_18 = (s32)(*(f32 *)&arg0);
-    var_17 = (s32)arg0hi;
-    var_19 = 0;
-    temp_16 = var_18;
-    while (var_19 < 0x100) {
-        if ((*(f32 *)&arg0 < 53.0f) && (arg0hi < 40.0f) && (var_18 < 0x35) && (var_17 < 0x28)) {
-            read_int = (s32)((u8 *)sp60 + var_19);
-            read = (u8 *)read_int;
-            temp_5 = *(s8 *)read;
-            if (temp_5 != 0) {
-                if (temp_5 == 0xA) {
-                    var_18 = temp_16;
-                    var_17 += 1;
+    originY = ((PackedVec2f *)&position)->xy.y;
+    va_start(args, format);
+    func_00446ed8(text, format, args);
+    column = (s32)(((PackedVec2f *)&position)->xy.x);
+    row = (s32)originY;
+    characterIndex = 0;
+    originColumn = column;
+    while (characterIndex < 0x100) {
+        if ((((PackedVec2f *)&position)->xy.x < 53.0f) && (originY < 40.0f) && (column < 0x35) && (row < 0x28)) {
+            characterAddress = (s32)((u8 *)text + characterIndex);
+            characterPointer = (u8 *)characterAddress;
+            character = *(s8 *)characterPointer;
+            if (character != 0) {
+                if (character == 0xA) {
+                    column = originColumn;
+                    row += 1;
                 } else {
-                    if ((var_17 == 0x27) && (var_18 >= 0x35)) {
-                        func_00440b68((char *)&iGpffffac30 + 0x10, temp_5);
+                    if ((row == 0x27) && (column >= 0x35)) {
+                        func_00440b68((char *)&iGpffffac30 + 0x10, character);
                     } else {
-                        *(u8 *)((u32)D_008BF720 + (u32)(var_17 * 0x35) + (u32)var_18) = temp_5;
+                        *(u8 *)((u32)D_008BF720 + (u32)(row * 0x35) + (u32)column) = character;
                     }
-                    var_18 += 1;
+                    column += 1;
                 }
-                var_19 += 1;
+                characterIndex += 1;
                 continue;
             }
         }
@@ -471,79 +490,82 @@ void H_Dbprt_FmtAt(s64 arg0, const char* arg1, ...) {
     }
 }
 
+/* Formats colored screen-space text into a newly allocated queue entry. */
+/* The RGBA aggregate alias copies the packed color bits in one word; it is not a numeric conversion. */
 // FUN_004501F0
-void func_004501f0(s64 arg0, s32 arg1, s32 arg2, ...) {
+void sdkDbprtQueueColoredText(s64 position, s32 color, s32 formatAddress, ...) {
     va_list args;
-    u8 *temp_2;
-    HDbText3D *var_4;
-    HDbText3D *temp_3;
-    f32 arg0hi;
+    u8 *entry;
+    HDbText3D *tail;
+    HDbText3D *next;
+    f32 y;
 
-    arg0hi = *(f32 *)((u8 *)&arg0 + 4);
+    y = ((PackedVec2f *)&position)->xy.y;
     chkmemSetLock(1);
     chkmemAllocSiteTag(D_00710500, 0x1EA);
-    temp_2 = D_008873F4[0](1, 0x118, 0x40000);
-    if (temp_2 != NULL) {
+    entry = D_008873F4[0](1, 0x118, 0x40000);
+    if (entry != NULL) {
         chkmemSetLock(0);
-        va_start(args, arg2);
-        func_00446ed8(temp_2 + 0x10, (void *)arg2, args);
-        *(f32 *)(temp_2 + 4) = *(f32 *)&arg0;
-        *(f32 *)(temp_2 + 8) = arg0hi;
-        *(s32 *)(temp_2 + 0xC) = 0;
-        *(RGBA8 *)(temp_2 + 0x114) = *(RGBA8 *)((u8 *)&arg1 + 0);
-        *(s32 *)(temp_2 + 0x110) = 0;
-        var_4 = iGpffffb9dc;
-        if (var_4 == NULL) {
-            iGpffffb9dc = (HDbText3D *)temp_2;
+        va_start(args, formatAddress);
+        func_00446ed8(entry + 0x10, (void *)formatAddress, args);
+        ((HDbText3D *)entry)->x = ((PackedVec2f *)&position)->xy.x;
+        ((HDbText3D *)entry)->y = y;
+        ((HDbText3D *)entry)->cameraDepth = 0.0f;
+        *(RGBA8 *)((HDbText3D *)entry)->color = *(RGBA8 *)&color;
+        ((HDbText3D *)entry)->depthOffset = 0.0f;
+        tail = iGpffffb9dc;
+        if (tail == NULL) {
+            iGpffffb9dc = (HDbText3D *)entry;
             return;
         }
         do {
-            temp_3 = var_4->next;
-            if (temp_3 == NULL) {
-                var_4->next = (HDbText3D *)temp_2;
+            next = tail->next;
+            if (next == NULL) {
+                tail->next = (HDbText3D *)entry;
                 break;
             }
-            var_4 = temp_3;
+            tail = next;
         } while (1);
     }
 }
 
+/* Formats white screen-space text into a newly allocated queue entry. */
 // FUN_00450340
-void func_00450340(s64 arg0, const char *arg1, ...) {
+void sdkDbprtQueueText(s64 position, const char *format, ...) {
     va_list args;
-    u8 *temp_2;
-    HDbText3D *var_4;
-    HDbText3D *temp_3;
-    f32 arg0hi;
+    u8 *entry;
+    HDbText3D *tail;
+    HDbText3D *next;
+    f32 y;
 
-    arg0hi = *(f32 *)((u8 *)&arg0 + 4);
+    y = ((PackedVec2f *)&position)->xy.y;
     chkmemSetLock(1);
     chkmemAllocSiteTag(D_00710500, 0x20A);
-    temp_2 = D_008873F4[0](1, 0x118, 0x40000);
-    if (temp_2 != NULL) {
+    entry = D_008873F4[0](1, 0x118, 0x40000);
+    if (entry != NULL) {
         chkmemSetLock(0);
-        va_start(args, arg1);
-        func_00446ed8(temp_2 + 0x10, arg1, args);
-        *(f32 *)(temp_2 + 4) = *(f32 *)&arg0;
-        *(f32 *)(temp_2 + 8) = arg0hi;
-        *(s32 *)(temp_2 + 0xC) = 0;
-        *(s32 *)(temp_2 + 0x110) = 0;
-        *(u8 *)(temp_2 + 0x117) = 0xFF;
-        *(u8 *)(temp_2 + 0x116) = 0xFF;
-        *(u8 *)(temp_2 + 0x115) = 0xFF;
-        *(u8 *)(temp_2 + 0x114) = 0xFF;
-        var_4 = iGpffffb9dc;
-        if (var_4 == NULL) {
-            iGpffffb9dc = (HDbText3D *)temp_2;
+        va_start(args, format);
+        func_00446ed8(entry + 0x10, format, args);
+        ((HDbText3D *)entry)->x = ((PackedVec2f *)&position)->xy.x;
+        ((HDbText3D *)entry)->y = y;
+        ((HDbText3D *)entry)->cameraDepth = 0.0f;
+        ((HDbText3D *)entry)->depthOffset = 0.0f;
+        ((HDbText3D *)entry)->color[3] = 0xFF;
+        ((HDbText3D *)entry)->color[2] = 0xFF;
+        ((HDbText3D *)entry)->color[1] = 0xFF;
+        ((HDbText3D *)entry)->color[0] = 0xFF;
+        tail = iGpffffb9dc;
+        if (tail == NULL) {
+            iGpffffb9dc = (HDbText3D *)entry;
             return;
         }
         do {
-            temp_3 = var_4->next;
-            if (temp_3 == NULL) {
-                var_4->next = (HDbText3D *)temp_2;
+            next = tail->next;
+            if (next == NULL) {
+                tail->next = (HDbText3D *)entry;
                 break;
             }
-            var_4 = temp_3;
+            tail = next;
         } while (1);
     }
 }

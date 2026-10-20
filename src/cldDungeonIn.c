@@ -2,76 +2,24 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "btl_effect_internal.h"
 #include "rw/std/stddef.h"
 
 extern u32 kwlnTaskGetWork(void *task);
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(u8 *arg0, u8 *arg1);
-extern void func_00268230(void *unused, void *task);
+extern void PrimAppendNode(u8 *list, u8 *node);
+extern void cldDungeonInDrawFrame(void *unused, void *task);
 extern u8 D_007964F0[];
-extern void func_002e1ef0(void *a);
+extern void nmListDestroyManager(void *manager);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void sdkSndFadeOutChannel(s32 a, s32 b);
-extern void datSetFlag(s32 a, s32 b);
+extern void datSetFlag(s32 flagId, s32 enabled);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
-extern u8 *func_002e1db0(s32 a, s32 b, s32 c, s32 d);
-extern void sdkSndRequestTrack(s32 a);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
+extern u8 *nmListAllocManager(s32 payloadSize, s32 onInsert, s32 onRemove, s32 onUpdate);
+extern void sdkSndRequestTrack(s32 trackId);
 extern u8 D_00638FC0[];
 extern u8 D_0063B070[];
-
-s32 func_00268870(u8 *arg0);
-void func_00268920(u8 *task);
-
-// FUN_00268920
-void func_00268920(u8 *task) {
-    u8 *s0 = (u8 *)kwlnTaskGetWork(task);
-    func_002e1ef0((void *)**(s32 **)(s0 + 8));
-    jtbl_008873EC[0](s0);
-    sdkSndFadeOutChannel(3, 0);
-    datSetFlag(0x1470, 0);
-}
-
-// FUN_00268870
-s32 func_00268870(u8 *arg0)
-{
-    u8 *state;
-    u8 *obj;
-
-    state = (u8 *)kwlnTaskGetWork(arg0);
-    obj = PrimAllocQueueNode();
-    *(void **)(obj + 8) = (void *)func_00268230;
-    *(u8 **)(obj + 0x10) = arg0;
-    PrimAppendNode(D_007964F0, obj);
-    switch (*(s32 *)state) {
-    case 0:
-    case 1:
-    case 2:
-        break;
-    case 3:
-        return -1;
-    }
-    return 0;
-}
-// FUN_00268990
-s32 func_00268990(s32 arg0) {
-    u8 *s0;
-    u8 *v0;
-    u8 **v1;
-    s32 ret;
-
-    chkmemAllocSiteTag(D_00638FC0, 0x33D);
-    s0 = D_008873F4[0](1, 0xC, 0x40000);
-    *(s32 *)s0 = 0;
-    v0 = func_002e1db0(0x10, 0, 0, 0);
-    v1 = *(u8 ***)(v0 + 0x24);
-    *v1 = v0;
-    *(u8 ***)(s0 + 8) = v1;
-    ret = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063B070), 0xF, 0, 0, func_00268870, func_00268920, (u8 *)(s0));
-    sdkSndRequestTrack(0x40);
-    datSetFlag(0x1470, 1);
-    return ret;
-}
 
 typedef struct DungeonInColor { u8 r, g, b, a; } DungeonInColor;
 typedef struct DungeonInRect { s32 x, y, width, height; } DungeonInRect;
@@ -109,12 +57,70 @@ typedef struct DungeonInWork {
     s32 frame;
     DungeonInList **list;
 } DungeonInWork;
+
+s32 cldDungeonInTaskUpdate(u8 *task);
+void cldDungeonInTaskDestroy(u8 *task);
+
+/* Release the transition list, clear its activity flag, and stop its sound. */
+// FUN_00268920
+void cldDungeonInTaskDestroy(u8 *task) {
+    DungeonInWork *work = (DungeonInWork *)kwlnTaskGetWork(task);
+    nmListDestroyManager((void *)*work->list);
+    jtbl_008873EC[0](work);
+    sdkSndFadeOutChannel(3, 0);
+    datSetFlag(0x1470, 0);
+}
+
+/* Queue the transition renderer and finish once its state reaches 3. */
+// FUN_00268870
+s32 cldDungeonInTaskUpdate(u8 *task)
+{
+    DungeonInWork *state;
+    u8 *node;
+
+    state = (DungeonInWork *)kwlnTaskGetWork(task);
+    node = PrimAllocQueueNode();
+    ((BtlRenderNode *)node)->callback = (void *)cldDungeonInDrawFrame;
+    ((BtlRenderNode *)node)->work = task;
+    PrimAppendNode(D_007964F0, node);
+    switch (state->state) {
+    case 0:
+    case 1:
+    case 2:
+        break;
+    case 3:
+        return -1;
+    }
+    return 0;
+}
+/* Allocate a transition list and child task, then start the dungeon-entry track. */
+// FUN_00268990
+s32 cldDungeonInStart(s32 parentTask) {
+    DungeonInWork *work;
+    u8 *list;
+    u8 **listReference;
+    s32 task;
+
+    chkmemAllocSiteTag(D_00638FC0, 0x33D);
+    work = D_008873F4[0](1, 0xC, 0x40000);
+    work->state = 0;
+    list = nmListAllocManager(0x10, 0, 0, 0);
+    /* The list provider exposes its self-reference at +0x24; its remaining layout is opaque here. */
+    listReference = *(u8 ***)(list + 0x24);
+    *listReference = list;
+    work->list = (DungeonInList **)listReference;
+    task = (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063B070), 0xF, 0, 0, cldDungeonInTaskUpdate, cldDungeonInTaskDestroy, (u8 *)(work));
+    sdkSndRequestTrack(0x40);
+    datSetFlag(0x1470, 1);
+    return task;
+}
+
 extern void PrimDrawFlatRectangle(u8 *, f32 *, f32, s32);
 extern void H_Fade_SetCustomColor(s32, s32, s32);
 extern void PrimDrawContour(f32, f32, f32, s32, s32, s32, s32, s32, s32, f32, f32, f32);
 extern s32 sdkSpriteDrawNow(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32);
 extern u8 *resourceFindByName(char *);
-extern u8 *func_002e2170(u8 *, u8 *, s32);
+extern u8 *nmListAppendNode(u8 *, u8 *, s32);
 extern void kAssertFail(const void *, s32);
 extern void *memcpy(void *, const void *, u32);
 extern void cldShapeListDraw(u8 **);
@@ -132,8 +138,9 @@ static inline f32 dungeonInBezier(f32 t, f32 start, f32 control1, f32 control2, 
    offsets make the current-vector address a shared expression for both copies.
    Native b210 -O2 matches 1596/1600 bytes, with all 45 relocations and all 14
    owned data objects proved against retail; the remaining four bytes are zero. */
+/* Animate the dungeon-entry contour and its 19 interpolated shape entries. */
 // FUN_00268230
-void func_00268230(void *unused, void *task)
+void cldDungeonInDrawFrame(void *unused, void *task)
 {
     DungeonInColor color;
     DungeonInRect rect;
@@ -224,7 +231,7 @@ void func_00268230(void *unused, void *task)
                 mode = entry->mode;
                 duration = entry->duration;
                 kind = entry->kind;
-                nodeWork = ((DungeonInNode *)func_002e2170((u8 *)*work->list,
+                nodeWork = ((DungeonInNode *)nmListAppendNode((u8 *)*work->list,
                     (u8 *)(u32)((*work->list)->count + 1), 0x58))->work;
                 nodeWork->flags |= 1;
                 if (nodeWork == NULL) kAssertFail(D_00638FC0, 86);

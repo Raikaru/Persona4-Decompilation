@@ -2,12 +2,29 @@
 #include "type.h"
 #include "include_asm.h"
 #include "Kosaka/k_clump_internal.h"
+#include "rw_atomic_layout_internal.h"
 
-typedef int (*code)();
+/* SDK material and geometry offsets are defined in rw/world/bamateri.h
+ * and bageomet.h. Only the fields this unit touches are exposed here. */
+struct RpMaterial {
+    void *texture;
+    u8 color[4];
+    void *pipeline;
+    f32 surface[3];
+};
+struct RpGeometry {
+    u8 object[8];
+    u32 flags;
+    u8 pad0C[0x14];
+    u8 *materials;
+    s32 materialCount;
+};
+
+typedef s32 (*code)();
 extern code DAT_008873ec_abs[];
-extern void mdlReleaseU16Ref(int param_1);
+extern void mdlReleaseU16Ref(s32 wrapper);
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
-extern void mdlDispatchTrackRows(u8 *param_1, u8 *param_2, f32 param_3, f32 param_4, f32 param_5);
+extern void mdlDispatchTrackRows(u8 *leftTrack, u8 *leftTime, f32 rightTrack, f32 rightTime, f32 weight);
 extern u8 D_00713260[];
 extern u32 D_00713220[];
 
@@ -17,18 +34,50 @@ typedef struct {
     u32 field_8;
     u32 field_C;
 } MdlFrameDispatch;
+
+/* Nodes are allocated as 0x58 bytes. Four 0x10-byte tracks precede the
+ * material snapshot; the final words hold the retained collector and link. */
+typedef union MdlMatAnimAddress {
+    u32 word;
+    s32 signedWord;
+    u8 *bytes;
+} MdlMatAnimAddress;
+typedef struct MdlMatAnimChannel {
+    u32 count;
+    union { u32 word; f32 value; } duration;
+    u32 stride;
+    MdlMatAnimAddress data;
+} MdlMatAnimChannel;
+typedef struct MdlMatAnimNode {
+    MdlMatAnimChannel channels[4];
+    u8 color[4];
+    f32 surface[3];
+    MdlMatAnimAddress table;
+    MdlMatAnimAddress next;
+} MdlMatAnimNode;
+typedef struct MdlMatAnimCollector {
+    u8 *entries;
+    u16 count;
+    u16 capacity;
+    u16 references;
+    u16 unk0A;
+} MdlMatAnimCollector;
+typedef struct MdlMatAnimMatchCount {
+    u32 name;
+    u16 count;
+} MdlMatAnimMatchCount;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void memset(void *dest, s32 value, s32 size);
 extern s32 func_003bd0b0(u8 *userData, s32 index);
 extern s32 strcmp(const char *left, const char *right);
-extern void mdlAppendU32Entry(int *param_1,u32 param_2);
+extern void mdlAppendU32Entry(s32 *wrapper,u32 value);
 extern u8 DAT_007641e0;
 
-extern void *mdlMatAnimCollectMaterial(void *object, void *data);
+extern void *mdlMatAnimCollectMaterial(void *object, void *context);
 
-extern void *mdlMatAnimFlagMatchedAtomic(void *object, void *data);
+extern void *mdlMatAnimFlagMatchedAtomic(void *object, void *context);
 
-extern void *mdlMatAnimCountAtomicMatch(void *object, void *data);
+extern void *mdlMatAnimCountAtomicMatch(void *atomic, void *context);
 
 
 
@@ -49,31 +98,31 @@ s32 *mdlMatAnimCreateList(void)
 
 /* Frees a material-animation list: each node releases its four channel slots and its table reference, then the list head. */
 // FUN_0047FA60
-void mdlMatAnimFreeList(int param_1)
+void mdlMatAnimFreeList(s32 list)
 {
-  int iVar2;
-  int iVar1;
-  u32 uVar4;
-  u32 *puVar3;
+  s32 node;
+  s32 nextNode;
+  u32 channelIndex;
+  MdlMatAnimChannel *channel;
 
-  iVar2 = *(int *)param_1;
-  while (iVar2 != 0) {
-    iVar1 = *(int *)(iVar2 + 0x54);
-    for (uVar4 = 0; uVar4 < 4; uVar4 = uVar4 + 1) {
-      puVar3 = (u32 *)(iVar2 + uVar4 * 0x10);
-      if (puVar3[3] != 0) {
-        ((void (*)())DAT_008873ec_abs[0])(puVar3[3]);
-        puVar3[3] = 0;
+  node = *(s32 *)list;
+  while (node != 0) {
+    nextNode = ((MdlMatAnimNode *)node)->next.signedWord;
+    for (channelIndex = 0; channelIndex < 4; channelIndex = channelIndex + 1) {
+      channel = (MdlMatAnimChannel *)(node + channelIndex * 0x10);
+      if (channel->data.word != 0) {
+        ((void (*)())DAT_008873ec_abs[0])(channel->data.word);
+        channel->data.word = 0;
       }
-      *puVar3 = 0;
-      puVar3[1] = 0;
-      puVar3[2] = 0;
+      channel->count = 0;
+      channel->duration.word = 0;
+      channel->stride = 0;
     }
-    mdlReleaseU16Ref(*(u32 *)(iVar2 + 0x50));
-    ((void (*)())DAT_008873ec_abs[0])(iVar2);
-    iVar2 = iVar1;
+    mdlReleaseU16Ref(((MdlMatAnimNode *)node)->table.word);
+    ((void (*)())DAT_008873ec_abs[0])(node);
+    node = nextNode;
   }
-  ((void (*)())DAT_008873ec_abs[0])(param_1);
+  ((void (*)())DAT_008873ec_abs[0])(list);
   return;
 }
 
@@ -83,36 +132,37 @@ void mdlMatAnimFreeList(int param_1)
 
 /* Finds the node whose table is arg1, or whose table holds the same leading u32 entries (count at +4); NULL when none matches. */
 // FUN_0047FB50
-u8 *mdlMatAnimFindNodeByTable(u8 **arg0, s32 *arg1)
+u8 *mdlMatAnimFindNodeByTable(u8 **list, s32 *table)
 {
-    s32 temp_6;
-    s32 var_9;
-    s32 temp_8;
-    u8 *temp_7;
-    u8 *var_2;
+    s32 entryOffset;
+    s32 entryIndex;
+    s32 entryCount;
+    u8 *nodeTable;
+    u8 *node;
 
-    temp_8 = *(u16 *)(arg1 + 1);
-    var_2 = (u8 *)(*arg0);
-    while (var_2 != NULL) {
-        temp_7 = (u8 *)(*(u8 **)(var_2 + 0x50));
-        if (temp_7 == (u8 *)arg1) {
-            return var_2;
+    entryCount = ((MdlMatAnimCollector *)table)->count;
+    node = (u8 *)(*list);
+    while (node != NULL) {
+        nodeTable = (u8 *)(((MdlMatAnimNode *)node)->table.bytes);
+        if (nodeTable == (u8 *)table) {
+            return node;
         }
-        if (*(u16 *)(temp_7 + 4) == temp_8) {
-            var_9 = 0;
-            while (var_9 < temp_8) {
-                temp_6 = (var_9 & 0xFFFF) * 4;
-                if (*(u32 *)(*(u8 **)temp_7 + temp_6) == *(u32 *)(*(u8 **)arg1 + temp_6)) {
-                    var_9 += 1;
+        if (((MdlMatAnimCollector *)nodeTable)->count == entryCount) {
+            entryIndex = 0;
+            while (entryIndex < entryCount) {
+                entryOffset = (entryIndex & 0xFFFF) * 4;
+                /* measured: dividing the byte cursor for word indexing emits 184B against the 160B window; keep its native byte stride. */
+                if (*(u32 *)(*(u8 **)nodeTable + entryOffset) == *(u32 *)(*(u8 **)table + entryOffset)) {
+                    entryIndex += 1;
                 } else {
                     break;
                 }
             }
-            if (var_9 == temp_8) {
-                return var_2;
+            if (entryIndex == entryCount) {
+                return node;
             }
         }
-        var_2 = (u8 *)(*(u8 **)(var_2 + 0x54));
+        node = (u8 *)(((MdlMatAnimNode *)node)->next.bytes);
     }
     return NULL;
 }
@@ -121,7 +171,7 @@ u8 *mdlMatAnimFindNodeByTable(u8 **arg0, s32 *arg1)
 
 /* Scaled apply: for each node, initialises each enabled channel with the scale, then applies every table entry to that channel's working object. */
 // FUN_0047FBF0
-void mdlMatAnimApplyScaled(u8 **arg0, f32 scale)
+void mdlMatAnimApplyScaled(u8 **list, f32 scale)
 {
     u8 *node;
     u8 *tbl;
@@ -133,29 +183,29 @@ void mdlMatAnimApplyScaled(u8 **arg0, f32 scale)
     u8 *(*init)(u8 *, f32);
     void (*apply)(u8 *, u32);
 
-    node = *arg0;
+    node = *list;
     while (node != NULL) {
-        tbl = *(u8 **)(node + 0x50);
-        count = *(u16 *)(tbl + 4);
+        tbl = ((MdlMatAnimNode *)node)->table.bytes;
+        count = ((MdlMatAnimCollector *)tbl)->count;
         for (i = 0; i < 4; i++) {
-            if (*(u32 *)((u8 *)D_00713220 + i * 0x10 + 0xC) == 0) continue;
-            if (*(u32 *)(node + i * 0x10 + 0xC) == 0) continue;
-            init = (u8 *(*)(u8 *, f32))*(u32 *)((u8 *)D_00713220 + i * 0x10);
+            if (((MdlFrameDispatch *)((u8 *)D_00713220 + i * 0x10))->field_C == 0) continue;
+            if (((MdlMatAnimChannel *)(node + i * 0x10))->data.word == 0) continue;
+            init = (u8 *(*)(u8 *, f32))((MdlFrameDispatch *)((u8 *)D_00713220 + i * 0x10))->field_0;
             work = init(node + i * 0x10, scale);
             entry = (u8 *)D_00713220 + i * 0x10;
             for (j = 0; j < count; j++) {
-                apply = (void (*)(u8 *, u32))*(u32 *)(entry + 0xC);
-                apply(work, *(u32 *)(*(u8 **)tbl + j * 4));
+                apply = (void (*)(u8 *, u32))((MdlFrameDispatch *)entry)->field_C;
+                apply(work, ((u32 *)*(u8 **)tbl)[j]);
             }
         }
-        node = *(u8 **)(node + 0x54);
+        node = ((MdlMatAnimNode *)node)->next.bytes;
     }
 }
 
 
 /* For each node, dispatches the track rows when the second list has a matching table; otherwise applies every enabled channel with the pivot at +0x40 and the scales. */
 // FUN_0047FD10
-void mdlMatAnimUpdateList(u8 **arg0, f32 scale1, u8 **arg1, f32 scale2, f32 scale3)
+void mdlMatAnimUpdateList(u8 **list, f32 scale1, u8 **referenceList, f32 scale2, f32 scale3)
 {
     u8 *node;
     u8 *match;
@@ -168,27 +218,28 @@ void mdlMatAnimUpdateList(u8 **arg0, f32 scale1, u8 **arg1, f32 scale2, f32 scal
     u8 *(*init)(u8 *, f32, u8 *, f32);
     void (*apply)(u8 *, u32);
 
-    node = *arg0;
+    node = *list;
     while (node != NULL) {
-        match = mdlMatAnimFindNodeByTable(arg1, (s32 *)*(u8 **)(node + 0x50));
+        /* measured: typed table loads cache the pre-callback value (nd229); raw reloads retain MATCH. */
+        match = mdlMatAnimFindNodeByTable(referenceList, (s32 *)*(u8 **)(node + 0x50));
         if (match != NULL) {
             mdlDispatchTrackRows(node, match, scale1, scale2, scale3);
         } else {
             tbl = *(u8 **)(node + 0x50);
-            count = *(u16 *)(tbl + 4);
+            count = ((MdlMatAnimCollector *)tbl)->count;
             for (i = 0; i < 4; i++) {
-                if (*(u32 *)((u8 *)D_00713220 + i * 0x10 + 0xC) == 0) continue;
-                if (*(u32 *)(node + i * 0x10 + 0xC) == 0) continue;
-                init = (u8 *(*)(u8 *, f32, u8 *, f32))*(u32 *)((u8 *)D_00713220 + i * 0x10 + 8);
+                if (((MdlFrameDispatch *)((u8 *)D_00713220 + i * 0x10))->field_C == 0) continue;
+                if (((MdlMatAnimChannel *)(node + i * 0x10))->data.word == 0) continue;
+                init = (u8 *(*)(u8 *, f32, u8 *, f32))((MdlFrameDispatch *)((u8 *)D_00713220 + i * 0x10))->field_8;
                 work = init(node + i * 0x10, scale1, node + 0x40, scale3);
                 entry = (u8 *)D_00713220 + i * 0x10;
                 for (j = 0; j < count; j++) {
-                    apply = (void (*)(u8 *, u32))*(u32 *)(entry + 0xC);
-                    apply(work, *(u32 *)(*(u8 **)tbl + j * 4));
+                    apply = (void (*)(u8 *, u32))((MdlFrameDispatch *)entry)->field_C;
+                    apply(work, ((u32 *)*(u8 **)tbl)[j]);
                 }
             }
         }
-        node = *(u8 **)(node + 0x54);
+        node = ((MdlMatAnimNode *)node)->next.bytes;
     }
 }
 
@@ -197,7 +248,7 @@ void mdlMatAnimUpdateList(u8 **arg0, f32 scale1, u8 **arg1, f32 scale2, f32 scal
 
 /* For each node, applies every enabled channel's init callback with scale1, the node pivot at +0x40 and scale2, then applies each table entry to the working object. */
 // FUN_0047FE90
-void mdlMatAnimApplyWithPivot(u8 **arg0, f32 scale1, f32 scale2)
+void mdlMatAnimApplyWithPivot(u8 **list, f32 scale1, f32 scale2)
 {
     u8 *node;
     u8 *tbl;
@@ -209,77 +260,77 @@ void mdlMatAnimApplyWithPivot(u8 **arg0, f32 scale1, f32 scale2)
     u8 *(*init)(u8 *, f32, u8 *, f32);
     void (*apply)(u8 *, u32);
 
-    node = *arg0;
+    node = *list;
     while (node != NULL) {
-        tbl = *(u8 **)(node + 0x50);
-        count = *(u16 *)(tbl + 4);
+        tbl = ((MdlMatAnimNode *)node)->table.bytes;
+        count = ((MdlMatAnimCollector *)tbl)->count;
         for (i = 0; i < 4; i++) {
-            if (*(u32 *)((u8 *)D_00713220 + i * 0x10 + 0xC) == 0) continue;
-            if (*(u32 *)(node + i * 0x10 + 0xC) == 0) continue;
-            init = (u8 *(*)(u8 *, f32, u8 *, f32))*(u32 *)((u8 *)D_00713220 + i * 0x10 + 8);
+            if (((MdlFrameDispatch *)((u8 *)D_00713220 + i * 0x10))->field_C == 0) continue;
+            if (((MdlMatAnimChannel *)(node + i * 0x10))->data.word == 0) continue;
+            init = (u8 *(*)(u8 *, f32, u8 *, f32))((MdlFrameDispatch *)((u8 *)D_00713220 + i * 0x10))->field_8;
             work = init(node + i * 0x10, scale1, node + 0x40, scale2);
             entry = (u8 *)D_00713220 + i * 0x10;
             for (j = 0; j < count; j++) {
-                apply = (void (*)(u8 *, u32))*(u32 *)(entry + 0xC);
-                apply(work, *(u32 *)(*(u8 **)tbl + j * 4));
+                apply = (void (*)(u8 *, u32))((MdlFrameDispatch *)entry)->field_C;
+                apply(work, ((u32 *)*(u8 **)tbl)[j]);
             }
         }
-        node = *(u8 **)(node + 0x54);
+        node = ((MdlMatAnimNode *)node)->next.bytes;
     }
 }
 
 
 /* Copies each node's packed colour (+0x40) and three surface floats (+0x44..+0x4C) into every entry of its track table. The reads are volatile, per the measured note in the body. */
 // FUN_0047FFC0
-void mdlMatAnimCopyNodeMaterial(int *param_1)
+void mdlMatAnimCopyNodeMaterial(s32 *object)
 {
-  u8 uVar0;
+  u8 red;
 
-  u8 uVar1;
+  u8 green;
 
-  u8 uVar2;
+  u8 blue;
 
-  u8 uVar3;
+  u8 alpha;
 
-  u32 uVar4;
+  u32 entryCount;
 
-  int *piVar5;
+  s32 *table;
 
-  int iVar6;
+  s32 material;
 
-  int iVar8;
+  s32 node;
 
-  u32 uVar7;
+  u32 entryIndex;
 
-  f32 fVar9;
+  f32 ambient;
 
-  f32 fVar11;
-  f32 fVar10;
+  f32 diffuse;
+  f32 specular;
 
-  iVar8 = *param_1;
-  for (; iVar8 != 0; iVar8 = *(int *)(iVar8 + 0x54)) {
+  node = *object;
+  for (; node != 0; node = ((MdlMatAnimNode *)node)->next.signedWord) {
 
-    piVar5 = *(int **)(iVar8 + 0x50);
+    table = (s32 *)((MdlMatAnimNode *)node)->table.bytes;
 
-    uVar4 = *(u16 *)(piVar5 + 1);
+    entryCount = ((MdlMatAnimCollector *)table)->count;
 
-    for (uVar7 = 0; uVar7 < uVar4; uVar7 = uVar7 + 1) {
-      iVar6 = *(int *)(*piVar5 + uVar7 * 4);
-      uVar0 = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(iVar8 + 0x40);
-      uVar1 = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(iVar8 + 0x41);
-      uVar2 = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(iVar8 + 0x42);
-      uVar3 = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(iVar8 + 0x43);
-      *(u8 *)(iVar6 + 4) = uVar0;
-      *(u8 *)(iVar6 + 5) = uVar1;
-      *(u8 *)(iVar6 + 6) = uVar2;
-      *(u8 *)(iVar6 + 7) = uVar3;
-      iVar6 = *(int *)(*piVar5 + uVar7 * 4);
-      fVar9 = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ f32 *)(iVar8 + 0x44);
-      fVar10 = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ f32 *)(iVar8 + 0x48);
-      fVar11 = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ f32 *)(iVar8 + 0x4c);
-      *(f32 *)(iVar6 + 0xc) = fVar9;
-      *(f32 *)(iVar6 + 0x10) = fVar10;
-      *(f32 *)(iVar6 + 0x14) = fVar11;
+    for (entryIndex = 0; entryIndex < entryCount; entryIndex = entryIndex + 1) {
+      material = ((s32 *)*table)[entryIndex];
+      red = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(node + 0x40);
+      green = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(node + 0x41);
+      blue = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(node + 0x42);
+      alpha = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(node + 0x43);
+      ((RpMaterial *)material)->color[0] = red;
+      ((RpMaterial *)material)->color[1] = green;
+      ((RpMaterial *)material)->color[2] = blue;
+      ((RpMaterial *)material)->color[3] = alpha;
+      material = ((s32 *)*table)[entryIndex];
+      ambient = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ f32 *)(node + 0x44);
+      specular = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ f32 *)(node + 0x48);
+      diffuse = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ f32 *)(node + 0x4c);
+      ((RpMaterial *)material)->surface[0] = ambient;
+      ((RpMaterial *)material)->surface[1] = specular;
+      ((RpMaterial *)material)->surface[2] = diffuse;
     }
 
 
@@ -295,29 +346,29 @@ void mdlMatAnimCopyNodeMaterial(int *param_1)
 
 /* Returns the largest channel duration (+4) across all nodes whose channel data pointer (+0xC) is set; zero if none. */
 // FUN_00480060
-f32 mdlMatAnimMaxDuration(u8 **arg0)
+f32 mdlMatAnimMaxDuration(u8 **list)
 {
-    f32 var_f0;
-    f32 temp_f1;
-    u8 *var_5;
-    u32 var_4;
+    f32 maximumDuration;
+    f32 duration;
+    u8 *node;
+    u32 channelIndex;
 
-    var_f0 = 0.0f;
-    var_5 = (u8 *)(*arg0);
-    while (var_5 != NULL) {
-        var_4 = 0;
-        while (var_4 < 4U) {
-            if (*(s32 *)(var_5 + var_4 * 0x10 + 0xC) != 0) {
-                temp_f1 = *(f32 *)(var_5 + var_4 * 0x10 + 4);
-                if (temp_f1 > var_f0) {
-                    var_f0 = temp_f1;
+    maximumDuration = 0.0f;
+    node = (u8 *)(*list);
+    while (node != NULL) {
+        channelIndex = 0;
+        while (channelIndex < 4U) {
+            if (((MdlMatAnimChannel *)(node + channelIndex * 0x10))->data.signedWord != 0) {
+                duration = ((MdlMatAnimChannel *)(node + channelIndex * 0x10))->duration.value;
+                if (duration > maximumDuration) {
+                    maximumDuration = duration;
                 }
             }
-            var_4 += 1;
+            channelIndex += 1;
         }
-        var_5 = (u8 *)(*(u8 **)(var_5 + 0x54));
+        node = (u8 *)(((MdlMatAnimNode *)node)->next.bytes);
     }
-    return var_f0;
+    return maximumDuration;
 }
 
 
@@ -328,7 +379,7 @@ f32 mdlMatAnimMaxDuration(u8 **arg0)
  * scheduling. Reuse the counter to stage the name length before reading.
  * Both loader paths supply only material chunk tags 0xF0F00080..83. */
 // FUN_004800D0
-s32 mdlMatAnimLoadChunk(void *arg0, u8 **arg1, u32 arg2, void *arg3)
+s32 mdlMatAnimLoadChunk(void *stream, u8 **list, u32 chunkTag, void *clump)
 {
     typedef struct { u32 count; f32 duration; u32 stride; u32 nameLength; u32 unk10; } Hdr;
     typedef struct { u8 r, g, b, a; } MatColor;
@@ -347,12 +398,12 @@ s32 mdlMatAnimLoadChunk(void *arg0, u8 **arg1, u32 arg2, void *arg3)
     u8 *tmp;
     extern u32 func_003e2910(void *a, void *b, u32 c);
     extern void *func_003e2ce0(void *a, u32 b);
-    extern u16 mdlMatAnimCountClumpMatches(void *a, u32 b);
-    extern u8 *mdlMatAnimAllocCollector(s32 a);
-    extern void *mdlMatAnimFlagClumpMatches(void *a, void *b);
-    extern u32 mdlRetainU16Ref(s32 a);
+    extern u16 mdlMatAnimCountClumpMatches(void *object, u32 nameAddress);
+    extern u8 *mdlMatAnimAllocCollector(s32 capacity);
+    extern void *mdlMatAnimFlagClumpMatches(void *object, void *context);
+    extern u32 mdlRetainU16Ref(s32 wrapper);
 
-    func_003e2910(arg0, &header, 0x14);
+    func_003e2910(stream, &header, 0x14);
     if (header.nameLength < 0x80U) {
         name = nameBuf;
         allocated = 0;
@@ -362,17 +413,17 @@ s32 mdlMatAnimLoadChunk(void *arg0, u8 **arg1, u32 arg2, void *arg3)
         allocated = 1;
     }
     i = header.nameLength;
-    func_003e2910(arg0, name, i);
+    func_003e2910(stream, name, i);
     name[header.nameLength] = 0;
-    search[0] = (u32)mdlMatAnimAllocCollector(mdlMatAnimCountClumpMatches(arg3, (u32)name) & 0xFFFFU);
+    search[0] = (u32)mdlMatAnimAllocCollector(mdlMatAnimCountClumpMatches(clump, (u32)name) & 0xFFFFU);
     search[1] = (u32)name;
-    mdlMatAnimFlagClumpMatches(arg3, search);
+    mdlMatAnimFlagClumpMatches(clump, search);
     if (allocated != 0) {
         DAT_008873ec_abs[0](name);
     }
     table = (u8 *)search[0];
-    for (tmp = *arg1; tmp != NULL; tmp = *(u8 **)(tmp + 0x54)) {
-        if (*(u8 **)(tmp + 0x50) == table) {
+    for (tmp = *list; tmp != NULL; tmp = ((MdlMatAnimNode *)tmp)->next.bytes) {
+        if (((MdlMatAnimNode *)tmp)->table.bytes == table) {
             node = tmp;
             goto found;
         }
@@ -387,33 +438,34 @@ found:
         goto looptest2;
 loop2:
         tmp = node + (i * 0x10);
-        *(u32 *)(tmp + 0) = 0;
-        *(u32 *)(tmp + 4) = 0;
-        *(u32 *)(tmp + 8) = 0;
-        *(u32 *)(tmp + 0xC) = 0;
+        ((MdlMatAnimChannel *)tmp)->count = 0;
+        ((MdlMatAnimChannel *)tmp)->duration.word = 0;
+        ((MdlMatAnimChannel *)tmp)->stride = 0;
+        ((MdlMatAnimChannel *)tmp)->data.word = 0;
         i += 1;
 looptest2:
         if (i < 4U) {
             goto loop2;
         }
+        /* measured: typed next stores change alias scheduling; raw links reduce 872B to 868B. */
         *(u8 **)(node + 0x54) = NULL;
         entry = (u8 *)mdlRetainU16Ref((s32)table);
-        *(u8 **)(node + 0x50) = entry;
+        ((MdlMatAnimNode *)node)->table.bytes = entry;
         mat = *(u8 **)entry;
         mat = *(u8 **)mat;
-        *(MatColor *)(node + 0x40) = *(MatColor *)(mat + 4);
-        *(MatSurface *)(node + 0x44) = *(MatSurface *)(mat + 0xC);
-        tmp = *arg1;
+        *(MatColor *)((MdlMatAnimNode *)node)->color = *(MatColor *)((RpMaterial *)mat)->color;
+        *(MatSurface *)((MdlMatAnimNode *)node)->surface = *(MatSurface *)((RpMaterial *)mat)->surface;
+        tmp = *list;
         if (tmp == NULL) {
             *(u8 **)(node + 0x54) = NULL;
-            *arg1 = node;
+            *list = node;
         } else {
             *(u8 **)(node + 0x54) = tmp;
-            *arg1 = node;
+            *list = node;
         }
     }
     mdlReleaseU16Ref((s32)search[0]);
-    switch (arg2) {
+    switch (chunkTag) {
     case 0xF0F00080:
         channel = node;
         break;
@@ -429,15 +481,16 @@ looptest2:
     }
     {
         u32 dataSize = header.count * header.stride;
+        /* measured: typed payload-pointer accesses grow 864B to 868B; metadata fields match typed. */
         if (*(u8 **)(channel + 0xC) == NULL) {
-            *(u32 *)channel = header.count;
-            *(f32 *)(channel + 4) = header.duration;
-            *(u32 *)(channel + 8) = header.stride;
+            ((MdlMatAnimChannel *)channel)->count = header.count;
+            ((MdlMatAnimChannel *)channel)->duration.value = header.duration;
+            ((MdlMatAnimChannel *)channel)->stride = header.stride;
             chkmemAllocSiteTag(D_00713260, 0x349);
             *(u8 **)(channel + 0xC) = jtbl_008873E8[0](dataSize, 0x40000);
-            func_003e2910(arg0, *(u8 **)(channel + 0xC), dataSize);
+            func_003e2910(stream, *(u8 **)(channel + 0xC), dataSize);
         } else {
-            func_003e2ce0(arg0, dataSize);
+            func_003e2ce0(stream, dataSize);
         }
     }
     return 1;
@@ -447,9 +500,9 @@ looptest2:
 
 /* Material callback: appends the material to the collector and returns NULL when one of its user-data strings (type 3) equals the collector's name; otherwise returns the material so the walk continues. */
 // FUN_00480430
-void *mdlMatAnimCollectMaterial(void *param_1, void *context)
+void *mdlMatAnimCollectMaterial(void *object, void *context)
 {
-  u32 *param_2 = context;
+  u32 *collector = context;
   s32 arrayCount;
   s32 dataCount;
   s32 arrayIndex;
@@ -458,11 +511,11 @@ void *mdlMatAnimCollectMaterial(void *param_1, void *context)
   char *name;
   char *data;
 
-  arrayCount = func_003bcfb0(param_1);
+  arrayCount = func_003bcfb0(object);
 
   arrayIndex = 0;
   while (arrayIndex < arrayCount) {
-    userData = func_003bd000(param_1,arrayIndex);
+    userData = func_003bd000(object,arrayIndex);
     name = func_003bd040(userData);
     if (strcmp(name,(char *)&DAT_007641e0) == 0) {
       dataCount = func_003bd060(userData);
@@ -470,8 +523,8 @@ void *mdlMatAnimCollectMaterial(void *param_1, void *context)
       while (dataIndex < dataCount) {
         if (func_003bd050(userData) == 3) {
           data = (char *)func_003bd0b0((u8 *)userData,dataIndex);
-          if (strcmp((char *)param_2[1],data) == 0) {
-            mdlAppendU32Entry((int *)*param_2,(u32)param_1);
+          if (strcmp((char *)collector[1],data) == 0) {
+            mdlAppendU32Entry((s32 *)*collector,(u32)object);
             return 0;
           }
         }
@@ -480,49 +533,49 @@ void *mdlMatAnimCollectMaterial(void *param_1, void *context)
     }
     arrayIndex++;
   }
-  return param_1;
+  return object;
 }
 
 
 
 /* Atomic callback: the first material collected for this atomic sets flag 0x40 on the atomic's geometry and stops the material walk. */
 // FUN_00480580
-void *mdlMatAnimFlagMatchedAtomic(void *param_1, void *param_2)
+void *mdlMatAnimFlagMatchedAtomic(void *object, void *context)
 {
-  u8 *iVar1;
-  int iVar2;
-  void *lVar3;
-  int iVar4;
+  u8 *geometry;
+  s32 materialCount;
+  void *result;
+  s32 materialIndex;
 
-  iVar1 = *(u8 **)((u8 *)param_1 + 0x18);
-  iVar2 = *(int *)(iVar1 + 0x24);
-  iVar4 = 0;
+  geometry = (u8 *)((struct RpAtomic *)object)->geometry;
+  materialCount = ((struct RpGeometry *)geometry)->materialCount;
+  materialIndex = 0;
   goto check;
 loop:
-  lVar3 = mdlMatAnimCollectMaterial((void *)(*(u32 *)(*(u8 **)(iVar1 + 0x20) + iVar4 * 4)),param_2);
-  if (lVar3 != 0) {
+  result = mdlMatAnimCollectMaterial((void *)(((u32 *)((struct RpGeometry *)geometry)->materials)[materialIndex]),context);
+  if (result != 0) {
     goto increment;
   }
-  *(u32 *)(iVar1 + 8) = *(u32 *)(iVar1 + 8) | 0x40;
+  ((struct RpGeometry *)geometry)->flags = ((struct RpGeometry *)geometry)->flags | 0x40;
   goto done;
 increment:
-  iVar4 = iVar4 + 1;
+  materialIndex = materialIndex + 1;
 check:
-  if (iVar4 < iVar2) {
+  if (materialIndex < materialCount) {
     goto loop;
   }
 done:
-  return param_1;
+  return object;
 }
 
 
 
 /* Flags every atomic in the clump whose materials match the collector's name. */
 // FUN_00480630
-void *mdlMatAnimFlagClumpMatches(void *param_1, void *param_2)
+void *mdlMatAnimFlagClumpMatches(void *object, void *context)
 {
-  RpClumpForAllAtomics(param_1,mdlMatAnimFlagMatchedAtomic,param_2);
-  return param_1;
+  RpClumpForAllAtomics(object,mdlMatAnimFlagMatchedAtomic,context);
+  return object;
 }
 
 
@@ -531,35 +584,35 @@ void *mdlMatAnimFlagClumpMatches(void *param_1, void *param_2)
 
 /* Atomic callback: for each material of the atomic, adds one to the counter at +4 of the stack result when a user-data string matches the name; each material counts once. Returns the atomic. */
 // FUN_00480670
-void *mdlMatAnimCountAtomicMatch(void *arg0, void *arg1)
+void *mdlMatAnimCountAtomicMatch(void *atomic, void *context)
 {
-    s32 spB0;
-    s32 spA0;
-    RpMaterial *temp_21;
-    RpUserDataArray *temp_2;
-    s32 temp_30;
+    s32 arrayCount;
+    s32 dataCount;
+    RpMaterial *material;
+    RpUserDataArray *userData;
+    s32 materialCount;
     s32 i;
     s32 j;
     s32 k;
     u8 *list;
 
-    list = *(u8 **)((u8 *)arg0 + 0x18);
-    temp_30 = *(s32 *)(list + 0x24);
+    list = (u8 *)((struct RpAtomic *)atomic)->geometry;
+    materialCount = ((struct RpGeometry *)list)->materialCount;
     i = 0;
-    while (i < temp_30) {
-        temp_21 = (RpMaterial *)*(u32 *)(*(u8 **)(list + 0x20) + i * 4);
-        spB0 = func_003bcfb0(temp_21);
+    while (i < materialCount) {
+        material = (RpMaterial *)((u32 *)((struct RpGeometry *)list)->materials)[i];
+        arrayCount = func_003bcfb0(material);
         j = 0;
-        while (j < spB0) {
-            temp_2 = func_003bd000(temp_21, j);
-            if (strcmp((char *)func_003bd040(temp_2), (char *)&DAT_007641e0) == 0) {
-                spA0 = func_003bd060(temp_2);
+        while (j < arrayCount) {
+            userData = func_003bd000(material, j);
+            if (strcmp((char *)func_003bd040(userData), (char *)&DAT_007641e0) == 0) {
+                dataCount = func_003bd060(userData);
                 k = 0;
-                while (k < spA0) {
-                    if (func_003bd050(temp_2) == 3 &&
-                        strcmp((char *)*(u32 *)arg1,
-                               (char *)func_003bd0b0((u8 *)temp_2, k)) == 0) {
-                        *(u16 *)((u8 *)arg1 + 4) = *(u16 *)((u8 *)arg1 + 4) + 1;
+                while (k < dataCount) {
+                    if (func_003bd050(userData) == 3 &&
+                        strcmp((char *)((MdlMatAnimMatchCount *)context)->name,
+                               (char *)func_003bd0b0((u8 *)userData, k)) == 0) {
+                        ((MdlMatAnimMatchCount *)context)->count = ((MdlMatAnimMatchCount *)context)->count + 1;
                         break;
                     } else {
                         k++;
@@ -570,21 +623,21 @@ void *mdlMatAnimCountAtomicMatch(void *arg0, void *arg1)
         }
         i++;
     }
-    return arg0;
+    return atomic;
 }
 
 /* Returns how many materials in the clump carry the given name, found by a clump-wide walk with the atomic count callback. */
 // FUN_00480800
-u16 mdlMatAnimCountClumpMatches(void *param_1,u32 param_2)
+u16 mdlMatAnimCountClumpMatches(void *object,u32 nameAddress)
 {
   struct {
     u32 input;
     u16 output;
   } stack;
 
-  stack.input = param_2;
+  stack.input = nameAddress;
   stack.output = 0;
-  RpClumpForAllAtomics(param_1,mdlMatAnimCountAtomicMatch,&stack);
+  RpClumpForAllAtomics(object,mdlMatAnimCountAtomicMatch,&stack);
   return stack.output;
 }
 
@@ -592,15 +645,15 @@ u16 mdlMatAnimCountClumpMatches(void *param_1,u32 param_2)
 
 /* Allocates a material collector for arg0 entries: the entry pointer at +0 targets the inline array at +0xC, the u16 count at +4 starts at zero, the u16 capacity at +6 is arg0, and a flag at +8 is one. */
 // FUN_00480840
-u8 *mdlMatAnimAllocCollector(s32 arg0)
+u8 *mdlMatAnimAllocCollector(s32 capacity)
 {
     u8 *anim;
 
     chkmemAllocSiteTag(D_00713260, 0x3E1);
-    anim = (u8 *)jtbl_008873E8[0]((u16)arg0 * 4 + 0xC, 0x40000);
+    anim = (u8 *)jtbl_008873E8[0]((u16)capacity * 4 + 0xC, 0x40000);
     *(s32 *)anim = (s32)(anim + 0xC);
-    *(u16 *)(anim + 4) = 0;
-    *(u16 *)(anim + 8) = 1;
-    *(u16 *)(anim + 6) = arg0;
+    ((MdlMatAnimCollector *)anim)->count = 0;
+    ((MdlMatAnimCollector *)anim)->references = 1;
+    ((MdlMatAnimCollector *)anim)->capacity = capacity;
     return anim;
 }

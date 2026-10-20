@@ -135,9 +135,9 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
+                          u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                          u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
 
 extern s32 D_00762EA0;
 
@@ -169,8 +169,8 @@ extern s32 D_007642F0;
 
 
 
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
+extern u8 *MT_Scene_GetResListHead(s32 resourceType);
+extern void resrcMngSetDrawEnabled(s32 enabled, s32 includeFieldModels);
 
 
 
@@ -193,7 +193,7 @@ extern u8 D_005EF7C0[];
 extern u8 iGpffff9db8;
 extern u8 iGpffff9dc0;
 extern u8 iGpffff9dc8;
-extern s32 K_FldFrame_IsPointInTriangle(f32 *arg0, f32 **arg1, f32 *arg2);
+extern s32 K_FldFrame_IsPointInTriangle(f32 *point, f32 **vertices, f32 *normal);
 extern RwV3d D_005EFB98;
 static inline u8 *p4_00141cf0_add(u32 offset, u8 *base)
 {
@@ -292,8 +292,9 @@ extern f32 D_008872F8[];
  * D_005EFB98 is one 12-byte (0,1,0) vector, not separate XY/Z objects.
  * Its aggregate copy preserves the grouped retail load/store schedule.
  * The predicate and subsequent height checks share the live triangle. */
+/* Test both triangles of each surface within a 100-unit vertical band; return the first hit or FFFF. */
 // FUN_0014BE50
-u16 FldFrame_PickSurfaceAtPoint(u8 *arg0, u8 **arg1) {
+u16 FldFrame_PickSurfaceAtPoint(u8 *point, u8 **selectedSurface) {
     f32 *triangle[3];
     RwV3d normal;
     f32 pointY;
@@ -313,28 +314,28 @@ u16 FldFrame_PickSurfaceAtPoint(u8 *arg0, u8 **arg1) {
         triangle[0] = (f32 *)(surface + 0x15C);
         triangle[1] = (f32 *)(surface + 0x168);
         triangle[2] = (f32 *)(surface + 0x174);
-        if ((K_FldFrame_IsPointInTriangle((f32 *)arg0, triangle, (f32 *)&normal) == 1) &&
+        if ((K_FldFrame_IsPointInTriangle((f32 *)point, triangle, (f32 *)&normal) == 1) &&
             (surfaceY = triangle[0][1],
-             pointY = *(f32 *)(arg0 + 4),
+             pointY = ((RwV3d *)point)->y,
              (pointY < (100.0f + surfaceY))) &&
             !(pointY <= (surfaceY - 100.0f))) {
-            selectedId = *(u16 *)surface;
-            *arg1 = surface;
+            selectedId = ((ResrcRecord *)surface)->resTypeId;
+            *selectedSurface = surface;
             goto done;
         }
         triangle[0] = (f32 *)(surface + 0x168);
         triangle[1] = (f32 *)(surface + 0x174);
         triangle[2] = (f32 *)(surface + 0x180);
-        if ((K_FldFrame_IsPointInTriangle((f32 *)arg0, triangle, (f32 *)&normal) == 1) &&
+        if ((K_FldFrame_IsPointInTriangle((f32 *)point, triangle, (f32 *)&normal) == 1) &&
             (secondSurfaceY = triangle[0][1],
-             secondPointY = *(f32 *)(arg0 + 4),
+             secondPointY = ((RwV3d *)point)->y,
              (secondPointY < (100.0f + secondSurfaceY))) &&
             !(secondPointY <= (secondSurfaceY - 100.0f))) {
-            selectedId = *(u16 *)surface;
-            *arg1 = surface;
+            selectedId = ((ResrcRecord *)surface)->resTypeId;
+            *selectedSurface = surface;
             goto done;
         }
-        surface = *(u8 **)(surface + 0x138);
+        surface = (u8 *)((ResrcRecord *)surface)->next;
     }
 done:
     return selectedId;

@@ -4,6 +4,20 @@
 /* Persona 4 USA decompilation - cldDayChange.c */
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
+#include "btl_effect_internal.h"
+
+/* The task constructors allocate 0x24 bytes; their callbacks agree on these words. */
+typedef struct CldDayChangeWork {
+    s32 state;
+    s32 flags;
+    s32 sprites;
+    s32 renderList;
+    s32 month;
+    s32 nextMonth;
+    s32 frame;
+    s32 markerSprites;
+    s32 unk20;
+} CldDayChangeWork;
 extern u8 iGpffffa6c8;
 extern u8 D_006376B0[];
 extern u8 D_006376C0[];
@@ -15,57 +29,57 @@ extern void PrimAppendNode(void *, void *);
 extern u8 *kwlnTaskGetWork();
 extern void sdkSpriteRelease(void *);
 void kAssertFail(const void *file, s32 line);
-void chkmemAllocSiteTag(const void *msg, s32 id);
+void chkmemAllocSiteTag(const void *file, s32 line);
 
 s32 sdkSndFadeOutChannel();
 s32 sdkSndStopChannel();
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
-s32 cldDayChangeTaskUpdate(u8 *task);
-void cldDayChangeStopTask(u8 *task);
-void cldDayChangeDrawFrame(s32 arg0, s32 arg1);
-s32 cldDayChangeUpdateState(u8 *arg0);
-void cldDayChangeAddRenderTask(s32 arg0, u8 *arg1);
-void cldDayChangeTaskDestroy(u8 *arg0);
-void shdEnableBlendFlag(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                   u8 *arg4, s32 arg5, s32 arg6);
+s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes);
+void cldDayChangeStopTask(u8 *unusedTask);
+void cldDayChangeDrawFrame(s32 unused, s32 task);
+s32 cldDayChangeUpdateState(u8 *task);
+void cldDayChangeAddRenderTask(s32 task, u8 *renderList);
+void cldDayChangeTaskDestroy(u8 *task);
+void shdEnableBlendFlag(s32 value, s32 option1, s32 option2, s32 option3,
+                   u8 *option4, s32 option5, s32 option6);
 void shdDisableBlendFlag(void);
-void PrimDrawPoints(void *arg0, void *arg1, f32 fparg0, s32 arg2, s32 arg3,
-                   s32 arg4);
+void PrimDrawPoints(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType,
+                   s32 preserveState);
 extern f32 iGpffff84a4;
 extern f32 iGpffff84a4;
-extern f32 cosf(f32 fparg0);
-extern f32 sinf(f32 fparg0);
-void cldDayChangeDrawMonthOutline(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3);
-void cldDayChangeDrawMarker(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u32 arg3,
-                   s32 arg4);
-void cldDayChangeDrawPolygon(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3,
-                   u8 *arg4, s32 arg5, f32 fparg1, f32 fparg2);
+extern f32 cosf(f32 floatValue);
+extern f32 sinf(f32 floatValue);
+void cldDayChangeDrawMonthOutline(s32 x, s32 y, f32 depth, s32 opacity, s32 month);
+void cldDayChangeDrawMarker(s32 x, s32 y, f32 depth, s32 opacity, u32 month,
+                   s32 sprites);
+void cldDayChangeDrawPolygon(s32 x, s32 y, f32 depth, u32 rgb, s32 opacity,
+                   u8 *points, s32 pointCount, f32 scaleX, f32 scaleY);
 s32 sprintf(char *buf, const char *fmt, ...);
-u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
+u8 *H_Cdvd_LookupRequest(void *pathAddress, u32 *slot);
 u8 *sdkSpriteRequestLoad(const char *name);
-s32 func_0046a750(s32 param);
+s32 hMaestroDecodeIsReady(s32 state);
 extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern u8 D_006376F0[];
-void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
+void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
 
 
 /* Creates the day-change display task with its update and destroy callbacks. */
 // FUN_00264D90
-void cldDayChangeStartTask(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    u8 *p;
+void cldDayChangeStartTask(s32 parentTask, s32 value, s32 month, s32 sprites) {
+    u8 *work;
 
-    if (arg3 == 0) {
+    if (sprites == 0) {
         kAssertFail(&D_006376B0, 0x451);
     }
     chkmemAllocSiteTag(&D_006376B0, 0x452);
-    p = D_008873F4[0](1, 0x24, 0x40000);
-    *(s32 *)(p + 0) = 0;
-    *(s32 *)(p + 8) = arg3;
-    *(s32 *)(p + 0xC) = arg1;
-    *(s32 *)(p + 0x10) = arg2;
-    *(s32 *)(p + 0x18) = arg1;
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_006376C0), 0x10, 0, 0, cldDayChangeTaskUpdate, cldDayChangeStopTask, (u8 *)(p));
+    work = D_008873F4[0](1, 0x24, 0x40000);
+    ((CldDayChangeWork *)work)->state = 0;
+    ((CldDayChangeWork *)work)->sprites = sprites;
+    ((CldDayChangeWork *)work)->renderList = value;
+    ((CldDayChangeWork *)work)->month = month;
+    ((CldDayChangeWork *)work)->frame = value;
+    (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_006376C0), 0x10, 0, 0, cldDayChangeTaskUpdate, cldDayChangeStopTask, (u8 *)(work));
 }
 
 /* Reads the day-change data file into memory synchronously. */
@@ -78,166 +92,166 @@ void cldDayChangePreloadData(void)
 
 /* Day-change state machine: advances the display through states 0 to 10. */
 // FUN_00264EC0
-s32 cldDayChangeUpdateState(u8 *arg0) {
-    s32 *p;
-    u8 buf[0x4C];
-    u32 tmp;
-    u8 *s;
+s32 cldDayChangeUpdateState(u8 *task) {
+    CldDayChangeWork *work;
+    u8 path[0x4C];
+    u32 fileSize;
+    u8 *blob;
 
-    p = (s32 *)kwlnTaskGetWork();
-    switch (p[0]) {
+    work = (CldDayChangeWork *)kwlnTaskGetWork();
+    switch (work->state) {
     case 0:
-        p[0] = 1;
+        work->state = 1;
         /* fallthrough */
     case 1:
-        if (p[1] & 1) {
-            p[1] &= ~1;
-            p[0] = 4;
-            p[1] |= 4;
-            p[4] = p[5];
-            p[5] = 0;
+        if (work->flags & 1) {
+            work->flags &= ~1;
+            work->state = 4;
+            work->flags |= 4;
+            work->month = work->nextMonth;
+            work->nextMonth = 0;
         }
         break;
     case 2:
-        if (p[2] != 0) {
-            sdkSpriteRelease((void *)p[2]);
-            p[2] = 0;
-            p[1] &= ~4;
+        if (work->sprites != 0) {
+            sdkSpriteRelease((void *)work->sprites);
+            work->sprites = 0;
+            work->flags &= ~4;
         }
-        sprintf((char *)buf, (const char *)D_006376F0, p[4]);
-        s = H_Cdvd_LookupRequest(buf, &tmp);
-        if (s == 0) {
-            p[2] = (s32)sdkSpriteRequestLoad((const char *)buf);
-            p[0] = 3;
+        sprintf((char *)path, (const char *)D_006376F0, work->month);
+        blob = H_Cdvd_LookupRequest(path, &fileSize);
+        if (blob == 0) {
+            work->sprites = (s32)sdkSpriteRequestLoad((const char *)path);
+            work->state = 3;
         } else {
-            p[2] = (s32)sdkSpriteAdoptBlob((u32)s);
-            p[0] = 3;
+            work->sprites = (s32)sdkSpriteAdoptBlob((u32)blob);
+            work->state = 3;
         }
         break;
     case 3:
-        if (func_0046a750(p[2]) != 0) {
-            p[0] = 4;
-            p[1] |= 4;
+        if (hMaestroDecodeIsReady(work->sprites) != 0) {
+            work->state = 4;
+            work->flags |= 4;
         }
         break;
     case 4:
-        p[0] = 5;
-        p[6] = 0;
+        work->state = 5;
+        work->frame = 0;
         /* fallthrough */
     case 5:
-        p[6]++;
-        if (p[6] >= 7) {
-            p[0] = 6;
-            p[6] = 0;
+        work->frame++;
+        if (work->frame >= 7) {
+            work->state = 6;
+            work->frame = 0;
         }
         break;
     case 6:
-        p[0] = 7;
-        p[6] = 0;
+        work->state = 7;
+        work->frame = 0;
         /* fallthrough */
     case 7:
-        if ((p[1] & 2) || (p[1] & 1)) {
-            p[1] &= ~2;
-            p[0] = 8;
-            p[6] = 0;
+        if ((work->flags & 2) || (work->flags & 1)) {
+            work->flags &= ~2;
+            work->state = 8;
+            work->frame = 0;
         }
         break;
     case 8:
-        p[0] = 9;
-        p[6] = 0;
+        work->state = 9;
+        work->frame = 0;
         /* fallthrough */
     case 9:
-        p[6]++;
-        if (p[6] >= 10) {
-            p[0] = 10;
-            p[6] = 0;
+        work->frame++;
+        if (work->frame >= 10) {
+            work->state = 10;
+            work->frame = 0;
         }
         break;
     case 10:
-        p[0] = 1;
+        work->state = 1;
         break;
     }
-    cldDayChangeAddRenderTask((s32)arg0, (u8 *)p[3]);
+    cldDayChangeAddRenderTask((s32)task, (u8 *)work->renderList);
     return 0;
 }
 
-/* Draws the marker for dial case `arg3` at the point given by arg0 and arg1. */
+/* Draw the selected month marker at (x, y), using the supplied sprite pack. */
 // FUN_00265110
-void cldDayChangeDrawMarker(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, u32 arg3,
-                   s32 arg4) {
-    if (arg4 != 0) {
-        switch (arg3) {
+void cldDayChangeDrawMarker(s32 x, s32 y, f32 depth, s32 opacity, u32 month,
+                   s32 sprites) {
+    if (sprites != 0) {
+        switch (month) {
         case 4:
-            shdSpriteDrawNow((f32)(arg0 + 0x1E), (f32)(arg1 + 0x62), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x1E), (f32)(arg1 + 0x62), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x1E), (f32)(arg1 + 0x62), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x1E), (f32)(arg1 + 0x62), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
+            shdSpriteDrawNow((f32)(x + 0x1E), (f32)(y + 0x62), depth, 0x4C4C4C, opacity, 0xB, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x1E), (f32)(y + 0x62), depth, 0x4C4C4C, opacity, 0xC, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x1E), (f32)(y + 0x62), depth, 0x4C4C4C, opacity, 0x10, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x1E), (f32)(y + 0x62), depth, 0x4C4C4C, opacity, 0x12, 0, (u8 *)(sprites), 1);
             return;
         case 5:
-            shdSpriteDrawNow((f32)(arg0 + 0x23), (f32)(arg1 + 0x98), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x23), (f32)(arg1 + 0x98), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x23), (f32)(arg1 + 0x98), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x23), (f32)(arg1 + 0x98), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
+            shdSpriteDrawNow((f32)(x + 0x23), (f32)(y + 0x98), depth, 0x4C4C4C, opacity, 0xB, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x23), (f32)(y + 0x98), depth, 0x4C4C4C, opacity, 0xC, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x23), (f32)(y + 0x98), depth, 0x4C4C4C, opacity, 0x10, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x23), (f32)(y + 0x98), depth, 0x4C4C4C, opacity, 0x12, 0, (u8 *)(sprites), 1);
             return;
         case 6:
-            shdSpriteDrawNow((f32)(arg0 + 0xA), (f32)(arg1 + 0xCC), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0xA), (f32)(arg1 + 0xCC), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0xA), (f32)(arg1 + 0xCC), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0xA), (f32)(arg1 + 0xCC), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
+            shdSpriteDrawNow((f32)(x + 0xA), (f32)(y + 0xCC), depth, 0x4C4C4C, opacity, 0xB, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0xA), (f32)(y + 0xCC), depth, 0x4C4C4C, opacity, 0xC, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0xA), (f32)(y + 0xCC), depth, 0x4C4C4C, opacity, 0x10, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0xA), (f32)(y + 0xCC), depth, 0x4C4C4C, opacity, 0x12, 0, (u8 *)(sprites), 1);
             return;
         case 7:
-            shdSpriteDrawNow((f32)(arg0 + 0x90), (f32)(arg1 + 0xCF), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x90), (f32)(arg1 + 0xCF), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x90), (f32)(arg1 + 0xCF), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x90), (f32)(arg1 + 0xCF), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
+            shdSpriteDrawNow((f32)(x + 0x90), (f32)(y + 0xCF), depth, 0x4C4C4C, opacity, 0xB, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x90), (f32)(y + 0xCF), depth, 0x4C4C4C, opacity, 0xC, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x90), (f32)(y + 0xCF), depth, 0x4C4C4C, opacity, 0x10, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x90), (f32)(y + 0xCF), depth, 0x4C4C4C, opacity, 0x12, 0, (u8 *)(sprites), 1);
             return;
         case 8:
-            shdSpriteDrawNow((f32)(arg0 + 0x2), (f32)(arg1 + 0x95), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x2), (f32)(arg1 + 0x95), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x2), (f32)(arg1 + 0x95), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x2), (f32)(arg1 + 0x95), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
+            shdSpriteDrawNow((f32)(x + 0x2), (f32)(y + 0x95), depth, 0x4C4C4C, opacity, 0xB, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x2), (f32)(y + 0x95), depth, 0x4C4C4C, opacity, 0xC, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x2), (f32)(y + 0x95), depth, 0x4C4C4C, opacity, 0x10, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x2), (f32)(y + 0x95), depth, 0x4C4C4C, opacity, 0x12, 0, (u8 *)(sprites), 1);
             return;
         case 9:
-            shdSpriteDrawNow((f32)(arg0 + 0xA2), (f32)(arg1 + 0xC1), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0xA2), (f32)(arg1 + 0xC1), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0xA2), (f32)(arg1 + 0xC1), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0xA2), (f32)(arg1 + 0xC1), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
+            shdSpriteDrawNow((f32)(x + 0xA2), (f32)(y + 0xC1), depth, 0x4C4C4C, opacity, 0xB, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0xA2), (f32)(y + 0xC1), depth, 0x4C4C4C, opacity, 0xC, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0xA2), (f32)(y + 0xC1), depth, 0x4C4C4C, opacity, 0x10, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0xA2), (f32)(y + 0xC1), depth, 0x4C4C4C, opacity, 0x12, 0, (u8 *)(sprites), 1);
             return;
         case 10:
-            shdSpriteDrawNow((f32)(arg0 + 0xB3), (f32)(arg1 + 0xD9), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0xB3), (f32)(arg1 + 0xD9), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0xB3), (f32)(arg1 + 0xD9), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0xB3), (f32)(arg1 + 0xD9), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
+            shdSpriteDrawNow((f32)(x + 0xB3), (f32)(y + 0xD9), depth, 0x4C4C4C, opacity, 0xB, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0xB3), (f32)(y + 0xD9), depth, 0x4C4C4C, opacity, 0xC, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0xB3), (f32)(y + 0xD9), depth, 0x4C4C4C, opacity, 0x10, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0xB3), (f32)(y + 0xD9), depth, 0x4C4C4C, opacity, 0x12, 0, (u8 *)(sprites), 1);
             return;
         case 11:
-            shdSpriteDrawNow((f32)(arg0 + 0x7F), (f32)(arg1 + 0xC9), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x7F), (f32)(arg1 + 0xC9), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x7F), (f32)(arg1 + 0xC9), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x7F), (f32)(arg1 + 0xC9), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
+            shdSpriteDrawNow((f32)(x + 0x7F), (f32)(y + 0xC9), depth, 0x4C4C4C, opacity, 0xB, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x7F), (f32)(y + 0xC9), depth, 0x4C4C4C, opacity, 0xC, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x7F), (f32)(y + 0xC9), depth, 0x4C4C4C, opacity, 0x10, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x7F), (f32)(y + 0xC9), depth, 0x4C4C4C, opacity, 0x12, 0, (u8 *)(sprites), 1);
             return;
         case 12:
-            shdSpriteDrawNow((f32)(arg0 - 0xC), (f32)(arg1 + 0xCA), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 - 0xC), (f32)(arg1 + 0xCA), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 - 0xC), (f32)(arg1 + 0xCA), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 - 0xC), (f32)(arg1 + 0xCA), fparg0, 0x4C4C4C, arg2, 0x12, 0, (u8 *)(arg4), 1);
+            shdSpriteDrawNow((f32)(x - 0xC), (f32)(y + 0xCA), depth, 0x4C4C4C, opacity, 0xB, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x - 0xC), (f32)(y + 0xCA), depth, 0x4C4C4C, opacity, 0xC, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x - 0xC), (f32)(y + 0xCA), depth, 0x4C4C4C, opacity, 0x10, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x - 0xC), (f32)(y + 0xCA), depth, 0x4C4C4C, opacity, 0x12, 0, (u8 *)(sprites), 1);
             return;
         case 1:
-            shdSpriteDrawNow((f32)(arg0 + 0x99), (f32)(arg1 + 0xB7), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x99), (f32)(arg1 + 0xB7), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x99), (f32)(arg1 + 0xB7), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x99), (f32)(arg1 + 0xB7), fparg0, 0x4C4C4C, arg2, 0x11, 0, (u8 *)(arg4), 1);
+            shdSpriteDrawNow((f32)(x + 0x99), (f32)(y + 0xB7), depth, 0x4C4C4C, opacity, 0xB, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x99), (f32)(y + 0xB7), depth, 0x4C4C4C, opacity, 0xC, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x99), (f32)(y + 0xB7), depth, 0x4C4C4C, opacity, 0x10, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x99), (f32)(y + 0xB7), depth, 0x4C4C4C, opacity, 0x11, 0, (u8 *)(sprites), 1);
             return;
         case 2:
-            shdSpriteDrawNow((f32)(arg0 + 0x93), (f32)(arg1 + 0x90), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x93), (f32)(arg1 + 0x90), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x93), (f32)(arg1 + 0x90), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x93), (f32)(arg1 + 0x90), fparg0, 0x4C4C4C, arg2, 0x11, 0, (u8 *)(arg4), 1);
+            shdSpriteDrawNow((f32)(x + 0x93), (f32)(y + 0x90), depth, 0x4C4C4C, opacity, 0xB, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x93), (f32)(y + 0x90), depth, 0x4C4C4C, opacity, 0xC, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x93), (f32)(y + 0x90), depth, 0x4C4C4C, opacity, 0x10, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x93), (f32)(y + 0x90), depth, 0x4C4C4C, opacity, 0x11, 0, (u8 *)(sprites), 1);
             return;
         case 3:
-            shdSpriteDrawNow((f32)(arg0 + 0x25), (f32)(arg1 + 0x92), fparg0, 0x4C4C4C, arg2, 0xB, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x25), (f32)(arg1 + 0x92), fparg0, 0x4C4C4C, arg2, 0xC, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x25), (f32)(arg1 + 0x92), fparg0, 0x4C4C4C, arg2, 0x10, 0, (u8 *)(arg4), 1);
-            shdSpriteDrawNow((f32)(arg0 + 0x25), (f32)(arg1 + 0x92), fparg0, 0x4C4C4C, arg2, 0x11, 0, (u8 *)(arg4), 1);
+            shdSpriteDrawNow((f32)(x + 0x25), (f32)(y + 0x92), depth, 0x4C4C4C, opacity, 0xB, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x25), (f32)(y + 0x92), depth, 0x4C4C4C, opacity, 0xC, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x25), (f32)(y + 0x92), depth, 0x4C4C4C, opacity, 0x10, 0, (u8 *)(sprites), 1);
+            shdSpriteDrawNow((f32)(x + 0x25), (f32)(y + 0x92), depth, 0x4C4C4C, opacity, 0x11, 0, (u8 *)(sprites), 1);
             break;
         }
     }
@@ -249,8 +263,8 @@ typedef struct { f32 x, y; } DayChangePoint;
 #pragma opt_loop_invariants on
 /* Builds vertices and colours from a point array and draws them as a polygon. */
 // FUN_00265F40
-void cldDayChangeDrawPolygon(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3,
-                   u8 *arg4, s32 arg5, f32 fparg1, f32 fparg2)
+void cldDayChangeDrawPolygon(s32 x, s32 y, f32 depth, u32 rgb, s32 opacity,
+                   u8 *points, s32 pointCount, f32 scaleX, f32 scaleY)
 {
     DayChangePoint vertices[0x100];
     u8 colors[0x400];
@@ -261,25 +275,25 @@ void cldDayChangeDrawPolygon(s32 arg0, s32 arg1, f32 fparg0, u32 arg2, s32 arg3,
     s32 c2;
     s32 c3;
 
-    color = (arg2 << 8) | arg3;
+    color = (rgb << 8) | opacity;
     i = 0;
     c0 = (u8)(color >> 24);
     c1 = (u8)(color >> 16);
     c2 = (u8)(color >> 8);
     c3 = (u8)color;
-    while (i < arg5) {
-        vertices[i].x = (f32)arg0 +
-                        fparg1 * ((DayChangePoint *)arg4)[i].x;
-        vertices[i].y = (f32)arg1 +
-                        fparg2 * ((DayChangePoint *)arg4)[i].y;
+    while (i < pointCount) {
+        vertices[i].x = (f32)x +
+                        scaleX * ((DayChangePoint *)points)[i].x;
+        vertices[i].y = (f32)y +
+                        scaleY * ((DayChangePoint *)points)[i].y;
         colors[i * 4 + 0] = c0;
         colors[i * 4 + 1] = c1;
         colors[i * 4 + 2] = c2;
         colors[i * 4 + 3] = c3;
         i += 1;
     }
-    shdEnableBlendFlag(arg0, arg1, c3, c2, arg4, c1, c0);
-    PrimDrawPoints(colors, vertices, fparg0, arg5, 4, 1);
+    shdEnableBlendFlag(x, y, c3, c2, points, c1, c0);
+    PrimDrawPoints(colors, vertices, depth, pointCount, 4, 1);
     shdDisableBlendFlag();
 }
 /* measured: closes loop-invariant probe for func_00265f40. */
@@ -643,90 +657,91 @@ void cldDayChangeDrawMonthOutline(s32 x, s32 y, f32 depth, s32 opacity, s32 mont
  * 0x748020, following the renderer's native table at 0x747FE0. */
 /* Per-frame render callback: animates the month outline and its marker. */
 // FUN_00266690
-void cldDayChangeDrawFrame(s32 arg0, s32 arg1)
+void cldDayChangeDrawFrame(s32 unused, s32 task)
 {
     extern void cldDayChangeDrawMonthOutline(s32, s32, f32, s32, s32);
     extern void cldDayChangeDrawMarker(s32, s32, f32, s32, u32, s32);
     extern f32 cosf(f32);
     extern f32 sinf(f32);
     extern f32 iGpffff84a4;
-    u8 *p;
+    u8 *work;
     s32 state;
     s32 alpha;
     f32 ratio;
     f32 value;
 
-    p = kwlnTaskGetWork(arg1);
-    state = *(s32 *)(p + 0) - 4;
+    /* CldDayChangeWork offsets retained: typed month loads change MWCC scheduling (nd 45). */
+    work = kwlnTaskGetWork(task);
+    state = *(s32 *)(work + 0) - 4;
     switch (state) {
     case 0:
     case 1:
-        ratio = (f32)*(s32 *)(p + 0x18) / 7.0f;
+        ratio = (f32)*(s32 *)(work + 0x18) / 7.0f;
         alpha = (s32)(255.0f * ratio);
         value = 336.0f + 128.0f * cosf(iGpffff84a4 * ratio);
-        cldDayChangeDrawMonthOutline((s32)value, 0, 0.0f, alpha, *(s32 *)(p + 0x10));
-        cldDayChangeDrawMarker(0x150, 0, 0.0f, alpha, *(u32 *)(p + 0x10),
-                      *(s32 *)(p + 0x1C));
+        cldDayChangeDrawMonthOutline((s32)value, 0, 0.0f, alpha, *(s32 *)(work + 0x10));
+        cldDayChangeDrawMarker(0x150, 0, 0.0f, alpha, *(u32 *)(work + 0x10),
+                      *(s32 *)(work + 0x1C));
         break;
     case 2:
     case 3:
-        cldDayChangeDrawMonthOutline(0x150, 0, 0.0f, 0xFF, *(s32 *)(p + 0x10));
-        cldDayChangeDrawMarker(0x150, 0, 0.0f, 0xFF, *(u32 *)(p + 0x10),
-                      *(s32 *)(p + 0x1C));
+        cldDayChangeDrawMonthOutline(0x150, 0, 0.0f, 0xFF, *(s32 *)(work + 0x10));
+        cldDayChangeDrawMarker(0x150, 0, 0.0f, 0xFF, *(u32 *)(work + 0x10),
+                      *(s32 *)(work + 0x1C));
         break;
     case 4:
     case 5:
-        ratio = (f32)*(s32 *)(p + 0x18) / 10.0f;
+        ratio = (f32)*(s32 *)(work + 0x18) / 10.0f;
         alpha = (s32)(255.0f * (1.0f - ratio));
         value = 336.0f - 192.0f * sinf(iGpffff84a4 * ratio);
-        cldDayChangeDrawMonthOutline((s32)value, 0, 0.0f, alpha, *(s32 *)(p + 0x10));
-        cldDayChangeDrawMarker(0x150, 0, 0.0f, alpha, *(u32 *)(p + 0x10),
-                      *(s32 *)(p + 0x1C));
+        cldDayChangeDrawMonthOutline((s32)value, 0, 0.0f, alpha, *(s32 *)(work + 0x10));
+        cldDayChangeDrawMarker(0x150, 0, 0.0f, alpha, *(u32 *)(work + 0x10),
+                      *(s32 *)(work + 0x1C));
         break;
     }
 }
 
 /* Creates a render node for cldDayChangeDrawFrame and adds it to the render list. */
 // FUN_00266890
-void cldDayChangeAddRenderTask(s32 arg0, u8 *arg1) {
-    u8 *p;
+void cldDayChangeAddRenderTask(s32 task, u8 *renderList) {
+    u8 *node;
 
-    p = PrimAllocQueueNode();
-    *(void **)(p + 0x8) = (void *)cldDayChangeDrawFrame;
-    *(s32 *)(p + 0x10) = arg0;
-    PrimAppendNode(arg1, p);
+    node = PrimAllocQueueNode();
+    ((BtlRenderNode *)node)->callback = (void *)cldDayChangeDrawFrame;
+    ((BtlRenderNode *)node)->work = (void *)task;
+    PrimAppendNode(renderList, node);
 }
 
 /* Destroy callback of the day-change task: frees its buffer and calls the destroy table. */
 // FUN_002668F0
-void cldDayChangeTaskDestroy(u8 *arg0) {
-    u8 *p;
-    s32 v;
+void cldDayChangeTaskDestroy(u8 *task) {
+    u8 *work;
+    s32 sprites;
 
-    p = kwlnTaskGetWork();
-    v = *(s32 *)(p + 8);
-    if (v != 0) {
-        sdkSpriteRelease((void *)v);
+    work = kwlnTaskGetWork();
+    sprites = ((CldDayChangeWork *)work)->sprites;
+    if (sprites != 0) {
+        sdkSpriteRelease((void *)sprites);
     }
-    jtbl_008873EC[0](p);
+    jtbl_008873EC[0](work);
 }
 
 /* Creates the day-change state-machine task with its destroy callback. */
 // FUN_00266950
-s32 cldDayChangeStartStateTask(s32 arg0, s32 arg1, s32 arg2) {
-    u8 *p;
-    s32 r;
+s32 cldDayChangeStartStateTask(s32 parentTask, s32 markerSprites, s32 renderList) {
+    u8 *work;
+    s32 task;
 
-    if (arg2 == 0) {
+    if (renderList == 0) {
         kAssertFail(&D_006376B0, 0x692);
     }
     chkmemAllocSiteTag(&D_006376B0, 0x693);
-    p = D_008873F4[0](1, 0x24, 0x40000);
-    *(s32 *)(p + 0) = 0;
-    *(s32 *)(p + 0xC) = arg2;
-    *(s32 *)(p + 0x1C) = arg1;
-    r = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_00638EF0), 0xF, 0, 0, cldDayChangeUpdateState, cldDayChangeTaskDestroy, (u8 *)(p));
+    work = D_008873F4[0](1, 0x24, 0x40000);
+    ((CldDayChangeWork *)work)->state = 0;
+    ((CldDayChangeWork *)work)->renderList = renderList;
+    ((CldDayChangeWork *)work)->markerSprites = markerSprites;
+    task = (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_00638EF0), 0xF, 0, 0, cldDayChangeUpdateState, cldDayChangeTaskDestroy, (u8 *)(work));
     sdkSndFadeOutChannel(3, 0);
     sdkSndStopChannel(0xA);
-    return r;
+    return task;
 }

@@ -1,3 +1,5 @@
+#include "btl_action_internal.h"
+#include "btl_effect_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -13,20 +15,8 @@
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
 /* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
 
 /* Force the base operand into the first addu slot. */
-static inline u32 addBaseFirst(u32 base, u32 offset) {
-    return base + offset;
-}
-static inline s32 promoteS16(s16 value) {
-    return value;
-}
-static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
-    return offset + base;
-}
 
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
@@ -72,12 +62,12 @@ extern u8 D_006251F0[];
 
 
 
-extern s32 func_001f39d0(u8 **arg0);
+extern s32 btlTargetConsumeActionCost(u8 **actionPacket);
 
-extern s32 datItemCount(s16 arg0);
-extern s32 datCalcAddHp(s32 arg0, s32 arg1);
-extern s32 datCalcAddSp(s32 arg0, s32 arg1);
-extern u32 datCalcSkillCost(u8 *arg0, s32 arg1);
+extern s32 datItemCount(s16 itemId);
+extern s32 datCalcAddHp(DatUnit *unit, s32 hpDelta);
+extern s32 datCalcAddSp(DatUnit *unit, s32 spDelta);
+extern u32 datCalcSkillCost(u8 *unit, s32 skillId);
 
 extern s32 iGpffffb464;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -88,12 +78,12 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f39d0-001f39d0 */
 
-extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
-extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
-extern s32 func_001f0d30(u8 *arg0);
-extern s32 func_001f0dd0(u8 *arg0, s32 arg1);
-extern s32 btlActionHasNoTargetClass(u32 arg0);
-extern s32 btlTargetGroupStateMatches(u8 *arg0);
+extern s32 btlActionAnyTargetHitRowStatus(u8 *action);
+extern s32 btlActionSameGenusTargetsHaveDelta(u8 *action);
+extern s32 btlActionAnyTargetClearsDeathStatus(u8 *action);
+extern s32 btlActionTargetsHaveDamageResult(u8 *action, s32 mode);
+extern s32 btlActionHasNoTargetClass(u32 action);
+extern s32 btlTargetGroupStateMatches(u8 *context);
 #pragma push
 #pragma pop
 /* measured: invariant mask materialisation needs opt_loop_invariants on to
@@ -113,50 +103,52 @@ extern s32 btlTargetGroupStateMatches(u8 *arg0);
 #pragma push
 /* measured: normalized result/record snapshots need invariant motion for the retail 0x310 frame. */
 #pragma pop
+/* Consume HP/SP skill cost or one inventory item for the action held by the packet. */
+/* measured: the remaining cost-record reloads changed MATCH when replaced with BtlUnit.datUnit fields. */
 // FUN_001F39D0
 /* measured: opt_propagation off keeps the iGpffffb3b8 base load ahead of the
    index arithmetic and the 0x70 field load in a temporary before its saved copy. */
 /* measured: func_001f39d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-s32 func_001f39d0(u8 **arg0) {
-    u8 *temp_4;
-    u16 temp_17;
-    u8 *temp_16;
-    s32 temp_2;
-    u16 temp_3;
-    u8 temp_4_2;
+s32 btlTargetConsumeActionCost(u8 **actionPacket) {
+    u8 *action;
+    u16 skillId;
+    u8 *unit;
+    s32 cost;
+    u16 actionKind;
+    u8 costKind;
     s32 off;
     u8 *base;
     u8 *ptr;
     s16 itemId;
 
-    temp_4 = *arg0;
-    temp_16 = *(u8 **)(temp_4 + 0x30);
-    temp_3 = *(u16 *)(temp_4 + 0x6C);
-    switch (temp_3) {
+    action = *actionPacket;
+    unit = (u8 *)((BtlAction *)action)->unit;
+    actionKind = ((BtlAction *)action)->unk_6c;
+    switch (actionKind) {
     case 2:
-        temp_17 = *(u16 *)(temp_4 + 0x6E);
-        temp_2 = datCalcSkillCost(*(u8 **)(temp_16 + 0xA64), temp_17);
-        if (temp_2 != 0) {
+        skillId = ((BtlAction *)action)->unk_6e;
+        cost = datCalcSkillCost((u8 *)((BtlUnit *)unit)->datUnit, skillId);
+        if (cost != 0) {
             base = iGpffffb3b8;
-            off = (s32)((temp_17 & 0xFFFF) * 0x28);
+            off = (s32)((skillId & 0xFFFF) * 0x28);
             ptr = (u8 *)(off + (s32)base);
-            temp_4_2 = ptr[3];
-            switch (temp_4_2) {
+            costKind = ptr[3];
+            switch (costKind) {
             case 1:
-                datCalcAddHp(*(s32 *)(temp_16 + 0xA64), -temp_2);
+                datCalcAddHp((DatUnit *)*(s32 *)(unit + 0xA64), -cost);
                 break;
             case 2:
-                datCalcAddSp(*(s32 *)(temp_16 + 0xA64), -temp_2);
+                datCalcAddSp((DatUnit *)*(s32 *)(unit + 0xA64), -cost);
                 break;
             }
         }
         break;
     case 3:
-        if (*(u8 *)(temp_16 + 0xA2) == 0) {
-            temp_3 = *(u16 *)(temp_4 + 0x70);
-            itemId = (s16)temp_3;
-            datItemSetCount(itemId, ((datItemCount((s16)temp_3) & 0xFF) - 1) & 0xFF);
+        if (((BtlUnit *)unit)->genus == 0) {
+            actionKind = ((BtlActionParameters *)((BtlAction *)action)->unk_70)->item;
+            itemId = (s16)actionKind;
+            datItemSetCount(itemId, ((datItemCount((s16)actionKind) & 0xFF) - 1) & 0xFF);
         }
         break;
     case 9:

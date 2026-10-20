@@ -18,17 +18,17 @@ typedef struct {
     s16 style;
     s16 flags;
     Vec3f payload;
-} SkillMenuDescriptor;
+} CmpSkillDescriptor;
 
 typedef struct {
     u8 red, green, blue, alpha;
-} SkillMenuColor;
+} CmpSkillColor;
 
 typedef struct {
     f32 x, y;
     f32 width, height;
     s32 paletteIndex;
-} SkillDecoration;
+} CmpSkillDecoration;
 
 void datPersonaSetLeadSlot(s16);
 s32 datPersonaFillSkillCostRow(s32, struct DatPersonaRecord *, s32, void *);
@@ -40,11 +40,11 @@ u32 RpRandom(void);
 s32 datCalcSkillElement(u8 *, u16);
 void sdkRenderStateSetDefault(void);
 void nLineDrawSet(Vec2f, s32, s32, f32);
-void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg1, u8 arg2, u8 arg3, u8 arg4,
-                   u16 arg5, u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+void sdkSpriteDrawSized(u8 *, f32, f32, f32,
+                   u8, u8, u8, u8,
+                   u16, u16, s16, f32, s16);
 void sdkSpriteDrawAt(void *, f32, f32, u8, u8, u8, u8);
-void sdkSpriteDrawFooter(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
+void sdkSpriteDrawFooter(Vec2f unused, f32, u8, s32, s32);
 void radarDrawSecondSpritePair(u8 *work, Vec2f position, PackedColor4 color);
 void radarDrawSkillCard(void *, Vec2f, s32, void *);
 void datRecordClearHeader(s16 *);
@@ -85,104 +85,163 @@ extern u8 D_005ED320[];
 extern u8 D_005ED790[];
 extern f32 DAT_00761640;
 
+/* Ability-list record at +0x100 of the work area: id, sort key, two payload words. b210 copies any
+   12-byte struct with a float member through $f0-$f2 (loads first, then stores), which is the retail
+   record copy. */
+typedef struct CmpSkillRecord
+{
+    s16 id;
+    u16 key;
+    f32 a;
+    f32 b;
+} CmpSkillRecord;
+/* One 0x30-byte entry in the menu's animation arrays. The initializer,
+   transition setup and updater jointly establish these fields. */
+typedef struct {
+    f32 sourceX, sourceY, targetX, targetY;
+    f32 x, y;
+    u8 sourceAlpha, targetAlpha, alpha, flags;
+    u16 sourceScaleX, targetScaleX, scaleX;
+    u16 sourceScaleY, targetScaleY, scaleY;
+    s32 mode, duration;
+} CmpSkillAnimation;
+
+typedef struct {
+    u8 alpha;
+    u8 pad01[3];
+    f32 x, y;
+    s32 unk0C;
+    s32 background;
+    s32 phase, mode;
+    u32 visible;
+    s16 frame, scrollFrame;
+    s16 decorationFrames[28];
+    s16 selectedParty;
+    s16 selectedRow;
+    s16 scrollRow;
+    s16 selectedRecipient;
+    u8 pad64[0x44];
+    s16 previousSelection[4];
+    u8 padB0[0x44];
+    s16 partyIds[4];
+    s16 partyCount;
+    s16 unkFE;
+    union { CmpSkillRecord fields; Vec3f copy; } skills[96];
+    s16 skillCount;
+    s16 footerMode;
+    CmpSkillAnimation animation[68];
+    void *sprites[60];
+    union { void *texture; s32 handle; } footer;
+} CmpSkillWork;
+typedef char CmpSkillWorkSize[sizeof(CmpSkillWork) == 0x1338 ? 1 : -1];
+
+/* Mode tables contain 38 records of 0x1C bytes. */
+typedef struct {
+    f32 x, y, width, height;
+    u8 alpha;
+    u8 pad11[3];
+    s32 startFrame, endFrame;
+} CmpSkillLayoutRow;
+
 /* measured: the signed 16-bit bitfield keeps retail's dsll32/dsra32
    narrowing while the s32 loop carriers reproduce its saved-register
    allocation. The ordered asset-id loads and chained third-asset assignment,
    with the two measured optimization settings below, close all 1248 bytes. */
+/* Initialize party selections, decoration transitions, menu motions and skill sprite resources. */
 // FUN_00137FB0
 /* measured: opt_propagation off preserves the retail constant and argument-load schedule. */
 #pragma opt_propagation off
 /* measured: opt_loop_invariants on hoists the table and conversion constants like retail. */
 #pragma opt_loop_invariants on
-void cmpSkillMenuInit(u8 *arg0)
+void cmpSkillMenuInit(u8 *work)
 {
-    s16 i;
-    s16 j;
-    s16 k;
-    s32 m;
-    s32 m_index;
+    s16 selectionIndex;
+    s16 motionIndex;
+    s16 decorationIndex;
+    s32 tabIndex;
+    s32 narrowTabIndex;
     u8 *src;
     u8 *dst;
-    u8 asset_id;
+    u8 spriteId;
     f32 value;
     void *asset0;
     void *asset1;
     void *asset2;
     s32 *slot;
-    s32 n;
+    s32 spriteIndex;
     struct {
         s32 half : 16;
     } narrow;
 
-    memset(arg0, 0, 0x1338);
-    *(s32 *)(arg0 + 4) = 0;
-    *(s32 *)(arg0 + 8) = 0;
-    *arg0 = 0xFF;
-    *(s32 *)(arg0 + 0x18) = -1;
+    memset(work, 0, 0x1338);
+    *(s32 *)&((CmpSkillWork *)work)->x = 0;
+    *(s32 *)&((CmpSkillWork *)work)->y = 0;
+    *work = 0xFF;
+    ((CmpSkillWork *)work)->mode = -1;
 
-    for (i = 0; i < 4; i++) {
-        *(s16 *)(arg0 + i * 2 + 0x5C) = 0;
+    for (selectionIndex = 0; selectionIndex < 4; selectionIndex++) {
+        ((CmpSkillWork *)(work + selectionIndex * 2))->selectedParty = 0;
     }
 
-    for (j = 0; j < 0x26; j++) {
-        src = D_005EBA00 + j * 0x1C;
-        dst = arg0 + j * 0x30;
-        *(f32 *)(dst + 0x594) = *(f32 *)(src + 0);
-        *(f32 *)(dst + 0x598) = *(f32 *)(src + 4);
-        *(u8 *)(dst + 0x59E) = *(u8 *)(src + 0x10);
-        value = *(f32 *)(src + 8);
-        *(u16 *)(dst + 0x5A4) = (u16)value;
-        value = *(f32 *)(src + 0xC);
-        *(u16 *)(dst + 0x5AA) = (u16)value;
+    for (motionIndex = 0; motionIndex < 0x26; motionIndex++) {
+        src = D_005EBA00 + motionIndex * 0x1C;
+        dst = work + motionIndex * 0x30;
+        ((CmpSkillWork *)dst)->animation[0].x = ((CmpSkillLayoutRow *)src)->x;
+        ((CmpSkillWork *)dst)->animation[0].y = ((CmpSkillLayoutRow *)src)->y;
+        ((CmpSkillWork *)dst)->animation[0].alpha = ((CmpSkillLayoutRow *)src)->alpha;
+        value = ((CmpSkillLayoutRow *)src)->width;
+        ((CmpSkillWork *)dst)->animation[0].scaleX = (u16)value;
+        value = ((CmpSkillLayoutRow *)src)->height;
+        ((CmpSkillWork *)dst)->animation[0].scaleY = (u16)value;
     }
 
-    for (k = 0; k < 0x1C; k++) {
-        dst = arg0 + k * 0x30;
-        *(s32 *)(dst + 0xCB4) = 0;
-        *(s32 *)(dst + 0xCB8) = 0;
-        *(u8 *)(dst + 0xCBE) = 0;
-        *(s32 *)(dst + 0xCCC) = 0;
-        *(s32 *)(dst + 0xCD0) = 8;
-        if (k % 0xE < 6) {
-            *(s16 *)(dst + 0xCC0) = 0x64;
-            *(s16 *)(dst + 0xCC2) = 0x64;
-            *(s16 *)(dst + 0xCC6) = 0x64;
-            *(s16 *)(dst + 0xCC8) = 0x64;
-            *(u8 *)(dst + 0xCBC) = 0;
-            *(u8 *)(dst + 0xCBD) = 0xFF;
+    for (decorationIndex = 0; decorationIndex < 0x1C; decorationIndex++) {
+        dst = work + decorationIndex * 0x30;
+        *(s32 *)&((CmpSkillWork *)dst)->animation[38].x = 0;
+        *(s32 *)&((CmpSkillWork *)dst)->animation[38].y = 0;
+        ((CmpSkillWork *)dst)->animation[38].alpha = 0;
+        ((CmpSkillWork *)dst)->animation[38].mode = 0;
+        ((CmpSkillWork *)dst)->animation[38].duration = 8;
+        if (decorationIndex % 0xE < 6) {
+            *(s16 *)&((CmpSkillWork *)dst)->animation[38].sourceScaleX = 0x64;
+            *(s16 *)&((CmpSkillWork *)dst)->animation[38].targetScaleX = 0x64;
+            *(s16 *)&((CmpSkillWork *)dst)->animation[38].sourceScaleY = 0x64;
+            *(s16 *)&((CmpSkillWork *)dst)->animation[38].targetScaleY = 0x64;
+            ((CmpSkillWork *)dst)->animation[38].sourceAlpha = 0;
+            ((CmpSkillWork *)dst)->animation[38].targetAlpha = 0xFF;
         } else {
-            *(s16 *)(dst + 0xCC0) = 0x64;
-            *(s16 *)(dst + 0xCC2) = 0xB4;
-            *(s16 *)(dst + 0xCC6) = 0x64;
-            *(s16 *)(dst + 0xCC8) = 0xB4;
-            *(u8 *)(dst + 0xCBC) = 0;
-            *(u8 *)(dst + 0xCBD) = 0x7F;
+            *(s16 *)&((CmpSkillWork *)dst)->animation[38].sourceScaleX = 0x64;
+            *(s16 *)&((CmpSkillWork *)dst)->animation[38].targetScaleX = 0xB4;
+            *(s16 *)&((CmpSkillWork *)dst)->animation[38].sourceScaleY = 0x64;
+            *(s16 *)&((CmpSkillWork *)dst)->animation[38].targetScaleY = 0xB4;
+            ((CmpSkillWork *)dst)->animation[38].sourceAlpha = 0;
+            ((CmpSkillWork *)dst)->animation[38].targetAlpha = 0x7F;
         }
-        *(s16 *)(arg0 + k * 2 + 0x24) = (k * 3) % 8;
+        ((CmpSkillWork *)(work + decorationIndex * 2))->decorationFrames[0] = (decorationIndex * 3) % 8;
     }
 
-    m = 0;
+    tabIndex = 0;
     goto loop4_test;
 loop4_body:
-    narrow.half = m;
-    m_index = narrow.half;
-    dst = arg0 + m_index * 0x30;
-    *(s32 *)(dst + 0x11F4) = 0;
-    *(s32 *)(dst + 0x11E4) = 0;
-    *(s32 *)(dst + 0x11F0) = 0;
-    *(s32 *)(dst + 0x11E8) = 0;
-    *(u8 *)(dst + 0x11FD) = 0;
-    *(u8 *)(dst + 0x11FC) = 0;
-    *(s32 *)(dst + 0x120C) = 0;
-    *(s32 *)(dst + 0x1210) = 3;
-    m = (s16)(m + 1);
+    narrow.half = tabIndex;
+    narrowTabIndex = narrow.half;
+    dst = work + narrowTabIndex * 0x30;
+    *(s32 *)&((CmpSkillWork *)dst)->animation[66].x = 0;
+    *(s32 *)&((CmpSkillWork *)dst)->animation[66].sourceX = 0;
+    *(s32 *)&((CmpSkillWork *)dst)->animation[66].targetY = 0;
+    *(s32 *)&((CmpSkillWork *)dst)->animation[66].sourceY = 0;
+    ((CmpSkillWork *)dst)->animation[66].targetAlpha = 0;
+    ((CmpSkillWork *)dst)->animation[66].sourceAlpha = 0;
+    ((CmpSkillWork *)dst)->animation[66].mode = 0;
+    ((CmpSkillWork *)dst)->animation[66].duration = 3;
+    tabIndex = (s16)(tabIndex + 1);
 loop4_test:
-    if ((s16)m < 2) {
+    if ((s16)tabIndex < 2) {
         goto loop4_body;
     }
 
-    *(s16 *)(arg0 + 0xFC) = datBuildPartyIdList(arg0 + 0xF4);
-    *(s16 *)(arg0 + 0x580) = 0;
+    ((CmpSkillWork *)work)->partyCount = datBuildPartyIdList(work + 0xF4);
+    ((CmpSkillWork *)work)->skillCount = 0;
 
     asset0 = resourceFindByName(D_005E5830);
     if (asset0 == 0) {
@@ -192,62 +251,52 @@ loop4_test:
     if (asset1 == 0) {
         kAssertFail(D_005ED9C0, 0x261);
     }
-    *(void **)(arg0 + 0x1334) = asset2 = resourceFindByName(D_005E57F0);
+    ((CmpSkillWork *)work)->footer.texture = asset2 = resourceFindByName(D_005E57F0);
     if (asset2 == 0) {
         kAssertFail(D_005ED9C0, 0x263);
     }
 
-    n = 0;
+    spriteIndex = 0;
     goto resolve_test;
 resolve_body:
     if (narrow.half < 0x1B) {
-        narrow.half = n;
-        slot = (s32 *)(arg0 + narrow.half * 4 + 0x1244);
-        asset_id = D_005ED750[narrow.half];
-        *slot = sdkSpriteNewNode(asset0, asset_id);
+        narrow.half = spriteIndex;
+        slot = (s32 *)&((CmpSkillWork *)work)->sprites[narrow.half];
+        spriteId = D_005ED750[narrow.half];
+        *slot = sdkSpriteNewNode(asset0, spriteId);
     } else if (narrow.half < 0x3A) {
-        narrow.half = n;
-        slot = (s32 *)(arg0 + narrow.half * 4 + 0x1244);
-        asset_id = D_005ED750[narrow.half];
-        *slot = sdkSpriteNewNode(asset1, asset_id);
+        narrow.half = spriteIndex;
+        slot = (s32 *)&((CmpSkillWork *)work)->sprites[narrow.half];
+        spriteId = D_005ED750[narrow.half];
+        *slot = sdkSpriteNewNode(asset1, spriteId);
     } else {
-        narrow.half = n;
-        slot = (s32 *)(arg0 + narrow.half * 4 + 0x1244);
-        asset_id = D_005ED750[narrow.half];
-        *slot = sdkSpriteNewNode(asset2, asset_id);
+        narrow.half = spriteIndex;
+        slot = (s32 *)&((CmpSkillWork *)work)->sprites[narrow.half];
+        spriteId = D_005ED750[narrow.half];
+        *slot = sdkSpriteNewNode(asset2, spriteId);
     }
     if (*slot == 0) {
         kAssertFail(D_005ED9C0, 0x270);
     }
-    narrow.half = n + 1;
-    n = narrow.half;
+    narrow.half = spriteIndex + 1;
+    spriteIndex = narrow.half;
 resolve_test:
-    narrow.half = n;
+    narrow.half = spriteIndex;
     if (narrow.half < 0x3C) {
         goto resolve_body;
     }
 
-    cmpSkillSetMode(arg0, 0);
-    cmpSkillBuildAbilityList(arg0);
+    cmpSkillSetMode(work, 0);
+    cmpSkillBuildAbilityList(work);
 }
 /* measured: restore propagation after matching func_00137fb0. */
 #pragma opt_propagation on
 /* measured: restore loop-invariant optimization after matching func_00137fb0. */
 #pragma opt_loop_invariants off
 
-/* Ability-list record at +0x100 of the work area: id, sort key, two payload words. b210 copies any
-   12-byte struct with a float member through $f0-$f2 (loads first, then stores), which is the retail
-   record copy. */
-typedef struct SkillRec
-{
-    s16 id;
-    u16 key;
-    f32 a;
-    f32 b;
-} SkillRec;
 /* Inline search of a persona's eight-entry skill list; the 1/0 returns keep the result in $v0 exactly
    as the two retail copies do. */
-static inline s32 campSkillListHas(u16 *skills, u16 skill)
+static inline s32 cmpSkillListContains(u16 *skills, u16 skill)
 {
     s32 k;
 
@@ -265,157 +314,160 @@ static inline s32 campSkillListHas(u16 *skills, u16 skill)
    dedupe removes the last entry through a fresh pointer (e) and steps n back, the sort's range tests
    use `> 0xFF` for the second bound, and the record-table lookup names the doubled index in a local so
    b210 emits `addu index,base`. The fa80 calls pass the original mode value v, not a list result. */
+/* Collect usable skills, keep the strongest duplicate source, sort by skill ID, and restore the lead persona. */
 // FUN_00138490
 #pragma push
 #pragma opt_loop_invariants on
-void cmpSkillBuildAbilityList(void *arg0)
+/* Raw work-relative accesses retain MWCC alias scheduling; the CmpSkillWork rewrite changed 964 instruction bytes and was reverted. */
+void cmpSkillBuildAbilityList(void *work)
 {
-    s16 sel;
-    s32 m;
-    SkillRec *qr;
-    u8 *b = (u8 *)arg0;
-    s32 v;
-    s32 count;
-    s32 n;
-    s32 r;
-    s32 t;
-    s32 w;
-    s32 i;
-    u8 *p;
-    s32 j;
-    u8 *q;
-    u8 *e;
-    s32 key;
-    s32 cur;
-    u16 *kp;
-    s32 res;
-    s32 x;
-    s32 y;
-    SkillRec innerTmp;
-    SkillRec outerTmp;
+    s16 savedLeadSlot;
+    s32 duplicateOuterIndex;
+    CmpSkillRecord *candidateRecord;
+    u8 *workBytes = (u8 *)work;
+    s32 memberId;
+    s32 skillCount;
+    s32 duplicateInnerIndex;
+    s32 sortOuterIndex;
+    s32 sortInnerIndex;
+    s32 personaAddress;
+    s32 queryIndex;
+    u8 *outerEntry;
+    s32 skillSlot;
+    u8 *candidateEntry;
+    u8 *lastEntry;
+    s32 candidateSkill;
+    s32 currentSkill;
+    u16 *candidateSkillPtr;
+    s32 hasPassive;
+    s32 firstOutcome;
+    s32 secondOutcome;
+    CmpSkillRecord innerTmp;
+    CmpSkillRecord outerTmp;
 
-    sel = -1;
-    count = 0;
-    v = *(s16 *)((u8 *)arg0 + 0x5C);
+    savedLeadSlot = -1;
+    skillCount = 0;
+    memberId = *(s16 *)((u8 *)work + 0x5C);
     {
-        s32 off = v * 2;
-        v = *(s16 *)((u8 *)(off + (s32)arg0) + 0xF4);
+        s32 off = memberId * 2;
+        memberId = *(s16 *)((u8 *)(off + (s32)work) + 0xF4);
     }
-    if (v == 1) {
-        sel = datPersonaGetLeadSlot();
-        for (i = 0; i < datPersonaCountValidMembers(); i++) {
-            w = (s32)datPersonaRosterSlot((s16)i);
-            if (w != 0) {
-                datPersonaSetLeadSlot((s16)i);
-                for (j = 0; j < 8; j++) {
-                    p = b + count * 12;
-                    if (datPersonaFillSkillCostRow(1, (struct DatPersonaRecord *)w, j, p + 0x100) != 0) {
-                        *(s16 *)(p + 0x100) = (s16)i;
-                        count++;
+    if (memberId == 1) {
+        savedLeadSlot = datPersonaGetLeadSlot();
+        for (queryIndex = 0; queryIndex < datPersonaCountValidMembers(); queryIndex++) {
+            personaAddress = (s32)datPersonaRosterSlot((s16)queryIndex);
+            if (personaAddress != 0) {
+                datPersonaSetLeadSlot((s16)queryIndex);
+                for (skillSlot = 0; skillSlot < 8; skillSlot++) {
+                    outerEntry = workBytes + skillCount * 12;
+                    if (datPersonaFillSkillCostRow(1, (struct DatPersonaRecord *)personaAddress, skillSlot, outerEntry + 0x100) != 0) {
+                        *(s16 *)(outerEntry + 0x100) = (s16)queryIndex;
+                        skillCount++;
                     }
                 }
             }
         }
     } else {
-        w = (s32)datPersonaGetRecord((u16)v);
-        for (i = 0; i < 8; i++) {
-            p = b + count * 12;
-            if (datPersonaFillSkillCostRow(v, (struct DatPersonaRecord *)w, i, p + 0x100) != 0) {
-                *(s16 *)(p + 0x100) = -1;
-                count++;
+        personaAddress = (s32)datPersonaGetRecord((u16)memberId);
+        for (queryIndex = 0; queryIndex < 8; queryIndex++) {
+            outerEntry = workBytes + skillCount * 12;
+            if (datPersonaFillSkillCostRow(memberId, (struct DatPersonaRecord *)personaAddress, queryIndex, outerEntry + 0x100) != 0) {
+                *(s16 *)(outerEntry + 0x100) = -1;
+                skillCount++;
             }
         }
     }
-    for (m = 0; m < count; m++) {
-        p = b + m * 12;
-        cur = *(u16 *)(p + 0x102);
-        for (n = m + 1; n < count; n++) {
-            q = b + n * 12;
-            kp = (u16 *)(q + 0x102);
-            key = *kp;
-            if (cur == key) {
-                if (cur < 0x1B8 && sel != -1) {
-                    res = campSkillListHas(datPersonaGetSkills(datPersonaRosterSlot(*(s16 *)(p + 0x100))), 0x20A);
-                    if (res == 0) {
-                        qr = (SkillRec *)(q + 0x100);
-                        res = campSkillListHas(datPersonaGetSkills(datPersonaRosterSlot(*(s16 *)(q + 0x100))), 0x20A);
-                        if (res != 0) {
-                            *(SkillRec *)(p + 0x100) = *qr;
+    for (duplicateOuterIndex = 0; duplicateOuterIndex < skillCount; duplicateOuterIndex++) {
+        outerEntry = workBytes + duplicateOuterIndex * 12;
+        currentSkill = *(u16 *)(outerEntry + 0x102);
+        for (duplicateInnerIndex = duplicateOuterIndex + 1; duplicateInnerIndex < skillCount; duplicateInnerIndex++) {
+            candidateEntry = workBytes + duplicateInnerIndex * 12;
+            candidateSkillPtr = (u16 *)(candidateEntry + 0x102);
+            candidateSkill = *candidateSkillPtr;
+            if (currentSkill == candidateSkill) {
+                if (currentSkill < 0x1B8 && savedLeadSlot != -1) {
+                    hasPassive = cmpSkillListContains(datPersonaGetSkills(datPersonaRosterSlot(*(s16 *)(outerEntry + 0x100))), 0x20A);
+                    if (hasPassive == 0) {
+                        candidateRecord = (CmpSkillRecord *)(candidateEntry + 0x100);
+                        hasPassive = cmpSkillListContains(datPersonaGetSkills(datPersonaRosterSlot(*(s16 *)(candidateEntry + 0x100))), 0x20A);
+                        if (hasPassive != 0) {
+                            *(CmpSkillRecord *)(outerEntry + 0x100) = *candidateRecord;
                         } else {
-                            datPersonaSetLeadSlot(*(s16 *)(p + 0x100));
-                            datCalcSkillOutcomeById(v, v, *(u16 *)(p + 0x102), 0, &x, 0, 0);
-                            datPersonaSetLeadSlot(qr->id);
-                            datCalcSkillOutcomeById(v, v, *kp, 0, &y, 0, 0);
-                            if (x < y) {
-                                *(SkillRec *)(p + 0x100) = *qr;
+                            datPersonaSetLeadSlot(*(s16 *)(outerEntry + 0x100));
+                            datCalcSkillOutcomeById(memberId, memberId, *(u16 *)(outerEntry + 0x102), 0, &firstOutcome, 0, 0);
+                            datPersonaSetLeadSlot(candidateRecord->id);
+                            datCalcSkillOutcomeById(memberId, memberId, *candidateSkillPtr, 0, &secondOutcome, 0, 0);
+                            if (firstOutcome < secondOutcome) {
+                                *(CmpSkillRecord *)(outerEntry + 0x100) = *candidateRecord;
                             }
                         }
                     }
                 }
-                count--;
-                e = b + count * 12;
-                *(SkillRec *)(q + 0x100) = *(SkillRec *)(e + 0x100);
-                n--;
-                *(s32 *)(e + 0x104) = 0;
-                *(s32 *)(e + 0x108) = 0;
-                *(u16 *)(e + 0x102) = 0;
-                *(s16 *)(e + 0x100) = -1;
+                skillCount--;
+                lastEntry = workBytes + skillCount * 12;
+                *(CmpSkillRecord *)(candidateEntry + 0x100) = *(CmpSkillRecord *)(lastEntry + 0x100);
+                duplicateInnerIndex--;
+                *(s32 *)(lastEntry + 0x104) = 0;
+                *(s32 *)(lastEntry + 0x108) = 0;
+                *(u16 *)(lastEntry + 0x102) = 0;
+                *(s16 *)(lastEntry + 0x100) = -1;
             }
         }
     }
-    *(s16 *)(b + 0x580) = (s16)count;
-    for (r = 0; r < count; r++) {
+    *(s16 *)(workBytes + 0x580) = (s16)skillCount;
+    for (sortOuterIndex = 0; sortOuterIndex < skillCount; sortOuterIndex++) {
         u8 *outer;
-        outer = b + r * 12;
-        outerTmp = *(SkillRec *)(outer + 0x100);
-        for (t = r + 1; t < count; t++) {
+        outer = workBytes + sortOuterIndex * 12;
+        outerTmp = *(CmpSkillRecord *)(outer + 0x100);
+        for (sortInnerIndex = sortOuterIndex + 1; sortInnerIndex < skillCount; sortInnerIndex++) {
             u8 *inner;
-            SkillRec *ip;
+            CmpSkillRecord *ip;
 
-            inner = b + t * 12;
-            ip = (SkillRec *)(inner + 0x100);
-            innerTmp = *(SkillRec *)(inner + 0x100);
+            inner = workBytes + sortInnerIndex * 12;
+            ip = (CmpSkillRecord *)(inner + 0x100);
+            innerTmp = *(CmpSkillRecord *)(inner + 0x100);
             if (innerTmp.key >= 0xC0 && innerTmp.key < 0x100) {
                 if (outerTmp.key >= 0xC0 && outerTmp.key < 0x100) {
                     if (innerTmp.key < outerTmp.key) {
-                        *(SkillRec *)(outer + 0x100) = innerTmp;
+                        *(CmpSkillRecord *)(outer + 0x100) = innerTmp;
                         *ip = outerTmp;
                         outerTmp = innerTmp;
                     }
                 } else {
-                    *(SkillRec *)(outer + 0x100) = innerTmp;
+                    *(CmpSkillRecord *)(outer + 0x100) = innerTmp;
                     *ip = outerTmp;
                     outerTmp = innerTmp;
                 }
             } else if (outerTmp.key < 0xC0 || outerTmp.key > 0xFF) {
                 if (innerTmp.key < outerTmp.key) {
-                    *(SkillRec *)(outer + 0x100) = innerTmp;
+                    *(CmpSkillRecord *)(outer + 0x100) = innerTmp;
                     *ip = outerTmp;
                     outerTmp = innerTmp;
                 }
             }
         }
     }
-    if (sel != -1) {
-        datPersonaSetLeadSlot(sel);
+    if (savedLeadSlot != -1) {
+        datPersonaSetLeadSlot(savedLeadSlot);
     }
-    if (*(s16 *)(b + 0x580) > 0x60) {
+    if (*(s16 *)(workBytes + 0x580) > 0x60) {
         kAssertFail(D_005ED9C0, 0x336);
     }
-    cmpSkillSetSelection((s16 *)arg0, 1, 0);
-    cmpSkillSetSelection((s16 *)arg0, 2, 0);
+    cmpSkillSetSelection((s16 *)work, 1, 0);
+    cmpSkillSetSelection((s16 *)work, 2, 0);
 }
 #pragma pop
 
 // Advances the menu state from 0 to 1; returns 1 for states 0 and 1, 0 otherwise [inferred].
 // FUN_00138AD0
-s32 cmpSkillStateStep(u8 *arg0) {
-    s32 v = *(s32 *)(arg0 + 0x14);
+/* Raw work-relative accesses retain MWCC alias scheduling; the CmpSkillWork rewrite changed 45 instruction bytes and was reverted. */
+s32 cmpSkillStateStep(u8 *work) {
+    s32 phase = *(s32 *)(work + 0x14);
 
-    switch (v) {
+    switch (phase) {
     case 0:
-        v += 1;
-        *(s32 *)(arg0 + 0x14) = v;
+        phase += 1;
+        *(s32 *)(work + 0x14) = phase;
         return 1;
     case 1:
         return 1;
@@ -424,66 +476,35 @@ s32 cmpSkillStateStep(u8 *arg0) {
     }
 }
 
+/* Advance menu transitions, decorations and scroll rows, draw the menu, and report transparency. */
 // FUN_00138B20
-s32 cmpSkillMenuUpdate(u8 *arg0)
+/* Raw work-relative accesses retain MWCC alias scheduling; the CmpSkillWork rewrite changed 162 instruction bytes and was reverted. */
+s32 cmpSkillMenuUpdate(u8 *work)
 {
     s32 i;
     s32 result = 1;
-    u8 *p;
-    s32 v;
+    u8 *rowBase;
+    s32 frame;
 
-    v = *(s16 *)(arg0 + 0x20);
-    if (v < 0x64) {
-        *(s16 *)(arg0 + 0x20) = v + 1;
+    frame = *(s16 *)(work + 0x20);
+    if (frame < 0x64) {
+        *(s16 *)(work + 0x20) = frame + 1;
     }
     for (i = 0; i < 0x26; i++) {
-        p = arg0 + i * 0x30;
-        v = *(s16 *)(arg0 + 0x20);
-        radarAnimateValue(p + 0x584, v, 0);
-        if (*(u8 *)(p + 0x59E) != 0) {
+        rowBase = work + i * 0x30;
+        frame = *(s16 *)(work + 0x20);
+        radarAnimateValue(rowBase + 0x584, frame, 0);
+        if (*(u8 *)(rowBase + 0x59E) != 0) {
             result = 0;
         }
     }
-    cmpSkillStepDecorations(arg0);
-    cmpSkillStepScrollRows(arg0);
-    cmpSkillMenuDraw(arg0);
+    cmpSkillStepDecorations(work);
+    cmpSkillStepScrollRows(work);
+    cmpSkillMenuDraw(work);
     return result;
 }
-/* One 0x30-byte entry in the menu's animation arrays. The initializer,
-   transition setup and updater jointly establish these fields. */
-typedef struct {
-    f32 sourceX, sourceY, targetX, targetY;
-    f32 x, y;
-    u8 sourceAlpha, targetAlpha, alpha, flags;
-    u16 sourceScaleX, targetScaleX, scaleX;
-    u16 sourceScaleY, targetScaleY, scaleY;
-    s32 mode, duration;
-} SkillMenuAnimation;
-
-typedef struct {
-    u8 alpha;
-    u8 _01[3];
-    f32 x, y;
-    s32 _0c;
-    s32 background;
-    s32 _14[2];
-    u32 visible;
-    u8 _20[0x3e];
-    s16 selectedRow;
-    s16 scrollRow;
-    u8 _62[0x9a];
-    s16 partyCount;
-    s16 _fe;
-    union { SkillRec fields; Vec3f copy; } skills[96];
-    s16 skillCount;
-    s16 footerMode;
-    SkillMenuAnimation animation[68];
-    void *sprites[60];
-    union { void *texture; s32 handle; } footer;
-} SkillMenuView;
-
 /* Preserve the observed left/right evaluation order of the three sums. */
-static inline f32 skillPositionAdd(f32 left, f32 right)
+static inline f32 cmpSkillAddPosition(f32 left, f32 right)
 {
     return left + right;
 }
@@ -502,8 +523,8 @@ static inline f32 skillPositionAdd(f32 left, f32 right)
 #pragma opt_propagation off
 void cmpSkillMenuDraw(u8 *work)
 {
-    extern s32 cmpSkillElementLabelId(u16 skill);
-    SkillMenuView *menu;
+    extern s32 cmpSkillElementLabelId(u16 skillId);
+    CmpSkillWork *menu;
     s32 rowIndex;
     f32 opacity;
     f32 originX;
@@ -513,12 +534,12 @@ void cmpSkillMenuDraw(u8 *work)
     f32 offset;
     PackedColor4 color;
     Vec2f position;
-    SkillMenuColor palette[2];
-    SkillMenuDescriptor descriptor;
-    SkillMenuColor *decorationColor;
+    CmpSkillColor palette[2];
+    CmpSkillDescriptor descriptor;
+    CmpSkillColor *decorationColor;
     s32 payloadIndex;
 
-    menu = (SkillMenuView *)work;
+    menu = (CmpSkillWork *)work;
     sdkRenderStateSetDefault();
     originX = menu->x;
     originY = menu->y;
@@ -555,21 +576,21 @@ void cmpSkillMenuDraw(u8 *work)
            are position, alpha and scale in those 0x30-byte entries. */
         for (rowIndex = 0; rowIndex < 0x14; rowIndex++) {
             u8 *animation;
-            SkillDecoration *layout;
-            layout = (SkillDecoration *)D_005ED790 + rowIndex;
+            CmpSkillDecoration *layout;
+            layout = (CmpSkillDecoration *)D_005ED790 + rowIndex;
             animation = work + rowIndex * 0x30;
-            offset = originX + *(f32 *)(animation + 0xCB4);
+            offset = originX + ((CmpSkillWork *)animation)->animation[38].x;
             position.x = offset + layout->x;
-            offset = originY + *(f32 *)(animation + 0xCB8);
+            offset = originY + ((CmpSkillWork *)animation)->animation[38].y;
             position.y = offset + layout->y;
-            value = (f32)*(u8 *)(animation + 0xCBE);
+            value = (f32)((CmpSkillWork *)animation)->animation[38].alpha;
             value = value * opacity;
             spriteAlpha = (u8)value;
             decorationColor = &palette[layout->paletteIndex];
             sdkSpriteDrawSized(decorationSprite, position.x, position.y, 0.0f,
                           decorationColor->red, decorationColor->green, decorationColor->blue, spriteAlpha,
-                          (u16)(1.0f + ((f32)*(u16 *)(animation + 0xCC4) * layout->width) / 100.0f),
-                          (u16)(((f32)*(u16 *)(animation + 0xCCA) * layout->height) / 100.0f),
+                          (u16)(1.0f + ((f32)((CmpSkillWork *)animation)->animation[38].scaleX * layout->width) / 100.0f),
+                          (u16)(((f32)((CmpSkillWork *)animation)->animation[38].scaleY * layout->height) / 100.0f),
                           0, 0.0f, 0);
         }
     }
@@ -611,7 +632,7 @@ void cmpSkillMenuDraw(u8 *work)
         }
     }
     if ((menu->visible & 0x20) != 0) {
-        SkillMenuColor *paletteColor;
+        CmpSkillColor *paletteColor;
         position.x = 257.0f + (originX + menu->animation[17].x);
         position.y = 21.0f + (originY + menu->animation[17].y);
         value = (f32)menu->animation[17].alpha;
@@ -637,7 +658,7 @@ void cmpSkillMenuDraw(u8 *work)
         f32 scrollOriginY;
         u8 scrollAlpha;
         f32 scrollOriginX;
-        SkillMenuColor *paletteColor;
+        CmpSkillColor *paletteColor;
         f32 scrollX;
         scrollOriginX = menu->animation[67].x + (originX + menu->animation[16].x);
         scrollOriginY = menu->animation[67].y + (originY + menu->animation[16].y);
@@ -663,7 +684,7 @@ void cmpSkillMenuDraw(u8 *work)
     if ((menu->visible & 8) != 0) {
         if (menu->animation[66].alpha > 0) {
             u8 *rowSprite;
-            SkillMenuColor *paletteColor;
+            CmpSkillColor *paletteColor;
             position.x = originX + menu->animation[66].x;
             position.y = originY + menu->animation[66].y;
             paletteColor = (void *)D_0064B2E4;
@@ -674,15 +695,15 @@ void cmpSkillMenuDraw(u8 *work)
         /* Six visible entries use the +0x8F4 animation group and their
            labels use +0x774. The initializer fixes both strides at 0x30. */
         for (rowIndex = 0; rowIndex < 6; rowIndex++) {
-            SkillMenuColor *iconColor;
+            CmpSkillColor *iconColor;
             if (menu->skillCount > rowIndex + menu->scrollRow) {
                 if (menu->selectedRow == rowIndex && ((menu->visible & 0x10) != 0)) {
                     if ((menu->visible & 0x80) == 0) {
-                        SkillMenuColor *paletteColor;
+                        CmpSkillColor *paletteColor;
                         iconColor = (void *)D_0064B2EC;
                         position.x = 257.0f + (originX + menu->animation[9].x);
                         value = 0.0f + menu->animation[9].y + 34.0f * (f32)menu->selectedRow;
-                        value = skillPositionAdd(21.0f, value);
+                        value = cmpSkillAddPosition(21.0f, value);
                         position.y = originY + value;
                         paletteColor = (void *)D_0064B2E8;
                         color.rgba[0] = paletteColor->red;
@@ -697,40 +718,40 @@ void cmpSkillMenuDraw(u8 *work)
                     }
                 } else {
                     u8 *rowSprite;
-                    SkillMenuColor *paletteColor;
+                    CmpSkillColor *paletteColor;
                     paletteColor = (void *)D_0064B2E4;
                     iconColor = (void *)D_0064B2E0;
-                    position.x = 255.0f + (originX + *(f32 *)(work + rowIndex * 0x30 + 0x8F4));
-                    value = 0.0f + (originY + *(f32 *)(work + rowIndex * 0x30 + 0x8F8)) + 34.0f * (f32)rowIndex;
+                    position.x = 255.0f + (originX + ((CmpSkillWork *)(work + rowIndex * 0x30))->animation[18].x);
+                    value = 0.0f + (originY + ((CmpSkillWork *)(work + rowIndex * 0x30))->animation[18].y) + 34.0f * (f32)rowIndex;
                     position.y = 21.0f + value;
-                    value = (f32)*(u8 *)(work + rowIndex * 0x30 + 0x8FE);
+                    value = (f32)((CmpSkillWork *)(work + rowIndex * 0x30))->animation[18].alpha;
                     value = value * opacity;
                     spriteAlpha = (u8)value;
                     rowSprite = menu->sprites[0];
                     sdkSpriteDrawSized(rowSprite, position.x, position.y, 0.0f, paletteColor->red, paletteColor->green,
-                                  paletteColor->blue, spriteAlpha, 0x1000, *(u16 *)(work + rowIndex * 0x30 + 0x90A),
+                                  paletteColor->blue, spriteAlpha, 0x1000, ((CmpSkillWork *)(work + rowIndex * 0x30))->animation[18].scaleY,
                                   0, 0.0f, 0);
                 }
-                payloadIndex = cmpSkillElementLabelId(*(u16 *)(work + (menu->scrollRow + rowIndex) * 0xC + 0x102));
+                payloadIndex = cmpSkillElementLabelId(((CmpSkillWork *)(work + (menu->scrollRow + rowIndex) * 0xC))->skills[0].fields.key);
                 if (payloadIndex > 0) {
                     u8 *skillIconSprite;
-                    skillIconSprite = *(u8 **)(work + payloadIndex * 4 + 0x1244);
-                    position.x = 258.0f + (originX + *(f32 *)(work + rowIndex * 0x30 + 0x8F4));
-                    value = 0.0f + (originY + *(f32 *)(work + rowIndex * 0x30 + 0x8F8)) + 34.0f * (f32)rowIndex;
+                    skillIconSprite = (u8 *)((CmpSkillWork *)(work + payloadIndex * 4))->sprites[0];
+                    position.x = 258.0f + (originX + ((CmpSkillWork *)(work + rowIndex * 0x30))->animation[18].x);
+                    value = 0.0f + (originY + ((CmpSkillWork *)(work + rowIndex * 0x30))->animation[18].y) + 34.0f * (f32)rowIndex;
                     position.y = 23.0f + value;
-                    value = (f32)*(u8 *)(work + rowIndex * 0x30 + 0x8FE);
+                    value = (f32)((CmpSkillWork *)(work + rowIndex * 0x30))->animation[18].alpha;
                     value = value * opacity;
                     spriteAlpha = (u8)value;
                     sdkSpriteDrawSized(skillIconSprite, position.x, position.y, 0.0f, iconColor->red, iconColor->green,
-                                  iconColor->blue, spriteAlpha, 0x1000, *(u16 *)(work + rowIndex * 0x30 + 0x90A), 0,
+                                  iconColor->blue, spriteAlpha, 0x1000, ((CmpSkillWork *)(work + rowIndex * 0x30))->animation[18].scaleY, 0,
                                   0.0f, 0);
                 }
-                position.x = 300.0f + (originX + *(f32 *)(work + rowIndex * 0x30 + 0x774));
-                offset = *(f32 *)(work + rowIndex * 0x30 + 0x778);
+                position.x = 300.0f + (originX + ((CmpSkillWork *)(work + rowIndex * 0x30))->animation[10].x);
+                offset = ((CmpSkillWork *)(work + rowIndex * 0x30))->animation[10].y;
                 value = 0.0f + originY + 34.0f * (f32)rowIndex;
-                value = skillPositionAdd(offset, value);
+                value = cmpSkillAddPosition(offset, value);
                 position.y = 21.0f + value;
-                value = (f32)*(u8 *)(work + rowIndex * 0x30 + 0x77E);
+                value = (f32)((CmpSkillWork *)(work + rowIndex * 0x30))->animation[10].alpha;
                 value = value * opacity;
                 spriteAlpha = (u8)value;
                 datRecordClearHeader(&descriptor.kind);
@@ -741,7 +762,7 @@ void cmpSkillMenuDraw(u8 *work)
                     descriptor.style = 2;
                 }
                 payloadIndex = (s32)menu->scrollRow + rowIndex;
-                descriptor.payload = *(Vec3f *)(work + payloadIndex * 0xC + 0x100);
+                descriptor.payload = ((CmpSkillWork *)(work + payloadIndex * 0xC))->skills[0].copy;
                 datEntryDrawByKind(position, spriteAlpha, &descriptor.kind, 1, 0.0f);
             }
         }
@@ -755,7 +776,7 @@ void cmpSkillMenuDraw(u8 *work)
         s32 overlayAlpha;
         position.x = 257.0f + (originX + menu->animation[9].x);
         value = 0.0f + originY + (f32)menu->selectedRow * 34.0f;
-        value = skillPositionAdd(menu->animation[9].y, value);
+        value = cmpSkillAddPosition(menu->animation[9].y, value);
         position.y = 21.0f + value;
         value = (f32)menu->animation[32].alpha;
         value = value * opacity;
@@ -779,127 +800,131 @@ void cmpSkillMenuDraw(u8 *work)
 }
 #pragma pop
 
+/* Save the previous selection before changing a skill-menu cursor slot. */
 // FUN_0013A040
-s32 cmpSkillSetSelection(s16 *arg0, s32 arg1, s32 arg2)
+/* Halfword-indexed cursor access retains EE address-add order; the typed
+ * selection rewrite changed one instruction byte and was reverted. */
+s32 cmpSkillSetSelection(s16 *work, s32 slotIndex, s32 selection)
 {
-    arg0[arg1 + 0x54] = arg0[arg1 + 0x2E];
-    arg0[arg1 + 0x2E] = arg2;
+    work[slotIndex + 0x54] = work[slotIndex + 0x2E];
+    work[slotIndex + 0x2E] = selection;
     return 1;
 }
 
 /* measured: delayed s16 narrowing fixes the loop-counter live ranges, named
    float temporaries preserve the retail load schedule, and the two settings
    below close the full 1076-byte object (normalized_diff 0). */
+/* Cycle decoration fades and randomized positions using each cell's frame counter and transition duration. */
 // FUN_0013A060
 /* measured: opt_common_subs off preserves the retail per-iteration address formation. */
 #pragma opt_common_subs off
 /* measured: opt_propagation off preserves the retail scalar and FP operand order. */
 #pragma opt_propagation off
-void cmpSkillStepDecorations(void *arg0)
+void cmpSkillStepDecorations(void *work)
 {
     s32 i;
-    s32 idx;
+    s32 counterOffset;
     s16 *counter;
     u8 *row;
-    s32 *statep;
+    s32 *durationPtr;
     s32 state;
     s32 count;
-    s32 hundred;
-    s32 hundred_eighty;
-    u8 *flagp;
-    u8 *p;
+    s32 minimumScale;
+    s32 maximumScale;
+    u8 *alphaPtr;
+    u8 *rowBase;
     f32 *x;
     f32 *y;
-    f32 *table;
+    CmpSkillDecoration *layout;
     f32 value;
     f32 divisor;
     f32 scale;
     f32 half;
-    f32 temp;
+    f32 dimension;
     u32 random;
 
     for (i = 0; i < 0x1C; i++) {
-        idx = i * 2;
-        counter = (s16 *)((u8 *)arg0 + idx + 0x24);
+        counterOffset = i * 2;
+        counter = &((CmpSkillWork *)((u8 *)work + counterOffset))->decorationFrames[0];
         count = *counter + 1;
         *counter = count;
-        row = (u8 *)arg0 + (idx + i) * 0x10;
-        statep = (s32 *)(row + 0xCD0);
-        state = *statep;
+        row = (u8 *)work + (counterOffset + i) * 0x10;
+        durationPtr = &((CmpSkillWork *)row)->animation[38].duration;
+        state = *durationPtr;
         count = (s16)count;
         if (state < count) {
             if (i % 0xE < 6) {
                 if (state == 0xA) {
-                    *(s16 *)(row + 0xCC8) =
-                        *(s16 *)(row + 0xCC2) = 0x64;
-                    *(s32 *)(row + 0xCA4) = 0;
-                    *(s32 *)(row + 0xCA8) = 0;
-                    *(s32 *)(row + 0xCAC) = 0;
-                    *(s32 *)(row + 0xCB0) = 0;
-                    *statep = 6;
+                    *(s16 *)&((CmpSkillWork *)row)->animation[38].targetScaleY =
+                        *(s16 *)&((CmpSkillWork *)row)->animation[38].targetScaleX = 0x64;
+                    *(s32 *)&((CmpSkillWork *)row)->animation[38].sourceX = 0;
+                    *(s32 *)&((CmpSkillWork *)row)->animation[38].sourceY = 0;
+                    *(s32 *)&((CmpSkillWork *)row)->animation[38].targetX = 0;
+                    *(s32 *)&((CmpSkillWork *)row)->animation[38].targetY = 0;
+                    *durationPtr = 6;
                 }
-                flagp = row + 0xCBE;
-                if (*flagp != 0) {
-                    p = (u8 *)arg0 + i * 0x30;
-                    *(f32 *)(p + 0xCA4) = *(f32 *)(p + 0xCAC);
-                    *(f32 *)(p + 0xCA8) = *(f32 *)(p + 0xCB0);
-                    *statep = 0x10;
+                alphaPtr = &((CmpSkillWork *)row)->animation[38].alpha;
+                if (*alphaPtr != 0) {
+                    rowBase = (u8 *)work + i * 0x30;
+                    ((CmpSkillWork *)rowBase)->animation[38].sourceX = ((CmpSkillWork *)rowBase)->animation[38].targetX;
+                    ((CmpSkillWork *)rowBase)->animation[38].sourceY = ((CmpSkillWork *)rowBase)->animation[38].targetY;
+                    *durationPtr = 0x10;
                 } else {
-                    p = (u8 *)arg0 + i * 0x30;
-                    x = (f32 *)(p + 0xCA4);
+                    rowBase = (u8 *)work + i * 0x30;
+                    x = &((CmpSkillWork *)rowBase)->animation[38].sourceX;
                     random = (u32)RpRandom() % 0x28 - 0x14;
                     *x = (f32)random;
-                    y = (f32 *)(p + 0xCA8);
+                    y = &((CmpSkillWork *)rowBase)->animation[38].sourceY;
                     random = (u32)RpRandom() % 0x28 - 0x14;
                     *y = (f32)random;
-                    *(f32 *)(p + 0xCAC) = *x;
-                    *(f32 *)(p + 0xCB0) = *y;
-                    *statep = 8;
+                    ((CmpSkillWork *)rowBase)->animation[38].targetX = *x;
+                    ((CmpSkillWork *)rowBase)->animation[38].targetY = *y;
+                    *durationPtr = 8;
                 }
-                p = (u8 *)arg0 + i * 0x30;
-                *(u8 *)(p + 0xCBD) = *(u8 *)(p + 0xCBC);
-                *(u8 *)(p + 0xCBC) = *flagp;
+                rowBase = (u8 *)work + i * 0x30;
+                ((CmpSkillWork *)rowBase)->animation[38].targetAlpha = ((CmpSkillWork *)rowBase)->animation[38].sourceAlpha;
+                ((CmpSkillWork *)rowBase)->animation[38].sourceAlpha = *alphaPtr;
             } else {
-                flagp = row + 0xCBE;
-                if (*flagp != 0) {
+                alphaPtr = &((CmpSkillWork *)row)->animation[38].alpha;
+                if (*alphaPtr != 0) {
                     if (count < state + 0xA) {
                         continue;
                     }
-                    *(f32 *)(row + 0xCA4) = *(f32 *)(row + 0xCAC);
-                    *(f32 *)(row + 0xCA8) = *(f32 *)(row + 0xCB0);
-                    *(u16 *)(row + 0xCC0) = *(u16 *)(row + 0xCC2);
-                    *(u16 *)(row + 0xCC6) = *(u16 *)(row + 0xCC8);
-                    *statep = 4;
+                    ((CmpSkillWork *)row)->animation[38].sourceX = ((CmpSkillWork *)row)->animation[38].targetX;
+                    ((CmpSkillWork *)row)->animation[38].sourceY = ((CmpSkillWork *)row)->animation[38].targetY;
+                    ((CmpSkillWork *)row)->animation[38].sourceScaleX = ((CmpSkillWork *)row)->animation[38].targetScaleX;
+                    ((CmpSkillWork *)row)->animation[38].sourceScaleY = ((CmpSkillWork *)row)->animation[38].targetScaleY;
+                    *durationPtr = 4;
                 } else {
-                    x = (f32 *)(row + 0xCA4);
+                    x = &((CmpSkillWork *)row)->animation[38].sourceX;
                     random = (u32)RpRandom() % 0x28 - 0x14;
                     *x = (f32)random;
-                    y = (f32 *)(row + 0xCA8);
+                    y = &((CmpSkillWork *)row)->animation[38].sourceY;
                     random = (u32)RpRandom() % 0x28 - 0x14;
                     *y = (f32)random;
-                    table = (f32 *)(D_005ED790 + i * 0x14);
-                    temp = table[2];
+                    layout = (CmpSkillDecoration *)(D_005ED790 + i * 0x14);
+                    dimension = layout->width;
                     value =
-                        (57.0f * temp) / (divisor = 4096.0f);
+                        (57.0f * dimension) / (divisor = 4096.0f);
                     scale = DAT_00761640;
                     value =
                         (scale * value - value) / (half = 2.0f);
-                    *(f32 *)(row + 0xCAC) = *x - value;
-                    temp = table[3];
-                    value = (60.0f * temp) / divisor;
+                    ((CmpSkillWork *)row)->animation[38].targetX = *x - value;
+                    dimension = layout->height;
+                    value = (60.0f * dimension) / divisor;
                     value = (scale * value - value) / half;
-                    *(f32 *)(row + 0xCB0) = *y - value;
-                    hundred = 0x64;
-                    *(s16 *)(row + 0xCC0) = hundred;
-                    hundred_eighty = 0xB4;
-                    *(s16 *)(row + 0xCC2) = hundred_eighty;
-                    *(s16 *)(row + 0xCC6) = hundred;
-                    *(s16 *)(row + 0xCC8) = hundred_eighty;
-                    *statep = 8;
+                    ((CmpSkillWork *)row)->animation[38].targetY = *y - value;
+                    minimumScale = 0x64;
+                    *(s16 *)&((CmpSkillWork *)row)->animation[38].sourceScaleX = minimumScale;
+                    maximumScale = 0xB4;
+                    *(s16 *)&((CmpSkillWork *)row)->animation[38].targetScaleX = maximumScale;
+                    *(s16 *)&((CmpSkillWork *)row)->animation[38].sourceScaleY = minimumScale;
+                    *(s16 *)&((CmpSkillWork *)row)->animation[38].targetScaleY = maximumScale;
+                    *durationPtr = 8;
                 }
-                p = (u8 *)arg0 + i * 0x30;
-                *(u8 *)(p + 0xCBD) = *(u8 *)(p + 0xCBC);
-                *(u8 *)(p + 0xCBC) = *flagp;
+                rowBase = (u8 *)work + i * 0x30;
+                ((CmpSkillWork *)rowBase)->animation[38].targetAlpha = ((CmpSkillWork *)rowBase)->animation[38].sourceAlpha;
+                ((CmpSkillWork *)rowBase)->animation[38].sourceAlpha = *alphaPtr;
             }
             *counter = 0;
         }
@@ -915,21 +940,22 @@ void cmpSkillStepDecorations(void *arg0)
    (u8*)arg0 + 0x22 address into a callee-saved pointer (nd 34); with it off
    each access keeps base+offset like retail (nd 3 = 3 padding words only).
    Same call-site trick as the cmpPersona sibling func_00135cf0. */
+/* Advance the two scrolling row transitions with a frame counter capped at 100. */
 // FUN_0013A4A0
 #pragma opt_common_subs off
-void cmpSkillStepScrollRows(void *arg0)
+void cmpSkillStepScrollRows(void *work)
 {
     s32 i;
-    u8 *p;
-    s32 v;
+    u8 *motion;
+    s32 frame;
 
-    v = *(s16 *)((u8 *)arg0 + 0x22);
-    if (v < 0x64) {
-        *(s16 *)((u8 *)arg0 + 0x22) = v + 1;
+    frame = ((CmpSkillWork *)((u8 *)work))->scrollFrame;
+    if (frame < 0x64) {
+        ((CmpSkillWork *)((u8 *)work))->scrollFrame = frame + 1;
     }
     for (i = 0; i < 2; i++) {
-        p = (u8 *)arg0 + i * 0x30 + 0x11E4;
-        radarAnimateValue(p, *(s16 *)((u8 *)arg0 + 0x22), 0);
+        motion = (u8 *)work + i * 0x30 + 0x11E4;
+        radarAnimateValue(motion, ((CmpSkillWork *)((u8 *)work))->scrollFrame, 0);
     }
 }
 /* measured: opt_common_subs off is required for the retail base+offset access order. */
@@ -941,85 +967,87 @@ void cmpSkillStepScrollRows(void *arg0)
    Loop-invariant optimization is required for the conversion preheader. */
 #pragma opt_common_subs off
 #pragma opt_loop_invariants on
+/* Snapshot current row poses and apply the selected skill-menu layout, footer and visibility flags. */
 // FUN_0013A530
-s32 cmpSkillSetMode(u8 *arg0, s32 arg1)
+/* Raw work-relative accesses retain MWCC alias scheduling; the CmpSkillWork rewrite changed 669 instruction bytes and was reverted. */
+s32 cmpSkillSetMode(u8 *work, s32 mode)
 {
     s32 i;
     s32 j;
     u8 *table;
-    u8 *p;
+    u8 *rowBase;
     u8 *src;
     f32 value;
 
     table = 0;
-    if (*(s32 *)(arg0 + 0x18) == arg1) {
+    if (*(s32 *)(work + 0x18) == mode) {
         return 0;
     }
     for (i = 0; i < 0x26; i++) {
-        p = arg0 + i * 0x30;
-        *(f32 *)(p + 0x584) = *(f32 *)(p + 0x594);
-        *(f32 *)(p + 0x588) = *(f32 *)(p + 0x598);
-        *(u16 *)(p + 0x5A0) = *(u16 *)(p + 0x5A4);
-        *(u16 *)(p + 0x5A6) = *(u16 *)(p + 0x5AA);
-        *(u8 *)(p + 0x59C) = *(u8 *)(p + 0x59E);
+        rowBase = work + i * 0x30;
+        *(f32 *)(rowBase + 0x584) = *(f32 *)(rowBase + 0x594);
+        *(f32 *)(rowBase + 0x588) = *(f32 *)(rowBase + 0x598);
+        *(u16 *)(rowBase + 0x5A0) = *(u16 *)(rowBase + 0x5A4);
+        *(u16 *)(rowBase + 0x5A6) = *(u16 *)(rowBase + 0x5AA);
+        *(u8 *)(rowBase + 0x59C) = *(u8 *)(rowBase + 0x59E);
     }
-    switch (arg1) {
+    switch (mode) {
     case 0:
         table = D_005EB5D0;
-        *(s32 *)(arg0 + 0x1C) = 0x220B;
-        *(s16 *)(arg0 + 0x582) = 0;
+        *(s32 *)(work + 0x1C) = 0x220B;
+        *(s16 *)(work + 0x582) = 0;
         break;
     case 1:
         table = D_005EBA00;
         break;
     case 2:
-        *(s32 *)(arg0 + 0x1C) = 0x220B;
+        *(s32 *)(work + 0x1C) = 0x220B;
         table = D_005EBE30;
-        *(s16 *)(arg0 + 0x582) = 0;
+        *(s16 *)(work + 0x582) = 0;
         break;
     case 3:
-        *(s32 *)(arg0 + 0x1C) = 0x269B;
+        *(s32 *)(work + 0x1C) = 0x269B;
         table = D_005EC260;
-        *(s16 *)(arg0 + 0x582) = 1;
+        *(s16 *)(work + 0x582) = 1;
         break;
     case 4:
-        *(s32 *)(arg0 + 0x1C) = 0x241B;
+        *(s32 *)(work + 0x1C) = 0x241B;
         table = D_005EC690;
-        *(s16 *)(arg0 + 0x582) = 1;
+        *(s16 *)(work + 0x582) = 1;
         break;
     case 5:
         table = D_005ECAC0;
-        *(s32 *)(arg0 + 0x1C) = 0xC61;
-        *(f32 *)(arg0 + 0x8B8) =
-            34.0f * (f32)*(s16 *)(arg0 + 0x5E);
-        *(s16 *)(arg0 + 0x582) = 0;
+        *(s32 *)(work + 0x1C) = 0xC61;
+        *(f32 *)(work + 0x8B8) =
+            34.0f * (f32)*(s16 *)(work + 0x5E);
+        *(s16 *)(work + 0x582) = 0;
         break;
     case 6:
         table = D_005ECAC0;
-        *(s32 *)(arg0 + 0x1C) = 0x1861;
-        *(s16 *)(arg0 + 0x582) = 0;
+        *(s32 *)(work + 0x1C) = 0x1861;
+        *(s16 *)(work + 0x582) = 0;
         break;
     case 7:
         table = D_005ECEF0;
-        *(s32 *)(arg0 + 0x1C) = 0xD61;
-        *(f32 *)(arg0 + 0x8B8) =
-            34.0f * (f32)*(s16 *)(arg0 + 0x5E);
-        *(s16 *)(arg0 + 0x582) = 0;
+        *(s32 *)(work + 0x1C) = 0xD61;
+        *(f32 *)(work + 0x8B8) =
+            34.0f * (f32)*(s16 *)(work + 0x5E);
+        *(s16 *)(work + 0x582) = 0;
         break;
     case 8:
         table = D_005ECEF0;
-        *(s32 *)(arg0 + 0x1C) = 0x1961;
-        *(s16 *)(arg0 + 0x582) = 0;
+        *(s32 *)(work + 0x1C) = 0x1961;
+        *(s16 *)(work + 0x582) = 0;
         break;
     case 9:
         table = D_005ED320;
-        *(s32 *)(arg0 + 0x1C) = 0x249B;
-        *(s16 *)(arg0 + 0x582) = 2;
+        *(s32 *)(work + 0x1C) = 0x249B;
+        *(s16 *)(work + 0x582) = 2;
         break;
     case 10:
         table = D_005ED320;
-        *(s32 *)(arg0 + 0x1C) = 0x249B;
-        *(s16 *)(arg0 + 0x582) = 2;
+        *(s32 *)(work + 0x1C) = 0x249B;
+        *(s16 *)(work + 0x582) = 2;
         break;
     default:
         kAssertFail(D_005ED9C0, 0x5C9);
@@ -1031,19 +1059,19 @@ s32 cmpSkillSetMode(u8 *arg0, s32 arg1)
 #pragma opt_common_subs on
         for (j = 0; j < 0x26; j++) {
             src = table + j * 0x1C;
-            p = arg0 + j * 0x30;
-            *(f32 *)(p + 0x58C) = *(f32 *)(src + 0);
-            *(f32 *)(p + 0x590) = *(f32 *)(src + 4);
-            *(u8 *)(p + 0x59D) = *(u8 *)(src + 0x10);
+            rowBase = work + j * 0x30;
+            *(f32 *)(rowBase + 0x58C) = *(f32 *)(src + 0);
+            *(f32 *)(rowBase + 0x590) = *(f32 *)(src + 4);
+            *(u8 *)(rowBase + 0x59D) = *(u8 *)(src + 0x10);
             value = *(f32 *)(src + 8);
-            *(u16 *)(p + 0x5A2) = (u16)value;
+            *(u16 *)(rowBase + 0x5A2) = (u16)value;
             value = *(f32 *)(src + 0xC);
-            *(u16 *)(p + 0x5A8) = (u16)value;
-            *(s32 *)(p + 0x5AC) = *(s32 *)(src + 0x14);
-            *(s32 *)(p + 0x5B0) = *(s32 *)(src + 0x18);
+            *(u16 *)(rowBase + 0x5A8) = (u16)value;
+            *(s32 *)(rowBase + 0x5AC) = *(s32 *)(src + 0x14);
+            *(s32 *)(rowBase + 0x5B0) = *(s32 *)(src + 0x18);
         }
-        *(s32 *)(arg0 + 0x18) = arg1;
-        *(s16 *)(arg0 + 0x20) = 0;
+        *(s32 *)(work + 0x18) = mode;
+        *(s16 *)(work + 0x20) = 0;
     }
     return 1;
 }
@@ -1052,128 +1080,135 @@ s32 cmpSkillSetMode(u8 *arg0, s32 arg1)
    preheader; mwcc b210 sinks the materialization into the if-branch unless
    #pragma opt_loop_invariants on is active. Tried s32/u32/f32 locals, register,
    ternary, chained-assign, while-loop spellings — all nd 30 without the pragma. */
+/* Offset the selected party row and its paired label horizontally by 25 pixels. */
 // FUN_0013A8A0
 #pragma opt_loop_invariants on
-void cmpSkillSetPartyCursorMotion(u8 *arg0)
+void cmpSkillSetPartyCursorMotion(u8 *work)
 {
     s32 i;
 
     for (i = 0; i < 4; i++) {
-        u8 *q = arg0 + i * 0x30;
-        *(f32 *)(q + 0x5B4) = *(f32 *)(q + 0x5C4);
-        *(f32 *)(q + 0x5B8) = *(f32 *)(q + 0x5C8);
-        *(u8 *)(q + 0x5CC) = *(u8 *)(q + 0x5CE);
-        *(f32 *)(q + 0x674) = *(f32 *)(q + 0x684);
-        *(f32 *)(q + 0x678) = *(f32 *)(q + 0x688);
-        *(u8 *)(q + 0x68C) = *(u8 *)(q + 0x68E);
-        if (*(s16 *)(arg0 + 0x5C) == i) {
-            *(s32 *)(q + 0x5BC) = 0x41C80000;
-            *(s32 *)(q + 0x67C) = 0x41C80000;
+        u8 *rowBase = work + i * 0x30;
+        ((CmpSkillWork *)rowBase)->animation[1].sourceX = ((CmpSkillWork *)rowBase)->animation[1].x;
+        ((CmpSkillWork *)rowBase)->animation[1].sourceY = ((CmpSkillWork *)rowBase)->animation[1].y;
+        ((CmpSkillWork *)rowBase)->animation[1].sourceAlpha = ((CmpSkillWork *)rowBase)->animation[1].alpha;
+        ((CmpSkillWork *)rowBase)->animation[5].sourceX = ((CmpSkillWork *)rowBase)->animation[5].x;
+        ((CmpSkillWork *)rowBase)->animation[5].sourceY = ((CmpSkillWork *)rowBase)->animation[5].y;
+        ((CmpSkillWork *)rowBase)->animation[5].sourceAlpha = ((CmpSkillWork *)rowBase)->animation[5].alpha;
+        if (((CmpSkillWork *)work)->selectedParty == i) {
+            *(s32 *)&((CmpSkillWork *)rowBase)->animation[1].targetX = 0x41C80000;
+            *(s32 *)&((CmpSkillWork *)rowBase)->animation[5].targetX = 0x41C80000;
         } else {
-            *(s32 *)(q + 0x5BC) = 0;
-            *(s32 *)(q + 0x67C) = 0;
+            *(s32 *)&((CmpSkillWork *)rowBase)->animation[1].targetX = 0;
+            *(s32 *)&((CmpSkillWork *)rowBase)->animation[5].targetX = 0;
         }
     }
-    *(s16 *)(arg0 + 0x20) = 0;
+    ((CmpSkillWork *)work)->frame = 0;
 }
 /* measured: opt_loop_invariants on is required for the retail preheader constant hoist. */
 #pragma opt_loop_invariants off
+/* Place the scrolling-row overlay at the upper or lower list edge according to scroll direction. */
 // FUN_0013A930
-void cmpSkillLayoutScrollRows(void *arg0)
+/* Raw work-relative accesses retain MWCC alias scheduling; the CmpSkillWork rewrite changed 33 instruction bytes and was reverted. */
+void cmpSkillLayoutScrollRows(void *work)
 {
-    f32 f0;
-    f32 f1;
-    *(u32 *)((u8 *)arg0 + 0x11E4) = 0x437F0000;
-    *(u32 *)((u8 *)arg0 + 0x11EC) = 0x437F0000;
-    *(u32 *)((u8 *)arg0 + 0x11F4) = 0x437F0000;
-    *(u8 *)((u8 *)arg0 + 0x11FC) = 0xFF;
-    *(u8 *)((u8 *)arg0 + 0x11FE) = 0xFF;
-    *(u8 *)((u8 *)arg0 + 0x11FD) = 0;
-    *(u32 *)((u8 *)arg0 + 0x1220) = 0;
-    if (*(s16 *)((u8 *)arg0 + 0x60) > *(s16 *)((u8 *)arg0 + 0xAC)) {
-        f0 = 21.0f + *(f32 *)((u8 *)arg0 + 0x8F8);
-        *(f32 *)((u8 *)arg0 + 0x11F8) = f0;
-        *(f32 *)((u8 *)arg0 + 0x11E8) = f0;
-        *(f32 *)((u8 *)arg0 + 0x11F0) = *(f32 *)((u8 *)arg0 + 0x11F8) - 10.0f;
-        *(u32 *)((u8 *)arg0 + 0x1218) = 0xC1200000;
+    f32 rowY;
+    f32 bottomY;
+    *(u32 *)((u8 *)work + 0x11E4) = 0x437F0000;
+    *(u32 *)((u8 *)work + 0x11EC) = 0x437F0000;
+    *(u32 *)((u8 *)work + 0x11F4) = 0x437F0000;
+    *(u8 *)((u8 *)work + 0x11FC) = 0xFF;
+    *(u8 *)((u8 *)work + 0x11FE) = 0xFF;
+    *(u8 *)((u8 *)work + 0x11FD) = 0;
+    *(u32 *)((u8 *)work + 0x1220) = 0;
+    if (*(s16 *)((u8 *)work + 0x60) > *(s16 *)((u8 *)work + 0xAC)) {
+        rowY = 21.0f + *(f32 *)((u8 *)work + 0x8F8);
+        *(f32 *)((u8 *)work + 0x11F8) = rowY;
+        *(f32 *)((u8 *)work + 0x11E8) = rowY;
+        *(f32 *)((u8 *)work + 0x11F0) = *(f32 *)((u8 *)work + 0x11F8) - 10.0f;
+        *(u32 *)((u8 *)work + 0x1218) = 0xC1200000;
     } else {
-        f1 = 21.0f + *(f32 *)((u8 *)arg0 + 0x9E8);
-        f0 = 170.0f + f1;
-        *(f32 *)((u8 *)arg0 + 0x11F8) = f0;
-        *(f32 *)((u8 *)arg0 + 0x11E8) = f0;
-        *(f32 *)((u8 *)arg0 + 0x11F0) = 10.0f + *(f32 *)((u8 *)arg0 + 0x11F8);
-        *(u32 *)((u8 *)arg0 + 0x1218) = 0x41200000;
+        bottomY = 21.0f + *(f32 *)((u8 *)work + 0x9E8);
+        rowY = 170.0f + bottomY;
+        *(f32 *)((u8 *)work + 0x11F8) = rowY;
+        *(f32 *)((u8 *)work + 0x11E8) = rowY;
+        *(f32 *)((u8 *)work + 0x11F0) = 10.0f + *(f32 *)((u8 *)work + 0x11F8);
+        *(u32 *)((u8 *)work + 0x1218) = 0x41200000;
     }
-    *(s16 *)((u8 *)arg0 + 0x22) = 0;
+    *(s16 *)((u8 *)work + 0x22) = 0;
 }
 
 /* measured: same lui-hoist floor as func_0013a8a0 (constant 0x41C80000 into
    preheader); without #pragma opt_loop_invariants on mwcc b210 sinks the lui
    into the branch — identical nd 30 on every spelling tried. */
+/* Offset the selected recipient row and its paired label horizontally by 25 pixels. */
 // FUN_0013AA00
 #pragma opt_loop_invariants on
-void cmpSkillSetScrollCursorMotion(u8 *arg0)
+void cmpSkillSetScrollCursorMotion(u8 *work)
 {
     s32 i;
 
     for (i = 0; i < 4; i++) {
-        u8 *q = arg0 + i * 0x30;
-        *(f32 *)(q + 0xA04) = *(f32 *)(q + 0xA14);
-        *(f32 *)(q + 0xA08) = *(f32 *)(q + 0xA18);
-        *(u8 *)(q + 0xA1C) = *(u8 *)(q + 0xA1E);
-        *(f32 *)(q + 0xAC4) = *(f32 *)(q + 0xAD4);
-        *(f32 *)(q + 0xAC8) = *(f32 *)(q + 0xAD8);
-        *(u8 *)(q + 0xADC) = *(u8 *)(q + 0xADE);
-        if (*(s16 *)(arg0 + 0x62) == i) {
-            *(s32 *)(q + 0xA0C) = 0x41C80000;
-            *(s32 *)(q + 0xACC) = 0x41C80000;
+        u8 *rowBase = work + i * 0x30;
+        ((CmpSkillWork *)rowBase)->animation[24].sourceX = ((CmpSkillWork *)rowBase)->animation[24].x;
+        ((CmpSkillWork *)rowBase)->animation[24].sourceY = ((CmpSkillWork *)rowBase)->animation[24].y;
+        ((CmpSkillWork *)rowBase)->animation[24].sourceAlpha = ((CmpSkillWork *)rowBase)->animation[24].alpha;
+        ((CmpSkillWork *)rowBase)->animation[28].sourceX = ((CmpSkillWork *)rowBase)->animation[28].x;
+        ((CmpSkillWork *)rowBase)->animation[28].sourceY = ((CmpSkillWork *)rowBase)->animation[28].y;
+        ((CmpSkillWork *)rowBase)->animation[28].sourceAlpha = ((CmpSkillWork *)rowBase)->animation[28].alpha;
+        if (((CmpSkillWork *)work)->selectedRecipient == i) {
+            *(s32 *)&((CmpSkillWork *)rowBase)->animation[24].targetX = 0x41C80000;
+            *(s32 *)&((CmpSkillWork *)rowBase)->animation[28].targetX = 0x41C80000;
         } else {
-            *(s32 *)(q + 0xA0C) = 0;
-            *(s32 *)(q + 0xACC) = 0;
+            *(s32 *)&((CmpSkillWork *)rowBase)->animation[24].targetX = 0;
+            *(s32 *)&((CmpSkillWork *)rowBase)->animation[28].targetX = 0;
         }
     }
-    *(s16 *)(arg0 + 0x20) = 0;
+    ((CmpSkillWork *)work)->frame = 0;
 }
 /* measured: opt_loop_invariants on is required for the retail preheader constant hoist. */
 #pragma opt_loop_invariants off
 
+/* Randomly restart up to six decoration cells with enlarged scales and a ten-frame transition. */
 // FUN_0013AA90
-void cmpSkillRandomizeCellMotions(void *arg0)
+void cmpSkillRandomizeCellMotions(void *work)
 {
     s32 i;
     for (i = 0; i < 6; i++) {
         if (!(RpRandom() & 1)) {
-            u8 *q = (u8 *)arg0 + i * 0x30;
-            *(s16 *)(q + 0xCC2) = 0xFA;
-            *(s16 *)(q + 0xCC8) = 0x190;
-            *(u32 *)(q + 0xCA4) = 0xC1F00000;
-            *(u32 *)(q + 0xCA8) = 0xC1F00000;
-            *(u32 *)(q + 0xCAC) = 0xC1F00000;
-            *(u32 *)(q + 0xCB0) = 0xC1F00000;
-            *(u32 *)(q + 0xCD0) = 10;
-            *(s16 *)((u8 *)arg0 + i * 2 + 0x24) = 0;
+            u8 *rowBase = (u8 *)work + i * 0x30;
+            *(s16 *)&((CmpSkillWork *)rowBase)->animation[38].targetScaleX = 0xFA;
+            *(s16 *)&((CmpSkillWork *)rowBase)->animation[38].targetScaleY = 0x190;
+            *(u32 *)&((CmpSkillWork *)rowBase)->animation[38].sourceX = 0xC1F00000;
+            *(u32 *)&((CmpSkillWork *)rowBase)->animation[38].sourceY = 0xC1F00000;
+            *(u32 *)&((CmpSkillWork *)rowBase)->animation[38].targetX = 0xC1F00000;
+            *(u32 *)&((CmpSkillWork *)rowBase)->animation[38].targetY = 0xC1F00000;
+            *(u32 *)&((CmpSkillWork *)rowBase)->animation[38].duration = 10;
+            ((CmpSkillWork *)((u8 *)work + i * 2))->decorationFrames[0] = 0;
         }
     }
 }
 
+/* Release all 60 sprite handles and clear the menu visibility mask. */
 // FUN_0013AB30
-void cmpSkillFreeSprites(u8 *arg0)
+void cmpSkillFreeSprites(u8 *work)
 {
     s32 i;
     s32 *slot;
 
     for (i = 0; i < 0x3C; i++) {
-        slot = (s32 *)(arg0 + i * 4 + 0x1244);
+        slot = (s32 *)&((CmpSkillWork *)work)->sprites[i];
         if (*slot != 0) {
             sdkSpriteFreeNode((void *)*slot);
             *slot = 0;
         }
     }
-    *(s32 *)(arg0 + 0x1C) = 0;
+    *(s32 *)&((CmpSkillWork *)work)->visible = 0;
 }
 
+/* Report whether every menu row reached its end frame and the shared line animation is idle. */
 // FUN_0013ABB0
-s32 cmpSkillRowsSettled(u8 *arg0)
+s32 cmpSkillRowsSettled(u8 *work)
 {
     s32 result;
     s32 i;
@@ -1183,9 +1218,9 @@ s32 cmpSkillRowsSettled(u8 *arg0)
        an s16 local makes mwcc re-sign-extend it on every iteration. */
     result = 1;
     i = 0;
-    threshold = *(s16 *)(arg0 + 0x20);
+    threshold = ((CmpSkillWork *)work)->frame;
     while (i < 0x26) {
-        if (threshold < *(s32 *)(arg0 + i * 48 + 0x5B0)) {
+        if (threshold < ((CmpSkillWork *)(work + i * 48))->animation[0].duration) {
             result = 0;
         }
         i++;
@@ -1200,14 +1235,14 @@ s32 cmpSkillRowsSettled(u8 *arg0)
    The unsigned-halfword ID is forwarded unchanged. The signed-halfword
    result projection before adding one matches the retail switch index. */
 // FUN_0013AC30
-s32 cmpSkillElementLabelId(u16 arg0) {
-    s32 v;
+s32 cmpSkillElementLabelId(u16 skillId) {
+    s32 elementIndex;
 
-    if ((arg0 & 0xFFFF) >= 0x1B8) {
+    if ((skillId & 0xFFFF) >= 0x1B8) {
         return 0x35;
     }
-    v = (s16)datCalcSkillElement(NULL, arg0) + 1;
-    switch ((u32)v) {
+    elementIndex = (s16)datCalcSkillElement(NULL, skillId) + 1;
+    switch ((u32)elementIndex) {
     case 1:
         return 0x2B;
     case 2:

@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
@@ -13,7 +14,7 @@ extern u8 D_00713E10[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void *memcpy(void *dst, const void *src, u32 size);
 typedef struct {
-    u8 c0;
+    u8 trailCount;
     u8 c1;
     u8 c2;
     u8 c3;
@@ -40,7 +41,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
  * holds the accumulated spawn value earlier (`acc` in the m2c output), which
  * with opt_lifetimes on gives it a late web number so b210 spills it rather
  * than the asm `dot`, as retail does; the trail index `(node - base) >> 5` is
- * a named u32 multiplied by nmult; and `burst = 1` goes through a u8 local
+ * a named u32 multiplied by trailSpan; and `burst = 1` goes through a u8 local
  * (with opt_propagation off the only spelling that gives `daddiu`). The
  * pragmas are measured: opt_lifetimes off leaves 25 edits (dot is spilled),
  * opt_loop_invariants is what hoists the constant block retail loads before
@@ -50,307 +51,319 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 /* Swirl emitter update, ported from the d8c0/c4e0 particle family: three
  * stack vectors with retail's w=0 stores, the captured origin quad, loop
  * constants in hoist order, u8 preroll flag and snapshot pointer. The spawn
- * angle forms (g84 * a) * b as one named product before the half-weighted
+ * angle forms (angleRange * a) * b as one named product before the half-weighted
  * remainder; the radius pairs are both formed before the first is stored. */
 #pragma push
 /* measured: func_004916f0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 /* measured: func_004916f0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Spawn and advance orbiting particles, including preroll, key sampling and trail snapshots. */
 // FUN_004916F0
-void func_004916f0(u8 *arg0)
+void mdlEffectUpdateSwirlEmitter(u8 *emitterBytes)
 {
     extern void effMiscBuildRotationVU(void);
-    extern f32 cosf(f32 arg0);
-    extern f32 sinf(f32 arg0);
-    extern f32 fabsf(f32 arg0);
-    extern void mdlEffectSampleKeyState(u8 *arg0, u8 *arg1, s32 arg2, u_long128 *arg3);
+    extern f32 cosf(f32 emitterBytes);
+    extern f32 sinf(f32 emitterBytes);
+    extern f32 fabsf(f32 emitterBytes);
+    extern void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition);
     extern void *memcpy(void *dst, const void *src, u32 size);
-    extern void func_0048b340(u8 *arg0, u8 *arg1);
+    extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
     extern f32 fGpffff8084;
-    f32 sp150[4] __attribute__((aligned(16)));
-    f32 sp140[4] __attribute__((aligned(16)));
-    f32 sp130[4] __attribute__((aligned(16)));
-    u_long128 quad120;
-    u_long128 b220buf;
+    f32 spawnPosition[4] __attribute__((aligned(16)));
+    f32 motionVector[4] __attribute__((aligned(16)));
+    f32 updatedPosition[4] __attribute__((aligned(16)));
+    u_long128 origin;
+    u_long128 previousPosition;
     u32 count;
     u32 flags;
     u8 *nodes;
-    f32 *out;
+    f32 *state;
     u8 *config;
-    u8 *const parent = arg0;
-    s32 limitB8;
-    s32 saved20;
-    u8 mode9C;
+    u8 *const parent = emitterBytes;
+    s32 lifetime;
+    s32 emissionDuration;
+    u8 angleMode;
     f32 variation;
-    f32 eDC;
-    f32 eD8;
+    f32 gravity;
+    f32 angularAcceleration;
     f32 angle;
-    f32 g84;
+    f32 angleRange;
     f32 one;
     f32 half;
-    f32 g80;
-    f32 negone;
+    f32 phaseRange;
+    f32 reverseAngle;
     f32 zero;
-    s32 v15;
-    s32 v14;
+    s32 spawnBudget;
+    s32 preroll;
     u8 initialPreroll;
-    u32 idx;
-    s32 tmp;
-    f32 ftmp1;
-    f32 ftmp2;
-    s32 node10;
-    s32 c0;
-    s32 c4;
-    s32 nmult;
+    u32 index;
+    s32 countValue;
+    f32 firstValue;
+    f32 secondValue;
+    s32 age;
+    s32 trailCount;
+    s32 trailWidth;
+    s32 trailSpan;
     u8 *clear;
-    s32 ci;
+    s32 trailIndex;
     u32 particleIndex;
-    f32 b;
-    f32 c;
+    f32 randomSample;
+    f32 trigValue;
 
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     count = *(u32 *)(parent + 4);
-    flags = *(u32 *)(parent + 12);
-    nodes = *(u8 **)(parent + 24);
-    out = *(f32 **)(parent + 28);
-    config = *(u8 **)(parent + 32);
-    limitB8 = *(s32 *)(config + 184);
-    if (limitB8 == 0) {
+    flags = ((MdlEffectEmitter *)parent)->flags;
+    nodes = ((MdlEffectEmitter *)parent)->particles;
+    state = ((MdlEffectEmitter *)parent)->state.scalars;
+    config = ((MdlEffectEmitter *)parent)->parameters;
+    lifetime = ((MdlEffectSwirlParameters *)config)->common.lifetime;
+    if (lifetime == 0) {
         return;
     }
-    saved20 = *(s32 *)(config + 32);
-    mode9C = *(u8 *)(config + 156);
-    eDC = *(f32 *)(config + 220);
-    eD8 = *(f32 *)(config + 216);
-    sp150[3] = 0.0f;
-    sp130[3] = 0.0f;
-    sp140[3] = 0.0f;
+    emissionDuration = ((MdlEffectSwirlParameters *)config)->common.emissionDuration;
+    angleMode = ((MdlEffectSwirlParameters *)config)->common.angleMode;
+    gravity = ((MdlEffectSwirlParameters *)config)->gravity;
+    angularAcceleration = ((MdlEffectSwirlParameters *)config)->angularAcceleration;
+    spawnPosition[3] = 0.0f;
+    updatedPosition[3] = 0.0f;
+    motionVector[3] = 0.0f;
     {
-        u_long128 *const capture = &quad120;
+        u_long128 *const capture = &origin;
+        /* The complete 16-byte VU position copy retains its quadword storage representation. */
         *capture = *(u_long128 *)(config + 0);
     }
     effectVuLoad10((const EffectVuVector *)(config + 16));
     effMiscBuildRotationVU();
-    if ((saved20 != 0) && (*(s32 *)(parent + 16) >= saved20)) {
-        v14 = 0;
-        v15 = 0;
+    if ((emissionDuration != 0) && (((MdlEffectEmitter *)parent)->ticks >= emissionDuration)) {
+        preroll = 0;
+        spawnBudget = 0;
         goto post_init;
     }
-    if ((*(s32 *)(parent + 16) == 0) && (*(u8 *)(config + 189) != 0)) {
+    if ((((MdlEffectEmitter *)parent)->ticks == 0) && (((MdlEffectSwirlParameters *)config)->common.preroll != 0)) {
         initialPreroll = 1;
-        v14 = initialPreroll;
+        preroll = initialPreroll;
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         if (!(*(f32 *)(config + 40) <= 0.0f)) {
-            f32 prerollScale = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            ftmp2 = (f32)*(u32 *)(parent + 4);
-            v15 = (s32)(ftmp2 * prerollScale);
+            f32 prerollScale = (fGpffff807c - ((MdlEffectSwirlParameters *)config)->common.emissionVariation) * effMiscRandFloat(0);
+            secondValue = (f32)((MdlEffectEmitter *)parent)->primaryCount.value;
+            spawnBudget = (s32)(secondValue * prerollScale);
         } else {
-            v15 = *(s32 *)(parent + 4);
+            spawnBudget = (s32)((MdlEffectEmitter *)parent)->primaryCount.signedValue;
         }
         goto post_init;
     } else {
-        v14 = 0;
+        preroll = 0;
+        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         if (!(*(f32 *)(config + 40) <= 0.0f)) {
-            f32 scale = (fGpffff807c - *(f32 *)(config + 40)) * effMiscRandFloat(0);
-            tmp = *(s32 *)(config + 36);
-            ftmp2 = (f32)(u32)tmp;
-            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp2 * scale;
+            f32 scale = (fGpffff807c - ((MdlEffectSwirlParameters *)config)->common.emissionVariation) * effMiscRandFloat(0);
+            countValue = ((MdlEffectSwirlParameters *)config)->common.emissionRate.signedValue;
+            secondValue = (f32)(u32)countValue;
+            ((MdlEffectEmitter *)parent)->emissionAccumulator = ((MdlEffectEmitter *)parent)->emissionAccumulator + secondValue * scale;
         } else {
-            tmp = *(s32 *)(config + 36);
-            ftmp1 = (f32)(u32)tmp;
-            *(f32 *)(parent + 20) = *(f32 *)(parent + 20) + ftmp1;
+            countValue = ((MdlEffectSwirlParameters *)config)->common.emissionRate.signedValue;
+            firstValue = (f32)(u32)countValue;
+            ((MdlEffectEmitter *)parent)->emissionAccumulator = ((MdlEffectEmitter *)parent)->emissionAccumulator + firstValue;
         }
-        ftmp1 = *(f32 *)(parent + 20);
-        ftmp1 = fabsf(ftmp1);
-        v15 = (s32)ftmp1;
-        *(f32 *)(parent + 20) = *(f32 *)(parent + 20) - (f32)v15;
+        firstValue = ((MdlEffectEmitter *)parent)->emissionAccumulator;
+        firstValue = fabsf(firstValue);
+        spawnBudget = (s32)firstValue;
+        ((MdlEffectEmitter *)parent)->emissionAccumulator = ((MdlEffectEmitter *)parent)->emissionAccumulator - (f32)spawnBudget;
         goto post_init;
     }
 post_init:
-    idx = 0;
-    g84 = fGpffff8084;
+    index = 0;
+    angleRange = fGpffff8084;
     one = 1.0f;
     half = 0.5f;
-    g80 = fGpffff8080;
-    negone = -1.0f;
+    phaseRange = fGpffff8080;
+    reverseAngle = -1.0f;
     zero = 0.0f;
     goto main_check;
 main_body:
-    if (*(s32 *)(nodes + 16) < limitB8) {
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    if (*(s32 *)(nodes + 16) < lifetime) {
         goto skip_clear;
     }
-    if (saved20 != 0) {
-        tmp = -2;
+    if (emissionDuration != 0) {
+        countValue = -2;
     } else {
-        tmp = -1;
+        countValue = -1;
     }
-    *(s32 *)(nodes + 16) = tmp;
-    c0 = *(s32 *)(*(u8 **)(parent + 32) + 192);
-    c4 = *(s32 *)(*(u8 **)(parent + 32) + 196);
-    nmult = c0 * c4;
-    if (nmult != 0) {
-        particleIndex = ((u32)nodes - (u32)*(u8 **)(parent + 24)) >> 5;
-        clear = *(u8 **)(parent + 24) + ((*(u32 *)(parent + 4) + particleIndex * (u32)nmult) << 5);
-        ci = 0;
+    ((SpawnParticle *)nodes)->age = countValue;
+    trailCount = ((MdlEffectSwirlParameters *)((MdlEffectEmitter *)parent)->parameters)->common.trailCount.signedValue;
+    trailWidth = ((MdlEffectSwirlParameters *)((MdlEffectEmitter *)parent)->parameters)->common.trailWidth;
+    trailSpan = trailCount * trailWidth;
+    if (trailSpan != 0) {
+        particleIndex = ((u32)nodes - (u32)((MdlEffectEmitter *)parent)->particles) >> 5;
+        clear = ((MdlEffectEmitter *)parent)->particles + ((((MdlEffectEmitter *)parent)->primaryCount.value + particleIndex * (u32)trailSpan) << 5);
+        trailIndex = 0;
         goto clear_check;
 clear_body:
-        *(s32 *)(clear + 16) = -1;
+        ((SpawnParticle *)clear)->age = -1;
         clear += 32;
-        ci += 1;
+        trailIndex += 1;
 clear_check:
-        if (ci < nmult) {
+        if (trailIndex < trailSpan) {
             goto clear_body;
         }
     }
 skip_clear:
-    node10 = *(s32 *)(nodes + 16);
-    if (node10 == -2) {
+    age = ((SpawnParticle *)nodes)->age;
+    if (age == -2) {
         goto next_iter;
     }
-    if (node10 != -1) {
+    if (age != -1) {
         goto else_branch;
     }
-    if (v15 == 0) {
+    if (spawnBudget == 0) {
         goto next_iter;
     }
-    angle = *(f32 *)(config + 224);
-    b = effMiscRandFloat(0);
-    ftmp1 = g84 * angle;
-    ftmp1 = ftmp1 * b;
-    angle = ftmp1 + half * (g84 * (one - angle));
-    c = sinf(angle);
-    ftmp1 = *(f32 *)(config + 200) * c;
-    ftmp2 = *(f32 *)(config + 204) * c;
-    out[0] = ftmp1;
-    out[1] = (ftmp2 - ftmp1) / (f32)limitB8;
-    if ((*(u8 *)(config + 228) == 0) || ((idx & 1) != 0)) {
-        variation = *(f32 *)(config + 212);
-        b = effMiscRandFloat(0);
-        out[2] = *(f32 *)(config + 208) * ((one - variation) + variation * b);
+    angle = ((MdlEffectSwirlParameters *)config)->angleSpan;
+    randomSample = effMiscRandFloat(0);
+    firstValue = angleRange * angle;
+    firstValue = firstValue * randomSample;
+    angle = firstValue + half * (angleRange * (one - angle));
+    trigValue = sinf(angle);
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    firstValue = *(f32 *)(config + 200) * trigValue;
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    secondValue = *(f32 *)(config + 204) * trigValue;
+    state[0] = firstValue;
+    state[1] = (secondValue - firstValue) / (f32)lifetime;
+    if ((((MdlEffectSwirlParameters *)config)->alternateDirection == 0) || ((index & 1) != 0)) {
+        variation = ((MdlEffectSwirlParameters *)config)->angularVariation;
+        randomSample = effMiscRandFloat(0);
+        state[2] = ((MdlEffectSwirlParameters *)config)->angularSpeed * ((one - variation) + variation * randomSample);
     } else {
-        variation = *(f32 *)(config + 212);
-        b = effMiscRandFloat(0);
-        ftmp1 = (one - variation) + variation * b;
-        out[2] = -*(f32 *)(config + 208) * ftmp1;
+        variation = ((MdlEffectSwirlParameters *)config)->angularVariation;
+        randomSample = effMiscRandFloat(0);
+        firstValue = (one - variation) + variation * randomSample;
+        state[2] = -((MdlEffectSwirlParameters *)config)->angularSpeed * firstValue;
     }
-    b = effMiscRandFloat(0);
-    out[3] = g80 * b;
-    c = cosf(angle);
-    ftmp1 = *(f32 *)(config + 200) * c;
-    ftmp2 = *(f32 *)(config + 204) * c;
-    out[4] = ftmp1;
-    out[5] = (ftmp2 - ftmp1) / (f32)limitB8;
-    angle = out[0];
-    sp150[0] = angle * cosf(out[3]);
-    sp150[1] = out[4];
-    sp150[2] = angle * sinf(out[3]);
-    effectVuLoad10((const EffectVuVector *)sp150);
+    randomSample = effMiscRandFloat(0);
+    state[3] = phaseRange * randomSample;
+    trigValue = cosf(angle);
+    firstValue = ((MdlEffectSwirlParameters *)config)->startRadius * trigValue;
+    secondValue = ((MdlEffectSwirlParameters *)config)->endRadius * trigValue;
+    state[4] = firstValue;
+    state[5] = (secondValue - firstValue) / (f32)lifetime;
+    angle = state[0];
+    spawnPosition[0] = angle * cosf(state[3]);
+    spawnPosition[1] = state[4];
+    spawnPosition[2] = angle * sinf(state[3]);
+    effectVuLoad10((const EffectVuVector *)spawnPosition);
     if ((flags & 1) == 0) {
         spawnVuTransform10();
-        effectVuLoad11((const EffectVuVector *)&quad120);
+        effectVuLoad11((const EffectVuVector *)&origin);
         spawnVuAdd10();
     }
     effectVuStore10((EffectVuVector *)nodes);
-    angle = *(f32 *)(config + 108);
-    b = effMiscRandFloat(0);
-    out[6] = (one - angle) + angle * b;
-    if (mode9C != 2) {
-        angle = *(f32 *)(config + 152);
-        b = effMiscRandFloat(0);
-        out[8] = (one - angle) + angle * b;
-        if (mode9C == 1) {
-            b = effMiscRandFloat(0);
-            out[7] = g80 * b;
+    angle = ((MdlEffectSwirlParameters *)config)->common.sizeVariation;
+    randomSample = effMiscRandFloat(0);
+    state[6] = (one - angle) + angle * randomSample;
+    if (angleMode != 2) {
+        angle = ((MdlEffectSwirlParameters *)config)->common.angleVariation;
+        randomSample = effMiscRandFloat(0);
+        state[8] = (one - angle) + angle * randomSample;
+        if (angleMode == 1) {
+            randomSample = effMiscRandFloat(0);
+            state[7] = phaseRange * randomSample;
             if ((effMiscRand(0) & 1) != 0) {
-                out[8] = out[8] * negone;
+                state[8] = state[8] * reverseAngle;
             }
         } else {
-            out[7] = zero;
+            state[7] = zero;
         }
     } else {
-        out[7] = zero;
-        out[8] = one;
+        state[7] = zero;
+        state[8] = one;
     }
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     *(s32 *)(nodes + 16) = 0;
     {
-        u_long128 *snapshot = &b220buf;
+        u_long128 *snapshot = &previousPosition;
         *snapshot = *(u_long128 *)nodes;
     }
-    if (v14 != 0) {
-        tmp = (u32)effMiscRand(0) % (u32)limitB8;
-        angle = (f32)(u32)tmp;
-        out[4] = out[4] - half * (angle * (eDC * angle));
-        variation = out[0] + out[1] * angle;
-        out[0] = variation;
-        sp150[0] = variation * cosf(out[3]);
-        sp150[1] = out[4];
-        sp150[2] = variation * sinf(out[3]);
-        effectVuLoad10((const EffectVuVector *)sp150);
+    if (preroll != 0) {
+        countValue = (u32)effMiscRand(0) % (u32)lifetime;
+        angle = (f32)(u32)countValue;
+        state[4] = state[4] - half * (angle * (gravity * angle));
+        variation = state[0] + state[1] * angle;
+        state[0] = variation;
+        spawnPosition[0] = variation * cosf(state[3]);
+        spawnPosition[1] = state[4];
+        spawnPosition[2] = variation * sinf(state[3]);
+        effectVuLoad10((const EffectVuVector *)spawnPosition);
         if ((flags & 1) == 0) {
             spawnVuTransform10();
-            effectVuLoad11((const EffectVuVector *)&quad120);
+            effectVuLoad11((const EffectVuVector *)&origin);
             spawnVuAdd10();
         }
         effectVuStore10((EffectVuVector *)nodes);
-        *(s32 *)(nodes + 16) = (s32)angle;
+        ((SpawnParticle *)nodes)->age = (s32)angle;
     }
-    mdlEffectSampleKeyState(nodes, config, *(s32 *)(nodes + 16), &b220buf);
-    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[6];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[8];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[7];
-    if (v14 != 0) {
-        nmult = *(s32 *)(*(u8 **)(parent + 32) + 192) * *(s32 *)(*(u8 **)(parent + 32) + 196);
-        if (nmult != 0) {
-            particleIndex = ((u32)nodes - (u32)*(u8 **)(parent + 24)) >> 5;
-            clear = *(u8 **)(parent + 24) + ((*(u32 *)(parent + 4) + particleIndex * (u32)nmult) << 5);
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    mdlEffectSampleKeyState(nodes, config, *(s32 *)(nodes + 16), &previousPosition);
+    ((SpawnParticle *)nodes)->size = ((SpawnParticle *)nodes)->size * state[6];
+    ((SpawnParticle *)nodes)->angle = ((SpawnParticle *)nodes)->angle * state[8];
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + state[7];
+    if (preroll != 0) {
+        trailSpan = ((MdlEffectSwirlParameters *)((MdlEffectEmitter *)parent)->parameters)->common.trailCount.signedValue * ((MdlEffectSwirlParameters *)((MdlEffectEmitter *)parent)->parameters)->common.trailWidth;
+        if (trailSpan != 0) {
+            particleIndex = ((u32)nodes - (u32)((MdlEffectEmitter *)parent)->particles) >> 5;
+            clear = ((MdlEffectEmitter *)parent)->particles + ((((MdlEffectEmitter *)parent)->primaryCount.value + particleIndex * (u32)trailSpan) << 5);
             memcpy(clear, nodes, 32);
-            *(s32 *)(clear + 16) = -1;
+            ((SpawnParticle *)clear)->age = -1;
         }
-        *(s32 *)(nodes + 16) = *(s32 *)(nodes + 16) + 1;
+        ((SpawnParticle *)nodes)->age = ((SpawnParticle *)nodes)->age + 1;
     }
-    v15 -= 1;
+    spawnBudget -= 1;
     goto next_iter2;
 else_branch:
     {
-        u_long128 *snapshot = &b220buf;
+        u_long128 *snapshot = &previousPosition;
         *snapshot = *(u_long128 *)nodes;
     }
-    ftmp1 = (f32)node10;
-    if ((*(u8 *)(config + 228) == 0) || ((idx & 1) != 0)) {
-        angle = ftmp1 * (out[2] + half * (eD8 * ftmp1));
+    firstValue = (f32)age;
+    if ((((MdlEffectSwirlParameters *)config)->alternateDirection == 0) || ((index & 1) != 0)) {
+        angle = firstValue * (state[2] + half * (angularAcceleration * firstValue));
     } else {
-        angle = ftmp1 * (out[2] - half * (eD8 * ftmp1));
+        angle = firstValue * (state[2] - half * (angularAcceleration * firstValue));
     }
-    angle = angle + out[3];
-    out[4] = out[4] - eDC * ftmp1;
-    out[0] = out[0] + out[1];
-    out[4] = out[4] + out[5];
-    variation = out[0];
-    sp130[0] = variation * cosf(angle);
-    sp130[1] = out[4];
-    sp130[2] = variation * sinf(angle);
-    effectVuLoad10((const EffectVuVector *)sp130);
+    angle = angle + state[3];
+    state[4] = state[4] - gravity * firstValue;
+    state[0] = state[0] + state[1];
+    state[4] = state[4] + state[5];
+    variation = state[0];
+    updatedPosition[0] = variation * cosf(angle);
+    updatedPosition[1] = state[4];
+    updatedPosition[2] = variation * sinf(angle);
+    effectVuLoad10((const EffectVuVector *)updatedPosition);
     if ((flags & 1) == 0) {
         spawnVuTransform10();
-        effectVuLoad11((const EffectVuVector *)&quad120);
+        effectVuLoad11((const EffectVuVector *)&origin);
         spawnVuAdd10();
     }
     effectVuStore10((EffectVuVector *)nodes);
-    mdlEffectSampleKeyState(nodes, config, node10, &b220buf);
-    *(f32 *)(nodes + 24) = *(f32 *)(nodes + 24) * out[6];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) * out[8];
-    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + out[7];
-    func_0048b340(parent, nodes);
-    *(s32 *)(nodes + 16) = node10 + 1;
+    mdlEffectSampleKeyState(nodes, config, age, &previousPosition);
+    ((SpawnParticle *)nodes)->size = ((SpawnParticle *)nodes)->size * state[6];
+    ((SpawnParticle *)nodes)->angle = ((SpawnParticle *)nodes)->angle * state[8];
+    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
+    *(f32 *)(nodes + 28) = *(f32 *)(nodes + 28) + state[7];
+    mdlEffectUpdateParticleTrail(parent, nodes);
+    ((SpawnParticle *)nodes)->age = age + 1;
 next_iter2:
 next_iter:
-    idx += 1;
-    out += 9;
+    index += 1;
+    state += 9;
     nodes += 32;
 main_check:
-    if (idx < count) {
+    if (index < count) {
         goto main_body;
     }
 }
-
+#pragma pop

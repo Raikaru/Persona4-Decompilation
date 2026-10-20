@@ -66,7 +66,7 @@ static inline s32 func_001a_fix_var(s32 value)
 void btlSoundBumpStatusCounters(void);
 
 void btlTargetResolveSelectedSkill(u8 *arg0);
-void func_001eb3b0(u8 *arg0);
+void btlTargetResetCommandRecord(u8 *arg0);
 extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
 void btlEffectSelectNearestEntry(void *arg0, void *arg1);
 
@@ -82,7 +82,7 @@ extern void btlDamageStart(u8 *arg0, u8 *arg1);
 
 extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
-extern void func_001eb4a0(u8 *arg0, u8 *arg1, u32 status);
+extern void btlAiSelectStatusCommand(u8 *arg0, u8 *arg1, u32 status);
 extern s32 btlSoundSelectCureableStatuses(u8 *arg0);
 extern s32 btlSoundIsStatusCounterHigh(u8 *arg0);
 extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
@@ -90,8 +90,8 @@ extern s32 btlSoundPickStatusTalkVoiceB(u8 *arg0);
 extern void btlSoundCancelPlayback(void);
 extern s32 btlSoundPickResistVoice(u8 *arg0);
 extern void btlSoundStopBank3(void);
-extern void func_001f9a50(s32 arg0, s32 arg1);
-extern void func_001f9a90(void);
+extern void btlVoicePlayIdCue(s32 arg0, s32 arg1);
+extern void btlVoiceFadeOut(void);
 extern void btlEncounterEntryClearMessageFade(s32 arg0);
 extern void btlEncounterEntrySetMessageFade(s32 arg0);
 extern void btlMessageSetup(u8 *arg0, u8 *arg1);
@@ -109,10 +109,10 @@ extern u32 btlSelectionGetFormationEntryAlt(s32 task);
 extern u32 btlSelectionGetFormationEntry(s32 task);
 extern s32 btlActionBuffCondition(u8 *arg0, s32 arg1, s32 arg2);
 extern void btlSelectionClearTargetMark(s32 arg0);
-extern void func_00203880(s32 arg0, s32 arg1);
+extern void btlPanelOnTargetAction(s32 arg0, s32 arg1);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
 BtlPacket *btlCameraCreateSetStatePacket(BtlAction *action, u16 state);
-u32 func_001deeb0(void *arg0);
+u32 btlEffectHasAiProcedure(void *arg0);
 void btlAICommandSetUnitAction();
 u32 btlAICommandTryReleaseProc();
 s32 datCalcDefaultSkillId(u8 *unit);
@@ -124,7 +124,7 @@ void btlEffectSelectTargetByStatus(u8 *arg0, u8 *arg1);
 void btlSelectionMarkTargets(s32 arg0, u8 *arg1, u8 *arg2, s16 arg3);
 extern void btlDamageSetActive(s32 task);
 void btlUnitRequestLookAtOthers(u8 *arg0);
-u8 func_0023e1f0(u8 *unitData);
+u8 datCalcGetCharacterTableKind(u8 *unitData);
 extern BtlPacket *btlUnitCreateLookAtUnitPacket(BtlUnit *unit, BtlUnit *target, u16 flags);
 static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 {
@@ -152,7 +152,7 @@ u8 *btlPacketCreateFinishEffect(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern s32 datCalcGetElementAffinity(u8 *unit, s32 element);
 u8 *btlSoundLoadPacketNew(const void *data);
-s32 func_001eb860(void);
+s32 btlTargetCanControlDamagePhase(void);
 extern void btlMessageInstallWindow(s32 task, u8 *arg1);
 u8 *btlSoundLoadTaskStart(void);
 extern s32 btlMessageIsActiveAlt2(s32 task);
@@ -186,7 +186,7 @@ extern s32 btlMessageIsActive(s32 task);
 extern s32 btlMessageGetResult(s32 task);
 extern void btlMessageReset(s32 task);
 s16 btlCameraSelectFormationIndex(void);
-void func_001eb7f0(void);
+void btlTargetEndDamagePhase(void);
 s32 btlSideCountNotBad(s32 arg0, s32 arg1);
 s32 btlStatusWindowShowSlot2(u8 *arg0);
 u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
@@ -410,7 +410,7 @@ static inline s32 btlCloseCamera_001a59a0(u8 *unit, s32 noPartner)
     switch (*(u8 *)(unit + 0xA2)) {
     case 0:
         {
-            s32 state = func_0023e1f0(ctx) & 0xFF;
+            s32 state = datCalcGetCharacterTableKind(ctx) & 0xFF;
 
             if (state == 5) {
                 result = 1;

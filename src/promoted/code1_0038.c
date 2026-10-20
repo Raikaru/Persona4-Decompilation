@@ -1,6 +1,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "sdktask.h"
 #include "rw/plcore/barenderstate.h"
 #include "btl_shuffle_draw_internal.h"
 #include "shd_misc_internal.h"
@@ -11,43 +12,43 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern void (*D_008873ec[])(s32);
 
-void btlShuffleDrawViewRequestStep(u8 *arg0, u8 arg1, u8 arg2, u8 arg3);
+void btlShuffleDrawViewRequestStep(u8 *drawWork, u8 input, u8 green, u8 blue);
 
-s32 datGetFlag(u32 arg0);
+s32 datGetFlag(u32 bit);
 
 extern u8 *D_007246AC;
-void func_00389180(u8 *arg0);
+void btlShuffleDrawViewRequestWhiteStep(u8 *drawWork);
 extern void memset(void *dst, s32 value, u32 size);
-extern void nmMesWindowShowCurrentRecord(s32 arg0);
-extern void nmMesWindowSetCurrentString(s32 arg0, void *arg1);
-extern s32 btlShuffleDrawCheck(u8 *arg0, u8 *arg1);
+extern void nmMesWindowShowCurrentRecord(s32 recordIndex);
+extern void nmMesWindowSetCurrentString(s32 variable, void *text);
+extern s32 btlShuffleDrawCheck(u8 *context, u8 *output);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064ECA0[];
 extern u8 D_0064EED0[];
-extern void func_00389cb0(u8 *arg0);
-extern void btlShuffleDrawCardReset(u8 *arg0);
-extern void func_003889b0(s32 arg0, u8 *arg1);
-extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
+extern void btlShuffleInitWaveStrips(u8 *drawWork);
+extern void btlShuffleDrawCardReset(u8 *drawWork);
+extern void btlShuffleDrawViewForeground(s32 drawWork, u8 *input);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 
-extern void btlShuffleDrawViewClearFlags(u8 *arg0);
-extern void func_003874c0(s32 arg0, u8 *arg1);
-extern s32 btlShuffleDrawViewStep(u8 *arg0);
-extern void btlShuffleDrawViewDestroy(u8 *arg0);
+extern void btlShuffleDrawViewClearFlags(u8 *drawWork);
+extern void btlShuffleDrawViewBackground(s32 drawWork, u8 *input);
+extern s32 btlShuffleDrawViewStep(u8 *drawWork);
+extern void btlShuffleDrawViewDestroy(u8 *drawWork);
 extern u8 *iGpffffb5b0;
 extern u8 D_00794990[];
 extern u8 D_00794E40[];
 extern u8 D_00795E30[];
 extern u8 D_00795EF0[];
 extern u8 D_0064EEB0[];
-extern void PrimAppendNode(u8 *arg0, u8 *arg1);
-extern void kAssertFail(void *arg0, s32 arg1);
+extern void PrimAppendNode(u8 *list, u8 *node);
+extern void kAssertFail(void *file, s32 line);
 extern void sdkRenderStateSetDefault(void);
-extern void func_0038acd0(u8 *arg0);
-extern void func_0038bab0(u8 *arg0);
-extern void func_0038c100(u8 *arg0);
-extern void func_0038c770(u8 *arg0);
-extern void func_0038cab0(u8 *arg0);
+extern void btlShuffleDrawRevealBands(u8 *drawWork);
+extern void btlShuffleDrawDetailBars(u8 *drawWork);
+extern void btlShuffleDrawCountTransition(u8 *drawWork);
+extern void btlShuffleDrawCardShadow(u8 *drawWork);
+extern void btlShuffleDrawSelectionColumn(u8 *drawWork);
 
 extern f32 D_00761470;
 extern f32 D_008872F8[];
@@ -60,19 +61,19 @@ extern void shdDisableBlendFlag(void);
 extern u8 D_0064F0E0[];
 extern u8 D_0064EEF0[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 hint);
-extern s32 func_003df590(s32 arg0, ...);
-extern u8 *func_003df4d0(s32 *arg0);
-extern void func_00389370();
-extern void func_00389640();
+extern s32 func_003df590(s32, ...);
+extern u8 *func_003df4d0(s32 *);
+extern void btlShuffleDrawBackgroundPulse();
+extern void btlShuffleDrawBackgroundRings();
 extern void btlShuffleDrawWave();
-extern void func_0038a940();
-extern void func_0038b1c0();
-extern void sdkSpriteDrawOnceAt(s32 resource, s32 slot, f32 x, f32 y,
-                          u8 r, u8 g, u8 b, u8 alpha);
-extern void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1,
-                          f32 fparg2, u8 arg2, u8 arg3, u8 arg4, u8 arg5,
-                          u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0,
-                          s16 arg_sp8);
+extern void btlShuffleUpdateRing();
+extern void btlShuffleDrawSpriteCues();
+extern void sdkSpriteDrawOnceAt(s32 packAddress, s32 image, f32 x, f32 y,
+                          u8 red, u8 green, u8 blue, u8 alpha);
+extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y,
+                          f32 depth, u8 red, u8 green, u8 blue, u8 alpha,
+                          u16 scaleX, u16 scaleY, f32 angle, s16 pivotX,
+                          s16 pivotY);
 static inline u32 add_offset_first_0038(u32 offset, u32 base)
 {
     return offset + base;
@@ -198,14 +199,17 @@ typedef struct {
 } Vertex_0038CAB0;
 
 // Kept here so this multi-run bucket stays link-eligible (has_first_party); see tools/build.py eligible_c_objects.
+/* Reset the shuffle draw view, update its effects, then step their work.
+ * The child task's work is the 0x50-byte allocation made by btlShuffleEffSpawn;
+ * its first word holds the draw view returned by func_0036e910. */
 // FUN_0038D660
-s32 btlShuffleEffStep(u8 *arg0) {
+s32 btlShuffleEffStep(u8 *task) {
     s32 *work;
 
-    work = (s32 *)(*(s32 **)(arg0 + 0x38));
+    work = (s32 *)((SdkTask *)task)->work;
     btlShuffleDrawViewReset(*work);
-    btlShuffleEffUpdate(arg0);
-    func_0038d330(work);
+    btlShuffleEffUpdate(task);
+    btlShuffleUpdateRewardEffects(work);
     return 0;
 }
 
@@ -318,4 +322,4 @@ s32 func_0038fb20(u8 *arg0) {
 
 /* measured: probe_variants func_0038fe90 fixed (externs corrected, jtbl redeclare removed) 216wd (vs stale archive 732wd oversized), sched 191wd win (-25), loop_invariants 215wd tie, sched inclusive (value<0xF0 -> <=0xEF) 191wd tie (fndiff both slti $at, exclusive already $at so lever neutral here); fnalign sched 246 edits (frame 0x140 vs retail 0x110 + scheduling + address chains, plus 4 reloc-only); lever 4 tie per above; parent lesson: schedule measured, common_subs off COMPILE ERROR (pragma+body interaction, banked without it), loop_invariants tie; lb (lbu correct for u8 record bytes) checked; double-def offset (addu base+off after lw at 28FF24/28FF30) remains; re-derived (5-arg f990, 3-arg df360/df300, 1-arg e2ce0, jtbl void* per file-scope, Ghidra/IDA 5-arg confirmed); archive docs/probe_archive/P038_0038fe90_body.c (stale oversized). Banked guarded floor with sched bracket; revisit (2.4% short 204v209): sched+common_subs push 192wd tie+1 (not adopted), dead-arm N/A (no trailing empty else-if, ends with flag-gated j-loop + return), compare-chain N/A (two ==2 tests on different bytes, not adjacent K/K+1). */
 /* FUN_0038FE90: matched in src/promoted/code1_0038_cw119.c */
-extern u8 *func_0038fe90(u8 *arg0, u32 arg1, s32 arg2, f32 *arg3, s32 *arg4);
+extern u8 *func_0038fe90(u8 *, u32, s32, f32 *, s32 *);

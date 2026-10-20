@@ -13,7 +13,7 @@ extern s32 iGpffffbb9c;
 extern u8 *iGpffffbba0;
 /* gp - 0x445C = 0x00764c94: enable predicate, called through the pointer */
 extern s32 (*iGpffffbba4)(void);
-extern void mdlEffectDestroyWithNodes(u8 *model);
+extern void mdlEffectDestroyWithNodes(u8 *effect);
 
 
 extern s32 iGpffffbb98;
@@ -43,11 +43,11 @@ extern u8 D_00714658[];
 
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
+extern void func_004bd6a0(u8 *input, s32 value);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
+extern void *(*jtbl_008873E8[])(u32 input, u32 value);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310_abs[];

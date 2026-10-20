@@ -15,19 +15,19 @@ void fclSpriteSetCornerColors(u8 *task, FclDrawColor color);
 u8 *fclSpriteWorkAlt(u8 *task);
 
 /* Integer and floating arguments keep their separate EE register order. */
-void fclSpriteStartRevealScaleAt(s16 resource, f32 scale0, f32 scale1, f32 scale2, f32 scale3,
+void fclSpriteStartRevealScaleAt(s16 index, f32 startX, f32 endX, f32 startY, f32 endY,
                    u32 mode, u32 duration, s16 delay);
 /* Positions travel by value; mode and reverse are signed stack bytes
    (retail 002b83e0 loads both with lb). */
-void fclSpriteStartEntrance(u8 *draw, FclVec2 position, FclDrawColor color0,
-                   FclDrawColor color1, u8 alpha0, u8 alpha1, f32 height,
-                   f32 depth, s32 duration, s32 delay, s8 mode, s8 reverse);
+void fclSpriteStartEntrance(u8 *animation, FclVec2 position, FclDrawColor startColor,
+                   FclDrawColor endColor, u8 startAlpha, u8 endAlpha, f32 height,
+                   f32 depth, s32 duration, s32 delay, s8 outgoing, s8 reverse);
 
 /* Digit row and value are signed halfwords. Retail first consumes the row
    through signed-low16 conversion; its incoming high bits are never used.
    Depth precedes the integer layer, as in nmMesWindowSetNumber: the callee copies
    $f12 before $t3 in its prologue. */
-void nmMesWindowShowNumber(u8 *task, s16 row, s16 value, FclVec2 position,
+void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
                    FclDrawColor color, s32 duration, s32 delay, f32 depth,
                    s32 layer, s8 mode);
 

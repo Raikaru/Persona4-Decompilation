@@ -3,58 +3,59 @@
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
 #include "sdk_snd_internal.h"
+#include "btl_shuffle_sequence_internal.h"
 
 extern void kAssertFail(const void *file, u32 line);
 extern u32 RpRandom();
-extern s32 btlShuffleDrawTableLookup(s32 a, s32 b);
-extern s32 btlShuffleCalcUpdateSpeed(u8 *a, f32 *b);
+extern s32 btlShuffleDrawTableLookup(s32 cardCount, s32 pattern);
+extern s32 btlShuffleCalcUpdateSpeed(u8 *point, f32 *screen);
 extern f32 RwV2dLength(f32 *a);
 extern f32 func_003e41e0(f32 *a, f32 *b);
-extern void btlShuffleDrawMoveCardB(u8 *ctx, s32 idx, f32 *a, f32 *b, f32 c, f32 d);
-extern void btlShuffleDrawSetArc(u8 *ctx, s32 idx, u16 start, u16 end, f32 *from, f32 *rot, f32 *axis);
-extern s32 btlShuffleSeq4Dist(u8 *a, s64 b, s64 c);
-extern s32 btlShuffleSeqPick(u8 *a, s32 b);
-extern s32 btlShuffleSeqLoadRecord(u8 *a);
-extern s32 btlShuffleSeqStep(u8 *a);
-extern void btlShuffleDrawCardActivate(u8 *a);
-extern void func_0038d0d0(u8 *a, s32 b);
-extern void func_0038d0a0(u8 *a);
-extern void btlShuffleDrawSetPose(u8 *a, s32 b, u16 c, u16 d);
-extern void btlShuffleSeqReset(u8 *a);
-extern s32 btlShuffleSeqCountB(u8 *a, s32 b);
-extern void btlShuffleCalcResetTrack(u8 *a);
-extern s32 btlShuffleSeqCountA(u8 *a, s32 b);
-extern void btlShuffleDrawMoveCard(u8 *a, s32 b, f32 e, f32 f, f32 *c, f32 *d);
-extern void btlShuffleDrawSetQuat(u8 *a, s32 b, u16 c, u16 d, f32 *e, f32 *f);
-extern void btlShuffleDrawSetFrames(u8 *a, s32 b, s32 c, s32 d, s32 e);
-extern void func_0038d2c0(u8 *a);
-extern void btlShuffleCardScaleVec(u8 *a, f32 *b, f32 d, f32 *c);
-extern void btlShuffleDrawClearFlags(u8 *a, s32 b);
-extern s32 datGetFlag(s32 a);
-extern void btlShuffleSeqClearA(u8 *a, s32 b);
-extern void btlShuffleDrawViewStartCue(u8 *a);
-extern s32 btlShuffleDrawViewIsCueIdle(u8 *a);
-extern void func_0038d160(u8 *a);
-extern void btlShuffleDrawViewSetHold(u8 *a);
-extern s32 btlShuffleDrawStateA(u8 *a);
-extern s32 btlShuffleSeqCheck(u8 *a, s32 b, s32 c);
-extern s32 func_0036de60(u8 *a);
-extern void func_0038d1d0(u8 *a);
-extern void btlShuffleDrawViewClearHold(u8 *a);
-extern s32 btlShuffleSeqCardCount(u8 *a, s32 b);
-extern void btlShuffleSeqSetMode(u8 *a, s32 b, s32 c);
-extern void btlShuffleDrawPoll(u8 *a, s32 b, s32 c);
-extern void btlShuffleSeqUpdateMode(u8 *a, s32 b, u16 c, s32 d);
-extern void btlShuffleSeqMoveB(u8 *a, s32 b);
-extern s32 btlShuffleSeqDispatch(u8 *a);
-extern s32 btlShuffleSeqStateCheck(u8 *a);
-extern s32 btlShuffleSeqFlag(u8 *a);
-extern void datSetFlag(s32 a, s32 b);
-extern void btlShuffleSeq4Init(u8 *arg0);
-extern void btlShuffleSeq4Step(u8 *arg0);
-extern void btlShuffleSeq4Move(u8 *arg0, s32 arg1, u16 arg2, u16 arg3);
-extern void btlShuffleSeq4Shuffle(u8 *arg0);
-extern void btlShuffleSeq4Layout(u8 *arg0, s32 arg1, f32 *arg2);
+extern void btlShuffleDrawMoveCardB(u8 *context, s32 cardIndex, f32 *start, f32 *target, f32 delay, f32 duration);
+extern void btlShuffleDrawSetArc(u8 *context, s32 cardIndex, u16 delay, u16 duration, f32 *start, f32 *target, f32 *middle);
+extern s32 btlShuffleSeq4Dist(u8 *context, s64 packedDirection, s64 packedOrigin);
+extern s32 btlShuffleSeqPick(u8 *context, s32 count);
+extern s32 btlShuffleSeqLoadRecord(u8 *context);
+extern s32 btlShuffleSeqStep(u8 *context);
+extern void btlShuffleDrawCardActivate(u8 *drawWork);
+extern void btlShuffleDrawCardSetDetail(u8 *drawWork, s32 input);
+extern void btlShuffleDrawCardEndDetail(u8 *drawWork);
+extern void btlShuffleDrawSetPose(u8 *context, s32 cardIndex, u16 delay, u16 duration);
+extern void btlShuffleSeqReset(u8 *context);
+extern s32 btlShuffleSeqCountB(u8 *context, s32 count);
+extern void btlShuffleCalcResetTrack(u8 *output);
+extern s32 btlShuffleSeqCountA(u8 *context, s32 count);
+extern void btlShuffleDrawMoveCard(u8 *context, s32 cardIndex, f32 delay, f32 duration, f32 *start, f32 *target);
+extern void btlShuffleDrawSetQuat(u8 *context, s32 cardIndex, u16 delay, u16 duration, f32 *start, f32 *target);
+extern void btlShuffleDrawSetFrames(u8 *context, s32 cardIndex, s32 delay, s32 duration, s32 start);
+extern void btlShuffleDrawCardStartBands(u8 *drawWork);
+extern void btlShuffleCardScaleVec(u8 *unit, f32 *src, f32 scale, f32 *dst);
+extern void btlShuffleDrawClearFlags(u8 *context, s32 cardIndex);
+extern s32 datGetFlag(s32 bit);
+extern void btlShuffleSeqClearA(u8 *context, s32 count);
+extern void btlShuffleDrawViewStartCue(u8 *drawWork);
+extern s32 btlShuffleDrawViewIsCueIdle(u8 *drawWork);
+extern void btlShuffleDrawCardStartCount(u8 *drawWork);
+extern void btlShuffleDrawViewSetHold(u8 *drawWork);
+extern s32 btlShuffleDrawStateA(u8 *record);
+extern s32 btlShuffleSeqCheck(u8 *context, s32 firstIndex, s32 secondIndex);
+extern s32 btlShuffleCardGetKind(u8 *work);
+extern void btlShuffleDrawCardEndCount(u8 *drawWork);
+extern void btlShuffleDrawViewClearHold(u8 *drawWork);
+extern s32 btlShuffleSeqCardCount(u8 *context, s32 cardIndex);
+extern void btlShuffleSeqSetMode(u8 *context, s32 cardIndex, s32 frames);
+extern void btlShuffleDrawPoll(u8 *context, s32 cardIndex, s32 enabled);
+extern void btlShuffleSeqUpdateMode(u8 *ctx, s32 idx, u16 mode, s32 direction);
+extern void btlShuffleSeqMoveB(u8 *context, s32 cardIndex);
+extern s32 btlShuffleSeqDispatch(u8 *context);
+extern s32 btlShuffleSeqStateCheck(u8 *context);
+extern s32 btlShuffleSeqFlag(u8 *context);
+extern void datSetFlag(s32 flagId, s32 enabled);
+extern void btlShuffleSeq4Init(u8 *context);
+extern void btlShuffleSeq4Step(u8 *context);
+extern void btlShuffleSeq4Move(u8 *context, s32 cardIndex, u16 startFrame, u16 endFrame);
+extern void btlShuffleSeq4Shuffle(u8 *context);
+extern void btlShuffleSeq4Layout(u8 *context, s32 slotIndex, f32 *screen);
 
 extern u16 D_008C024E[];
 
@@ -72,64 +73,66 @@ extern f32 iGpffff83ec;
 /* 824/832 bytes; 19 resolved relocations; eight zero alignment bytes.
  * Promoted byte snapshots preserve signed inclusive spans; u16 casts retain
  * retail truncation before the count checks and mode dispatch. */
+/* Choose the grid attempt limit and initial held-card count for this difficulty. */
 // FUN_0037C720
-void btlShuffleSeq4Init(u8 *arg0) {
+void btlShuffleSeq4Init(u8 *context) {
     u8 *base;
     s32 idx;
-    s32 lo1;
-    s32 d1;
-    s32 hi1;
-    f32 ratio1;
-    f32 v1;
-    u16 t1;
-    s32 lo2;
-    s32 d2;
-    s32 hi2;
-    f32 ratio2;
-    f32 v2;
-    s32 t2;
+    s32 minAttempts;
+    s32 attemptSpan;
+    s32 maxAttempts;
+    f32 attemptFraction;
+    f32 attemptValue;
+    u16 attemptLimit;
+    s32 minCards;
+    s32 cardSpan;
+    s32 maxCards;
+    f32 cardFraction;
+    f32 cardValue;
+    s32 cardCount;
     s32 mode;
 
-    base = arg0 + 0x1F1D0;
-    idx = *(s32 *)(arg0 + 0x1F304);
-    lo1 = D_0064E6BA[idx * 2];
-    hi1 = D_0064E6BB[idx * 2];
-    ratio1 = (f32)(u32)(RpRandom() & 0xFFF) / 4096.0f;
-    d1 = hi1 - lo1 + 1;
-    v1 = (f32)d1 * ratio1 + (f32)lo1;
-    t1 = (u16)v1;
-    *(u16 *)(base + 0xA) = t1;
-    if (*(u16 *)(base + 0xA) > 0x10) {
+    base = context + 0x1F1D0;
+    idx = ((BtlShuffleContext *)context)->cardCount;
+    minAttempts = D_0064E6BA[idx * 2];
+    maxAttempts = D_0064E6BB[idx * 2];
+    attemptFraction = (f32)(u32)(RpRandom() & 0xFFF) / 4096.0f;
+    attemptSpan = maxAttempts - minAttempts + 1;
+    attemptValue = (f32)attemptSpan * attemptFraction + (f32)minAttempts;
+    attemptLimit = (u16)attemptValue;
+    /* measured: this retained grid/context access changes allocation or address operands when typed independently. */
+    *(u16 *)(base + 0xA) = attemptLimit;
+    if (((BtlShuffleGridState *)base)->attemptLimit > 0x10) {
         kAssertFail(&D_0064EB20[0], 0x32);
     }
-    if (*(s32 *)(arg0 + 0x1F300) == 3) {
-        *(s16 *)(base + 0x2C) = 0;
+    if (*(s32 *)(context + 0x1F300) == 3) {
+        *(s16 *)&((BtlShuffleGridState *)base)->cardCount = 0;
     } else {
-        lo2 = D_0064E6CA[idx * 2];
-        hi2 = D_0064E6CB[idx * 2];
-        ratio2 = (f32)(u32)(RpRandom() & 0xFFF) / 4096.0f;
-        d2 = hi2 - lo2 + 1;
-        v2 = (f32)d2 * ratio2 + (f32)lo2;
-        t2 = (u16)v2;
-        mode = *(s32 *)(arg0 + 0x1F300);
+        minCards = D_0064E6CA[idx * 2];
+        maxCards = D_0064E6CB[idx * 2];
+        cardFraction = (f32)(u32)(RpRandom() & 0xFFF) / 4096.0f;
+        cardSpan = maxCards - minCards + 1;
+        cardValue = (f32)cardSpan * cardFraction + (f32)minCards;
+        cardCount = (u16)cardValue;
+        mode = ((BtlShuffleContext *)context)->difficulty;
         switch (mode) {
         case 0:
-            *(s16 *)(base + 2) = 10;
+            *(s16 *)&((BtlShuffleGridState *)base)->frames = 10;
             break;
         case 1:
-            *(s16 *)(base + 2) = 8;
+            *(s16 *)&((BtlShuffleGridState *)base)->frames = 8;
             break;
         case 2:
-            *(s16 *)(base + 2) = 5;
+            *(s16 *)&((BtlShuffleGridState *)base)->frames = 5;
             break;
         default:
             kAssertFail(&D_0064EB20[0], 0x49);
             break;
         }
-        if (t2 <= 0) {
-            t2 = 1;
+        if (cardCount <= 0) {
+            cardCount = 1;
         }
-        *(s16 *)(base + 0x2C) = t2;
+        *(s16 *)&((BtlShuffleGridState *)base)->cardCount = cardCount;
     }
     if (*(u16 *)(base + 0x2C) > 0x10) {
         kAssertFail(&D_0064EB20[0], 0x4E);
@@ -152,89 +155,89 @@ typedef struct ShuffleSlotPos { f32 x; f32 y; } ShuffleSlotPos;
 // FUN_0037CA60
 #pragma push
 #pragma opt_propagation off
-void btlShuffleSeq4Layout(u8 *arg0, s32 arg1, f32 *arg2) {
+void btlShuffleSeq4Layout(u8 *context, s32 slotIndex, f32 *screen) {
     ShuffleSlotPos pos;
     s32 n;
-    if (*(s32 *)(arg0 + 0x1F2FC) != 3) {
+    if (((BtlShuffleContext *)context)->pattern != 3) {
         kAssertFail(&D_0064EB20[0], 0x5B);
     }
-    n = btlShuffleDrawTableLookup(*(s32 *)(arg0 + 0x1F304), ((s32 *)(arg0 + 0x1F2F8))[1]);
+    n = btlShuffleDrawTableLookup(((BtlShuffleContext *)context)->cardCount, ((s32 *)(context + 0x1F2F8))[1]);
     switch (n) {
     case 6:
-        pos.x = 320.0f + 80.0f * ((f32)(arg1 % 3) - 1.0f);
-        pos.y = 224.0f + 100.0f * ((f32)(arg1 / 3) - 0.5f);
+        pos.x = 320.0f + 80.0f * ((f32)(slotIndex % 3) - 1.0f);
+        pos.y = 224.0f + 100.0f * ((f32)(slotIndex / 3) - 0.5f);
         break;
     case 8:
-        if (arg1 < 4) {
+        if (slotIndex < 4) {
             f32 step = 80.0f;
-            pos.x = 320.0f + step * ((f32)arg1 - 1.5f);
+            pos.x = 320.0f + step * ((f32)slotIndex - 1.5f);
             pos.y = 174.0f;
         } else {
-            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.5f);
+            pos.x = 320.0f + 80.0f * ((f32)(slotIndex - 4) - 1.5f);
             pos.y = 274.0f;
         }
         break;
     case 10:
-        if (arg1 < 3) {
+        if (slotIndex < 3) {
             f32 step = 80.0f;
-            pos.x = 320.0f + step * ((f32)arg1 - 1.0f);
+            pos.x = 320.0f + step * ((f32)slotIndex - 1.0f);
             pos.y = 74.0f;
-        } else if (arg1 < 5) {
-            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 3) - 0.5f);
+        } else if (slotIndex < 5) {
+            pos.x = 320.0f + 80.0f * ((f32)(slotIndex - 3) - 0.5f);
             pos.y = 174.0f;
-        } else if (arg1 < 7) {
-            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 5) - 0.5f);
+        } else if (slotIndex < 7) {
+            pos.x = 320.0f + 80.0f * ((f32)(slotIndex - 5) - 0.5f);
             pos.y = 274.0f;
         } else {
-            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 7) - 1.0f);
+            pos.x = 320.0f + 80.0f * ((f32)(slotIndex - 7) - 1.0f);
             pos.y = 374.0f;
         }
         break;
     case 12:
-        if (arg1 < 3) {
+        if (slotIndex < 3) {
             f32 step = 80.0f;
-            pos.x = 320.0f + step * ((f32)arg1 - 1.0f);
+            pos.x = 320.0f + step * ((f32)slotIndex - 1.0f);
             pos.y = 74.0f;
-        } else if (arg1 < 6) {
-            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 3) - 1.0f);
+        } else if (slotIndex < 6) {
+            pos.x = 320.0f + 80.0f * ((f32)(slotIndex - 3) - 1.0f);
             pos.y = 174.0f;
-        } else if (arg1 < 9) {
-            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 6) - 1.0f);
+        } else if (slotIndex < 9) {
+            pos.x = 320.0f + 80.0f * ((f32)(slotIndex - 6) - 1.0f);
             pos.y = 274.0f;
         } else {
-            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 9) - 1.0f);
+            pos.x = 320.0f + 80.0f * ((f32)(slotIndex - 9) - 1.0f);
             pos.y = 374.0f;
         }
         break;
     case 14:
-        if (arg1 < 4) {
+        if (slotIndex < 4) {
             f32 step = 80.0f;
-            pos.x = 320.0f + step * ((f32)arg1 - 1.5f);
+            pos.x = 320.0f + step * ((f32)slotIndex - 1.5f);
             pos.y = 74.0f;
-        } else if (arg1 < 7) {
-            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.0f);
+        } else if (slotIndex < 7) {
+            pos.x = 320.0f + 80.0f * ((f32)(slotIndex - 4) - 1.0f);
             pos.y = 174.0f;
-        } else if (arg1 < 11) {
-            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 7) - 1.5f);
+        } else if (slotIndex < 11) {
+            pos.x = 320.0f + 80.0f * ((f32)(slotIndex - 7) - 1.5f);
             pos.y = 274.0f;
         } else {
-            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 11) - 1.0f);
+            pos.x = 320.0f + 80.0f * ((f32)(slotIndex - 11) - 1.0f);
             pos.y = 374.0f;
         }
         break;
     case 16:
-        if (arg1 < 4) {
+        if (slotIndex < 4) {
             f32 step = 80.0f;
-            pos.x = 320.0f + step * ((f32)arg1 - 1.5f);
+            pos.x = 320.0f + step * ((f32)slotIndex - 1.5f);
             pos.y = 74.0f;
-        } else if (arg1 < 8) {
-            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 4) - 1.5f);
+        } else if (slotIndex < 8) {
+            pos.x = 320.0f + 80.0f * ((f32)(slotIndex - 4) - 1.5f);
             pos.y = 174.0f;
-        } else if (arg1 < 12) {
-            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 8) - 1.5f);
+        } else if (slotIndex < 12) {
+            pos.x = 320.0f + 80.0f * ((f32)(slotIndex - 8) - 1.5f);
             pos.y = 274.0f;
         } else {
-            pos.x = 320.0f + 80.0f * ((f32)(arg1 - 12) - 1.5f);
+            pos.x = 320.0f + 80.0f * ((f32)(slotIndex - 12) - 1.5f);
             pos.y = 374.0f;
         }
         break;
@@ -242,107 +245,110 @@ void btlShuffleSeq4Layout(u8 *arg0, s32 arg1, f32 *arg2) {
         kAssertFail(&D_0064EB20[0], 0x116);
         break;
     }
-    *(ShuffleSlotPos *)arg2 = pos;
+    *(ShuffleSlotPos *)screen = pos;
 }
 #pragma pop
+/* Find the nearest card along the input direction, falling back to the farthest opposite card. */
 // FUN_0037D270
-s32 btlShuffleSeq4Dist(u8 *arg0, s64 arg1, s64 arg2) {
-    f32 spA8[2];
-    f32 spA0[2];
-    s64 sp98;
-    s64 sp90;
-    f32 best1dist;
-    f32 best2dist;
-    f32 arg2x;
-    f32 arg2y;
+s32 btlShuffleSeq4Dist(u8 *context, s64 packedDirection, s64 packedOrigin) {
+    f32 delta[2];
+    f32 screen[2];
+    s64 origin;
+    s64 direction;
+    f32 nearestDistance;
+    f32 farthestDistance;
+    f32 originX;
+    f32 originY;
     f32 dist;
     f32 dot;
-    u16 cur16;
+    u16 cursor;
     s32 n;
     s32 i;
-    s32 cur;
-    s32 best1;
-    s32 best2;
+    s32 currentCard;
+    s32 nearestCard;
+    s32 farthestCard;
 
-    sp90 = arg1;
-    sp98 = arg2;
-    arg2y = *(f32 *)((u8 *)&sp98 + 4);
-    arg2x = *(f32 *)&sp98;
-    func_003e41e0((f32 *)&sp90, (f32 *)&sp90);
-    cur16 = *(u16 *)(arg0 + 0x1F1D4);
-    n = btlShuffleDrawTableLookup(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC));
-    best1dist = 1088.0f;
-    cur = cur16 & 0xFFFF;
-    best1 = cur;
-    best2dist = 0.0f;
-    best2 = cur;
+    direction = packedDirection;
+    origin = packedOrigin;
+    originY = ((BtlShuffleScreenPoint *)&origin)->point.y;
+    originX = *(f32 *)&origin;
+    func_003e41e0((f32 *)&direction, (f32 *)&direction);
+    cursor = ((BtlShuffleContext *)context)->sequenceChoice;
+    n = btlShuffleDrawTableLookup(((BtlShuffleContext *)context)->cardCount, ((BtlShuffleContext *)context)->pattern);
+    nearestDistance = 1088.0f;
+    currentCard = cursor & 0xFFFF;
+    nearestCard = currentCard;
+    farthestDistance = 0.0f;
+    farthestCard = currentCard;
     i = 0;
     for (; i < n; i++) {
-        if (i == cur) {
+        if (i == currentCard) {
             continue;
         }
-        btlShuffleCalcUpdateSpeed(arg0 + i * 0xE8 + 0x1D6B8, spA0);
-        spA8[0] = spA0[0] - arg2x;
-        spA8[1] = spA0[1] - arg2y;
-        dist = RwV2dLength(spA8);
-        func_003e41e0(spA8, spA8);
-        dot = *(f32 *)&sp90 * spA8[0] + *(f32 *)((u8 *)&sp90 + 4) * spA8[1];
+        btlShuffleCalcUpdateSpeed(context + i * 0xE8 + 0x1D6B8, screen);
+        delta[0] = screen[0] - originX;
+        delta[1] = screen[1] - originY;
+        dist = RwV2dLength(delta);
+        func_003e41e0(delta, delta);
+        dot = *(f32 *)&direction * delta[0] + ((BtlShuffleScreenPoint *)&direction)->point.y * delta[1];
         if (dot > iGpffff83f0) {
-            if (dist < best1dist) {
-                best1dist = dist;
-                best1 = i & 0xFFFF;
+            if (dist < nearestDistance) {
+                nearestDistance = dist;
+                nearestCard = i & 0xFFFF;
             }
-        } else if (-dot > iGpffff83f4 && dist > best2dist) {
-            best2dist = dist;
-            best2 = i & 0xFFFF;
+        } else if (-dot > iGpffff83f4 && dist > farthestDistance) {
+            farthestDistance = dist;
+            farthestCard = i & 0xFFFF;
         }
     }
-    if ((best1 & 0xFFFF) == cur) {
-        best1 = best2 & 0xFFFF;
+    if ((nearestCard & 0xFFFF) == currentCard) {
+        nearestCard = farthestCard & 0xFFFF;
     }
-    return best1;
+    return nearestCard;
 }
 
+/* Read directional input and move the grid cursor to a neighboring card. */
 // FUN_0037D460
-void btlShuffleSeq4Step(u8 *arg0) {
-    u8 *base = arg0 + 0x1F1D0;
-    f32 sp48[2];
-    s64 sp40;
-    u8 *p;
-    s32 n;
+void btlShuffleSeq4Step(u8 *context) {
+    u8 *base = context + 0x1F1D0;
+    f32 direction[2];
+    s64 position;
+    u8 *clearCursor;
+    s32 bytesRemaining;
     u16 cur;
     u16 ret;
 
-    p = (u8 *)sp48;
-    n = 8;
-    if (p != NULL) {
+    clearCursor = (u8 *)direction;
+    bytesRemaining = 8;
+    if (clearCursor != NULL) {
         do {
-            *p = 0;
-            p += 1;
-            n -= 1;
-        } while (n != 0);
+            *clearCursor = 0;
+            clearCursor += 1;
+            bytesRemaining -= 1;
+        } while (bytesRemaining != 0);
     }
-    if (*(s32 *)(arg0 + 0x1F2FC) != 3) {
+    if (((BtlShuffleContext *)context)->pattern != 3) {
         kAssertFail(&D_0064EB20[0], 0x1A6);
     }
+    /* measured: this retained grid/context access changes allocation or address operands when typed independently. */
     cur = *(u16 *)(base + 4);
-    btlShuffleCalcUpdateSpeed(arg0 + cur * 0xE8 + 0x1D6B8, (f32 *)&sp40);
+    btlShuffleCalcUpdateSpeed(context + cur * 0xE8 + 0x1D6B8, (f32 *)&position);
     if (D_008C027A[0] & 0x1000) {
-        sp48[1] -= 1.0f;
+        direction[1] -= 1.0f;
     }
     if (D_008C027A[0] & 0x4000) {
-        sp48[1] += 1.0f;
+        direction[1] += 1.0f;
     }
     if (D_008C027A[0] & 0x8000) {
-        sp48[0] -= 1.0f;
+        direction[0] -= 1.0f;
     }
     if (D_008C027A[0] & 0x2000) {
-        sp48[0] += 1.0f;
+        direction[0] += 1.0f;
     }
-    if (RwV2dLength(sp48) != 0.0f) {
-        ret = (u16)(btlShuffleSeq4Dist(arg0, *(s64 *)sp48, sp40) & 0xFFFF);
+    if (RwV2dLength(direction) != 0.0f) {
+        ret = (u16)(btlShuffleSeq4Dist(context, *(s64 *)direction, position) & 0xFFFF);
         if (ret != (cur & 0xFFFF)) {
-            *(u16 *)(base + 4) = ret;
+            ((BtlShuffleGridState *)base)->cursor = ret;
             sdkSndStartStream(0, 4, 0, 0);
         }
     }
@@ -352,27 +358,29 @@ typedef struct Vec3f {
     f32 x, y, z;
 } Vec3f;
 
+/* Move and turn a card, recording it in one of the two held-card slots. */
 // FUN_0037D630
-void btlShuffleSeq4Move(u8 *arg0, s32 arg1, u16 arg2, u16 arg3) {
-    u8 *base = arg0 + 0x1F1D0;
+void btlShuffleSeq4Move(u8 *context, s32 cardIndex, u16 startFrame, u16 endFrame) {
+    u8 *base = context + 0x1F1D0;
     s32 off;
     u8 *p;
-    f32 sp80[3];
+    f32 position[3];
     f32 rot[4];
     f32 axis[4];
-    f32 f12;
-    f32 f13;
+    f32 startTime;
+    f32 endTime;
 
-    off = arg1 * 0xE8;
-    p = (u8 *)(off + (s32)arg0);
+    off = cardIndex * 0xE8;
+    p = (u8 *)(off + (s32)context);
+    /* Track kind five selects an alternate position in the pose prefix; the complete variant union is not yet known. */
     if (*(s32 *)(p + 0x1D6A4) == 5) {
-        *(Vec3f *)sp80 = *(Vec3f *)(p + 0x1D6C4);
+        *(Vec3f *)position = *(Vec3f *)(p + 0x1D6C4);
     } else {
-        *(Vec3f *)sp80 = *(Vec3f *)(p + 0x1D6B8);
+        *(Vec3f *)position = *(Vec3f *)(p + 0x1D6B8);
     }
-    f12 = arg2;
-    f13 = arg3;
-    btlShuffleDrawMoveCardB(arg0, arg1, 0, sp80, f12, f13);
+    startTime = startFrame;
+    endTime = endFrame;
+    btlShuffleDrawMoveCardB(context, cardIndex, 0, position, startTime, endTime);
     axis[3] = iGpffff83e8;
     axis[0] = 0.0f;
     axis[1] = iGpffff83ec;
@@ -381,15 +389,15 @@ void btlShuffleSeq4Move(u8 *arg0, s32 arg1, u16 arg2, u16 arg3) {
     rot[0] = 0.0f;
     rot[1] = 1.0f;
     rot[2] = 0.0f;
-    btlShuffleDrawSetArc(arg0, arg1, arg2, arg3, NULL, rot, axis);
-    *(u16 *)(base + 6) |= (1 << arg1) & 0xFFFF;
-    if (!(*(u16 *)base & 2)) {
-        *(s32 *)(base + 0x30) = arg1;
-        *(u16 *)base |= 2;
+    btlShuffleDrawSetArc(context, cardIndex, startFrame, endFrame, NULL, rot, axis);
+    ((BtlShuffleGridState *)base)->heldMask |= (1 << cardIndex) & 0xFFFF;
+    if (!(((BtlShuffleGridState *)base)->flags & 2)) {
+        ((BtlShuffleGridState *)base)->firstCard = cardIndex;
+        ((BtlShuffleGridState *)base)->flags |= 2;
         return;
     }
-    *(s32 *)(base + 0x34) = arg1;
-    *(u16 *)base |= 4;
+    ((BtlShuffleGridState *)base)->secondCard = cardIndex;
+    ((BtlShuffleGridState *)base)->flags |= 4;
 }
 
 
@@ -398,76 +406,78 @@ void btlShuffleSeq4Move(u8 *arg0, s32 arg1, u16 arg2, u16 arg3) {
 // Committed at nd 2.
 // measured: explicit `(f32)` cast on the right multiply operand preserves retail's mul.s operand order; object 540B, retail window 544B, normalized_diff 0.
 // Verified live MATCH.
+/* Shuffle complete card records with a descending Fisher-Yates pass. */
 // FUN_0037D840
-void btlShuffleSeq4Shuffle(u8 *arg0) {
+void btlShuffleSeq4Shuffle(u8 *context) {
     u8 buf[0xFB0];
-    u8 *var_8;
-    u8 *var_7;
-    u8 *var_6;
-    s32 var_5;
+    u8 *firstCursor;
+    u8 *secondCursor;
+    u8 *copyCursor;
+    s32 pairsRemaining;
     s32 n;
-    s32 var_18;
-    s32 var_16;
-    s32 temp_3;
+    s32 lastIndex;
+    s32 randomIndex;
+    s32 randomBits;
     s32 t1;
     s32 t2;
-    f32 var_f1;
-    f32 temp_f0;
+    f32 randomValue;
+    f32 randomFraction;
 
-    if (*(s32 *)(arg0 + 0x1F2FC) != 3) {
+    /* measured: this retained grid/context access changes allocation or address operands when typed independently. */
+    if (*(s32 *)(context + 0x1F2FC) != 3) {
         kAssertFail(&D_0064EB20[0], 0x23B);
     }
-    n = btlShuffleDrawTableLookup(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC));
-    var_18 = n - 1;
-    while (var_18 > 0) {
-        temp_3 = RpRandom() & 0xFFF;
-        var_f1 = (f32)(u32)temp_3;
-        temp_f0 = var_f1 / 4096.0f;
-        temp_f0 = (f32)(var_18 + 1) * (f32)temp_f0;
-        var_16 = (s32)temp_f0;
-        if ((var_18 < 0) || (var_18 >= n)) {
+    n = btlShuffleDrawTableLookup(((BtlShuffleContext *)context)->cardCount, ((BtlShuffleContext *)context)->pattern);
+    lastIndex = n - 1;
+    while (lastIndex > 0) {
+        randomBits = RpRandom() & 0xFFF;
+        randomValue = (f32)(u32)randomBits;
+        randomFraction = randomValue / 4096.0f;
+        randomFraction = (f32)(lastIndex + 1) * (f32)randomFraction;
+        randomIndex = (s32)randomFraction;
+        if ((lastIndex < 0) || (lastIndex >= n)) {
             kAssertFail(&D_0064EB20[0], 0x243);
         }
-        if ((var_16 < 0) || (var_16 >= n)) {
+        if ((randomIndex < 0) || (randomIndex >= n)) {
             kAssertFail(&D_0064EB20[0], 0x244);
         }
-        var_8 = arg0 + var_18 * 0xFB0;
-        var_6 = buf;
-        var_5 = 0x1F6;
-        var_7 = var_8;
+        firstCursor = context + lastIndex * 0xFB0;
+        copyCursor = buf;
+        pairsRemaining = 0x1F6;
+        secondCursor = firstCursor;
         do {
-            t1 = *(s32 *)(var_7 + 0);
-            t2 = *(s32 *)(var_7 + 4);
-            var_7 += 8;
-            var_5 -= 1;
-            *(s32 *)(var_6 + 0) = t1;
-            *(s32 *)(var_6 + 4) = t2;
-            var_6 += 8;
-        } while (var_5 > 0);
-        var_7 = arg0 + var_16 * 0xFB0;
-        var_5 = 0x1F6;
-        var_6 = var_7;
+            t1 = ((BtlShuffleCopyPair *)secondCursor)->first;
+            t2 = ((BtlShuffleCopyPair *)secondCursor)->second;
+            secondCursor += 8;
+            pairsRemaining -= 1;
+            ((BtlShuffleCopyPair *)copyCursor)->first = t1;
+            ((BtlShuffleCopyPair *)copyCursor)->second = t2;
+            copyCursor += 8;
+        } while (pairsRemaining > 0);
+        secondCursor = context + randomIndex * 0xFB0;
+        pairsRemaining = 0x1F6;
+        copyCursor = secondCursor;
         do {
-            t1 = *(s32 *)(var_6 + 0);
-            t2 = *(s32 *)(var_6 + 4);
-            var_6 += 8;
-            var_5 -= 1;
-            *(s32 *)(var_8 + 0) = t1;
-            *(s32 *)(var_8 + 4) = t2;
-            var_8 += 8;
-        } while (var_5 > 0);
-        var_6 = buf;
-        var_5 = 0x1F6;
+            t1 = ((BtlShuffleCopyPair *)copyCursor)->first;
+            t2 = ((BtlShuffleCopyPair *)copyCursor)->second;
+            copyCursor += 8;
+            pairsRemaining -= 1;
+            ((BtlShuffleCopyPair *)firstCursor)->first = t1;
+            ((BtlShuffleCopyPair *)firstCursor)->second = t2;
+            firstCursor += 8;
+        } while (pairsRemaining > 0);
+        copyCursor = buf;
+        pairsRemaining = 0x1F6;
         do {
-            t1 = *(s32 *)(var_6 + 0);
-            t2 = *(s32 *)(var_6 + 4);
-            var_6 += 8;
-            var_5 -= 1;
-            *(s32 *)(var_7 + 0) = t1;
-            *(s32 *)(var_7 + 4) = t2;
-            var_7 += 8;
-        } while (var_5 > 0);
-        var_18 -= 1;
+            t1 = ((BtlShuffleCopyPair *)copyCursor)->first;
+            t2 = ((BtlShuffleCopyPair *)copyCursor)->second;
+            copyCursor += 8;
+            pairsRemaining -= 1;
+            ((BtlShuffleCopyPair *)secondCursor)->first = t1;
+            ((BtlShuffleCopyPair *)secondCursor)->second = t2;
+            secondCursor += 8;
+        } while (pairsRemaining > 0);
+        lastIndex -= 1;
     }
 }
 
@@ -476,13 +486,13 @@ void btlShuffleSeq4Shuffle(u8 *arg0) {
    helpers that retail expands in place.  The frame arguments of the card
    animation setters are u16 throughout, so the (u16) conversions happen at
    each call.  measured: 4904B of code in the 4912B window (two zero words). */
-static inline void shuffle4Release(u8 *arg0, s32 card, u16 frames)
+static inline void shuffle4Release(u8 *context, s32 card, u16 frames)
 {
-    u8 *base = arg0 + 0x1F1D0;
+    u8 *base = context + 0x1F1D0;
     f32 rot[4];
     f32 axis[4];
 
-    btlShuffleDrawClearFlags(arg0, card);
+    btlShuffleDrawClearFlags(context, card);
     axis[3] = iGpffff83ec;
     axis[0] = 0.0f;
     axis[1] = iGpffff83ec;
@@ -491,35 +501,37 @@ static inline void shuffle4Release(u8 *arg0, s32 card, u16 frames)
     rot[0] = 0.0f;
     rot[1] = 0.0f;
     rot[2] = 0.0f;
-    btlShuffleDrawSetArc(arg0, card, 0, frames, NULL, rot, axis);
-    *(u16 *)(base + 6) &= ~(1 << card);
-    if (*(u16 *)base & 4) {
-        *(s32 *)(base + 0x34) = -1;
-        *(u16 *)base &= 0xFFFB;
+    btlShuffleDrawSetArc(context, card, 0, frames, NULL, rot, axis);
+    ((BtlShuffleGridState *)base)->heldMask &= ~(1 << card);
+    if (((BtlShuffleGridState *)base)->flags & 4) {
+        ((BtlShuffleGridState *)base)->secondCard = -1;
+        ((BtlShuffleGridState *)base)->flags &= 0xFFFB;
     } else {
-        *(s32 *)(base + 0x30) = -1;
-        *(u16 *)base &= 0xFFFD;
+        ((BtlShuffleGridState *)base)->firstCard = -1;
+        ((BtlShuffleGridState *)base)->flags &= 0xFFFD;
     }
 }
 
-static inline u16 shuffle4PickFree(u8 *arg0)
+static inline u16 shuffle4PickFree(u8 *context)
 {
-    u8 *base = arg0 + 0x1F1D0;
+    u8 *base = context + 0x1F1D0;
     s32 n;
     u16 c;
 
-    n = btlShuffleDrawTableLookup(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC));
+    /* measured: this retained grid/context access changes allocation or address operands when typed independently. */
+    n = btlShuffleDrawTableLookup(((BtlShuffleContext *)context)->cardCount, *(s32 *)(context + 0x1F2FC));
     do {
         c = n * ((f32)(RpRandom() & 0xFFF) / 4096.0f);
-    } while (*(u16 *)(base + 6) & (u16)(1 << c));
+    } while (((BtlShuffleGridState *)base)->heldMask & (u16)(1 << c));
     return c;
 }
 
 /* measured: without loop-invariant hoisting the pick loop keeps its work base
    in the loop body (674 differing words). */
 #pragma opt_loop_invariants on
+/* Run the grid reveal, two-card matching and result sequence. */
 // FUN_0037DA60
-s32 btlShuffleSeq4Run(u8 *arg0)
+s32 btlShuffleSeq4Run(u8 *context)
 {
     f32 pos[2];
     f32 vec[3];
@@ -538,67 +550,70 @@ s32 btlShuffleSeq4Run(u8 *arg0)
     u16 limit;
     u16 speed;
 
-    scale = 1.0f - (0.5f * (f32)(*(s32 *)(arg0 + 0x1F304) - 3)) / 5.0f;
-    sbase = arg0 + 0x1F1D0;
-    total = btlShuffleDrawTableLookup(*(s32 *)(arg0 + 0x1F304), *(s32 *)(arg0 + 0x1F2FC));
-    switch (*(u32 *)(arg0 + 0x1F2F8)) {
+    /* measured: this retained grid/context access changes allocation or address operands when typed independently. */
+    scale = 1.0f - (0.5f * (f32)(*(s32 *)(context + 0x1F304) - 3)) / 5.0f;
+    sbase = context + 0x1F1D0;
+    total = btlShuffleDrawTableLookup(*(s32 *)(context + 0x1F304), ((BtlShuffleContext *)context)->pattern);
+    /* measured: typing only this dispatch read shrinks Run to 4684 bytes and changes its allocation; stores remain typed. */
+    switch (*(u32 *)(context + 0x1F2F8)) {
     case 0:
-        if (btlShuffleSeqPick(arg0, *(s32 *)(arg0 + 0x1F304)) == 0) {
+        if (btlShuffleSeqPick(context, ((BtlShuffleContext *)context)->cardCount) == 0) {
             break;
         }
-        btlShuffleSeq4Init(arg0);
-        if (btlShuffleSeqLoadRecord(arg0) != 0) {
-            *(u32 *)(arg0 + 0x1F2F8) = 1;
+        btlShuffleSeq4Init(context);
+        if (btlShuffleSeqLoadRecord(context) != 0) {
+            ((BtlShuffleContext *)context)->phase = 1;
         } else {
-            *(u32 *)(arg0 + 0x1F2F8) = 2;
+            ((BtlShuffleContext *)context)->phase = 2;
         }
         break;
     case 1:
-        if (btlShuffleSeqStep(arg0) == 0) {
+        if (btlShuffleSeqStep(context) == 0) {
             break;
         }
-        *(u32 *)(arg0 + 0x1F2F8) = 2;
+        ((BtlShuffleContext *)context)->phase = 2;
     case 2:
-        if (++*(u16 *)(arg0 + 0x1F2F0) < 0) {
+        if (++((BtlShuffleContext *)context)->elapsed < 0) {
             break;
         }
-        deck = *(u8 **)(arg0 + 0x1F298);
+        deck = ((BtlShuffleContext *)context)->cardTask;
         btlShuffleDrawCardActivate(deck);
-        func_0038d0d0(deck, 1);
-        *(u32 *)(arg0 + 0x1F2F8) = 3;
+        btlShuffleDrawCardSetDetail(deck, 1);
+        ((BtlShuffleContext *)context)->phase = 3;
         break;
     case 3:
         if ((D_008C024E[0] & 0x40) != 0) {
-            func_0038d0a0(*(u8 **)(arg0 + 0x1F298));
-            *(u16 *)(arg0 + 0x1F2F0) = 0;
-            *(u32 *)(arg0 + 0x1F2F8) = 4;
-            *(u16 *)(sbase + 8) = 0;
-            for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
-                btlShuffleDrawSetPose(arg0, i, (u16)i, (u16)i + 10);
-                *(u16 *)(arg0 + 0x1F1D6) ^= (u16)(1 << i);
+            btlShuffleDrawCardEndDetail(((BtlShuffleContext *)context)->cardTask);
+            ((BtlShuffleContext *)context)->elapsed = 0;
+            ((BtlShuffleContext *)context)->phase = 4;
+            ((BtlShuffleGridState *)sbase)->attempts = 0;
+            for (i = 0; i < ((BtlShuffleContext *)context)->cardCount; i++) {
+                btlShuffleDrawSetPose(context, i, (u16)i, (u16)i + 10);
+                /* The flag halfword belongs to the variant motion/grid prefix, not a field of the shared partial pose type. */
+                *(u16 *)(context + 0x1F1D6) ^= (u16)(1 << i);
             }
             sdkSndStartStream(0, 4, 0, 1);
             sdkSndStartStream(1, 0, 5, 1);
         } else if ((D_008C024E[0] & 0x20) != 0) {
-            btlShuffleSeqReset(arg0);
-            *(u32 *)(arg0 + 0x1F2F8) = 0x14;
+            btlShuffleSeqReset(context);
+            ((BtlShuffleContext *)context)->phase = 0x14;
         }
         break;
     case 4:
-        if (btlShuffleSeqCountB(arg0, *(s32 *)(arg0 + 0x1F304)) == 0) {
+        if (btlShuffleSeqCountB(context, *(s32 *)(context + 0x1F304)) == 0) {
             break;
         }
-        *(u16 *)(arg0 + 0x1F2F0) = 0;
-        *(u32 *)(arg0 + 0x1F2F8) = 6;
-        *(u16 *)(sbase + 8) = 0;
-        *(u16 *)(sbase + 6) = 0;
+        ((BtlShuffleContext *)context)->elapsed = 0;
+        ((BtlShuffleContext *)context)->phase = 6;
+        ((BtlShuffleGridState *)sbase)->attempts = 0;
+        ((BtlShuffleGridState *)sbase)->heldMask = 0;
         btlShuffleCalcResetTrack((u8 *)vec);
-        for (i = 0; i < *(s32 *)(arg0 + 0x1F304); i++) {
-            btlShuffleDrawMoveCardB(arg0, i, NULL, vec, (u16)i, (u16)(i + 10));
+        for (i = 0; i < ((BtlShuffleContext *)context)->cardCount; i++) {
+            btlShuffleDrawMoveCardB(context, i, NULL, vec, (u16)i, (u16)(i + 10));
         }
         sdkSndStartStream(1, 0, 5, 2);
     case 6:
-        if (btlShuffleSeqCountA(arg0, *(s32 *)(arg0 + 0x1F304)) == 0) {
+        if (btlShuffleSeqCountA(context, ((BtlShuffleContext *)context)->cardCount) == 0) {
             break;
         }
         btlShuffleCalcResetTrack((u8 *)vec);
@@ -607,51 +622,51 @@ s32 btlShuffleSeq4Run(u8 *arg0)
         rot[1] = 0.0f;
         rot[2] = 0.0f;
         for (i = 0; i < total; i++) {
-            btlShuffleDrawMoveCard(arg0, i, 0.0f, 0.0f, vec, vec);
-            btlShuffleDrawSetQuat(arg0, i, 0, 0, rot, rot);
-            btlShuffleDrawSetFrames(arg0, i, 0, 0xFF, 0xFF);
+            btlShuffleDrawMoveCard(context, i, 0.0f, 0.0f, vec, vec);
+            btlShuffleDrawSetQuat(context, i, 0, 0, rot, rot);
+            btlShuffleDrawSetFrames(context, i, 0, 0xFF, 0xFF);
         }
-        func_0038d2c0(*(u8 **)(arg0 + 0x1F298));
-        *(u16 *)(arg0 + 0x1F2F4) |= 1;
-        *(u16 *)(arg0 + 0x1F2F0) = 0;
-        *(u32 *)(arg0 + 0x1F2F8) = 5;
+        btlShuffleDrawCardStartBands(((BtlShuffleContext *)context)->cardTask);
+        ((BtlShuffleContext *)context)->flags |= 1;
+        ((BtlShuffleContext *)context)->elapsed = 0;
+        ((BtlShuffleContext *)context)->phase = 5;
         for (i = 0; i < total; i++) {
-            btlShuffleSeq4Layout(arg0, i, pos);
-            btlShuffleCardScaleVec(arg0 + i * 0xFB0, pos, 67.0f, vec);
+            btlShuffleSeq4Layout(context, i, pos);
+            btlShuffleCardScaleVec(context + i * 0xFB0, pos, 67.0f, vec);
             t = scale * i;
-            btlShuffleDrawMoveCardB(arg0, i, NULL, vec, (u16)t, (u16)(5.0f + t));
-            btlShuffleDrawClearFlags(arg0, i);
+            btlShuffleDrawMoveCardB(context, i, NULL, vec, (u16)t, (u16)(5.0f + t));
+            btlShuffleDrawClearFlags(context, i);
         }
         sdkSndStartStream(1, 0, 5, 2);
     case 5:
-        if (btlShuffleSeqCountA(arg0, total) == 0) {
+        if (btlShuffleSeqCountA(context, total) == 0) {
             break;
         }
         if (datGetFlag(0x1432) == 0) {
-            btlShuffleSeqClearA(arg0, 2);
-            *(u32 *)(arg0 + 0x1F2F8) = 0x15;
-            *(u16 *)(arg0 + 0x1F2F0) = 0;
-            *(u16 *)(arg0 + 0x1F2F4) |= 2;
+            btlShuffleSeqClearA(context, 2);
+            ((BtlShuffleContext *)context)->phase = 0x15;
+            ((BtlShuffleContext *)context)->elapsed = 0;
+            ((BtlShuffleContext *)context)->flags |= 2;
             break;
         }
-        btlShuffleSeq4Shuffle(arg0);
-        if (*(u16 *)(sbase + 0x2C) > 0) {
+        btlShuffleSeq4Shuffle(context);
+        if (((BtlShuffleGridState *)sbase)->cardCount > 0) {
             for (k = 0; k < *(u16 *)(sbase + 0x2C); k++) {
-                *(u16 *)(sbase + k * 2 + 0xC) = shuffle4PickFree(arg0);
-                btlShuffleSeq4Move(arg0, *(u16 *)(sbase + k * 2 + 0xC), 0, *(u16 *)(sbase + 2));
+                ((BtlShuffleGridState *)sbase)->cards[k] = shuffle4PickFree(context);
+                btlShuffleSeq4Move(context, ((BtlShuffleGridState *)sbase)->cards[k], 0, ((BtlShuffleGridState *)sbase)->frames);
             }
             sdkSndStartStream(1, 0, 5, 1);
-            *(u16 *)(arg0 + 0x1F2F0) = 0;
-            *(u32 *)(arg0 + 0x1F2F8) = 7;
+            ((BtlShuffleContext *)context)->elapsed = 0;
+            ((BtlShuffleContext *)context)->phase = 7;
         } else {
-            *(u32 *)(arg0 + 0x1F2F8) = 9;
+            ((BtlShuffleContext *)context)->phase = 9;
         }
         break;
     case 7:
-        if (btlShuffleSeqCountB(arg0, total) == 0) {
+        if (btlShuffleSeqCountB(context, total) == 0) {
             break;
         }
-        switch (*(s32 *)(arg0 + 0x1F300)) {
+        switch (((BtlShuffleContext *)context)->difficulty) {
         case 0:
             limit = 5;
             break;
@@ -666,147 +681,147 @@ s32 btlShuffleSeq4Run(u8 *arg0)
             limit = 0;
             break;
         }
-        if (++*(u16 *)(arg0 + 0x1F2F0) < limit) {
+        if (++*(u16 *)(context + 0x1F2F0) < limit) {
             break;
         }
         for (j = 0; j < *(u16 *)(sbase + 0x2C); j++) {
-            speed = *(u16 *)(sbase + 2);
-            card = *(u16 *)(sbase + j * 2 + 0xC);
-            shuffle4Release(arg0, card, speed);
+            speed = ((BtlShuffleGridState *)sbase)->frames;
+            card = ((BtlShuffleGridState *)sbase)->cards[j];
+            shuffle4Release(context, card, speed);
         }
         sdkSndStartStream(1, 0, 5, 1);
-        *(u32 *)(arg0 + 0x1F2F8) = 8;
-        *(u16 *)(arg0 + 0x1F2F0) = 0;
+        ((BtlShuffleContext *)context)->phase = 8;
+        ((BtlShuffleContext *)context)->elapsed = 0;
     case 8:
-        if (btlShuffleSeqCountB(arg0, total) == 0) {
+        if (btlShuffleSeqCountB(context, total) == 0) {
             break;
         }
-        *(u32 *)(arg0 + 0x1F2F8) = 9;
+        ((BtlShuffleContext *)context)->phase = 9;
     case 9:
-        *(u16 *)(sbase + 8) = 0;
-        btlShuffleDrawViewStartCue(*(u8 **)(arg0 + 0x1F294));
-        *(u32 *)(arg0 + 0x1F2F8) = 0xA;
+        ((BtlShuffleGridState *)sbase)->attempts = 0;
+        btlShuffleDrawViewStartCue(((BtlShuffleContext *)context)->viewTask);
+        ((BtlShuffleContext *)context)->phase = 0xA;
     case 10:
-        if (btlShuffleDrawViewIsCueIdle(*(u8 **)(arg0 + 0x1F294)) == 0) {
+        if (btlShuffleDrawViewIsCueIdle(*(u8 **)(context + 0x1F294)) == 0) {
             break;
         }
-        func_0038d160(*(u8 **)(arg0 + 0x1F298));
-        btlShuffleDrawViewSetHold(*(u8 **)(arg0 + 0x1F294));
-        deck = *(u8 **)(arg0 + 0x1F298);
+        btlShuffleDrawCardStartCount(*(u8 **)(context + 0x1F298));
+        btlShuffleDrawViewSetHold(((BtlShuffleContext *)context)->viewTask);
+        deck = ((BtlShuffleContext *)context)->cardTask;
         btlShuffleDrawCardActivate(deck);
-        func_0038d0d0(deck, 3);
-        *(u32 *)(arg0 + 0x1F2F8) = 0xB;
+        btlShuffleDrawCardSetDetail(deck, 3);
+        ((BtlShuffleContext *)context)->phase = 0xB;
     case 11:
         if ((D_008C024E[0] & 0x40) != 0) {
-            if (*(u16 *)(sbase + 6) & (u16)(1 << *(u16 *)(sbase + 4))) {
+            if (((BtlShuffleGridState *)sbase)->heldMask & (u16)(1 << ((BtlShuffleGridState *)sbase)->cursor)) {
                 break;
             }
-            btlShuffleSeq4Move(arg0, *(u16 *)(sbase + 4), 0, 0xA);
-            *(u32 *)(arg0 + 0x1F2F8) = 0xC;
+            btlShuffleSeq4Move(context, ((BtlShuffleGridState *)sbase)->cursor, 0, 0xA);
+            ((BtlShuffleContext *)context)->phase = 0xC;
             sdkSndStartStream(1, 0, 5, 1);
         } else {
-            btlShuffleSeq4Step(arg0);
+            btlShuffleSeq4Step(context);
         }
         break;
     case 12:
-        if (btlShuffleDrawStateA(arg0 + *(u16 *)(sbase + 4) * 0xE8 + 0x1D6A0) == 0) {
+        if (btlShuffleDrawStateA(context + ((BtlShuffleGridState *)sbase)->cursor * 0xE8 + 0x1D6A0) == 0) {
             break;
         }
-        if ((*(u16 *)sbase & 2) && (*(u16 *)sbase & 4)) {
-            *(u32 *)(arg0 + 0x1F2F8) = 0xD;
-            *(u16 *)(arg0 + 0x1F2F0) = 0;
+        if ((((BtlShuffleGridState *)sbase)->flags & 2) && (((BtlShuffleGridState *)sbase)->flags & 4)) {
+            ((BtlShuffleContext *)context)->phase = 0xD;
+            ((BtlShuffleContext *)context)->elapsed = 0;
         } else {
-            *(u32 *)(arg0 + 0x1F2F8) = 0xB;
+            ((BtlShuffleContext *)context)->phase = 0xB;
         }
         break;
     case 13:
-        if (btlShuffleSeqCheck(arg0, *(s32 *)(sbase + 0x30), *(s32 *)(sbase + 0x34)) != 0 &&
-            func_0036de60(arg0 + *(s32 *)(sbase + 0x30) * 0xFB0) != 2) {
-            func_0038d0a0(*(u8 **)(arg0 + 0x1F298));
-            func_0038d1d0(*(u8 **)(arg0 + 0x1F298));
-            btlShuffleDrawViewClearHold(*(u8 **)(arg0 + 0x1F294));
-            *(u32 *)(arg0 + 0x1F2F8) = 0xE;
+        if (btlShuffleSeqCheck(context, *(s32 *)(sbase + 0x30), *(s32 *)(sbase + 0x34)) != 0 &&
+            btlShuffleCardGetKind(context + ((BtlShuffleGridState *)sbase)->firstCard * 0xFB0) != 2) {
+            btlShuffleDrawCardEndDetail(*(u8 **)(context + 0x1F298));
+            btlShuffleDrawCardEndCount(((BtlShuffleContext *)context)->cardTask);
+            btlShuffleDrawViewClearHold(((BtlShuffleContext *)context)->viewTask);
+            ((BtlShuffleContext *)context)->phase = 0xE;
             break;
         }
-        if (++*(u16 *)(arg0 + 0x1F2F0) < 0xA) {
+        if (++((BtlShuffleContext *)context)->elapsed < 0xA) {
             break;
         }
-        shuffle4Release(arg0, *(s32 *)(sbase + 0x34), 0xA);
-        shuffle4Release(arg0, *(s32 *)(sbase + 0x30), 0xA);
+        shuffle4Release(context, ((BtlShuffleGridState *)sbase)->secondCard, 0xA);
+        shuffle4Release(context, ((BtlShuffleGridState *)sbase)->firstCard, 0xA);
         sdkSndStartStream(1, 0, 5, 1);
-        if (++*(u16 *)(sbase + 8) >= *(u16 *)(sbase + 0xA)) {
-            func_0038d0a0(*(u8 **)(arg0 + 0x1F298));
-            func_0038d1d0(*(u8 **)(arg0 + 0x1F298));
-            btlShuffleDrawViewClearHold(*(u8 **)(arg0 + 0x1F294));
-            btlShuffleSeqCardCount(arg0, -1);
-            *(u32 *)(arg0 + 0x1F2F8) = 0x12;
+        if (++((BtlShuffleGridState *)sbase)->attempts >= ((BtlShuffleGridState *)sbase)->attemptLimit) {
+            btlShuffleDrawCardEndDetail(*(u8 **)(context + 0x1F298));
+            btlShuffleDrawCardEndCount(((BtlShuffleContext *)context)->cardTask);
+            btlShuffleDrawViewClearHold(((BtlShuffleContext *)context)->viewTask);
+            btlShuffleSeqCardCount(context, -1);
+            ((BtlShuffleContext *)context)->phase = 0x12;
         } else {
-            *(u32 *)(arg0 + 0x1F2F8) = 0xB;
+            ((BtlShuffleContext *)context)->phase = 0xB;
         }
         break;
     case 14:
         for (i = 0; i < total; i++) {
-            if (i != *(s32 *)(sbase + 0x30) && i != *(s32 *)(sbase + 0x34)) {
-                btlShuffleSeqSetMode(arg0, i, 0x14);
+            if (i != ((BtlShuffleGridState *)sbase)->firstCard && i != ((BtlShuffleGridState *)sbase)->secondCard) {
+                btlShuffleSeqSetMode(context, i, 0x14);
             }
         }
-        *(u32 *)(arg0 + 0x1F2F8) = 0xF;
+        ((BtlShuffleContext *)context)->phase = 0xF;
     case 15:
-        if (btlShuffleSeqPick(arg0, total) == 0) {
+        if (btlShuffleSeqPick(context, total) == 0) {
             break;
         }
         for (i = 0; i < total; i++) {
-            if (i != *(s32 *)(sbase + 0x30) && i != *(s32 *)(sbase + 0x34)) {
-                btlShuffleDrawPoll(arg0, i, 0);
+            if (i != ((BtlShuffleGridState *)sbase)->firstCard && i != ((BtlShuffleGridState *)sbase)->secondCard) {
+                btlShuffleDrawPoll(context, i, 0);
             }
         }
-        btlShuffleSeqUpdateMode(arg0, *(s32 *)(sbase + 0x30), 0xA, 1);
-        btlShuffleSeqUpdateMode(arg0, *(s32 *)(sbase + 0x34), 0xA, -1);
-        *(u32 *)(arg0 + 0x1F2F8) = 0x10;
+        btlShuffleSeqUpdateMode(context, ((BtlShuffleGridState *)sbase)->firstCard, 0xA, 1);
+        btlShuffleSeqUpdateMode(context, ((BtlShuffleGridState *)sbase)->secondCard, 0xA, -1);
+        ((BtlShuffleContext *)context)->phase = 0x10;
     case 16:
-        if (btlShuffleSeqPick(arg0, total) == 0) {
+        if (btlShuffleSeqPick(context, total) == 0) {
             break;
         }
-        *(u16 *)((u8 *)(*(s32 *)(sbase + 0x34) * 0xE8) + (u32)arg0 + 0x1D6A0) &= 0xFFFD;
-        btlShuffleSeqMoveB(arg0, *(s32 *)(sbase + 0x30));
-        *(u16 *)sbase |= 8;
+        *(u16 *)((u8 *)(((BtlShuffleGridState *)sbase)->secondCard * 0xE8) + (u32)context + 0x1D6A0) &= 0xFFFD;
+        btlShuffleSeqMoveB(context, ((BtlShuffleGridState *)sbase)->firstCard);
+        ((BtlShuffleGridState *)sbase)->flags |= 8;
         sdkSndStartStream(1, 0, 5, 1);
-        *(u32 *)(arg0 + 0x1F2F8) = 0x11;
+        ((BtlShuffleContext *)context)->phase = 0x11;
     case 17:
-        if (btlShuffleDrawStateA(arg0 + *(s32 *)(sbase + 0x30) * 0xE8 + 0x1D6A0) != 0) {
+        if (btlShuffleDrawStateA(context + *(s32 *)(sbase + 0x30) * 0xE8 + 0x1D6A0) != 0) {
             break;
         }
-        btlShuffleSeqCardCount(arg0, *(s32 *)(sbase + 0x30));
-        *(u32 *)(arg0 + 0x1F2F8) = 0x12;
+        btlShuffleSeqCardCount(context, ((BtlShuffleGridState *)sbase)->firstCard);
+        ((BtlShuffleContext *)context)->phase = 0x12;
     case 18:
-        if (btlShuffleSeqDispatch(arg0) == 0) {
+        if (btlShuffleSeqDispatch(context) == 0) {
             break;
         }
-        *(u32 *)(arg0 + 0x1F2F8) = 0x13;
+        ((BtlShuffleContext *)context)->phase = 0x13;
     case 19:
         return 1;
     case 20:
-        if (btlShuffleSeqStateCheck(arg0) == 0) {
+        if (btlShuffleSeqStateCheck(context) == 0) {
             break;
         }
-        if (*(s32 *)(arg0 + 0x1F248) != 0) {
-            *(u32 *)(arg0 + 0x1F2F8) = 0x13;
+        if (((BtlShuffleContext *)context)->unk1F248 != 0) {
+            ((BtlShuffleContext *)context)->phase = 0x13;
         } else {
-            *(u32 *)(arg0 + 0x1F2F8) = 3;
+            ((BtlShuffleContext *)context)->phase = 3;
         }
         break;
     case 21:
-        if (btlShuffleSeqFlag(arg0) == 0) {
+        if (btlShuffleSeqFlag(context) == 0) {
             break;
         }
-        if (*(u16 *)(arg0 + 0x1F2F4) & 2) {
-            *(u16 *)(arg0 + 0x1F2F4) = *(u16 *)(arg0 + 0x1F2F4) & 0xFFFD;
+        if (*(u16 *)(context + 0x1F2F4) & 2) {
+            *(u16 *)(context + 0x1F2F4) = ((BtlShuffleContext *)context)->flags & 0xFFFD;
         }
-        if (++*(u16 *)(arg0 + 0x1F2F0) < 0x1E) {
+        if (++((BtlShuffleContext *)context)->elapsed < 0x1E) {
             break;
         }
         datSetFlag(0x1432, 1);
-        *(u32 *)(arg0 + 0x1F2F8) = 5;
+        ((BtlShuffleContext *)context)->phase = 5;
         break;
     default:
         kAssertFail(&D_0064EB20[0], 0x3F6);

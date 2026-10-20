@@ -63,12 +63,24 @@ typedef struct ParticleLinkNode {
     u8 *owner;               /* +0x1C: the particle that owns this node */
 } ParticleLinkNode;
 
-/* Effect particle (effParticle.c). Only the texture scale and link are named; the other
- * fields are not yet typed. */
+/* Effect particle: the allocator reserves 0x60 bytes. Handle words are also
+ * consumed as pointers by subtype-specific paths; retain both representations. */
 typedef struct EffParticleInstance {
-    u8 field_0x00[0x48];
+    union { s32 signedValue; u32 value; } recordCount; /* +0x00 */
+    union { s32 signedValue; u32 value; } packedColor; /* +0x04 */
+    union { f32 value; s32 signedBits; u32 bits; } scale; /* +0x08 */
+    u16 kind;                /* +0x0C: subtype dispatch */
+    u8 flags;                /* +0x0E: bit zero owns the emitter */
+    u8 padF;
+    u8 pad10[0x24];
+    union { s32 handle; u8 *bytes; u8 **objects; } children; /* +0x34 */
+    union { s32 handle; u8 *bytes; void *pointer; } childAllocation; /* +0x38 */
+    union { s32 handle; u8 *bytes; u8 **objects; } models; /* +0x3C */
+    union { s32 handle; u8 *bytes; void *pointer; } modelAllocation; /* +0x40 */
+    union { s32 handle; u8 *bytes; } animation; /* +0x44 */
     s32 tlpRef;              /* +0x48: TLP handle, reference-counted by ParticleCopyModeFromSource */
-    u8 field_0x4C[0x54 - 0x4C];
+    union { s32 handle; u32 bits; u8 *bytes; } emitter; /* +0x4C */
+    union { s32 handle; u8 *bytes; } geometry; /* +0x50 */
     f32 texScaleX;           /* +0x54: texture scale, the texture's +0xC word divided by 32 */
     f32 texScaleY;           /* +0x58: texture scale, the texture's +0x10 word divided by 32 */
     ParticleLinkNode *link;  /* +0x5C */
@@ -95,30 +107,30 @@ void effMiscRandInit(EffRandState *state, u32 seed);
 void *mdlEffectResolveRelPtrA(void *source);
 void *mdlEffectResolveRelPtrB(void *source);
 
-u8 *mdlEffectBuildFromResource(u8 *resource);
-u8 *mdlEffectCloneWithNodes(u8 *resource);
+u8 *mdlEffectBuildFromResource(u8 *effect);
+u8 *mdlEffectCloneWithNodes(u8 *effect);
 void mdlEffectCopyRecord(u8 *destination, u8 *source);
 u8 *mdlEffectFindNodeById(u8 *root, s32 identifier);
-void mdlEffectSlotSetZero(u8 *param_1, u16 param_2);
-void mdlEffectSlotRelease(u8 *param_1, u16 param_2);
-s32 mdlEffectSlotIsFree(u8 *param_1, u16 param_2);
+void mdlEffectSlotSetZero(u8 *instance, u16 slotIndex);
+void mdlEffectSlotRelease(u8 *instance, u16 slotIndex);
+s32 mdlEffectSlotIsFree(u8 *instance, u16 slotIndex);
 
 u8 *ThunderTextureForIndex(u16 kind, u8 *parameters);
 u8 *RingCreateKindInstance(u16 kind, u8 *parameters);
 u8 *LineNovaCreateKindInstance(s32 kind, u8 *parameters);
 
-void *func_00484530(void *source);
-void *ParticleCreateFromSource(void *source);
-void *ParticleCreateFromParent(void *source);
-void *TrackCreateFromEmitter(void *source);
-void *TrackCreateFromSource(void *source);
-void *TrackCreateWithMode(void *source);
-void *TrackCreateFromSourceCopy(void *source);
+void *func_00484530(void *input);
+void *ParticleCreateFromSource(void *opaqueSource);
+void *ParticleCreateFromParent(void *opaqueSource);
+void *TrackCreateFromEmitter(void *opaqueSource);
+void *TrackCreateFromSource(void *opaqueSource);
+void *TrackCreateWithMode(void *opaqueSource);
+void *TrackCreateFromSourceCopy(void *opaqueSource);
 void *ThunderTextureForObject(void *source);
 void *ThunderTextureForRecord(void *source);
 void *RingCreateKindInstanceFromObject(void *source);
 void *RingCreateInstanceForRecord(void *source);
-void *FlashQuadCopyAllocFromParent(void *source);
+void *FlashQuadCopyAllocFromParent(void *input);
 void *FlashQuadCopyAllocFromRecord(void *source);
 void *WindCreateKindEntry(void *source);
 void *WindCreateKindEntryAlt(void *source);
@@ -127,34 +139,34 @@ void *mdlEffectCloneInstance(void *source);
 void *mdlEffectCreateGridForObject(void *source);
 void *mdlEffectCreateGridFromInstance(void *source);
 void *func_004a7a90(void *source);
-void *func_004a7b70(void *source);
-void *effBlurFilterCopiedInstantiate(void *source);
-void *effBlurFilterCopiedDuplicate(void *source);
-void *effBlurFilterDirectInstantiate(void *source);
-void *effBlurFilterDirectDuplicate(void *source);
+void *mdlEffectCloneShakeRecord(void *record);
+void *effBlurFilterCopiedInstantiate(void *object);
+void *effBlurFilterCopiedDuplicate(void *object);
+void *effBlurFilterDirectInstantiate(void *object);
+void *effBlurFilterDirectDuplicate(void *object);
 u8 *effBlurFilterCopiedCreate(u32 type, const void *initialData);
 u8 *effBlurFilterDirectCreate(u32 type, const void *initialData);
-void effBlurFilterCopiedDestroy(void *param_1);
-void effBlurFilterDirectDestroy(void *param_1);
-void effBlurFilterCopiedDispatch(void *param_1);
-void effBlurFilterDirectDispatch(void *param_1);
-void effBlurFilterCopiedAdvanceAndSync(u8 *param_1);
-void effBlurFilterDirectAdvanceAndSync(u8 *param_1);
+void effBlurFilterCopiedDestroy(void *object);
+void effBlurFilterDirectDestroy(void *object);
+void effBlurFilterCopiedDispatch(void *object);
+void effBlurFilterDirectDispatch(void *object);
+void effBlurFilterCopiedAdvanceAndSync(u8 *object);
+void effBlurFilterDirectAdvanceAndSync(u8 *object);
 void *EffModelCreate(void *source);
-void *EffModelClone(void *source);
+void *EffModelClone(void *effect);
 void *EffModelCreateDrawable(void *source);
-void *EffModelCloneDrawable(void *source);
+void *EffModelCloneDrawable(void *effect);
 void *EffHelperCreate(void *source);
 void *EffHelperClone(void *source);
-void *ObjectParticleCreateFromSource(void *source);
-void *ObjectParticleCreateFromParent(void *source);
-void *DistortParticleCreateFromSource(void *source);
-void *DistortParticleCreateFromParent(void *source);
-void *func_004b16c0(void *source);
-void *func_004b1950(void *source);
+void *ObjectParticleCreateFromSource(void *opaqueSource);
+void *ObjectParticleCreateFromParent(void *opaqueSource);
+void *DistortParticleCreateFromSource(void *opaqueSource);
+void *DistortParticleCreateFromParent(void *opaqueSource);
+void *mdlEffectCreateScreenSprite(void *opaqueSource);
+void *mdlEffectCloneHelperInstance(void *opaqueSource);
 void *LineNovaCreateKindInstanceFromObject(void *source);
-void *LineNovaCreateInstanceForRecord(void *source);
+void *LineNovaCreateInstanceForRecord(void *opaqueSource);
 void *EffBattleCreate(void *source);
-void *EffBattleCreateFromRecord(void *source);
+void *EffBattleCreateFromRecord(void *opaqueSource);
 
 #endif

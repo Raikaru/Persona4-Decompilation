@@ -13,6 +13,6 @@ u32 brpParamReadWord4(const u32 *work);
 /* Returns the word at byte offset 0x04 of the work block. */
 u32 brpParamReadWord1(const u32 *work);
 /* Makes arg0 the current result-parameter block and zeroes its first two words. */
-void brpParamSetCurrent(u8 *arg0);
+void brpParamSetCurrent(u8 *work);
 
 #endif

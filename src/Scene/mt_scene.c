@@ -9,7 +9,7 @@ typedef struct Resrc Resrc;
 typedef struct ResrcManager ResrcManager;
 extern u8* PTR_DAT_00762ea0;
 extern u8 *iGpffff9db0;
-extern u8 *resrcMngGetListHead(u8 *arg0, s32 arg1);
+extern u8 *resrcMngGetListHead(u8 *resManager, s32 resType);
 
 typedef struct MtScene
 {
@@ -19,14 +19,14 @@ typedef struct MtScene
 } MtScene;
 
 extern MtScene* gMtScene;
-extern u8 *resrcMngFindResById(ResrcManager* resManager, u16 resTypeId);
+extern u8 *resrcMngFindResById(ResrcManager* manager, u16 resourceId);
 extern void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *scaleInput);
 
 /* Ported from P3FES src/Scene/mt_scene.c FUN_003b5df0 (verified MATCH there).
  * 007cd540 -> PTR_DAT_00762ea0, 003b5550 -> resrcMngGetTotalResInList. */
 
 #define RESRC_TYPE_MAX 22
-extern u32 resrcMngGetTotalResInList(ResrcManager* resManager, u8 resType);
+extern u32 resrcMngGetTotalResInList(ResrcManager* resLists, u8 resType);
 
 /* Ported from P3FES src/Scene/mt_scene.c FUN_003b63c0 (verified MATCH there).
  * 007cd540 -> PTR_DAT_00762ea0, 006a2bb0 -> D_005EF820, 005225a8 ->
@@ -67,9 +67,10 @@ s32 MT_Scene_GetObject(void) {
 // FUN_00145260
 u32 MT_Scene_GetResManager(void)
 {
-    return *(u32*)(PTR_DAT_00762ea0 + 8);
+    return (u32)((MtScene *)PTR_DAT_00762ea0)->resManager;
 }
 // FUN_00145270
+/* Look up the packed resource type/id in the active manager. */
 u8 *MT_Scene_GetRes(u16 resTypeId)
 {
     if (gMtScene->resManager == NULL)
@@ -83,17 +84,19 @@ u8 *MT_Scene_GetRes(u16 resTypeId)
 
 
 // FUN_001452B0
-u8 *MT_Scene_GetResListHead(s32 arg0)
+/* Return the selected resource list, or NULL when no manager is active. */
+u8 *MT_Scene_GetResListHead(s32 resourceType)
 {
     u8 *resManager;
 
-    resManager = *(u8 **)(iGpffff9db0 + 8);
+    resManager = (u8 *)((MtScene *)iGpffff9db0)->resManager;
     if (resManager == NULL) {
         return NULL;
     }
-    return resrcMngGetListHead(resManager, (u8)(arg0 & 0xFF));
+    return resrcMngGetListHead(resManager, (u8)(resourceType & 0xFF));
 }
 // FUN_00145300
+/* Count resources of the requested type; out-of-range types contribute nothing. */
 u32 MT_Scene_GetTotalResInList(u32 resType)
 {
     s32 i;
@@ -124,6 +127,7 @@ u32 MT_Scene_GetTotalResInList(u32 resType)
 
 
 // FUN_001458B0
+/* Allocate a character-light resource and return its packed type/id, or zero on failure. */
 u16 MT_Scene_CreateResLightChar(u16 resId)
 {
     ResrcManager* resManager;
@@ -149,6 +153,7 @@ u16 MT_Scene_CreateResLightChar(u16 resId)
 
 
 // FUN_00145930
+/* Allocate an NPC-light resource and return its packed type/id, or zero on failure. */
 u16 MT_Scene_CreateResLightNpc(u16 resId)
 {
     ResrcManager* resManager;
@@ -174,17 +179,18 @@ u16 MT_Scene_CreateResLightNpc(u16 resId)
 
 
 // FUN_00146E60
+/* Apply position and rotation only when the resource exists. */
 void MT_Scene_SetResPlacement(u16 resourceId, u8 *position, u8 *angles)
 {
     u8 *resource;
 
-    if (*(u8 **)(PTR_DAT_00762ea0 + 8) == 0)
+    if (((MtScene *)PTR_DAT_00762ea0)->resManager == 0)
     {
         resource = 0;
     }
     else
     {
-        resource = resrcMngFindResById(*(ResrcManager **)(PTR_DAT_00762ea0 + 8), resourceId);
+        resource = resrcMngFindResById(((MtScene *)PTR_DAT_00762ea0)->resManager, resourceId);
     }
 
     if (resource != 0)
@@ -196,66 +202,69 @@ void MT_Scene_SetResPlacement(u16 resourceId, u8 *position, u8 *angles)
 
 
 // FUN_00146EE0
-void MT_Scene_SetResAngles(u16 resourceId, u8 *angles)
+/* Forward the optional vector through the transform scale-input slot, as retail does. */
+/* The vector is forwarded to ApplyResTransform's scale slot; despite the current symbol name, this wrapper changes scale. */
+void MT_Scene_SetResAngles(u16 resourceId, u8 *scale)
 {
     u8 *resource;
 
-    if (*(u8 **)(PTR_DAT_00762ea0 + 8) == 0)
+    if (((MtScene *)PTR_DAT_00762ea0)->resManager == 0)
     {
         resource = 0;
     }
     else
     {
-        resource = resrcMngFindResById(*(ResrcManager **)(PTR_DAT_00762ea0 + 8), resourceId);
+        resource = resrcMngFindResById(((MtScene *)PTR_DAT_00762ea0)->resManager, resourceId);
     }
 
     if (resource != 0)
     {
-        (MT_Scene_ApplyResTransform)(resource, 0, 0, angles);
+        (MT_Scene_ApplyResTransform)(resource, 0, 0, scale);
     }
 }
 // FUN_00146F50
-void MT_Scene_BuildResMatrix(u32* param_1, const void* param_2, u32* param_3)
+/* Build a Y/X/Z rotation followed by translation and copy the 64-byte RenderWare matrix. */
+void MT_Scene_BuildResMatrix(u32* outputWords, const void* position, u32* angles)
 {
-    u32 uVar1;
-    u32 uVar2;
-    f32* pfParam3;
-    u32* puVar4;
-    int iVar3;
-    u32 auStack_40[16];
+    u32 firstWord;
+    u32 secondWord;
+    f32* rotation;
+    u32* sourceWords;
+    s32 remainingPairs;
+    u32 matrixWords[16];
 
-    auStack_40[10] = 0x3f800000;
-    auStack_40[5] = 0x3f800000;
-    auStack_40[0] = 0x3f800000;
-    auStack_40[4] = 0;
-    auStack_40[2] = 0;
-    auStack_40[1] = 0;
-    auStack_40[9] = 0;
-    auStack_40[8] = 0;
-    auStack_40[6] = 0;
-    auStack_40[14] = 0;
-    auStack_40[13] = 0;
-    auStack_40[12] = 0;
-    auStack_40[3] = auStack_40[3] | 0x20003;
+    matrixWords[10] = 0x3f800000;
+    matrixWords[5] = 0x3f800000;
+    matrixWords[0] = 0x3f800000;
+    matrixWords[4] = 0;
+    matrixWords[2] = 0;
+    matrixWords[1] = 0;
+    matrixWords[9] = 0;
+    matrixWords[8] = 0;
+    matrixWords[6] = 0;
+    matrixWords[14] = 0;
+    matrixWords[13] = 0;
+    matrixWords[12] = 0;
+    matrixWords[3] = matrixWords[3] | 0x20003;
 
-    pfParam3 = (f32*)param_3;
-    RwMatrixRotate((RwMatrix*)auStack_40, (const RwV3d*)D_005EFA20, pfParam3[1], 1);
-    RwMatrixRotate((RwMatrix*)auStack_40, (const RwV3d*)D_005EFA10, pfParam3[0], 1);
-    RwMatrixRotate((RwMatrix*)auStack_40, (const RwV3d*)D_005EFA30, pfParam3[2], 1);
-    RwMatrixTranslate((RwMatrix*)auStack_40, (const RwV3d*)param_2, 2);
+    rotation = (f32*)angles;
+    RwMatrixRotate((RwMatrix*)matrixWords, (const RwV3d*)D_005EFA20, rotation[1], 1);
+    RwMatrixRotate((RwMatrix*)matrixWords, (const RwV3d*)D_005EFA10, rotation[0], 1);
+    RwMatrixRotate((RwMatrix*)matrixWords, (const RwV3d*)D_005EFA30, rotation[2], 1);
+    RwMatrixTranslate((RwMatrix*)matrixWords, (const RwV3d*)position, 2);
 
-    puVar4 = auStack_40;
-    iVar3 = 8;
+    sourceWords = matrixWords;
+    remainingPairs = 8;
     do
     {
-        uVar1 = *puVar4;
-        uVar2 = puVar4[1];
-        puVar4 = puVar4 + 2;
-        iVar3 = iVar3 + -1;
-        *param_1 = uVar1;
-        param_1[1] = uVar2;
-        param_1 = param_1 + 2;
-    } while (0 < iVar3);
+        firstWord = *sourceWords;
+        secondWord = sourceWords[1];
+        sourceWords = sourceWords + 2;
+        remainingPairs = remainingPairs + -1;
+        *outputWords = firstWord;
+        outputWords[1] = secondWord;
+        outputWords = outputWords + 2;
+    } while (0 < remainingPairs);
 
     return;
 }

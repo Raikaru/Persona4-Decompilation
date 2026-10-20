@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "itf_mes_objects.h"
 #include "message_frame_internal.h"
 #include "message_handle.h"
 #include "message_procedure_api.h"
@@ -34,30 +35,30 @@ extern s8 D_0063BAB0[];
 /* measured: close opt_propagation off probe for 00270780 family add */
 /* measured: opt_propagation off probe for 00270a80 addu order */
 /* measured: close opt_propagation off probe for 00270a80 */
-// Intent: Sets the given flag on list entries whose key falls in a run from arg1 to arg2 [inferred]
+// Intent: Sets the given flag on list entries whose key falls in a run from index to count [inferred]
 // FUN_0027A400
-void itfMesListSetRangeFlag(arg0, arg1, arg2, arg3)
-u8 *arg0;
-s32 arg1;
-s32 arg2;
-s32 arg3;
+void itfMesListSetRangeFlag(run, firstLine, lastLine, value)
+u8 *run;
+s32 firstLine;
+s32 lastLine;
+s32 value;
 {
-    u8 *cur;
-    u8 *list;
+    u8 *currentRun;
+    u8 *glyph;
     s32 count;
     s32 key;
     s32 temp;
 
-    cur = arg0;
-    count = (arg2 - arg1) - 1;
-    key = *(s32 *)(cur + 8);
+    currentRun = run;
+    count = (lastLine - firstLine) - 1;
+    key = ((FrFontTextRun *)currentRun)->y;
     goto outer_check;
 outer_continue:
-    cur = *(u8 **)(cur + 0x24);
-    if (cur == NULL)
+    currentRun = *(u8 **)&((FrFontTextRun *)currentRun)->previous;
+    if (currentRun == NULL)
         goto done;
 outer_body:
-    temp = *(s32 *)(cur + 8);
+    temp = ((FrFontTextRun *)currentRun)->y;
     if (key != temp)
     {
         count -= 1;
@@ -69,18 +70,18 @@ outer_check:
     if (count > 0)
         goto outer_body;
 process:
-    list = *(u8 **)(cur + 0x1C);
+    glyph = *(u8 **)&((FrFontTextRun *)currentRun)->firstGlyph;
     goto list_check;
 list_body:
-    *(s32 *)(list + 0x10) = arg3;
-    list = *(u8 **)(list + 0x28);
+    *(s32 *)&((FrFontGlyphData *)glyph)->color = value;
+    glyph = *(u8 **)&((FrFontGlyphData *)glyph)->next;
 list_check:
-    if (list != NULL)
+    if (glyph != NULL)
         goto list_body;
-    cur = *(u8 **)(cur + 0x24);
-    if (cur == NULL)
+    currentRun = *(u8 **)&((FrFontTextRun *)currentRun)->previous;
+    if (currentRun == NULL)
         goto done;
-    temp = *(s32 *)(cur + 8);
+    temp = ((FrFontTextRun *)currentRun)->y;
     if (key == temp)
         goto process;
 done:

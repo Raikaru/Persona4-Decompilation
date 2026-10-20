@@ -9,6 +9,30 @@
 #include "effect_instance_internal.h"
 #include "datPersona_internal.h"
 #include "datUnit_internal.h"
+#include "btl_action_internal.h"
+#include "btl_effect_internal.h"
+#include "resrc_manager_internal.h"
+#include "model_battle_internal.h"
+#include "kwln_task_internal.h"
+#include "btl_sound_internal.h"
+/* resrcMngCreate allocates RESRC_TYPE_MAX list heads (resrcManager.c). */
+typedef struct ResrcManager {
+    u8 *resLists[RESRC_TYPE_MAX];
+} ResrcManager;
+
+/* scrScriptProcess.c establishes the context; its message-manager word is
+ * read at +0x130 by scrGetMessageManager and the status-window setup below. */
+typedef struct ScrScriptWork {
+    u8 pad00[0x130];
+    s32 messageWindow;
+} ScrScriptWork;
+
+/* Unit-ID-indexed targeting rules: both tests below use the 0x58-byte stride. */
+typedef struct BtlBossTargetRule {
+    u16 flags;
+    u8 pad02[0x56];
+} BtlBossTargetRule;
+
 typedef struct BtlTarget BtlTarget;
 typedef struct BtlCamera BtlCamera;
 typedef struct BtlUnitStateWork BtlUnitStateWork;
@@ -20,19 +44,19 @@ typedef struct Model Model;
 typedef struct RwMatrix RwMatrix;
 extern u8 *iGpffff9db0;
 extern u8 D_006355C0[], D_006355E0[], D_00635600[];
-extern u8 *resrcMngFindResById(u8 *lists, u16 id);
+extern u8 *resrcMngFindResById(u8 *manager, u16 resourceId);
 extern u16 datCalcMaxHp(DatUnit *unit);
-extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
-extern u32 func_001064f0(s32 counter);
-extern void func_00106550(s32 counter, u32 value);
-extern void btlEncounterSetSequence(s32 initialize, s32 update, s32 packet);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
+extern u32 datGetScriptValue(s32 index);
+extern void datSetScriptValue(s32 index, u32 value);
+extern void btlEncounterSetSequence(s32 start, s32 update, s32 argument);
 extern void mdlScale(Model *model, const RwV3d *scale, int combineOp);
 /* Retail forwards the matrix result as well as all three inputs. */
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 typedef struct BtlAction BtlAction;
 extern void btlActionSetState(BtlAction *action, u16 state);
-extern void btlActionRunPresentation(u8 *packet);
-extern void btlActionRunMotionSequence(u8 *packet);
+extern void btlActionRunPresentation(u8 *action);
+extern void btlActionRunMotionSequence(u8 *action);
 extern RwRGBA iGpffffb45c;
 extern char D_007636C0[8];
 extern char D_007636C8[8];
@@ -40,11 +64,11 @@ extern char D_007636D0[8];
 extern u8 D_0062E070[];
 extern void mdlSetFrameColorByName(void *model, s32 name, u8 alpha);
 extern s32 datCalcAddHp(DatUnit *unit, s32 hpDelta);
-extern void datCalcClearBuffLevel(u8 *unit, s32 effect);
+extern void datCalcClearBuffLevel(u8 *unit, s32 buffIndex);
 extern RtQuat *func_003dc740(RtQuat *out, const RwV3d *axis, f32 angle, s32 mode);
-extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rotation);
-extern void btlUnitSetColor(BtlUnit *unit, RwRGBA color);
-extern u32 datCalcClearBadStatus(s32 unit, u32 mask);
+extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rot);
+extern void btlUnitSetColor(BtlUnit *unit, RwRGBA col);
+extern u32 datCalcClearBadStatus(s32 unit, u32 badStatus);
 extern void btlUnitShowModel(u8 *unit);
 extern u32 datGetFlag(s32 bit);
 
@@ -60,20 +84,20 @@ extern u8 D_006296D0[];
 extern u8 D_008C0240[0x94];
 extern u8 D_00635560[], D_00635580[];
 extern u8 iGpffffa4d8[4];
-extern u8 *func_001ebb00(s32 action, s32 kind, u8 *name);
+extern u8 *btlTargetCreateProcedurePacket(s32 action, s32 scriptKind, u8 *procedureName);
 extern u8 *btlPacketAllocZeroed(void *callback, void *data);
-extern BtlPacket *btlEffectCreateMessagePacket(u8 *values, u16 duration);
-extern BtlPacket *btlEffectCreateFadeLevelPacket(u16 duration);
+extern BtlPacket *btlEffectCreateMessagePacket(u8 *color, u16 fadeMode);
+extern BtlPacket *btlEffectCreateFadeLevelPacket(u16 level);
 extern BtlPacket *btlUnitCreateModelReleasePacket(BtlUnit *unit);
-extern u8 *btlUnitCreateModelLoadPacket(u8 *unit, u16 id, s16 animation);
+extern u8 *btlUnitCreateModelLoadPacket(u8 *unit, u16 modelId, s16 motion);
 extern BtlPacket *btlBossCreateLoadEndBgmPacket(s32 id);
 extern BtlPacket *btlBossCreateReleaseEndBgmPacket(void);
 extern BtlPacket *btlBossCreateStepEndBgmPacket(void);
 extern BtlPacket *btlBossCreateStopEndBgmPacket(void);
-extern BtlPacket *btlCreateTimingPacket(u32 duration);
-extern BtlPacket *btlMainCreateFadePacket(s32 duration, s16 mode);
-extern BtlPacket *btlMainCreateColorFadePacket(s32 duration);
-extern BtlPacket *btlMainCreateColorSetPacket(s32 duration);
+extern BtlPacket *btlCreateTimingPacket(u32 value);
+extern BtlPacket *btlMainCreateFadePacket(s32 arg, s16 mode);
+extern BtlPacket *btlMainCreateColorFadePacket(s32 arg);
+extern BtlPacket *btlMainCreateColorSetPacket(s32 arg);
 
 extern u8 D_00629640[];
 extern u8 D_00629738[];
@@ -100,25 +124,25 @@ extern u8 D_006296E8[];
 extern u8 D_00629700[];
 
 
-extern u8 *DAT_0076449c;
+extern u8 *DAT_0076449c; /* active battle state */
 extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
 
 extern u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
-extern void datSetFlag(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 flagId, s32 enabled);
 extern s32 kwlnTaskIsLinked(void *target);
-extern u8 *btlActionFindByUnit(s32 arg0);
-extern void btlTargetSetDefeatState(u8 *arg0, s32 arg1);
+extern u8 *btlActionFindByUnit(s32 unit);
+extern void btlTargetSetDefeatState(u8 *context, s32 argument);
 extern void btlSoundStopBgmIfEnabled(void);
 
 
-u8 *H_Cdvd_GetArchiveEntry(u8 *arg0, s32 arg1, s32 *arg2);
+u8 *H_Cdvd_GetArchiveEntry(u8 *request, s32 entryIndex, s32 *size);
 
 
 
-extern void (*jtbl_008873EC[])(void *arg0);
+extern void (*jtbl_008873EC[])(void *value);
 extern void btlSoundFadeOutBgm(s16 fadeDuration);
-extern void sdkSndPlayCue(s32 arg0, s32 arg1);
-extern u32 datCalcRandomBelow(u32 arg0);
+extern void sdkSndPlayCue(s32 value, s32 option);
+extern u32 datCalcRandomBelow(u32 limit);
 extern u8 D_0060A0E0[];
 extern s32 btlCurrentUnitId(void);
 extern u8 D_006348B0[];
@@ -131,54 +155,54 @@ extern u8 D_0062B490[];
 extern u8 D_0062BBE0[];
 extern u8 D_0062C330[];
 extern s32 btlActionGetActiveOrQueueFront(void);
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern f32 fGpffff834c;
 extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
-extern void btlUnitSetPos(u8 *arg0, s32 *arg1);
+extern void btlUnitSetPos(u8 *unit, s32 *pos);
 extern void btlTargetPositionToCell(s16 *outX, s16 *outZ, f32 *position);
 extern u8 *iGpffffb3e0;
 extern s32 btlActionHasNoTargetClass(u32 action);
-extern s32 btlTargetCanSelectEntry(u8 *arg0, s16 arg1, s32 arg2);
-extern s32 btlBossTargetBlocked(u8 *arg0);
-extern s32 btlBossSkillResultBlocked(u8 *arg0);
+extern s32 btlTargetCanSelectEntry(u8 *context, s16 value, s32 option);
+extern s32 btlBossTargetBlocked(u8 *action);
+extern s32 btlBossSkillResultBlocked(u8 *action);
 
-extern s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
+extern s64 btlPacketEnqueue(u8 *context, u32 value);
 extern u8 D_00632240[];
-extern u8 *btlUnitFindInSideById(s32 arg0, s32 arg1);
+extern u8 *btlUnitFindInSideById(s32 genus, s32 characterId);
 extern u8 D_0062D920[];
-extern void btlActionFinishPresentation(s64 *arg0);
-extern s32 btlFormationAllocWork(u32 param_1);
-extern void btlFormationSetSlot(s32 formation, u32 data);
-extern u8 *btlFormationGetRecord(s32 arg0);
+extern void btlActionFinishPresentation(s64 *action);
+extern s32 btlFormationAllocWork(u32 mode);
+extern void btlFormationSetSlot(s32 formation, u32 resource);
+extern u8 *btlFormationGetRecord(s32 index);
 extern void btlFormationCopyRecord(int destination, u32 source);
 extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
-extern void btlTargetClearResultBuffer(u8 *arg0);
-extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 target, const void *result, u16 effect, u16 targetFlags);
-extern u8 *btlUnitCreateAnimPacket(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, f32 arg4);
-extern BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
-extern void btlFormationSetPlacement(u32 arg0);
+extern void btlTargetClearResultBuffer(u8 *result);
+extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
+extern u8 *btlUnitCreateAnimPacket(u8 *unit, s32 id, s32 blendFrameCount, s32 speed, f32 mode);
+extern BtlPacket *btlFormationCreatePacket(u32 formation, u32 sourceUnit, u32 targetUnit, u16 side, u32 flags);
+extern void btlFormationSetPlacement(u32 formation);
 extern u8 D_006354B0[];
 extern u8 *iGpffffb444;
-extern u8 *iGpffffb3ac;
-extern u8 *scrStartProcedureIndex(s32 arg0, u8 *arg1, s32 arg2);
-extern void scrSetTaskProc(u8 *arg0, u8 *arg1);
-extern u8 *datPersonaNamePart1Alt(s16 arg0);
-extern void itfMesWindowSetString(u8 *arg0, s32 arg1, u8 *arg2);
-extern void kwlnTaskAddChild(u8 *arg0, u8 *arg1);
+extern u8 *iGpffffb3ac; /* active battle state, GP-relative alias */
+extern u8 *scrStartProcedureIndex(s32 priority, u8 *header, s32 procedureIndex);
+extern void scrSetTaskProc(u8 *task, u8 *proc);
+extern u8 *datPersonaNamePart1Alt(s16 unitId);
+extern void itfMesWindowSetString(u8 *handle, s32 slotIndex, u8 *text);
+extern void kwlnTaskAddChild(u8 *parent, u8 *child);
 extern u8 D_00629750[], D_00629EA0[], D_0062CA80[], D_0062D1D0[];
 extern u8 D_0062E7C0[], D_0062EF10[], D_0062F660[], D_0062FDB0[];
 extern u8 D_00630500[], D_00630C50[], D_006313A0[], D_00631AF0[];
 extern u8 D_006355A0[];
-extern void btlUnitInitChild(u8 *unit, u16 action);
-extern void func_00106d40(s16 character, s16 slot, s16 value);
-extern u16 datCalcMaxHpById(s16 character);
-extern u16 datCalcMaxSpById(s16 character);
-extern void datSetUnitHp(s16 character, s16 value);
-extern void datSetUnitSp(s16 character, s16 value);
-extern void datCalcClearBadStatusById(s16 character, u32 mask);
-extern s32 btlActionQueuePush(u8 *target);
+extern void btlUnitInitChild(u8 *unit, u16 characterId);
+extern void datAssignEquippedItem(s16 unitId, s16 slotIndex, s16 itemId);
+extern u16 datCalcMaxHpById(s16 unitId);
+extern u16 datCalcMaxSpById(s16 unitId);
+extern void datSetUnitHp(s16 unitId, s16 hp);
+extern void datSetUnitSp(s16 unitId, s16 sp);
+extern void datCalcClearBadStatusById(s16 unitId, u32 mask);
+extern s32 btlActionQueuePush(u8 *action);
 
-extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rotation, u32 flags);
+extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rot, u32 flags);
 extern u32 datCalcIsDead(void *unit, s32 hpDelta);
 extern u8 D_006354C0[], D_006354D0[], D_00635500[];
 extern f32 fGpffff80e4;
@@ -186,16 +210,16 @@ extern f32 fGpffff80e4;
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0022; members 0022b0b0-0022fb10 */
 
 extern void btlCameraApplyPartyPose(u8 *camera);
-extern void btlEncounterStartSequence(u8 *arg0);
-extern s32 btlEncounterFinishStep(u8 *arg0);
+extern void btlEncounterStartSequence(u8 *action);
+extern s32 btlEncounterFinishStep(u8 *action);
 extern void btlActionRunPresentation(u8 *action);
-extern s32 btlEncounterWaitCleared(s64 *arg0);
-extern void btlActionRunMotionSequence(u8 *arg0);
-extern s32 btlEncounterReleaseFlags(s64 *arg0);
-extern void btlEncounterStartCameraState(u8 *arg0);
-extern s32 btlEncounterWaitReleaseEvents(s64 *arg0);
-extern void btlEncounterResetSlots(u8 *arg0);
-extern s32 btlEncounterWaitIdle(s64 *arg0);
+extern s32 btlEncounterWaitCleared(s64 *actionUid);
+extern void btlActionRunMotionSequence(u8 *action);
+extern s32 btlEncounterReleaseFlags(s64 *actionUid);
+extern void btlEncounterStartCameraState(u8 *action);
+extern s32 btlEncounterWaitReleaseEvents(s64 *actionUid);
+extern void btlEncounterResetSlots(u8 *action);
+extern s32 btlEncounterWaitIdle(s64 *actionUid);
 static inline u8 *cb90AddBaseIndex(u32 base, u32 index)
 {
     return (u8 *)(base + index);
@@ -227,7 +251,7 @@ static inline u8 *cb90AddBaseIndex(u32 base, u32 index)
 /* 2444/2448 bytes; all 56 resolved code relocations exact. */
 /* measured: opt_propagation off preserves btlEncounterStartSequence's initial GP-load/store order (nd 0). */
 /* measured: close opt_propagation after btlEncounterStartSequence (nd 0). */
-// Intent: Set the encounter state to 0x2D. [inferred]
+/* Fade the battle BGM over 45 frames and complete this sequence packet. */
 // FUN_0022B0B0
 s32 btlEncounterSetState2D(void)
 {
@@ -239,7 +263,7 @@ s32 btlEncounterSetState2D(void)
 // FUN_0022B0E0
 s32 btlEncounterPlayCueIfFlag40(void)
 {
-    if (*(s32 *)(DAT_0076449c + 0xC) & 0x40) {
+    if (((BtlBattleState *)DAT_0076449c)->flags & 0x40) {
         sdkSndPlayCue(6, 1);
     }
     return 1;
@@ -260,184 +284,206 @@ void btlActionRunFormationSequence(u8 *action)
     u8 *packet;
     RwV3d rotation;
 
-    actor = *(u8 **)(action + 0x30);
-    *(u32 *)(DAT_0076449c + 0xC) |= 0x400000;
-    *(u16 *)(DAT_0076449c + 0x18) |= 0x23;
+    actor = (u8*)((BtlAction *)action)->unit;
+    ((BtlBattleState *)DAT_0076449c)->flags |= 0x400000;
+    ((BtlBattleState *)DAT_0076449c)->actionEndFlags |= 0x23;
     btlActionFinishPresentation((s64 *)action);
     openingFormation = btlFormationAllocWork(0);
     closingFormation = btlFormationAllocWork(0);
     btlFormationCopyRecord(openingFormation, (u32)btlFormationGetRecord(0xC));
     btlFormationCopyRecord(closingFormation, (u32)btlFormationGetRecord(0xD));
-    *(u32 *)(DAT_0076449c + 0xC) |= 0x80000;
+    ((BtlBattleState *)DAT_0076449c)->flags |= 0x80000;
 
-    anchor = func_001ebb00((s32)action, 3, D_00635560);
-    *(u64 *)(anchor + 0x60) = *(u64 *)action;
+    anchor = btlTargetCreateProcedurePacket((s32)action, 3, D_00635560);
+    ((BtlPacket *)anchor)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(anchor, 1);
 
     packet = btlPacketAllocZeroed((void *)btlEncounterSetState2D, action);
-    packet[0] = 4;
-    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
-    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    ((BtlPacket *)packet)->dependencyKind = 4;
+    ((BtlPacket *)packet)->dependencyUID = ((BtlPacket *)anchor)->uid;
+    ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 1);
 
     packet = btlUnitCreateAnimPacket(actor, 0x13, 0, 2, 1.0f);
-    packet[0] = 4;
-    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
-    *(u16 *)(packet + 0x48) = 2;
-    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    ((BtlPacket *)packet)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd1125). */
+    ((BtlPacket *)packet)->dependencyUID = *(u64 *)(anchor + 0x58);
+    ((BtlPacket *)packet)->delay = 2;
+    ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 0);
 
     packet = (u8 *)btlBossCreateStepEndBgmPacket();
-    packet[0] = 4;
-    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
-    *(u16 *)(packet + 0x48) = 0x33;
+    ((BtlPacket *)packet)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd1125). */
+    ((BtlPacket *)packet)->dependencyUID = *(u64 *)(anchor + 0x58);
+    ((BtlPacket *)packet)->delay = 0x33;
     btlPacketEnqueue(packet, 1);
 
     wait1 = (u8 *)btlFormationCreatePacket((u32)openingFormation, (u32)actor, (u32)actor, 0, 0x200);
-    wait1[0] = 4;
-    *(u64 *)(wait1 + 8) = *(u64 *)(anchor + 0x58);
-    *(u64 *)(wait1 + 0x60) = *(u64 *)action;
+    ((BtlPacket *)wait1)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd1125). */
+    ((BtlPacket *)wait1)->dependencyUID = *(u64 *)(anchor + 0x58);
+    ((BtlPacket *)wait1)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(wait1, 2);
 
     wait0 = (u8 *)btlFormationCreatePacket((u32)openingFormation, (u32)actor, (u32)actor, 1, 0x200);
-    wait0[0] = 4;
-    *(u64 *)(wait0 + 8) = *(u64 *)(anchor + 0x58);
-    *(u64 *)(wait0 + 0x60) = *(u64 *)action;
+    ((BtlPacket *)wait0)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd1125). */
+    ((BtlPacket *)wait0)->dependencyUID = *(u64 *)(anchor + 0x58);
+    ((BtlPacket *)wait0)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(wait0, 2);
 
     packet = (u8 *)btlEffectCreateMessagePacket(iGpffffa4d8, 0x1E);
-    packet[0] = 4;
-    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
-    *(u16 *)(packet + 0x48) = 0x19A;
-    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    ((BtlPacket *)packet)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd1125). */
+    ((BtlPacket *)packet)->dependencyUID = *(u64 *)(anchor + 0x58);
+    ((BtlPacket *)packet)->delay = 0x19A;
+    ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 1);
 
     rotation.x = 0.0f;
     rotation.y = 0.0f;
     rotation.z = (f32)3000;
     packet = (u8 *)btlUnitCreateRotatePacket((BtlUnit *)actor, &rotation, 2);
-    packet[0] = 4;
-    *(u64 *)(packet + 8) = *(u64 *)(wait1 + 0x58);
-    packet[0x10] = 4;
-    *(u64 *)(packet + 0x18) = *(u64 *)(wait0 + 0x58);
-    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    ((BtlPacket *)packet)->dependencyKind = 4;
+    ((BtlPacket *)packet)->dependencyUID = ((BtlPacket *)wait1)->uid;
+    ((BtlPacket *)packet)->dependencyKind2 = 4;
+    ((BtlPacket *)packet)->dependencyUID2 = ((BtlPacket *)wait0)->uid;
+    ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 0);
 
     anchor = (u8 *)btlUnitCreateModelReleasePacket((BtlUnit *)actor);
-    anchor[0] = 4;
-    *(u64 *)(anchor + 8) = *(u64 *)(wait1 + 0x58);
-    anchor[0x10] = 4;
-    *(u64 *)(anchor + 0x18) = *(u64 *)(wait0 + 0x58);
-    *(u16 *)(anchor + 0x48) = 1;
-    *(u64 *)(anchor + 0x60) = *(u64 *)action;
+    ((BtlPacket *)anchor)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd815). */
+    ((BtlPacket *)anchor)->dependencyUID = *(u64 *)(wait1 + 0x58);
+    ((BtlPacket *)anchor)->dependencyKind2 = 4;
+    /* measured: typing uid here loses MATCH (nd806). */
+    ((BtlPacket *)anchor)->dependencyUID2 = *(u64 *)(wait0 + 0x58);
+    ((BtlPacket *)anchor)->delay = 1;
+    ((BtlPacket *)anchor)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(anchor, 1);
 
     packet = (u8 *)btlBossCreateStopEndBgmPacket();
-    packet[0] = 4;
-    *(u64 *)(packet + 8) = *(u64 *)(wait1 + 0x58);
-    packet[0x10] = 4;
-    *(u64 *)(packet + 0x18) = *(u64 *)(wait0 + 0x58);
-    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    ((BtlPacket *)packet)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd815). */
+    ((BtlPacket *)packet)->dependencyUID = *(u64 *)(wait1 + 0x58);
+    ((BtlPacket *)packet)->dependencyKind2 = 4;
+    /* measured: typing uid here loses MATCH (nd806). */
+    ((BtlPacket *)packet)->dependencyUID2 = *(u64 *)(wait0 + 0x58);
+    ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 1);
 
     cleanup = (u8 *)btlBossCreateReleaseEndBgmPacket();
-    cleanup[0] = 4;
-    *(u64 *)(cleanup + 8) = *(u64 *)(wait1 + 0x58);
-    cleanup[0x10] = 4;
-    *(u64 *)(cleanup + 0x18) = *(u64 *)(wait0 + 0x58);
-    *(u16 *)(cleanup + 0x48) = 3;
-    *(u64 *)(cleanup + 0x60) = *(u64 *)action;
+    ((BtlPacket *)cleanup)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd814). */
+    ((BtlPacket *)cleanup)->dependencyUID = *(u64 *)(wait1 + 0x58);
+    ((BtlPacket *)cleanup)->dependencyKind2 = 4;
+    /* measured: typing uid here loses MATCH (nd1267). */
+    ((BtlPacket *)cleanup)->dependencyUID2 = *(u64 *)(wait0 + 0x58);
+    ((BtlPacket *)cleanup)->delay = 3;
+    ((BtlPacket *)cleanup)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(cleanup, 1);
 
     wait0 = btlUnitCreateModelLoadPacket(actor, 0x10E, 0x216);
-    wait0[0] = 4;
-    *(u64 *)(wait0 + 8) = *(u64 *)(anchor + 0x58);
-    *(u16 *)(wait0 + 0x48) = 2;
-    *(u64 *)(wait0 + 0x60) = *(u64 *)action;
+    ((BtlPacket *)wait0)->dependencyKind = 4;
+    ((BtlPacket *)wait0)->dependencyUID = ((BtlPacket *)anchor)->uid;
+    ((BtlPacket *)wait0)->delay = 2;
+    ((BtlPacket *)wait0)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(wait0, 1);
 
-    anchor = func_001ebb00((s32)action, 3, D_00635580);
-    anchor[0] = 4;
-    *(u64 *)(anchor + 8) = *(u64 *)(wait0 + 0x58);
-    *(u16 *)(anchor + 0x48) = 2;
-    *(u16 *)(anchor + 0x4A) = 0xC;
-    *(u64 *)(anchor + 0x60) = *(u64 *)action;
+    anchor = btlTargetCreateProcedurePacket((s32)action, 3, D_00635580);
+    ((BtlPacket *)anchor)->dependencyKind = 4;
+    ((BtlPacket *)anchor)->dependencyUID = ((BtlPacket *)wait0)->uid;
+    ((BtlPacket *)anchor)->delay = 2;
+    ((BtlPacket *)anchor)->duration = 0xC;
+    ((BtlPacket *)anchor)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(anchor, 1);
 
     packet = btlPacketAllocZeroed((void *)btlEncounterPlayCueIfFlag40, action);
-    packet[0] = 4;
-    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
-    *(u16 *)(packet + 0x48) = 1;
-    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    ((BtlPacket *)packet)->dependencyKind = 4;
+    ((BtlPacket *)packet)->dependencyUID = ((BtlPacket *)anchor)->uid;
+    ((BtlPacket *)packet)->delay = 1;
+    ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 1);
 
     packet = (u8 *)btlBossCreateLoadEndBgmPacket(0x10E);
-    packet[0] = 4;
-    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
-    packet[0x10] = 4;
-    *(u64 *)(packet + 0x18) = *(u64 *)(cleanup + 0x58);
-    *(u16 *)(packet + 0x48) = 1;
-    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    ((BtlPacket *)packet)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd505). */
+    ((BtlPacket *)packet)->dependencyUID = *(u64 *)(anchor + 0x58);
+    ((BtlPacket *)packet)->dependencyKind2 = 4;
+    ((BtlPacket *)packet)->dependencyUID2 = ((BtlPacket *)cleanup)->uid;
+    ((BtlPacket *)packet)->delay = 1;
+    ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 1);
 
     packet = (u8 *)btlUnitCreateColorPacket((BtlUnit *)actor, 0xFFFFFFFFU, 1, 0, 3, 0);
-    packet[0] = 4;
-    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
-    *(u16 *)(packet + 0x48) = 2;
-    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    ((BtlPacket *)packet)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd505). */
+    ((BtlPacket *)packet)->dependencyUID = *(u64 *)(anchor + 0x58);
+    ((BtlPacket *)packet)->delay = 2;
+    ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 1);
 
     packet = (u8 *)btlEffectCreateFadeLevelPacket(0x1E);
-    packet[0] = 4;
-    *(u64 *)(packet + 8) = *(u64 *)(anchor + 0x58);
-    *(u16 *)(packet + 0x48) = 4;
-    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    ((BtlPacket *)packet)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd505). */
+    ((BtlPacket *)packet)->dependencyUID = *(u64 *)(anchor + 0x58);
+    ((BtlPacket *)packet)->delay = 4;
+    ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 1);
 
     wait0 = (u8 *)btlFormationCreatePacket((u32)closingFormation, (u32)actor, (u32)actor, 0, 0x200);
-    wait0[0] = 4;
-    *(u64 *)(wait0 + 8) = *(u64 *)(anchor + 0x58);
-    *(u16 *)(wait0 + 0x48) = 2;
-    *(u64 *)(wait0 + 0x60) = *(u64 *)action;
+    ((BtlPacket *)wait0)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd504). */
+    ((BtlPacket *)wait0)->dependencyUID = *(u64 *)(anchor + 0x58);
+    ((BtlPacket *)wait0)->delay = 2;
+    ((BtlPacket *)wait0)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(wait0, 2);
 
     wait1 = (u8 *)btlFormationCreatePacket((u32)closingFormation, (u32)actor, (u32)actor, 1, 0x200);
-    wait1[0] = 4;
-    *(u64 *)(wait1 + 8) = *(u64 *)(anchor + 0x58);
-    *(u16 *)(wait1 + 0x48) = 2;
-    *(u64 *)(wait1 + 0x60) = *(u64 *)action;
+    ((BtlPacket *)wait1)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd1296). */
+    ((BtlPacket *)wait1)->dependencyUID = *(u64 *)(anchor + 0x58);
+    ((BtlPacket *)wait1)->delay = 2;
+    ((BtlPacket *)wait1)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(wait1, 2);
 
     packet = (u8 *)btlCreateTimingPacket(0x10);
-    packet[0] = 4;
-    *(u64 *)(packet + 8) = *(u64 *)(wait0 + 0x58);
-    packet[0x10] = 4;
-    *(u64 *)(packet + 0x18) = *(u64 *)(wait1 + 0x58);
-    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    ((BtlPacket *)packet)->dependencyKind = 4;
+    ((BtlPacket *)packet)->dependencyUID = ((BtlPacket *)wait0)->uid;
+    ((BtlPacket *)packet)->dependencyKind2 = 4;
+    ((BtlPacket *)packet)->dependencyUID2 = ((BtlPacket *)wait1)->uid;
+    ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 1);
 
     packet = (u8 *)btlMainCreateFadePacket(0x10, 0);
-    packet[0] = 4;
-    *(u64 *)(packet + 8) = *(u64 *)(wait0 + 0x58);
-    packet[0x10] = 4;
-    *(u64 *)(packet + 0x18) = *(u64 *)(wait1 + 0x58);
-    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    ((BtlPacket *)packet)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd208). */
+    ((BtlPacket *)packet)->dependencyUID = *(u64 *)(wait0 + 0x58);
+    ((BtlPacket *)packet)->dependencyKind2 = 4;
+    /* measured: typing uid here loses MATCH (nd200). */
+    ((BtlPacket *)packet)->dependencyUID2 = *(u64 *)(wait1 + 0x58);
+    ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 1);
 
     packet = (u8 *)btlMainCreateColorFadePacket(0x10);
-    packet[0] = 4;
-    *(u64 *)(packet + 8) = *(u64 *)(wait0 + 0x58);
-    packet[0x10] = 4;
-    *(u64 *)(packet + 0x18) = *(u64 *)(wait1 + 0x58);
-    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    ((BtlPacket *)packet)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd208). */
+    ((BtlPacket *)packet)->dependencyUID = *(u64 *)(wait0 + 0x58);
+    ((BtlPacket *)packet)->dependencyKind2 = 4;
+    /* measured: typing uid here loses MATCH (nd200). */
+    ((BtlPacket *)packet)->dependencyUID2 = *(u64 *)(wait1 + 0x58);
+    ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 1);
 
     packet = (u8 *)btlMainCreateColorSetPacket(8);
-    packet[0] = 4;
-    *(u64 *)(packet + 8) = *(u64 *)(wait0 + 0x58);
-    packet[0x10] = 4;
-    *(u64 *)(packet + 0x18) = *(u64 *)(wait1 + 0x58);
-    *(u64 *)(packet + 0x60) = *(u64 *)action;
+    ((BtlPacket *)packet)->dependencyKind = 4;
+    /* measured: typing uid here loses MATCH (nd208). */
+    ((BtlPacket *)packet)->dependencyUID = *(u64 *)(wait0 + 0x58);
+    ((BtlPacket *)packet)->dependencyKind2 = 4;
+    /* measured: typing uid here loses MATCH (nd200). */
+    ((BtlPacket *)packet)->dependencyUID2 = *(u64 *)(wait1 + 0x58);
+    ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 0);
 
     btlFormationSetPlacement((u32)closingFormation);
@@ -449,52 +495,61 @@ void btlActionRunFormationSequence(u8 *action)
 #pragma opt_loop_invariants on
 // Intent: Finish encounter setup once the presentation completes. [inferred]
 // FUN_0022B870
-s32 btlEncounterFinishSetup(u8 *arg0)
+s32 btlEncounterFinishSetup(u8 *action)
 {
-    extern void btlUnitInitFromRecord(u8 *arg0, s32 arg1);
-    extern s32 btlActionQueuePush(u8 *arg0);
+    extern void btlUnitInitFromRecord(u8 *unit, s32 characterId);
+    extern s32 btlActionQueuePush(u8 *action);
     extern s32 btlActionGetQueueFront(void);
-    extern void btlBossCollectTargets(u8 *arg0);
-    extern u8 *btlSoundGetCharacterBank(u8 *arg0);
+    extern void btlBossCollectTargets(u8 *preferredAction);
+    extern u8 *btlSoundGetCharacterBank(u8 *unit);
     extern u8 D_00630C50[];
     u32 index;
     s32 value;
-    s32 fill;
-    u8 *temp;
+    s32 emptySlot;
+    u8 *unitData;
 
-    if (btlUnitRecordFindByActionUID(*(u64 *)arg0,
+    if (btlUnitRecordFindByActionUID(((BtlAction *)action)->uid,
                       ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
-        *(s32 *)(DAT_0076449c + 0xC) &= 0xFFF7FFFF;
-        btlUnitInitFromRecord(*(u8 **)(arg0 + 0x30), 0x10E);
-        datUnitInit((DatUnit *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64)), 1, 0x10E);
+        ((BtlBattleState *)DAT_0076449c)->flags &= 0xFFF7FFFF;
+        btlUnitInitFromRecord((u8*)((BtlAction *)action)->unit, 0x10E);
+        /* measured: typing unit here loses MATCH (nd347). */
+        datUnitInit((DatUnit *)((u8*)((BtlUnit *)*(u8 **)(action + 0x30))->datUnit), 1, 0x10E);
         datSetFlag(0x15FF, 1);
-        *(u8 **)(DAT_0076449c + 0xB98) = &D_00630C50[0];
-        *(s32 *)(DAT_0076449c + 0xC40) = 1;
-        *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) |= 0x2000;
-        *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) &= 0xFFFF7FFF;
-        *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x9C) &= ~0x20;
-        temp = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64);
-        *(u16 *)temp |= 0x20;
-        *(u16 *)(arg0 + 0x1A) |= 0x100;
-        btlActionQueuePush(arg0);
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = &D_00630C50[0];
+        ((BtlBattleState *)DAT_0076449c)->bossRecordVariant = 1;
+        /* measured: typing unit here loses MATCH (nd348). */
+        ((BtlUnit *)*(u8 **)(action + 0x30))->flags3 |= 0x2000;
+        /* measured: typing unit here loses MATCH (nd349). */
+        ((BtlUnit *)*(u8 **)(action + 0x30))->flags3 &= 0xFFFF7FFF;
+        /* measured: typing unit here loses MATCH (nd349). */
+        ((BtlUnit *)*(u8 **)(action + 0x30))->flags3 &= ~0x20;
+        /* measured: typing unit here loses MATCH (nd348). */
+        unitData = (u8*)((BtlUnit *)*(u8 **)(action + 0x30))->datUnit;
+        ((DatUnit *)unitData)->flags |= 0x20;
+        ((BtlAction *)action)->unk_1a |= 0x100;
+        btlActionQueuePush(action);
         btlBossCollectTargets((u8 *)btlActionGetQueueFront());
         index = 0;
-        fill = -1;
+        emptySlot = -1;
         goto loop_test;
 loop_body:
-        *(s8 *)(DAT_0076449c + index + 0xC10) = fill;
+        /* measured: contiguous cue-array indexing loses MATCH (nd1). */
+        *(s8 *)(DAT_0076449c + index + 0xC10) = emptySlot;
         index++;
 loop_test:
         if (index < 0x1E) {
             goto loop_body;
         }
-        value = (s32)btlSoundGetCharacterBank(*(u8 **)(arg0 + 0x30));
-        *(s32 *)(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA00) + 0x2DC) = value;
-        btlUnitUpdateStatusMotion(*(u8 **)(arg0 + 0x30), 6);
+        /* measured: typing unit here loses MATCH (nd348). */
+        value = (s32)btlSoundGetCharacterBank(*(u8 **)(action + 0x30));
+        /* measured: typing unit here loses MATCH (nd349). */
+        ((Model *)((BtlUnit *)*(u8 **)(action + 0x30))->layerHandle)->motion.request = value;
+        /* measured: typing unit here loses MATCH (nd349). */
+        btlUnitUpdateStatusMotion(*(u8 **)(action + 0x30), 6);
         datSetFlag(0x15C0, 0);
-        *(s32 *)(DAT_0076449c + 0xBB4) = 0;
-        *(s32 *)(DAT_0076449c + 0xBC8) = 0;
-        *(u16 *)(DAT_0076449c + 0x290) |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->boss.displayedIds[3] = 0;
+        ((BtlBattleState *)DAT_0076449c)->boss.displayedStates[3] = 0;
+        ((BtlBattleState *)DAT_0076449c)->queueFlags |= 0x10;
         return 0;
     }
     return 1;
@@ -502,32 +557,32 @@ loop_test:
 
 /* measured: closes opt_loop_invariants around btlEncounterFinishSetup. */
 /* measured: optimization_level 1 preserves btlEncounterResetUnit's loop branch. */
-// Intent: Reset the encounter unit by id. [inferred]
+/* Clear the defeat state of unit 0x10E and stop its BGM; retail ignores the supplied ID. */
 // FUN_0022BA40
-void btlEncounterResetUnit(u16 arg1)
+void btlEncounterResetUnit(u16 unusedId)
 {
     s32 value;
     s32 id;
-    u8 *p;
+    u8 *unit;
 
-    p = *(u8 **)(DAT_0076449c + 0x180);
+    unit = ((BtlBattleState *)DAT_0076449c)->unitLists[2];
     id = 0x10E;
     goto check;
 body:
-    value = *(u16 *)(p + 0xA4);
+    value = ((BtlUnit *)unit)->charId;
     if (value == id) {
         goto found;
     }
-    p = *(u8 **)(p + 0xA6C);
+    unit = (u8 *)((BtlUnit *)unit)->nextUnit;
 check:
-    if (p != NULL) {
+    if (unit != NULL) {
         goto body;
     }
 found:
-    if (p != NULL) {
-        p = (u8 *)btlActionFindByUnit((s32)p);
-        if (p != NULL) {
-            btlTargetSetDefeatState(p, 0);
+    if (unit != NULL) {
+        unit = (u8 *)btlActionFindByUnit((s32)unit);
+        if (unit != NULL) {
+            btlTargetSetDefeatState(unit, 0);
             btlSoundStopBgmIfEnabled();
         }
     }
@@ -535,81 +590,86 @@ found:
 
 /* measured: closes optimization_level 1 around btlEncounterResetUnit. */
 // FUN_0022BAC0
-s32 func_0022bac0(void)
+/* Finish the reset-unit sequence immediately; the dispatcher clears callbacks on a zero update result. */
+s32 btlEncounterFinishResetSequence(void)
 {
     return 0;
 }
 
 // Intent: Show the unit status window for the given slot. [inferred]
 // FUN_0022BAD0
-s32 btlUnitStatusWindowShow(u8 *arg0, u16 arg1)
+s32 btlUnitStatusWindowShow(u8 *action, u16 slotIndex)
 {
     u8 *target;
     u8 *handle;
     u8 *state;
     u8 *unit;
     u8 *slot;
-    u8 *temp;
+    u8 *formationData;
 
-    slot = &((u8 *)(((u32)arg1 & 0xFFFF) * 4))
+    slot = &((u8 *)(((u32)slotIndex & 0xFFFF) * 4))
         [(u32)iGpffffb3ac];
-    if (*(s32 *)(slot + 0xBA8) != *(s32 *)(arg0 + 8)) {
+    if (((BtlBattleState *)slot)->boss.displayedIds[0] != (s32)((BtlAction *)action)->id) {
         goto changed;
     }
-    if (*(s32 *)(slot + 0xBBC) != *(s32 *)(arg0 + 0x20)) {
+    if (((BtlBattleState *)slot)->boss.displayedStates[0] != (s32)((BtlAction *)action)->unk_20) {
         goto changed;
     }
     return 0;
 changed:
-    if (arg0 == NULL) {
-        target = *(u8 **)(iGpffffb3ac + 0x170);
+    if (action == NULL) {
+        target = ((BtlBattleState *)iGpffffb3ac)->selectedAction;
     } else {
-        target = arg0;
+        target = action;
     }
-    temp = btlFormationGetRecord(0);
+    formationData = btlFormationGetRecord(0);
     handle = scrStartProcedureIndex(
-        *(s32 *)(*(u8 **)(iGpffffb3ac + 0xDC8) + 0x20) - 1,
-        temp, arg1);
+        ((KwlnTask *)((BtlBattleState *)iGpffffb3ac)->cutinTaskParent)->unk20Value - 1,
+        formationData, slotIndex);
     scrSetTaskProc(handle, target);
     state = (u8 *)kwlnTaskGetWork(handle);
-    if (*(s32 *)(state + 0x130) >= 0) {
-        unit = *(u8 **)(target + 0x30);
-        if (*(u8 *)(unit + 0xA2) == 0) {
+    if (((ScrScriptWork *)state)->messageWindow >= 0) {
+        unit = (u8*)((BtlAction *)target)->unit;
+        if (((BtlUnit *)unit)->genus == 0) {
             itfMesWindowSetString(
+                /* measured: typing messageWindow here loses MATCH (nd6). */
                 *(u8 **)(state + 0x130), 0,
-                datPersonaNamePart1Alt(*(s16 *)(unit + 0xA4)));
+                datPersonaNamePart1Alt((s16)((BtlUnit *)unit)->charId));
         } else {
             itfMesWindowSetString(
-                *(u8 **)(state + 0x130), 0,
-                iGpffffb444 + (u16)(*(u16 *)(unit + 0xA4)) * 0x15);
+                (u8*)((ScrScriptWork *)state)->messageWindow, 0,
+                iGpffffb444 + (u16)(((BtlUnit *)unit)->charId) * 0x15);
         }
     }
-    kwlnTaskAddChild(*(u8 **)(iGpffffb3ac + 0xDC8), handle);
-    *(u8 **)(iGpffffb3ac + 0xBA0) = handle;
-    *(u16 *)(iGpffffb3ac + 0xBA4) = arg1;
-    *(s32 *)(&((u8 *)(((u32)arg1 & 0xFFFF) * 4))
+    kwlnTaskAddChild((u8*)((BtlBattleState *)iGpffffb3ac)->cutinTaskParent, handle);
+    ((BtlBattleState *)iGpffffb3ac)->boss.statusTask = handle;
+    ((BtlBattleState *)iGpffffb3ac)->boss.statusSlot = slotIndex;
+    /* measured: typed cache-array stores change address addition order (nd1). */
+    *(s32 *)(&((u8 *)(((u32)slotIndex & 0xFFFF) * 4))
               [(u32)iGpffffb3ac] + 0xBA8) =
-        *(s32 *)(arg0 + 8);
-    *(s32 *)(&((u8 *)(((u32)arg1 & 0xFFFF) * 4))
+        /* measured: typing id here loses MATCH (nd304). */
+        *(s32 *)(action + 8);
+    /* measured: typed cache-array stores change address addition order (nd1). */
+    *(s32 *)(&((u8 *)(((u32)slotIndex & 0xFFFF) * 4))
               [(u32)iGpffffb3ac] + 0xBBC) =
-        *(s32 *)(arg0 + 0x20);
+        (s32)((BtlAction *)action)->unk_20;
     return 1;
 }
 
 // Intent: Report whether the task slot is linked. [inferred]
 // FUN_0022BC80
-s32 btlTaskSlotIsLinked(s32 arg0) {
-    u8 *b = DAT_0076449c;
-    u8 *o = *(u8 **)(b + 0xBA0);
+s32 btlTaskSlotIsLinked(s32 slotIndex) {
+    u8 *battle = DAT_0076449c;
+    u8 *task = ((BtlBattleState *)battle)->boss.statusTask;
 
-    if (o == NULL) {
+    if (task == NULL) {
         return 0;
     }
-    if (*(u16 *)(b + 0xBA4) != (arg0 & 0xFFFF)) {
+    if (((BtlBattleState *)battle)->boss.statusSlot != (slotIndex & 0xFFFF)) {
         return 0;
     }
-    if (kwlnTaskIsLinked(o) == 0) {
-        *(s32 *)(DAT_0076449c + 0xBA0) = 0;
+    if (kwlnTaskIsLinked(task) == 0) {
+        ((BtlBattleState *)DAT_0076449c)->boss.statusTask = 0;
         return 0;
     }
     return 1;
@@ -619,14 +679,16 @@ s32 btlTaskSlotIsLinked(s32 arg0) {
 // FUN_0022BD00
 s32 btlTaskSlotIsSet(void)
 {
-    return *(s32 *)(DAT_0076449c + 0xBA0) != 0;
+    return ((BtlBattleState *)DAT_0076449c)->boss.statusTask != 0;
 }
 
 // FUN_0022BD20
-s32 func_0022bd20(void)
+/* Test encounter-entry flag 0x20, which gates boss setup, resource loading, and boss action voices. */
+s32 btlEncounterIsBoss(void)
 {
+    /* measured: the typed 0x18-byte encounter flags row changes instructions (nd3). */
     return (*(s32 *)(iGpffffb414 +
-                     *(u16 *)(*(u8 **)(DAT_0076449c + 0xC68) + 8) * 0x18) &
+                     ((BtlSoundEncounterRecord *)(u8 *)((BtlBattleState *)DAT_0076449c)->encounterRecord)->trackRule * 0x18) &
             0x20) != 0;
 }
 
@@ -640,132 +702,133 @@ void btlEncounterInitGlobals(void)
 {
     u32 i;
 
-    *(u32 *)(DAT_0076449c + 0xC) |= 0x200000;
-    *(u32 *)(DAT_0076449c + 0x10) |= 1;
+    ((BtlBattleState *)DAT_0076449c)->flags |= 0x200000;
+    ((BtlBattleState *)DAT_0076449c)->battleFlags |= 1;
     switch (btlCurrentUnitId()) {
     case 0x200:
-        *(u32 *)(DAT_0076449c + 0x10) |= 2;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
-        *(u8 **)(DAT_0076449c + 0xB98) = D_00629750;
-        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 2;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x1000000;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_00629750;
+        ((BtlBattleState *)DAT_0076449c)->bossSlotTable = D_006355A0;
         break;
     case 0x201:
-        *(u32 *)(DAT_0076449c + 0x10) |= 2;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
-        *(u8 **)(DAT_0076449c + 0xB98) = D_00629EA0;
-        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 2;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x1000000;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_00629EA0;
+        ((BtlBattleState *)DAT_0076449c)->bossSlotTable = D_006355A0;
         break;
     case 0x202:
-        *(u32 *)(DAT_0076449c + 0x10) |= 2;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
-        *(u8 **)(DAT_0076449c + 0xB98) = D_0062A5F0;
-        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 2;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x1000000;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062A5F0;
+        ((BtlBattleState *)DAT_0076449c)->bossSlotTable = D_006355A0;
         break;
     case 0x203:
-        *(u32 *)(DAT_0076449c + 0x10) |= 2;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x400;
-        *(u8 **)(DAT_0076449c + 0xB98) = D_0062B490;
-        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 2;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x1000000;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x400;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062B490;
+        ((BtlBattleState *)DAT_0076449c)->bossSlotTable = D_006355A0;
         break;
     case 0x204:
-        *(u32 *)(DAT_0076449c + 0x10) |= 2;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
-        *(u8 **)(DAT_0076449c + 0xB98) = D_0062CA80;
-        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 2;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x1000000;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062CA80;
+        ((BtlBattleState *)DAT_0076449c)->bossSlotTable = D_006355A0;
         break;
     case 0x205:
-        *(u32 *)(DAT_0076449c + 0x10) |= 2;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x200;
-        *(u8 **)(DAT_0076449c + 0xB98) = D_0062D1D0;
-        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 2;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x1000000;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x200;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062D1D0;
+        ((BtlBattleState *)DAT_0076449c)->bossSlotTable = D_006355A0;
         break;
     case 0x206:
-        *(u32 *)(DAT_0076449c + 0x10) |= 2;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
-        *(u8 **)(DAT_0076449c + 0xB98) = D_0062D920;
-        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
-        *(u16 *)(DAT_0076449c + 0xC34) = 0;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 2;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x1000000;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062D920;
+        ((BtlBattleState *)DAT_0076449c)->bossSlotTable = D_006355A0;
+        ((BtlBattleState *)DAT_0076449c)->bossPhase = 0;
         break;
     case 0x207:
-        *(u32 *)(DAT_0076449c + 0x10) |= 2;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
-        *(u8 **)(DAT_0076449c + 0xB98) = D_0062E7C0;
-        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 2;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x1000000;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062E7C0;
+        ((BtlBattleState *)DAT_0076449c)->bossSlotTable = D_006355A0;
         break;
     case 0x208:
-        *(u32 *)(DAT_0076449c + 0x10) |= 2;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
-        *(u8 **)(DAT_0076449c + 0xB98) = D_0062EF10;
-        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 2;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x1000000;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062EF10;
+        ((BtlBattleState *)DAT_0076449c)->bossSlotTable = D_006355A0;
         break;
     case 0x209:
-        *(u32 *)(DAT_0076449c + 0x10) |= 2;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x80;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x800;
-        *(u8 **)(DAT_0076449c + 0xB98) = D_0062F660;
-        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 2;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x80;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x800;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062F660;
+        ((BtlBattleState *)DAT_0076449c)->bossSlotTable = D_006355A0;
         break;
     case 0x20A:
-        *(u32 *)(DAT_0076449c + 0xC) &= ~0x400U;
-        *(u32 *)(DAT_0076449c + 0x10) |= 2;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x100;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x200;
-        *(u8 **)(DAT_0076449c + 0xB98) = D_0062FDB0;
-        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        ((BtlBattleState *)DAT_0076449c)->flags &= ~0x400U;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 2;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x1000000;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x100;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x200;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062FDB0;
+        ((BtlBattleState *)DAT_0076449c)->bossSlotTable = D_006355A0;
         break;
     case 0x20B:
     case 0x215:
-        *(u32 *)(DAT_0076449c + 0xC) &= ~0x400U;
-        *(u32 *)(DAT_0076449c + 0x10) |= 2;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x200;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x2000;
+        ((BtlBattleState *)DAT_0076449c)->flags &= ~0x400U;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 2;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x1000000;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x200;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x2000;
         if (btlCurrentUnitId() == 0x20B) {
-            *(u8 **)(DAT_0076449c + 0xB98) = D_00630500;
+            ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_00630500;
         } else {
-            *(u8 **)(DAT_0076449c + 0xB98) = D_00630C50;
+            ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_00630C50;
         }
-        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        ((BtlBattleState *)DAT_0076449c)->bossSlotTable = D_006355A0;
         break;
     case 0x20C:
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x1000;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x1000000;
         break;
     case 0x20D:
-        *(u32 *)(DAT_0076449c + 0x10) |= 2;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x80;
-        *(u8 **)(DAT_0076449c + 0xB98) = D_006313A0;
-        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 2;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x80;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_006313A0;
+        ((BtlBattleState *)DAT_0076449c)->bossSlotTable = D_006355A0;
         break;
     case 0x214:
-        *(u32 *)(DAT_0076449c + 0xC) &= ~0x400U;
-        *(u32 *)(DAT_0076449c + 0x10) |= 2;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x10;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x1000000;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x100;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x200;
-        *(u8 **)(DAT_0076449c + 0xB98) = D_00631AF0;
-        *(u8 **)(DAT_0076449c + 0xC30) = D_006355A0;
+        ((BtlBattleState *)DAT_0076449c)->flags &= ~0x400U;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 2;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x1000000;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x100;
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x200;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_00631AF0;
+        ((BtlBattleState *)DAT_0076449c)->bossSlotTable = D_006355A0;
         datSetFlag(0x1438, 1);
         break;
     }
     for (i = 0; i < 30; i++) {
+        /* measured: contiguous cue-array indexing loses MATCH (nd1). */
         *(s8 *)(DAT_0076449c + i + 0xC10) = -1;
     }
 }
@@ -786,192 +849,193 @@ void btlFormationAllocEncounterSlots(void)
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[0] = formation;
         data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[4] = formation;
         break;
     case 0x201:
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[0] = formation;
         break;
     case 0x202:
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[0] = formation;
         break;
     case 0x203:
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[0] = formation;
         data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[4] = formation;
         break;
     case 0x204:
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[0] = formation;
         data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[4] = formation;
         break;
     case 0x205:
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[0] = formation;
         data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[4] = formation;
         break;
     case 0x206:
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[0] = formation;
         data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[4] = formation;
         data = btlFormationGetRecord(9);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBF4) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[5] = formation;
         break;
     case 0x207:
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[0] = formation;
         break;
     case 0x208:
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[0] = formation;
         data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[4] = formation;
         break;
     case 0x209:
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[0] = formation;
         data = btlFormationGetRecord(5);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE4) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[1] = formation;
         data = btlFormationGetRecord(6);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE8) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[2] = formation;
         data = btlFormationGetRecord(7);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBEC) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[3] = formation;
         break;
     case 0x20A:
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[0] = formation;
         data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[4] = formation;
         break;
     case 0x20B:
     case 0x215:
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[0] = formation;
         data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[4] = formation;
         break;
     case 0x20D:
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[0] = formation;
         data = btlFormationGetRecord(5);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE4) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[1] = formation;
         data = btlFormationGetRecord(6);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE8) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[2] = formation;
         data = btlFormationGetRecord(7);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBEC) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[3] = formation;
         break;
     case 0x214:
         data = btlFormationGetRecord(4);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBE0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[0] = formation;
         data = btlFormationGetRecord(8);
         formation = btlFormationAllocWork(2);
         btlFormationSetSlot(formation, (u32)data);
-        *(s32 *)(DAT_0076449c + 0xBF0) = formation;
+        ((BtlBattleState *)DAT_0076449c)->boss.formations[4] = formation;
         break;
     }
 }
 
 // Intent: Look up the formation slot index for a unit. [inferred]
 // FUN_0022CB90
-s32 btlFormationLookupSlot(u8 *arg0, u16 arg1)
+s32 btlFormationLookupSlot(u8 *unit, u16 slotIndex)
 {
-    s32 temp_6;
-    s8 temp_2;
-    u16 temp_3_2;
-    u8 *temp_7;
-    u16 temp_3_3;
+    s32 slotTable;
+    s8 overrideSlot;
+    u16 unitId;
+    u8 *battle;
+    u16 slot;
 
-    if (*(u8 *)(arg0 + 0xA2) != 1) {
+    if (((BtlUnit *)unit)->genus != 1) {
         return -1;
     }
-    temp_7 = DAT_0076449c;
-    temp_6 = *(s32 *)(temp_7 + 0xC30);
-    if (temp_6 == 0) {
+    battle = DAT_0076449c;
+    slotTable = (s32)((BtlBattleState *)battle)->bossSlotTable;
+    if (slotTable == 0) {
         return -1;
     }
-    temp_3_2 = *(u16 *)(arg0 + 0xA4);
-    switch (temp_3_2) {
+    unitId = ((BtlUnit *)unit)->charId;
+    switch (unitId) {
     case 0x10D:
     case 0x110:
     case 0x111:
-        return *(u8 *)(temp_6 + (arg1 & 0xFFFF));
+        return ((u8 *)slotTable)[slotIndex & 0xFFFF];
     case 0x10F:
-        temp_3_3 = (u16)arg1;
-        if (((temp_3_3 == 0) || (temp_3_3 == 0x12)) &&
-            (*(s16 *)(temp_7 + 0xC34) != 3)) {
+        slot = (u16)slotIndex;
+        if (((slot == 0) || (slot == 0x12)) &&
+            (((BtlBattleState *)battle)->bossPhase != 3)) {
             return 0xB;
         }
-        return *(u8 *)(temp_6 + (arg1 & 0xFFFF));
+        return ((u8 *)slotTable)[slotIndex & 0xFFFF];
     default:
-        temp_2 = *(s8 *)cb90AddBaseIndex((u32)temp_7 + 0xC10,
-                                         (u32)(arg1 & 0xFFFF));
-        if (temp_2 >= 0) {
-            return temp_2;
+        /* measured: direct boss cue-array lookup loses MATCH (nd36); keep the index-add helper. */
+        overrideSlot = *(s8 *)cb90AddBaseIndex((u32)battle + 0xC10,
+                                         (u32)(slotIndex & 0xFFFF));
+        if (overrideSlot >= 0) {
+            return overrideSlot;
         }
-        return *(u8 *)(temp_6 + (arg1 & 0xFFFF));
+        return ((u8 *)slotTable)[slotIndex & 0xFFFF];
     }
 }
 
@@ -981,11 +1045,11 @@ s32 btlFormationLookupSlot(u8 *arg0, u16 arg1)
 // FUN_0022CC90
 void btlFormationClearSlots(void)
 {
-    extern void H_Cdvd_Destroy(s32 arg0);
-    extern void btlFormationSetPlacement(s32 arg0, u8 *arg1);
+    extern void H_Cdvd_Destroy(s32 cdvd);
+    extern void btlFormationSetPlacement(s32 value, u8 *option);
     s16 i;
     s32 value;
-    s32 temp_index;
+    s32 signedSlot;
     s32 index;
     s16 index16;
     u8 *slot;
@@ -996,33 +1060,34 @@ void btlFormationClearSlots(void)
         datPersonaClearRoster();
         datPersonaAddRosterMember(1);
         datPersonaSelectRosterMemberById(1);
-        func_00106d40(1, 0, 1);
+        datAssignEquippedItem(1, 0, 1);
         break;
     }
     i = 0;
     while (i < 8) {
         base = DAT_0076449c;
         slot = base + i * 4;
-        value = *(s32 *)(slot + 0xBE0);
+        value = ((BtlBattleState *)slot)->boss.formations[0];
         if (value != 0) {
             index16 = i;
-            temp_index = (s32)(s64)(s16)index16;
-            index = temp_index * 4;
+            signedSlot = (s32)(s64)(s16)index16;
+            index = signedSlot * 4;
             btlFormationSetPlacement(value, base);
             base = DAT_0076449c;
+            /* measured: typed formation-array indexing changes instructions (nd111). */
             *(s32 *)(base + index + 0xBE0) = 0;
         }
         i++;
     }
-    value = *(s32 *)(DAT_0076449c + 0xB94);
+    value = ((BtlBattleState *)DAT_0076449c)->bossEndBgmHandle;
     if (value != 0) {
         H_Cdvd_Destroy(value);
-        *(s32 *)(DAT_0076449c + 0xB94) = 0;
+        ((BtlBattleState *)DAT_0076449c)->bossEndBgmHandle = 0;
     }
-    value = *(s32 *)(DAT_0076449c + 0xB90);
+    value = ((BtlBattleState *)DAT_0076449c)->bossPakHandle;
     if (value != 0) {
         H_Cdvd_Destroy(value);
-        *(s32 *)(DAT_0076449c + 0xB90) = 0;
+        ((BtlBattleState *)DAT_0076449c)->bossPakHandle = 0;
     }
 }
 
@@ -1030,109 +1095,109 @@ void btlFormationClearSlots(void)
 #pragma opt_propagation on
 // Intent: Return the encounter record for an index, or NULL. [inferred]
 // FUN_0022CDB0
-u8 *btlEncounterGetRecord(s32 arg0)
+u8 *btlEncounterGetRecord(s32 index)
 {
-    s32 temp_2;
-    u8 *var_2;
+    s32 encounterId;
+    u8 *record;
 
-    if ((*(s32 *)(DAT_0076449c + 0x10) & 0x10) == 0) {
+    if ((((BtlBattleState *)DAT_0076449c)->battleFlags & 0x10) == 0) {
         return NULL;
     }
-    temp_2 = btlCurrentUnitId();
-    switch (temp_2) {
+    encounterId = btlCurrentUnitId();
+    switch (encounterId) {
     case 0x20B:
-        if (*(s32 *)(DAT_0076449c + 0xC40) == 0) {
-            var_2 = (u8 *)((s32)&D_00634CB0 +
-                           ((arg0 & 0xFFFF) * 0x14));
+        if (((BtlBattleState *)DAT_0076449c)->bossRecordVariant == 0) {
+            record = (u8 *)((s32)&D_00634CB0 +
+                           ((index & 0xFFFF) * 0x14));
         } else {
-            var_2 = (u8 *)((s32)&D_006350B0 +
-                           ((arg0 & 0xFFFF) * 0x14));
+            record = (u8 *)((s32)&D_006350B0 +
+                           ((index & 0xFFFF) * 0x14));
         }
         break;
     case 0x215:
-        var_2 = (u8 *)((s32)&D_006350B0 +
-                       ((arg0 & 0xFFFF) * 0x14));
+        record = (u8 *)((s32)&D_006350B0 +
+                       ((index & 0xFFFF) * 0x14));
         break;
     default:
-        var_2 = (u8 *)((s32)&D_006348B0 +
-                       ((arg0 & 0xFFFF) * 0x14));
+        record = (u8 *)((s32)&D_006348B0 +
+                       ((index & 0xFFFF) * 0x14));
         break;
     }
-    if ((*(s32 *)(var_2 + 0) == 0) &&
-        (*(s32 *)(var_2 + 4) == 0)) {
-        var_2 = NULL;
+    if ((((BtlCameraStateRecord *)record)->initialize == 0) &&
+        (((BtlCameraStateRecord *)record)->update == 0)) {
+        record = NULL;
     }
-    return var_2;
+    return record;
 }
 
 // Intent: Return the formation record for an index. [inferred]
 // FUN_0022CED0
-u8 *btlFormationGetRecord(s32 arg0)
+u8 *btlFormationGetRecord(s32 index)
 {
-    return H_Cdvd_GetArchiveEntry(*(u8 **)(DAT_0076449c + 0xB90), arg0 & 0xFFFF, 0);
+    return H_Cdvd_GetArchiveEntry((u8 *)((BtlBattleState *)DAT_0076449c)->bossPakHandle, index & 0xFFFF, 0);
 }
 
 // Intent: Return the action anchor height for a unit. [inferred]
 // FUN_0022CF00
-f32 btlUnitGetActionAnchorHeight(u8 *arg0, u8 *arg1, u16 arg2) {
-    s32 temp_3;
-    u16 temp_2;
+f32 btlUnitGetActionAnchorHeight(u8 *source, u8 *unit, u16 actionKind) {
+    s32 kind;
+    u16 unitId;
 
-    if (!(*(s32 *)(DAT_0076449c + 0xC) & 0x200000)) {
+    if (!(((BtlBattleState *)DAT_0076449c)->flags & 0x200000)) {
         return -1.0f;
     }
-    if (*(u8 *)(arg1 + 0xA2) != 1) {
+    if (((BtlUnit *)unit)->genus != 1) {
         return -1.0f;
     }
-    temp_3 = arg2 & 0xFFFF;
-    if ((temp_3 != 4) && (temp_3 != 0xC) &&
-        (temp_3 != 5) && (temp_3 != 7)) {
+    kind = actionKind & 0xFFFF;
+    if ((kind != 4) && (kind != 0xC) &&
+        (kind != 5) && (kind != 7)) {
         return -1.0f;
     }
-    temp_2 = *(u16 *)(arg1 + 0xA4);
-    switch (temp_2) {
+    unitId = ((BtlUnit *)unit)->charId;
+    switch (unitId) {
     case 0x100:
-        return 100.0f + (*(f32 *)(arg1 + 0x90) *
-                         *(f32 *)(arg1 + 0x2C));
+        return 100.0f + (((BtlUnit *)unit)->sphereRadius *
+                         ((BtlUnit *)unit)->scale);
     case 0x101:
-        return 25.0f + (*(f32 *)(arg1 + 0x90) *
-                        *(f32 *)(arg1 + 0x2C));
+        return 25.0f + (((BtlUnit *)unit)->sphereRadius *
+                        ((BtlUnit *)unit)->scale);
     case 0x102:
-        return 150.0f + (*(f32 *)(arg1 + 0x90) *
-                         *(f32 *)(arg1 + 0x2C));
+        return 150.0f + (((BtlUnit *)unit)->sphereRadius *
+                         ((BtlUnit *)unit)->scale);
     case 0x103:
-        return 150.0f + (*(f32 *)(arg1 + 0x90) *
-                         *(f32 *)(arg1 + 0x2C));
+        return 150.0f + (((BtlUnit *)unit)->sphereRadius *
+                         ((BtlUnit *)unit)->scale);
     case 0x110:
-        return 150.0f + (*(f32 *)(arg1 + 0x90) *
-                         *(f32 *)(arg1 + 0x2C));
+        return 150.0f + (((BtlUnit *)unit)->sphereRadius *
+                         ((BtlUnit *)unit)->scale);
     case 0x111:
-        return 150.0f + (*(f32 *)(arg1 + 0x90) *
-                         *(f32 *)(arg1 + 0x2C));
+        return 150.0f + (((BtlUnit *)unit)->sphereRadius *
+                         ((BtlUnit *)unit)->scale);
     case 0x104:
-        return 50.0f + (*(f32 *)(arg1 + 0x90) *
-                        *(f32 *)(arg1 + 0x2C));
+        return 50.0f + (((BtlUnit *)unit)->sphereRadius *
+                        ((BtlUnit *)unit)->scale);
     case 0x105:
-        return 200.0f + (*(f32 *)(arg1 + 0x90) *
-                         *(f32 *)(arg1 + 0x2C));
+        return 200.0f + (((BtlUnit *)unit)->sphereRadius *
+                         ((BtlUnit *)unit)->scale);
     case 0x106:
-        return 250.0f + (*(f32 *)(arg1 + 0x90) *
-                         *(f32 *)(arg1 + 0x2C));
+        return 250.0f + (((BtlUnit *)unit)->sphereRadius *
+                         ((BtlUnit *)unit)->scale);
     case 0x10F:
-        return 250.0f + (*(f32 *)(arg1 + 0x90) *
-                         *(f32 *)(arg1 + 0x2C));
+        return 250.0f + (((BtlUnit *)unit)->sphereRadius *
+                         ((BtlUnit *)unit)->scale);
     case 0x107:
-        return 200.0f + (*(f32 *)(arg1 + 0x90) *
-                         *(f32 *)(arg1 + 0x2C));
+        return 200.0f + (((BtlUnit *)unit)->sphereRadius *
+                         ((BtlUnit *)unit)->scale);
     case 0x108:
-        return 300.0f + (*(f32 *)(arg1 + 0x90) *
-                         *(f32 *)(arg1 + 0x2C));
+        return 300.0f + (((BtlUnit *)unit)->sphereRadius *
+                         ((BtlUnit *)unit)->scale);
     case 0x10A:
-        return 500.0f + (*(f32 *)(arg1 + 0x90) *
-                         *(f32 *)(arg1 + 0x2C));
+        return 500.0f + (((BtlUnit *)unit)->sphereRadius *
+                         ((BtlUnit *)unit)->scale);
     case 0x113:
-        return 75.0f + (*(f32 *)(arg1 + 0x90) *
-                        *(f32 *)(arg1 + 0x2C));
+        return 75.0f + (((BtlUnit *)unit)->sphereRadius *
+                        ((BtlUnit *)unit)->scale);
     case 0x109:
     case 0x10B:
     case 0x10C:
@@ -1158,97 +1223,97 @@ s32 btlActionSelectFormationSlot(u8 *action)
     u16 skill;
 
     global = iGpffffb3ac;
-    if ((*(u32 *)(global + 0xC) & 0x200000) == 0) {
+    if ((((BtlBattleState *)global)->flags & 0x200000) == 0) {
         return 0;
     }
-    if ((*(u16 *)(action + 0x1A) & 1) == 0) {
+    if ((((BtlAction *)action)->unk_1a & 1) == 0) {
         return 0;
     }
-    unit = *(u8 **)(action + 0x30);
-    if (*(u8 *)(unit + 0xA2) != 1) {
+    unit = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)unit)->genus != 1) {
         return 0;
     }
-    unitId = *(u16 *)(unit + 0xA4);
+    unitId = ((BtlUnit *)unit)->charId;
     switch (unitId) {
     case 0x100:
-        skill = *(u16 *)(action + 0x6E);
-        return skill == 0x160 ? *(s32 *)(global + 0xBF0) : *(s32 *)(global + 0xBE0);
+        skill = ((BtlAction *)action)->unk_6e;
+        return skill == 0x160 ? ((BtlBattleState *)global)->boss.formations[4] : ((BtlBattleState *)global)->boss.formations[0];
     case 0x103:
-        skill = *(u16 *)(action + 0x6E);
+        skill = ((BtlAction *)action)->unk_6e;
         if (skill == 0x166 || skill == 0x167 || skill == 0x168) {
-            return *(s32 *)(global + 0xBF0);
+            return ((BtlBattleState *)global)->boss.formations[4];
         }
-        return *(s32 *)(global + 0xBE0);
+        return ((BtlBattleState *)global)->boss.formations[0];
     case 0x104:
-        skill = *(u16 *)(action + 0x6E);
-        return skill == 0x169 ? *(s32 *)(global + 0xBF0) : *(s32 *)(global + 0xBE0);
+        skill = ((BtlAction *)action)->unk_6e;
+        return skill == 0x169 ? ((BtlBattleState *)global)->boss.formations[4] : ((BtlBattleState *)global)->boss.formations[0];
     case 0x106:
     case 0x10F:
-        skill = *(u16 *)(action + 0x6E);
+        skill = ((BtlAction *)action)->unk_6e;
         if (skill == 0x16D || skill == 0x173 || skill == 0x174 ||
             skill == 0x175 || skill == 0x176 || skill == 0x177) {
-            return *(s32 *)(global + 0xBF0);
+            return ((BtlBattleState *)global)->boss.formations[4];
         }
-        return skill == 0x172 ? *(s32 *)(global + 0xBF4) : *(s32 *)(global + 0xBE0);
+        return skill == 0x172 ? ((BtlBattleState *)global)->boss.formations[5] : ((BtlBattleState *)global)->boss.formations[0];
     case 0x105:
-        skill = *(u16 *)(action + 0x6E);
+        skill = ((BtlAction *)action)->unk_6e;
         if (skill == 0x16B) {
-            return *(s32 *)(global + 0xBF0);
+            return ((BtlBattleState *)global)->boss.formations[4];
         }
         if (skill == 0x16A) {
-            return *(s32 *)(global + 0xBF0);
+            return ((BtlBattleState *)global)->boss.formations[4];
         }
-        return skill == 0x16C ? *(s32 *)(global + 0xBF0) : *(s32 *)(global + 0xBE0);
+        return skill == 0x16C ? ((BtlBattleState *)global)->boss.formations[4] : ((BtlBattleState *)global)->boss.formations[0];
     case 0x108:
-        skill = *(u16 *)(action + 0x6E);
+        skill = ((BtlAction *)action)->unk_6e;
         if (skill == 0x17A) {
-            return *(s32 *)(global + 0xBF0);
+            return ((BtlBattleState *)global)->boss.formations[4];
         }
-        return skill == 0x17C ? *(s32 *)(global + 0xBF0) : *(s32 *)(global + 0xBE0);
+        return skill == 0x17C ? ((BtlBattleState *)global)->boss.formations[4] : ((BtlBattleState *)global)->boss.formations[0];
     case 0x10A:
     case 0x113:
-        skill = *(u16 *)(action + 0x6E);
+        skill = ((BtlAction *)action)->unk_6e;
         if (skill == 0x17F || skill == 0x186) {
-            return *(s32 *)(global + 0xBF0);
+            return ((BtlBattleState *)global)->boss.formations[4];
         }
-        return skill == 0x180 ? *(s32 *)(global + 0xBF0) : *(s32 *)(global + 0xBE0);
+        return skill == 0x180 ? ((BtlBattleState *)global)->boss.formations[4] : ((BtlBattleState *)global)->boss.formations[0];
     case 0x10B:
     case 0x10E:
-        skill = *(u16 *)(action + 0x6E);
+        skill = ((BtlAction *)action)->unk_6e;
         if (skill == 0x181 || skill == 0x18B || skill == 0x182 || skill == 0x185) {
-            return *(s32 *)(global + 0xBF0);
+            return ((BtlBattleState *)global)->boss.formations[4];
         }
-        return *(s32 *)(global + 0xBE0);
+        return ((BtlBattleState *)global)->boss.formations[0];
     default:
-        return *(s32 *)(global + 0xBE0);
+        return ((BtlBattleState *)global)->boss.formations[0];
     }
 }
 
 // Intent: Report whether an action has a formation slot. [inferred]
 // FUN_0022D540
-s32 btlActionHasFormationSlot(u8 *arg0, u8 *arg1) {
-    u16 temp_3;
-    u8 *temp_4;
-    u8 *temp_6;
+s32 btlActionHasFormationSlot(u8 *action, u8 *slots) {
+    u16 unitId;
+    u8 *unit;
+    u8 *battle;
 
-    temp_6 = DAT_0076449c;
-    if (!( *(s32 *)(temp_6 + 0xC) & 0x200000)) {
+    battle = DAT_0076449c;
+    if (!( ((BtlBattleState *)battle)->flags & 0x200000)) {
         return 0;
     }
-    if (!(*(u16 *)(arg0 + 0x1A) & 1)) {
+    if (!(((BtlAction *)action)->unk_1a & 1)) {
         return 0;
     }
-    temp_4 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_4 + 0xA2) != 1) {
+    unit = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)unit)->genus != 1) {
         return 0;
     }
-    temp_3 = *(u16 *)(temp_4 + 0xA4);
-    switch (temp_3) {
+    unitId = ((BtlUnit *)unit)->charId;
+    switch (unitId) {
     case 0x112:
     case 0x109:
-        *(s32 *)(arg1 + 0) = *(s32 *)(temp_6 + 0xBE4);
-        *(s32 *)(arg1 + 4) = *(s32 *)(DAT_0076449c + 0xBE8);
-        *(s32 *)(arg1 + 8) = *(s32 *)(DAT_0076449c + 0xBEC);
+        ((s32 *)slots)[0] = ((BtlBattleState *)battle)->boss.formations[1];
+        ((s32 *)slots)[1] = ((BtlBattleState *)DAT_0076449c)->boss.formations[2];
+        ((s32 *)slots)[2] = ((BtlBattleState *)DAT_0076449c)->boss.formations[3];
         return 1;
     default:
         return 0;
@@ -1272,145 +1337,159 @@ void btlUnitUpdateHpGauge(void *source, u8 *packet, s32 *hpDelta)
     RwV3d scale;
     RwV3d translation;
 
-    if ((*(u32 *)(iGpffffb3ac + 0xC) & 0x200000) == 0)
+    if ((((BtlBattleState *)iGpffffb3ac)->flags & 0x200000) == 0)
         return;
-    unit = *(u8 **)(packet + 0x30);
-    if (*(u8 *)(unit + 0xA2) != 1)
+    unit = (u8*)((BtlAction *)packet)->unit;
+    if (((BtlUnit *)unit)->genus != 1)
         return;
-    switch (*(u16 *)(unit + 0xA4)) {
+    switch (((BtlUnit *)unit)->charId) {
     case 0x102:
-        if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000))
-            *(s8 *)(iGpffffb3ac + 0xC12) = 3;
+        if (datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)unit)->datUnit, 0x100000))
+            ((BtlBattleState *)iGpffffb3ac)->pendingBossCue = 3;
         else
-            *(s8 *)(iGpffffb3ac + 0xC12) = -1;
+            ((BtlBattleState *)iGpffffb3ac)->pendingBossCue = -1;
         break;
     case 0x103:
-        resource = resrcMngFindResById(*(u8 **)(iGpffff9db0 + 8), 0x2804);
-        if (resource == NULL || *(void **)(resource + 0x144) == NULL)
+        resource = resrcMngFindResById(((ResrcManager *)iGpffff9db0)->resLists[2], 0x2804);
+        if (resource == NULL || ((ResrcRecord *)resource)->slotHandle[1] == NULL)
             break;
-        hp = *(u16 *)(*(u8 **)(*(u8 **)(packet + 0x30) + 0xA64) + 8);
-        maxHp = datCalcMaxHp(*(DatUnit **)(*(u8 **)(packet + 0x30) + 0xA64));
-        scale.x = *(f32 *)(*(u8 **)(packet + 0x30) + 0x2C);
-        scale.y = *(f32 *)(*(u8 **)(packet + 0x30) + 0x2C);
-        scale.z = *(f32 *)(*(u8 **)(packet + 0x30) + 0x2C);
+        /* measured: typing unit here loses MATCH (nd1011). */
+        hp = ((DatUnit *)(u8*)((BtlUnit *)*(u8 **)(packet + 0x30))->datUnit)->hp;
+        /* measured: typing unit here loses MATCH (nd1048). */
+        maxHp = datCalcMaxHp(((BtlUnit *)*(u8 **)(packet + 0x30))->datUnit);
+        /* measured: typing unit here loses MATCH (nd1047). */
+        scale.x = ((BtlUnit *)*(u8 **)(packet + 0x30))->scale;
+        /* measured: typing unit here loses MATCH (nd1048). */
+        scale.y = ((BtlUnit *)*(u8 **)(packet + 0x30))->scale;
+        /* measured: typing unit here loses MATCH (nd1046). */
+        scale.z = ((BtlUnit *)*(u8 **)(packet + 0x30))->scale;
         translation.x = 0.0f;
         translation.y = 0.0f;
         translation.z = -450.0f;
         if (hp < maxHp) {
+            /* measured: typing slotHandle[1] here loses MATCH (nd1017). */
             mdlScale(*(Model **)(resource + 0x144), &scale, 0);
+            /* measured: typing slotHandle[1] here loses MATCH (nd1016). */
             mdlTranslateMatrix(*(RwMatrix **)(resource + 0x144), &translation, 2);
+            /* measured: typing slotHandle[1] here loses MATCH (nd1017). */
             model = *(void **)(resource + 0x144);
             mdlSetFrameColorByName(model, (s32)D_006355C0, 0xFF);
         }
         if (hp * 100 <= maxHp * 50) {
+            /* measured: typing slotHandle[1] here loses MATCH (nd1017). */
             mdlScale(*(Model **)(resource + 0x144), &scale, 0);
+            /* measured: typing slotHandle[1] here loses MATCH (nd1016). */
             mdlTranslateMatrix(*(RwMatrix **)(resource + 0x144), &translation, 2);
+            /* measured: typing slotHandle[1] here loses MATCH (nd1017). */
             model = *(void **)(resource + 0x144);
             mdlSetFrameColorByName(model, (s32)D_006355E0, 0xFF);
         }
         if (hp * 100 <= maxHp * 75) {
+            /* measured: typing slotHandle[1] here loses MATCH (nd1017). */
             mdlScale(*(Model **)(resource + 0x144), &scale, 0);
+            /* measured: typing slotHandle[1] here loses MATCH (nd1016). */
             mdlTranslateMatrix(*(RwMatrix **)(resource + 0x144), &translation, 2);
+            /* measured: typing slotHandle[1] here loses MATCH (nd1016). */
             model = *(void **)(resource + 0x144);
             mdlSetFrameColorByName(model, (s32)D_00635600, 0xFF);
         }
         break;
     case 0x104:
-        if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000))
-            *(s8 *)(iGpffffb3ac + 0xC12) = 3;
+        if (datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)unit)->datUnit, 0x100000))
+            ((BtlBattleState *)iGpffffb3ac)->pendingBossCue = 3;
         else
-            *(s8 *)(iGpffffb3ac + 0xC12) = -1;
+            ((BtlBattleState *)iGpffffb3ac)->pendingBossCue = -1;
         break;
     case 0x105:
         if (!datGetFlag(0x15C0)) {
-            if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000))
-                *(s8 *)(iGpffffb3ac + 0xC12) = 3;
+            if (datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)unit)->datUnit, 0x100000))
+                ((BtlBattleState *)iGpffffb3ac)->pendingBossCue = 3;
             else
-                *(s8 *)(iGpffffb3ac + 0xC12) = -1;
+                ((BtlBattleState *)iGpffffb3ac)->pendingBossCue = -1;
         } else {
-            remaining = func_001064f0(0x7A);
+            remaining = datGetScriptValue(0x7A);
             remaining += (u32)*hpDelta;
             if ((s32)remaining <= 0) {
                 btlEncounterSetSequence((s32)btlEncounterResetSlots, (s32)btlEncounterWaitIdle, (s32)packet);
                 remaining = 0;
             }
-            func_00106550(0x7A, remaining);
+            datSetScriptValue(0x7A, remaining);
         }
         break;
     case 0x106:
-        if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000) &&
-            *(s16 *)(iGpffffb3ac + 0xC34) == 0)
-            *(s8 *)(iGpffffb3ac + 0xC12) = 3;
+        if (datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)unit)->datUnit, 0x100000) &&
+            ((BtlBattleState *)iGpffffb3ac)->bossPhase == 0)
+            ((BtlBattleState *)iGpffffb3ac)->pendingBossCue = 3;
         else
-            *(s8 *)(iGpffffb3ac + 0xC12) = -1;
-        if (*(s16 *)(iGpffffb3ac + 0xC34) == 0 || *hpDelta >= 0)
+            ((BtlBattleState *)iGpffffb3ac)->pendingBossCue = -1;
+        if (((BtlBattleState *)iGpffffb3ac)->bossPhase == 0 || *hpDelta >= 0)
             break;
         packet = btlUnitFindInSideById(1, 0x10F);
         if (packet == NULL)
             break;
-        datCalcAddHp(*(DatUnit **)(packet + 0xA64), *hpDelta);
+        datCalcAddHp(((BtlUnit *)packet)->datUnit, *hpDelta);
         packet = btlActionFindByUnit((s32)packet);
         /* The paired unit has an active packet; retail deliberately falls through. */
     case 0x10F:
-        if (*(s16 *)(iGpffffb3ac + 0xC34) == 0)
+        if (((BtlBattleState *)iGpffffb3ac)->bossPhase == 0)
             break;
-        if (*(s16 *)(iGpffffb3ac + 0xC34) == 1)
+        if (((BtlBattleState *)iGpffffb3ac)->bossPhase == 1)
             percentage = 40;
-        else if (*(s16 *)(iGpffffb3ac + 0xC34) == 2)
+        else if (((BtlBattleState *)iGpffffb3ac)->bossPhase == 2)
             percentage = 60;
         else
             percentage = 100;
         if (btlCond_MYHP(packet, 100 - percentage) ||
-            *(u16 *)(*(u8 **)(*(u8 **)(packet + 0x30) + 0xA64) + 8) < 2)
+            ((DatUnit *)(u8*)((BtlUnit *)(u8*)((BtlAction *)packet)->unit)->datUnit)->hp < 2)
             btlEncounterSetSequence((s32)btlEncounterStartSequence, (s32)btlEncounterFinishStep, (s32)packet);
         break;
     case 0x107:
-        if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000))
-            *(s8 *)(iGpffffb3ac + 0xC12) = 3;
+        if (datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)unit)->datUnit, 0x100000))
+            ((BtlBattleState *)iGpffffb3ac)->pendingBossCue = 3;
         else
-            *(s8 *)(iGpffffb3ac + 0xC12) = -1;
+            ((BtlBattleState *)iGpffffb3ac)->pendingBossCue = -1;
         break;
     case 0x10B:
-        if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000))
-            *(s8 *)(iGpffffb3ac + 0xC12) = 3;
+        if (datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)unit)->datUnit, 0x100000))
+            ((BtlBattleState *)iGpffffb3ac)->pendingBossCue = 3;
         else
-            *(s8 *)(iGpffffb3ac + 0xC12) = -1;
+            ((BtlBattleState *)iGpffffb3ac)->pendingBossCue = -1;
         break;
     case 0x112:
-        if (datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100000))
-            *(s8 *)(iGpffffb3ac + 0xC12) = 3;
+        if (datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)unit)->datUnit, 0x100000))
+            ((BtlBattleState *)iGpffffb3ac)->pendingBossCue = 3;
         else
-            *(s8 *)(iGpffffb3ac + 0xC12) = -1;
+            ((BtlBattleState *)iGpffffb3ac)->pendingBossCue = -1;
         break;
     }
 }
 
 // Intent: Select the unit's record table by battle id. [inferred]
 // FUN_0022DB90
-void btlUnitSelectRecordTable(u8 *arg0) {
+void btlUnitSelectRecordTable(u8 *action) {
     u16 id;
-    u8 *temp_5;
-    u8 *temp_6;
+    u8 *unit;
+    u8 *battle;
 
-    temp_6 = DAT_0076449c;
-    if ((*(s32 *)(temp_6 + 0xC) & 0x200000) &&
-        (temp_5 = *(u8 **)(arg0 + 0x30), *(u8 *)(temp_5 + 0xA2) == 1)) {
-        id = *(u16 *)(temp_5 + 0xA4);
+    battle = DAT_0076449c;
+    if ((((BtlBattleState *)battle)->flags & 0x200000) &&
+        (unit = (u8 *)((BtlAction *)action)->unit, ((BtlUnit *)unit)->genus == 1)) {
+        id = ((BtlUnit *)unit)->charId;
         switch (id) {
         case 0x102:
-            *(u8 **)(temp_6 + 0xB98) = D_0062A5F0;
+            ((BtlBattleState *)battle)->boss.recordTable = D_0062A5F0;
             return;
         case 0x10D:
-            *(u8 **)(temp_6 + 0xB98) = D_0062AD40;
+            ((BtlBattleState *)battle)->boss.recordTable = D_0062AD40;
             return;
         case 0x103:
-            *(u8 **)(temp_6 + 0xB98) = D_0062B490;
+            ((BtlBattleState *)battle)->boss.recordTable = D_0062B490;
             return;
         case 0x110:
-            *(u8 **)(temp_6 + 0xB98) = D_0062BBE0;
+            ((BtlBattleState *)battle)->boss.recordTable = D_0062BBE0;
             return;
         case 0x111:
-            *(u8 **)(temp_6 + 0xB98) = D_0062C330;
+            ((BtlBattleState *)battle)->boss.recordTable = D_0062C330;
             break;
         }
     }
@@ -1428,147 +1507,149 @@ void btlUnitApplyPacketFlags(u8 *packet)
     u8 *unit;
     s32 *counter;
 
-    if ((*(u32 *)(DAT_0076449c + 0xC) & 0x200000) == 0)
+    if ((((BtlBattleState *)DAT_0076449c)->flags & 0x200000) == 0)
         return;
-    unit = *(u8 **)(packet + 0x30);
-    if (unit[0xA2] != 1) {
+    unit = (u8*)((BtlAction *)packet)->unit;
+    if (((BtlUnit *)unit)->genus != 1) {
         switch (btlCurrentUnitId()) {
         case 0x215:
-            if (*(u16 *)(packet + 0x6C) == 2 && *(u16 *)(packet + 0x6E) == 0x115)
-                btlEncounterSetSequence((s32)btlEncounterResetUnit, (s32)func_0022bac0, (s32)packet);
+            if (((BtlAction *)packet)->unk_6c == 2 && ((BtlAction *)packet)->unk_6e == 0x115)
+                btlEncounterSetSequence((s32)btlEncounterResetUnit, (s32)btlEncounterFinishResetSequence, (s32)packet);
             break;
         }
         return;
     }
-    switch (*(u16 *)(unit + 0xA4)) {
+    switch (((BtlUnit *)unit)->charId) {
     case 0x100:
-        if (*(u16 *)(packet + 0x6C) == 2) {
-            if (*(u16 *)(packet + 0x6E) == 0x160)
-                *(s8 *)(DAT_0076449c + 0xC18) = 13;
+        if (((BtlAction *)packet)->unk_6c == 2) {
+            if (((BtlAction *)packet)->unk_6e == 0x160)
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 13;
             else
-                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -1;
         }
         break;
     case 0x101:
-        if (*(u16 *)(packet + 0x6C) == 2 || *(u16 *)(packet + 0x6C) == 1) {
-            if (*(u16 *)(packet + 0x6E) == 0x161)
-                *(s8 *)(DAT_0076449c + 0xC14) = 12;
+        if (((BtlAction *)packet)->unk_6c == 2 || ((BtlAction *)packet)->unk_6c == 1) {
+            if (((BtlAction *)packet)->unk_6e == 0x161)
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[1] = 12;
             else
-                *(s8 *)(DAT_0076449c + 0xC14) = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[1] = -1;
         }
         break;
     case 0x102:
-        *(u8 **)(DAT_0076449c + 0xB98) = D_0062A5F0;
-        if (*(u16 *)(packet + 0x6C) == 2) {
-            if (*(u16 *)(packet + 0x6E) == 0x163)
-                *(s8 *)(DAT_0076449c + 0xC18) = 12;
-            else if (*(u16 *)(packet + 0x6E) == 0x162)
-                *(s8 *)(DAT_0076449c + 0xC18) = 13;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062A5F0;
+        if (((BtlAction *)packet)->unk_6c == 2) {
+            if (((BtlAction *)packet)->unk_6e == 0x163)
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 12;
+            else if (((BtlAction *)packet)->unk_6e == 0x162)
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 13;
             else
-                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -1;
         }
         break;
     case 0x10D:
-        *(u8 **)(DAT_0076449c + 0xB98) = D_0062AD40;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062AD40;
         break;
     case 0x103:
-        *(u8 **)(DAT_0076449c + 0xB98) = D_0062B490;
-        if (*(u16 *)(packet + 0x6C) == 2) {
-            if (*(u16 *)(packet + 0x6E) == 0x166)
-                *(s8 *)(DAT_0076449c + 0xC18) = 12;
-            else if (*(u16 *)(packet + 0x6E) == 0x167)
-                *(s8 *)(DAT_0076449c + 0xC18) = 13;
-            else if (*(u16 *)(packet + 0x6E) == 0x168)
-                *(s8 *)(DAT_0076449c + 0xC18) = 14;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062B490;
+        if (((BtlAction *)packet)->unk_6c == 2) {
+            if (((BtlAction *)packet)->unk_6e == 0x166)
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 12;
+            else if (((BtlAction *)packet)->unk_6e == 0x167)
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 13;
+            else if (((BtlAction *)packet)->unk_6e == 0x168)
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 14;
             else
-                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -1;
         }
         break;
     case 0x110:
-        *(u8 **)(DAT_0076449c + 0xB98) = D_0062BBE0;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062BBE0;
         break;
     case 0x111:
-        *(u8 **)(DAT_0076449c + 0xB98) = D_0062C330;
+        ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062C330;
         break;
     case 0x104:
-        if (*(u16 *)(packet + 0x6C) == 2) {
-            if (*(u16 *)(packet + 0x6E) == 0x169)
-                *(s8 *)(DAT_0076449c + 0xC18) = 12;
+        if (((BtlAction *)packet)->unk_6c == 2) {
+            if (((BtlAction *)packet)->unk_6e == 0x169)
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 12;
             else
-                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -1;
         }
         break;
     case 0x105:
-        if (*(u16 *)(packet + 0x6C) == 2) {
-            switch (*(u16 *)(packet + 0x6E)) {
+        if (((BtlAction *)packet)->unk_6c == 2) {
+            switch (((BtlAction *)packet)->unk_6e) {
             case 0x16B:
-                *(s8 *)(DAT_0076449c + 0xC10) = 14;
-                *(s8 *)(DAT_0076449c + 0xC13) = 14;
-                *(s8 *)(DAT_0076449c + 0xC28) = 14;
-                *(s8 *)(DAT_0076449c + 0xC22) = 14;
-                *(s8 *)(DAT_0076449c + 0xC1A) = 14;
-                *(s8 *)(DAT_0076449c + 0xC12) = 15;
-                *(s8 *)(DAT_0076449c + 0xC18) = 17;
-                *(u16 *)(*(u8 **)(packet + 0x30) + 0x9D8) |= 0x20;
+                ((BtlBattleState *)DAT_0076449c)->bossCuePrefix[0] = 14;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[0] = 14;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[21] = 14;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[15] = 14;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[7] = 14;
+                ((BtlBattleState *)DAT_0076449c)->pendingBossCue = 15;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 17;
+                /* measured: typing unit here loses MATCH (nd1715). */
+                ((BtlUnit *)*(u8 **)(packet + 0x30))->unk_9d8 |= 0x20;
                 break;
             case 0x16A:
-                *(s8 *)(DAT_0076449c + 0xC18) = -2;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -2;
                 break;
             case 0x16C:
-                *(s8 *)(DAT_0076449c + 0xC18) = -2;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -2;
                 break;
             default:
-                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -1;
                 break;
             }
         }
         break;
     case 0x106:
-        if (*(u16 *)(packet + 0x6C) == 2 || *(u16 *)(packet + 0x6C) == 1) {
-            switch (*(u16 *)(packet + 0x6E)) {
+        if (((BtlAction *)packet)->unk_6c == 2 || ((BtlAction *)packet)->unk_6c == 1) {
+            switch (((BtlAction *)packet)->unk_6e) {
             case 0x16E:
             case 0x16F:
             case 0x170:
             case 0x171:
-                *(s8 *)(DAT_0076449c + 0xC18) = 12;
-                *(s8 *)(DAT_0076449c + 0xC14) = -1;
-                *(u32 *)(DAT_0076449c + 0xC) |= 0x400000;
-                *(u16 *)(DAT_0076449c + 0x18) |= 2;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 12;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[1] = -1;
+                ((BtlBattleState *)DAT_0076449c)->flags |= 0x400000;
+                ((BtlBattleState *)DAT_0076449c)->actionEndFlags |= 2;
                 break;
             default:
-                *(s8 *)(DAT_0076449c + 0xC18) = -1;
-                *(s8 *)(DAT_0076449c + 0xC14) = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[1] = -1;
                 break;
             }
         }
         break;
     case 0x107:
-        if (*(u16 *)(packet + 0x6C) == 2) {
-            if (*(u16 *)(packet + 0x6E) == 0x178)
-                *(s8 *)(DAT_0076449c + 0xC18) = 13;
+        if (((BtlAction *)packet)->unk_6c == 2) {
+            if (((BtlAction *)packet)->unk_6e == 0x178)
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 13;
             else
-                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -1;
         }
         break;
     case 0x108:
-        if (*(u16 *)(packet + 0x6C) == 2) {
-            switch (*(u16 *)(packet + 0x6E)) {
+        if (((BtlAction *)packet)->unk_6c == 2) {
+            switch (((BtlAction *)packet)->unk_6e) {
             case 0x17B:
             case 0x184:
                 btlEncounterSetSequence((s32)btlActionRunPresentation, (s32)btlEncounterWaitCleared, (s32)packet);
+                /* measured: typing unk_6c here loses MATCH (nd815). */
                 *(u16 *)(packet + 0x6C) = 8;
                 btlActionSetState((BtlAction *)packet, 25);
-                *(s32 *)(DAT_0076449c + 0xC38) = 3;
-                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossMotionCountdown = 3;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -1;
                 break;
             case 0x17A:
-                *(s8 *)(DAT_0076449c + 0xC18) = -2;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -2;
                 break;
             case 0x17C:
-                *(s8 *)(DAT_0076449c + 0xC18) = -2;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -2;
                 break;
             default:
-                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -1;
                 break;
             }
         }
@@ -1576,16 +1657,16 @@ void btlUnitApplyPacketFlags(u8 *packet)
         counter = (s32 *)(DAT_0076449c + 0xC38);
         if (*counter > 0) {
             *counter -= 1;
-            if (*(s32 *)(DAT_0076449c + 0xC38) <= 0) {
-                node = *(u8 **)(DAT_0076449c + 0x174);
+            if (((BtlBattleState *)DAT_0076449c)->bossMotionCountdown <= 0) {
+                node = ((BtlBattleState *)DAT_0076449c)->actions;
                 while (node != NULL) {
-                    if ((*(u16 *)(node + 0x1A) & 1) != 0) {
-                        unit = *(u8 **)(node + 0x30);
-                        if ((*(u32 *)(unit + 0x9C) & 8) != 0 &&
-                            datCalcChkBadStatus((s32)*(u8 **)(unit + 0xA64), 0x100) == 0)
+                    if ((((BtlAction *)node)->unk_1a & 1) != 0) {
+                        unit = (u8*)((BtlAction *)node)->unit;
+                        if ((((BtlUnit *)unit)->flags3 & 8) != 0 &&
+                            datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)unit)->datUnit, 0x100) == 0)
                             break;
                     }
-                    node = *(u8 **)(node + 0x450);
+                    node = (u8*)((BtlAction *)node)->next;
                 }
                 if (node != NULL) {
                     btlEncounterSetSequence((s32)btlActionRunMotionSequence, (s32)btlEncounterReleaseFlags, (s32)packet);
@@ -1596,63 +1677,65 @@ void btlUnitApplyPacketFlags(u8 *packet)
         counter = (s32 *)(DAT_0076449c + 0xC3C);
         if (*counter > 0 && started == 0) {
             *counter -= 1;
-            if (*(s32 *)(DAT_0076449c + 0xC3C) <= 0 && datGetFlag(0x1435) != 0)
+            if (((BtlBattleState *)DAT_0076449c)->bossCameraCountdown <= 0 && datGetFlag(0x1435) != 0)
                 btlEncounterSetSequence((s32)btlEncounterStartCameraState, (s32)btlEncounterWaitReleaseEvents, (s32)packet);
         }
         break;
     case 0x10A:
     case 0x113:
-        if (*(u16 *)(packet + 0x6C) == 2) {
-            switch (*(u16 *)(packet + 0x6E)) {
+        if (((BtlAction *)packet)->unk_6c == 2) {
+            switch (((BtlAction *)packet)->unk_6e) {
             case 0x17D:
-                *(s8 *)(DAT_0076449c + 0xC18) = 12;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 12;
                 break;
             case 0x17E:
-                *(s8 *)(DAT_0076449c + 0xC18) = 13;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 13;
                 break;
             case 0x17F:
             case 0x186:
-                *(s8 *)(DAT_0076449c + 0xC10) = 14;
-                *(s8 *)(DAT_0076449c + 0xC13) = 14;
-                *(s8 *)(DAT_0076449c + 0xC28) = 14;
-                *(s8 *)(DAT_0076449c + 0xC22) = 14;
-                *(s8 *)(DAT_0076449c + 0xC1A) = 14;
-                *(s8 *)(DAT_0076449c + 0xC12) = 14;
-                *(s8 *)(DAT_0076449c + 0xC18) = 18;
-                *(u16 *)(*(u8 **)(packet + 0x30) + 0x9D8) |= 0x20;
+                ((BtlBattleState *)DAT_0076449c)->bossCuePrefix[0] = 14;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[0] = 14;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[21] = 14;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[15] = 14;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[7] = 14;
+                ((BtlBattleState *)DAT_0076449c)->pendingBossCue = 14;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 18;
+                /* measured: typing unit here loses MATCH (nd1715). */
+                ((BtlUnit *)*(u8 **)(packet + 0x30))->unk_9d8 |= 0x20;
                 break;
             case 0x180:
-                *(s8 *)(DAT_0076449c + 0xC10) = -1;
-                *(s8 *)(DAT_0076449c + 0xC13) = -1;
-                *(s8 *)(DAT_0076449c + 0xC28) = -1;
-                *(s8 *)(DAT_0076449c + 0xC22) = -1;
-                *(s8 *)(DAT_0076449c + 0xC1A) = -1;
-                *(s8 *)(DAT_0076449c + 0xC12) = -1;
-                *(s8 *)(DAT_0076449c + 0xC18) = -2;
-                *(u16 *)(*(u8 **)(packet + 0x30) + 0x9D8) &= ~0x20;
+                ((BtlBattleState *)DAT_0076449c)->bossCuePrefix[0] = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[0] = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[21] = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[15] = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[7] = -1;
+                ((BtlBattleState *)DAT_0076449c)->pendingBossCue = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -2;
+                /* measured: typing unit here loses MATCH (nd1715). */
+                ((BtlUnit *)*(u8 **)(packet + 0x30))->unk_9d8 &= ~0x20;
                 break;
             default:
-                if (*(s8 *)(DAT_0076449c + 0xC10) == 14)
-                    *(s8 *)(DAT_0076449c + 0xC18) = 17;
+                if (((BtlBattleState *)DAT_0076449c)->bossCuePrefix[0] == 14)
+                    ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 17;
                 else
-                    *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                    ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -1;
                 break;
             }
         }
         break;
     case 0x10B:
     case 0x10E:
-        if (*(u16 *)(packet + 0x6C) == 2) {
-            if (*(u16 *)(packet + 0x6E) == 0x10B) {
-                *(s8 *)(DAT_0076449c + 0xC18) = 12;
-                *(u32 *)(DAT_0076449c + 0xC) |= 0x400000;
-                *(u16 *)(DAT_0076449c + 0x18) |= 7;
-            } else if (*(u16 *)(packet + 0x6E) == 0x185)
-                *(s8 *)(DAT_0076449c + 0xC18) = 4;
-            else if (*(u16 *)(packet + 0x6E) == 0x182)
-                *(s8 *)(DAT_0076449c + 0xC18) = 13;
+        if (((BtlAction *)packet)->unk_6c == 2) {
+            if (((BtlAction *)packet)->unk_6e == 0x10B) {
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 12;
+                ((BtlBattleState *)DAT_0076449c)->flags |= 0x400000;
+                ((BtlBattleState *)DAT_0076449c)->actionEndFlags |= 7;
+            } else if (((BtlAction *)packet)->unk_6e == 0x185)
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 4;
+            else if (((BtlAction *)packet)->unk_6e == 0x182)
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 13;
             else
-                *(s8 *)(DAT_0076449c + 0xC18) = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -1;
         }
         break;
     }
@@ -1660,55 +1743,55 @@ void btlUnitApplyPacketFlags(u8 *packet)
 
 // Intent: Report whether the action matches the expected skill. [inferred]
 // FUN_0022E4F0
-s32 btlActionMatchesSkill(u8 *arg0, s32 arg1) {
-    u16 temp_4_2;
-    u8 *temp_4;
-    u8 *temp_6;
+s32 btlActionMatchesSkill(u8 *action, s32 skillId) {
+    u16 unitId;
+    u8 *unit;
+    u8 *battle;
 
-    temp_6 = DAT_0076449c;
-    if (!( *(s32 *)(temp_6 + 0xC) & 0x200000)) {
+    battle = DAT_0076449c;
+    if (!( ((BtlBattleState *)battle)->flags & 0x200000)) {
         return 0;
     }
-    temp_4 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_4 + 0xA2) != 1) {
+    unit = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)unit)->genus != 1) {
         return 0;
     }
-    temp_4_2 = *(u16 *)(temp_4 + 0xA4);
-    switch (temp_4_2) {
+    unitId = ((BtlUnit *)unit)->charId;
+    switch (unitId) {
     case 0x102:
-        if (arg1 == 0x163) {
+        if (skillId == 0x163) {
             return 1;
         }
-        goto block_25;
+        goto notMatched;
     case 0x100:
-        if (arg1 == 0x160) {
+        if (skillId == 0x160) {
             return 1;
         }
-        goto block_25;
+        goto notMatched;
     case 0x103:
-        if (arg1 == 0x166) {
+        if (skillId == 0x166) {
             return 1;
         }
-        if (arg1 == 0x167) {
+        if (skillId == 0x167) {
             return 1;
         }
-        goto block_25;
+        goto notMatched;
     case 0x10A:
     case 0x113:
-        if (*(s8 *)(temp_6 + 0xC10) == 0xE) {
+        if (((BtlBattleState *)battle)->bossCuePrefix[0] == 0xE) {
             return 1;
         }
-        if (arg1 == 0x17E) {
+        if (skillId == 0x17E) {
             return 1;
         }
-        goto block_25;
+        goto notMatched;
     case 0x108:
-        if (arg1 == 0x17C) {
+        if (skillId == 0x17C) {
             return 1;
         }
-        goto block_25;
+        goto notMatched;
     }
-block_25:
+notMatched:
     return 0;
 }
 
@@ -1718,22 +1801,22 @@ block_25:
    for battle 0x215. Stat results and the status-clear mask are explicit. */
 // Intent: Apply the encounter roster to the unit. [inferred]
 // FUN_0022E630
-s32 btlUnitApplyEncounterRoster(u8 *arg0)
+s32 btlUnitApplyEncounterRoster(u8 *action)
 {
     u8 *unit;
-    if ((*(s32 *)(DAT_0076449c + 0xC) & 0x200000) == 0) {
+    if ((((BtlBattleState *)DAT_0076449c)->flags & 0x200000) == 0) {
         return 0;
     }
-    unit = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(unit + 0xA2) != 1) {
+    unit = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)unit)->genus != 1) {
         switch (btlCurrentUnitId()) {
         case 0x214:
             datPersonaClearRoster();
             datPersonaAddRosterMember(0xE0);
             datPersonaSelectRosterMemberById(0xE0);
             btlUnitInitChild(unit, 0xE0);
-            func_00106d40(1, 0, 4);
-            *(u16 *)(arg0 + 0x18) |= 0x40;
+            datAssignEquippedItem(1, 0, 4);
+            ((BtlAction *)action)->flags |= 0x40;
             break;
         case 0x215:
             datPersonaClearRoster();
@@ -1743,79 +1826,79 @@ s32 btlUnitApplyEncounterRoster(u8 *arg0)
             datSetUnitHp(1, (s16)datCalcMaxHpById(1));
             datSetUnitSp(1, (s16)datCalcMaxSpById(1));
             datCalcClearBadStatusById(1, -1);
-            *(u16 *)(arg0 + 0x18) |= 0x40;
+            ((BtlAction *)action)->flags |= 0x40;
             break;
         }
         return 0;
     }
-    switch (*(u16 *)(unit + 0xA4)) {
+    switch (((BtlUnit *)unit)->charId) {
     case 0x100:
-        *(u32 *)(unit + 0x9C) |= 0x4000;
+        ((BtlUnit *)unit)->flags3 |= 0x4000;
         break;
     case 0x102:
-        *(u32 *)(unit + 0x9C) |= 0x8000;
+        ((BtlUnit *)unit)->flags3 |= 0x8000;
         break;
     case 0x104:
-        *(u32 *)(unit + 0x9C) |= 0x8000;
-        **(u16 **)(unit + 0xA64) |= 0x20;
+        ((BtlUnit *)unit)->flags3 |= 0x8000;
+        ((BtlUnit *)unit)->datUnit->flags |= 0x20;
         break;
     case 0x105:
-        *(u32 *)(unit + 0x9C) |= 0x8000;
+        ((BtlUnit *)unit)->flags3 |= 0x8000;
         break;
     case 0x106:
-        *(u32 *)(unit + 0x9C) |= 0x8000;
-        **(u16 **)(unit + 0xA64) |= 0x20;
-        *(u16 *)(arg0 + 0x1A) |= 0x100;
-        btlActionQueuePush(arg0);
+        ((BtlUnit *)unit)->flags3 |= 0x8000;
+        ((BtlUnit *)unit)->datUnit->flags |= 0x20;
+        ((BtlAction *)action)->unk_1a |= 0x100;
+        btlActionQueuePush(action);
         break;
     case 0x10F:
-        *(u16 *)(arg0 + 0x1A) &= ~8;
-        *(u16 *)(arg0 + 0x1A) |= 0x100;
-        *(u32 *)(unit + 0x9C) &= ~8;
-        *(u32 *)(unit + 0x9C) |= 0x2000;
-        **(u16 **)(unit + 0xA64) |= 0x20;
-        *(u16 *)(unit + 0x9D8) |= 0x20;
-        btlActionQueuePush(arg0);
+        ((BtlAction *)action)->unk_1a &= ~8;
+        ((BtlAction *)action)->unk_1a |= 0x100;
+        ((BtlUnit *)unit)->flags3 &= ~8;
+        ((BtlUnit *)unit)->flags3 |= 0x2000;
+        ((BtlUnit *)unit)->datUnit->flags |= 0x20;
+        ((BtlUnit *)unit)->unk_9d8 |= 0x20;
+        btlActionQueuePush(action);
         break;
     case 0x107:
-        *(u32 *)(unit + 0x9C) |= 0x8000;
+        ((BtlUnit *)unit)->flags3 |= 0x8000;
         break;
     case 0x109:
-        *(u16 *)(arg0 + 0x1A) |= 0x200;
-        *(u16 *)(arg0 + 0x1A) |= 0x10;
+        ((BtlAction *)action)->unk_1a |= 0x200;
+        ((BtlAction *)action)->unk_1a |= 0x10;
         btlUnitInitChild(unit, 0xCE);
         break;
     case 0x10A:
-        *(u16 *)(arg0 + 0x1A) |= 0x100;
-        btlActionQueuePush(arg0);
+        ((BtlAction *)action)->unk_1a |= 0x100;
+        btlActionQueuePush(action);
         break;
     case 0x10B:
-        **(u16 **)(unit + 0xA64) |= 0x20;
-        *(u32 *)(unit + 0x9C) |= 0x8000;
+        ((BtlUnit *)unit)->datUnit->flags |= 0x20;
+        ((BtlUnit *)unit)->flags3 |= 0x8000;
         break;
     case 0x10E:
-        *(u32 *)(unit + 0x9C) |= 0x2000;
-        *(u32 *)(unit + 0x9C) &= ~0x8000;
+        ((BtlUnit *)unit)->flags3 |= 0x2000;
+        ((BtlUnit *)unit)->flags3 &= ~0x8000;
         if (btlCurrentUnitId() != 0x215) {
-            **(u16 **)(unit + 0xA64) |= 0x20;
-            *(u16 *)(arg0 + 0x1A) |= 0x100;
-            btlActionQueuePush(arg0);
+            ((BtlUnit *)unit)->datUnit->flags |= 0x20;
+            ((BtlAction *)action)->unk_1a |= 0x100;
+            btlActionQueuePush(action);
         } else {
             datSetFlag(0x15C0, 1);
-            *(u16 *)(arg0 + 0x1A) |= 0x2000;
-            btlActionQueuePush(arg0);
-            btlActionQueuePush(arg0);
-            btlActionQueuePush(arg0);
-            btlActionQueuePush(arg0);
+            ((BtlAction *)action)->unk_1a |= 0x2000;
+            btlActionQueuePush(action);
+            btlActionQueuePush(action);
+            btlActionQueuePush(action);
+            btlActionQueuePush(action);
         }
         break;
     case 0x112:
-        *(u32 *)(unit + 0x9C) |= 0x8000;
-        *(u16 *)(arg0 + 0x1A) |= 0x10;
+        ((BtlUnit *)unit)->flags3 |= 0x8000;
+        ((BtlAction *)action)->unk_1a |= 0x10;
         btlUnitInitChild(unit, 7);
         break;
     case 0x113:
-        **(u16 **)(unit + 0xA64) |= 0x20;
+        ((BtlUnit *)unit)->datUnit->flags |= 0x20;
         break;
     }
     return 1;
@@ -1825,31 +1908,31 @@ s32 btlUnitApplyEncounterRoster(u8 *arg0)
 // FUN_0022EAD0
 s32 btlUnitRealignCells(void) {
     struct {
-        s32 sp20;
-        s32 sp24;
-        f32 sp28;
-    } temps;
-    u8 *var_16;
+        s32 xBits;
+        s32 yBits;
+        f32 z;
+    } position;
+    u8 *unit;
 
-    if (!( *(s32 *)(DAT_0076449c + 0xC) & 0x200000)) {
+    if (!( ((BtlBattleState *)DAT_0076449c)->flags & 0x200000)) {
         return 0;
     }
     switch (btlCurrentUnitId()) {
     case 0x202:
-        var_16 = *(u8 **)(DAT_0076449c + 0x180);
+        unit = ((BtlBattleState *)DAT_0076449c)->unitLists[2];
         goto loop_check;
 loop_body:
-        if (*(u16 *)(var_16 + 0xA4) == 0x10D) {
-            temps.sp20 = 0x439B0000;
-            temps.sp24 = 0;
-            temps.sp28 = fGpffff834c;
-            btlTargetPositionToCell((s16 *)(var_16 + 0x94), (s16 *)(var_16 + 0x96),
-                          (f32 *)&temps.sp20);
-            btlUnitSetPos(var_16, &temps.sp20);
+        if (((BtlUnit *)unit)->charId == 0x10D) {
+            position.xBits = 0x439B0000;
+            position.yBits = 0;
+            position.z = fGpffff834c;
+            btlTargetPositionToCell((s16 *)&((BtlUnit *)unit)->unk_94, (s16 *)&((BtlUnit *)unit)->unk_96,
+                          (f32 *)&position.xBits);
+            btlUnitSetPos(unit, &position.xBits);
         }
-        var_16 = *(u8 **)(var_16 + 0xA6C);
+        unit = (u8 *)((BtlUnit *)unit)->nextUnit;
 loop_check:
-        if (var_16 != NULL) {
+        if (unit != NULL) {
             goto loop_body;
         }
         break;
@@ -1874,92 +1957,103 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
     u32 index;
     RtQuat rotation;
 
-    if ((*(u32 *)(DAT_0076449c + 0xC) & 0x200000) == 0)
+    if ((((BtlBattleState *)DAT_0076449c)->flags & 0x200000) == 0)
         return 1;
-    unit = *(u8 **)(packet + 0x30);
-    if (unit[0xA2] != 1)
+    unit = (u8*)((BtlAction *)packet)->unit;
+    if (((BtlUnit *)unit)->genus != 1)
         return 1;
-    switch (*(u16 *)(unit + 0xA4)) {
+    switch (((BtlUnit *)unit)->charId) {
     case 0x105:
-        if (*(u16 *)(packet + 0x6C) == 2) {
-            switch (*(u16 *)(packet + 0x6E)) {
+        if (((BtlAction *)packet)->unk_6c == 2) {
+            switch (((BtlAction *)packet)->unk_6e) {
             case 0x16A:
-                *(s8 *)(DAT_0076449c + 0xC10) = -1;
-                *(s8 *)(DAT_0076449c + 0xC13) = -1;
-                *(s8 *)(DAT_0076449c + 0xC28) = -1;
-                *(s8 *)(DAT_0076449c + 0xC22) = -1;
-                *(s8 *)(DAT_0076449c + 0xC1A) = -1;
-                *(s8 *)(DAT_0076449c + 0xC12) = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCuePrefix[0] = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[0] = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[21] = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[15] = -1;
+                ((BtlBattleState *)DAT_0076449c)->bossCueTail[7] = -1;
+                ((BtlBattleState *)DAT_0076449c)->pendingBossCue = -1;
                 break;
             }
         }
-        if (*(s8 *)(DAT_0076449c + 0xC10) == 0xE)
-            *(u16 *)(*(u8 **)(packet + 0x30) + 0x9D8) |= 0x20;
+        if (((BtlBattleState *)DAT_0076449c)->bossCuePrefix[0] == 0xE)
+            /* measured: typing unit here loses MATCH (nd1743). */
+            ((BtlUnit *)*(u8 **)(packet + 0x30))->unk_9d8 |= 0x20;
         else
-            *(u16 *)(*(u8 **)(packet + 0x30) + 0x9D8) &= ~0x20;
+            /* measured: typing unit here loses MATCH (nd1743). */
+            ((BtlUnit *)*(u8 **)(packet + 0x30))->unk_9d8 &= ~0x20;
         break;
     case 0x106:
-        if (*(u16 *)(packet + 0x6C) != 2)
+        if (((BtlAction *)packet)->unk_6c != 2)
             break;
         other = btlUnitFindInSideById(1, 0x10F);
-        if (other == 0 || *(u8 **)(other + 0xA00) == 0)
+        if (other == 0 || ((BtlUnit *)other)->layerHandle == 0)
             break;
-        switch (*(u16 *)(packet + 0x6E)) {
+        switch (((BtlAction *)packet)->unk_6e) {
         case 0x16E:
-            model = *(void **)(other + 0xA00);
+            model = (void*)((BtlUnit *)other)->layerHandle;
             mdlSetFrameColorByName(model, (s32)D_007636C0, 0);
+            /* measured: typing layerHandle here loses MATCH (nd1692). */
             model = *(void **)(other + 0xA00);
             mdlSetFrameColorByName(model, (s32)D_007636C8, 0);
+            /* measured: typing layerHandle here loses MATCH (nd1691). */
             model = *(void **)(other + 0xA00);
             mdlSetFrameColorByName(model, (s32)D_007636D0, 255);
-            *(s16 *)(DAT_0076449c + 0xC34) = 1;
-            **(u16 **)(unit + 0xA64) |= 0x20;
+            ((BtlBattleState *)DAT_0076449c)->bossPhase = 1;
+            ((DatUnit *)((BtlUnit *)unit)->datUnit)->flags |= 0x20;
             target = btlActionFindByUnit((s32)other);
-            *(u16 *)(target + 0x1A) &= ~0x400;
-            datCalcAddHp(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
+            ((BtlAction *)target)->unk_1a &= ~0x400;
+            datCalcAddHp(((BtlUnit *)other)->datUnit, 0xFFFFFFF);
             btlUnitSetMotion(other, 0, 0, 1.0f, 1);
             btlUnitShowModel(other);
             break;
         case 0x16F:
-            model = *(void **)(other + 0xA00);
+            model = (void*)((BtlUnit *)other)->layerHandle;
             mdlSetFrameColorByName(model, (s32)D_007636C0, 0);
+            /* measured: typing layerHandle here loses MATCH (nd1691). */
             model = *(void **)(other + 0xA00);
             mdlSetFrameColorByName(model, (s32)D_007636C8, 255);
+            /* measured: typing layerHandle here loses MATCH (nd1691). */
             model = *(void **)(other + 0xA00);
             mdlSetFrameColorByName(model, (s32)D_007636D0, 255);
-            *(s16 *)(DAT_0076449c + 0xC34) = 2;
-            **(u16 **)(unit + 0xA64) |= 0x20;
+            ((BtlBattleState *)DAT_0076449c)->bossPhase = 2;
+            ((DatUnit *)((BtlUnit *)unit)->datUnit)->flags |= 0x20;
             target = btlActionFindByUnit((s32)other);
-            *(u16 *)(target + 0x1A) &= ~0x400;
-            datCalcAddHp(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
+            ((BtlAction *)target)->unk_1a &= ~0x400;
+            datCalcAddHp(((BtlUnit *)other)->datUnit, 0xFFFFFFF);
             btlUnitSetMotion(other, 0, 0, 1.0f, 1);
             btlUnitShowModel(other);
             break;
         case 0x170:
-            model = *(void **)(other + 0xA00);
+            model = (void*)((BtlUnit *)other)->layerHandle;
             mdlSetFrameColorByName(model, (s32)D_007636C0, 255);
+            /* measured: typing layerHandle here loses MATCH (nd1691). */
             model = *(void **)(other + 0xA00);
             mdlSetFrameColorByName(model, (s32)D_007636C8, 255);
+            /* measured: typing layerHandle here loses MATCH (nd1691). */
             model = *(void **)(other + 0xA00);
             mdlSetFrameColorByName(model, (s32)D_007636D0, 255);
             /* fall through */
         case 0x171:
-            *(s16 *)(DAT_0076449c + 0xC34) = 3;
-            **(u16 **)(unit + 0xA64) |= 0x20;
-            datCalcAddHp(*(DatUnit **)(other + 0xA64), 0xFFFFFFF);
+            ((BtlBattleState *)DAT_0076449c)->bossPhase = 3;
+            ((DatUnit *)((BtlUnit *)unit)->datUnit)->flags |= 0x20;
+            datCalcAddHp(((BtlUnit *)other)->datUnit, 0xFFFFFFF);
             btlUnitUpdateStatusMotion(other, 0);
             btlUnitSetMotion(other, 0, 0, 1.0f, 1);
-            *(u8 **)(DAT_0076449c + 0xB98) = D_0062E070;
+            ((BtlBattleState *)DAT_0076449c)->boss.recordTable = D_0062E070;
             target = btlActionFindByUnit((s32)other);
-            *(u16 *)(packet + 0x1A) &= ~8;
-            *(u32 *)(unit + 0x9C) &= ~8;
-            *(u16 *)(target + 0x1A) |= 8;
-            *(u16 *)(target + 0x1A) &= ~0x400;
-            *(u32 *)(other + 0x9C) |= 8;
+            ((BtlAction *)packet)->unk_1a &= ~8;
+            ((BtlUnit *)unit)->flags3 &= ~8;
+            ((BtlAction *)target)->unk_1a |= 8;
+            ((BtlAction *)target)->unk_1a &= ~0x400;
+            ((BtlUnit *)other)->flags3 |= 8;
+            /* measured: typing unk_6e here loses MATCH (nd1692). */
             if (*(u16 *)(packet + 0x6E) == 0x171) {
+                /* measured: typing flags3 here loses MATCH (nd1002). */
                 *(u32 *)(other + 0x9C) &= ~0x2000;
                 func_003dc740(&rotation, (const RwV3d *)D_0060A0E0, 180.0f, 0);
                 btlUnitSetRot((BtlUnit *)other, &rotation);
+                /* measured: typing flags3 here loses MATCH (nd1002). */
                 *(u32 *)(other + 0x9C) |= 0x2000;
                 btlUnitShowModel(other);
             }
@@ -1967,7 +2061,7 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
         }
         break;
     case 0x108:
-        if (*(u16 *)(packet + 0x6C) != 2 || *(u16 *)(packet + 0x6E) != 0x17A)
+        if (((BtlAction *)packet)->unk_6c != 2 || ((BtlAction *)packet)->unk_6e != 0x17A)
             break;
         if (datGetFlag(0x15C0) != 0) {
             datSetFlag(0x15C5, 1);
@@ -2006,56 +2100,60 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
             datSetFlag(0x1435, 1);
         }
         if (datGetFlag(0x1435) != 0)
-            *(s32 *)(DAT_0076449c + 0xC3C) = 3;
+            ((BtlBattleState *)DAT_0076449c)->bossCameraCountdown = 3;
         break;
     case 0x10A:
     case 0x113:
-        if (*(u16 *)(packet + 0x6E) != 0x180)
+        if (((BtlAction *)packet)->unk_6e != 0x180)
             break;
-        node = *(u8 **)(DAT_0076449c + 0x174);
+        node = ((BtlBattleState *)DAT_0076449c)->actions;
         while (node != 0) {
-            if ((*(u16 *)(node + 0x1A) & 1) != 0) {
-                unit = *(u8 **)(node + 0x30);
-                if ((*(u32 *)(unit + 0x9C) & 8) != 0 && *(u8 **)(unit + 0xA64) != 0)
-                    datCalcClearBuffLevel(*(u8 **)(unit + 0xA64), 0x14);
+            if ((((BtlAction *)node)->unk_1a & 1) != 0) {
+                unit = (u8*)((BtlAction *)node)->unit;
+                if ((((BtlUnit *)unit)->flags3 & 8) != 0 && (u8*)((BtlUnit *)unit)->datUnit != 0)
+                    datCalcClearBuffLevel((u8*)((BtlUnit *)unit)->datUnit, 0x14);
             }
-            node = *(u8 **)(node + 0x450);
+            node = (u8*)((BtlAction *)node)->next;
         }
         break;
     case 0x10E:
-        if (*(u16 *)(packet + 0x6E) != 0x181)
+        if (((BtlAction *)packet)->unk_6e != 0x181)
             break;
-        *(u32 *)(DAT_0076449c + 0x10) |= 0x20000000;
-        target = *(u8 **)(packet + 0x88);
+        ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x20000000;
+        target = ((BtlAction *)packet)->parameters.followUp;
         if (target != 0) {
-            *(u32 *)(*(u8 **)(target + 0x30) + 0x9C) &= ~8;
-            *(RwRGBA *)(*(u8 **)(target + 0x30) + 0x40) = iGpffffb45c;
-            *(RwRGBA *)(*(u8 **)(target + 0x30) + 0x44) = iGpffffb45c;
-            *(RwRGBA *)(*(u8 **)(target + 0x30) + 0x48) = iGpffffb45c;
-            btlUnitSetColor((BtlUnit *)*(u8 **)(target + 0x30), iGpffffb45c);
-            datCalcClearBadStatus((s32)*(u8 **)(*(u8 **)(target + 0x30) + 0xA64), 0xFFF7FFFF);
+            ((BtlUnit *)(u8*)((BtlAction *)target)->unit)->flags3 &= ~8;
+            ((BtlUnit *)(u8*)((BtlAction *)target)->unit)->cols[4] = iGpffffb45c;
+            ((BtlUnit *)(u8*)((BtlAction *)target)->unit)->unk44 = iGpffffb45c;
+            ((BtlUnit *)(u8*)((BtlAction *)target)->unit)->unk48 = iGpffffb45c;
+            btlUnitSetColor((BtlUnit *)(u8*)((BtlAction *)target)->unit, iGpffffb45c);
+            /* measured: typing unit here loses MATCH (nd363). */
+            datCalcClearBadStatus((s32)(u8 *)((BtlUnit *)*(u8 **)(target + 0x30))->datUnit, 0xFFF7FFFF);
+            /* measured: typing unit here loses MATCH (nd363). */
             unit = *(u8 **)(target + 0x30);
-            if ((*(u32 *)(unit + 0x98) & 2) != 0)
-                *(u16 *)(unit + 0x9D8) |= 0x10;
+            if ((((BtlUnit *)unit)->flags2 & 2) != 0)
+                ((BtlUnit *)unit)->unk_9d8 |= 0x10;
         } else {
             index = 0;
             goto targets_check;
 targets_body:
-            target = *(u8 **)(packet + index * 4 + 0x38);
-            if (*(u8 **)(DAT_0076449c + 0x170) == target)
-                *(u32 *)(DAT_0076449c + 0x10) |= 0x10000000;
-            *(u32 *)(*(u8 **)(target + 0x30) + 0x9C) &= ~8;
-            *(RwRGBA *)(*(u8 **)(target + 0x30) + 0x40) = iGpffffb45c;
-            *(RwRGBA *)(*(u8 **)(target + 0x30) + 0x44) = iGpffffb45c;
-            *(RwRGBA *)(*(u8 **)(target + 0x30) + 0x48) = iGpffffb45c;
-            btlUnitSetColor((BtlUnit *)*(u8 **)(target + 0x30), iGpffffb45c);
-            datCalcClearBadStatus((s32)*(u8 **)(*(u8 **)(target + 0x30) + 0xA64), 0xFFF7FFFF);
+            target = ((BtlAction *)packet)->targets[index];
+            if (((BtlBattleState *)DAT_0076449c)->selectedAction == target)
+                ((BtlBattleState *)DAT_0076449c)->battleFlags |= 0x10000000;
+            ((BtlUnit *)(u8*)((BtlAction *)target)->unit)->flags3 &= ~8;
+            ((BtlUnit *)(u8*)((BtlAction *)target)->unit)->cols[4] = iGpffffb45c;
+            ((BtlUnit *)(u8*)((BtlAction *)target)->unit)->unk44 = iGpffffb45c;
+            ((BtlUnit *)(u8*)((BtlAction *)target)->unit)->unk48 = iGpffffb45c;
+            btlUnitSetColor((BtlUnit *)(u8*)((BtlAction *)target)->unit, iGpffffb45c);
+            /* measured: typing unit here loses MATCH (nd1804). */
+            datCalcClearBadStatus((s32)(u8 *)((BtlUnit *)*(u8 **)(target + 0x30))->datUnit, 0xFFF7FFFF);
+            /* measured: typing unit here loses MATCH (nd1804). */
             unit = *(u8 **)(target + 0x30);
-            if ((*(u32 *)(unit + 0x98) & 2) != 0)
-                *(u16 *)(unit + 0x9D8) |= 0x10;
+            if ((((BtlUnit *)unit)->flags2 & 2) != 0)
+                ((BtlUnit *)unit)->unk_9d8 |= 0x10;
             index++;
 targets_check:
-            if (index < *(u16 *)(packet + 0x6A))
+            if (index < ((BtlAction *)packet)->unk_6a)
                 goto targets_body;
         }
         break;
@@ -2071,114 +2169,114 @@ s32 btlUnitReactToDeath(void)
         s64 a;
         s64 b;
         s64 c;
-    } sp30;
-    s32 temp_2;
-    u8 *temp_2_2;
-    u8 *temp_2_3;
-    if ((*(s32 *)(DAT_0076449c + 0xC) & 0x200000) == 0) {
+    } result;
+    s32 encounterId;
+    u8 *firstBoss;
+    u8 *secondBoss;
+    if ((((BtlBattleState *)DAT_0076449c)->flags & 0x200000) == 0) {
         return 0;
     }
-    temp_2 = btlCurrentUnitId();
-    switch (temp_2) {
+    encounterId = btlCurrentUnitId();
+    switch (encounterId) {
     case 0x202: {
-        u8 *var_17;
-        u8 *temp_16;
-        temp_2_2 = btlUnitFindInSideById(1, 0x102);
-        if ((temp_2_2 == NULL) ||
-            (datCalcIsDead(*(s32 **)(temp_2_2 + 0xA64), 0) != 0)) {
-            btlTargetClearResultBuffer((u8 *)&sp30);
-            *(s32 *)&sp30 = 0xFFF00001;
-            var_17 = *(u8 **)(DAT_0076449c + 0x174);
-            goto loop_0022f520_14_check;
-loop_0022f520_14_body:
-            if ((*(u16 *)(var_17 + 0x1A) & 1) != 0) {
-                temp_16 = *(u8 **)(var_17 + 0x30);
-                if ((*(u8 *)(temp_16 + 0xA2) == 1) &&
-                    (*(u16 *)(temp_16 + 0xA4) != 0x102) &&
-                    (datCalcIsDead(*(s32 **)(temp_16 + 0xA64), 0) == 0)) {
+        u8 *firstAction;
+        u8 *firstUnit;
+        firstBoss = btlUnitFindInSideById(1, 0x102);
+        if ((firstBoss == NULL) ||
+            (datCalcIsDead((s32 *)((BtlUnit *)firstBoss)->datUnit, 0) != 0)) {
+            btlTargetClearResultBuffer((u8 *)&result);
+            *(s32 *)&result = 0xFFF00001;
+            firstAction = ((BtlBattleState *)DAT_0076449c)->actions;
+            goto firstActionCheck;
+firstActionBody:
+            if ((((BtlAction *)firstAction)->unk_1a & 1) != 0) {
+                firstUnit = (u8 *)((BtlAction *)firstAction)->unit;
+                if ((((BtlUnit *)firstUnit)->genus == 1) &&
+                    (((BtlUnit *)firstUnit)->charId != 0x102) &&
+                    (datCalcIsDead((s32 *)((BtlUnit *)firstUnit)->datUnit, 0) == 0)) {
                     btlPacketEnqueue(
-                        (u8 *)btlTargetCreateDataPacket((s32)(u32)var_17, (s32)(u32)var_17,
-                                            (void *)&sp30, 1, 1),
+                        (u8 *)btlTargetCreateDataPacket((s32)(u32)firstAction, (s32)(u32)firstAction,
+                                            (void *)&result, 1, 1),
                         1);
                     btlPacketEnqueue(
-                        btlUnitCreateAnimPacket(temp_16, 2, 0, 0, 1.0f),
+                        btlUnitCreateAnimPacket(firstUnit, 2, 0, 0, 1.0f),
                         1);
                 }
             }
-            var_17 = *(u8 **)(var_17 + 0x450);
-loop_0022f520_14_check:
-            if (var_17 != NULL) {
-                goto loop_0022f520_14_body;
+            firstAction = (u8 *)((BtlAction *)firstAction)->next;
+firstActionCheck:
+            if (firstAction != NULL) {
+                goto firstActionBody;
             }
             return 1;
         }
-        goto block_0022f520_27;
+        goto notTriggered;
     }
     case 0x203: {
-        u8 *temp_17;
-        u8 *var_16;
-        temp_2_3 = btlUnitFindInSideById(1, 0x103);
-        if ((temp_2_3 == NULL) ||
-            (datCalcIsDead(*(s32 **)(temp_2_3 + 0xA64), 0) != 0)) {
-            btlTargetClearResultBuffer((u8 *)&sp30);
-            *(s32 *)&sp30 = 0xFFF00001;
-            var_16 = *(u8 **)(DAT_0076449c + 0x174);
-            goto loop_0022f520_25_check;
-loop_0022f520_25_body:
-            if ((*(u16 *)(var_16 + 0x1A) & 1) != 0) {
-                temp_17 = *(u8 **)(var_16 + 0x30);
-                if ((*(u8 *)(temp_17 + 0xA2) == 1) &&
-                    (*(u16 *)(temp_17 + 0xA4) != 0x103) &&
-                    (datCalcIsDead(*(s32 **)(temp_17 + 0xA64), 0) == 0)) {
+        u8 *secondUnit;
+        u8 *secondAction;
+        secondBoss = btlUnitFindInSideById(1, 0x103);
+        if ((secondBoss == NULL) ||
+            (datCalcIsDead((s32 *)((BtlUnit *)secondBoss)->datUnit, 0) != 0)) {
+            btlTargetClearResultBuffer((u8 *)&result);
+            *(s32 *)&result = 0xFFF00001;
+            secondAction = ((BtlBattleState *)DAT_0076449c)->actions;
+            goto secondActionCheck;
+secondActionBody:
+            if ((((BtlAction *)secondAction)->unk_1a & 1) != 0) {
+                secondUnit = (u8 *)((BtlAction *)secondAction)->unit;
+                if ((((BtlUnit *)secondUnit)->genus == 1) &&
+                    (((BtlUnit *)secondUnit)->charId != 0x103) &&
+                    (datCalcIsDead((s32 *)((BtlUnit *)secondUnit)->datUnit, 0) == 0)) {
                     btlPacketEnqueue(
-                        (u8 *)btlTargetCreateDataPacket((s32)(u32)var_16, (s32)(u32)var_16,
-                                            (void *)&sp30, 1, 1),
+                        (u8 *)btlTargetCreateDataPacket((s32)(u32)secondAction, (s32)(u32)secondAction,
+                                            (void *)&result, 1, 1),
                         1);
                     btlPacketEnqueue(
-                        btlUnitCreateAnimPacket(temp_17, 2, 0, 0, 1.0f),
+                        btlUnitCreateAnimPacket(secondUnit, 2, 0, 0, 1.0f),
                         1);
                 }
             }
-            var_16 = *(u8 **)(var_16 + 0x450);
-loop_0022f520_25_check:
-            if (var_16 != NULL) {
-                goto loop_0022f520_25_body;
+            secondAction = (u8 *)((BtlAction *)secondAction)->next;
+secondActionCheck:
+            if (secondAction != NULL) {
+                goto secondActionBody;
             }
             return 1;
         }
-        goto block_0022f520_27;
+        goto notTriggered;
     }
     default:
-        goto block_0022f520_27;
+        goto notTriggered;
     }
-block_0022f520_27:
+notTriggered:
     return 0;
 }
 
 // Intent: Return the entry position for a unit. [inferred]
 // FUN_0022F7D0
-s32 btlUnitGetEntryPosition(u8 *arg0, u8 *arg1) {
-    s32 temp_2;
-    u8 *temp_2_2;
-    u8 *temp_4;
+s32 btlUnitGetEntryPosition(u8 *unit, u8 *position) {
+    s32 encounterId;
+    u8 *activeAction;
+    u8 *unitData;
 
-    temp_2 = btlCurrentUnitId();
-    switch (temp_2) {
+    encounterId = btlCurrentUnitId();
+    switch (encounterId) {
     case 0x208:
-        temp_2_2 = (u8 *)btlActionGetActiveOrQueueFront();
-        if (temp_2_2 != NULL) {
-            temp_4 = *(u8 **)(*(u8 **)(temp_2_2 + 0x30) + 0xA64);
-            if ((temp_4 != NULL) && (datCalcChkBadStatus((s32)temp_4, 0x100) == 0)) {
+        activeAction = (u8 *)btlActionGetActiveOrQueueFront();
+        if (activeAction != NULL) {
+            unitData = (u8 *)((BtlUnit *)(u8 *)((BtlAction *)activeAction)->unit)->datUnit;
+            if ((unitData != NULL) && (datCalcChkBadStatus((s32)unitData, 0x100) == 0)) {
                 return 0;
             }
         }
-        btlUnitGetGridSphereCenter((BtlUnit *)(*(u8 **)(*(u8 **)(DAT_0076449c + 0x170) + 0x30)),
-                      (RwV3d *)arg1);
+        btlUnitGetGridSphereCenter(((BtlAction *)((BtlBattleState *)DAT_0076449c)->selectedAction)->unit,
+                      (RwV3d *)position);
         return 1;
     case 0x10E:
-        *(s32 *)(arg1 + 0) = 0;
-        *(s32 *)(arg1 + 4) = 0;
-        *(f32 *)(arg1 + 8) = (f32)0xBB8;
+        ((BtlCameraPosition *)position)->x = 0;
+        ((BtlCameraPosition *)position)->y = 0;
+        ((BtlCameraPosition *)position)->z = (f32)0xBB8;
         return 1;
     default:
         return 0;
@@ -2186,29 +2284,30 @@ s32 btlUnitGetEntryPosition(u8 *arg0, u8 *arg1) {
 }
 
 // FUN_0022F8B0
-s32 func_0022f8b0(u8 *arg0, s32 arg1)
+/* Identify the boss skill whose action restores motion before hits and suppresses its cutin. */
+s32 btlBossSkillRestoresMotionBeforeHits(u8 *action, s32 skillId)
 {
-    u8 *temp_2;
+    u8 *unit;
 
-    if (*(s32 *)(DAT_0076449c + 0xC) & 0x200000) {
+    if (((BtlBattleState *)DAT_0076449c)->flags & 0x200000) {
         goto check_flag;
     }
     return 0;
 check_flag:
-    if (*(u16 *)(arg0 + 0x1A) & 1) {
-        goto load_temp;
+    if (((BtlAction *)action)->unk_1a & 1) {
+        goto loadUnit;
     }
     return 0;
-load_temp:
-    temp_2 = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(temp_2 + 0xA2) == 1) {
+loadUnit:
+    unit = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)unit)->genus == 1) {
         goto check_id;
     }
     return 0;
 check_id:
-    switch (*(u16 *)(temp_2 + 0xA4)) {
+    switch (((BtlUnit *)unit)->charId) {
     case 0x104:
-        if (arg1 != 0x169) {
+        if (skillId != 0x169) {
             goto fail;
         }
         goto done;
@@ -2229,28 +2328,29 @@ fail:
 #pragma push
 /* measured: btlUnitSkillBlocked MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-s32 btlUnitSkillBlocked(u8 *arg0, u8 *arg1) {
+s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate) {
     s32 paired;
     s16 skill;
     u8 *unit;
 
-    if (*(s32 *)(DAT_0076449c + 0xC) & 0x200000) {
-        if (*(u16 *)(iGpffffb3e0 +
-                    (*(u16 *)(arg1 + 0xA4) * 0x58)) & 1) {
-            paired = btlActionHasNoTargetClass((u32)arg0);
-            skill = *(s16 *)(arg0 + 0x6E);
-            unit = arg1;
+    if ((s32)((BtlBattleState *)DAT_0076449c)->flags & 0x200000) {
+        if (((BtlBossTargetRule *)(iGpffffb3e0 +
+                    (((BtlUnit *)subordinate)->charId * 0x58)))->flags & 1) {
+            paired = btlActionHasNoTargetClass((u32)action);
+            skill = (s16)((BtlAction *)action)->unk_6e;
+            unit = subordinate;
             return (btlTargetCanSelectEntry(unit, skill, paired) != 0) ^ 1;
         }
-        if ((btlActionHasNoTargetClass((u32)arg0) == 0) &&
-            (*(u16 *)(iGpffffb3e0 +
-                     (*(u16 *)(arg1 + 0xA4) * 0x58)) & 0x20)) {
+        if ((btlActionHasNoTargetClass((u32)action) == 0) &&
+            (((BtlBossTargetRule *)(iGpffffb3e0 +
+                     /* measured: typing charId here loses MATCH (nd216). */
+                     (*(u16 *)(subordinate + 0xA4) * 0x58)))->flags & 0x20)) {
             return 1;
         }
-        if (btlBossSkillResultBlocked(arg0) == 1) {
+        if (btlBossSkillResultBlocked(action) == 1) {
             return 1;
         }
-        if (btlBossTargetBlocked(arg0) == 0) {
+        if (btlBossTargetBlocked(action) == 0) {
             return 1;
         }
     }
@@ -2260,35 +2360,36 @@ s32 btlUnitSkillBlocked(u8 *arg0, u8 *arg1) {
 #pragma pop
 // Intent: Report whether the slot is open for the unit. [inferred]
 // FUN_0022FA90
-s32 btlUnitSlotIsOpen(u8 *arg0, s16 arg1)
+s32 btlUnitSlotIsOpen(u8 *action, s16 slotIndex)
 {
-    u8 *temp_6;
+    u8 *battle;
 
-    temp_6 = DAT_0076449c;
-    if (!( *(s32 *)(temp_6 + 0xC) & 0x200000)) {
+    battle = DAT_0076449c;
+    if (!( ((BtlBattleState *)battle)->flags & 0x200000)) {
         return 1;
     }
-    if (!(*(u16 *)(arg0 + 0x1A) & 1)) {
+    if (!(((BtlAction *)action)->unk_1a & 1)) {
         return 1;
     }
-    if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 1) {
+    if (((BtlUnit *)(u8 *)((BtlAction *)action)->unit)->genus != 1) {
         return 1;
     }
     /* Form the EE byte address without arithmetic on an invented pointer. */
-    return *(s8 *)((u32)(s32)arg1 + (u32)temp_6 + 0xC10) != -2;
+    /* measured: typed signed cue-array indexing loses MATCH (nd1). */
+    return *(s8 *)((u32)(s32)slotIndex + (u32)battle + 0xC10) != -2;
 }
 
 // Intent: Report whether the encounter skips the presentation. [inferred]
 // FUN_0022FB10
 s32 btlEncounterSkipsPresentation(void)
 {
-    s32 temp_2;
+    s32 encounterId;
 
-    if (!(*(s32 *)(DAT_0076449c + 0xC) & 0x200000)) {
+    if (!(((BtlBattleState *)DAT_0076449c)->flags & 0x200000)) {
         return 1;
     }
-    temp_2 = btlCurrentUnitId();
-    switch (temp_2) {
+    encounterId = btlCurrentUnitId();
+    switch (encounterId) {
     case 0x209:
     case 0x20C:
     case 0x20D:

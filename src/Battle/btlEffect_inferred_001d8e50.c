@@ -1,28 +1,29 @@
+#include "btl_effect_internal.h"
+#include "btl_action_internal.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
-typedef struct BtlPacket BtlPacket;
 static inline s32 p4_001d7f10_add(s32 left, s32 right)
 {
     return left + right;
 }
 
-extern u16 datCalcMaxHp(u8 *arg0);
-extern u16 datCalcMaxSp(u8 *arg0);
+extern u16 datCalcMaxHp(u8 *unit);
+extern u16 datCalcMaxSp(u8 *unit);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern u32 datCalcChkBadStatus(int unit, u32 badStatus);
-extern u16 datCalcGetHp(u8 *arg0);
-extern u16 datCalcGetSp(u8 *arg0);
+extern u16 datCalcGetHp(u8 *unit);
+extern u16 datCalcGetSp(u8 *unit);
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb3b8;
-extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u32 arg2, u32 arg3, u32 arg4);
+extern void btlEffectCollectTargetUnits(u8 *action, u8 *selection, u32 sideFlags, u32 filterFlags, u32 statusMask);
 
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
@@ -32,7 +33,7 @@ extern char D_00794C00[];
 struct RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
+extern u8 *(*jtbl_008873E8[])(s32 input, s32 value);
 extern u8 D_00609498[];
 extern f32 D_006094B0[];
 extern f32 D_006094D0[];
@@ -58,22 +59,7 @@ typedef int (*code)();
 
 
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
 
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
 
 extern f32 D_0060A100[];
 extern f32 fGpffff8030;
@@ -99,8 +85,10 @@ extern f32 fGpffff8110;
 #pragma pop
 #pragma push
 #pragma pop
+/* Prefer status/buff-relevant targets, then choose a damaged HP or SP candidate according to the skill parameters.
+ * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001D8E50
-void btlEffectSelectTargetByStatus(u8 *arg0, u8 *arg1)
+void btlEffectSelectTargetByStatus(u8 *action, u8 *selection)
 {
     u16 best_value1;
     s16 best_index1;
@@ -113,17 +101,17 @@ void btlEffectSelectTargetByStatus(u8 *arg0, u8 *arg1)
     u16 alternate;
     u8 *work;
 
-    if (*(u16 *)(arg1 + 0x38) <= 1)
+    if (*(u16 *)(selection + 0x38) <= 1)
         return;
-    switch (*(u16 *)(arg0 + 0x6C)) {
+    switch (*(u16 *)(action + 0x6C)) {
     case 2:
         goto mode_valid;
     default:
-        switch (*(u16 *)(arg0 + 0x6C)) {
+        switch (*(u16 *)(action + 0x6C)) {
         case 3:
             goto mode_valid;
         default:
-            switch (*(u16 *)(arg0 + 0x6C)) {
+            switch (*(u16 *)(action + 0x6C)) {
             case 1:
                 goto mode_valid;
             default:
@@ -134,7 +122,7 @@ void btlEffectSelectTargetByStatus(u8 *arg0, u8 *arg1)
 
 mode_valid:
 
-        offset = (u32)*(u16 *)(arg0 + 0x6E) * 0x28;
+        offset = (u32)*(u16 *)(action + 0x6E) * 0x28;
         {
             u8 *entry;
             entry = (u8 *)((u32)offset + (u32)iGpffffb3b8);
@@ -145,30 +133,30 @@ mode_valid:
             target = *(s32 *)((u8 *)((u32)iGpffffb3b8 + 0x1C) + offset);
             if (target != 0) {
                 index = 0;
-                while ((u16)index < *(u16 *)(arg1 + 0x38)) {
-                    if (*(u8 **)(arg0 + 0x30) ==
-                        *(u8 **)(*(u8 **)(arg1 + (u32)(u16)index * 4) + 0x30) &&
+                while ((u16)index < *(u16 *)(selection + 0x38)) {
+                    if (*(u8 **)(action + 0x30) ==
+                        *(u8 **)(*(u8 **)(selection + (u32)(u16)index * 4) + 0x30) &&
                         datCalcChkBadStatus(
-                            (s32)*(u8 **)(*(u8 **)(*(u8 **)(arg1 +
+                            (s32)*(u8 **)(*(u8 **)(*(u8 **)(selection +
                                                           (u32)(u16)index * 4) +
                                                      0x30) +
                                      0xA64),
                             target) != 0) {
-                        *(u16 *)(arg1 + 0x3A) = (u16)index;
+                        *(u16 *)(selection + 0x3A) = (u16)index;
                         return;
                     }
                     index = (index + 1) & 0xFFFF;
                 }
 
                 index = 0;
-                while ((u16)index < *(u16 *)(arg1 + 0x38)) {
+                while ((u16)index < *(u16 *)(selection + 0x38)) {
                     if (datCalcChkBadStatus(
-                            (s32)*(u8 **)(*(u8 **)(*(u8 **)(arg1 +
+                            (s32)*(u8 **)(*(u8 **)(*(u8 **)(selection +
                                                           (u32)(u16)index * 4) +
                                                      0x30) +
                                      0xA64),
                             target) != 0) {
-                        *(u16 *)(arg1 + 0x3A) = (u16)index;
+                        *(u16 *)(selection + 0x3A) = (u16)index;
                         return;
                     }
                     index = (index + 1) & 0xFFFF;
@@ -180,14 +168,12 @@ mode_valid:
         target = *(s32 *)((u8 *)((u32)iGpffffb3b8 + 0x20) + offset);
         if (target != 0) {
             index = 0;
-            while ((u16)index < *(u16 *)(arg1 + 0x38)) {
+            while ((u16)index < *(u16 *)(selection + 0x38)) {
                 if (datCalcHasBuffMask(
-                        *(DatUnit **)(*(u8 **)(*(u8 **)(arg1 +
-                                                      (u32)(u16)index * 4) +
-                                         0x30) +
-                                 0xA64),
+                        (DatUnit *)((BtlAction *)*(u8 **)(selection +
+                                                      (u32)(u16)index * 4))->unit->datUnit,
                         target) == 0) {
-                    *(u16 *)(arg1 + 0x3A) = (u16)index;
+                    *(u16 *)(selection + 0x3A) = (u16)index;
                     return;
                 }
                 index = (index + 1) & 0xFFFF;
@@ -226,8 +212,8 @@ mode1_select:
             best_value1 = 0xFFFF;
             best_index1 = -1;
             index = 0;
-            while ((u16)index < *(u16 *)(arg1 + 0x38)) {
-                work = *(u8 **)(*(u8 **)(arg1 + (u32)(u16)index * 4) + 0x30);
+            while ((u16)index < *(u16 *)(selection + 0x38)) {
+                work = *(u8 **)(*(u8 **)(selection + (u32)(u16)index * 4) + 0x30);
                 value = datCalcGetHp(*(u8 **)(work + 0xA64));
                 alternate = datCalcMaxHp(*(u8 **)(work + 0xA64));
                 if (value < best_value1 && value < alternate) {
@@ -237,7 +223,7 @@ mode1_select:
                 index = (index + 1) & 0xFFFF;
             }
             if (best_index1 != -1) {
-                *(u16 *)(arg1 + 0x3A) = (u16)best_index1;
+                *(u16 *)(selection + 0x3A) = (u16)best_index1;
                 return;
             }
         }
@@ -275,8 +261,8 @@ mode2_select:
             best_value2 = 0xFFFF;
             best_index2 = -1;
             index = 0;
-            while ((u16)index < *(u16 *)(arg1 + 0x38)) {
-                work = *(u8 **)(*(u8 **)(arg1 + (u32)(u16)index * 4) + 0x30);
+            while ((u16)index < *(u16 *)(selection + 0x38)) {
+                work = *(u8 **)(*(u8 **)(selection + (u32)(u16)index * 4) + 0x30);
                 value = datCalcGetSp(*(u8 **)(work + 0xA64));
                 alternate = datCalcMaxSp(*(u8 **)(work + 0xA64));
                 if (value < best_value2 && value < alternate) {
@@ -286,15 +272,16 @@ mode2_select:
                 index = (index + 1) & 0xFFFF;
             }
             if (best_index2 != -1)
-                *(u16 *)(arg1 + 0x3A) = (u16)best_index2;
+                *(u16 *)(selection + 0x3A) = (u16)best_index2;
         }
 
 mode_done:
     return;
 }
 
+/* Find an active action with the requested character ID, genus mask and excluded-status mask. */
 // FUN_001D9280
-u8 *btlEffectFindUnitByIdAndStatus(s32 arg0, s32 arg1, s32 arg2) {
+u8 *btlEffectFindUnitByIdAndStatus(s32 unitId, s32 sideMask, s32 statusMask) {
     s32 work_flags;
     u8 *unit;
     u8 *work;
@@ -303,34 +290,34 @@ u8 *btlEffectFindUnitByIdAndStatus(s32 arg0, s32 arg1, s32 arg2) {
     u32 filter;
     s32 id;
 
-    work_flags = arg2;
-    unit = *(u8 **)(iGpffffb3ac + 0x174);
-    mask = (u16)arg1;
+    work_flags = statusMask;
+    unit = ((BtlBattleState *)iGpffffb3ac)->actions;
+    mask = (u16)sideMask;
     filter = work_flags & 0x80000;
-    id = (u16)arg0;
+    id = (u16)unitId;
     goto next_branch;
 loop:
-    flags = *(u16 *)(unit + 0x1A);
+    flags = ((BtlAction *)unit)->unk_1a;
     if ((flags & 1) != 0) {
         if ((flags & 8) != 0) {
-            work = *(u8 **)(unit + 0x30);
-            if ((mask & (1 << *(u8 *)(work + 0xA2))) != 0) {
+            work = (u8 *)((BtlAction *)unit)->unit;
+            if ((mask & (1 << ((BtlUnit *)work)->genus)) != 0) {
                 if (filter != 0) {
-                    if (datCalcIsDead(*(u8 **)(work + 0xA64), 0) != 0) {
+                    if (datCalcIsDead((u8 *)((BtlUnit *)work)->datUnit, 0) != 0) {
                         goto next;
                     }
                 }
-                if (datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), work_flags) != 0) {
+                if (datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)work)->datUnit, work_flags) != 0) {
                     goto next;
                 }
-                if (*(u16 *)(work + 0xA4) == id) {
+                if (((BtlUnit *)work)->charId == id) {
                     return unit;
                 }
             }
         }
     }
 next:
-    unit = *(u8 **)(unit + 0x450);
+    unit = (u8 *)((BtlAction *)unit)->next;
 next_branch:
     if (unit != NULL) {
         goto loop;
@@ -338,8 +325,9 @@ next_branch:
     return NULL;
 }
 
+/* Gather the selected sides, reject bad status, and count or store actions whose predicate differs from rejectedResult. */
 // FUN_001D9390
-int btlSideSelectUnits(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 (*arg5)(u8 *, s32), u8 **arg6) {
+int btlSideSelectUnits(s32 action, s32 conditionValue, s32 statusMask, s32 sideFlags, s32 rejectedResult, s32 (*predicate)(u8 *, s32), u8 **output) {
     struct Frame {
         u8 *entries[14];
         u16 count;
@@ -352,20 +340,20 @@ int btlSideSelectUnits(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 (*a
     u8 *work;
     u16 flags;
 
-    btlEffectCollectTargetUnits((u8 *)arg0, (u8 *)&frame, arg3, 0, 0);
+    btlEffectCollectTargetUnits((u8 *)action, (u8 *)&frame, sideFlags, 0, 0);
     matches = 0;
     index = 0;
     goto test;
 loop:
     unit = frame.entries[(u16)index];
-    flags = *(u16 *)(unit + 0x1A);
+    flags = ((BtlAction *)unit)->unk_1a;
     if ((flags & 1) != 0) {
         if ((flags & 8) != 0) {
-            work = *(u8 **)(unit + 0x30);
-            if (datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), arg2) == 0) {
-                if (arg5(unit, arg1) != arg4) {
-                    if (arg6 != NULL) {
-                        arg6[(u16)matches] = unit;
+            work = (u8 *)((BtlAction *)unit)->unit;
+            if (datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)work)->datUnit, statusMask) == 0) {
+                if (predicate(unit, conditionValue) != rejectedResult) {
+                    if (output != NULL) {
+                        output[(u16)matches] = unit;
                     }
                     matches = (matches + 1) & 0xFFFF;
                 }
@@ -380,8 +368,10 @@ test:
     return matches;
 }
 
+/* Search active actions by genus, status and optional skill filters, returning at the first successful predicate.
+ * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001D94D0
-int btlEffectFindUnitMatchingCallback(int param_1, int param_2, int param_3, int param_4, int param_5, code param_6)
+int btlEffectFindUnitMatchingCallback(int action, int conditionValue, int sideMask, int statusMask, int filterFlags, code predicate)
 {
     u8 *unit;
     u8 *work;
@@ -396,20 +386,20 @@ int btlEffectFindUnitMatchingCallback(int param_1, int param_2, int param_3, int
     s32 status;
     s32 effects;
 
-    extern s32 datCalcElementBit(s16 arg0);
-    extern s8 datCalcGetBuffStatus(u8 *arg0, s32 arg1);
-    extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
-    extern s32 datTestBitmapBit(u16 arg0, u16 arg1);
+    extern s32 datCalcElementBit(s16 element);
+    extern s8 datCalcGetBuffStatus(u8 *unit, s32 buffIndex);
+    extern s32 func_001f9ce0(u8 *value, s32 index);
+    extern s32 datTestBitmapBit(u16 entryIndex, u16 bitIndex);
 
-    (void)param_1;
+    (void)action;
     unit = *(u8 **)(iGpffffb3ac + 0x174);
-    type_mask = (u16)param_3;
-    options = (u16)param_5;
+    type_mask = (u16)sideMask;
+    options = (u16)filterFlags;
     option_one = options & 1;
     option_two = options & 2;
     option_four_eight = options & 0xC;
     option_four_value = options & 4;
-    ignore_dead_value = param_4 & 0x80000;
+    ignore_dead_value = statusMask & 0x80000;
     goto test;
 
 loop:
@@ -423,7 +413,7 @@ loop:
                 datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), 0x100000) == 0)
                 goto next;
             if (option_two != 0) {
-                status = datCalcElementBit((s16)param_2);
+                status = datCalcElementBit((s16)conditionValue);
                 if ((status & 0xE0001) == 0) {
                     if ((status & 2) != 0) {
                         effects = datCalcGetBuffStatus(*(u8 **)(work + 0xA64), 0x10);
@@ -438,8 +428,8 @@ loop:
             }
             if (option_four_eight != 0 &&
                 *(u8 *)(work + 0xA2) == 1 &&
-                func_001f9ce0(unit, (s16)param_2) == 0 &&
-                datTestBitmapBit(*(u16 *)(work + 0xA4), (u16)param_2) == 0) {
+                func_001f9ce0(unit, (s16)conditionValue) == 0 &&
+                datTestBitmapBit(*(u16 *)(work + 0xA4), (u16)conditionValue) == 0) {
                 if (option_four_value != 0)
                     goto next;
                 return 1;
@@ -447,8 +437,8 @@ loop:
 check_general:
             if ((ignore_dead_value == 0 ||
                  datCalcIsDead(*(u8 **)(work + 0xA64), 0) == 0) &&
-                datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), param_4) == 0 &&
-                param_6(unit, param_2) != 0)
+                datCalcChkBadStatus((s32)*(u8 **)(work + 0xA64), statusMask) == 0 &&
+                predicate(unit, conditionValue) != 0)
                 return 1;
         }
     }

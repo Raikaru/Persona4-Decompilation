@@ -6,6 +6,8 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "model_matrix_internal.h"
+#include "sdktask.h"
+#include "scene_render_internal.h"
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern u8 D_0064A618[];
@@ -17,27 +19,27 @@ extern u8 D_0064A6D0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
 
-extern s32 func_00349340(u8 *task);
-extern void debugModelDrawDestroy(u8 *arg0);
-extern void func_00349440(u8 *arg0, u8 *arg1);
-extern void mdlDestroyModelObject(u8 *arg0);
-extern void datFreeBlock(u8 *arg0);
-extern s32 mdlPrepareModel(u8 *arg0);
+extern s32 debugModelDrawClearScratch(u8 *unusedTask);
+extern void debugModelDrawDestroy(u8 *task);
+extern void fclModelBeginDraw(u8 *task, u8 *context);
+extern void mdlDestroyModelObject(u8 *model);
+extern void datFreeBlock(u8 *block);
+extern s32 mdlPrepareModel(u8 *model);
 extern void *kwlnGetCamera(void);
-extern void K_View_SetFov(void *arg0, f32 arg1);
+extern void K_View_SetFov(void *camera, f32 fov);
 extern void *K_Clump_GetLightA(void);
-extern void func_003c38b0(void *arg0, void *arg1);
+extern void func_003c38b0(void *task, void *context);
 extern void *K_Clump_GetLightB(void);
-extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
-extern u8 *datCloneEntryBlock(s8 arg0);
-extern void RwMatrixRotate(void *arg0, void *arg1, f32 arg2, s32 arg3);
-extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
-extern s32 cmbEffModelUpdate(u8 *arg0);
+extern void func_003e9cb0(s32 frame, void *transform, s32 combine);
+extern u8 *datCloneEntryBlock(s8 entryIndex);
+extern void RwMatrixRotate(void *task, void *context, f32, s32);
+extern void RwMatrixTranslate(void *task, void *context, s32);
+extern s32 cmbEffModelUpdate(u8 *task);
 extern void *mdlFindOrCreateModelObject(u32, u16, u32);
 extern s32 datGetFlag(s32);
 extern s32 cmbCardEffSpriteFileLoaded(u8 *);
 extern u32 cmbCardEffSpriteIsActive(u8 *);
-extern u8 *func_001102f0(u8 *, s32, s32, f32);
+extern u8 *datScreenPointToWorldPosition(u8 *, s32, s32, f32);
 extern s32 evtGetEventFrame(void);
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *, void *);
@@ -49,24 +51,25 @@ extern u8 D_00793E80[];
 extern u8 D_005DCA70[];
 extern u8 D_005DCA1C[];
 
+/* Register the debug model draw task with its 0x1A0-byte work allocation. */
 // FUN_003493B0
-void func_003493b0(s32 arg0)
+void fclDebugModelCreate(s32 parentTask)
 {
     u8 *work;
 
     chkmemAllocSiteTag(D_0064A618, 0x555);
     work = D_008873F4[0](1, 0x1A0, 0x40000);
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A630), 0xF, 0, 0, func_00349340, debugModelDrawDestroy, (u8 *)(work));
+    (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0064A630), 0xF, 0, 0, debugModelDrawClearScratch, debugModelDrawDestroy, (u8 *)(work));
 }
 
 /* Model table entry addressed by (task+0x10)[model id]; 0x20 bytes. Field roles follow the
-   uses in func_00349440 (offset/scale/angle/colours/window) and cmbEffModelUpdate (field_6). */
+   uses in func_00349440 (offset/scale/angle/colours/window) and cmbEffModelUpdate (animationId). */
 typedef struct FclModelEntry {
     s16 offset[3];
-    s16 field_6;
+    s16 animationId;
     f32 scale;
     f32 angle;
-    s16 field_10;
+    s16 unk10;
     s16 quatIdx;
     s32 colorA;
     s32 colorB;
@@ -74,7 +77,39 @@ typedef struct FclModelEntry {
     s16 winY;
 } FclModelEntry;
 
-/* Camera/model set-up for one model task (a1 is the task object; a0 is unused).
+/* The 0x100-byte allocation in func_0034a4f0 and its update/draw consumers
+   establish this work layout; the tail is reserved, not additional matrices. */
+typedef struct FclModelWork {
+    s8 state;
+    s8 paused;
+    s16 drawDelay;
+    s8 effectState;
+    s8 animationRequested;
+    s8 releaseRequested;
+    u8 pad07;
+    u16 modelId;
+    u8 pad0A[2];
+    u8 *model;
+    FclModelEntry *entries;
+    u8 *entryBlock;
+    u8 quaternion[16];
+    s8 previewMode;
+    u8 pad29[7];
+    u8 matrix[64];
+    f32 savedFov;
+    f32 savedLightA[4];
+    f32 savedLightB[4];
+    u8 pad94[0xC];
+    u8 savedLightMatrix[64];
+    FclVec2 savedWindow;
+    s32 drawLayer;
+    u8 *spriteA;
+    u8 *spriteB;
+    u8 padF4[0xC];
+} FclModelWork;
+
+
+/* Camera/model set-up for one model work block (context); task is unused.
    measured with opt_propagation off, which keeps the D_ constant loads in `ld`/`lwc1`
    order and keeps the constant/temporary statements where they are written:
    - the model table entry is read three ways: byte-offset arithmetic for the first entry
@@ -91,12 +126,12 @@ typedef struct FclModelEntry {
 // FUN_00349440
 #pragma push
 #pragma opt_propagation off
-void func_00349440(u8 *arg0, u8 *arg1)
+void fclModelBeginDraw(u8 *task, u8 *context)
 {
-    extern f32 K_View_GetFov(void *a);
+    extern f32 K_View_GetFov(void *camera);
     extern void *RwMatrixMultiply(void *a, void *b, void *c);
-    extern void mdlApplyModelMatrix(void *a, void *b, s32 c);
-    extern void mdlScale(void *a, void *b, s32 c);
+    extern void mdlApplyModelMatrix(void *model, void *matrix, s32 combineOp);
+    extern void mdlScale(void *model, void *scale, s32 combineOp);
     extern void memcpy(void *dst, void *src, u32 size);
     extern s32 K_Clump_GetWorld(void);
     extern u8 *K_Clump_GetLightC(void);
@@ -131,8 +166,10 @@ void func_00349440(u8 *arg0, u8 *arg1)
     s128 quat __attribute__((aligned(16)));
     u8 *obj;
     u8 *parent;
-    (void)arg0;
-    obj = arg1;
+    (void)task;
+    /* FclModelWork describes these offsets. Typed access changed register
+       allocation (1900B versus retail 1860B); retain the measured byte form. */
+    obj = context;
     {
         u8 *p = trans;
         s32 n = 12;
@@ -336,17 +373,19 @@ void func_00349440(u8 *arg0, u8 *arg1)
 }
 #pragma pop
 
+/* Restore camera FOV and light state saved by the model draw callback. */
 // FUN_00349B90
-void func_00349b90(u8 *arg0, u8 *arg1)
+void fclModelRestoreDrawState(u8 *task, u8 *context)
 {
-    u8 *temp_4;
+    u8 *model;
 
-    temp_4 = *(u8 **)(arg1 + 0xC);
-    if ((temp_4 != NULL) && (mdlPrepareModel(temp_4) != 0)) {
-        K_View_SetFov(kwlnGetCamera(), *(f32 *)(arg1 + 0x70));
-        func_003c38b0(K_Clump_GetLightA(), arg1 + 0x74);
-        func_003c38b0(K_Clump_GetLightB(), arg1 + 0x84);
-        func_003e9cb0(*(s32 *)((u8 *)K_Clump_GetLightB() + 4), arg1 + 0xA0, 0);
+    /* The shared light prefix leaves SDK flags opaque; +2 marks its frame dirty. */
+    model = ((FclModelWork *)context)->model;
+    if ((model != NULL) && (mdlPrepareModel(model) != 0)) {
+        K_View_SetFov(kwlnGetCamera(), ((FclModelWork *)context)->savedFov);
+        func_003c38b0(K_Clump_GetLightA(), (u8 *)&((FclModelWork *)context)->savedLightA);
+        func_003c38b0(K_Clump_GetLightB(), (u8 *)&((FclModelWork *)context)->savedLightB);
+        func_003e9cb0(((SceneRenderLight *)K_Clump_GetLightB())->frame, (u8 *)&((FclModelWork *)context)->savedLightMatrix, 0);
         *(s8 *)((u8 *)K_Clump_GetLightB() + 2) = 3;
         K_Clump_GetLightB();
     }
@@ -363,7 +402,7 @@ void func_00349b90(u8 *arg0, u8 *arg1)
    - the model-id colour picks are an if chain in retail order (0x59, 0xA, 0x5F);
    - the animation table at obj+0x10 is an array of 0x20-byte entries indexed by model id. */
 // FUN_00349C50
-s32 cmbEffModelUpdate(u8 *arg0)
+s32 cmbEffModelUpdate(u8 *task)
 {
     FclVec3 pos0;
     FclVec3 pos1;
@@ -371,7 +410,10 @@ s32 cmbEffModelUpdate(u8 *arg0)
     FclDrawColor color0;
     FclDrawColor colorTmp;
     u8 *obj;
-    obj = *(u8 **)(arg0 + 0x38);
+    /* FclModelWork documents the layout; typed fields grew this callback
+       to 2176B for a 2096B retail window, so preserve its byte accesses.
+       Raw model +0xEE and queue +8/+0x10 accesses are external object ABIs. */
+    obj = *(u8 **)(task + 0x38);
     switch (*(s8 *)obj) {
     case 0:
         if (*(s8 *)(obj + 6) == 1) {
@@ -419,29 +461,29 @@ s32 cmbEffModelUpdate(u8 *arg0)
                         return 0;
                     }
                     if (*(s8 *)(obj + 5) == 1) {
-                        u16 a = *(u16 *)(obj + 8);
-                        if (a == 0x16) {
+                        u16 modelId = *(u16 *)(obj + 8);
+                        if (modelId == 0x16) {
                             FclModelEntry *tbl = *(FclModelEntry **)(obj + 0x10);
-                            s16 an = tbl[a].field_6;
-                            mdlDispatchAnimIfPresent(*(u8 **)(obj + 0xC), 0, an, 0, 0);
+                            s16 animationId = tbl[modelId].animationId;
+                            mdlDispatchAnimIfPresent(*(u8 **)(obj + 0xC), 0, animationId, 0, 0);
                         } else {
                             FclModelEntry *tbl = *(FclModelEntry **)(obj + 0x10);
-                            s16 an = tbl[a].field_6;
-                            mdlDispatchAnimIfPresent(*(u8 **)(obj + 0xC), 0, an, 10, 0);
+                            s16 animationId = tbl[modelId].animationId;
+                            mdlDispatchAnimIfPresent(*(u8 **)(obj + 0xC), 0, animationId, 10, 0);
                         }
                     }
                     *(s8 *)(obj + 4) = 1;
                     break;
                 case 1:
                     if (cmbCardEffSpriteIsActive(*(u8 **)(obj + 0xEC)) == 0) {
-                        func_001102f0((u8 *)&pos0, 0x140, 0xA5, 300.0f);
+                        datScreenPointToWorldPosition((u8 *)&pos0, 0x140, 0xA5, 300.0f);
                         color0 = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
                         cmbCardEffSpawnSprite(*(u8 **)(obj + 0xEC), pos0, 0.0f, 0.0f, 0.0f, 1.0f, color0, 0, -1);
                     }
                     if (cmbCardEffSpriteIsActive(*(u8 **)(obj + 0xF0)) == 0) {
                         colorTmp = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
                         *(FclDrawColor *)&color1 = colorTmp;
-                        func_001102f0((u8 *)&pos1, 0x140, 0xA5, 300.0f);
+                        datScreenPointToWorldPosition((u8 *)&pos1, 0x140, 0xA5, 300.0f);
                         if (*(u16 *)(obj + 8) == 0x59) {
                             color1 = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xCD);
                         } else if (*(u16 *)(obj + 8) == 0xA) {
@@ -452,12 +494,12 @@ s32 cmbEffModelUpdate(u8 *arg0)
                         cmbCardEffSpawnSprite(*(u8 **)(obj + 0xF0), pos1, 0.0f, 0.0f, 0.0f, 1.0f, color1, 0, -1);
                     }
                     if (*(s8 *)(obj + 5) == 1) {
-                        u16 v = *(u16 *)(obj + 8);
-                        if ((v == 4) || (v == 0xB) || (v == 0x16) || (v == 0x2D) || (v == 0x53) ||
-                            (v == 0x6B) || (v == 0x9A) || (v == 0x57) || (v == 0xA6) || (v == 0xBA) ||
-                            (v == 0xBD) || (v == 0x15) || (v == 0x43) || (v == 0x68) || (v == 0x8D) ||
-                            (v == 0x93) || (v == 0x71) || (v == 0x7D) || (v == 0x8A) || (v == 0xA3) ||
-                            (v == 0x39)) {
+                        u16 modelId = *(u16 *)(obj + 8);
+                        if ((modelId == 4) || (modelId == 0xB) || (modelId == 0x16) || (modelId == 0x2D) || (modelId == 0x53) ||
+                            (modelId == 0x6B) || (modelId == 0x9A) || (modelId == 0x57) || (modelId == 0xA6) || (modelId == 0xBA) ||
+                            (modelId == 0xBD) || (modelId == 0x15) || (modelId == 0x43) || (modelId == 0x68) || (modelId == 0x8D) ||
+                            (modelId == 0x93) || (modelId == 0x71) || (modelId == 0x7D) || (modelId == 0x8A) || (modelId == 0xA3) ||
+                            (modelId == 0x39)) {
                             *(s8 *)(obj + 4) = 2;
                             *(s8 *)(obj + 5) = 0;
                         } else {
@@ -498,14 +540,14 @@ s32 cmbEffModelUpdate(u8 *arg0)
             *(s32 *)(obj + 0xE8) = 0xB3;
         }
         {
-            void *tmp1 = PrimAllocQueueNode();
-            *(void **)((u8 *)tmp1 + 8) = (void *)func_00349440;
-            *(u8 **)((u8 *)tmp1 + 0x10) = obj;
-            PrimAppendNode(&D_00793E80[(*(s32 *)(obj + 0xE8) - 1) * 0x30], tmp1);
+            void *setupQueueNode = PrimAllocQueueNode();
+            *(void **)((u8 *)setupQueueNode + 8) = (void *)fclModelBeginDraw;
+            *(u8 **)((u8 *)setupQueueNode + 0x10) = obj;
+            PrimAppendNode(&D_00793E80[(*(s32 *)(obj + 0xE8) - 1) * 0x30], setupQueueNode);
             {
-                s16 cur = *(s16 *)(obj + 2);
-                if (cur < 3) {
-                    *(s16 *)(obj + 2) = fclAddClamped(cur, 1, 3, 0, 1);
+                s16 drawDelay = *(s16 *)(obj + 2);
+                if (drawDelay < 3) {
+                    *(s16 *)(obj + 2) = fclAddClamped(drawDelay, 1, 3, 0, 1);
                 } else {
                     mdlQueueModelForDraw(&D_00793E80[(*(s32 *)(obj + 0xE8)) * 0x30], *(u8 **)(obj + 0xC));
                     if (*(s8 *)(obj + 0x28) == 0) {
@@ -516,37 +558,37 @@ s32 cmbEffModelUpdate(u8 *arg0)
                 }
             }
             {
-                void *tmp2 = PrimAllocQueueNode();
-                *(void **)((u8 *)tmp2 + 8) = (void *)func_00349b90;
-                *(u8 **)((u8 *)tmp2 + 0x10) = obj;
-                PrimAppendNode(&D_00793E80[(*(s32 *)(obj + 0xE8) + 1) * 0x30], tmp2);
+                void *restoreQueueNode = PrimAllocQueueNode();
+                *(void **)((u8 *)restoreQueueNode + 8) = (void *)fclModelRestoreDrawState;
+                *(u8 **)((u8 *)restoreQueueNode + 0x10) = obj;
+                PrimAppendNode(&D_00793E80[(*(s32 *)(obj + 0xE8) + 1) * 0x30], restoreQueueNode);
             }
         }
         break;
     case 4:
         {
-            u8 *p1 = *(u8 **)(obj + 0xC);
-            if (p1 != NULL) {
-                mdlDestroyModelObject(p1);
+            u8 *modelToFree = *(u8 **)(obj + 0xC);
+            if (modelToFree != NULL) {
+                mdlDestroyModelObject(modelToFree);
                 *(u8 **)(obj + 0xC) = NULL;
             }
             {
-                u8 *p2 = *(u8 **)(obj + 0x14);
-                if (p2 != NULL) {
-                    datFreeBlock(p2);
+                u8 *entryBlockToFree = *(u8 **)(obj + 0x14);
+                if (entryBlockToFree != NULL) {
+                    datFreeBlock(entryBlockToFree);
                     *(u8 **)(obj + 0x14) = NULL;
                 }
             }
             if (*(s8 *)(obj + 0x28) == 0) {
-                u8 *p3 = *(u8 **)(obj + 0xEC);
-                if (p3 != NULL) {
-                    kwlnTaskDestroyWithHierarchy(p3);
+                u8 *firstSprite = *(u8 **)(obj + 0xEC);
+                if (firstSprite != NULL) {
+                    kwlnTaskDestroyWithHierarchy(firstSprite);
                     *(u8 **)(obj + 0xEC) = NULL;
                 }
                 {
-                    u8 *p4 = *(u8 **)(obj + 0xF0);
-                    if (p4 != NULL) {
-                        kwlnTaskDestroyWithHierarchy(p4);
+                    u8 *secondSprite = *(u8 **)(obj + 0xF0);
+                    if (secondSprite != NULL) {
+                        kwlnTaskDestroyWithHierarchy(secondSprite);
                         *(u8 **)(obj + 0xF0) = NULL;
                     }
                 }
@@ -562,23 +604,26 @@ s32 cmbEffModelUpdate(u8 *arg0)
     }
     return 0;
 }
+/* Destroy the model and cloned entry block, then free the task work. */
 // FUN_0034A480
-void cmbEffModelDestroy(u8 *arg0)
+void cmbEffModelDestroy(u8 *task)
 {
-    u8 *temp_16;
-    u8 *temp_4;
-    u8 *temp_4_2;
+    u8 *work;
+    u8 *model;
+    u8 *entryBlock;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_4 = *(u8 **)(temp_16 + 0xC);
-    if (temp_4 != NULL) {
-        mdlDestroyModelObject(temp_4);
+    /* The typed task work load changes the saved base register (two words);
+       retain the +0x38 access while using the proven work members below. */
+    work = *(u8 **)(task + 0x38);
+    model = ((FclModelWork *)work)->model;
+    if (model != NULL) {
+        mdlDestroyModelObject(model);
     }
-    temp_4_2 = *(u8 **)(temp_16 + 0x14);
-    if (temp_4_2 != NULL) {
-        datFreeBlock(temp_4_2);
+    entryBlock = ((FclModelWork *)work)->entryBlock;
+    if (entryBlock != NULL) {
+        datFreeBlock(entryBlock);
     }
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](*(u8 **)(task + 0x38));
 }
 
 /* measured: retail loads the {s64 @0x50, f32 @0x58} and {s64 @0x40, f32 @0x48}
@@ -627,12 +672,13 @@ void cmbEffModelDestroy(u8 *arg0)
    function straight back to MISMATCH -- and `tailcall on` pairs with it. */
 #pragma optimization_level 1
 #pragma tailcall on
+/* Create the model effect controller and initialize its rotated base matrix. */
 // FUN_0034A4F0
 #pragma tailcall on
-s32 func_0034a4f0(s32 arg0, s32 arg1)
+s32 fclModelEffectCreate(s32 parentTask, s32 entryId)
 {
-    u8 sp50[0xC];
-    u8 sp40[0xC];
+    u8 translation[0xC];
+    u8 rotationAxis[0xC];
     s32 handle;
     u8 *entry;
     u8 *mem;
@@ -644,24 +690,26 @@ s32 func_0034a4f0(s32 arg0, s32 arg1)
        pads to 16 and copies the tail as a second ld/sd. */
     xy = *(s64 *)&D_0064A6B0[0];
     z = *(f32 *)&D_0064A6B0[8];
-    *(s64 *)&sp50[0] = xy;
-    *(f32 *)&sp50[8] = z;
+    *(s64 *)&translation[0] = xy;
+    *(f32 *)&translation[8] = z;
     xy = *(s64 *)&D_0064A6C0[0];
     z = *(f32 *)&D_0064A6C0[8];
-    *(s64 *)&sp40[0] = xy;
-    *(f32 *)&sp40[8] = z;
+    *(s64 *)&rotationAxis[0] = xy;
+    *(f32 *)&rotationAxis[8] = z;
     chkmemAllocSiteTag(D_0064A618, 0x7A9);
     mem = D_008873F4[0](1, 0x100, 0x40000);
-    handle = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0064A6D0), 0xF, 0, 0, cmbEffModelUpdate, cmbEffModelDestroy, (u8 *)(mem));
-    *(s8 *)(mem + 0) = 0;
-    *(s16 *)(mem + 8) = 0;
-    *(s8 *)(mem + 5) = 0;
-    entry = datCloneEntryBlock((s8)arg1);
-    *(u8 **)(mem + 0x14) = entry;
-    *(s32 *)(mem + 0x10) = *(s32 *)(entry + 8);
-    *(s32 *)(mem + 0xE8) = 0xB3;
-    RwMatrixRotate(mem + 0x30, &sp40[0], 180.0f, 0);
-    RwMatrixTranslate(mem + 0x30, &sp50[0], 2);
+    handle = (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0064A6D0), 0xF, 0, 0, cmbEffModelUpdate, cmbEffModelDestroy, (u8 *)(mem));
+    ((FclModelWork *)mem)->state = 0;
+    ((FclModelWork *)mem)->modelId = 0;
+    ((FclModelWork *)mem)->animationRequested = 0;
+    entry = datCloneEntryBlock((s8)entryId);
+    ((FclModelWork *)mem)->entryBlock = entry;
+    /* The cloned data-block header supplies its entry array at +8; its other
+       spans are owned by the data loader rather than the model work layout. */
+    ((FclModelWork *)mem)->entries = *(FclModelEntry **)(entry + 8);
+    ((FclModelWork *)mem)->drawLayer = 0xB3;
+    RwMatrixRotate((u8 *)&((FclModelWork *)mem)->matrix, &rotationAxis[0], 180.0f, 0);
+    RwMatrixTranslate((u8 *)&((FclModelWork *)mem)->matrix, &translation[0], 2);
     return handle;
 }
 /* measured: closes the optimization_level 1 + tailcall scope opened above for

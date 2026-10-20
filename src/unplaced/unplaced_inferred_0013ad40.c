@@ -6,74 +6,75 @@
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "datPersona_internal.h"
-extern s32 radarSkillEffectMissing(s16 arg0, s16 arg1, s32 arg2);
-extern s32 func_0013f720(s16 arg0, s16 arg1, s32 arg2, u8 *arg3);
+extern s32 radarSkillEffectMissing(s16, s16, s32);
+extern s32 cmpSkillApplySelected(s16, s16, s32, u8 *);
 extern s32 nLineIsIdle(void);
-struct GDataEntry;
+struct GDataEntry { u8 pad0[0x24]; u16 effect; };
 
-extern struct GDataEntry *datEntryAt(s16 arg0);
-extern u32 datEntryGetFlags(s16 arg0);
-extern s32 datCalcSkillEffectFlagsById(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
-static inline u8 *code13AddOff(s32 offset, u8 *base) {
+extern struct GDataEntry *datEntryAt(s16);
+extern u32 datEntryGetFlags(s16);
+extern s32 datCalcSkillEffectFlagsById(s16, s16, u32, u32);
+/* Keep the unsigned integer address addition order used by the matching indexed loads. */
+static inline u8 *radarOffsetAddress(s32 offset, u8 *base) {
     return (u8 *)((u32)offset + (u32)base);
 }
 
-extern u16 func_0010f8c0(s32 arg0);
-extern s32 titleSetMenuLayout(u8 *arg0, u32 arg1);
-extern s32 nLineSelectSet(s32 arg0);
-extern s32 radarEntryTypeIsActive(s16 arg0);
-extern s32 func_0010f540(s32 arg0);
-extern void shdPersonaSetFlags(u8 *arg0, s32 arg1);
-extern void shdPersonaClearFlags(u8 *arg0, s32 arg1);
-extern void shdPersonaRefreshDispCtlPosition(u8 *arg0, void *arg1);
-extern void shdPersonaSetChildDispCtlHandleAndColor(u8 *arg0, s32 arg1, s32 arg2);
-extern void sdkListStateConfigure(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void sdkListStateSetActive(void *arg0, s32 arg1);
-extern void sdkListStateSetSecondaryMasks(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 sdkListStateHandleInput(u8 *arg0);
-extern void cmpPersonaSetSelection(u8 *arg0, s32 arg1, s32 arg2);
-extern void shdPersonaBeginDisplay(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
-extern void datPersonaSetLeadSlot(s16 arg0);
-extern s32 datCalcThresholdTriggerById(s16 arg0, u32 arg1);
-extern void shdPersonaBeginDisplayAndEndSelection(u8 *arg0, s32 arg1, s32 arg2, s8 arg3);
-extern s32 radarEntryIsAllowed(s16 arg0, s32 arg1, u8 *arg2);
-extern s32 cmpSkillSetSelection(s16 *arg0, s32 arg1, s32 arg2);
-extern s32 cmpSkillSetMode(u8 *arg0, s32 arg1);
-extern void cmpSkillSetScrollCursorMotion(u8 *arg0);
-extern void cmpEquipSetSelection(u8 *arg0, s32 arg1, s32 arg2);
-extern void cmpEquipBuildItemList(u8 *arg0);
-extern void cmpEquipSetMode(u8 *arg0, s32 arg1);
-extern void radarBeginSlideOut(u8 *arg0);
-extern void radarBeginSlideIn(u8 *arg0);
-extern s16 func_00106cd0(s16 arg0, s16 arg1);
-extern s32 datItemCount(s16 arg0);
-extern void func_00106d40(s16 arg0, s16 arg1, s16 arg2);
-extern void radarResetAndSetIndices(u8 *arg0, s16 arg1, s16 arg2);
-extern void sdkSpriteDrawAt(void *arg0, f32 fparg0, f32 fparg1,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4);
-extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
-extern void datPanelResetCursor(u8 *arg0);
-extern void datPanelDrawByKind(Vec2f arg0, f32 arg4, s32 arg1, u8 *arg2, s32 arg3);
-extern s32 datCalcGetLevelById(s32 arg0);
+extern u16 datGetSkillPropertyByte(s32);
+extern s32 titleSetMenuLayout(u8 *, u32);
+extern s32 nLineSelectSet(s32);
+extern s32 radarEntryTypeIsActive(s16);
+extern s32 datIsSkillAvailable(s32);
+extern void shdPersonaSetFlags(u8 *, s32);
+extern void shdPersonaClearFlags(u8 *, s32);
+extern void shdPersonaRefreshDispCtlPosition(u8 *, void *);
+extern void shdPersonaSetChildDispCtlHandleAndColor(u8 *, s32, s32);
+extern void sdkListStateConfigure(u8 *, s32, s32, s32, s32);
+extern void sdkListStateSetActive(void *, s32);
+extern void sdkListStateSetSecondaryMasks(u8 *, s32, s32, s32, s32);
+extern s32 sdkListStateHandleInput(u8 *);
+extern void cmpPersonaSetSelection(u8 *, s32, s32);
+extern void shdPersonaBeginDisplay(u8 *, s32, s32, s8);
+extern void datPersonaSetLeadSlot(s16);
+extern s32 datCalcThresholdTriggerById(s16, u32);
+extern void shdPersonaBeginDisplayAndEndSelection(u8 *, s32, s32, s8);
+extern s32 radarEntryIsAllowed(s16, s32, u8 *);
+extern s32 cmpSkillSetSelection(s16 *, s32, s32);
+extern s32 cmpSkillSetMode(u8 *, s32);
+extern void cmpSkillSetScrollCursorMotion(u8 *);
+extern void cmpEquipSetSelection(u8 *, s32, s32);
+extern void cmpEquipBuildItemList(u8 *);
+extern void cmpEquipSetMode(u8 *, s32);
+extern void radarBeginSlideOut(u8 *);
+extern void radarBeginSlideIn(u8 *);
+extern s16 datGetEquippedItemByUnit(s16, s16);
+extern s32 datItemCount(s16);
+extern void datAssignEquippedItem(s16, s16, s16);
+extern void radarResetAndSetIndices(u8 *, s16, s16);
+extern void sdkSpriteDrawAt(void *, f32, f32,
+                          u8, u8, u8, u8);
+extern void sdkSpriteDrawSized(u8 *, f32, f32, f32,
+                          u8, u8, u8, u8, u16,
+                          u16, s16, f32, s16);
+extern void datPanelResetCursor(u8 *);
+extern void datPanelDrawByKind(Vec2f, f32, s32, u8 *, s32);
+extern s32 datCalcGetLevelById(s32);
 extern f32 fGpffff82cc; /* gp -0x7d34 */
-extern void datEntryDrawByKind(Vec2f arg0, u8 arg1, void *arg2, s32 arg3, f32 arg4);
+extern void datEntryDrawByKind(Vec2f, u8, void *, s32, f32);
 extern void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth,
-                          s32 arg0, s32 arg1, s32 arg2, s32 arg3);
-extern void titleStateInit(u8 *arg0);
-extern s32 titleAdvanceWait(u8 *arg0);
-extern s32 radarPushHistoryValue(s32 arg0, s32 arg1, s32 arg2);
+                          s32, s32, s32, s32);
+extern void titleStateInit(u8 *);
+extern s32 titleAdvanceWait(u8 *);
+extern s32 radarPushHistoryValue(s32, s32, s32);
 extern void resrcMngUnsuppressRender(void);
 extern void resrcMngSuppressRender(void);
 extern s32 datCommunityRequestExit(void);
-extern void datCommunityCursorFeedback(s32 arg0);
-extern s32 nLineSelectSetImmediate(s32 arg0);
-extern s32 radarAdvanceGroupSelection(u8 *arg0);
-extern s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2);
+extern void datCommunityCursorFeedback(s32);
+extern s32 nLineSelectSetImmediate(s32);
+extern s32 radarAdvanceGroupSelection(u8 *);
+extern s32 radarApplyItemStep(s16, s16, u8 *);
 extern u16 D_008C024E[];
 extern u16 D_008C0252[];
-extern void radarHandleEntrySelect(s32 *arg0, u8 *arg1);
+extern void radarHandleEntrySelect(s32 *, u8 *);
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
 extern u8 D_0064B2EC[];
@@ -82,15 +83,121 @@ extern u8 D_0064B2F4[];
 extern u8 D_0064B2FC[];
 extern u8 D_0064B308[];
 extern u8 D_0064B30C[];
-extern void datSetFlag(s32 arg0, s32 arg1);
-extern void datCalcApplySkillEffectById(s16 arg0, s16 arg1, u32 arg2, u32 arg3);
+extern void datSetFlag(s32, s32);
+extern void datCalcApplySkillEffectById(s16, s16, u32, u32);
 extern s32 FldStepNotAtBoundaryQuery(void);
-extern void kAssertFail(void *arg0, s32 arg1);
+extern void kAssertFail(void *, s32);
 extern u8 D_005ED9E0[];
 typedef struct {
     s32 first;
     s32 second;
-} code13Pair;
+} RadarPositionWords;
+
+/* Partial layout: field widths and offsets are established by the accesses below. */
+typedef struct { u8 pad0[0x24]; s32 row, page; } SdkListState;
+typedef struct { s16 item, count; } RadarItemEntry;
+typedef struct { s16 leadSlot; u16 skill; u8 pad4[6]; u16 label; } RadarSkillEntry;
+
+typedef struct {
+    u8 pad0[0xC];
+    u16 fadeFrame; /* +0xC */
+    u8 padE[0x2];
+    s32 exitRequest; /* +0x10 */
+    u8 pad14[0xE];
+    s16 unk22; /* +0x22 */
+    s16 unk24; /* +0x24 */
+    s16 unk26; /* +0x26 */
+    u8 pad28[0x2];
+    s16 unk2A; /* +0x2A */
+    u8 pad2C[0x10];
+    s16 unk3C; /* +0x3C */
+    RadarItemEntry entries[768];
+    s16 itemCount; /* +0xC3E */
+    u8 padC40[0x4];
+    s32 unkC44; /* +0xC44 */
+} RadarItemMenuWork;
+
+/* Partial layout: field widths and offsets are established by the accesses below. */
+typedef struct {
+    u8 pad0[0xC];
+    u16 fadeFrame; /* +0xC */
+    u8 padE[0x2];
+    s32 exitRequest; /* +0x10 */
+    u8 pad14[0x14];
+    s16 unk28; /* +0x28 */
+    s16 unk2A; /* +0x2A */
+    s16 unk2C; /* +0x2C */
+    s16 unk2E; /* +0x2E */
+    u8 pad30[0x4];
+    s16 unk34; /* +0x34 */
+    u8 pad36[0x12];
+    s16 unk48; /* +0x48 */
+    u8 pad4A[0xBFC];
+    s16 equipmentItemCount; /* +0xC46 */
+    u8 padC48[0x94C];
+    s32 unk1594; /* +0x1594 */
+} RadarEquipmentMenuWork;
+
+/* Partial layout: field widths and offsets are established by the accesses below. */
+typedef struct {
+    u8 pad0[0xC];
+    u16 fadeFrame; /* +0xC */
+    u8 padE[0x2];
+    s32 exitRequest; /* +0x10 */
+    u8 pad14[0x20];
+    s16 unk34; /* +0x34 */
+    u8 pad36[0x18];
+    s16 unk4E; /* +0x4E */
+    s16 unk50; /* +0x50 */
+    s16 unk52; /* +0x52 */
+    u8 pad54[0x1C60];
+    u8 * personaDisplay; /* +0x1CB4 */
+    u8 * screenWipe; /* +0x1CB8 */
+} RadarPersonaMenuWork;
+
+/* Partial layout: field widths and offsets are established by the accesses below. */
+typedef struct {
+    u8 alpha; /* +0x0 */
+    u8 pad1[0x3];
+    f32 x; /* +0x4 */
+    f32 y; /* +0x8 */
+    u16 fadeFrame; /* +0xC */
+    u8 padE[0x2];
+    s32 exitRequest; /* +0x10 */
+    u8 pad14[0x8];
+    s32 flags; /* +0x1C */
+    u8 pad20[0x3C];
+    s16 unk5C; /* +0x5C */
+    s16 unk5E; /* +0x5E */
+    s16 unk60; /* +0x60 */
+    s16 unk62; /* +0x62 */
+    u8 pad64[0x48];
+    s16 unkAC; /* +0xAC */
+    u8 padAE[0x4E];
+    s16 unkFC; /* +0xFC */
+    u8 padFE[2];
+    RadarSkillEntry skills[96];
+    s16 unk580; /* +0x580 */
+    u8 pad582[0x628];
+    u16 cardHeight; /* +0xBAA */
+    u8 padBAC[0xD8];
+    f32 cardOffsetX; /* +0xC84 */
+    f32 cardOffsetY; /* +0xC88 */
+    u8 padC8C[0x5FC];
+    union { s32 integer; u8 * bytes; } unk1288; /* +0x1288 */
+    union { u8 * bytes; void * pointer; } unk128C; /* +0x128C */
+    u8 pad1290[0x2C];
+    void * unk12BC; /* +0x12BC */
+    void * unk12C0; /* +0x12C0 */
+    void *digitSprites[10];
+    u8 pad12EC[0x30];
+    u8 * unk131C; /* +0x131C */
+    void * unk1320; /* +0x1320 */
+    u8 * unk1324; /* +0x1324 */
+    u8 * unk1328; /* +0x1328 */
+    u8 pad132C[0x4];
+    void * unk1330; /* +0x1330 */
+} RadarSkillMenuWork;
 
 #pragma push
 #pragma opt_loop_invariants off
@@ -98,13 +205,13 @@ typedef struct {
 #pragma opt_propagation off
 // Intent: Draw one radar entry row from the first group (slots 5 and 1) or the second group (slots 0x1C and 0x18) [inferred]
 // FUN_0013AD40
-void radarDrawEntryRowGroup(u8 *arg0, s32 arg1, s32 arg2)
+void radarDrawEntryRowGroup(u8 *work, s32 rowIndex, s32 groupIndex)
 {
     typedef struct
     {
         s16 id;
         s16 pad2;
-        s16 unk4;
+        s16 x;
         s16 highlight;
         s32 mode;
     } LabelParam;
@@ -138,16 +245,16 @@ void radarDrawEntryRowGroup(u8 *arg0, s32 arg1, s32 arg2)
 
     highlight = 0;
     dim = 1.0f;
-    id = ((s16 *)(arg0 + 0xF4))[arg1];
-    x = *(f32 *)(arg0 + 4);
-    y = *(f32 *)(arg0 + 8);
-    fade = (f32)*(u8 *)arg0 / 255.0f;
+    id = ((s16 *)(work + 0xF4))[rowIndex];
+    x = ((RadarSkillMenuWork *)work)->x;
+    y = ((RadarSkillMenuWork *)work)->y;
+    fade = (f32)*(u8 *)work / 255.0f;
     datPanelResetCursor((u8 *)&param);
     param.mode = 1;
     param.id = id;
-    selected = ((s16 *)(arg0 + 0x5C))[arg2];
-    if (selected == arg1 || (*(s32 *)(arg0 + 0x1C) & 0x100) != 0) {
-        if (arg2 == 0 && (*(s32 *)(arg0 + 0x1C) & 0x10) != 0) {
+    selected = ((s16 *)(work + 0x5C))[groupIndex];
+    if (selected == rowIndex || (((RadarSkillMenuWork *)work)->flags & 0x100) != 0) {
+        if (groupIndex == 0 && (((RadarSkillMenuWork *)work)->flags & 0x10) != 0) {
             param.highlight = 2;
             color0 = D_0064B2F4;
             color1 = D_0064B2F0;
@@ -166,46 +273,46 @@ void radarDrawEntryRowGroup(u8 *arg0, s32 arg1, s32 arg2)
         color2 = D_0064B308;
         dim = fGpffff82cc;
     }
-    if (arg2 == 0) {
+    if (groupIndex == 0) {
         slot = 5;
         slot2 = 1;
     } else {
         slot = 0x1C;
         slot2 = 0x18;
     }
-    pos.x = 67.0f + (x + ((LabelSlot *)(arg0 + 0x594))[slot + arg1].x);
-    yoff = 75.0f * (f32)arg1;
-    ty = 24.0f + (y + ((LabelSlot *)(arg0 + 0x594))[slot + arg1].y);
+    pos.x = 67.0f + (x + ((LabelSlot *)(work + 0x594))[slot + rowIndex].x);
+    yoff = 75.0f * (f32)rowIndex;
+    ty = 24.0f + (y + ((LabelSlot *)(work + 0x594))[slot + rowIndex].y);
     pos.y = ty + yoff;
-    ty = ((LabelSlot *)(arg0 + 0x594))[slot + arg1].alpha;
+    ty = ((LabelSlot *)(work + 0x594))[slot + rowIndex].alpha;
     datPanelDrawByKind(pos, 0.0f, (u8)(ty * fade), (u8 *)&param, 0);
-    alpha = (f32)(arg0 + 0x59E)[(slot2 + arg1) * 0x30] * fade;
-    pos.x = 60.0f + (x + ((f32 *)(arg0 + 0x594))[(slot2 + arg1) * 12]);
-    ty = y + ((f32 *)(arg0 + 0x598))[(slot2 + arg1) * 12];
+    alpha = (f32)(work + 0x59E)[(slot2 + rowIndex) * 0x30] * fade;
+    pos.x = 60.0f + (x + ((f32 *)(work + 0x594))[(slot2 + rowIndex) * 12]);
+    ty = y + ((f32 *)(work + 0x598))[(slot2 + rowIndex) * 12];
     pos.y = 21.0f + (ty + yoff);
-    sdkSpriteDrawAt(*(void **)(arg0 + 0x12BC), pos.x, pos.y, color0[0], color0[1], color0[2], alpha);
+    sdkSpriteDrawAt(((RadarSkillMenuWork *)work)->unk12BC, pos.x, pos.y, color0[0], color0[1], color0[2], alpha);
     if (highlight != 0) {
-        pos.x = 2.0f + (x + ((f32 *)(arg0 + 0x594))[(slot2 + arg1) * 12]);
-        ty = y + ((f32 *)(arg0 + 0x598))[(slot2 + arg1) * 12];
+        pos.x = 2.0f + (x + ((f32 *)(work + 0x594))[(slot2 + rowIndex) * 12]);
+        ty = y + ((f32 *)(work + 0x598))[(slot2 + rowIndex) * 12];
         pos.y = 27.0f + (ty + yoff);
-        sdkSpriteDrawAt(*(void **)(arg0 + 0x12C0), pos.x, pos.y, 0x4C, 0x4C, 0x4C, alpha);
+        sdkSpriteDrawAt(((RadarSkillMenuWork *)work)->unk12C0, pos.x, pos.y, 0x4C, 0x4C, 0x4C, alpha);
     }
     n = (u8)datCalcGetLevelById(id);
-    pos.x = 43.0f + (x + ((f32 *)(arg0 + 0x594))[(slot2 + arg1) * 12]);
-    ty = y + ((f32 *)(arg0 + 0x598))[(slot2 + arg1) * 12];
+    pos.x = 43.0f + (x + ((f32 *)(work + 0x594))[(slot2 + rowIndex) * 12]);
+    ty = y + ((f32 *)(work + 0x598))[(slot2 + rowIndex) * 12];
     pos.y = 25.0f + (ty + yoff);
     if (n < 10) {
         pos.x -= 11.0f;
     }
     while (n > 0) {
-        sdkSpriteDrawAt(*(void **)(arg0 + (n % 10) * 4 + 0x12C4), pos.x, pos.y, color1[0], color1[1], color1[2], alpha);
+        sdkSpriteDrawAt(((RadarSkillMenuWork *)work)->digitSprites[n % 10], pos.x, pos.y, color1[0], color1[1], color1[2], alpha);
         pos.x -= 22.0f;
         n /= 10;
     }
-    pos.x = 37.0f + (x + ((f32 *)(arg0 + 0x594))[(slot2 + arg1) * 12]);
-    ty = y + ((f32 *)(arg0 + 0x598))[(slot2 + arg1) * 12];
+    pos.x = 37.0f + (x + ((f32 *)(work + 0x594))[(slot2 + rowIndex) * 12]);
+    ty = y + ((f32 *)(work + 0x598))[(slot2 + rowIndex) * 12];
     pos.y = 53.0f + (ty + yoff);
-    spr = *(void **)(arg0 + 0x1330);
+    spr = ((RadarSkillMenuWork *)work)->unk1330;
     sdkSpriteDrawAt(spr, pos.x, pos.y, color2[0], color2[1], color2[2], (u8)((f32)alpha * dim));
 }
 #pragma pop
@@ -220,25 +327,25 @@ void radarDrawEntryRowGroup(u8 *arg0, s32 arg1, s32 arg2)
    views of their argument storage: b210 otherwise hoists the Y load before
    the RGB snapshots. All 176 instruction bytes and 42 sibling images match. */
 #pragma opt_propagation off
-void radarDrawSecondSpritePair(u8 *arg0, Vec2f arg1, PackedColor4 arg2)
+void radarDrawSecondSpritePair(u8 *work, Vec2f position, PackedColor4 color)
 {
-    f32 c0;
-    s32 p;
-    u8 c1;
-    u8 c2;
-    u8 c3;
+    f32 drawY;
+    s32 sprite;
+    u8 alpha;
+    u8 blue;
+    u8 green;
 
-    p = *(s32 *)(arg0 + 0x1288);
-    c1 = ((u8 *)&arg2)[3];
-    c2 = ((u8 *)&arg2)[2];
-    c3 = ((u8 *)&arg2)[1];
-    c0 = ((f32 *)&arg1)[1];
-    sdkSpriteDrawAt((void *)p,
-                  ((f32 *)&arg1)[0], c0,
-                  ((u8 *)&arg2)[0], c3, c2, c1);
-    sdkSpriteDrawAt(*(void **)(arg0 + 0x128c),
-                  340.0f + ((f32 *)&arg1)[0], c0,
-                  ((u8 *)&arg2)[0], c3, c2, c1);
+    sprite = ((RadarSkillMenuWork *)work)->unk1288.integer;
+    alpha = ((u8 *)&color)[3];
+    blue = ((u8 *)&color)[2];
+    green = ((u8 *)&color)[1];
+    drawY = ((f32 *)&position)[1];
+    sdkSpriteDrawAt((void *)sprite,
+                  ((f32 *)&position)[0], drawY,
+                  ((u8 *)&color)[0], green, blue, alpha);
+    sdkSpriteDrawAt(((RadarSkillMenuWork *)work)->unk128C.pointer,
+                  340.0f + ((f32 *)&position)[0], drawY,
+                  ((u8 *)&color)[0], green, blue, alpha);
 }
 #pragma pop
 
@@ -277,7 +384,7 @@ void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void
 
     work = context;
     originalY = inputPosition.y;
-    opacityValue = (f32)(u32)*(u8 *)(work + 0);
+    opacityValue = (f32)(u32)((RadarSkillMenuWork *)work)->alpha;
     opacityScale = opacityValue / 255.0f;
     colors.current.b[0] = 0x14;
     colors.current.b[1] = 0x14;
@@ -285,7 +392,7 @@ void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void
     scaledAlpha = 204.0f * opacityScale;
     alphaByte = (u8)scaledAlpha;
     colors.current.b[3] = alphaByte;
-    height = (f32)(u32)*(u16 *)(work + 0xBAA);
+    height = (f32)(u32)((RadarSkillMenuWork *)work)->cardHeight;
     position.xy.x = inputPosition.x - 1.0f;
     inputPosition.y = 24.0f;
     inputPosition.y += originalY;
@@ -295,7 +402,7 @@ void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void
         u8 alpha;
         u8 blue;
         u8 green;
-        sprite = *(u8 **)(work + 0x1324);
+        sprite = ((RadarSkillMenuWork *)work)->unk1324;
         alpha = colors.current.b[3];
         blue = colors.current.b[2];
         green = colors.current.b[1];
@@ -303,7 +410,7 @@ void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void
         sdkSpriteDrawSized(sprite, position.xy.x, y, 0.0f,
                       ((u8 *)&colors.current)[0], green, blue, alpha,
                       0x1000, (u16)height, 0, 0.0f, 0);
-        sprite = *(u8 **)(work + 0x1328);
+        sprite = ((RadarSkillMenuWork *)work)->unk1328;
         sdkSpriteDrawSized(sprite, (f32)0x159 + position.xy.x, y, 0.0f,
                       ((u8 *)&colors.current)[0], green, blue, alpha,
                       0x1000, (u16)height, 0, 0.0f, 0);
@@ -311,13 +418,13 @@ void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void
     {
         f32 x;
         x = 5.0f + inputPosition.x;
-        x += *(f32 *)(work + 0xC84);
+        x += ((RadarSkillMenuWork *)work)->cardOffsetX;
         position.xy.x = x;
     }
     {
         f32 y;
         y = 34.0f + originalY;
-        y += *(f32 *)(work + 0xC88);
+        y += ((RadarSkillMenuWork *)work)->cardOffsetY;
         position.xy.y = y;
     }
     colors.current.b[0] = 0x68;
@@ -331,14 +438,14 @@ void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void
         u8 alpha;
         u8 blue;
         u8 green;
-        sprite = *(u8 **)(work + 0x131C);
+        sprite = ((RadarSkillMenuWork *)work)->unk131C;
         alpha = colors.current.b[3];
         blue = colors.current.b[2];
         green = colors.current.b[1];
         y = position.xy.y;
         sdkSpriteDrawAt(sprite, position.xy.x, y,
                       ((u8 *)&colors.current)[0], green, blue, alpha);
-        sdkSpriteDrawAt(*(void **)(work + 0x1320), 330.0f + position.xy.x, y,
+        sdkSpriteDrawAt(((RadarSkillMenuWork *)work)->unk1320, 330.0f + position.xy.x, y,
                       ((u8 *)&colors.current)[0], green, blue, alpha);
     }
     position.xy.x = inputPosition.x;
@@ -356,14 +463,14 @@ void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void
         u8 alpha;
         u8 blue;
         u8 green;
-        sprite = *(u8 **)(work + 0x1288);
+        sprite = ((RadarSkillMenuWork *)work)->unk1288.bytes;
         alpha = colors.copy.b[3];
         blue = colors.copy.b[2];
         green = colors.copy.b[1];
         y = palettePosition.xy.y;
         sdkSpriteDrawAt(sprite, palettePosition.xy.x,
                       y, colors.copy.b[0], green, blue, alpha);
-        sprite = *(u8 **)(work + 0x128C);
+        sprite = ((RadarSkillMenuWork *)work)->unk128C.bytes;
         sdkSpriteDrawAt(sprite, 340.0f + palettePosition.xy.x,
                       y, colors.copy.b[0], green, blue, alpha);
     }
@@ -373,46 +480,48 @@ void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void
     position.xy.y = 54.0f + originalY;
     labelAlpha = (u8)scaledInputAlpha;
     itfMesWindowDrawDefaultEntry((f32)(s32)position.xy.x, (f32)(s32)position.xy.y, 0.0f,
-                  (labelAlpha & 0xFF) | ~0xFF, 1, 8, *(u16 *)((u8 *)entry + 0xA));
+                  (labelAlpha & 0xFF) | ~0xFF, 1, 8, ((RadarSkillEntry *)entry)->label);
 }
 #pragma pop
 
-static inline s32 code13GroupBefore(u8 *arg0, s32 index)
+/* Measured: struct indexing in this inline changed radarAdvanceGroupSelection; retain the 4-byte item-record cursor. */
+static inline s32 radarPreviousGroupStart(u8 *work, s32 index)
 {
     u32 selected;
-    selected = datEntryGetFlags(*(s16 *)(code13AddOff((index - 1) * 4, arg0) + 0x3E));
+    selected = datEntryGetFlags(*(s16 *)(radarOffsetAddress((index - 1) * 4, work) + 0x3E));
     index = index - 1;
     while (index > 0) {
-        if (datEntryGetFlags(*(s16 *)(arg0 + index * 4 + 0x3A)) != selected) break;
+        if (datEntryGetFlags(*(s16 *)(work + index * 4 + 0x3A)) != selected) break;
         index--;
     }
     return index;
 }
 
-static inline s32 code13GroupBeforeOrSame(u8 *arg0, s32 total)
+static inline s32 radarPreviousGroupStartOrSame(u8 *work, s32 total)
 {
     if (total == 0) {
         return total;
     } else {
-        return code13GroupBefore(arg0, total);
+        return radarPreviousGroupStart(work, total);
     }
 }
 
-static inline s32 code13GroupAfter(u8 *arg0, s32 total, s32 count, s32 wrap)
+/* Measured: struct indexing in this inline changed radarAdvanceGroupSelection; retain the 4-byte item-record cursor. */
+static inline s32 radarNextGroupStart(u8 *work, s32 total, s32 count, s32 wrap)
 {
     s32 index;
     u32 selected;
-    selected = datEntryGetFlags(*(s16 *)(code13AddOff(total * 4, arg0) + 0x3E));
+    selected = datEntryGetFlags(*(s16 *)(radarOffsetAddress(total * 4, work) + 0x3E));
     index = total + 1;
     while (index < count) {
-        if (datEntryGetFlags(*(s16 *)(arg0 + index * 4 + 0x3E)) != selected) break;
+        if (datEntryGetFlags(*(s16 *)(work + index * 4 + 0x3E)) != selected) break;
         index++;
     }
     if (index >= count) index = wrap;
     return index;
 }
 
-static inline s32 code13SelectionSum(s32 row, s32 column)
+static inline s32 radarSelectionSum(s32 row, s32 column)
 {
     return row + column;
 }
@@ -423,7 +532,8 @@ static inline s32 code13SelectionSum(s32 row, s32 column)
 #pragma opt_propagation off
 // Intent: Advance the group selection to the neighbour chosen by the button bits, and update the two group windows [inferred]
 // FUN_0013B9F0
-s32 radarAdvanceGroupSelection(u8 *arg0)
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+s32 radarAdvanceGroupSelection(u8 *work)
 {
     s32 count;
     s32 index;
@@ -431,29 +541,29 @@ s32 radarAdvanceGroupSelection(u8 *arg0)
     s32 low;
     s32 high;
 
-    count = *(s16 *)(arg0 + 0xC3E);
+    count = ((RadarItemMenuWork *)work)->itemCount;
     if (count < 2) return 0;
     {
-        s32 column = *(s16 *)(arg0 + 0x24);
-        s32 row = *(s16 *)(arg0 + 0x22);
-        total = code13SelectionSum(row, column);
+        s32 column = ((RadarItemMenuWork *)work)->unk24;
+        s32 row = ((RadarItemMenuWork *)work)->unk22;
+        total = radarSelectionSum(row, column);
     }
     if (D_008C024E[0] & 4) {
         index = total;
         if (total == 0) index = count;
-        index = code13GroupBefore(arg0, index);
+        index = radarPreviousGroupStart(work, index);
         goto process;
     }
     if (D_008C024E[0] & 8) {
-        index = code13GroupAfter(arg0, total, count, 0);
+        index = radarNextGroupStart(work, total, count, 0);
         goto process;
     }
     if (D_008C0252[0] & 4) {
-        index = code13GroupBeforeOrSame(arg0, total);
+        index = radarPreviousGroupStartOrSame(work, total);
         goto process;
     }
     if (D_008C0252[0] & 8) {
-        index = code13GroupAfter(arg0, total, count, total);
+        index = radarNextGroupStart(work, total, count, total);
         goto process;
     }
     return 0;
@@ -472,16 +582,16 @@ process:
             high = 0;
         }
     }
-    radarPushHistoryValue((s32)arg0, 0, (s16)high);
-    radarPushHistoryValue((s32)arg0, 1, (s16)low);
+    radarPushHistoryValue((s32)work, 0, (s16)high);
+    radarPushHistoryValue((s32)work, 1, (s16)low);
     return 1;
 }
 #pragma pop
 
-s32 radarEntriesCoverValue(u8 *arg0);
-void radarFreeSpriteNodes(u8 *arg0);
-void radarPushSlotState(u8 *arg0);
-void radarResetIndicator(u8 *arg0);
+s32 radarEntriesCoverValue(u8 *);
+void radarFreeSpriteNodes(u8 *);
+void radarPushSlotState(u8 *);
+void radarResetIndicator(u8 *);
 
 #pragma push
 #pragma opt_loop_invariants off
@@ -489,129 +599,130 @@ void radarResetIndicator(u8 *arg0);
 #pragma opt_propagation on
 // Intent: Item-use menu state machine: step the item selection, apply the chosen item to its recipients, and return the menu's result [inferred]
 // FUN_0013BCF0
-s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
-    extern s32 radarPushHistoryValue(s32 arg0, s32 arg1, s32 arg2);
-    u8 buf[0x30];
-    f32 temp_f1;
-    f32 var_f1;
-    s32 temp_16;
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 var_2;
-    s32 var_3;
-    *arg1 = (var_2 = 1);
-    switch (*arg0) {
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+s32 radarItemMenuUpdate(u32 *state, s32 *active, u8 *work) {
+    extern s32 radarPushHistoryValue(s32 menuAddress, s32 selectionIndex, s32 selection);
+    u8 listState[0x30];
+    f32 fadeAlpha;
+    f32 fadeValue;
+    s32 ready;
+    s32 listResult;
+    s32 alternateListResult;
+    s32 finished;
+    s32 alphaByte;
+    *active = (finished = 1);
+    switch (*state) {
     case 0:
-        *arg1 = 0;
-        titleStateInit(arg2);
-        *arg0 = 1;
+        *active = 0;
+        titleStateInit(work);
+        *state = 1;
         break;
     case 1:
-        temp_16 = titleAdvanceWait(arg2);
-        if (temp_16 & nLineIsIdle()) {
-            *arg0 = 3;
+        ready = titleAdvanceWait(work);
+        if (ready & nLineIsIdle()) {
+            *state = 3;
             nLineSelectSet(0xB);
         } else {
-            *arg1 = 0;
+            *active = 0;
         }
         break;
     case 2:
-        if (radarEntriesCoverValue(arg2) != 0) {
-            radarFreeSpriteNodes(arg2);
+        if (radarEntriesCoverValue(work) != 0) {
+            radarFreeSpriteNodes(work);
             return 1;
         }
         break;
     case 3:
-        if (radarEntriesCoverValue(arg2) != 0) {
-            titleSetMenuLayout(arg2, 3);
-            *arg0 = 4;
+        if (radarEntriesCoverValue(work) != 0) {
+            titleSetMenuLayout(work, 3);
+            *state = 4;
             resrcMngSuppressRender();
         }
         break;
     case 4:
         if (D_008C024E[0] & 0x20) {
-            titleSetMenuLayout(arg2, 1);
-            *arg0 = 2;
+            titleSetMenuLayout(work, 1);
+            *state = 2;
             resrcMngUnsuppressRender();
             nLineSelectSet(0xD);
             sdkSndStartStream(0, 2, 0, 4);
-        } else if ((D_008C024E[0] & 0x40) && (*(s16 *)(arg2 + 0xC3E) > 0)) {
-            radarHandleEntrySelect((s32 *)arg0, arg2);
-            *(s32 *)(arg2 + 0xC44) = 0;
-        } else if ((D_008C024E[0] & 0x80) && (*(s16 *)(arg2 + 0xC3E) > 0)) {
-            titleSetMenuLayout(arg2, 8);
-            *arg0 = 5;
-            *(s32 *)(arg2 + 0xC44) = 1;
+        } else if ((D_008C024E[0] & 0x40) && (*(s16 *)(work + 0xC3E) > 0)) {
+            radarHandleEntrySelect((s32 *)state, work);
+            *(s32 *)(work + 0xC44) = 0;
+        } else if ((D_008C024E[0] & 0x80) && (*(s16 *)(work + 0xC3E) > 0)) {
+            titleSetMenuLayout(work, 8);
+            *state = 5;
+            *(s32 *)(work + 0xC44) = 1;
             sdkSndStartStream(0, 2, 0, 3);
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-            *arg0 = 0xB;
-        } else if (radarAdvanceGroupSelection(arg2) != 0) {
+            *(s32 *)(work + 0x10) = datCommunityRequestExit();
+            *state = 0xB;
+        } else if (radarAdvanceGroupSelection(work) != 0) {
             sdkSndStartStream(0, 1, 0, 5);
         } else {
-            sdkListStateConfigure(buf, 6, *(s16 *)(arg2 + 0xC3E), *(s16 *)(arg2 + 0x22), *(s16 *)(arg2 + 0x24));
-            sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0x2000, 0x8000);
-            if ((temp_2_2 = sdkListStateHandleInput(buf)) > 0) {
-                radarPushHistoryValue((s32)arg2, 0, *(s32 *)(buf + 0x24));
-                radarPushHistoryValue((s32)arg2, 1, *(s32 *)(buf + 0x28));
-                if (*(s16 *)(arg2 + 0x24) != *(s16 *)(arg2 + 0x2A)) {
-                    radarResetIndicator(arg2);
+            sdkListStateConfigure(listState, 6, *(s16 *)(work + 0xC3E), *(s16 *)(work + 0x22), *(s16 *)(work + 0x24));
+            sdkListStateSetSecondaryMasks(listState, 0x4000, 0x1000, 0x2000, 0x8000);
+            if ((listResult = sdkListStateHandleInput(listState)) > 0) {
+                radarPushHistoryValue((s32)work, 0, ((SdkListState *)listState)->row);
+                radarPushHistoryValue((s32)work, 1, ((SdkListState *)listState)->page);
+                if (*(s16 *)(work + 0x24) != *(s16 *)(work + 0x2A)) {
+                    radarResetIndicator(work);
                 }
-                datCommunityCursorFeedback(temp_2_2);
+                datCommunityCursorFeedback(listResult);
             }
         }
         break;
     case 7:
-        if (radarEntriesCoverValue(arg2) != 0) {
-            titleSetMenuLayout(arg2, 6);
-            radarPushSlotState(arg2);
-            *arg0 = 8;
+        if (radarEntriesCoverValue(work) != 0) {
+            titleSetMenuLayout(work, 6);
+            radarPushSlotState(work);
+            *state = 8;
         }
         break;
     case 8:
         if (D_008C024E[0] & 0x20) {
-            titleSetMenuLayout(arg2, 2);
-            *arg0 = 3;
+            titleSetMenuLayout(work, 2);
+            *state = 3;
             nLineSelectSetImmediate(0xB);
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
-            if (radarApplyItemStep(1, *(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x26) * 2) + (u32)arg2) + 0x34), arg2) == 2) {
-                titleSetMenuLayout(arg2, 2);
-                *arg0 = 3;
+            if (radarApplyItemStep(1, *(s16 *)((u8 *)((u8 *)(*(s16 *)(work + 0x26) * 2) + (u32)work) + 0x34), work) == 2) {
+                titleSetMenuLayout(work, 2);
+                *state = 3;
                 nLineSelectSetImmediate(0xB);
             }
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-            *arg0 = 0xB;
+            *(s32 *)(work + 0x10) = datCommunityRequestExit();
+            *state = 0xB;
         } else {
-            sdkListStateConfigure(buf, 4, *(s16 *)(arg2 + 0x3C), *(s16 *)(arg2 + 0x26), 0);
-            sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0, 0);
-            if (sdkListStateHandleInput(buf) != 0) {
-                radarPushHistoryValue((s32)arg2, 2, *(s32 *)(buf + 0x24));
-                radarPushSlotState(arg2);
+            sdkListStateConfigure(listState, 4, *(s16 *)(work + 0x3C), *(s16 *)(work + 0x26), 0);
+            sdkListStateSetSecondaryMasks(listState, 0x4000, 0x1000, 0, 0);
+            if (sdkListStateHandleInput(listState) != 0) {
+                radarPushHistoryValue((s32)work, 2, ((SdkListState *)listState)->row);
+                radarPushSlotState(work);
                 sdkSndStartStream(0, 1, 0, 0);
             }
         }
         break;
     case 9:
-        if (radarEntriesCoverValue(arg2) != 0) {
-            titleSetMenuLayout(arg2, 7);
-            *arg0 = 0xA;
+        if (radarEntriesCoverValue(work) != 0) {
+            titleSetMenuLayout(work, 7);
+            *state = 0xA;
         }
         break;
     case 10:
         if (D_008C024E[0] & 0x20) {
-            titleSetMenuLayout(arg2, 2);
-            *arg0 = 3;
+            titleSetMenuLayout(work, 2);
+            *state = 3;
             nLineSelectSetImmediate(0xB);
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
             {
-                s32 inner = radarApplyItemStep(1, -1, arg2);
+                s32 inner = radarApplyItemStep(1, -1, work);
                 switch (inner) {
                 case 2:
-                    titleSetMenuLayout(arg2, 2);
-                    *arg0 = 3;
+                    titleSetMenuLayout(work, 2);
+                    *state = 3;
                     nLineSelectSetImmediate(0xB);
                     break;
                 case 3:
@@ -621,51 +732,51 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 }
             }
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-            *arg0 = 0xB;
+            *(s32 *)(work + 0x10) = datCommunityRequestExit();
+            *state = 0xB;
         }
         break;
     case 5:
-        if (radarEntriesCoverValue(arg2) != 0) {
-            titleSetMenuLayout(arg2, 9);
-            *arg0 = 6;
+        if (radarEntriesCoverValue(work) != 0) {
+            titleSetMenuLayout(work, 9);
+            *state = 6;
         }
         break;
     case 6:
         if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
-            titleSetMenuLayout(arg2, 2);
-            *arg0 = 3;
+            titleSetMenuLayout(work, 2);
+            *state = 3;
             sdkSndStartStream(0, 2, 0, 4);
-        } else if ((D_008C024E[0] & 0x40) && (*(s16 *)(arg2 + 0xC3E) > 0)) {
-            radarHandleEntrySelect((s32 *)arg0, arg2);
+        } else if ((D_008C024E[0] & 0x40) && (*(s16 *)(work + 0xC3E) > 0)) {
+            radarHandleEntrySelect((s32 *)state, work);
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-            *arg0 = 0xB;
-        } else if (radarAdvanceGroupSelection(arg2) != 0) {
+            *(s32 *)(work + 0x10) = datCommunityRequestExit();
+            *state = 0xB;
+        } else if (radarAdvanceGroupSelection(work) != 0) {
             sdkSndStartStream(0, 1, 0, 5);
         } else {
-            sdkListStateConfigure(buf, 6, *(s16 *)(arg2 + 0xC3E), *(s16 *)(arg2 + 0x22), *(s16 *)(arg2 + 0x24));
-            sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0x2000, 0x8000);
-            if ((temp_2_3 = sdkListStateHandleInput(buf)) > 0) {
-                radarPushHistoryValue((s32)arg2, 0, *(s32 *)(buf + 0x24));
-                radarPushHistoryValue((s32)arg2, 1, *(s32 *)(buf + 0x28));
-                if (*(s16 *)(arg2 + 0x24) != *(s16 *)(arg2 + 0x2A)) {
-                    radarResetIndicator(arg2);
+            sdkListStateConfigure(listState, 6, *(s16 *)(work + 0xC3E), *(s16 *)(work + 0x22), *(s16 *)(work + 0x24));
+            sdkListStateSetSecondaryMasks(listState, 0x4000, 0x1000, 0x2000, 0x8000);
+            if ((alternateListResult = sdkListStateHandleInput(listState)) > 0) {
+                radarPushHistoryValue((s32)work, 0, ((SdkListState *)listState)->row);
+                radarPushHistoryValue((s32)work, 1, ((SdkListState *)listState)->page);
+                if (*(s16 *)(work + 0x24) != *(s16 *)(work + 0x2A)) {
+                    radarResetIndicator(work);
                 }
-                datCommunityCursorFeedback(temp_2_3);
+                datCommunityCursorFeedback(alternateListResult);
             }
         }
         break;
     case 11:
-        if ((++*(u16 *)(arg2 + 0xC) & 0xFFFF) >= 3) {
-            var_2 = 1;
+        if ((++*(u16 *)(work + 0xC) & 0xFFFF) >= 3) {
+            finished = 1;
         } else {
-            temp_f1 = (1.0f - ((f32)*(u16 *)(arg2 + 0xC) / 3.0f)) * 255.0f;
-            var_3 = (u8)temp_f1;
-            *(u8 *)arg2 = var_3;
-            var_2 = 0;
+            fadeAlpha = (1.0f - ((f32)*(u16 *)(work + 0xC) / 3.0f)) * 255.0f;
+            alphaByte = (u8)fadeAlpha;
+            *(u8 *)work = alphaByte;
+            finished = 0;
         }
-        if (var_2 != 0) {
+        if (finished != 0) {
             return 2;
         }
         break;
@@ -676,7 +787,7 @@ s32 radarItemMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
 }
 #pragma pop
 
-void radarPushSlotState(u8 *arg0);
+void radarPushSlotState(u8 *);
 
 #pragma push
 #pragma opt_loop_invariants off
@@ -684,25 +795,25 @@ void radarPushSlotState(u8 *arg0);
 #pragma opt_propagation on
 // Intent: Handle a selected entry: when its type is active, set the state by type (0 becomes 7, 1 or 2 become 9) and play the cue; otherwise play cue 8 [inferred]
 // FUN_0013C5A0
-void radarHandleEntrySelect(s32 *arg0, u8 *arg1) {
+void radarHandleEntrySelect(s32 *state, u8 *work) {
     u8 *entry;
     s16 type;
 
-    entry = code13AddOff((*(s16 *)(arg1 + 0x24) + *(s16 *)(arg1 + 0x22)) * 4,
-                         arg1) + 0x3E;
+    entry = radarOffsetAddress((((RadarItemMenuWork *)work)->unk24 + ((RadarItemMenuWork *)work)->unk22) * 4,
+                         work) + 0x3E;
     if (radarEntryTypeIsActive(*(s16 *)entry) == 0) {
         sdkSndStartStream(0, 0, 0, 8);
         return;
     }
-    type = (s16)func_0010f8c0(*(u16 *)((u8 *)datEntryAt(*(s16 *)entry) + 0x24));
+    type = (s16)datGetSkillPropertyByte(datEntryAt(*(s16 *)entry)->effect);
     if (type == 0) {
-        titleSetMenuLayout(arg1, 4);
-        radarPushSlotState(arg1);
-        *arg0 = 7;
+        titleSetMenuLayout(work, 4);
+        radarPushSlotState(work);
+        *state = 7;
     } else {
         if ((type == 2) || (type == 1)) {
-            titleSetMenuLayout(arg1, 5);
-            *arg0 = 9;
+            titleSetMenuLayout(work, 5);
+            *state = 9;
         }
     }
     nLineSelectSet(0xC);
@@ -716,15 +827,15 @@ void radarHandleEntrySelect(s32 *arg0, u8 *arg1) {
 #pragma opt_propagation on
 // Intent: Return whether the type of the entry's item is active [inferred]
 // FUN_0013C6D0
-s32 radarEntryTypeIsActive(s16 arg0) {
-    return func_0010f540(*(u16 *)((u8 *)datEntryAt(arg0) + 0x24)) != 0;
+s32 radarEntryTypeIsActive(s16 item) {
+    return datIsSkillAvailable(datEntryAt(item)->effect) != 0;
 }
 #pragma pop
 
-s32 radarCollectPartyChanges(u8 *arg0);
-void radarReleaseSpritesAndEntries(u8 *arg0);
-void radarResetLayout(u8 *arg0);
-s32 radarWideEntriesCoverValue(u8 *arg0);
+s32 radarCollectPartyChanges(u8 *);
+void radarReleaseSpritesAndEntries(u8 *);
+void radarResetLayout(u8 *);
+s32 radarWideEntriesCoverValue(u8 *);
 
 #pragma push
 #pragma opt_loop_invariants off
@@ -732,208 +843,209 @@ s32 radarWideEntriesCoverValue(u8 *arg0);
 #pragma opt_propagation on
 // Intent: Transfer menu state machine: step the party-change and unit-transfer states, and return the menu's result [inferred]
 // FUN_0013CAA0
-s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
-    u8 buf[0x30];
-    f32 temp_f1;
-    f32 var_f1;
-    s32 temp_16;
-    s32 temp_2_2;
-    s32 temp_2_3;
-    s32 temp_4;
-    s32 temp_4_2;
-    s32 var_2;
-    s32 var_3;
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+s32 radarTransferMenuUpdate(u32 *state, s32 *active, u8 *work) {
+    u8 listState[0x30];
+    f32 fadeAlpha;
+    f32 fadeValue;
+    s32 ready;
+    s32 listResult;
+    s32 alternateListResult;
+    s32 childTask;
+    s32 exitTask;
+    s32 finished;
+    s32 alphaByte;
 
-    *arg1 = (var_2 = 1);
-    switch (*arg0) {
+    *active = (finished = 1);
+    switch (*state) {
     case 0:
-        *arg1 = 0;
-        cmpEquipMenuInit(arg2);
-        *arg0 = 1;
+        *active = 0;
+        cmpEquipMenuInit(work);
+        *state = 1;
         break;
     default:
         break;
     case 1:
-        temp_16 = (s32)(cmpEquipStateStep(arg2));
-        if (temp_16 & nLineIsIdle()) {
-            *arg0 = 4;
+        ready = (s32)(cmpEquipStateStep(work));
+        if (ready & nLineIsIdle()) {
+            *state = 4;
             nLineSelectSet(3);
         } else {
-            *arg1 = 0;
+            *active = 0;
         }
         break;
     case 2:
-        temp_4 = (s32)(*(s32 *)(arg2 + 0x1594));
-        if ((temp_4 == 0) || (kwlnTaskIsLinked(temp_4) == 0)) {
-            *arg0 = 3;
-            cmpEquipSetMode(arg2, 1);
+        childTask = (s32)(*(s32 *)(work + 0x1594));
+        if ((childTask == 0) || (kwlnTaskIsLinked(childTask) == 0)) {
+            *state = 3;
+            cmpEquipSetMode(work, 1);
             resrcMngUnsuppressRender();
             nLineSelectSet(7);
         case 3:
-            if (radarWideEntriesCoverValue(arg2) != 0) {
-                radarReleaseSpritesAndEntries(arg2);
+            if (radarWideEntriesCoverValue(work) != 0) {
+                radarReleaseSpritesAndEntries(work);
                 return 1;
             }
             break;
         }
         break;
     case 4:
-        if (radarWideEntriesCoverValue(arg2) != 0) {
+        if (radarWideEntriesCoverValue(work) != 0) {
             resrcMngSuppressRender();
-            cmpEquipSetMode(arg2, 2);
-            *arg0 = 5;
+            cmpEquipSetMode(work, 2);
+            *state = 5;
         }
         break;
     case 5:
-        if (radarWideEntriesCoverValue(arg2) != 0) {
+        if (radarWideEntriesCoverValue(work) != 0) {
             if (D_008C024E[0] & 0x20) {
-                *arg0 = 2;
-                radarCollectPartyChanges(arg2);
+                *state = 2;
+                radarCollectPartyChanges(work);
                 sdkSndStartStream(0, 2, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
-                cmpEquipSetMode(arg2, 3);
-                *arg0 = 7;
+                cmpEquipSetMode(work, 3);
+                *state = 7;
                 nLineSelectSet(4);
                 sdkSndStartStream(0, 0, 0, 1);
             } else if (D_008C024E[0] & 0x10) {
-                radarCollectPartyChanges(arg2);
-                *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-                *arg0 = 0xD;
+                radarCollectPartyChanges(work);
+                *(s32 *)(work + 0x10) = datCommunityRequestExit();
+                *state = 0xD;
             } else {
-                sdkListStateConfigure(buf, 8, *(s16 *)(arg2 + 0x48), *(s16 *)(arg2 + 0x28), 0);
-                sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0, 0);
-                if (sdkListStateHandleInput(buf) != 0) {
-                    cmpEquipSetSelection(arg2, 0, *(s32 *)(buf + 0x24));
+                sdkListStateConfigure(listState, 8, *(s16 *)(work + 0x48), *(s16 *)(work + 0x28), 0);
+                sdkListStateSetSecondaryMasks(listState, 0x4000, 0x1000, 0, 0);
+                if (sdkListStateHandleInput(listState) != 0) {
+                    cmpEquipSetSelection(work, 0, ((SdkListState *)listState)->row);
                     sdkSndStartStream(0, 1, 0, 0);
                 }
             }
         }
         break;
     case 6:
-        if (radarWideEntriesCoverValue(arg2) != 0) {
-            cmpEquipSetMode(arg2, 4);
-            *arg0 = 7;
+        if (radarWideEntriesCoverValue(work) != 0) {
+            cmpEquipSetMode(work, 4);
+            *state = 7;
         }
         break;
     case 7:
         if (D_008C024E[0] & 0x20) {
-            cmpEquipSetSelection(arg2, 1, 0);
-            cmpEquipSetMode(arg2, 2);
-            *arg0 = 5;
+            cmpEquipSetSelection(work, 1, 0);
+            cmpEquipSetMode(work, 2);
+            *state = 5;
             nLineSelectSetImmediate(3);
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
-            cmpEquipSetMode(arg2, 5);
-            *arg0 = 8;
+            cmpEquipSetMode(work, 5);
+            *state = 8;
             nLineSelectSet(5);
             sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
-            radarCollectPartyChanges(arg2);
-            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-            *arg0 = 0xD;
+            radarCollectPartyChanges(work);
+            *(s32 *)(work + 0x10) = datCommunityRequestExit();
+            *state = 0xD;
         } else {
-            sdkListStateConfigure(buf, 3, 3, *(s16 *)(arg2 + 0x2A), 0);
-            sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0, 0);
-            if (sdkListStateHandleInput(buf) != 0) {
-                cmpEquipSetSelection(arg2, 1, *(s32 *)(buf + 0x24));
+            sdkListStateConfigure(listState, 3, 3, *(s16 *)(work + 0x2A), 0);
+            sdkListStateSetSecondaryMasks(listState, 0x4000, 0x1000, 0, 0);
+            if (sdkListStateHandleInput(listState) != 0) {
+                cmpEquipSetSelection(work, 1, ((SdkListState *)listState)->row);
                 sdkSndStartStream(0, 1, 0, 0);
             }
         }
         break;
     case 8:
-        if (radarWideEntriesCoverValue(arg2) != 0) {
-            cmpEquipSetMode(arg2, 6);
-            *arg0 = 9;
+        if (radarWideEntriesCoverValue(work) != 0) {
+            cmpEquipSetMode(work, 6);
+            *state = 9;
             nLineSelectSet(6);
         }
         break;
     case 9:
-        if (radarWideEntriesCoverValue(arg2) != 0) {
-            cmpEquipSetMode(arg2, 7);
-            *arg0 = 0xA;
+        if (radarWideEntriesCoverValue(work) != 0) {
+            cmpEquipSetMode(work, 7);
+            *state = 0xA;
         }
         break;
     case 10:
-        if (radarWideEntriesCoverValue(arg2) != 0) {
+        if (radarWideEntriesCoverValue(work) != 0) {
             if (D_008C024E[0] & 0x40) {
-                if (*(s16 *)(arg2 + 0xC46) != 0) {
-                    radarTransferSelectedUnit(arg2);
+                if (*(s16 *)(work + 0xC46) != 0) {
+                    radarTransferSelectedUnit(work);
                 }
             } else if (D_008C024E[0] & 0x20) {
-                cmpEquipSetSelection(arg2, 2, 0);
-                cmpEquipSetSelection(arg2, 3, 0);
-                cmpEquipSetMode(arg2, 4);
-                *arg0 = 6;
+                cmpEquipSetSelection(work, 2, 0);
+                cmpEquipSetSelection(work, 3, 0);
+                cmpEquipSetMode(work, 4);
+                *state = 6;
                 nLineSelectSetImmediate(4);
                 sdkSndStartStream(0, 0, 0, 2);
             } else if (D_008C024E[0] & 0x10) {
-                radarCollectPartyChanges(arg2);
-                *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-                *arg0 = 0xD;
+                radarCollectPartyChanges(work);
+                *(s32 *)(work + 0x10) = datCommunityRequestExit();
+                *state = 0xD;
             } else if (D_008C024E[0] & 0x80) {
-                if (*(s16 *)(arg2 + 0xC46) != 0) {
-                    cmpEquipSetMode(arg2, 8);
-                    *arg0 = 0xB;
+                if (*(s16 *)(work + 0xC46) != 0) {
+                    cmpEquipSetMode(work, 8);
+                    *state = 0xB;
                     sdkSndStartStream(0, 2, 0, 3);
                 }
-            } else if (radarBeginPickList(arg2, arg0) == 0) {
-                sdkListStateConfigure(buf, 5, *(s16 *)(arg2 + 0xC46), *(s16 *)(arg2 + 0x2E), *(s16 *)(arg2 + 0x2C));
-                sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0x2000, 0x8000);
-                if ((temp_2_2 = sdkListStateHandleInput(buf)) > 0) {
-                    cmpEquipSetSelection(arg2, 2, *(s32 *)(buf + 0x28));
-                    cmpEquipSetSelection(arg2, 3, *(s32 *)(buf + 0x24));
-                    if (*(s16 *)(arg2 + 0x2C) != *(s16 *)(arg2 + 0x34)) {
-                        radarResetLayout(arg2);
+            } else if (radarBeginPickList(work, state) == 0) {
+                sdkListStateConfigure(listState, 5, *(s16 *)(work + 0xC46), *(s16 *)(work + 0x2E), *(s16 *)(work + 0x2C));
+                sdkListStateSetSecondaryMasks(listState, 0x4000, 0x1000, 0x2000, 0x8000);
+                if ((listResult = sdkListStateHandleInput(listState)) > 0) {
+                    cmpEquipSetSelection(work, 2, ((SdkListState *)listState)->page);
+                    cmpEquipSetSelection(work, 3, ((SdkListState *)listState)->row);
+                    if (*(s16 *)(work + 0x2C) != *(s16 *)(work + 0x34)) {
+                        radarResetLayout(work);
                     }
-                    datCommunityCursorFeedback(temp_2_2);
+                    datCommunityCursorFeedback(listResult);
                 }
             }
         }
         break;
     case 11:
-        if (radarWideEntriesCoverValue(arg2) != 0) {
-            cmpEquipSetMode(arg2, 9);
-            *arg0 = 0xC;
+        if (radarWideEntriesCoverValue(work) != 0) {
+            cmpEquipSetMode(work, 9);
+            *state = 0xC;
         }
         break;
     case 12:
         if (D_008C024E[0] & 0x40) {
-            if (radarTransferSelectedUnit(arg2) != 0) {
-                *arg0 = 9;
+            if (radarTransferSelectedUnit(work) != 0) {
+                *state = 9;
             }
         } else if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
-            cmpEquipSetMode(arg2, 7);
-            *arg0 = 9;
+            cmpEquipSetMode(work, 7);
+            *state = 9;
             sdkSndStartStream(0, 2, 0, 4);
         } else if (D_008C024E[0] & 0x10) {
-            radarCollectPartyChanges(arg2);
-            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-            *arg0 = 0xD;
-        } else if (radarBeginPickList(arg2, arg0) == 0) {
-            sdkListStateConfigure(buf, 5, *(s16 *)(arg2 + 0xC46), *(s16 *)(arg2 + 0x2E), *(s16 *)(arg2 + 0x2C));
-            sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0x2000, 0x8000);
-            if ((temp_2_3 = sdkListStateHandleInput(buf)) > 0) {
-                cmpEquipSetSelection(arg2, 2, *(s32 *)(buf + 0x28));
-                cmpEquipSetSelection(arg2, 3, *(s32 *)(buf + 0x24));
-                if (*(s16 *)(arg2 + 0x2C) != *(s16 *)(arg2 + 0x34)) {
-                    radarResetLayout(arg2);
+            radarCollectPartyChanges(work);
+            *(s32 *)(work + 0x10) = datCommunityRequestExit();
+            *state = 0xD;
+        } else if (radarBeginPickList(work, state) == 0) {
+            sdkListStateConfigure(listState, 5, *(s16 *)(work + 0xC46), *(s16 *)(work + 0x2E), *(s16 *)(work + 0x2C));
+            sdkListStateSetSecondaryMasks(listState, 0x4000, 0x1000, 0x2000, 0x8000);
+            if ((alternateListResult = sdkListStateHandleInput(listState)) > 0) {
+                cmpEquipSetSelection(work, 2, ((SdkListState *)listState)->page);
+                cmpEquipSetSelection(work, 3, ((SdkListState *)listState)->row);
+                if (*(s16 *)(work + 0x2C) != *(s16 *)(work + 0x34)) {
+                    radarResetLayout(work);
                 }
-                datCommunityCursorFeedback(temp_2_3);
+                datCommunityCursorFeedback(alternateListResult);
             }
         }
         break;
     case 13:
-        temp_4_2 = (s32)(*(s32 *)(arg2 + 0x1594));
-        if ((temp_4_2 == 0) || (kwlnTaskIsLinked(temp_4_2) == 0)) {
-            if ((++*(u16 *)(arg2 + 0xC) & 0xFFFF) >= 3) {
-                var_2 = 1;
+        exitTask = (s32)(*(s32 *)(work + 0x1594));
+        if ((exitTask == 0) || (kwlnTaskIsLinked(exitTask) == 0)) {
+            if ((++*(u16 *)(work + 0xC) & 0xFFFF) >= 3) {
+                finished = 1;
             } else {
-                temp_f1 = (1.0f - ((f32)*(u16 *)(arg2 + 0xC) / 3.0f)) * 255.0f;
-                var_3 = (u8)temp_f1;
-                *(u8 *)arg2 = var_3;
-                var_2 = 0;
+                fadeAlpha = (1.0f - ((f32)*(u16 *)(work + 0xC) / 3.0f)) * 255.0f;
+                alphaByte = (u8)fadeAlpha;
+                *(u8 *)work = alphaByte;
+                finished = 0;
             }
-            if (var_2 != 0) {
+            if (finished != 0) {
                 return 2;
             }
             break;
@@ -944,7 +1056,7 @@ s32 radarTransferMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
 }
 #pragma pop
 
-void radarRandomizeEntries(u8 *arg0);
+void radarRandomizeEntries(u8 *);
 
 #pragma push
 #pragma opt_loop_invariants off
@@ -952,42 +1064,43 @@ void radarRandomizeEntries(u8 *arg0);
 #pragma opt_propagation on
 // Intent: Apply the selected item to the chosen recipients, consume one use, and update the row; return the resulting state [inferred]
 // FUN_0013C700
-s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2)
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+s32 radarApplyItemStep(s16 source, s16 recipientId, u8 *work)
 {
-    extern void titleCollectFlaggedIds(u8 *arg0);
+    extern void titleCollectFlaggedIds(u8 *menu);
     extern u8 D_005ED9D0[];
     s32 state;
     s16 item;
-    s32 item_type;
+    s32 itemType;
     s16 remaining;
     s32 total;
     s32 updated;
     u8 *entry;
 
     state = 1;
-    total = *(s16 *)(arg2 + 0x24) + *(s16 *)(arg2 + 0x22);
-    item = ((s16 *)(arg2 + 0x3E))[total * 2];
-    item_type = *(u16 *)((u8 *)datEntryAt(item) + 0x24);
-    if (item_type == 246) {
+    total = *(s16 *)(work + 0x24) + *(s16 *)(work + 0x22);
+    item = ((s16 *)(work + 0x3E))[total * 2];
+    itemType = datEntryAt(item)->effect;
+    if (itemType == 246) {
         if (FldStepNotAtBoundaryQuery() != 0) state = 3;
         else state = 0;
-    } else if (arg1 == -1) {
-        s32 index_count;
+    } else if (recipientId == -1) {
+        s32 affectedCount;
         s32 index;
         u8 *recipient;
-        index_count = 0;
+        affectedCount = 0;
         index = 0;
-        while (index < *(s16 *)(arg2 + 0x3C)) {
-            recipient = arg2 + index * 2 + 0x34;
-            if (radarSkillEffectMissing(arg0, *(s16 *)recipient, item_type) != 0) {
-                datCalcApplySkillEffectById(arg0, *(s16 *)recipient, item_type, 1);
-                index_count++;
+        while (index < *(s16 *)(work + 0x3C)) {
+            recipient = work + index * 2 + 0x34;
+            if (radarSkillEffectMissing(source, *(s16 *)recipient, itemType) != 0) {
+                datCalcApplySkillEffectById(source, *(s16 *)recipient, itemType, 1);
+                affectedCount++;
             }
             index++;
         }
-        if (index_count == 0) state = 0;
-    } else if (radarSkillEffectMissing(arg0, arg1, item_type) != 0) {
-        datCalcApplySkillEffectById(arg0, arg1, item_type, 1);
+        if (affectedCount == 0) state = 0;
+    } else if (radarSkillEffectMissing(source, recipientId, itemType) != 0) {
+        datCalcApplySkillEffectById(source, recipientId, itemType, 1);
     } else state = 0;
     if (state > 0) {
         updated = (s16)(datItemCount(item) & 0xff) - 1;
@@ -996,20 +1109,20 @@ s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2)
         if (state == 3) {
             datSetFlag(5121, 1);
         } else {
-            radarRandomizeEntries(arg2);
-            entry = code13AddOff((u32)total * 4U, arg2);
+            radarRandomizeEntries(work);
+            entry = radarOffsetAddress((u32)total * 4U, work);
             remaining = --*(s16 *)(entry + 0x40);
             if (remaining == 0) {
                 s32 selection;
-                titleCollectFlaggedIds(arg2);
-                selection = *(s16 *)(arg2 + 0xc3e);
+                titleCollectFlaggedIds(work);
+                selection = *(s16 *)(work + 0xc3e);
                 if (selection < 6) {
-                    radarPushHistoryValue((s32)arg2, 1, 0);
-                    selection = *(s16 *)(arg2 + 0xc3e) - 1;
-                    if (selection < *(s16 *)(arg2 + 0x22)) radarPushHistoryValue((s32)arg2, 0, selection);
+                    radarPushHistoryValue((s32)work, 1, 0);
+                    selection = *(s16 *)(work + 0xc3e) - 1;
+                    if (selection < *(s16 *)(work + 0x22)) radarPushHistoryValue((s32)work, 0, selection);
                 } else {
                     selection -= 6;
-                    if (selection < *(s16 *)(arg2 + 0x24)) radarPushHistoryValue((s32)arg2, 1, selection);
+                    if (selection < *(s16 *)(work + 0x24)) radarPushHistoryValue((s32)work, 1, selection);
                 }
                 state = 2;
             }
@@ -1039,13 +1152,13 @@ s32 radarApplyItemStep(s16 arg0, s16 arg1, u8 *arg2)
 #pragma opt_propagation on
 // Intent: Return 1 when the skill effect for the recipient is not yet applied [inferred]
 // FUN_0013CA60
-s32 radarSkillEffectMissing(s16 arg0, s16 arg1, s32 arg2) {
-    s32 v = 0;
+s32 radarSkillEffectMissing(s16 source, s16 recipient, s32 effect) {
+    s32 missing = 0;
 
-    if (datCalcSkillEffectFlagsById(arg0, arg1, arg2, 1) == 0) {
-        v = 1;
+    if (datCalcSkillEffectFlagsById(source, recipient, effect, 1) == 0) {
+        missing = 1;
     }
-    return v;
+    return missing;
 }
 #pragma pop
 
@@ -1055,25 +1168,25 @@ s32 radarSkillEffectMissing(s16 arg0, s16 arg1, s32 arg2) {
 #pragma opt_propagation on
 // Intent: Open the pick list when it has entries: set state 10 and initialise its groups; return 1 when opened [inferred]
 // FUN_0013D470
-s32 radarBeginPickList(u8 *arg0, s32 *arg1) {
-    u8 sp40[0x28];
-    s32 temp_2;
+s32 radarBeginPickList(u8 *work, s32 *state) {
+    u8 listState[0x28];
+    s32 listResult;
 
-    sdkListStateConfigure(sp40, 8, *(s16 *)(arg0 + 0x48), *(s16 *)(arg0 + 0x28), 0);
-    sdkListStateSetActive(sp40, 0);
-    sdkListStateSetSecondaryMasks(sp40, 8, 4, 0, 0);
-    temp_2 = sdkListStateHandleInput(sp40);
-    if (temp_2 > 0) {
-        cmpEquipSetSelection(arg0, 0, *(s32 *)(sp40 + 0x24));
-        cmpEquipSetSelection(arg0, 3, 0);
-        cmpEquipSetSelection(arg0, 2, 0);
-        cmpEquipBuildItemList(arg0);
-        cmpEquipSetMode(arg0, 7);
-        *arg1 = 0xA;
-        if (temp_2 == 1) {
-            radarBeginSlideOut(arg0);
-        } else if (temp_2 == 2) {
-            radarBeginSlideIn(arg0);
+    sdkListStateConfigure(listState, 8, ((RadarEquipmentMenuWork *)work)->unk48, ((RadarEquipmentMenuWork *)work)->unk28, 0);
+    sdkListStateSetActive(listState, 0);
+    sdkListStateSetSecondaryMasks(listState, 8, 4, 0, 0);
+    listResult = sdkListStateHandleInput(listState);
+    if (listResult > 0) {
+        cmpEquipSetSelection(work, 0, ((SdkListState *)listState)->row);
+        cmpEquipSetSelection(work, 3, 0);
+        cmpEquipSetSelection(work, 2, 0);
+        cmpEquipBuildItemList(work);
+        cmpEquipSetMode(work, 7);
+        *state = 0xA;
+        if (listResult == 1) {
+            radarBeginSlideOut(work);
+        } else if (listResult == 2) {
+            radarBeginSlideIn(work);
         }
         sdkSndStartStream(0, 1, 0, 5);
         return 1;
@@ -1088,45 +1201,46 @@ s32 radarBeginPickList(u8 *arg0, s32 *arg1) {
 #pragma opt_propagation on
 // Intent: Transfer one unit of the selected entry to the target entry, refresh the rows, and step the cursor; return 1 when a transfer happened [inferred]
 // FUN_0013D5D0
-s32 radarTransferSelectedUnit(u8 *arg0) {
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+s32 radarTransferSelectedUnit(u8 *work) {
     struct {
         s16 value;
-    } temp_16;
-    s16 temp_19;
-    s16 temp_18;
-    s16 temp_2;
-    s32 temp_6;
-    s32 temp_6_2;
-    s16 temp_17;
+    } equipmentSlot;
+    s16 selectedItem;
+    s16 unitId;
+    s16 itemCount;
+    s32 lastRow;
+    s32 lastPage;
+    s16 previousItem;
 
-    temp_18 = *(s16 *)(code13AddOff(*(s16 *)(arg0 + 0x28) * 2, arg0) + 0x38);
-    temp_19 = *(s16 *)(code13AddOff((*(s16 *)(arg0 + 0x2C) +
-                                     *(s16 *)(arg0 + 0x2E)) * 4, arg0) + 0x4A);
-    temp_16.value = *(s16 *)(arg0 + 0x2A);
-    temp_17 = (s16)func_00106cd0(temp_18, temp_16.value);
-    if (temp_19 == temp_17) {
+    unitId = *(s16 *)(radarOffsetAddress(*(s16 *)(work + 0x28) * 2, work) + 0x38);
+    selectedItem = *(s16 *)(radarOffsetAddress((*(s16 *)(work + 0x2C) +
+                                     *(s16 *)(work + 0x2E)) * 4, work) + 0x4A);
+    equipmentSlot.value = *(s16 *)(work + 0x2A);
+    previousItem = (s16)datGetEquippedItemByUnit(unitId, equipmentSlot.value);
+    if (selectedItem == previousItem) {
         sdkSndStartStream(0, 0, 0, 8);
         return 0;
     }
-    cmpEquipSetMode(arg0, 7);
-    radarResetAndSetIndices(arg0, temp_17, temp_19);
-    if ((datItemCount(temp_17) & 0xFF) != 0x63) {
-        datItemSetCount(temp_17, ((datItemCount(temp_17) & 0xFF) + 1) & 0xFF);
+    cmpEquipSetMode(work, 7);
+    radarResetAndSetIndices(work, previousItem, selectedItem);
+    if ((datItemCount(previousItem) & 0xFF) != 0x63) {
+        datItemSetCount(previousItem, ((datItemCount(previousItem) & 0xFF) + 1) & 0xFF);
     }
-    func_00106d40(temp_18, temp_16.value, temp_19);
-    datItemSetCount(temp_19, ((datItemCount(temp_19) & 0xFF) - 1) & 0xFF);
-    cmpEquipBuildItemList(arg0);
-    temp_2 = *(s16 *)(arg0 + 0xC46);
-    if (temp_2 < 5) {
-        cmpEquipSetSelection(arg0, 2, 0);
-        temp_6 = *(s16 *)(arg0 + 0xC46) - 1;
-        if (temp_6 < *(s16 *)(arg0 + 0x2E)) {
-            cmpEquipSetSelection(arg0, 3, temp_6);
+    datAssignEquippedItem(unitId, equipmentSlot.value, selectedItem);
+    datItemSetCount(selectedItem, ((datItemCount(selectedItem) & 0xFF) - 1) & 0xFF);
+    cmpEquipBuildItemList(work);
+    itemCount = *(s16 *)(work + 0xC46);
+    if (itemCount < 5) {
+        cmpEquipSetSelection(work, 2, 0);
+        lastRow = *(s16 *)(work + 0xC46) - 1;
+        if (lastRow < *(s16 *)(work + 0x2E)) {
+            cmpEquipSetSelection(work, 3, lastRow);
         }
     } else {
-        temp_6_2 = temp_2 - 5;
-        if (temp_6_2 < *(s16 *)(arg0 + 0x2C)) {
-            cmpEquipSetSelection(arg0, 2, temp_6_2);
+        lastPage = itemCount - 5;
+        if (lastPage < *(s16 *)(work + 0x2C)) {
+            cmpEquipSetSelection(work, 2, lastPage);
         }
     }
     sdkSndStartStream(0, 3, 0, 7);
@@ -1138,26 +1252,27 @@ s32 radarTransferSelectedUnit(u8 *arg0) {
 #pragma opt_loop_invariants off
 #pragma optimization_level 2
 #pragma opt_propagation on
-// Intent: Set or clear the persona highlight flags and position for arg1 0 (set) or 1 (clear) [inferred]
+// Intent: Set or clear the persona highlight flags and position for mode 0 (set) or 1 (clear) [inferred]
 // FUN_0013D7D0
-void radarSetPersonaHighlight(u8 *arg0, s32 arg1) {
-    code13Pair sp0;
-    code13Pair sp1;
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+void radarSetPersonaHighlight(u8 *work, s32 mode) {
+    RadarPositionWords highlightPosition;
+    RadarPositionWords normalPosition;
 
-    switch (arg1) {
+    switch (mode) {
     case 0:
-        sp0.first = 0x43030000;
-        sp0.second = 0xC26C0000;
-        shdPersonaSetFlags(*(u8 **)(arg0 + 0x1CB4), 0x400E0);
-        shdPersonaRefreshDispCtlPosition(*(u8 **)(arg0 + 0x1CB4), &sp0);
-        shdPersonaSetChildDispCtlHandleAndColor(*(u8 **)(arg0 + 0x1CB4), -1, -0x7F00);
+        highlightPosition.first = 0x43030000;
+        highlightPosition.second = 0xC26C0000;
+        shdPersonaSetFlags(*(u8 **)(work + 0x1CB4), 0x400E0);
+        shdPersonaRefreshDispCtlPosition(*(u8 **)(work + 0x1CB4), &highlightPosition);
+        shdPersonaSetChildDispCtlHandleAndColor(*(u8 **)(work + 0x1CB4), -1, -0x7F00);
         return;
     case 1:
-        sp1.first = 0x43030000;
-        sp1.second = 0xC2600000;
-        shdPersonaClearFlags(*(u8 **)(arg0 + 0x1CB4), 0x400E0);
-        shdPersonaRefreshDispCtlPosition(*(u8 **)(arg0 + 0x1CB4), &sp1);
-        shdPersonaSetChildDispCtlHandleAndColor(*(u8 **)(arg0 + 0x1CB4), -1, 0xFFE92C00);
+        normalPosition.first = 0x43030000;
+        normalPosition.second = 0xC2600000;
+        shdPersonaClearFlags(*(u8 **)(work + 0x1CB4), 0x400E0);
+        shdPersonaRefreshDispCtlPosition(*(u8 **)(work + 0x1CB4), &normalPosition);
+        shdPersonaSetChildDispCtlHandleAndColor(*(u8 **)(work + 0x1CB4), -1, 0xFFE92C00);
         return;
     }
 }
@@ -1169,272 +1284,273 @@ void radarSetPersonaHighlight(u8 *arg0, s32 arg1) {
 #pragma opt_propagation on
 // Intent: Persona menu state machine: step the persona highlight and display states, and return the menu's result [inferred]
 // FUN_0013D8B0
-s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
-    extern void radarBeginRecipientPick(u8 *arg0, s32 *arg1);
-    extern void cmpPersonaMenuInit(u8 *arg0);
-    extern s32 cmpPersonaStateStep(u8 *arg0);
-    extern s32 cmpPersonaRowsSettled(u8 *arg0);
-    extern void cmpPersonaMenuRelease(u8 *arg0);
-    extern void cmpPersonaSetMode(u8 *arg0, s32 arg1);
-    extern void datScreenWipeSetTextureId(u8 *arg0, s32 arg1);
-    extern void cmpPersonaStartScreenWipe(u8 *arg0, s32 a, s32 b, s32 c);
-    extern void shdPersonaSetDisplayState(u8 *arg0, s32 arg1, u32 arg2, s8 arg3);
-    extern void cmpPersonaSetPartyCursor(u8 *arg0);
-    extern void cmpPersonaResetRosterCursor(u8 *arg0);
-    extern void cmpPersonaScatterGridCells(u8 *arg0);
-    extern void shdPersonaStartSlideIn(u8 *arg0);
-    extern void radarSetPersonaHighlight(u8 *arg0, s32 arg1);
-    u8 buf[0x30];
-    f32 temp_f1;
-    f32 var_f1;
-    s16 temp_17;
-    s16 temp_3_2;
-    s32 temp_16;
-    s32 temp_2;
-    s32 temp_2_2;
-    s32 var_2;
-    s32 var_3;
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+s32 radarPersonaMenuUpdate(u32 *state, s32 *active, u8 *work) {
+    extern void radarBeginRecipientPick(u8 *work, s32 *state);
+    extern void cmpPersonaMenuInit(u8 *work);
+    extern s32 cmpPersonaStateStep(u8 *work);
+    extern s32 cmpPersonaRowsSettled(u8 *work);
+    extern void cmpPersonaMenuRelease(u8 *work);
+    extern void cmpPersonaSetMode(u8 *work, s32 mode);
+    extern void datScreenWipeSetTextureId(u8 *task, s32 textureId);
+    extern void cmpPersonaStartScreenWipe(u8 *task, s32 presetOrColor, s32 initialize, s32 reverse);
+    extern void shdPersonaSetDisplayState(u8 *state, s32 active, u32 work, s8);
+    extern void cmpPersonaSetPartyCursor(u8 *work);
+    extern void cmpPersonaResetRosterCursor(u8 *work);
+    extern void cmpPersonaScatterGridCells(u8 *work);
+    extern void shdPersonaStartSlideIn(u8 *task);
+    extern void radarSetPersonaHighlight(u8 *work, s32 mode);
+    u8 listState[0x30];
+    f32 fadeAlpha;
+    f32 fadeValue;
+    s16 selectedPersona;
+    s16 rosterCount;
+    s32 ready;
+    s32 noticeResult;
+    s32 removeResult;
+    s32 finished;
+    s32 alphaByte;
 
-    *arg1 = (var_2 = 1);
-    switch (*arg0) {
+    *active = (finished = 1);
+    switch (*state) {
     case 0:
-        cmpPersonaMenuInit(arg2);
-        *arg0 = 1;
-        *arg1 = 0;
+        cmpPersonaMenuInit(work);
+        *state = 1;
+        *active = 0;
         break;
     case 1:
-        temp_16 = (s32)(cmpPersonaStateStep(arg2));
-        if (temp_16 & nLineIsIdle()) {
-            *arg0 = 3;
+        ready = (s32)(cmpPersonaStateStep(work));
+        if (ready & nLineIsIdle()) {
+            *state = 3;
             nLineSelectSet(0xE);
         } else {
-            *arg1 = 0;
+            *active = 0;
         }
         break;
     case 2:
-        if (cmpPersonaRowsSettled(arg2) != 0) {
-            cmpPersonaMenuRelease(arg2);
+        if (cmpPersonaRowsSettled(work) != 0) {
+            cmpPersonaMenuRelease(work);
             return 1;
         }
         break;
     case 3:
-        if (cmpPersonaRowsSettled(arg2) != 0) {
-            cmpPersonaSetMode(arg2, 2);
-            *arg0 = 4;
+        if (cmpPersonaRowsSettled(work) != 0) {
+            cmpPersonaSetMode(work, 2);
+            *state = 4;
             resrcMngSuppressRender();
-            datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x1CB8), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24));
-            cmpPersonaStartScreenWipe(*(u8 **)(arg2 + 0x1CB8), 0, 1, 0);
-            shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 0U, 0, 0);
+            datScreenWipeSetTextureId(*(u8 **)(work + 0x1CB8), *(u16 *)((u8 *)((u8 *)(*(s16 *)(work + 0x50) * 2) + (u32)work) + 0x24));
+            cmpPersonaStartScreenWipe(*(u8 **)(work + 0x1CB8), 0, 1, 0);
+            shdPersonaSetDisplayState(*(u8 **)(work + 0x1CB4), 0U, 0, 0);
         }
         break;
     case 4:
-        if (cmpPersonaRowsSettled(arg2) != 0) {
+        if (cmpPersonaRowsSettled(work) != 0) {
             if (D_008C024E[0] & 0x20) {
-                cmpPersonaSetMode(arg2, 1);
-                *arg0 = 2;
+                cmpPersonaSetMode(work, 1);
+                *state = 2;
                 resrcMngUnsuppressRender();
                 nLineSelectSet(0x14);
-                cmpPersonaStartScreenWipe(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
+                cmpPersonaStartScreenWipe(*(u8 **)(work + 0x1CB8), 0, 0, 1);
                 sdkSndStartStream(0, 2, 0, 4);
             } else if (D_008C024E[0] & 0x40) {
-                if (*(s16 *)(arg2 + 0x50) == 0) {
-                    cmpPersonaSetMode(arg2, 3);
-                    *arg0 = 5;
-                    cmpPersonaSetSelection(arg2, 1, 0);
-                    cmpPersonaSetPartyCursor(arg2);
-                    cmpPersonaResetRosterCursor(arg2);
-                    cmpPersonaScatterGridCells(arg2);
+                if (*(s16 *)(work + 0x50) == 0) {
+                    cmpPersonaSetMode(work, 3);
+                    *state = 5;
+                    cmpPersonaSetSelection(work, 1, 0);
+                    cmpPersonaSetPartyCursor(work);
+                    cmpPersonaResetRosterCursor(work);
+                    cmpPersonaScatterGridCells(work);
                     nLineSelectSet(0xF);
-                    cmpPersonaStartScreenWipe(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
-                    shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, (u32)datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
-                    radarSetPersonaHighlight(arg2, 1);
-                    shdPersonaRefreshDispCtlPosition(*(u8 **)(arg2 + 0x1CB4), NULL);
-                    shdPersonaSetFlags(*(u8 **)(arg2 + 0x1CB4), 0x40000);
+                    cmpPersonaStartScreenWipe(*(u8 **)(work + 0x1CB8), 0, 0, 1);
+                    shdPersonaSetDisplayState(*(u8 **)(work + 0x1CB4), 1U, (u32)datPersonaRosterSlot(*(s16 *)(work + 0x52)), 0);
+                    radarSetPersonaHighlight(work, 1);
+                    shdPersonaRefreshDispCtlPosition(*(u8 **)(work + 0x1CB4), NULL);
+                    shdPersonaSetFlags(*(u8 **)(work + 0x1CB4), 0x40000);
                     sdkSndStartStream(0, 0, 0, 1);
                 } else {
-                    cmpPersonaSetMode(arg2, 8);
-                    *arg0 = 0xA;
-                    cmpPersonaSetPartyCursor(arg2);
+                    cmpPersonaSetMode(work, 8);
+                    *state = 0xA;
+                    cmpPersonaSetPartyCursor(work);
                     nLineSelectSet(0x11);
-                    cmpPersonaStartScreenWipe(*(u8 **)(arg2 + 0x1CB8), 0, 0, 1);
-                    radarSetPersonaHighlight(arg2, 0);
-                    shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24), (u32)datPersonaGetRecord(*(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24)), 0);
-                    shdPersonaStartSlideIn(*(u8 **)(arg2 + 0x1CB4));
-                    shdPersonaClearFlags(*(u8 **)(arg2 + 0x1CB4), 0x40000);
+                    cmpPersonaStartScreenWipe(*(u8 **)(work + 0x1CB8), 0, 0, 1);
+                    radarSetPersonaHighlight(work, 0);
+                    shdPersonaSetDisplayState(*(u8 **)(work + 0x1CB4), *(u16 *)((u8 *)((u8 *)(*(s16 *)(work + 0x50) * 2) + (u32)work) + 0x24), (u32)datPersonaGetRecord(*(u16 *)((u8 *)((u8 *)(*(s16 *)(work + 0x50) * 2) + (u32)work) + 0x24)), 0);
+                    shdPersonaStartSlideIn(*(u8 **)(work + 0x1CB4));
+                    shdPersonaClearFlags(*(u8 **)(work + 0x1CB4), 0x40000);
                 }
             } else if (D_008C024E[0] & 0x10) {
-                *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-                *arg0 = 0x10;
+                *(s32 *)(work + 0x10) = datCommunityRequestExit();
+                *state = 0x10;
             } else {
-                sdkListStateConfigure(buf, 8, *(s16 *)(arg2 + 0x34), *(s16 *)(arg2 + 0x50), 0);
-                sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0, 0);
-                if (sdkListStateHandleInput(buf) != 0) {
-                    cmpPersonaSetSelection(arg2, 0, *(s32 *)(buf + 0x24));
-                    datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x1CB8), *(u16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x50) * 2) + (u32)arg2) + 0x24));
+                sdkListStateConfigure(listState, 8, *(s16 *)(work + 0x34), *(s16 *)(work + 0x50), 0);
+                sdkListStateSetSecondaryMasks(listState, 0x4000, 0x1000, 0, 0);
+                if (sdkListStateHandleInput(listState) != 0) {
+                    cmpPersonaSetSelection(work, 0, ((SdkListState *)listState)->row);
+                    datScreenWipeSetTextureId(*(u8 **)(work + 0x1CB8), *(u16 *)((u8 *)((u8 *)(*(s16 *)(work + 0x50) * 2) + (u32)work) + 0x24));
                     sdkSndStartStream(0, 1, 0, 0);
                 }
             }
         }
         break;
     case 5:
-        if (cmpPersonaRowsSettled(arg2) != 0) {
-            cmpPersonaSetMode(arg2, 4);
-            *arg0 = 6;
-            cmpPersonaResetRosterCursor(arg2);
-            datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x1CB8), 0U);
+        if (cmpPersonaRowsSettled(work) != 0) {
+            cmpPersonaSetMode(work, 4);
+            *state = 6;
+            cmpPersonaResetRosterCursor(work);
+            datScreenWipeSetTextureId(*(u8 **)(work + 0x1CB8), 0U);
         }
         break;
     case 6:
         if (D_008C024E[0] & 0x20) {
-            cmpPersonaSetMode(arg2, 2);
-            *arg0 = 3;
+            cmpPersonaSetMode(work, 2);
+            *state = 3;
             nLineSelectSetImmediate(0xE);
             datPersonaRemoveSelectedRosterMember();
             sdkSndStartStream(0, 0, 0, 2);
         } else if (D_008C024E[0] & 0x40) {
-            datPersonaSetLeadSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
+            datPersonaSetLeadSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(work + 0x52) * 2) + (u32)work) + 0x36));
             sdkSndStartStream(1, 3, 2, 6);
-            cmpPersonaRandomizeBackgroundCells(arg2);
+            cmpPersonaRandomizeBackgroundCells(work);
         } else if (D_008C024E[0] & 0x80) {
-            radarSetPersonaHighlight(arg2, 0);
-            shdPersonaStartSlideIn(*(u8 **)(arg2 + 0x1CB4));
-            cmpPersonaSetMode(arg2, 6);
-            cmpPersonaSetRosterCursorMotion(arg2);
-            *arg0 = 7;
+            radarSetPersonaHighlight(work, 0);
+            shdPersonaStartSlideIn(*(u8 **)(work + 0x1CB4));
+            cmpPersonaSetMode(work, 6);
+            cmpPersonaSetRosterCursorMotion(work);
+            *state = 7;
             nLineSelectSet(0x10);
         } else if (D_008C024E[0] & 0x10) {
-            temp_17 = (s16)(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
-            if (temp_17 == func_00105330(1)) {
+            selectedPersona = (s16)(*(s16 *)((u8 *)((u8 *)(*(s16 *)(work + 0x52) * 2) + (u32)work) + 0x36));
+            if (selectedPersona == datGetActiveRosterIndex(1)) {
                 nmMesWindowShowCurrentRecord(2);
-                cmpPersonaSetMode(arg2, 0xC);
-                *arg0 = 0xF;
+                cmpPersonaSetMode(work, 0xC);
+                *state = 0xF;
                 sdkSndStartStream(0, 0, 0, 8);
             } else {
                 nmMesWindowShowCurrentRecord(1);
                 nmMesWindowSetCurrentParam(0);
                 nmMesWindowSetCurrentFlag(1);
                 nmMesWindowRequestRefresh();
-                cmpPersonaSetMode(arg2, 0xB);
-                *arg0 = 0xE;
+                cmpPersonaSetMode(work, 0xB);
+                *state = 0xE;
                 sdkSndStartStream(0, 0, 0, 1);
             }
-            cmpPersonaResetRosterCursor(arg2);
+            cmpPersonaResetRosterCursor(work);
         } else {
-            sdkListStateConfigure(buf, 0xC, *(s16 *)(arg2 + 0x4E), *(s16 *)(arg2 + 0x52), 0);
-            sdkListStateSetSecondaryMasks(buf, 0x4000, 0x1000, 0x2000, 0x8000);
-            if (sdkListStateHandleInput(buf) != 0) {
-                cmpPersonaSetSelection(arg2, 1, *(s32 *)(buf + 0x24));
-                cmpPersonaResetRosterCursor(arg2);
-                shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, (u32)datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
+            sdkListStateConfigure(listState, 0xC, *(s16 *)(work + 0x4E), *(s16 *)(work + 0x52), 0);
+            sdkListStateSetSecondaryMasks(listState, 0x4000, 0x1000, 0x2000, 0x8000);
+            if (sdkListStateHandleInput(listState) != 0) {
+                cmpPersonaSetSelection(work, 1, ((SdkListState *)listState)->row);
+                cmpPersonaResetRosterCursor(work);
+                shdPersonaSetDisplayState(*(u8 **)(work + 0x1CB4), 1U, (u32)datPersonaRosterSlot(*(s16 *)(work + 0x52)), 0);
                 sdkSndStartStream(0, 1, 0, 0);
             }
         }
         break;
     case 7:
-        if (cmpPersonaRowsSettled(arg2) != 0) {
-            *arg0 = 8;
-            cmpPersonaSetMode(arg2, 7);
+        if (cmpPersonaRowsSettled(work) != 0) {
+            *state = 8;
+            cmpPersonaSetMode(work, 7);
         }
         break;
     case 8:
-        if (cmpPersonaRowsSettled(arg2) != 0) {
+        if (cmpPersonaRowsSettled(work) != 0) {
             if (D_008C024E[0] & 0x20) {
-                cmpPersonaSetMode(arg2, 5);
-                *arg0 = 5;
-                cmpPersonaResetRosterCursor(arg2);
+                cmpPersonaSetMode(work, 5);
+                *state = 5;
+                cmpPersonaResetRosterCursor(work);
                 nLineSelectSetImmediate(0xF);
-                shdPersonaBeginClose(*(u8 **)(arg2 + 0x1CB4));
-                radarSetPersonaHighlight(arg2, 1);
+                shdPersonaBeginClose(*(u8 **)(work + 0x1CB4));
+                radarSetPersonaHighlight(work, 1);
             } else if (D_008C024E[0] & 0x40) {
-                cmpPersonaSetMode(arg2, 0xA);
+                cmpPersonaSetMode(work, 0xA);
                 nmMesWindowShowCurrentRecord(3);
                 nmMesWindowSetCurrentParam(0);
                 nmMesWindowSetCurrentFlag(0);
                 nmMesWindowRequestRefresh();
-                *arg0 = 0xD;
+                *state = 0xD;
                 sdkSndStartStream(0, 0, 0, 1);
             } else if (D_008C024E[0] & 0x80) {
-                shdPersonaBeginSelection(*(u8 **)(arg2 + 0x1CB4));
-                *arg0 = 9;
+                shdPersonaBeginSelection(*(u8 **)(work + 0x1CB4));
+                *state = 9;
             } else if (D_008C024E[0] & 0x10) {
                 datPersonaRemoveSelectedRosterMember();
-                *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-                shdPersonaFinishPhase(*(u8 **)(arg2 + 0x1CB4));
-                shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
-                *arg0 = 0x10;
+                *(s32 *)(work + 0x10) = datCommunityRequestExit();
+                shdPersonaFinishPhase(*(u8 **)(work + 0x1CB4));
+                shdPersonaSetPersonaId(*(u8 **)(work + 0x1CB4), 0xB1);
+                *state = 0x10;
             } else {
-                radarBeginRecipientPick(arg2, (s32 *)arg0);
+                radarBeginRecipientPick(work, (s32 *)state);
             }
         }
         break;
     case 9:
         if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
-            shdPersonaEndSelection(*(u8 **)(arg2 + 0x1CB4), 1);
-            *arg0 = 8;
+            shdPersonaEndSelection(*(u8 **)(work + 0x1CB4), 1);
+            *state = 8;
         } else if (D_008C024E[0] & 0x40) {
-            cmpPersonaSetMode(arg2, 0xA);
-            shdPersonaEndSelection(*(u8 **)(arg2 + 0x1CB4), 0);
+            cmpPersonaSetMode(work, 0xA);
+            shdPersonaEndSelection(*(u8 **)(work + 0x1CB4), 0);
             nmMesWindowShowCurrentRecord(3);
             nmMesWindowSetCurrentParam(0);
             nmMesWindowSetCurrentFlag(0);
             nmMesWindowRequestRefresh();
-            *arg0 = 0xD;
+            *state = 0xD;
             sdkSndStartStream(0, 0, 0, 1);
         } else if (D_008C024E[0] & 0x10) {
             datPersonaRemoveSelectedRosterMember();
-            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-            shdPersonaFinishPhase(*(u8 **)(arg2 + 0x1CB4));
-            shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
-            *arg0 = 0x10;
+            *(s32 *)(work + 0x10) = datCommunityRequestExit();
+            shdPersonaFinishPhase(*(u8 **)(work + 0x1CB4));
+            shdPersonaSetPersonaId(*(u8 **)(work + 0x1CB4), 0xB1);
+            *state = 0x10;
         } else {
-            shdPersonaStepSelectionCursor(*(u8 **)(arg2 + 0x1CB4));
-            radarBeginRecipientPick(arg2, (s32 *)arg0);
+            shdPersonaStepSelectionCursor(*(u8 **)(work + 0x1CB4));
+            radarBeginRecipientPick(work, (s32 *)state);
         }
         break;
     case 10:
-        if (cmpPersonaRowsSettled(arg2) != 0) {
-            *arg0 = 0xB;
-            cmpPersonaSetMode(arg2, 7);
-            datScreenWipeSetTextureId(*(u8 **)(arg2 + 0x1CB8), 0U);
+        if (cmpPersonaRowsSettled(work) != 0) {
+            *state = 0xB;
+            cmpPersonaSetMode(work, 7);
+            datScreenWipeSetTextureId(*(u8 **)(work + 0x1CB8), 0U);
         }
         break;
     case 11:
         if (D_008C024E[0] & 0x20) {
-            cmpPersonaSetMode(arg2, 2);
-            *arg0 = 3;
+            cmpPersonaSetMode(work, 2);
+            *state = 3;
             nLineSelectSetImmediate(0xE);
-            shdPersonaBeginClose(*(u8 **)(arg2 + 0x1CB4));
+            shdPersonaBeginClose(*(u8 **)(work + 0x1CB4));
         } else if (D_008C024E[0] & 0x80) {
-            shdPersonaBeginSelection(*(u8 **)(arg2 + 0x1CB4));
-            *arg0 = 0xC;
+            shdPersonaBeginSelection(*(u8 **)(work + 0x1CB4));
+            *state = 0xC;
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-            shdPersonaFinishPhase(*(u8 **)(arg2 + 0x1CB4));
-            shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
-            *arg0 = 0x10;
+            *(s32 *)(work + 0x10) = datCommunityRequestExit();
+            shdPersonaFinishPhase(*(u8 **)(work + 0x1CB4));
+            shdPersonaSetPersonaId(*(u8 **)(work + 0x1CB4), 0xB1);
+            *state = 0x10;
         } else {
-            radarBeginCharacterPick(arg2, arg0);
+            radarBeginCharacterPick(work, state);
         }
         break;
     case 12:
         if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
-            shdPersonaEndSelection(*(u8 **)(arg2 + 0x1CB4), 1);
-            *arg0 = 0xB;
+            shdPersonaEndSelection(*(u8 **)(work + 0x1CB4), 1);
+            *state = 0xB;
         } else if (D_008C024E[0] & 0x10) {
-            *(s32 *)(arg2 + 0x10) = datCommunityRequestExit();
-            shdPersonaFinishPhase(*(u8 **)(arg2 + 0x1CB4));
-            shdPersonaSetPersonaId(*(u8 **)(arg2 + 0x1CB4), 0xB1);
-            *arg0 = 0x10;
-        } else if (radarBeginCharacterPick(arg2, arg0) == 0) {
-            shdPersonaStepSelectionCursor(*(u8 **)(arg2 + 0x1CB4));
+            *(s32 *)(work + 0x10) = datCommunityRequestExit();
+            shdPersonaFinishPhase(*(u8 **)(work + 0x1CB4));
+            shdPersonaSetPersonaId(*(u8 **)(work + 0x1CB4), 0xB1);
+            *state = 0x10;
+        } else if (radarBeginCharacterPick(work, state) == 0) {
+            shdPersonaStepSelectionCursor(*(u8 **)(work + 0x1CB4));
         }
         break;
     case 13:
-        if ((cmpPersonaRowsSettled(arg2) != 0) && (datMemberNoticeTryBegin(1) == 0)) {
-            temp_2 = nmMesWindowCurrentAnimFlag();
-            switch (temp_2) {
+        if ((cmpPersonaRowsSettled(work) != 0) && (datMemberNoticeTryBegin(1) == 0)) {
+            noticeResult = nmMesWindowCurrentAnimFlag();
+            switch (noticeResult) {
             case 0:
-                datPersonaSetLeadSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
+                datPersonaSetLeadSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(work + 0x52) * 2) + (u32)work) + 0x36));
                 sdkSndStartStream(1, 3, 2, 6);
                 break;
             case 1:
@@ -1443,21 +1559,21 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 kAssertFail(D_005ED9E0, 0x220);
                 break;
             }
-            *arg0 = 7;
+            *state = 7;
         }
         break;
     case 14:
-        if ((cmpPersonaRowsSettled(arg2) != 0) && (datMemberNoticeTryBegin(1) == 0)) {
-            temp_2_2 = nmMesWindowCurrentAnimFlag();
-            switch (temp_2_2) {
+        if ((cmpPersonaRowsSettled(work) != 0) && (datMemberNoticeTryBegin(1) == 0)) {
+            removeResult = nmMesWindowCurrentAnimFlag();
+            switch (removeResult) {
             case 0:
-                datPersonaRemoveRosterSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(arg2 + 0x52) * 2) + (u32)arg2) + 0x36));
-                cmpPersonaBuildRosterList(arg2);
-                temp_3_2 = (s16)(*(s16 *)(arg2 + 0x4E));
-                if (*(s16 *)(arg2 + 0x52) >= temp_3_2) {
-                    cmpPersonaSetSelection(arg2, 1, temp_3_2 - 1);
+                datPersonaRemoveRosterSlot(*(s16 *)((u8 *)((u8 *)(*(s16 *)(work + 0x52) * 2) + (u32)work) + 0x36));
+                cmpPersonaBuildRosterList(work);
+                rosterCount = (s16)(*(s16 *)(work + 0x4E));
+                if (*(s16 *)(work + 0x52) >= rosterCount) {
+                    cmpPersonaSetSelection(work, 1, rosterCount - 1);
                 }
-                shdPersonaSetDisplayState(*(u8 **)(arg2 + 0x1CB4), 1U, (u32)datPersonaRosterSlot(*(s16 *)(arg2 + 0x52)), 0);
+                shdPersonaSetDisplayState(*(u8 **)(work + 0x1CB4), 1U, (u32)datPersonaRosterSlot(*(s16 *)(work + 0x52)), 0);
                 break;
             case 1:
                 break;
@@ -1465,26 +1581,26 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 kAssertFail(D_005ED9E0, 0x244);
                 break;
             }
-            cmpPersonaResetRosterCursor(arg2);
-            *arg0 = 5;
+            cmpPersonaResetRosterCursor(work);
+            *state = 5;
         }
         break;
     case 15:
         if (datMemberNoticeTryBegin(1) == 0) {
-            cmpPersonaResetRosterCursor(arg2);
-            *arg0 = 5;
+            cmpPersonaResetRosterCursor(work);
+            *state = 5;
         }
         break;
     case 16:
-        if ((++*(u16 *)(arg2 + 0xC) & 0xFFFF) >= 3) {
-            var_2 = 1;
+        if ((++*(u16 *)(work + 0xC) & 0xFFFF) >= 3) {
+            finished = 1;
         } else {
-            temp_f1 = (1.0f - ((f32)*(u16 *)(arg2 + 0xC) / 3.0f)) * 255.0f;
-            var_3 = (u8)temp_f1;
-            *(u8 *)arg2 = var_3;
-            var_2 = 0;
+            fadeAlpha = (1.0f - ((f32)*(u16 *)(work + 0xC) / 3.0f)) * 255.0f;
+            alphaByte = (u8)fadeAlpha;
+            *(u8 *)work = alphaByte;
+            finished = 0;
         }
-        if (var_2 != 0) {
+        if (finished != 0) {
             return 2;
         }
         break;
@@ -1502,23 +1618,24 @@ s32 radarPersonaMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
 #pragma opt_propagation on
 // Intent: Open the recipient pick display for the chosen entry: set state 8 and begin the display for one or two picks [inferred]
 // FUN_0013E7C0
-void radarBeginRecipientPick(u8 *arg0, s32 *arg1) {
-    u8 sp40[0x28];
-    s32 temp_2;
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+void radarBeginRecipientPick(u8 *work, s32 *state) {
+    u8 listState[0x28];
+    s32 listResult;
 
-    sdkListStateConfigure(sp40, 0xC, *(s16 *)(arg0 + 0x4E), *(s16 *)(arg0 + 0x52), 0);
-    sdkListStateSetActive(sp40, 0);
-    sdkListStateSetSecondaryMasks(sp40, 8, 4, 0, 0);
-    temp_2 = sdkListStateHandleInput(sp40);
-    if (temp_2 > 0) {
-        cmpPersonaSetSelection(arg0, 1, *(s32 *)(sp40 + 0x24));
-        *arg1 = 8;
-        if (temp_2 == 1) {
-            shdPersonaBeginDisplay(*(u8 **)(arg0 + 0x1CB4), 1, (s32)datPersonaRosterSlot(*(s16 *)(arg0 + 0x52)), 0);
+    sdkListStateConfigure(listState, 0xC, *(s16 *)(work + 0x4E), *(s16 *)(work + 0x52), 0);
+    sdkListStateSetActive(listState, 0);
+    sdkListStateSetSecondaryMasks(listState, 8, 4, 0, 0);
+    listResult = sdkListStateHandleInput(listState);
+    if (listResult > 0) {
+        cmpPersonaSetSelection(work, 1, ((SdkListState *)listState)->row);
+        *state = 8;
+        if (listResult == 1) {
+            shdPersonaBeginDisplay(*(u8 **)(work + 0x1CB4), 1, (s32)datPersonaRosterSlot(*(s16 *)(work + 0x52)), 0);
             return;
         }
-        if (temp_2 == 2) {
-            shdPersonaBeginDisplayAndEndSelection(*(u8 **)(arg0 + 0x1CB4), 1, (s32)datPersonaRosterSlot(*(s16 *)(arg0 + 0x52)), 0);
+        if (listResult == 2) {
+            shdPersonaBeginDisplayAndEndSelection(*(u8 **)(work + 0x1CB4), 1, (s32)datPersonaRosterSlot(*(s16 *)(work + 0x52)), 0);
         }
     }
 }
@@ -1530,24 +1647,25 @@ void radarBeginRecipientPick(u8 *arg0, s32 *arg1) {
 #pragma opt_propagation on
 // Intent: Open the character pick display for the chosen entry, and return 1 when a pick list was opened [inferred]
 // FUN_0013E8E0
-s32 radarBeginCharacterPick(u8 *arg0, s32 *arg1) {
-    u8 sp40[0x28];
-    s32 temp_2;
-    s32 temp_18;
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+s32 radarBeginCharacterPick(u8 *work, s32 *state) {
+    u8 listState[0x28];
+    s32 listResult;
+    s32 characterId;
     u16 character;
 
-    sdkListStateConfigure(sp40, 8, *(s16 *)(arg0 + 0x34), *(s16 *)(arg0 + 0x50), 0);
-    sdkListStateSetActive(sp40, 0);
-    sdkListStateSetSecondaryMasks(sp40, 8, 4, 0, 0);
-    temp_2 = sdkListStateHandleInput(sp40);
-    if (temp_2 > 0) {
-        cmpPersonaSetSelection(arg0, 0, *(s32 *)(sp40 + 0x24));
-        *arg1 = 0xB;
-        temp_18 = character = *(u16 *)(code13AddOff(*(s32 *)(sp40 + 0x24) * 2, arg0) + 0x24);
-        if (temp_2 == 1) {
-            shdPersonaBeginDisplay(*(u8 **)(arg0 + 0x1CB4), temp_18, (s32)datPersonaGetRecord(character), 0);
-        } else if (temp_2 == 2) {
-            shdPersonaBeginDisplayAndEndSelection(*(u8 **)(arg0 + 0x1CB4), temp_18, (s32)datPersonaGetRecord(character), 0);
+    sdkListStateConfigure(listState, 8, ((RadarPersonaMenuWork *)work)->unk34, ((RadarPersonaMenuWork *)work)->unk50, 0);
+    sdkListStateSetActive(listState, 0);
+    sdkListStateSetSecondaryMasks(listState, 8, 4, 0, 0);
+    listResult = sdkListStateHandleInput(listState);
+    if (listResult > 0) {
+        cmpPersonaSetSelection(work, 0, *(s32 *)(listState + 0x24));
+        *state = 0xB;
+        characterId = character = *(u16 *)(radarOffsetAddress(*(s32 *)(listState + 0x24) * 2, work) + 0x24);
+        if (listResult == 1) {
+            shdPersonaBeginDisplay(((RadarPersonaMenuWork *)work)->personaDisplay, characterId, (s32)datPersonaGetRecord(character), 0);
+        } else if (listResult == 2) {
+            shdPersonaBeginDisplayAndEndSelection(((RadarPersonaMenuWork *)work)->personaDisplay, characterId, (s32)datPersonaGetRecord(character), 0);
         }
         return 1;
     }
@@ -1561,16 +1679,17 @@ s32 radarBeginCharacterPick(u8 *arg0, s32 *arg1) {
 #pragma opt_propagation on
 // Intent: Recipient menu state machine: step the recipient selection and entry action states, and return the menu's result [inferred]
 // FUN_0013EA20
-s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
-    extern void cmpSkillMenuInit(u8 *arg0);
-    extern u32 datCalcIsDeadById(s16 character);
-    extern s32 cmpSkillStateStep(u8 *arg0);
-    extern s32 cmpSkillRowsSettled(u8 *arg0);
-    extern void cmpSkillFreeSprites(u8 *arg0);
-    extern void cmpSkillSetPartyCursorMotion(u8 *arg0);
-    extern void cmpSkillLayoutScrollRows(void *arg0);
-    extern void cmpSkillBuildAbilityList(void *arg0);
-    extern void radarHandleEntryAction(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3);
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+s32 radarRecipientMenuUpdate(u32 *state, s32 *active, u8 *work) {
+    extern void cmpSkillMenuInit(u8 *work);
+    extern u32 datCalcIsDeadById(s16 unitId);
+    extern s32 cmpSkillStateStep(u8 *work);
+    extern s32 cmpSkillRowsSettled(u8 *work);
+    extern void cmpSkillFreeSprites(u8 *work);
+    extern void cmpSkillSetPartyCursorMotion(u8 *work);
+    extern void cmpSkillLayoutScrollRows(void *work);
+    extern void cmpSkillBuildAbilityList(void *work);
+    extern void radarHandleEntryAction(s32 *state, s16 active, s32 work, u8 *);
     u8 query[0x30];
     f32 alpha;
     s16 character;
@@ -1591,48 +1710,48 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
     s32 confirm;
     s32 alternateConfirm;
 
-    *arg1 = (finished = 1);
-    characterRow = (*(s16 *)(arg2 + 0x5C));
-    character = *(s16 *)(code13AddOff(characterRow * 2, arg2) + 0xF4);
-    recipientRow = (*(s16 *)(arg2 + 0x62));
-    recipientValue = recipientId = *(s16 *)(code13AddOff(recipientRow * 2, arg2) + 0xF4);
-    skillRow = (*(s16 *)(arg2 + 0x5E));
-    skillPage = (*(s16 *)(arg2 + 0x60));
+    *active = (finished = 1);
+    characterRow = (*(s16 *)(work + 0x5C));
+    character = *(s16 *)(radarOffsetAddress(characterRow * 2, work) + 0xF4);
+    recipientRow = (*(s16 *)(work + 0x62));
+    recipientValue = recipientId = *(s16 *)(radarOffsetAddress(recipientRow * 2, work) + 0xF4);
+    skillRow = (*(s16 *)(work + 0x5E));
+    skillPage = (*(s16 *)(work + 0x60));
     skillIndex = skillPage + skillRow;
-    switch (*arg0) {
+    switch (*state) {
         case 0:
-            *arg1 = 0;
-            cmpSkillMenuInit(arg2);
-            *arg0 = 1;
+            *active = 0;
+            cmpSkillMenuInit(work);
+            *state = 1;
             break;
         case 1:
-            ready = (cmpSkillStateStep(arg2));
+            ready = (cmpSkillStateStep(work));
             if (ready & nLineIsIdle()) {
-                *arg0 = 3;
+                *state = 3;
                 nLineSelectSet(8);
-                cmpSkillSetPartyCursorMotion(arg2);
+                cmpSkillSetPartyCursorMotion(work);
             } else {
-                *arg1 = 0;
+                *active = 0;
             }
             break;
         case 2:
-            if ((s32)(cmpSkillRowsSettled(arg2)) != (s32)(0)) {
-                cmpSkillFreeSprites(arg2);
+            if ((s32)(cmpSkillRowsSettled(work)) != (s32)(0)) {
+                cmpSkillFreeSprites(work);
                 return 1;
             }
             break;
         case 3:
-            if ((s32)(cmpSkillRowsSettled(arg2)) != (s32)(0)) {
+            if ((s32)(cmpSkillRowsSettled(work)) != (s32)(0)) {
                 resrcMngSuppressRender();
-                *arg0 = 4;
-                cmpSkillSetMode(arg2, 2U);
-                cmpSkillSetPartyCursorMotion(arg2);
+                *state = 4;
+                cmpSkillSetMode(work, 2U);
+                cmpSkillSetPartyCursorMotion(work);
             }
             break;
         case 4:
             if (D_008C024E[0] & 0x20) {
-                cmpSkillSetMode(arg2, 1U);
-                *arg0 = 2;
+                cmpSkillSetMode(work, 1U);
+                *state = 2;
                 resrcMngUnsuppressRender();
                 nLineSelectSet(0xA);
                 sdkSndStartStream(0, 2, 0, 4);
@@ -1640,55 +1759,55 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 if ((s32)(datCalcIsDeadById(character)) != (s32)(0)) {
                     sdkSndStartStream(0, 0, 0, 8);
                 } else {
-                    cmpSkillSetMode(arg2, 3U);
-                    *arg0 = 5;
+                    cmpSkillSetMode(work, 3U);
+                    *state = 5;
                     sdkSndStartStream(0, 0, 0, 1);
                 }
             } else if (D_008C024E[0] & 0x10) {
-                *(s32 *)(arg2 + 0x10) = (s32)(datCommunityRequestExit());
-                *arg0 = 0xD;
+                *(s32 *)(work + 0x10) = (s32)(datCommunityRequestExit());
+                *state = 0xD;
             } else {
-                sdkListStateConfigure(query, 4, *(s16 *)(arg2 + 0xFC), characterRow, 0);
+                sdkListStateConfigure(query, 4, *(s16 *)(work + 0xFC), characterRow, 0);
                 sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0, 0);
                 if ((s32)(sdkListStateHandleInput(query)) != (s32)(0)) {
-                    cmpSkillSetSelection((s16 *)arg2, 0, *(s32 *)(query + 0x24));
-                    cmpSkillBuildAbilityList(arg2);
-                    cmpSkillSetPartyCursorMotion(arg2);
+                    cmpSkillSetSelection((s16 *)work, 0, ((SdkListState *)query)->row);
+                    cmpSkillBuildAbilityList(work);
+                    cmpSkillSetPartyCursorMotion(work);
                     sdkSndStartStream(0, 1, 0, 0);
                 }
             }
             break;
         case 5:
-            if ((s32)(cmpSkillRowsSettled(arg2)) != (s32)(0)) {
-                *arg0 = 6;
-                cmpSkillSetMode(arg2, 4U);
+            if ((s32)(cmpSkillRowsSettled(work)) != (s32)(0)) {
+                *state = 6;
+                cmpSkillSetMode(work, 4U);
             }
             break;
         case 6:
             if (D_008C024E[0] & 0x20) {
-                *arg0 = 3;
-                cmpSkillSetMode(arg2, 2);
-                cmpSkillSetPartyCursorMotion(arg2);
+                *state = 3;
+                cmpSkillSetMode(work, 2);
+                cmpSkillSetPartyCursorMotion(work);
                 sdkSndStartStream(0, 0, 0, 2);
             } else {
                 confirm = D_008C024E[0] & 0x40;
                 if (confirm != 0) {
-                    radarHandleEntryAction((s32 *)arg0, character, recipientValue, arg2);
+                    radarHandleEntryAction((s32 *)state, character, recipientValue, work);
                 } else if (D_008C024E[0] & 0x80) {
-                    cmpSkillSetMode(arg2, 9);
-                    *arg0 = 0xB;
+                    cmpSkillSetMode(work, 9);
+                    *state = 0xB;
                     sdkSndStartStream(0, 2, 0, 3);
                 } else if (D_008C024E[0] & 0x10) {
-                    *(s32 *)(arg2 + 0x10) = (s32)(datCommunityRequestExit());
-                    *arg0 = 0xD;
+                    *(s32 *)(work + 0x10) = (s32)(datCommunityRequestExit());
+                    *state = 0xD;
                 } else {
-                    sdkListStateConfigure(query, 6, *(s16 *)(arg2 + 0x580), skillRow, skillPage);
+                    sdkListStateConfigure(query, 6, *(s16 *)(work + 0x580), skillRow, skillPage);
                     sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0x2000, 0x8000);
                     if ((queryResult = sdkListStateHandleInput(query)) > 0) {
-                        cmpSkillSetSelection((s16 *)arg2, 1, *(s32 *)(query + 0x24));
-                        cmpSkillSetSelection((s16 *)arg2, 2, *(s32 *)(query + 0x28));
-                        if (*(s16 *)(arg2 + 0x60) != *(s16 *)(arg2 + 0xAC)) {
-                            cmpSkillLayoutScrollRows(arg2);
+                        cmpSkillSetSelection((s16 *)work, 1, ((SdkListState *)query)->row);
+                        cmpSkillSetSelection((s16 *)work, 2, ((SdkListState *)query)->page);
+                        if (*(s16 *)(work + 0x60) != *(s16 *)(work + 0xAC)) {
+                            cmpSkillLayoutScrollRows(work);
                         }
                         datCommunityCursorFeedback(queryResult);
                     }
@@ -1696,29 +1815,29 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             }
             break;
         case 7:
-            if ((s32)(cmpSkillRowsSettled(arg2)) != (s32)(0)) {
-                cmpSkillSetMode(arg2, 6U);
-                cmpSkillSetScrollCursorMotion(arg2);
-                *arg0 = 8;
+            if ((s32)(cmpSkillRowsSettled(work)) != (s32)(0)) {
+                cmpSkillSetMode(work, 6U);
+                cmpSkillSetScrollCursorMotion(work);
+                *state = 8;
             }
             break;
         case 8:
             if (D_008C024E[0] & 0x20) {
-                cmpSkillSetMode(arg2, 3U);
-                *arg0 = 5;
+                cmpSkillSetMode(work, 3U);
+                *state = 5;
                 nLineSelectSetImmediate(8);
                 sdkSndStartStream(0, 0, 0, 2);
                 break;
             }
             if (D_008C024E[0] & 0x40) {
-                applicationResult = (s8)func_0013f720((s16)character, (s16)recipientId, skillIndex, arg2);
+                applicationResult = (s8)cmpSkillApplySelected((s16)character, (s16)recipientId, skillIndex, work);
                 switch (applicationResult) {
                 case 0:
                 case 1:
                     break;
                 case 2:
-                    cmpSkillSetMode(arg2, 3U);
-                    *arg0 = 5;
+                    cmpSkillSetMode(work, 3U);
+                    *state = 5;
                     nLineSelectSetImmediate(8);
                     break;
                 case 3:
@@ -1726,14 +1845,14 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                 }
             } else {
                 if (D_008C024E[0] & 0x10) {
-                    *(s32 *)(arg2 + 0x10) = (s32)(datCommunityRequestExit());
-                    *arg0 = 0xD;
+                    *(s32 *)(work + 0x10) = (s32)(datCommunityRequestExit());
+                    *state = 0xD;
                 } else {
-                    sdkListStateConfigure(query, 4, *(s16 *)(arg2 + 0xFC), recipientRow, 0);
+                    sdkListStateConfigure(query, 4, *(s16 *)(work + 0xFC), recipientRow, 0);
                     sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0, 0);
                     if ((s32)(sdkListStateHandleInput(query)) != (s32)(0)) {
-                        cmpSkillSetSelection((s16 *)arg2, 3, *(s32 *)(query + 0x24));
-                        cmpSkillSetScrollCursorMotion(arg2);
+                        cmpSkillSetSelection((s16 *)work, 3, ((SdkListState *)query)->row);
+                        cmpSkillSetScrollCursorMotion(work);
                         sdkSndStartStream(0, 1, 0, 0);
                     }
                 }
@@ -1741,29 +1860,29 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             }
             break;
         case 9:
-            if ((s32)(cmpSkillRowsSettled(arg2)) != (s32)(0)) {
-                cmpSkillSetMode(arg2, 8U);
-                *arg0 = 0xA;
+            if ((s32)(cmpSkillRowsSettled(work)) != (s32)(0)) {
+                cmpSkillSetMode(work, 8U);
+                *state = 0xA;
             }
             break;
         case 10:
-            if ((s32)(cmpSkillRowsSettled(arg2)) != (s32)(0)) {
+            if ((s32)(cmpSkillRowsSettled(work)) != (s32)(0)) {
                 if (D_008C024E[0] & 0x20) {
-                    cmpSkillSetMode(arg2, 3U);
-                    *arg0 = 5;
+                    cmpSkillSetMode(work, 3U);
+                    *state = 5;
                     nLineSelectSetImmediate(8);
                     sdkSndStartStream(0, 0, 0, 2);
                     break;
                 }
                 if (D_008C024E[0] & 0x40) {
-                    allApplicationResult = (s8)func_0013f720((s16)character, -1, skillIndex, arg2);
+                    allApplicationResult = (s8)cmpSkillApplySelected((s16)character, -1, skillIndex, work);
                     switch (allApplicationResult) {
                     case 0:
                     case 1:
                         break;
                     case 2:
-                        cmpSkillSetMode(arg2, 3U);
-                        *arg0 = 5;
+                        cmpSkillSetMode(work, 3U);
+                        *state = 5;
                         nLineSelectSetImmediate(8);
                         break;
                     case 3:
@@ -1771,8 +1890,8 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
                     }
                 } else {
                     if (D_008C024E[0] & 0x10) {
-                        *(s32 *)(arg2 + 0x10) = (s32)(datCommunityRequestExit());
-                        *arg0 = 0xD;
+                        *(s32 *)(work + 0x10) = (s32)(datCommunityRequestExit());
+                        *state = 0xD;
                     }
                     break;
                 }
@@ -1781,31 +1900,31 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             }
             break;
         case 11:
-            if ((s32)(cmpSkillRowsSettled(arg2)) != (s32)(0)) {
-                cmpSkillSetMode(arg2, 0xAU);
-                *arg0 = 0xC;
+            if ((s32)(cmpSkillRowsSettled(work)) != (s32)(0)) {
+                cmpSkillSetMode(work, 0xAU);
+                *state = 0xC;
             }
             break;
         case 12:
             if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x80)) {
-                cmpSkillSetMode(arg2, 3);
-                *arg0 = 5;
+                cmpSkillSetMode(work, 3);
+                *state = 5;
                 sdkSndStartStream(0, 2, 0, 4);
             } else {
                 alternateConfirm = D_008C024E[0] & 0x40;
                 if (alternateConfirm != 0) {
-                    radarHandleEntryAction((s32 *)arg0, character, recipientValue, arg2);
+                    radarHandleEntryAction((s32 *)state, character, recipientValue, work);
                 } else if (D_008C024E[0] & 0x10) {
-                    *(s32 *)(arg2 + 0x10) = (s32)(datCommunityRequestExit());
-                    *arg0 = 0xD;
+                    *(s32 *)(work + 0x10) = (s32)(datCommunityRequestExit());
+                    *state = 0xD;
                 } else {
-                    sdkListStateConfigure(query, 6, *(s16 *)(arg2 + 0x580), skillRow, skillPage);
+                    sdkListStateConfigure(query, 6, *(s16 *)(work + 0x580), skillRow, skillPage);
                     sdkListStateSetSecondaryMasks(query, 0x4000, 0x1000, 0x2000, 0x8000);
                     if ((alternateQueryResult = sdkListStateHandleInput(query)) > 0) {
-                        cmpSkillSetSelection((s16 *)arg2, 1, *(s32 *)(query + 0x24));
-                        cmpSkillSetSelection((s16 *)arg2, 2, *(s32 *)(query + 0x28));
-                        if (*(s16 *)(arg2 + 0x60) != *(s16 *)(arg2 + 0xAC)) {
-                            cmpSkillLayoutScrollRows(arg2);
+                        cmpSkillSetSelection((s16 *)work, 1, ((SdkListState *)query)->row);
+                        cmpSkillSetSelection((s16 *)work, 2, ((SdkListState *)query)->page);
+                        if (*(s16 *)(work + 0x60) != *(s16 *)(work + 0xAC)) {
+                            cmpSkillLayoutScrollRows(work);
                         }
                         datCommunityCursorFeedback(alternateQueryResult);
                     }
@@ -1813,12 +1932,12 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
             }
             break;
         case 13:
-            if ((++*(u16 *)(arg2 + 0xC) & 0xFFFF) >= 3) {
+            if ((++*(u16 *)(work + 0xC) & 0xFFFF) >= 3) {
                 finished = 1;
             } else {
-                alpha = (1.0f - ((f32)*(u16 *)(arg2 + 0xC) / 3.0f)) * 255.0f;
+                alpha = (1.0f - ((f32)*(u16 *)(work + 0xC) / 3.0f)) * 255.0f;
                 alphaByte = (u8)alpha;
-                *(u8 *)arg2 = alphaByte;
+                *(u8 *)work = alphaByte;
                 finished = 0;
             }
             if (finished != 0) {
@@ -1838,28 +1957,29 @@ s32 radarRecipientMenuUpdate(u32 *arg0, s32 *arg1, u8 *arg2) {
 #pragma opt_propagation on
 // Intent: Handle the entry action after its check: the type zero path sets state 7, and the type 1 or 2 path sets state 9 [inferred]
 // FUN_0013F4D0
-void radarHandleEntryAction(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3) {
-    s32 temp_18;
-    u16 temp_3;
+/* Measured: typed field access changed the retail instruction image; retain byte accesses at the documented work-layout offsets. */
+void radarHandleEntryAction(s32 *state, s16 character, s32 recipient, u8 *work) {
+    s32 skillIndex;
+    u16 targetType;
 
-    temp_18 = *(s16 *)(arg3 + 0x60) + *(s16 *)(arg3 + 0x5E);
-    if (radarEntryIsAllowed(arg1, temp_18, arg3) == 0) {
+    skillIndex = ((RadarSkillMenuWork *)work)->unk60 + ((RadarSkillMenuWork *)work)->unk5E;
+    if (radarEntryIsAllowed(character, skillIndex, work) == 0) {
         sdkSndStartStream(0, 0, 0, 8);
         return;
     }
-    temp_3 = func_0010f8c0(*(u16 *)(code13AddOff(temp_18 * 0xC, arg3) + 0x102)) & 0xFFFF;
-    if (temp_3 == 0) {
-        cmpSkillSetSelection((s16 *)arg3, 3, 0);
-        cmpSkillSetMode(arg3, 5);
-        cmpSkillSetScrollCursorMotion(arg3);
-        if (arg0 != 0) {
-            *arg0 = 7;
+    targetType = datGetSkillPropertyByte(*(u16 *)(radarOffsetAddress(skillIndex * 0xC, work) + 0x102)) & 0xFFFF;
+    if (targetType == 0) {
+        cmpSkillSetSelection((s16 *)work, 3, 0);
+        cmpSkillSetMode(work, 5);
+        cmpSkillSetScrollCursorMotion(work);
+        if (state != 0) {
+            *state = 7;
         }
     } else {
-        if ((temp_3 == 2) || (temp_3 == 1)) {
-            cmpSkillSetMode(arg3, 7);
-            if (arg0 != 0) {
-                *arg0 = 9;
+        if ((targetType == 2) || (targetType == 1)) {
+            cmpSkillSetMode(work, 7);
+            if (state != 0) {
+                *state = 9;
             }
         }
     }
@@ -1874,31 +1994,31 @@ void radarHandleEntryAction(s32 *arg0, s16 arg1, s32 arg2, u8 *arg3) {
 #pragma opt_propagation on
 // Intent: Return 1 when the entry's type is valid and the threshold check does not block it [inferred]
 // FUN_0013F620
-s32 radarEntryIsAllowed(s16 arg0, s32 arg1, u8 *arg2) {
-    s32 var_19;
-    s16 var_18;
-    s16 temp_17;
-    s32 temp_16;
-    u8 *temp_2;
+s32 radarEntryIsAllowed(s16 character, s32 skillIndex, u8 *work) {
+    s32 allowed;
+    s16 savedLeadSlot;
+    s16 leadSlot;
+    s32 skill;
+    u8 *entry;
 
-    var_19 = 1;
-    var_18 = -1;
-    temp_2 = code13AddOff(arg1 * 0xC, arg2);
-    temp_16 = *(u16 *)(temp_2 + 0x102);
-    temp_17 = *(s16 *)(temp_2 + 0x100);
-    if (func_0010f540(temp_16) == 0) {
+    allowed = 1;
+    savedLeadSlot = -1;
+    entry = radarOffsetAddress(skillIndex * 0xC, work);
+    skill = ((RadarSkillMenuWork *)entry)->skills[0].skill;
+    leadSlot = ((RadarSkillMenuWork *)entry)->skills[0].leadSlot;
+    if (datIsSkillAvailable(skill) == 0) {
         return 0;
     }
-    if (temp_17 != -1) {
-        var_18 = (s16)datPersonaGetLeadSlot();
-        datPersonaSetLeadSlot(temp_17);
+    if (leadSlot != -1) {
+        savedLeadSlot = (s16)datPersonaGetLeadSlot();
+        datPersonaSetLeadSlot(leadSlot);
     }
-    if (datCalcThresholdTriggerById(arg0, temp_16) != 0) {
-        var_19 = 0;
+    if (datCalcThresholdTriggerById(character, skill) != 0) {
+        allowed = 0;
     }
-    if (var_18 != -1) {
-        datPersonaSetLeadSlot(var_18);
+    if (savedLeadSlot != -1) {
+        datPersonaSetLeadSlot(savedLeadSlot);
     }
-    return var_19;
+    return allowed;
 }
 #pragma pop

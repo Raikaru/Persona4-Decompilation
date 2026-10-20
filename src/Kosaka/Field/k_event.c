@@ -20,7 +20,7 @@ typedef struct RwMatrix
 // i.e. absolute 0x007690f0 - 0x7d00 = 0x007613f0.
 extern f32 fGpffff8300;
 extern f32 RwV3dNormalize(RwV3d* out, const RwV3d* in);
-extern f32 func_0044b920(f32 x);
+extern f32 func_0044b920(f32 value);
 
 extern u32 K_FldEvent_IsPosWithinFov(const RwMatrix* viewerMat, const RwV3d* targetPos, f32 fov);
 extern f32 RwV3dLength(const RwV3d* vector);

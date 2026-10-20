@@ -1,6 +1,7 @@
 #include "include_asm.h"
 /* Source unit: src/Kosaka/k_vpad_0015f720.c */
 #include "type.h"
+#include "rw_atomic_layout_internal.h"
 
 typedef struct RuntimeVec3
 {
@@ -12,6 +13,43 @@ typedef struct RuntimeMatrix
 {
     f32 values[16];
 } RuntimeMatrix;
+
+/* Config readers agree on a signed pair count at 4, a two-index table at
+ * 0x18, and its model owner at 0x20. The full allocation extent is unknown. */
+typedef struct RuntimeVpadPair
+{
+    s32 first;
+    s32 second;
+} RuntimeVpadPair;
+typedef struct VpadConfig
+{
+    u16 entryCount;
+    u8 pad02[2];
+    s16 pairCount;
+    u8 pad06[0x12];
+    RuntimeVpadPair *pairs;
+    u8 pad1C[4];
+    u8 *model;
+} VpadConfig;
+typedef struct Model
+{
+    u8 pad00[0x90];
+    RuntimeMatrix matrix;
+    u8 padD0[8];
+    u32 flags;
+    u8 padDC[0x18];
+    f32 progress;
+} Model;
+typedef struct RuntimeVpadEntry
+{
+    u8 *atomic;
+    u8 *material;
+} RuntimeVpadEntry;
+typedef struct VpadDistanceConfig
+{
+    u8 pad00[0x2C];
+    f32 scale;
+} VpadDistanceConfig;
 
 extern RuntimeMatrix* func_003e0f80(void);
 extern RuntimeVec3 D_005F10F8;
@@ -38,7 +76,7 @@ typedef struct RuntimeWork
 } RuntimeWork;
 
 extern s32 AfPackIsActive(RuntimeListNode* node);
-extern s32 mdlCopyIndexedMatrix(void* context, s32 index, RuntimeMatrix* matrix);
+extern s32 mdlCopyIndexedMatrix(void* model, s32 index, RuntimeMatrix* destination);
 
 /* Ported from P3FES src/Kosaka/k_vpad.c FUN_001EDA90 (verified MATCH there).
  * Honest C: request = work->requestFlags; offset = i * 8; inlined at both
@@ -72,17 +110,17 @@ typedef struct RuntimeCommandWork
 
 extern void (*D_00887300[])(s32 state, s32 value);
 extern void (*D_00887304[])(s32 state, void* value);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern void RpSkyRenderStateSet(s32 state, s32 value);
 extern void func_003e9df0(void* object);
-extern void* mdlGetMatrix(void* object);
-extern void func_003e9cb0(void* object, void* matrix, s32 flags);
+extern void* mdlGetMatrix(void* model);
+extern void func_003e9cb0(void* frame, void* transform, s32 combine);
 extern void func_003e0960(void* matrix, const void* source);
 extern void func_003e42a0(void* destination, const void* source,
                           RuntimeMatrix* matrix);
 extern void effAfterQueuePush(u8* data, const RuntimeVec3* position,
                           const RuntimeVec3* normal);
-extern void effMiscProgressAdvance(u8* data, f32* value);
-extern void effAfterRebuildTrailMesh(u8* data, u32* value);
+extern void effMiscProgressAdvance(u8* progress, f32* elapsedStep);
+extern void effAfterRebuildTrailMesh(u8* work, u32* pp);
 extern void effAfterRunCommands(RuntimeCommandWork* work, u32* unused);
 extern f32 iGpffff8040;
 
@@ -147,6 +185,8 @@ void Vpad_BuildRotatedQuad(RuntimeVec3* vertices, const RuntimeVec3* translation
 /* The input table stores two signed indices per entry. Keeping the pair
  * offset in one inlined helper preserves the owner expression while making
  * the complete pair address an explicit, natural C value. */
+/* The pair layout is RuntimeVpadPair. Typed table access changed the load/shift
+ * ordering (eight differing bytes in RefreshSelection); retain its byte address. */
 static inline s32 vpad_pair_index(RuntimeWork* work, s32 index, s32 side)
 {
     return *(s32*)((u8*)*(s32**)((u8*)(uintptr_t)work->requestFlags + 0x18) +
@@ -171,20 +211,20 @@ void Vpad_RefreshSelection(RuntimeWork* work)
     firstMatrix = func_003e0f80();
     secondMatrix = func_003e0f80();
     i = 0;
-    while (i < *(s16*)((u8*)(uintptr_t)work->requestFlags + 4))
+    while (i < ((VpadConfig*)(uintptr_t)work->requestFlags)->pairCount)
     {
         mdlCopyIndexedMatrix(
-            *(void**)((u8*)(uintptr_t)work->requestFlags + 0x20),
+            (void*)((VpadConfig*)(uintptr_t)work->requestFlags)->model,
             vpad_pair_index(work, i, 0),
             firstMatrix);
         mdlCopyIndexedMatrix(
-            *(void**)((u8*)(uintptr_t)work->requestFlags + 0x20),
+            (void*)((VpadConfig*)(uintptr_t)work->requestFlags)->model,
             vpad_pair_index(work, i, 1),
             secondMatrix);
         ((RuntimeVec3*)(uintptr_t)work->selection)[i * 2] =
-            *(RuntimeVec3*)((u8*)firstMatrix + 0x30);
+            *(RuntimeVec3*)&firstMatrix->values[12];
         ((RuntimeVec3*)(uintptr_t)work->selection)[i * 2 + 1] =
-            *(RuntimeVec3*)((u8*)secondMatrix + 0x30);
+            *(RuntimeVec3*)&secondMatrix->values[12];
         i++;
     }
 
@@ -194,6 +234,7 @@ void Vpad_RefreshSelection(RuntimeWork* work)
 }
 
 
+/* Advance trail commands, transform samples, update color, and rebuild each entry mesh. */
 // FUN_004B5950
 void Vpad_UpdateRenderEntries(u8* workData)
 {
@@ -220,10 +261,10 @@ void Vpad_UpdateRenderEntries(u8* workData)
     s32 hasField;
     s32 vectorOffset;
     RuntimeMatrix* matrix;
-    u8 d1;
-    u8 d2;
-    u8 d0;
-    u8 d3;
+    u8 red;
+    u8 green;
+    u8 alpha;
+    u8 blue;
     typedef struct RuntimeVpadLocals
     {
         u8 position[12];
@@ -239,12 +280,12 @@ void Vpad_UpdateRenderEntries(u8* workData)
 
     work = (RuntimeVpadUpdateWork*)workData;
     hasField = 0;
-    if (*(f32*)(*(u8**)(work->field + 0x20) + 0xF4) != 0.0f)
+    if (((Model*)((VpadConfig*)work->field)->model)->progress != 0.0f)
     {
         hasField = 1;
     }
     i = 0;
-    while (i < *(s16*)(work->field + 4))
+    while (i < ((VpadConfig*)work->field)->pairCount)
     {
         if (hasField != 0)
         {
@@ -253,9 +294,9 @@ void Vpad_UpdateRenderEntries(u8* workData)
                           (u32*)locals.unused);
             if ((~work->flags & 8) != 0)
             {
-                if ((*(u32*)(work->commands + vectorOffset) & 2) != 0)
+                if ((((RuntimeCommandWork*)(work->commands + vectorOffset))->flags & 2) != 0)
                 {
-                    if ((*(u32*)(work->commands + vectorOffset) & 8) != 0)
+                    if ((((RuntimeCommandWork*)(work->commands + vectorOffset))->flags & 8) != 0)
                     {
                         vectorOffset = i * 3 * 8;
                         sample = (RuntimeVec3*)(work->vectors + vectorOffset);
@@ -265,17 +306,16 @@ void Vpad_UpdateRenderEntries(u8* workData)
                     else
                     {
                         matrix = func_003e0f80();
-                        if ((~*(u32*)(*(u8**)(work->field + 0x20) + 0xD8) &
+                        if ((~((Model*)((VpadConfig*)work->field)->model)->flags &
                              0x8000) != 0)
                         {
                             func_003e0960(matrix,
-                                          mdlGetMatrix(*(u8**)(work->field +
-                                                               0x20)));
+                                          mdlGetMatrix(((VpadConfig*)work->field)->model));
                         }
                         else
                         {
                             func_003e0960(matrix,
-                                          *(u8**)(work->field + 0x20) + 0x90);
+                                          &((Model*)((VpadConfig*)work->field)->model)->matrix);
                         }
                         vectorOffset = i * 3 * 8;
                         func_003e42a0(locals.position,
@@ -301,30 +341,30 @@ void Vpad_UpdateRenderEntries(u8* workData)
         }
         if ((work->flags & 0x10) != 0)
         {
-            d1 = work->color.red;
-            d2 = work->color.green;
-            d3 = work->color.blue;
-            d0 = work->color.alpha;
-            locals.color.red = d1;
-            locals.color.green = d2;
-            locals.color.blue = d3;
-            locals.color.alpha = d0;
+            red = work->color.red;
+            green = work->color.green;
+            blue = work->color.blue;
+            alpha = work->color.alpha;
+            locals.color.red = red;
+            locals.color.green = green;
+            locals.color.blue = blue;
+            locals.color.alpha = alpha;
             if (locals.color.alpha == 0xFF)
             {
                 locals.color.alpha = 0xFE;
             }
-            entry = *(u8**)(work->entries + i * 8 + 4);
-            d1 = locals.color.red;
-            d2 = locals.color.green;
-            d3 = locals.color.blue;
-            d0 = locals.color.alpha;
-            entry[4] = d1;
-            entry[5] = d2;
-            entry[6] = d3;
-            entry[7] = d0;
+            entry = ((RuntimeVpadEntry*)work->entries)[i].material;
+            red = locals.color.red;
+            green = locals.color.green;
+            blue = locals.color.blue;
+            alpha = locals.color.alpha;
+            entry[4] = red;
+            entry[5] = green;
+            entry[6] = blue;
+            entry[7] = alpha;
         }
         effMiscProgressAdvance(work->renderData + i * 0x3C, &locals.delta);
-        locals.value = *(u32*)(*(u8**)(work->entries + i * 8) + 0x18);
+        locals.value = (u32)((struct RpAtomic*)((RuntimeVpadEntry*)work->entries)[i].atomic)->geometry;
         effAfterRebuildTrailMesh(work->renderData + i * 0x3C, &locals.value);
         i++;
     }
@@ -340,28 +380,29 @@ void Vpad_MarkDirty(RuntimeWork* work)
 
 
 
+/* Draw each trail atomic, selecting local/world transforms and restoring saved render states. */
 // FUN_004B5C60
 #pragma opt_propagation off
 void Vpad_DrawEntries(RuntimeVpadWork* work)
 {
-    s32 sp5C;
-    s32 sp58;
-    s32 sp54;
-    s32 sp50;
-    s32 sp4C;
-    s32 sp48;
-    u8* temp_17;
-    s32 var_16;
+    s32 savedCullMode;
+    s32 savedSrcBlend;
+    s32 savedDstBlend;
+    s32 savedZTest;
+    s32 savedZWrite;
+    s32 savedFog;
+    struct RwFrame* frame;
+    s32 entryIndex;
 
     {
         void* base;
         base = (void*)D_00887304;
-        ((void (*)(s32, void*))*(void**)base)(0x14, &sp5C);
-        ((void (*)(s32, void*))*(void**)base)(0xA, &sp58);
-        ((void (*)(s32, void*))*(void**)base)(0xB, &sp54);
-        ((void (*)(s32, void*))*(void**)base)(8, &sp4C);
-        ((void (*)(s32, void*))*(void**)base)(6, &sp50);
-        ((void (*)(s32, void*))*(void**)base)(0xE, &sp48);
+        ((void (*)(s32, void*))*(void**)base)(0x14, &savedCullMode);
+        ((void (*)(s32, void*))*(void**)base)(0xA, &savedSrcBlend);
+        ((void (*)(s32, void*))*(void**)base)(0xB, &savedDstBlend);
+        ((void (*)(s32, void*))*(void**)base)(8, &savedZWrite);
+        ((void (*)(s32, void*))*(void**)base)(6, &savedZTest);
+        ((void (*)(s32, void*))*(void**)base)(0xE, &savedFog);
 
         base = (void*)D_00887300;
         ((void (*)(s32, s32))*(void**)base)(9, 2);
@@ -372,44 +413,44 @@ void Vpad_DrawEntries(RuntimeVpadWork* work)
         ((void (*)(s32, s32))*(void**)base)(0xC, 1);
     }
 
-    var_16 = 0;
-    while (var_16 < *(s16*)((u8*)work->field + 4))
+    entryIndex = 0;
+    while (entryIndex < ((VpadConfig*)work->field)->pairCount)
     {
         RpSkyRenderStateSet(2, 0x48);
         RpSkyRenderStateSet(3, 0x71801);
-        temp_17 = *(u8**)(*(u8**)(work->entries + var_16 * 8) + 4);
-        if ((*(s32*)(work->statuses + var_16 * 0x20) & 8) != 0)
+        frame = ((struct RpAtomic*)((RuntimeVpadEntry*)work->entries)[entryIndex].atomic)->frame;
+        if (((s32)((RuntimeCommandWork*)(work->statuses + entryIndex * 0x20))->flags & 8) != 0)
         {
-            func_003e9df0(temp_17);
+            func_003e9df0(frame);
         }
         else
         {
-            func_003e9df0(temp_17);
-            if ((~*(s32*)(*(u8**)((u8*)work->field + 0x20) + 0xD8) & 0x8000) != 0)
+            func_003e9df0(frame);
+            if ((~(s32)((Model*)((VpadConfig*)work->field)->model)->flags & 0x8000) != 0)
             {
-                func_003e9cb0(temp_17, mdlGetMatrix(*(u8**)((u8*)work->field + 0x20)), 0);
+                func_003e9cb0(frame, mdlGetMatrix(((VpadConfig*)work->field)->model), 0);
             }
             else
             {
-                func_003e9cb0(temp_17, *(u8**)((u8*)work->field + 0x20) + 0x90, 0);
+                func_003e9cb0(frame, &((Model*)((VpadConfig*)work->field)->model)->matrix, 0);
             }
         }
         {
             u8* entryBase;
             entryBase = work->entries;
-            ((void (*)(u8*))*(u32*)(*(u8**)(entryBase + var_16 * 8) + 0x48))(*(u8**)(entryBase + var_16 * 8));
+            ((struct RpAtomic*)((RuntimeVpadEntry*)entryBase)[entryIndex].atomic)->renderCallBack((struct RpAtomic*)((RuntimeVpadEntry*)entryBase)[entryIndex].atomic);
         }
-        var_16++;
+        entryIndex++;
     }
     {
         void* base;
         base = (void*)D_00887300;
-        ((void (*)(s32, s32))*(void**)base)(0xE, sp48);
-        ((void (*)(s32, s32))*(void**)base)(0xB, sp54);
-        ((void (*)(s32, s32))*(void**)base)(0xA, sp58);
-        ((void (*)(s32, s32))*(void**)base)(0x14, sp5C);
-        ((void (*)(s32, s32))*(void**)base)(8, sp4C);
-        ((void (*)(s32, s32))*(void**)base)(6, sp50);
+        ((void (*)(s32, s32))*(void**)base)(0xE, savedFog);
+        ((void (*)(s32, s32))*(void**)base)(0xB, savedDstBlend);
+        ((void (*)(s32, s32))*(void**)base)(0xA, savedSrcBlend);
+        ((void (*)(s32, s32))*(void**)base)(0x14, savedCullMode);
+        ((void (*)(s32, s32))*(void**)base)(8, savedZWrite);
+        ((void (*)(s32, s32))*(void**)base)(6, savedZTest);
     }
 }
 #pragma opt_propagation on
@@ -419,7 +460,7 @@ void Vpad_Activate(RuntimeWork* work)
     if (AfPackIsActive((RuntimeListNode*)work) != 0)
     {
         work->flags |= 8;
-        AfPackReleaseByOwner(*(void**)((u8*)(uintptr_t)work->requestFlags + 0x20));
+        AfPackReleaseByOwner((void*)((VpadConfig*)(uintptr_t)work->requestFlags)->model);
     }
 }
 
@@ -469,6 +510,7 @@ void Vpad_SetColor(RuntimeWork* work, const u8* color)
 
 /* measured: opt_propagation off is required for exact COP1 tail register coloring. */
 #pragma opt_propagation off
+/* Sum both history-edge lengths and apply the configured distance scale. */
 // FUN_004B7300
 f32 Vpad_GetSegmentLength(const RuntimeDistanceWork* work, s32 index)
 {
@@ -497,7 +539,7 @@ f32 Vpad_GetSegmentLength(const RuntimeDistanceWork* work, s32 index)
     sum = total + length;
 
     zero = 0.0f;
-    result = *(f32*)((u8*)work->config[0] + 0x2C);
+    result = ((VpadDistanceConfig*)work->config[0])->scale;
     return sum * result + zero;
 }
 #pragma opt_propagation on
@@ -513,5 +555,5 @@ s32 Vpad_HasEntries(void* workData)
     RuntimeWork* work;
 
     work = (RuntimeWork*)workData;
-    return *(u16*)(uintptr_t)work->requestFlags != 0;
+    return ((VpadConfig*)(uintptr_t)work->requestFlags)->entryCount != 0;
 }

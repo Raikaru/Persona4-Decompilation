@@ -1,3 +1,4 @@
+#include "kwln_task_internal.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
 #include "sdk_task_registration.h"
@@ -79,11 +80,11 @@ extern u16 D_008C0276[];
 extern char iGpffffb020[3];
 extern char iGpffffb024[2];
 extern char iGpffffb028[6];
-extern u8 *func_00468940(u8 *arg0, s64 arg1);
-extern void sdkListStateConfigure(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void sdkListStateSetPrimaryMasks(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 sdkListStateHandleInput(u8 *arg0);
-extern s32 func_004688d0(u8 *arg0, s8 *arg1);
+extern u8 *sdkFilerSelectorCreate(u8 *parent, s64 positionBits);
+extern void sdkListStateConfigure(u8 *state, s32 value, s32 itemCount, s32 cursor, s32 scroll);
+extern void sdkListStateSetPrimaryMasks(u8 *state, s32 value, s32 itemCount, s32 cursor, s32 scroll);
+extern s32 sdkListStateHandleInput(u8 *state);
+extern s32 sdkFilerSelectorPoll(u8 *task, s8 *output);
 extern s32 strcmp(const char *a, const char *b);
 extern s32 uGpffffb230;
 extern s32 D_00724BC8;
@@ -124,8 +125,8 @@ extern f32 fGpffff84f0;
 /* Same RwV3d tag and fields as the ring provider and RenderWare. */
 #include "rw_types_internal.h"
 typedef RwV3d Code46RingPoint;
-extern void primCircleLine3D(const Code46RingPoint *position, f32 radius,
-                         u8 *color, f32 *matrix, s32 setStates);
+extern void primCircleLine3D(const Code46RingPoint *center, f32 radius,
+                         u8 *inputColors, f32 *inputMatrix, s32 inputPreserveState);
 struct Data_00712508 {
     f32 field_0;
     f32 field_4;
@@ -219,7 +220,7 @@ typedef struct FilerDirent {
 
 
 extern void sdkFilerScanDirectory(u8 *work);
-extern void func_00467880(u8 *arg0);
+extern void filerDrawDirectory(u8 *directory);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 00467bd0-00467bd0 */
 
@@ -336,7 +337,7 @@ s32 sdkFilerTaskUpdate(u8 *task)
     u16 length;
     FilerWork *work;
 
-    work = *(FilerWork **)(task + 0x38);
+    work = (FilerWork *)((struct KwlnTask *)task)->work;
     switch (work->state) {
     case 0:
         work->state = 1;
@@ -409,7 +410,7 @@ parentDirectory:
         } else if ((D_008C0276[0] & 0x80) != 0) {
             position.xy[0] = 48.0f;
             position.xy[1] = 248.0f;
-            work->chooser = func_00468940(task, position.packed);
+            work->chooser = sdkFilerSelectorCreate(task, position.packed);
             work->state = 4;
         } else if ((D_008C0276[0] & 0x20) != 0) {
             work->accepted = 0;
@@ -423,12 +424,12 @@ parentDirectory:
                 work->page = navigation.page;
             }
         }
-        func_00467880((u8 *)work);
+        filerDrawDirectory((u8 *)work);
         break;
     case 3:
         break;
     case 4:
-        if (func_004688d0(work->chooser, typedName) != 0) {
+        if (sdkFilerSelectorPoll(work->chooser, typedName) != 0) {
             if (typedName[0] == 0) {
                 work->state = 2;
             } else {
@@ -438,9 +439,10 @@ parentDirectory:
                 work->state = 3;
             }
         }
-        func_00467880((u8 *)work);
+        filerDrawDirectory((u8 *)work);
         break;
     }
     return 0;
 }
+#pragma pop
 

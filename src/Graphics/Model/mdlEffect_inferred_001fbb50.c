@@ -5,6 +5,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "mdl_effect_internal.h"
 #include "effect_instance_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "btl_skill_internal.h"
@@ -32,20 +33,20 @@ extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
 extern BattleRenderStateFunction D_00887300[];
 extern BattleRenderStateFunction D_00887304[];
-extern void func_001fb480(f32 scale, u8 *arg0, s32 arg1, s32 arg2, u8 *arg3);
+extern void mdlEffectDrawScreenTexture(f32 scale, u8 *color, s32 blendMode, s32 testMode, u8 *textureFilter);
 extern u16 D_0076455C;
 extern u16 D_0076455A;
 extern f32 D_007613E0;
 extern f32 D_007613E4;
 extern f32 D_008872FC_abs[];
-extern void func_00122640(s32 arg0, s32 arg1);
+extern void fadeBeginReturnTransition(s32 mode, s32 duration);
 extern s32 fadeStatus(void);
 extern void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color);
-extern void func_003e8110(s32 arg0);
-extern s32 func_003e8120(s32 arg0);
+extern void func_003e8110(s32 camera);
+extern s32 func_003e8120(s32 camera);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
 extern s32 kwlnGetCamera(void);
-extern void func_0045c870(u8 *arg0, s32 arg1);
+extern void effMiscDrawScreenColor(u8 *colors, s32 enabled);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern u8 *iGpffffb3c4;
@@ -79,7 +80,7 @@ extern u8 iGpffffb469;
 extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
 
-extern s32 hFadeTaskUpdate(u8 *arg0);
+extern s32 hFadeTaskUpdate(u8 *work);
 
 
 
@@ -104,11 +105,11 @@ extern u8 D_00624FA0[];
 
 
 
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *action);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001fbb50-001fbb50 */
 
-extern s32 func_001f0ff0(u32 arg0);
+extern s32 func_001f0ff0(u32);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push
@@ -136,6 +137,7 @@ extern s32 func_001f0ff0(u32 arg0);
    optimization gives both unsigned alpha conversions their retail temporaries.
    The radial draw takes depth before packed color in both owners.
    See docs/probe_archive/BattleAction_20260922_resume.md. */
+/* Advances the fade phases, draws the radial/screen layers, and restores seven render states. */
 // FUN_001FBB50
 #pragma push
 s32 hFadeTaskUpdate(u8 *work) {
@@ -155,9 +157,9 @@ s32 hFadeTaskUpdate(u8 *work) {
     result = 0;
     for (stateIndex = 0; stateIndex < 7; stateIndex++) {
         u32 offset = stateIndex * sizeof(savedStates[0]);
-        D_00887304[0](*(RwRenderState *)((u8 *)D_00625210 + offset), (u8 *)savedStates + offset);
+        D_00887304[0](D_00625210[stateIndex], (u8 *)savedStates + offset);
     }
-    work = *(u8 **)(work + 0x38);
+    work = ((MdlEffectCommand *)work)->parameters;
     {
         u32 state = *work;
         switch (state) {
@@ -193,7 +195,7 @@ s32 hFadeTaskUpdate(u8 *work) {
                     u8 screenAlpha = (u8)screenOpacity;
                     colors.screen[3] = screenAlpha;
                 }
-                func_0045c870(colors.screen, 0);
+                effMiscDrawScreenColor(colors.screen, 0);
                 colors.radial.bytes[2] = colors.radial.bytes[1] = colors.radial.bytes[0] = 0xFF;
                 {
                     f32 radialOpacity = 160.0f * (1.0f - square);
@@ -213,7 +215,7 @@ s32 hFadeTaskUpdate(u8 *work) {
                 RpSkyRenderStateSet(3, (void *)0x31801);
                 btlPanelDrawCircle(0, layerScale, layerScale, D_008872FC_abs[0], colors.radial.word);
                 mdlEffectEmitTagPair();
-                func_001fb480(1.0f, (u8 *)&D_007635C8, 0x54, 0x31801, (u8 *)1);
+                mdlEffectDrawScreenTexture(1.0f, (u8 *)&D_007635C8, 0x54, 0x31801, (u8 *)1);
                 if ((s32)D_0076455A >= 0x14) {
                     *work = 3;
                 }
@@ -224,8 +226,8 @@ s32 hFadeTaskUpdate(u8 *work) {
         }
         case 2: {
             if (iGpffffb469 == 0) {
-                func_001fb480(1.0f, (u8 *)&D_007635C8, 0x44, 0x31801, (u8 *)1);
-                if (*(u16 *)(work + 6) == 1) {
+                mdlEffectDrawScreenTexture(1.0f, (u8 *)&D_007635C8, 0x44, 0x31801, (u8 *)1);
+                if (((MdlEffectFadeParameters *)work)->variant == 1) {
                     layerScale = D_007613E0;
                 } else {
                     layerScale = D_007613E4;
@@ -234,6 +236,7 @@ s32 hFadeTaskUpdate(u8 *work) {
                 {
                     u8 alpha;
 
+                    /* Same variant field; keeping this load raw avoids an extra shared-address addiu. */
                     if (*(u16 *)(work + 6) == 1) {
                         alpha = 6;
                     } else {
@@ -241,15 +244,15 @@ s32 hFadeTaskUpdate(u8 *work) {
                     }
                     colors.screen[3] = alpha;
                 }
-                func_001fb480(layerScale, colors.screen, 0x44, 0x31801, (u8 *)2);
+                mdlEffectDrawScreenTexture(layerScale, colors.screen, 0x44, 0x31801, (u8 *)2);
                 colors.screen[3] = 5;
-                func_001fb480(layerScale, colors.screen, 0x48, 0x31801, (u8 *)2);
+                mdlEffectDrawScreenTexture(layerScale, colors.screen, 0x48, 0x31801, (u8 *)2);
             }
             break;
         }
         case 3: {
             if (fadeStatus() != 0) {
-                func_00122640(1, 0x1E);
+                fadeBeginReturnTransition(1, 0x1E);
                 iGpffffb468 = 0;
                 result = -1;
             }
@@ -262,8 +265,7 @@ s32 hFadeTaskUpdate(u8 *work) {
             u32 k;
 
             for (k = 0; k < 7; k++) {
-                u32 offset = k * sizeof(savedStates[0]);
-                D_00887300[0](*(RwRenderState *)((u8 *)D_00625210 + offset), *(void **)((u8 *)savedStates + offset));
+                D_00887300[0](D_00625210[k], savedStates[k]);
             }
         }
         D_00887300[0](rwRENDERSTATETEXTURERASTER, NULL);
@@ -274,3 +276,4 @@ s32 hFadeTaskUpdate(u8 *work) {
     return result;
 }
 
+#pragma pop

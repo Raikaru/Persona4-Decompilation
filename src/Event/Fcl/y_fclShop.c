@@ -4,6 +4,27 @@
 #include "type.h"
 #include "sdk_task_registration.h"
 
+/* Constructor stores prove this prefix of the 0x1840-byte shop work block.
+   Unknown interpolation words retain their integer representation here. */
+typedef struct FclShopWork {
+    u8 state;
+    u8 mode;
+    u8 pad02[2];
+    s32 drawTask;
+    u8 pad08[8];
+    s32 unk10;
+    s32 unk14;
+    s16 unk18;
+    u8 pad1A[2];
+    s32 unk1C;
+    s32 unk20;
+    s16 unk24;
+    s16 unk26;
+    u8 pad28[2];
+    s16 unk2A;
+    u8 pad2C[0x1814];
+} FclShopWork;
+
 extern char D_0063F3C8[];
 extern char D_0063F3E0[];
 extern char D_0063F550[];
@@ -12,7 +33,7 @@ extern char iGpffffa870;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 s32 fclShopDrawCreate(s32);
-s32 func_002be100(s32);
+s32 fclCalendarMonthOrder(s32);
 s32 datItemMoonGateFirst(s16);
 s32 datItemMoonGateSecond(s16);
 
@@ -27,96 +48,100 @@ void datLoadEntryTable();
 s32 fclShopMainUpdate(u8 *task);
 void fclShopMainDestroy(u8 *);
 
+/* Create the shop controller and mark items available from their gate/date data.
+   The initial 0x19 state store and repeated field resets are retained from retail. */
 // FUN_002BDB50
-s32 func_002bdb50(s32 arg0, s8 arg1)
+s32 fclShopCreate(s32 parentTask, s8 mode)
 {
-    u8 *temp_2;
-    s32 temp_17;
-    s16 i;
+    FclShopWork *work;
+    s32 taskHandle;
+    s16 itemId;
 
     chkmemAllocSiteTag(D_0063F3C8, 0xB0);
-    temp_2 = D_008873F4[0](1, 0x1840, 0x40000);
-    temp_17 = (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063F3E0), 0xF, 0, 0, fclShopMainUpdate, fclShopMainDestroy, (u8 *)(temp_2));
-    temp_2[0] = 1;
-    temp_2[1] = 0;
-    if (arg1 == 1) {
-        temp_2[0] = 0x19;
-        temp_2[0] = 3;
-        temp_2[1] = 1;
+    work = D_008873F4[0](1, 0x1840, 0x40000);
+    taskHandle = (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063F3E0), 0xF, 0, 0, fclShopMainUpdate, fclShopMainDestroy, (u8 *)(work));
+    work->state = 1;
+    work->mode = 0;
+    if (mode == 1) {
+        work->state = 0x19;
+        work->state = 3;
+        work->mode = 1;
     }
-    *(s32 *)(temp_2 + 4) = fclShopDrawCreate(arg0);
-    *(s16 *)(temp_2 + 0x18) = 0;
-    *(s16 *)(temp_2 + 0x24) = 0;
-    *(s16 *)(temp_2 + 0x26) = 0;
-    *(s16 *)(temp_2 + 0x2A) = 0;
-    *(s32 *)(temp_2 + 0x10) = 0x41000000;
-    *(s32 *)(temp_2 + 0x14) = 0x41200000;
-    *(s16 *)(temp_2 + 0x18) = 0;
-    *(s32 *)(temp_2 + 0x1C) = 0x41000000;
-    *(s32 *)(temp_2 + 0x20) = 0x41200000;
-    *(s16 *)(temp_2 + 0x24) = 0;
+    work->drawTask = fclShopDrawCreate(parentTask);
+    work->unk18 = 0;
+    work->unk24 = 0;
+    work->unk26 = 0;
+    work->unk2A = 0;
+    work->unk10 = 0x41000000;
+    work->unk14 = 0x41200000;
+    work->unk18 = 0;
+    work->unk1C = 0x41000000;
+    work->unk20 = 0x41200000;
+    work->unk24 = 0;
     sdkSndFadeOutChannelFrames(3, 0, 0x1E);
-    for (i = 0; i < 0x2FF; i++) {
-        if (((datItemMoonGateFirst(i) & 0xFFF00) >> 8) == 0 &&
-            ((datItemMoonGateSecond(i) & 0xFFF00) >> 8) == 0) {
-            datSetStateTableEntry(i, clndGetMoonPhase(i) | 4);
-        } else if (!(datItemMoonGateFirst(i) & 0xFF) && !(datItemMoonGateSecond(i) & 0xFF)) {
-            datSetStateTableEntry(i, clndGetMoonPhase(i) | 4);
+    for (itemId = 0; itemId < 0x2FF; itemId++) {
+        if (((datItemMoonGateFirst(itemId) & 0xFFF00) >> 8) == 0 &&
+            ((datItemMoonGateSecond(itemId) & 0xFFF00) >> 8) == 0) {
+            datSetStateTableEntry(itemId, clndGetMoonPhase(itemId) | 4);
+        } else if (!(datItemMoonGateFirst(itemId) & 0xFF) && !(datItemMoonGateSecond(itemId) & 0xFF)) {
+            datSetStateTableEntry(itemId, clndGetMoonPhase(itemId) | 4);
         }
     }
-    for (i = 0x300; i < 0x3FF; i++) {
-        if ((func_002be100((u8)datItemAvailableMonth(i)) & 0xFF) <
-            (func_002be100(4) & 0xFF)) {
-            datSetStateTableEntry(i, clndGetMoonPhase(i) | 4);
-        } else if ((func_002be100((u8)datItemAvailableMonth(i)) & 0xFF) ==
-                   (func_002be100(4) & 0xFF) && (s8)datItemAvailableDay(i) < 2) {
-            datSetStateTableEntry(i, clndGetMoonPhase(i) | 4);
+    for (itemId = 0x300; itemId < 0x3FF; itemId++) {
+        if ((fclCalendarMonthOrder((u8)datItemAvailableMonth(itemId)) & 0xFF) <
+            (fclCalendarMonthOrder(4) & 0xFF)) {
+            datSetStateTableEntry(itemId, clndGetMoonPhase(itemId) | 4);
+        } else if ((fclCalendarMonthOrder((u8)datItemAvailableMonth(itemId)) & 0xFF) ==
+                   (fclCalendarMonthOrder(4) & 0xFF) && (s8)datItemAvailableDay(itemId) < 2) {
+            datSetStateTableEntry(itemId, clndGetMoonPhase(itemId) | 4);
         }
     }
-    return temp_17;
+    return taskHandle;
 }
 
+/* Entries carrying bit 1 are reset to the availability bit (bit 2). */
 // FUN_002BDEA0
 void fclClearMoonFlagEntries(void)
 {
-    s32 i;
+    s32 itemId;
 
-    for (i = 0; i < 0x3FF; i++) {
-        u8 t;
+    for (itemId = 0; itemId < 0x3FF; itemId++) {
+        u8 flags;
 
-        t = clndGetMoonPhase(i);
-        if (t & 2) {
-            datSetStateTableEntry(i, 0);
-            datSetStateTableEntry(i, 4);
+        flags = clndGetMoonPhase(itemId);
+        if (flags & 2) {
+            datSetStateTableEntry(itemId, 0);
+            datSetStateTableEntry(itemId, 4);
         }
     }
 }
 
+/* Load the shop's nine message resources, then load the item entry table. */
 // FUN_002BDF20
-void func_002bdf20(void)
+void fclShopLoadMessageResources(void)
 {
-    s32 items[9];
-    s32 out;
-    s32 *src;
-    s32 *dst;
+    s32 resourceIds[9];
+    s32 requestSize;
+    s32 *source;
+    s32 *destination;
     s32 count;
-    s32 i;
-    s32 temp;
+    s32 slot;
+    s32 resourceId;
 
-    src = D_0063F520;
-    dst = items;
+    source = D_0063F520;
+    destination = resourceIds;
     count = 9;
     do {
-        temp = *src;
-        src++;
+        resourceId = *source;
+        source++;
         count--;
-        *dst = temp;
-        dst++;
+        *destination = resourceId;
+        destination++;
     } while (count > 0);
     func_00440b68(&iGpffffa870, D_0063F3C8, 0x179);
     H_Cdvd_ReadSync(H_Cdvd_AcquireDirectory(D_0063F550, 1));
-    for (i = 0; i < 9; i++) {
-        nmMesWindowInstallHandle(i, H_Cdvd_LookupRequest(items[i], &out));
+    for (slot = 0; slot < 9; slot++) {
+        nmMesWindowInstallHandle(slot, H_Cdvd_LookupRequest(resourceIds[slot], &requestSize));
     }
     datLoadEntryTable();
 }

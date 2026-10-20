@@ -9,6 +9,7 @@
 #include "effect_instance_internal.h"
 #include "btl_skill_internal.h"
 #include "btl_battle_internal.h"
+#include "btl_effect_internal.h"
 #include "rw_types_internal.h"
 typedef RwV3d P4_95730_Vec3;
 typedef struct P4_95730_Vec4 {
@@ -34,11 +35,11 @@ extern u8 *iGpffffb3b8;
 extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3cc;
 
-extern s64 scrGetParamInt(s32 arg0);
-extern u8 *datUnitGetRecord(s16 arg0);
-extern void datCalcSetUnitClass(u8 *arg0, s16 arg1);
-extern s32 datCalcUnitClass(u8 *arg0);
-extern void scrSetReturnInt(s32 arg0);
+extern s64 scrGetParamInt(s32 paramIdx);
+extern u8 *datUnitGetRecord(s16 unitId);
+extern void datCalcSetUnitClass(u8 *unit, s16 tactic);
+extern s32 datCalcUnitClass(u8 *unit);
+extern void scrSetReturnInt(s32 retVal);
 
 extern u8 *iGpffff9db0;
 extern u8 *D_0076449C;
@@ -84,58 +85,7 @@ extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
    order has to come from an inline's parameter list. */
-static inline u8 *p4_unit_00195530(s32 offset, u8 *base)
-{
-    return (u8 *)(offset + (s32)base);
-}
-static inline s32 p4_base_add_0019f050(s32 offset, s32 base)
-{
-    return base + offset;
-}
-static inline s32 *p4_entries_001900a0(s32 offset, s32 *base)
-{
-    return (s32 *)((s32)base + offset);
-}
-static inline s32 p4_base_add_00194590(s32 offset, s32 base)
-{
-    return offset + base;
-}
-static inline u8 p4_one_00194470(void)
-{
-    return 1;
-}
-static inline s64 p4_sign16_001991c0(s16 value)
-{
-    return value;
-}
-static inline s32 p4_table_001951f0(s32 modeOffset, s32 charOffset,
-                                    s32 base)
-{
-    return modeOffset + charOffset + base;
-}
-static inline f32 p4_add_0019a680(f32 left, f32 right)
-{
-    return left + right;
-}
-static inline void p4_d550_store(u8 *value, u8 *base, u32 index, u32 offset)
-{
-    u8 *address;
-    u8 *stored;
 
-    stored = value;
-    address = base;
-    address = (u8 *)((u32)(index << 3) + (u32)(address, address));
-    *(u8 **)(address + offset) = stored;
-}
-
-static inline void p4_call_00198920(s16 arg1, u8 *arg0, u16 arg2, f32 arg3, u16 arg4)
-{
-    btlUnitSetMotion(arg0, arg1, arg2, arg3, arg4);
-}
-static inline void p4_call_0029db50(s32 arg2, s32 arg0, s32 arg1, s32 arg3)
-{
-    scrStartProcedureChecked(arg0, arg1, arg2, arg3);
-}
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -148,10 +98,6 @@ extern f32 DAT_0076112c;
 
 extern s32 iGpffffb444;
 
-static inline void p4_call_0019ef30(u16 arg1, u8 *arg0)
-{
-    btlUnitInitChild(arg0, arg1);
-}
 extern void (*jtbl_008873EC[])(void *arg0);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
@@ -170,38 +116,40 @@ extern u8 D_00794150[];
 /* measured: opt_loop_invariants on is scoped to func_001928c0. */
 /* measured: closes opt_loop_invariants around func_001928c0. */
 /* measured: closes opt_propagation around func_001928c0. */
+/* Set a character record class from the two AI script integer parameters. */
 // FUN_00193630
 s32 btlScriptSetUnitClass(void) {
-    s64 temp_17;
-    s64 temp_16;
+    s64 characterId;
+    s64 unitClass;
 
-    temp_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    datCalcSetUnitClass(datUnitGetRecord((s16)temp_17), (s16)temp_16);
+    characterId = scrGetParamInt(0);
+    unitClass = scrGetParamInt(1);
+    datCalcSetUnitClass(datUnitGetRecord((s16)characterId), (s16)unitClass);
     return 1;
 }
 
+/* Return the selected character record class to the AI script. */
 // FUN_001936A0
 s32 btlScriptGetUnitClass(void) {
     scrSetReturnInt((s16)datCalcUnitClass(datUnitGetRecord((s16)scrGetParamInt(0))));
     return 1;
 }
 
+/* Return the owning task handle, or zero when no battle runtime exists. */
 // FUN_00193700
 s32 btlIsRunning(void) {
     s32 result;
 
     if (iGpffffb3ac != NULL) {
-        result = *(s32 *)(iGpffffb3ac + 0xDC8);
-        goto done_00193700;
+        result = ((BtlBattleState *)iGpffffb3ac)->cutinTaskParent;
+    } else {
+        result = 0;
     }
-    result = 0;
-done_00193700:
     return result;
 }
 
 // FUN_00193730
 void btlSetFreeUnitsOnTeardown(void) {
-    *(s32 *)(D_0076449C + 0xC) |= BTL_FLAG_FREE_UNITS;
+    ((BtlBattleState *)D_0076449C)->flags |= BTL_FLAG_FREE_UNITS;
 }
 

@@ -1,18 +1,19 @@
 /* Original translation unit effPolygonTrack.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "effect_instance_internal.h"
+#include "polygon_track_internal.h"
 #include "include_asm.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
-extern void ParticleFree(void *arg0);
-extern void func_00494680(void *arg0);
-extern void func_00492cd0(u8 *arg0);
-extern void func_00492d00(int arg0);
-extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
-extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
+extern void ParticleFree(void *particle);
+extern void mdlEffectDestroyGeometryPair(void *instance);
+extern void mdlEffectFreeEmitterAllocation(u8 *instance);
+extern void mdlEffectResetEmitterTicks(s32 instance);
+extern u_long128 mdlEffectStoreQuadA(s32 instance, u32 *quadData);
+extern u_long128 mdlEffectStoreQuadB(s32 instance, u32 *quadData);
 extern void EffEmitterApplyScale(u16 *emitter, f32 scale);
-extern void func_00489f40(void *arg0, u32 color);
+extern void mdlSetObjectHeaderValue(void *object, u32 value);
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void chkmemAllocSiteTag(const void *file, u32 line);
@@ -21,37 +22,37 @@ extern void memset(void *dst, s32 value, u32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern char D_00713E20[];
 extern char D_00713E30[];
-extern void *ParticleCreateBlock(s32 arg0);
-extern u8 *GeometryCloneBlock(u8 *arg0);
-extern void ParticleCopyModeFromSource(void *arg0, void *arg1);
-extern u8 *func_00492b20(u16 arg0, u32 arg1, void *arg2);
-extern void func_004941f0(void *arg0, void *arg1);
-extern u8 *TrackAllocRibbons(u16 arg0, u16 arg1);
-extern void TrackUpdateSlots(u8 *arg0);
-extern void TrackCopyState(u8 *arg0, u8 *arg1);
-extern void TrackLoadRecord(u8 *arg0, u16 arg1, u8 *arg2);
-extern void TrackRebindPathData(u8 *arg0, u16 arg1, u8 *arg2);
-extern void TrackApplyMode(u8 *arg0, u16 arg1, s32 *arg2);
-extern void mdlEffectLoadQuadB(void *arg0, u32 *arg1);
-extern void mdlEffectLoadQuadA(void *arg0, u32 *arg1);
+extern void *ParticleCreateBlock(s32 recordCount);
+extern u8 *GeometryCloneBlock(u8 *source);
+extern void ParticleCopyModeFromSource(void *particle, void *source);
+extern u8 *mdlEffectAllocateTrackPath(u16 kind, u32 primaryCount, void *parameters);
+extern void mdlEffectInterpolateRibbonColors(void *track, void *colors);
+extern u8 *TrackAllocRibbons(u16 count, u16 segments);
+extern void TrackUpdateSlots(u8 *instance);
+extern void TrackCopyState(u8 *destination, u8 *source);
+extern void TrackLoadRecord(u8 *instance, u16 kind, u8 *record);
+extern void TrackRebindPathData(u8 *instance, u16 kind, u8 *parameters);
+extern void TrackApplyMode(u8 *instance, u16 mode, s32 *resource);
+extern void mdlEffectLoadQuadB(void *instance, u32 *quadData);
+extern void mdlEffectLoadQuadA(void *instance, u32 *quadData);
 /* lint-allow: arity kept at four arguments. The definition in mdlEffect.c takes one; a one-argument call here moved the codegen of both TrackRefresh call pairs (verify MISMATCH 2). */
-extern void mdlEffectApplyGeometryMatrix(void *arg0, void *arg1, void *arg2, f32 arg3);
-extern void ParticleProjectVertices(void *arg0, f32 arg1);
-extern void func_00495090(void *arg0, u32 arg1);
-extern void func_00492d10(void *arg0);
-extern void func_00494740(void *arg0, u16 arg1, void *arg2, f32 arg3);
-extern void func_004940d0(void *arg0, u16 arg1, void *arg2);
-extern void mdlEffectCopyOriginAndLockGeometry(void *arg0);
-extern void func_00494ff0(void *arg0);
-extern u8 *GeometryCreateStripGridMultiPart(u16 arg0, u16 arg1, void *arg2, s32 arg3, s32 arg4);
-extern u8 *GeometryCreateTableGridMultiPart(u16 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
-extern void ParticleSetMaterialSlot(u8 *arg0, s32 arg1, s32 arg2);
-extern void ParticleSetTextureFromHandle(u8 *arg0, s32 arg1);
-extern void ParticleSetLinkedGroup(u8 *arg0, s32 *arg1);
-extern void ParticleSetTextureById(u8 *arg0, s32 arg1);
-extern void ParticleRebuildSubtypeChain(u8 *arg0, void *arg1);
-extern void ParticleRebuildSubtypeChainAlt(u8 *arg0, void *arg1);
-extern void ParticleSetAuxResource(u8 *arg0, s32 *arg1);
+extern void mdlEffectApplyGeometryMatrix(void *geometry, void *position, void *rotation, f32 scale);
+extern void ParticleProjectVertices(void *particle, f32 scale);
+extern void mdlEffectSetGeometryPairResource(void *instance, u32 value);
+extern void mdlEffectAdvanceEmitter(void *object);
+extern void mdlEffectAdvanceRibbon(void *track, u16 trackIndex, void *point, f32 width);
+extern void mdlEffectSetRibbonMaterialColor(void *ribbons, u16 materialIndex, void *color);
+extern void mdlEffectCopyOriginAndLockGeometry(void *instance);
+extern void mdlEffectUnlockGeometryPair(void *instance);
+extern u8 *GeometryCreateStripGridMultiPart(u16 partCount, u16 rowCount, void *indices, s32 verticesPerRow, s32 flags);
+extern u8 *GeometryCreateTableGridMultiPart(u16 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow, void *indices, s32 flags);
+extern void ParticleSetMaterialSlot(u8 *particle, s32 source, s32 options);
+extern void ParticleSetTextureFromHandle(u8 *particle, s32 source);
+extern void ParticleSetLinkedGroup(u8 *particle, s32 *source);
+extern void ParticleSetTextureById(u8 *particle, s32 source);
+extern void ParticleRebuildSubtypeChain(u8 *particle, void *source);
+extern void ParticleRebuildSubtypeChainAlt(u8 *particle, void *source);
+extern void ParticleSetAuxResource(u8 *particle, s32 *source);
 extern u8 D_00764C54[4];
 extern f32 D_00761134;
 extern u8 D_00922D80[];
@@ -66,27 +67,27 @@ typedef struct {
     u8 c3;
 } LineNovaColor;
 
-extern LineNovaColor iGpffffbb64;
+extern LineNovaColor iGpffffbb64; /* default packed material color */
 
 
 
 // Allocates a 0x38-byte track instance with a count, unit scale and a single-entry mode word.
 // FUN_00492E70
-void *TrackAllocInstance(u32 arg0)
+void *TrackAllocInstance(u32 count)
 {
-    u8 *w;
+    u8 *instance;
 
     chkmemAllocSiteTag(&D_00713E20, 0x171);
-    w = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
-    memset(w, 0, 0x38);
-    if (w == NULL) {
+    instance = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
+    memset(instance, 0, 0x38);
+    if (instance == NULL) {
         kAssertFail(&D_00713E30, 0x32);
     }
-    *(u32 *)(w + 0) = arg0;
-    *(u32 *)(w + 4) = -1;
-    *(f32 *)(w + 8) = 1.0f;
-    *(u16 *)(w + 0x34) = 1;
-    return w;
+    ((EffTrackInstance *)instance)->count.value = count;
+    ((EffTrackInstance *)instance)->packedColor.value = -1;
+    ((EffTrackInstance *)instance)->scale = 1.0f;
+    ((EffTrackInstance *)instance)->active = 1;
+    return instance;
 }
 
 /* measured: arg1's u16 load must be emitted before the $a0 move (retail's
@@ -98,43 +99,44 @@ void *TrackAllocInstance(u32 arg0)
 // FUN_00492F20
 void *TrackCreateFromEmitter(void *opaqueSource)
 {
-    u8 *arg0 = opaqueSource;
-    u8 *t;
-    u32 var;
-    u8 *t2;
+    /* Keep source-record byte accesses: the typed-source attempt changed b210 codegen (normalized_diff 71); volatile kind loads retain the measured call order. */
+    u8 *source = opaqueSource;
+    u8 *record;
+    u32 count;
+    u8 *instance;
 
-    t = mdlEffectResolveRelPtrA(arg0);
-    if (t == NULL) {
+    record = mdlEffectResolveRelPtrA(source);
+    if (record == NULL) {
         kAssertFail(D_00713E30, 0x61);
     }
-    if (*(u32 *)(t + 0x3C) == 0) {
-        var = (u32)(*(s32 *)(t + 0xD4) * *(s32 *)(t + 0x40));
+    if (*(u32 *)(record + 0x3C) == 0) {
+        count = (u32)(*(s32 *)(record + 0xD4) * *(s32 *)(record + 0x40));
     } else {
-        var = (u32)(*(s32 *)(t + 0x3C) * *(s32 *)(t + 0x40));
+        count = (u32)(*(s32 *)(record + 0x3C) * *(s32 *)(record + 0x40));
     }
-    if (var > 0x64) {
-        var = 0x64;
+    if (count > 0x64) {
+        count = 0x64;
     }
     chkmemAllocSiteTag(&D_00713E20, 0x171);
-    t2 = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
-    memset(t2, 0, 0x38);
-    if (t2 == NULL) {
+    instance = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
+    memset(instance, 0, 0x38);
+    if (instance == NULL) {
         kAssertFail(D_00713E30, 0x32);
     }
-    *(u32 *)(t2 + 0) = var;
-    *(u32 *)(t2 + 4) = -1;
-    *(f32 *)(t2 + 8) = 1.0f;
-    *(u16 *)(t2 + 0x34) = 1;
-    if (t2 == NULL) {
+    ((EffTrackInstance *)instance)->count.value = count;
+    ((EffTrackInstance *)instance)->packedColor.value = -1;
+    ((EffTrackInstance *)instance)->scale = 1.0f;
+    ((EffTrackInstance *)instance)->active = 1;
+    if (instance == NULL) {
         kAssertFail(D_00713E30, 0x63);
     }
     {
-        u16 w = *(volatile u16 *)(arg0 + 0xC);
+        u16 kind = *(volatile u16 *)(source + 0xC);
 
-        TrackLoadRecord(t2, w, t);
+        TrackLoadRecord(instance, kind, record);
     }
-    TrackRebindPathData(t2, *(volatile u16 *)(arg0 + 0xC), t + 0x1C);
-    return t2;
+    TrackRebindPathData(instance, *(volatile u16 *)(source + 0xC), record + 0x1C);
+    return instance;
 }
 
 /* measured: correcting the direct effect-helper declarations and passing the
@@ -143,36 +145,37 @@ void *TrackCreateFromEmitter(void *opaqueSource)
    are the only fndiff rows). */
 // Applies a mode to the track's sub-object: dispatches on the mode value to the matching setter.
 // FUN_00493080
-void TrackApplyMode(u8 *arg0, u16 arg1, s32 *arg2) {
-    u8 *o;
+void TrackApplyMode(u8 *instance, u16 mode, s32 *resource) {
+    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 242). */
+    u8 *particle;
 
-    if (*(u8 **)(arg0 + 0x2C) == NULL) {
-        o = ParticleCreateBlock(*(s32 *)arg0);
-        *(u8 **)(arg0 + 0x2C) = o;
-        *(s32 *)(o + 0x4C) = *(s32 *)(arg0 + 0x30);
+    if (*(u8 **)(instance + 0x2C) == NULL) {
+        particle = ParticleCreateBlock(*(s32 *)instance);
+        *(u8 **)(instance + 0x2C) = particle;
+        *(s32 *)(particle + 0x4C) = *(s32 *)(instance + 0x30);
     }
-    switch ((u32)arg1) {
+    switch ((u32)mode) {
     case 1:
-        ParticleSetMaterialSlot(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
-        ParticleSetTextureFromHandle(*(u8 **)(arg0 + 0x2C), (s32)arg2);
+        ParticleSetMaterialSlot(*(u8 **)(instance + 0x2C), *(s32 *)instance, (s32)mode);
+        ParticleSetTextureFromHandle(*(u8 **)(instance + 0x2C), (s32)resource);
         break;
     case 2:
-        ParticleSetMaterialSlot(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
-        ParticleSetLinkedGroup(*(u8 **)(arg0 + 0x2C), arg2);
+        ParticleSetMaterialSlot(*(u8 **)(instance + 0x2C), *(s32 *)instance, (s32)mode);
+        ParticleSetLinkedGroup(*(u8 **)(instance + 0x2C), resource);
         break;
     case 4:
-        ParticleSetMaterialSlot(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
-        ParticleSetTextureById(*(u8 **)(arg0 + 0x2C), *(s32 *)arg2);
+        ParticleSetMaterialSlot(*(u8 **)(instance + 0x2C), *(s32 *)instance, (s32)mode);
+        ParticleSetTextureById(*(u8 **)(instance + 0x2C), *(s32 *)resource);
         break;
     case 5:
-        ParticleRebuildSubtypeChain(*(u8 **)(arg0 + 0x2C), arg2);
+        ParticleRebuildSubtypeChain(*(u8 **)(instance + 0x2C), resource);
         break;
     case 6:
-        ParticleRebuildSubtypeChainAlt(*(u8 **)(arg0 + 0x2C), arg2);
+        ParticleRebuildSubtypeChainAlt(*(u8 **)(instance + 0x2C), resource);
         break;
     case 7:
-        ParticleSetMaterialSlot(*(u8 **)(arg0 + 0x2C), *(s32 *)arg0, (s32)arg1);
-        ParticleSetAuxResource(*(u8 **)(arg0 + 0x2C), arg2);
+        ParticleSetMaterialSlot(*(u8 **)(instance + 0x2C), *(s32 *)instance, (s32)mode);
+        ParticleSetAuxResource(*(u8 **)(instance + 0x2C), resource);
         break;
     case 0:
     case 3:
@@ -180,7 +183,7 @@ void TrackApplyMode(u8 *arg0, u16 arg1, s32 *arg2) {
         kAssertFail(D_00713E30, 0xA8);
         break;
     }
-    *(s16 *)(*(u8 **)(arg0 + 0x2C) + 0xC) = (s16)arg1;
+    *(s16 *)(*(u8 **)(instance + 0x2C) + 0xC) = (s16)mode;
 }
 /* measured: same volatile-anchored arg1 read as 0x00492f20; plain reads
    swap the lhu/move order at both call sites (nd 5), local spills (nd 62). */
@@ -188,66 +191,67 @@ void TrackApplyMode(u8 *arg0, u16 arg1, s32 *arg2) {
 // FUN_00493200
 void *TrackCreateWithMode(void *opaqueSource)
 {
-    u8 *arg0 = opaqueSource;
-    u8 *t;
-    u8 *p;
-    u32 var;
-    u8 *t2;
+    /* Keep source-record byte accesses: the typed-source attempt changed b210 codegen (normalized_diff 187); volatile kind loads retain the measured call order. */
+    u8 *source = opaqueSource;
+    u8 *record;
+    u8 *parameters;
+    u32 count;
+    u8 *instance;
 
-    t = mdlEffectResolveRelPtrA(arg0);
-    if (t == NULL) {
+    record = mdlEffectResolveRelPtrA(source);
+    if (record == NULL) {
         kAssertFail(D_00713E30, 0x61);
     }
-    p = t + 0x1C;
-    if (*(u32 *)(t + 0x3C) == 0) {
-        var = (u32)(*(s32 *)(p + 0xB8) * *(s32 *)(p + 0x24));
+    parameters = record + 0x1C;
+    if (*(u32 *)(record + 0x3C) == 0) {
+        count = (u32)(*(s32 *)(parameters + 0xB8) * *(s32 *)(parameters + 0x24));
     } else {
-        var = (u32)(*(s32 *)(t + 0x3C) * *(s32 *)(p + 0x24));
+        count = (u32)(*(s32 *)(record + 0x3C) * *(s32 *)(parameters + 0x24));
     }
-    if (var > 0x64) {
-        var = 0x64;
+    if (count > 0x64) {
+        count = 0x64;
     }
-    t2 = TrackAllocInstance(var);
-    if (t2 == NULL) {
+    instance = TrackAllocInstance(count);
+    if (instance == NULL) {
         kAssertFail(D_00713E30, 0x63);
     }
     {
-        u16 w = *(volatile u16 *)(arg0 + 0xC);
+        u16 kind = *(volatile u16 *)(source + 0xC);
 
-        TrackLoadRecord(t2, w, t);
+        TrackLoadRecord(instance, kind, record);
     }
-    TrackRebindPathData(t2, *(volatile u16 *)(arg0 + 0xC), t + 0x1C);
+    TrackRebindPathData(instance, *(volatile u16 *)(source + 0xC), record + 0x1C);
     {
-        s32 *r = (s32 *)mdlEffectResolveRelPtrB(arg0);
+        s32 *resource = (s32 *)mdlEffectResolveRelPtrB(source);
 
-        if (r != NULL) {
-            TrackApplyMode(t2, *(u16 *)(arg0 + 0x1C), r);
+        if (resource != NULL) {
+            TrackApplyMode(instance, *(u16 *)(source + 0x1C), resource);
         }
     }
-    return t2;
+    return instance;
 }
 
 // Frees a track: its ribbon sub-object, its second sub-object, its path block, then the instance.
 // FUN_00493320
-void TrackFreeInstance(u8 *arg0)
+void TrackFreeInstance(u8 *instance)
 {
-    u32 temp_4;
-    u32 temp_4_2;
-    u8 *temp_4_3;
+    u32 particle;
+    u32 ribbons;
+    u8 *path;
 
-    temp_4 = *(u32 *)(arg0 + 0x2C);
-    if (temp_4 != 0) {
-        ParticleFree((void *)temp_4);
+    particle = ((EffTrackInstance *)instance)->particle.value;
+    if (particle != 0) {
+        ParticleFree((void *)particle);
     }
-    temp_4_2 = *(u32 *)(arg0 + 0x28);
-    if (temp_4_2 != 0) {
-        func_00494680((void *)temp_4_2);
+    ribbons = ((EffTrackInstance *)instance)->ribbons.value;
+    if (ribbons != 0) {
+        mdlEffectDestroyGeometryPair((void *)ribbons);
     }
-    temp_4_3 = *(u8 **)(arg0 + 0x30);
-    if (temp_4_3 != NULL) {
-        func_00492cd0(temp_4_3);
+    path = ((EffTrackInstance *)instance)->path.bytes;
+    if (path != NULL) {
+        mdlEffectFreeEmitterAllocation(path);
     }
-    jtbl_008873EC[0](arg0);
+    jtbl_008873EC[0](instance);
 }
 /* measured: same volatile-anchored arg1 read as 0x00492f20 (see its
    note); plain reads swap the lhu/move order at both call sites. */
@@ -255,46 +259,47 @@ void TrackFreeInstance(u8 *arg0)
 // FUN_004933A0
 void *TrackCreateFromSource(void *opaqueSource)
 {
-    u8 *arg0 = opaqueSource;
-    u8 *t17;
-    u32 var;
-    u8 *t2;
+    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 237). */
+    u8 *source = opaqueSource;
+    u8 *parameters;
+    u32 count;
+    u8 *instance;
 
-    if (*(u8 **)(arg0 + 0x30) == NULL) {
+    if (*(u8 **)(source + 0x30) == NULL) {
         kAssertFail(D_00713E30, 0xE6);
     }
-    t17 = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0x24);
-    if (t17 == NULL) {
+    parameters = *(u8 **)(*(u8 **)(source + 0x30) + 0x24);
+    if (parameters == NULL) {
         kAssertFail(D_00713E30, 0xE8);
     }
-    if (*(u32 *)(t17 + 0x20) == 0) {
-        var = (u32)(*(s32 *)(t17 + 0xB8) * *(s32 *)(t17 + 0x24));
+    if (((EffTrackPathParameters *)parameters)->emissionDuration.value == 0) {
+        count = (u32)(((EffTrackPathParameters *)parameters)->lifetime * ((EffTrackPathParameters *)parameters)->emissionRate);
     } else {
-        var = (u32)(*(s32 *)(t17 + 0x20) * *(s32 *)(t17 + 0x24));
+        count = (u32)(((EffTrackPathParameters *)parameters)->emissionDuration.signedValue * ((EffTrackPathParameters *)parameters)->emissionRate);
     }
-    if (var > 0x64) {
-        var = 0x64;
+    if (count > 0x64) {
+        count = 0x64;
     }
     chkmemAllocSiteTag(&D_00713E20, 0x171);
-    t2 = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
-    memset(t2, 0, 0x38);
-    if (t2 == NULL) {
+    instance = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
+    memset(instance, 0, 0x38);
+    if (instance == NULL) {
         kAssertFail(D_00713E30, 0x32);
     }
-    *(u32 *)(t2 + 0) = var;
-    *(u32 *)(t2 + 4) = -1;
-    *(f32 *)(t2 + 8) = 1.0f;
-    *(u16 *)(t2 + 0x34) = 1;
-    if (t2 == NULL) {
+    *(u32 *)(instance + 0) = count;
+    *(u32 *)(instance + 4) = -1;
+    *(f32 *)(instance + 8) = 1.0f;
+    *(u16 *)(instance + 0x34) = 1;
+    if (instance == NULL) {
         kAssertFail(D_00713E30, 0xEA);
     }
     {
-        u16 w = *(volatile u16 *)(*(u8 **)(arg0 + 0x30) + 0);
+        u16 kind = *(volatile u16 *)(*(u8 **)(source + 0x30) + 0);
 
-        TrackLoadRecord(t2, w, arg0 + 0xC);
+        TrackLoadRecord(instance, kind, source + 0xC);
     }
-    TrackRebindPathData(t2, *(volatile u16 *)(*(u8 **)(arg0 + 0x30) + 0), t17);
-    return t2;
+    TrackRebindPathData(instance, *(volatile u16 *)(*(u8 **)(source + 0x30) + 0), parameters);
+    return instance;
 }
 
 /* measured: same volatile-anchored arg1 read as 0x00492f20 (see its
@@ -303,112 +308,116 @@ void *TrackCreateFromSource(void *opaqueSource)
 // FUN_00493530
 void *TrackCreateFromSourceCopy(void *opaqueSource)
 {
-    u8 *arg0 = opaqueSource;
-    u8 *t17;
-    u32 var;
-    u8 *t2;
+    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 249). */
+    u8 *source = opaqueSource;
+    u8 *parameters;
+    u32 count;
+    u8 *instance;
 
-    if (*(u8 **)(arg0 + 0x30) == NULL) {
+    if (*(u8 **)(source + 0x30) == NULL) {
         kAssertFail(D_00713E30, 0xFE);
     }
-    t17 = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0x24);
-    if (t17 == NULL) {
+    parameters = *(u8 **)(*(u8 **)(source + 0x30) + 0x24);
+    if (parameters == NULL) {
         kAssertFail(D_00713E30, 0x100);
     }
-    if (*(u32 *)(t17 + 0x20) == 0) {
-        var = (u32)(*(s32 *)(t17 + 0xB8) * *(s32 *)(t17 + 0x24));
+    if (((EffTrackPathParameters *)parameters)->emissionDuration.value == 0) {
+        count = (u32)(((EffTrackPathParameters *)parameters)->lifetime * ((EffTrackPathParameters *)parameters)->emissionRate);
     } else {
-        var = (u32)(*(s32 *)(t17 + 0x20) * *(s32 *)(t17 + 0x24));
+        count = (u32)(((EffTrackPathParameters *)parameters)->emissionDuration.signedValue * ((EffTrackPathParameters *)parameters)->emissionRate);
     }
-    if (var > 0x64) {
-        var = 0x64;
+    if (count > 0x64) {
+        count = 0x64;
     }
     chkmemAllocSiteTag(&D_00713E20, 0x171);
-    t2 = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
-    memset(t2, 0, 0x38);
-    if (t2 == NULL) {
+    instance = (u8 *)(*jtbl_008873E8)(0x38, 0x40000);
+    memset(instance, 0, 0x38);
+    if (instance == NULL) {
         kAssertFail(D_00713E30, 0x32);
     }
-    *(u32 *)(t2 + 0) = var;
-    *(u32 *)(t2 + 4) = -1;
-    *(f32 *)(t2 + 8) = 1.0f;
-    *(u16 *)(t2 + 0x34) = 1;
-    if (t2 == NULL) {
+    *(u32 *)(instance + 0) = count;
+    *(u32 *)(instance + 4) = -1;
+    *(f32 *)(instance + 8) = 1.0f;
+    *(u16 *)(instance + 0x34) = 1;
+    if (instance == NULL) {
         kAssertFail(D_00713E30, 0x102);
     }
     {
-        u16 w = *(volatile u16 *)(*(u8 **)(arg0 + 0x30) + 0);
+        u16 kind = *(volatile u16 *)(*(u8 **)(source + 0x30) + 0);
 
-        TrackLoadRecord(t2, w, arg0 + 0xC);
+        TrackLoadRecord(instance, kind, source + 0xC);
     }
-    TrackRebindPathData(t2, *(volatile u16 *)(*(u8 **)(arg0 + 0x30) + 0), t17);
-    TrackCopyState(t2, arg0);
-    return t2;
+    TrackRebindPathData(instance, *(volatile u16 *)(*(u8 **)(source + 0x30) + 0), parameters);
+    TrackCopyState(instance, source);
+    return instance;
 }
 
-// Copies a source track's sub-object and width into the destination track.
+// Clones optional particle geometry and copies the source particle mode and kind into the destination track.
 // FUN_004936D0
-void TrackCopyState(u8 *arg0, u8 *arg1)
+void TrackCopyState(u8 *destination, u8 *source)
 {
-    u8 *v;
+    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 144). */
+    u8 *particleOrGeometry;
 
-    if (*(u32 *)(arg1 + 0x2C) == 0) {
+    if (*(u32 *)(source + 0x2C) == 0) {
         kAssertFail(D_00713E30, 0x115);
     }
-    if (*(u32 *)(arg0 + 0x2C) == 0) {
-        v = ParticleCreateBlock(*(s32 *)arg0);
-        *(u8 **)(arg0 + 0x2C) = v;
-        *(u32 *)(*(u8 **)(arg0 + 0x2C) + 0x4C) =
-            *(u32 *)(arg0 + 0x30);
+    if (*(u32 *)(destination + 0x2C) == 0) {
+        particleOrGeometry = ParticleCreateBlock(*(s32 *)destination);
+        *(u8 **)(destination + 0x2C) = particleOrGeometry;
+        *(u32 *)(*(u8 **)(destination + 0x2C) + 0x4C) =
+            *(u32 *)(destination + 0x30);
     }
-    if (*(u32 *)(*(u8 **)(arg1 + 0x2C) + 0x50) != 0) {
-        v = GeometryCloneBlock(*(u8 **)(*(u8 **)(arg1 + 0x2C) + 0x50));
-        *(u8 **)(*(u8 **)(arg0 + 0x2C) + 0x50) = v;
+    if (*(u32 *)(*(u8 **)(source + 0x2C) + 0x50) != 0) {
+        particleOrGeometry = GeometryCloneBlock(*(u8 **)(*(u8 **)(source + 0x2C) + 0x50));
+        *(u8 **)(*(u8 **)(destination + 0x2C) + 0x50) = particleOrGeometry;
     }
-    ParticleCopyModeFromSource(*(u8 **)(arg0 + 0x2C), *(u8 **)(arg1 + 0x2C));
-    *(u16 *)(*(u8 **)(arg0 + 0x2C) + 0xC) =
-        *(u16 *)(*(u8 **)(arg1 + 0x2C) + 0xC);
+    ParticleCopyModeFromSource(*(u8 **)(destination + 0x2C), *(u8 **)(source + 0x2C));
+    *(u16 *)(*(u8 **)(destination + 0x2C) + 0xC) =
+        *(u16 *)(*(u8 **)(source + 0x2C) + 0xC);
 }
 
 // Copies the 0x1C source record in and rebuilds the 0x28 sub-object when the track is live.
 // FUN_00493790
-void TrackLoadRecord(u8 *arg0, u16 arg1, u8 *arg2)
+void TrackLoadRecord(u8 *instance, u16 kind, u8 *record)
 {
-    u8 *v;
+    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 94). */
+    u8 *ribbons;
 
-    memcpy(arg0 + 0xC, arg2, 0x1C);
-    if (*(u32 *)(arg0 + 0) != 0) {
-        if (*(u32 *)(arg0 + 0x28) != 0) {
-            func_00494680((void *)*(u32 *)(arg0 + 0x28));
+    memcpy(instance + 0xC, record, 0x1C);
+    if (*(u32 *)(instance + 0) != 0) {
+        if (*(u32 *)(instance + 0x28) != 0) {
+            mdlEffectDestroyGeometryPair((void *)*(u32 *)(instance + 0x28));
         }
-        v = TrackAllocRibbons(*(u16 *)(arg0 + 0), *(u16 *)arg2);
-        *(u8 **)(arg0 + 0x28) = v;
-        func_004941f0(v, arg2 + 8);
+        ribbons = TrackAllocRibbons(*(u16 *)(instance + 0), *(u16 *)record);
+        *(u8 **)(instance + 0x28) = ribbons;
+        mdlEffectInterpolateRibbonColors(ribbons, record + 8);
     }
 }
 
 // Rebinds the track's path data: frees the old 0x30 block and allocates a new one for the index.
 // FUN_00493820
-void TrackRebindPathData(u8 *arg0, u16 arg1, u8 *arg2)
+void TrackRebindPathData(u8 *instance, u16 kind, u8 *parameters)
 {
-    if (*(u32 *)(arg0 + 0x30) != 0) {
-        func_00492cd0((u8 *)*(u32 *)(arg0 + 0x30));
+    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 94). */
+    if (*(u32 *)(instance + 0x30) != 0) {
+        mdlEffectFreeEmitterAllocation((u8 *)*(u32 *)(instance + 0x30));
     }
-    if (*(u32 *)(arg2 + 0xC0) != 0) {
+    if (((EffTrackPathParameters *)parameters)->trailCount != 0) {
         kAssertFail(&D_00713E30, 0x14E);
     }
-    *(u32 *)(arg0 + 0x30) = (u32)func_00492b20(arg1 & 0xFFFF, *(u32 *)(arg0 + 0), arg2);
+    *(u32 *)(instance + 0x30) = (u32)mdlEffectAllocateTrackPath(kind & 0xFFFF, *(u32 *)(instance + 0), parameters);
 }
 
 // Releases the track's sub-object through the sub-object release callback.
 // FUN_004938B0
-void TrackReleaseSubobject(u8 *arg0)
+void TrackReleaseSubobject(u8 *instance)
 {
-    u32 temp_4;
+    u32 path;
 
-    temp_4 = *(u32 *)(arg0 + 0x30);
-    if (temp_4 != 0) {
-        func_00492d00(temp_4);
+    path = ((EffTrackInstance *)instance)->path.value;
+    if (path != 0) {
+        mdlEffectResetEmitterTicks(path);
     }
 }
 
@@ -429,32 +438,33 @@ void TrackReleaseSubobject(u8 *arg0)
    the `sw $2, 0x90($sp)` slot and its volatile reload are part of it. */
 // Per-frame update: writes each live track sample into its owner slot, then sets the owner's colour and width.
 // FUN_004938E0
-void TrackUpdateSlots(u8 *arg0)
+void TrackUpdateSlots(u8 *instance)
 {
+    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 479). */
     extern f32 fGpffff8044;
-    extern void ParticleUpdateScaled(void *arg0, f32 arg1);
-    s32 sp9C;
-    s32 sp98;
-    s32 sp94;
-    s32 sp90;
-    f32 sp80[3];
-    u8 sp70[16] __attribute__((aligned(16)));
-    s32 *pt;
+    extern void ParticleUpdateScaled(void *particle, f32 scale);
+    s32 materialColor;
+    s32 baseColor;
+    s32 sampleColor;
+    s32 modulatedColor;
+    f32 position[3];
+    u8 colorFactors[16] __attribute__((aligned(16)));
+    s32 *colorWord;
     f32 scale;
-    u8 *track;
-    u8 *entry;
-    s32 i;
-    u8 *owner;
+    u8 *path;
+    u8 *sample;
+    s32 sampleIndex;
+    u8 *ribbons;
     s32 count;
     s32 mode;
 
-    if (*(s32 *)arg0 == 0) {
+    if (*(s32 *)instance == 0) {
         return;
     }
-    func_00492d10(*(void **)(arg0 + 0x30));
-    track = *(u8 **)(arg0 + 0x30);
-    sp98 = *(s32 *)(arg0 + 4);
-    pt = &sp98;
+    mdlEffectAdvanceEmitter(*(void **)(instance + 0x30));
+    path = *(u8 **)(instance + 0x30);
+    baseColor = *(s32 *)(instance + 4);
+    colorWord = &baseColor;
     scale = fGpffff8044;
     __asm__ volatile(
         "lw $2, 0(%0)          \n"
@@ -467,22 +477,22 @@ void TrackUpdateSlots(u8 *arg0)
         "qmtc2.ni $2, $vf2     \n"
         "vmulx.xyzw $vf10, $vf10, $vf2x \n"
         :
-        : "r"(pt), "f"(scale)
+        : "r"(colorWord), "f"(scale)
         : "$2", "$vf2", "$vf10", "memory");
-    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(sp70) : "$vf10", "memory");
-    entry = *(u8 **)(track + 0x18);
-    count = *(s32 *)arg0;
-    owner = *(u8 **)(arg0 + 0x28);
-    mdlEffectCopyOriginAndLockGeometry(owner);
-    for (i = 0; i < count; i++, entry += 0x20) {
-        if (mdlEffectSlotIsFree(owner, i) != 0) {
+    __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(colorFactors) : "$vf10", "memory");
+    sample = ((EffTrackPath *)path)->samples;
+    count = *(s32 *)instance;
+    ribbons = *(u8 **)(instance + 0x28);
+    mdlEffectCopyOriginAndLockGeometry(ribbons);
+    for (sampleIndex = 0; sampleIndex < count; sampleIndex++, sample += 0x20) {
+        if (mdlEffectSlotIsFree(ribbons, sampleIndex) != 0) {
             continue;
         }
-        mode = *(s32 *)(entry + 0x10);
+        mode = ((EffTrackSample *)sample)->mode;
         if (mode == -2) {
-            func_00494740(owner, i, D_00922D80, 0.0f);
-            func_004940d0(owner, i, &iGpffffbb64);
-            mdlEffectSlotRelease(owner, i);
+            mdlEffectAdvanceRibbon(ribbons, sampleIndex, D_00922D80, 0.0f);
+            mdlEffectSetRibbonMaterialColor(ribbons, sampleIndex, &iGpffffbb64);
+            mdlEffectSlotRelease(ribbons, sampleIndex);
             continue;
         }
         if (mode == -1) {
@@ -492,17 +502,17 @@ void TrackUpdateSlots(u8 *arg0)
             goto draw_entry;
         }
 clear_entry:
-        func_00494740(owner, i, D_00922D80, 0.0f);
-        func_004940d0(owner, i, &iGpffffbb64);
-        mdlEffectSlotSetZero(owner, i);
+        mdlEffectAdvanceRibbon(ribbons, sampleIndex, D_00922D80, 0.0f);
+        mdlEffectSetRibbonMaterialColor(ribbons, sampleIndex, &iGpffffbb64);
+        mdlEffectSlotSetZero(ribbons, sampleIndex);
         continue;
 draw_entry:
-        sp80[0] = *(f32 *)(entry + 0);
-        sp80[1] = *(f32 *)(entry + 4);
-        sp80[2] = *(f32 *)(entry + 8);
-        func_00494740(owner, i, sp80, *(f32 *)(entry + 0x18));
-        sp94 = *(s32 *)(entry + 0x14);
-        pt = &sp94;
+        position[0] = ((EffTrackSample *)sample)->position[0];
+        position[1] = ((EffTrackSample *)sample)->position[1];
+        position[2] = ((EffTrackSample *)sample)->position[2];
+        mdlEffectAdvanceRibbon(ribbons, sampleIndex, position, ((EffTrackSample *)sample)->width);
+        sampleColor = ((EffTrackSample *)sample)->packedColor;
+        colorWord = &sampleColor;
         __asm__ volatile(
             "lw $2, 0(%0)          \n"
             "pextlb $2, $0, $2     \n"
@@ -514,7 +524,7 @@ draw_entry:
             "qmtc2.ni $2, $vf2     \n"
             "vmulx.xyzw $vf10, $vf10, $vf2x \n"
             :
-            : "r"(pt), "f"(scale)
+            : "r"(colorWord), "f"(scale)
             : "$2", "$vf2", "$vf10", "memory");
         __asm__ volatile(
             "lqc2 $vf11, 0(%0)     \n"
@@ -528,85 +538,87 @@ draw_entry:
             "ppacb $2, $0, $2      \n"
             "sw $2, 0x90($sp)      \n"
             :
-            : "r"(sp70)
+            : "r"(colorFactors)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
         /* measured: this volatile read is the COP2 block's OUTPUT PATH, not a
            reload hack on ordinary memory.  The asm above ends in
            `sw $2, 0x90($sp)`, a hard-coded frame offset the compiler cannot
-           associate with `sp90`; because `sp90` is a local whose address is
+           associate with `modulatedColor`; because `modulatedColor` is a local whose address is
            never taken, b210 correctly concludes no asm can have touched it and
            the "memory" clobber does not reach it, so a plain read is folded
            away.  Three legal alternatives were measured and each LOSES the
            match (19 -> 18 MATCH, 1 MISMATCH in this file): a plain
-           `sp9C = sp90;`, declaring the slot as an asm output with
-           `"=m"(sp90)` and `sw $2, %0`, and taking the address into a local
-           `s32 *slotOut = &sp90;` so the clobber applies.  The cast stays. */
-        sp9C = *(volatile s32 *)&sp90;
-        func_004940d0(owner, i, &sp9C);
+           `materialColor = modulatedColor;`, declaring the slot as an asm output with
+           `"=m"(modulatedColor)` and `sw $2, %0`, and taking the address into a local
+           `s32 *slotOut = &modulatedColor;` so the clobber applies.  The cast stays. */
+        materialColor = *(volatile s32 *)&modulatedColor;
+        mdlEffectSetRibbonMaterialColor(ribbons, sampleIndex, &materialColor);
     }
-    func_00494ff0(owner);
-    if (*(u8 **)(arg0 + 0x2C) == NULL) {
+    mdlEffectUnlockGeometryPair(ribbons);
+    if (*(u8 **)(instance + 0x2C) == NULL) {
         return;
     }
-    if (*(u32 *)(*(u8 **)(arg0 + 0x30) + 0x10) < *(u32 *)(arg0 + 0x10)) {
+    if (*(u32 *)(*(u8 **)(instance + 0x30) + 0x10) < *(u32 *)(instance + 0x10)) {
         return;
     }
-    func_00489f40(*(void **)(arg0 + 0x2C), *(u32 *)(arg0 + 4));
-    ParticleUpdateScaled(*(void **)(arg0 + 0x2C), *(f32 *)(arg0 + 0x24) / 10.0f);
+    mdlSetObjectHeaderValue(*(void **)(instance + 0x2C), *(u32 *)(instance + 4));
+    ParticleUpdateScaled(*(void **)(instance + 0x2C), *(f32 *)(instance + 0x24) / 10.0f);
 }
 // Applies the track width to its ribbon geometry when the track has more than one sample.
 // FUN_00493B90
-void TrackApplyWidth(u8 *arg0)
+void TrackApplyWidth(u8 *instance)
 {
-    if (*(u32 *)(arg0 + 0) != 0) {
-        s32 n = *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x10);
+    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 189). */
+    if (*(u32 *)(instance + 0) != 0) {
+        s32 sampleCount = *(s32 *)(*(u8 **)(instance + 0x30) + 0x10);
 
-        if (n > 1) {
-            u8 *t17 = *(u8 **)(arg0 + 0x28);
-            u8 *t16 = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0x20);
+        if (sampleCount > 1) {
+            u8 *ribbons = *(u8 **)(instance + 0x28);
+            u8 *parameters = *(u8 **)(*(u8 **)(instance + 0x30) + 0x20);
 
-            if (*(u32 *)(*(u8 **)(arg0 + 0x30) + 0xC) & 1) {
-                u32 sp50[4];
-                u32 sp40[4];
+            if (*(u32 *)(*(u8 **)(instance + 0x30) + 0xC) & 1) {
+                u32 position[4];
+                u32 rotation[4];
 
-                mdlEffectLoadQuadB(*(u8 **)(arg0 + 0x30), sp40);
-                mdlEffectLoadQuadA(*(u8 **)(arg0 + 0x30), sp50);
-                mdlEffectApplyGeometryMatrix((void *)*(u32 *)(t17 + 0x10), sp50, sp40, 1.0f);
-                mdlEffectApplyGeometryMatrix((void *)*(u32 *)(t17 + 0x14), sp50, sp40, 1.0f);
+                mdlEffectLoadQuadB(*(u8 **)(instance + 0x30), rotation);
+                mdlEffectLoadQuadA(*(u8 **)(instance + 0x30), position);
+                mdlEffectApplyGeometryMatrix((void *)((EffTrackRibbons *)ribbons)->ribbon, position, rotation, 1.0f);
+                mdlEffectApplyGeometryMatrix((void *)((EffTrackRibbons *)ribbons)->cap, position, rotation, 1.0f);
             }
-            if (*(u32 *)(arg0 + 0x2C) != 0) {
-                ParticleProjectVertices(*(u8 **)(arg0 + 0x2C), *(f32 *)(arg0 + 0x24) / 10.0f);
+            if (*(u32 *)(instance + 0x2C) != 0) {
+                ParticleProjectVertices(*(u8 **)(instance + 0x2C), *(f32 *)(instance + 0x24) / 10.0f);
             }
-            func_00495090(t17, *(u16 *)(t16 + 0x54));
+            mdlEffectSetGeometryPairResource(ribbons, ((EffTrackPathParameters *)parameters)->unk54);
         }
     }
 }
 
 // Per-frame refresh: runs the slot update, then applies the width when the track has more than one sample.
 // FUN_00493C90
-void TrackRefresh(u8 *arg0)
+void TrackRefresh(u8 *instance)
 {
-    TrackUpdateSlots(arg0);
-    if (*(u32 *)(arg0 + 0) != 0) {
-        s32 n = *(s32 *)(*(u8 **)(arg0 + 0x30) + 0x10);
+    /* Keep instance/child byte accesses: the proven EffTrackInstance layout changed b210 codegen (instance-only normalized_diff 189). */
+    TrackUpdateSlots(instance);
+    if (*(u32 *)(instance + 0) != 0) {
+        s32 sampleCount = *(s32 *)(*(u8 **)(instance + 0x30) + 0x10);
 
-        if (n > 1) {
-            u8 *t17 = *(u8 **)(arg0 + 0x28);
-            u8 *t16 = *(u8 **)(*(u8 **)(arg0 + 0x30) + 0x20);
+        if (sampleCount > 1) {
+            u8 *ribbons = *(u8 **)(instance + 0x28);
+            u8 *parameters = *(u8 **)(*(u8 **)(instance + 0x30) + 0x20);
 
-            if (*(u32 *)(*(u8 **)(arg0 + 0x30) + 0xC) & 1) {
-                u32 sp50[4];
-                u32 sp40[4];
+            if (*(u32 *)(*(u8 **)(instance + 0x30) + 0xC) & 1) {
+                u32 position[4];
+                u32 rotation[4];
 
-                mdlEffectLoadQuadB(*(u8 **)(arg0 + 0x30), sp40);
-                mdlEffectLoadQuadA(*(u8 **)(arg0 + 0x30), sp50);
-                mdlEffectApplyGeometryMatrix((void *)*(u32 *)(t17 + 0x10), sp50, sp40, 1.0f);
-                mdlEffectApplyGeometryMatrix((void *)*(u32 *)(t17 + 0x14), sp50, sp40, 1.0f);
+                mdlEffectLoadQuadB(*(u8 **)(instance + 0x30), rotation);
+                mdlEffectLoadQuadA(*(u8 **)(instance + 0x30), position);
+                mdlEffectApplyGeometryMatrix((void *)((EffTrackRibbons *)ribbons)->ribbon, position, rotation, 1.0f);
+                mdlEffectApplyGeometryMatrix((void *)((EffTrackRibbons *)ribbons)->cap, position, rotation, 1.0f);
             }
-            if (*(u32 *)(arg0 + 0x2C) != 0) {
-                ParticleProjectVertices(*(u8 **)(arg0 + 0x2C), *(f32 *)(arg0 + 0x24) / 10.0f);
+            if (*(u32 *)(instance + 0x2C) != 0) {
+                ParticleProjectVertices(*(u8 **)(instance + 0x2C), *(f32 *)(instance + 0x24) / 10.0f);
             }
-            func_00495090(t17, *(u16 *)(t16 + 0x54));
+            mdlEffectSetGeometryPairResource(ribbons, ((EffTrackPathParameters *)parameters)->unk54);
         }
     }
 }
@@ -615,35 +627,35 @@ void TrackRefresh(u8 *arg0)
 // FUN_00493DA0
 void TrackSetPosition(u8 *instance, u32 *position)
 {
-    mdlEffectStoreQuadA(*(s32 *)(instance + 0x30), position);
+    mdlEffectStoreQuadA(((EffTrackInstance *)instance)->path.signedValue, position);
 }
 
 // Forwards a rotation to the track emitter.
 // FUN_00493DD0
 void TrackSetRotation(u8 *instance, u32 *rotation)
 {
-    mdlEffectStoreQuadB(*(s32 *)(instance + 0x30), rotation);
+    mdlEffectStoreQuadB(((EffTrackInstance *)instance)->path.signedValue, rotation);
 }
 
 // Stores the track colour word and forwards it to the owner's colour setter.
 // FUN_00493E00
-void TrackSetColor(u8 *arg0, u32 arg1)
+void TrackSetColor(u8 *instance, u32 color)
 {
-    u32 temp_4;
+    u32 particle;
 
-    *(u32 *)(arg0 + 4) = arg1;
-    temp_4 = *(u32 *)(arg0 + 0x2C);
-    if (temp_4 != 0) {
-        func_00489f40((void *)temp_4, arg1);
+    ((EffTrackInstance *)instance)->packedColor.value = color;
+    particle = ((EffTrackInstance *)instance)->particle.value;
+    if (particle != 0) {
+        mdlSetObjectHeaderValue((void *)particle, color);
     }
 }
 
 // Stores the track scale and forwards it to the emitter's scale setter.
 // FUN_00493E30
-void TrackSetScale(u8 *arg0, f32 fparg0)
+void TrackSetScale(u8 *instance, f32 scale)
 {
-    *(f32 *)(arg0 + 8) = fparg0;
-    EffEmitterApplyScale((u16 *)*(u32 *)(arg0 + 0x30), fparg0);
+    ((EffTrackInstance *)instance)->scale = scale;
+    EffEmitterApplyScale((u16 *)((EffTrackInstance *)instance)->path.value, scale);
 }
 
 /* Measured: 620/624 bytes, 40 resolved relocations and 4 zero alignment bytes. */
@@ -652,68 +664,69 @@ void TrackSetScale(u8 *arg0, f32 fparg0)
 // Allocates a ribbon track: count * 2 + 0x1C bytes, with ribbon and cap geometry and per-sample colours.
 // FUN_00493E60
 u8 *TrackAllocRibbons(u16 count, u16 segments) {
+    /* Keep ribbon/table/material byte accesses: typed ribbon fields changed b210 codegen (normalized_diff 295); alpha 0xFF is reserved. */
     s32 size;
-    u8 *track;
-    u16 count16;
-    u32 i;
-    s32 index;
+    u8 *ribbons;
+    u16 ribbonCount;
+    u32 ribbonIndex;
+    s32 materialOffset;
     u16 *geometry;
     u16 *ribbon;
     u16 *cap;
-    u8 *ribbonEntry;
-    s32 opaque;
-    s32 maxAlpha;
-    u8 *capEntry;
+    u8 *ribbonMaterial;
+    s32 reservedAlpha;
+    s32 opaqueAlpha;
+    u8 *capMaterial;
 
     if ((u16)segments < 2) {
         kAssertFail(&D_00713E30, 0x205);
     }
-    count16 = count & 0xFFFF;
-    size = (count16 * 2) + 0x1C;
+    ribbonCount = count & 0xFFFF;
+    size = (ribbonCount * 2) + 0x1C;
     chkmemAllocSiteTag(&D_00713E30, 0x20A);
-    track = (u8 *)(*jtbl_008873E8)(size, 0x40000);
-    if (track == NULL) {
+    ribbons = (u8 *)(*jtbl_008873E8)(size, 0x40000);
+    if (ribbons == NULL) {
         kAssertFail(&D_00713E30, 0x20B);
     }
-    memset(track, 0, size);
-    *(u8 **)(track + 0x18) = track + 0x1C;
+    memset(ribbons, 0, size);
+    *(u8 **)(ribbons + 0x18) = ribbons + 0x1C;
     geometry = (u16 *)GeometryCreateStripGridMultiPart(count, segments, (void *)D_00713310, 3, 0x48);
-    *(u16 **)(track + 0x10) = geometry;
+    *(u16 **)(ribbons + 0x10) = geometry;
     *geometry &= 0xFFFB;
     geometry = (u16 *)GeometryCreateTableGridMultiPart(count, 1, 6, 8, (void *)D_00713420, 0x48);
-    *(u16 **)(track + 0x14) = geometry;
+    *(u16 **)(ribbons + 0x14) = geometry;
     *geometry = *geometry & (u16)0xFFFB;
-    i = 0;
-    opaque = 0xFF;
-    maxAlpha = 0xFE;
-    for (; i < count16; i += 1) {
-        ribbon = *(u16 **)(track + 0x10);
-        if (iGpffffbb64.c3 != opaque) {
-            index = (u16)i * 4;
-            ribbonEntry = *(u8 **)((u8 *)ribbon + 0x54) + index;
-            ribbonEntry = *(u8 **)ribbonEntry;
-            *(LineNovaColor *)(ribbonEntry + 4) = iGpffffbb64;
+    ribbonIndex = 0;
+    reservedAlpha = 0xFF;
+    opaqueAlpha = 0xFE;
+    for (; ribbonIndex < ribbonCount; ribbonIndex += 1) {
+        ribbon = *(u16 **)(ribbons + 0x10);
+        if (iGpffffbb64.c3 != reservedAlpha) {
+            materialOffset = (u16)ribbonIndex * 4;
+            ribbonMaterial = *(u8 **)((u8 *)ribbon + 0x54) + materialOffset;
+            ribbonMaterial = *(u8 **)ribbonMaterial;
+            *(LineNovaColor *)(ribbonMaterial + 4) = iGpffffbb64;
         } else {
-            iGpffffbb64.c3 = maxAlpha;
-            index = (u16)i * 4;
-            ribbonEntry = *(u8 **)((u8 *)ribbon + 0x54) + index;
-            ribbonEntry = *(u8 **)ribbonEntry;
-            *(LineNovaColor *)(ribbonEntry + 4) = iGpffffbb64;
-            iGpffffbb64.c3 = opaque;
+            iGpffffbb64.c3 = opaqueAlpha;
+            materialOffset = (u16)ribbonIndex * 4;
+            ribbonMaterial = *(u8 **)((u8 *)ribbon + 0x54) + materialOffset;
+            ribbonMaterial = *(u8 **)ribbonMaterial;
+            *(LineNovaColor *)(ribbonMaterial + 4) = iGpffffbb64;
+            iGpffffbb64.c3 = reservedAlpha;
         }
-        cap = *(u16 **)(track + 0x14);
-        if (iGpffffbb64.c3 != opaque) {
-            capEntry = *(u8 **)((u8 *)cap + 0x54) + index;
-            capEntry = *(u8 **)capEntry;
-            *(LineNovaColor *)(capEntry + 4) = iGpffffbb64;
+        cap = *(u16 **)(ribbons + 0x14);
+        if (iGpffffbb64.c3 != reservedAlpha) {
+            capMaterial = *(u8 **)((u8 *)cap + 0x54) + materialOffset;
+            capMaterial = *(u8 **)capMaterial;
+            *(LineNovaColor *)(capMaterial + 4) = iGpffffbb64;
         } else {
-            iGpffffbb64.c3 = maxAlpha;
-            capEntry = *(u8 **)((u8 *)cap + 0x54) + index;
-            capEntry = *(u8 **)capEntry;
-            *(LineNovaColor *)(capEntry + 4) = iGpffffbb64;
-            iGpffffbb64.c3 = opaque;
+            iGpffffbb64.c3 = opaqueAlpha;
+            capMaterial = *(u8 **)((u8 *)cap + 0x54) + materialOffset;
+            capMaterial = *(u8 **)capMaterial;
+            *(LineNovaColor *)(capMaterial + 4) = iGpffffbb64;
+            iGpffffbb64.c3 = reservedAlpha;
         }
     }
-    return track;
+    return ribbons;
 }
 #pragma pop

@@ -1,3 +1,6 @@
+#include "btl_camera_framing_internal.h"
+#include "btl_action_internal.h"
+#include "btl_effect_internal.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
@@ -11,13 +14,13 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
     return left + right;
 }
 
-extern u8 *iGpffffb3ac;
+extern u8 *iGpffffb3ac; /* battle-state allocation */
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern u32 iGpffffb3b8;
 
-extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
-extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
+extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
+extern void RtQuatTransformVectors(f32 *first, f32 *second, s32 third, u8 *fourth);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
 extern char D_005DC824[];
@@ -26,8 +29,8 @@ extern char D_00794C00[];
 struct RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
-extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
+extern f32 RwV3dNormalize(f32 *first, f32 *second);
+extern u8 *(*jtbl_008873E8[])(s32 first, s32 second);
 extern u8 D_00609498[];
 extern f32 D_006094B0[];
 extern f32 D_006094D0[];
@@ -36,7 +39,7 @@ extern u8 D_0060A0F0[];
 
 
 extern u8 D_008813B0[];
-extern u8 D_00607E50[];
+extern u8 D_00607E50[]; /* 0xE0-byte formation rows */
 extern u8 D_00609558[];
 extern u8 iGpffffa4db;
 extern u8 iGpffffa4da;
@@ -53,29 +56,14 @@ typedef int (*code)();
 
 
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
 
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
 
 extern s32 btlActionGetQueueFront(void);
-extern void btlCameraLookAtQuat(void *arg0, const void *arg1, const void *arg2, const void *arg3);
-extern f32 tanf(f32 arg0);
-extern void btlMainCurveSetPoses(u16 *arg0, f32 *arg1, f32 *arg2, u16 arg3);
-extern void btlCameraSetDuration(u8 *arg0, f32 arg1);
-extern void btlCameraSetupActionGeometry(u8 *arg0, u8 *arg1, f32 *arg2, f32 arg4, u16 arg3);
+extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
+extern f32 tanf(f32 first);
+extern void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode);
+extern void btlCameraSetDuration(u8 *work, f32 value);
+extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
 extern f32 D_0060A100[];
 extern f32 fGpffff8030;
 extern f32 fGpffff803c;
@@ -87,8 +75,10 @@ extern f32 fGpffff8110;
 /* Two-unit framing: stage all three vector sums before subtracting focus.
  * MWCC: 1004/1008 bytes, 19 resolved relocations, four zero tail bytes. */
 // FUN_001D01C0
-void btlAct_PURSUIT(u8 *arg0)
+void btlAct_PURSUIT(u8 *camera)
 {
+    /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
+
     struct
     {
         RwV3d firstPosition;
@@ -112,12 +102,12 @@ void btlAct_PURSUIT(u8 *arg0)
     f32 length;
     RwV3d sum;
 
-    u8 *temp = (u8 *)btlActionGetQueueFront();
-    action = *(u8 **)(arg0 + 0xE0);
-    unitA = *(u8 **)(action + 0x30);
-    unitB = *(u8 **)(temp + 0x30);
+    u8 *queuedAction = (u8 *)btlActionGetQueueFront();
+    action = *(u8 **)(camera + 0xE0);
+    unitA = (u8 *)((BtlAction *)action)->unit;
+    unitB = (u8 *)((BtlAction *)queuedAction)->unit;
     btlUnitGetSphereWorldCenter(unitA, (f32 *)&firstCenter);
-    radius = *(f32 *)(unitA + 0x90) * *(f32 *)(unitA + 0x2C);
+    radius = ((BtlUnit *)unitA)->sphereRadius * *(f32 *)(unitA + 0x2C);
     btlUnitGetSphereWorldCenter(unitB, (f32 *)&secondCenter);
     direction.x = firstCenter.x - secondCenter.x;
     direction.y = firstCenter.y - secondCenter.y;
@@ -139,10 +129,10 @@ void btlAct_PURSUIT(u8 *arg0)
     eye.x = (0.0f + eye.x) - side.z * spread;
     eye.z = (0.0f + eye.z) + side.x * spread;
     eye.y = (0.0f + firstCenter.y) +
-            fGpffff803c * (*(f32 *)(unitA + 0x8C) * *(f32 *)(unitA + 0x2C));
+            fGpffff803c * (((BtlUnit *)unitA)->unk_8c * ((BtlUnit *)unitA)->scale);
     btlCameraLookAtQuat(&poses.firstRotation, &eye, &focus, D_0060A0E0);
     distance = (2.5f * radius) /
-               tanf(fGpffff8110 * (0.5f * *(f32 *)(arg0 + 0xB8)));
+               tanf(fGpffff8110 * (0.5f * ((BtlCamera *)camera)->fovRad));
     direction.x = direction.x * distance;
     direction.y = direction.y * distance;
     direction.z = direction.z * distance;
@@ -175,9 +165,9 @@ void btlAct_PURSUIT(u8 *arg0)
     if (poses.secondPosition.y < 25.0f) {
         poses.secondPosition.y = 25.0f;
     }
-    btlMainCurveSetPoses((u16 *)arg0, (f32 *)&poses.firstPosition, (f32 *)&poses.secondPosition, 1);
-    btlCameraSetDuration(arg0, 5.0f);
-    btlCameraSetupActionGeometry(*(u8 **)(arg0 + 0xE0), (u8 *)&firstCenter, (f32 *)&secondCenter,
+    btlMainCurveSetPoses((u16 *)camera, (f32 *)&poses.firstPosition, (f32 *)&poses.secondPosition, 1);
+    btlCameraSetDuration(camera, 5.0f);
+    btlCameraSetupActionGeometry((u8 *)((BtlCamera *)camera)->action, (u8 *)&firstCenter, (f32 *)&secondCenter,
                   50.0f, 9);
 }
 

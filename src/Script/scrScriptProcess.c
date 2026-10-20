@@ -2,6 +2,7 @@
 #include "type.h"
 #include "scr_internal.h"
 #include "sdk_task_registration.h"
+#include "kwln_task_internal.h"
 
 #include "include_asm.h"
 #include "sdk_dbprt.h"
@@ -12,9 +13,9 @@ typedef struct KwlnTask KwlnTask;
 void* dds3GetProcessWorkData(KwlnTask* task);
 void dds3SetProcessWorkData(KwlnTask* task, void* workData);
 void scrReleaseScript(ScrData* scr);
-void scrDestroyTask(u8 *task);
+void scrDestroyTask(u8 *sdkTaskBytes);
 extern s32 scrRunTaskStep(u8 *task);
-extern void scrPoolFree(void* pool, void* elem);
+extern void scrPoolFree(void* pool, void* payload);
 
 typedef enum
 {
@@ -79,7 +80,8 @@ struct ScrPool
 struct ScrScriptWork
 {
     ScrLblPrcd label; // 0x00
-    u8 unk_20[0xF0];  // 0x20
+    u8 stackTypes[0x30]; // 0x20
+    u32 stackValues[0x30]; // 0x50
     u8* header;       // 0x110
     u8* entries;      // 0x114
     u8* procedure;    // 0x118
@@ -165,31 +167,31 @@ void kAssertFailAt(const void *msg, const void *file, u32 line);
 void kAssertFailMsg(char* file, s32 line, char* msg, s32 value);
 void memset(void* dst, s32 value, s32 size);
 void memcpy(void* dst, void* src, s32 size);
-void func_0046a2d0(char* file, s32 line);
-u8* poolAlloc(s32 size);
-void poolFree(void* ptr);
+void poolSetAllocationSite(char* allocationFile, s32 allocationLine);
+u8* poolAlloc(s32 requestedSize);
+void poolFree(void* address);
 u32 kwlnTaskGetWork(void* task);
 s32 func_0029e970(void);
-void func_0029e960(s32 arg0);
+void func_0029e960(s32);
 void func_00440b68(char* fmt, ...);
 void H_Dbprt_FmtLog(char* fmt, ...);
 void itfMesWindowReleaseIfActive(s32 handle);
-s32 itfMesWindowInstall(u8* str);
-void itfMesWindowApplyStyle(s32 handle, s32 arg1, s32 arg2);
+s32 itfMesWindowInstall(u8* record);
+void itfMesWindowApplyStyle(s32 handle, s32 kind, s32 unusedValue);
 s32 kwlnTaskDestroyWithHierarchy(KwlnTask* task);
-void H_Cdvd_Destroy(s32 handle);
-u8* func_00468170(void* parent, const char* text);
+void H_Cdvd_Destroy(s32 cdvd);
+u8* sdkFilerTaskCreate(void* parent, const char* path);
 s32 sprintf(char* dst, const char* format, ...);
-u32 strlen(void* arg0);
+u32 strlen(void*);
 
 
-extern s32 scrLoadScriptStep(u8* task);
-s32 H_Cdvd_IsFileLoaded(s32 arg0);
-s32 H_Cdvd_AcquireDirectory(void* arg0, s32 arg1);
-s32 func_004680f0(u8* task, s8* text);
-void strcpy(void* arg0, void* arg1);
-s32 H_Cdvd_LookupRequest(s32 arg0, s32 *arg1);
-void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
+extern s32 scrLoadScriptStep(u8* sdkTask);
+s32 H_Cdvd_IsFileLoaded(s32 cdvd);
+s32 H_Cdvd_AcquireDirectory(void* path, s32 flags);
+s32 sdkFilerPollResult(u8* task, s8* resultPath);
+void strcpy(void*, void*);
+s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
+void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
 static inline u8 *scrAddOff(u32 offset, u8 *base)
 {
     return (u8 *)(offset + (u32)base);
@@ -262,25 +264,25 @@ u8* scrPoolAlloc(ScrPool* pool)
    instructions without barriers or volatile accesses. */
 // Script pool: pushes an element back onto the free list and zeroes its payload.
 // FUN_0029D1C0
-void scrPoolFree(void *arg0, void *arg1)
+void scrPoolFree(void *pool, void *payload)
 {
     u8 *node;
     void *call0;
     u32 call2;
 
-    if (arg0 == NULL) {
+    if (pool == NULL) {
         kAssertFail(D_0063E3D0, 0x6A);
     }
-    if (arg1 == NULL) {
+    if (payload == NULL) {
         kAssertFail(D_0063E3D0, 0x6B);
     }
-    node = (u8 *)arg1 - 8;
-    if (*(s32 *)((u8 *)arg1 - 4) == 0) {
-        ((ScrPoolElem *)node)->next = ((ScrPool *)arg0)->freeList;
-        ((ScrPool *)arg0)->freeList = node;
-        ((ScrPool *)arg0)->freeCount = ((ScrPool *)arg0)->freeCount - 1;
-        call2 = *(u32 *)arg0;
-        call0 = arg1;
+    node = (u8 *)payload - 8;
+    if (((ScrPoolElem*)((u8*)payload - 8))->next == 0) {
+        ((ScrPoolElem *)node)->next = ((ScrPool *)pool)->freeList;
+        ((ScrPool *)pool)->freeList = node;
+        ((ScrPool *)pool)->freeCount = ((ScrPool *)pool)->freeCount - 1;
+        call2 = *(u32 *)pool;
+        call0 = payload;
         memset(call0, 0, call2);
     }
 }
@@ -318,7 +320,8 @@ s32 scrGetWorkCount(void)
 
 // Allocates a script work block for a header, its content entries and the procedure at index; the work is bound to those inputs [inferred].
 // FUN_0029D2F0
-ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* procedure, u8* arg3, u8* arg4, u8* arg5, u8* arg6, s32 index)
+/* Raw accesses retain MATCH: replacing these proven offsets with fields changed instruction selection. */
+ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* procedure, u8* labels, u8* instructions, u8* messages, u8* strings, s32 index)
 {
     ScrScriptWork* work;
     u8* src;
@@ -328,7 +331,7 @@ ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* pr
     s8 c;
     s32 handle;
 
-    if (header == NULL || entries == NULL || procedure == NULL || arg4 == NULL)
+    if (header == NULL || entries == NULL || procedure == NULL || instructions == NULL)
     {
         kAssertFailAt(D_0063E3F0, D_0063E3D0, 0x119);
         return NULL;
@@ -364,10 +367,10 @@ ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* pr
     work->header = (u8*)header;
     work->entries = (u8*)entries;
     work->procedure = procedure;
-    work->unk_11C = arg3;
-    work->unk_120 = arg4;
-    work->unk_124 = arg5;
-    work->unk_128 = arg6;
+    work->unk_11C = labels;
+    work->unk_120 = instructions;
+    work->unk_124 = messages;
+    work->unk_128 = strings;
     work->index = index;
     work->soundHandle = -1;
     work->unk_134 = 0;
@@ -397,9 +400,9 @@ ScrScriptWork* scrCreateWork(ScrHeader* header, ScrContentEntry* entries, u8* pr
     }
     work->msgA = msg;
     work->msgB = msg + 0x320;
-    if (arg5 != NULL)
+    if (messages != NULL)
     {
-        handle = itfMesWindowInstall(arg5);
+        handle = itfMesWindowInstall(messages);
         work->soundHandle = handle;
         itfMesWindowApplyStyle(handle, 0, 0);
     }
@@ -514,6 +517,7 @@ s32 scrRunTaskStep(u8 *task)
 }
 
 // FUN_0029D900
+/* Release the script attached to a scheduler task and clear its process-work pointer. */
 void scrDestroyTask(u8 *sdkTaskBytes)
 {
     KwlnTask* scrTask = (KwlnTask*)sdkTaskBytes;
@@ -542,17 +546,17 @@ void scrInitPools(void)
 
 // Starts procedure prcdIdx under a task priority: creates its work from the header and entries [inferred].
 // FUN_0029D9B0
-s32 scrStartProcedureWork(s32 arg0, u8* arg1, u8* arg2, u8* arg3, u8* arg4, u8* arg5, u8* arg6, u8* arg7, s32 arg8)
+s32 scrStartProcedureWork(s32 priority, u8* header, u8* entries, u8* procedures, u8* labels, u8* instructions, u8* messages, u8* strings, s32 procedureIndex)
 {
     ScrScriptWork* work;
     s32 task;
 
-    work = scrCreateWork((ScrHeader*)arg1, (ScrContentEntry*)arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+    work = scrCreateWork((ScrHeader*)header, (ScrContentEntry*)entries, procedures, labels, instructions, messages, strings, procedureIndex);
     if (work == NULL)
     {
         kAssertFail(D_0063E3D0, 0x23D);
     }
-    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, scrRunTaskStep, scrDestroyTask, (u8 *)(work));
+    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), priority, 1, 1, scrRunTaskStep, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
         kAssertFail(D_0063E3D0, 0x1F4);
@@ -563,17 +567,17 @@ s32 scrStartProcedureWork(s32 arg0, u8* arg1, u8* arg2, u8* arg3, u8* arg4, u8* 
 
 // Starts the procedure at index in header (no range check).
 // FUN_0029DA90
-s32 scrStartProcedureIndex(s32 arg0, u8* arg1, s32 arg2)
+s32 scrStartProcedureIndex(s32 priority, u8* header, s32 procedureIndex)
 {
     ScrScriptWork* work;
     s32 task;
 
-    work = scrCreateProcedureWork((ScrHeader*)arg1, arg2);
+    work = scrCreateProcedureWork((ScrHeader*)header, procedureIndex);
     if (work == NULL)
     {
         kAssertFail(D_0063E3D0, 0x259);
     }
-    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, scrRunTaskStep, scrDestroyTask, (u8 *)(work));
+    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), priority, 1, 1, scrRunTaskStep, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
         kAssertFail(D_0063E3D0, 0x1F4);
@@ -584,23 +588,23 @@ s32 scrStartProcedureIndex(s32 arg0, u8* arg1, s32 arg2)
 
 // Starts the procedure at index in header after a range check that asserts on failure.
 // FUN_0029DB50
-s32 scrStartProcedureChecked(s32 arg0, s32 arg1, s32 arg2, s32 arg3)
+s32 scrStartProcedureChecked(s32 priority, s32 source, s32 size, s32 procedureIndex)
 {
     ScrScriptWork* work;
     u8* text;
     s32 task;
 
-    func_0046a2d0(D_0063E3D0, 0x275);
-    text = poolAlloc(arg2);
-    memset(text, 0, arg2);
-    memcpy(text, (void*)arg1, arg2);
-    work = scrCreateProcedureWork((ScrHeader*)text, arg3);
+    poolSetAllocationSite(D_0063E3D0, 0x275);
+    text = poolAlloc(size);
+    memset(text, 0, size);
+    memcpy(text, (void*)source, size);
+    work = scrCreateProcedureWork((ScrHeader*)text, procedureIndex);
     if (work == NULL)
     {
         kAssertFail(D_0063E3D0, 0x27C);
     }
     work->textBuf = text;
-    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), arg0, 1, 1, scrRunTaskStep, scrDestroyTask, (u8 *)(work));
+    task = (s32)kwlnTaskCreate((const void *)((work->index << 5) + work->procedure), priority, 1, 1, scrRunTaskStep, scrDestroyTask, (u8 *)(work));
     if (task == 0)
     {
         kAssertFail(D_0063E3D0, 0x1F4);
@@ -668,6 +672,7 @@ void scrDebugDumpWorkList(void)
 }
 
 // FUN_0029DE20
+/* Find the procedure content section, then return the matching procedure-name index or -1. */
 s32 scrFindPrcdIdxByName(ScrHeader* header, const char* name)
 {
     ScrContentEntry* entries;
@@ -718,7 +723,7 @@ s32 scrFindPrcdIdxByName(ScrHeader* header, const char* name)
 
 // Looks up content entry arg1 in the table at arg0: finds the first table entry with a zero key and returns its content at arg1 * 32, or NULL when out of range [inferred].
 // FUN_0029DF30
-u8* scrFindContentEntry(u8* arg0, s32 arg1)
+u8* scrFindContentEntry(u8* script, s32 procedureIndex)
 {
     u8* found;
     u8* entries;
@@ -727,17 +732,17 @@ u8* scrFindContentEntry(u8* arg0, s32 arg1)
     s32 off;
 
     found = NULL;
-    if (arg0 == NULL) {
+    if (script == NULL) {
         return NULL;
     }
-    entries = arg0 + 0x20;
+    entries = script + 0x20;
     /* i is zeroed before the count load: a for-init lands in the loop
        preheader, after it. */
     i = 0;
-    count = *(s32*)(arg0 + 0x10);
+    count = ((ScrHeader*)script)->totalEntries;
     while (i < count) {
-        if (*(s32*)(entries + i * 16) == 0) {
-            found = arg0 + *(s32*)(entries + i * 16 + 0xC);
+        if (((ScrContentEntry*)entries)[i].contentType == 0) {
+            found = script + ((ScrContentEntry*)entries)[i].offset;
             break;
         }
         i++;
@@ -746,19 +751,19 @@ u8* scrFindContentEntry(u8* arg0, s32 arg1)
         return NULL;
     }
     off = i * 16;
-    if (*(s32*)((u8*)(off + (s32)entries) + 8) < arg1) {
+    if (((ScrContentEntry*)((u8*)(off + (s32)entries)))->elementCount < procedureIndex) {
         return NULL;
     }
-    return found + arg1 * 32;
+    return found + procedureIndex * 32;
 }
 
 // Sets the work's proc pointer; asserts when the task has no work [inferred].
 // FUN_0029DFE0
-void scrSetTaskProc(void* arg0, u8* proc)
+void scrSetTaskProc(void* task, u8* proc)
 {
     ScrScriptWork* work;
 
-    work = (ScrScriptWork*)kwlnTaskGetWork(arg0);
+    work = (ScrScriptWork*)kwlnTaskGetWork(task);
     if (work == NULL)
     {
         kAssertFail(D_0063E3D0, 0x3C5);
@@ -796,6 +801,7 @@ static inline ScrPreviewRectangle scrPreviewRectangleValue(const ScrPreviewRecta
  * docs/probe_archive/Script_selection_0029e040_20260924.md. */
 // Task step that loads the script file named by the task's text, then creates the procedure work once the file is ready [inferred].
 // FUN_0029E040
+/* Raw accesses retain MATCH: replacing these proven offsets with fields changed instruction selection. */
 s32 scrLoadScriptStep(u8 *sdkTask)
 {
     ScrTaskData *task;
@@ -815,7 +821,7 @@ s32 scrLoadScriptStep(u8 *sdkTask)
     char *prefix;
 
     task = *(ScrTaskData **)(sdkTask + 0x38);
-    if (func_004680f0(task->unk_04, (s8 *)task->text) == 1) {
+    if (sdkFilerPollResult(task->unk_04, (s8 *)task->text) == 1) {
         switch (task->state) {
         case 0:
             selectionText = (s8 *)task->text;
@@ -954,7 +960,7 @@ s32 scrLoadScriptStep(u8 *sdkTask)
 #pragma opt_loop_invariants on
 // Starts a script task from its text: creates the task node, then runs the load step [inferred].
 // FUN_0029E550
-s32 scrStartScriptTask(u8 *arg0)
+s32 scrStartScriptTask(u8 *sdkTask)
 {
     ScrTaskData *task;
     ScrScriptWork *child;
@@ -962,7 +968,7 @@ s32 scrStartScriptTask(u8 *arg0)
     s32 n;
     s32 handle;
 
-    task = *(ScrTaskData **)(arg0 + 0x38);
+    task = (ScrTaskData*)((KwlnTask*)sdkTask)->work;
     switch (task->unk_0C) {
     case 0:
         sprintf(task->text, &D_007638D0, D_0063E5F0,
@@ -975,12 +981,12 @@ s32 scrStartScriptTask(u8 *arg0)
             }
             n--;
         }
-        task->unk_04 = func_00468170(arg0, task->text);
+        task->unk_04 = sdkFilerTaskCreate(sdkTask, task->text);
         task->unk_0C = 1;
         task->state = 0;
         break;
     case 1:
-        ret = scrLoadScriptStep(arg0);
+        ret = scrLoadScriptStep(sdkTask);
         switch (ret) {
         case 1:
             task->unk_0C = 3;
@@ -1028,13 +1034,13 @@ s32 scrStartScriptTask(u8 *arg0)
 
 // Task destroy callback: releases the task's script work and CDVD handle, then runs the task's destroy hook [inferred].
 // FUN_0029E7B0
-void scrTaskDestroyWork(u8* arg0)
+void scrTaskDestroyWork(u8* sdkTask)
 {
     ScrTaskData* task;
     ScrScriptWork* work;
     s32 handle;
 
-    task = *(ScrTaskData**)(arg0 + 0x38);
+    task = (ScrTaskData*)((KwlnTask*)sdkTask)->work;
     work = task->unk_214;
     if (work != NULL)
     {
@@ -1068,11 +1074,11 @@ void scrTaskDestroyWork(u8* arg0)
 
 // Creates a script child task under arg0 with a 0x228-byte task block, running scrStartScriptTask and scrTaskDestroyWork [inferred].
 // FUN_0029E8D0
-void scrCreateScriptChildTask(u8* arg0)
+void scrCreateScriptChildTask(u8* parent)
 {
     u8* buf;
 
     chkmemAllocSiteTag(D_0063E3D0, 0x4AB);
     buf = D_008873F4[0](1, 0x228, 0x40000);
-    (s32)kwlnTaskCreateChild((void *)((s32)arg0), (const void *)(D_0063E618), 0xC9, 0, 0, scrStartScriptTask, scrTaskDestroyWork, (u8 *)(buf));
+    (s32)kwlnTaskCreateChild((void *)((s32)parent), (const void *)(D_0063E618), 0xC9, 0, 0, scrStartScriptTask, scrTaskDestroyWork, (u8 *)(buf));
 }

@@ -1,3 +1,4 @@
+#include "sdk_pad_record.h"
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_rectangle_packet.h"
@@ -79,7 +80,7 @@ extern s16 iGpffffba28;
 extern s16 iGpffffba2c;
 extern s16 iGpffffba30;
 extern s16 iGpffffba34;
-extern void sdkPadUpdateRecord(void *arg0);
+extern void sdkPadUpdateRecord(void *record);
 extern u8 D_008C02E0[];
 extern s16 D_008C0336[];
 extern s16 D_008C0338[];
@@ -244,17 +245,19 @@ static inline s32 fontAtlasColumn(s32 value)
    (3), `u8` instead of `s8` (3), widening it to `s8[4]` (3), and
    `aligned(8)` (3).  Aligning the pressed pair as well is also 0, so the
    actuator alignment alone is the cause. */
+/* Layout is SdkPadRecord; retain byte-offset accesses here: typed members
+ * made b210 retain field addresses, growing 1136 bytes to 1152 and losing MATCH. */
 // Intent: polls the pad hardware for record `arg0`, then updates its port state and its pressed pair.
 // FUN_00452870
-void sdkPadUpdateRecord(void *arg0)
+void sdkPadUpdateRecord(void *record)
 {
     extern void func_0042ffa0(u16 port, u16 slot, u8 *out);
     extern s32 func_00430018(u16 port, u16 slot);
     extern s32 func_00430180(u16 port, u16 slot, u16 state);
-    extern s32 func_00430210(u16 port, u16 slot, s32 arg2, s32 arg3);
-    extern s32 func_00430578(u16 port, u16 slot, s32 arg2, s32 arg3);
-    extern s32 func_00430630(u16 port, u16 slot, s8 *arg2);
-    extern s32 func_004306f8(u16 port, u16 slot, void *arg2);
+    extern s32 func_00430210(u16 port, u16 slot, s32, s32);
+    extern s32 func_00430578(u16 port, u16 slot, s32, s32);
+    extern s32 func_00430630(u16 port, u16 slot, s8 *);
+    extern s32 func_004306f8(u16 port, u16 slot, void *);
     extern u8 D_008C0000[];
     extern u8 D_008C0001[];
     extern u8 D_008C0002[];
@@ -278,48 +281,48 @@ void sdkPadUpdateRecord(void *arg0)
     s32 status;
     s32 analog;
 
-    pad = (u8 *)arg0;
+    pad = (u8 *)record;
     D_008C0000[0] = 0xFF;
-    port = *(u16 *)(pad + 8);
-    slot = *(u16 *)(pad + 0xA);
+    port = *(u16 *)(pad + 0x8);
+    slot = *(u16 *)(pad + 0xa);
     status = func_00430018(port, slot);
-    state = *(u16 *)(pad + 2);
+    state = *(u16 *)(pad + 0x2);
     switch (state) {
     case 0:
         if (status == 2 || status == 6) {
             *(u16 *)(pad + 0x30) = 0xFFFF;
             *(u16 *)(pad + 0x32) = 0xFFFF;
-            mode = *(u16 *)(pad + 4);
-            *(u16 *)(pad + 0) = mode;
+            mode = *(u16 *)(pad + 0x4);
+            *(u16 *)(pad + 0x0) = mode;
             switch (mode) {
             case 0:
-                *(u16 *)(pad + 2) = 3;
+                *(u16 *)(pad + 0x2) = 3;
                 break;
             case 1:
                 if (status == 6) {
                     if (func_00430578(port, slot, 0, 0) == 1) {
-                        *(u16 *)(pad + 2) = 1;
+                        *(u16 *)(pad + 0x2) = 1;
                     }
                 } else {
-                    *(u16 *)(pad + 2) = 3;
+                    *(u16 *)(pad + 0x2) = 3;
                 }
                 break;
             case 2:
                 if (status == 6) {
                     if (func_00430578(port, slot, 0, 3) == 1) {
-                        *(u16 *)(pad + 2) = 1;
+                        *(u16 *)(pad + 0x2) = 1;
                     }
                 } else {
-                    *(u16 *)(pad + 2) = 3;
+                    *(u16 *)(pad + 0x2) = 3;
                 }
                 break;
             case 3:
                 if (status == 6) {
                     if (func_00430578(port, slot, 1, 3) == 1) {
-                        *(u16 *)(pad + 2) = 1;
+                        *(u16 *)(pad + 0x2) = 1;
                     }
                 } else {
-                    *(u16 *)(pad + 2) = 3;
+                    *(u16 *)(pad + 0x2) = 3;
                 }
                 break;
             }
@@ -327,38 +330,38 @@ void sdkPadUpdateRecord(void *arg0)
         break;
     case 1:
         if (status == 6) {
-            *(u16 *)(pad + 2) = 3;
+            *(u16 *)(pad + 0x2) = 3;
         } else if (status != 5) {
-            *(u16 *)(pad + 2) = 0;
+            *(u16 *)(pad + 0x2) = 0;
         }
         break;
     case 3:
         if (func_00430210(port, slot, -1, 0) == 0) {
-            *(u16 *)(pad + 2) = 5;
+            *(u16 *)(pad + 0x2) = 5;
         } else if (func_004306f8(port, slot, &iGpffffac78) != 0) {
-            *(u16 *)(pad + 2) = 4;
+            *(u16 *)(pad + 0x2) = 4;
         }
         break;
     case 4:
         result = func_00430180(port, slot, state);
         switch (result) {
         case 1:
-            *(u16 *)(pad + 2) = 3;
+            *(u16 *)(pad + 0x2) = 3;
             break;
         case 0:
-            *(u16 *)(pad + 2) = 5;
+            *(u16 *)(pad + 0x2) = 5;
             break;
         }
         break;
     case 5:
         if (status != 2 && status != 6) {
-            *(u16 *)(pad + 2) = 0;
-        } else if (*(u16 *)(pad + 0) != *(u16 *)(pad + 4)) {
-            *(u16 *)(pad + 2) = 0;
+            *(u16 *)(pad + 0x2) = 0;
+        } else if (*(u16 *)(pad + 0x0) != *(u16 *)(pad + 0x4)) {
+            *(u16 *)(pad + 0x2) = 0;
         } else {
             func_0042ffa0(port, slot, D_008C0000);
-            x = *(u16 *)(pad + 0x2C);
-            y = *(u16 *)(pad + 0x2E);
+            x = *(u16 *)(pad + 0x2c);
+            y = *(u16 *)(pad + 0x2e);
             if (x != *(u16 *)(pad + 0x30) || y != *(u16 *)(pad + 0x32)) {
                 *(u16 *)(pad + 0x30) = x;
                 *(u16 *)(pad + 0x32) = y;
@@ -386,27 +389,27 @@ void sdkPadUpdateRecord(void *arg0)
             break;
         }
     }
-    *(u16 *)(pad + 0x10) = *(u16 *)(pad + 0xC);
-    *(u16 *)(pad + 0x1A) = *(u16 *)(pad + 0x16);
+    *(u16 *)(pad + 0x10) = *(u16 *)(pad + 0xc);
+    *(u16 *)(pad + 0x1a) = *(u16 *)(pad + 0x16);
     *(u16 *)(pad + 0x38) = *(u16 *)(pad + 0x34);
     if (buttons != 0) {
         pressed[1] = ~D_008C0002[0];
         pressed[0] = ~D_008C0003[0];
-        *(u16 *)(pad + 0xC) = *(u16 *)pressed;
+        *(u16 *)(pad + 0xc) = *(u16 *)pressed;
     } else {
-        *(u16 *)(pad + 0xC) = 0;
+        *(u16 *)(pad + 0xc) = 0;
         *(u16 *)(pad + 0x10) = 0;
     }
     if (analog != 0) {
-        *(u8 *)(pad + 0x1E) = D_008C0004[0];
-        *(u8 *)(pad + 0x1F) = D_008C0005[0];
-        *(u8 *)(pad + 0x1C) = D_008C0006[0];
-        *(u8 *)(pad + 0x1D) = D_008C0007[0];
+        *(u8 *)(pad + 0x1e) = D_008C0004[0];
+        *(u8 *)(pad + 0x1f) = D_008C0005[0];
+        *(u8 *)(pad + 0x1c) = D_008C0006[0];
+        *(u8 *)(pad + 0x1d) = D_008C0007[0];
         return;
     }
-    *(u8 *)(pad + 0x1E) = 0x80;
-    *(u8 *)(pad + 0x1F) = 0x80;
-    *(u8 *)(pad + 0x1C) = 0x80;
-    *(u8 *)(pad + 0x1D) = 0x80;
+    *(u8 *)(pad + 0x1e) = 0x80;
+    *(u8 *)(pad + 0x1f) = 0x80;
+    *(u8 *)(pad + 0x1c) = 0x80;
+    *(u8 *)(pad + 0x1d) = 0x80;
 }
 

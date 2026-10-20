@@ -105,7 +105,7 @@ extern s32 iGpffffb194;
 extern f32 iGpffffbb20;
 extern f32 iGpffffbb1c;
 extern f32 iGpffffbb24;
-extern void func_00466600(void);
+extern void memcardWakeBackendThread(void);
 extern char D_007127D0[];
 extern char D_00712950[];
 extern char D_008E4900[];
@@ -122,8 +122,8 @@ extern f32 fGpffff84f0;
 /* Same RwV3d tag and fields as the ring provider and RenderWare. */
 #include "rw_types_internal.h"
 typedef RwV3d Code46RingPoint;
-extern void primCircleLine3D(const Code46RingPoint *position, f32 radius,
-                         u8 *color, f32 *matrix, s32 setStates);
+extern void primCircleLine3D(const Code46RingPoint *center, f32 radius,
+                         u8 *inputColors, f32 *inputMatrix, s32 inputPreserveState);
 struct Data_00712508 {
     f32 field_0;
     f32 field_4;
@@ -230,17 +230,18 @@ typedef struct MovieNativeWork {
     u32 field21c;
 } MovieNativeWork;
 // FUN_00466600
-void func_00466600(void) {
-    s32 sp20[12];
+/* Wake the backend thread only in its waiting states, preserving interrupt state. */
+void memcardWakeBackendThread(void) {
+    s32 threadStatus[12];
     s32 r;
 
     r = func_0042ba70();
     if (uGpffffb230 != 0) {
-        func_004216e0(D_00724BC8, sp20);
-        if (sp20[0] == 0xC) {
+        func_004216e0(D_00724BC8, threadStatus);
+        if (threadStatus[0] == 0xC) {
             goto call;
         }
-        if (sp20[0] != 8) {
+        if (threadStatus[0] != 8) {
             goto skip;
         }
 call:

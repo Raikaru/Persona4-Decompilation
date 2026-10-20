@@ -1,14 +1,15 @@
 /* Source unit: src/h_cdvd/h_cdvd_00454570.c (1 function markers) */
 #include "include_asm.h"
 #include "h_cdvd_internal.h"
+#include "h_cdvd_slot_internal.h"
 
 /* Prototypes for helpers defined in this TU but called by units that do not
  * declare them (the internal header uses the func_0045xxxx names; the call
  * sites use these named forms). */
 extern void H_Cdvd_BuildPathUppercase(const char* src, char* dst);
 extern void H_Cdvd_NormalizePath(const char* src, char* dst);
-extern void H_Cdvd_SplitPath(const char* path, char* fileName, char* directory);
-extern void H_Cdvd_SelectDirectory(const char* directory);
+extern void H_Cdvd_SplitPath(const char* path, char* fileNameDst, char* dirDst);
+extern void H_Cdvd_SelectDirectory(const char* dir);
 
 extern void strcpy(char* destination, const char* source);
 extern u32 strlen(const char* text);
@@ -64,8 +65,8 @@ typedef struct HCdvdRequestView
     s16 archiveFileCount;
 } HCdvdRequestView;
 extern char* strcat(char* destination, const char* source);
-extern void H_Cdvd_RegisterRequest(void* requestData, void* fileMemory, u32 fileSize,
-                          const char* path);
+extern void H_Cdvd_RegisterRequest(void* request, void* value, u32 slot,
+                          const char* name);
 
 typedef struct ArchiveEntryHeader
 {
@@ -100,6 +101,7 @@ extern void func_00426f80(s32 fd);
 
 
 // FUN_00454570
+/* Normalize and select the volume directory, then probe by opening and immediately closing the file. */
 u32 H_Cdvd_FileExists(const char* path)
 {
     char unusedUppercasePath[256];
@@ -502,13 +504,13 @@ s32 H_Cdvd_StreamAttachCacheEntry(void* unused, void* slotData, uintptr_t pathOr
         if (strcmp(cachePath, normalizedPath) == 0)
         {
             memcpy((u8*)slotData + 0x70, &D_008c8780[i], sizeof(HCdvdCache));
-            *(u32*)((u8*)slotData + 0x100) = 0;
-            *(u64*)((u8*)slotData + 0x00) = *(s32*)((u8*)slotData + 0xfc);
-            *(u64*)((u8*)slotData + 0x20) = 0;
-            *(u64*)((u8*)slotData + 0x10) = 0;
-            *(u32*)((u8*)slotData + 0x30) = 0;
-            *(u32*)((u8*)slotData + 0x38) = 2;
-            *(u32*)((u8*)slotData + 0x3c) = 1;
+            ((HCdvdMemorySlot*)slotData)->fileOffset = 0;
+            ((HCdvdMemorySlot*)slotData)->length = ((HCdvdMemorySlot*)slotData)->fileSize;
+            ((HCdvdMemorySlot*)slotData)->unk20 = 0;
+            ((HCdvdMemorySlot*)slotData)->position = 0;
+            ((HCdvdMemorySlot*)slotData)->unk30 = 0;
+            ((HCdvdMemorySlot*)slotData)->operation = 2;
+            ((HCdvdMemorySlot*)slotData)->active = 1;
             return 1;
         }
     }
@@ -557,7 +559,7 @@ read_file:
 u32 H_Cdvd_StreamAtEnd(void* slotData)
 {
     u8* data = (u8*)slotData + 0x70;
-    return -(*(s32*)(data + 0x8c) <= *(s32*)(data + 0x90));
+    return -(((HCdvdMemorySlot*)(data - 0x70))->fileSize <= ((HCdvdMemorySlot*)(data - 0x70))->fileOffset);
 }
 
 
@@ -762,6 +764,7 @@ const char* H_Cdvd_ArchiveEntryName(HCdvd* cdvd, s32 entryIndex)
 
 
 // FUN_00456150
+/* Poll request updates until the requested file reaches loaded state. */
 void H_Cdvd_ReadSync(HCdvd* cdvd)
 {
     while (true)
@@ -845,13 +848,13 @@ s32 H_Cdvd_SlotRead(void* slot, void* dst, u32 size)
     s32 amount;
 
     func_004244c8(D_00711748);
-    amount = sceRead(*(s32*)((u8*)slot + 0x74), dst, size);
+    amount = sceRead(((HCdvdFileSlot*)slot)->descriptor, dst, size);
     if (amount < 0)
     {
         return 0;
     }
-    *(u32*)((u8*)slot + 0x38) = 3;
-    *(s64*)((u8*)slot + 0x10) += amount;
+    ((HCdvdFileSlot*)slot)->operation = 3;
+    ((HCdvdFileSlot*)slot)->position += amount;
     return amount;
 }
 
@@ -864,12 +867,12 @@ s32 H_Cdvd_SlotWrite(void* slot, void* dst, u32 size)
     s32 amount;
 
     func_004244c8(D_00711758);
-    amount = sceWrite(*(s32*)((u8*)slot + 0x74), dst, size);
+    amount = sceWrite(((HCdvdFileSlot*)slot)->descriptor, dst, size);
     if (amount < 0)
     {
         return 0;
     }
-    *(s64*)((u8*)slot + 0x10) += amount;
+    ((HCdvdFileSlot*)slot)->position += amount;
     return amount;
 }
 
@@ -927,8 +930,8 @@ common:
         s32 offset;
         s32 fd;
         func_004270f8(
-            (offset = *(s32*)((u8*)slot + 0x10),
-             fd = *(s32*)((u8*)slot + 0x74), fd),
+            (offset = (s32)((HCdvdFileSlot*)slot)->position,
+             fd = ((HCdvdFileSlot*)slot)->descriptor, fd),
             offset, 0);
     }
     *(long128*)resultData = *(long128*)&seekSlot->position;

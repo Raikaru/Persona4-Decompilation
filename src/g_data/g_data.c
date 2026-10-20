@@ -5,6 +5,18 @@
 #include "datUnit_internal.h"
 #include "h_cdvd.h"
 #include "datPersona_internal.h"
+#include "rw_camera_internal.h"
+
+typedef struct DatScoreRecord {
+    u8 pad00[6];
+    u16 value;
+    u8 pad08[8];
+} DatScoreRecord;
+
+typedef struct DatFieldState {
+    s32 mode;
+    s32 submode;
+} DatFieldState;
 extern u8 D_007973A0[];
 
 extern s16 D_00797F88[];
@@ -37,30 +49,30 @@ extern u32 D_005E2200[];
 extern u8 D_0079BF00[];
 
 typedef struct GDataEntry {
-    u32 f00;
-    u32 f04;
-    u16 f08;
-    u16 f0A;
-    u8 f0C;
-    u8 f0D;
-    u8 f0E;
-    u8 f0F;
-    u16 f10;
-    u16 f12;
-    u8 f14[0x10];
-    u32 f24;
-    u16 f28;
-    u16 f2A;
-    u16 f2C;
-    u16 f2E;
-    u32 f30;
-    u32 f34;
-    s8 f38;
-    s8 f39;
-    u8 f3A;
-    u8 f3B;
-    u32 f3C;
-    u32 f40;
+    u32 kind;
+    u32 flags;
+    u16 primaryValue;
+    u16 secondaryValue;
+    u8 unk0C;
+    u8 unk0D;
+    u8 property;
+    u8 unk0F;
+    u16 middleBandValue;
+    u16 lastBandValue;
+    u8 unk14[0x10];
+    u32 grantedSkill;
+    u16 value;
+    u16 accessoryPercent;
+    u16 element;
+    u16 unk2E;
+    u32 categoryMask;
+    u32 price;
+    s8 availableMonth;
+    s8 availableDay;
+    u8 unk3A;
+    u8 unk3B;
+    u32 firstMoonGate;
+    u32 secondMoonGate;
 } GDataEntry;
 
 extern GDataEntry* D_007242A0;
@@ -70,12 +82,12 @@ extern u8 D_007981CC[];
 
 extern u8 D_0079BE2C[];
 
-extern s32 datCalcIsSkillAvailable(s32 arg0);
-extern s32 datCalcThresholdTrigger(u8* arg0, s32 arg1);
+extern s32 datCalcIsSkillAvailable(s32 skillId);
+extern s32 datCalcThresholdTrigger(u8* unit, s32 skillId);
 
-extern void datPersonaSetRosterMode(s32 arg0);
+extern void datPersonaSetRosterMode(s32 rosterMode);
 
-extern void btlUnitRecordResetSaveTable(void* arg0);
+extern void btlUnitRecordResetSaveTable(void* context);
 
 extern s16 D_007973F4[];
 
@@ -87,11 +99,11 @@ extern s32 D_005DD6E0[];
 
 extern s32 D_005DD6DC[];
 
-extern s16 datRankForPoints(s16 arg0, s16 arg1);
+extern s16 datRankForPoints(s16 category, s16 points);
 
-extern s32 cmmRankThreshold(s16 arg0, s16 arg1);
+extern s32 cmmRankThreshold(s16 value, s16 option);
 
-extern void chkmemAllocSiteTag(void* msg, s32 id);
+extern void chkmemAllocSiteTag(void* file, s32 line);
 
 extern void func_00440b68(char *fmt, ...);
 
@@ -113,19 +125,19 @@ extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 
 extern u32 D_00764298;
 
-extern u16 cmmCommunityValueForArcana(u8 arg0);
+extern u16 cmmCommunityValueForArcana(u8 arcana);
 
-extern void memcpy(void* arg0, void* arg1, u32 arg2);
+extern void memcpy(void*, void*, u32);
 
-extern s32 datCalcGetLevel(DatUnit* arg0);
-extern u32 datCalcGetHp(void* arg0);
-extern u32 datCalcGetSp(void* arg0);
+extern s32 datCalcGetLevel(DatUnit* unit);
+extern u32 datCalcGetHp(void* unit);
+extern u32 datCalcGetSp(void* unit);
 struct DatUnit;
 extern u16 datCalcMaxHp(struct DatUnit* unit);
 extern u16 datCalcMaxSp(struct DatUnit* unit);
-extern void datCalcGetBadStatusNoDown(void* arg0);
-extern void datCalcInitUnit(void* arg0, s16 arg1);
-extern void datCalcSetBadStatus(void* arg0);
+extern void datCalcGetBadStatusNoDown(void* unit);
+extern void datCalcInitUnit(void* unit, s16 id);
+extern void datCalcSetBadStatus(void*);
 extern u32 datCalcClearBadStatus(int unit, u32 badStatus);
 extern u32 datCalcIsDead(int unit, s32 hpDelta);
 
@@ -163,7 +175,7 @@ extern u8 D_00797F8E[];
 
 extern u8* DAT_007644D0;
 
-extern u16 datCalcThresholdKind(u8* arg0, s32 arg1);
+extern u16 datCalcThresholdKind(u8* unusedUnit, s32 skillId);
 
 extern void RwV3dNormalize(f32* a, f32* b);
 
@@ -185,21 +197,21 @@ extern u8 iGpffff9bb0; /* gp -0x6450 */
 
 extern void sprintf(void* dst, void* fmt, void* value, void* extra);
 
-extern void H_Cdvd_ReadSync(u8* ptr);
+extern void H_Cdvd_ReadSync(u8* cdvd);
 
-extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
+extern u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags);
 
-extern void datSetFlag(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 flagId, s32 enabled);
 
-extern u32 calGetWeekdayOfDay(s32 arg0);
+extern u32 calGetWeekdayOfDay(s32 dateIndex);
 
-extern s32 calHasDayEntry(s32 idx);
+extern s32 calHasDayEntry(s32 day);
 
-extern void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3);
+extern void datSaveRestoreSection(s32 unusedVersion, u32 tag, u32 length, u8* data);
 
-extern s32 datCalcSkillEffectFlags(s32 arg0, u8* arg1, u8* arg2, s32 arg3);
+extern s32 datCalcSkillEffectFlags(s32 skillId, u8* source, u8* target, s32 options);
 
-extern u32 datCalcSkillCost(u8* arg0, s32 arg1);
+extern u32 datCalcSkillCost(u8* unit, s32 skillId);
 
 extern s16 D_00797B84[];
 
@@ -210,8 +222,8 @@ extern code DAT_008873ec_abs[];
 
 extern char D_005e4308[];
 extern char D_005E4318[];
-extern long kwlnTaskGetTaskByName(void* path);
-extern void kwlnTaskDestroyWithHierarchy(long handle);
+extern long kwlnTaskGetTaskByName(void* name);
+extern void kwlnTaskDestroyWithHierarchy(long task);
 
 extern void FUN_0046d730(const char* file, s32 line);
 
@@ -230,6 +242,31 @@ typedef struct PersonaWork {
     u8 bonusStats[5];
 } PersonaWork;
 
+/* Entry lists use 32-byte and 16-byte records; the loader fixes up both pointers. */
+typedef struct DatEntryBlock {
+    u32 largeCount;
+    u32 smallCount;
+    void *largeRecords;
+    void *smallRecords;
+} DatEntryBlock;
+
+/* Four-byte skill records are shared by the 0x46- and 0x26E-byte tables. */
+typedef struct DatSkillRecord {
+    u8 flags;
+    s8 kind;
+    u16 skill;
+} DatSkillRecord;
+
+typedef struct DatPersonaMetadata {
+    u16 flags;
+    u8 pad02[0xC];
+} DatPersonaMetadata;
+
+typedef struct DatPersonaFlags {
+    u16 flags;
+    u8 pad02[0x56];
+} DatPersonaFlags;
+
 
 
 extern u32 datPersonaGetExp(int persona);
@@ -245,33 +282,35 @@ static inline u8* idxFirst(u32 a, u8* b)
 
 // Intent: copies one entry from the loaded table, with its record lists, into a new heap block and returns it.
 // FUN_00104900
-void* datCloneEntryBlock(s32 arg0)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+void* datCloneEntryBlock(s32 entryIndex)
 {
-    u8* new;
+    u8* copy;
     u32 size;
-    u32 idx;
+    u32 entryOffset;
 
     chkmemAllocSiteTag(D_005E4298, 0xB8);
-    idx = (arg0 & 0xFFFF) * 16;
-    size = *(u32*)((u8*)iGpffffb1ac + idx + 0) * 32 + 0x10 + *(u32*)((u8*)iGpffffb1ac + idx + 4) * 16;
-    new = jtbl_008873E8[0](size, 0x40000);
-    memcpy(new, (u8*)iGpffffb1ac + idx, 0x10);
-    *(u32*)(new + 8) = (u32)new + 0x10;
-    *(u32*)(new + 0xC) = *(u32*)(new + 8) + *(u32*)(new + 0) * 32;
-    memcpy(*(void**)(new + 8), *(void**)(idxFirst(idx, (u8*)iGpffffb1ac) + 8), *(u32*)(new + 0) * 32);
-    memcpy(*(void**)(new + 0xC), *(void**)(idxFirst(idx, (u8*)iGpffffb1ac) + 0xC), *(u32*)(new + 4) * 16);
-    return new;
+    entryOffset = (entryIndex & 0xFFFF) * 16;
+    size = *(u32*)((u8*)iGpffffb1ac + entryOffset + 0) * 32 + 0x10 + *(u32*)((u8*)iGpffffb1ac + entryOffset + 4) * 16;
+    copy = jtbl_008873E8[0](size, 0x40000);
+    memcpy(copy, (u8*)iGpffffb1ac + entryOffset, 0x10);
+    *(u32*)(copy + 8) = (u32)copy + 0x10;
+    *(u32*)(copy + 0xC) = *(u32*)(copy + 8) + *(u32*)(copy + 0) * 32;
+    memcpy(*(void**)(copy + 8), *(void**)(idxFirst(entryOffset, (u8*)iGpffffb1ac) + 8), *(u32*)(copy + 0) * 32);
+    memcpy(*(void**)(copy + 0xC), *(void**)(idxFirst(entryOffset, (u8*)iGpffffb1ac) + 0xC), *(u32*)(copy + 4) * 16);
+    return copy;
 }
 
 // FUN_00104A00
-void datFreeBlock(s32 arg0)
+void datFreeBlock(s32 block)
 {
-    K_ASSERT(arg0 != 0, 0xC2);
-    DAT_008873ec_abs[0](arg0);
+    K_ASSERT(block != 0, 0xC2);
+    DAT_008873ec_abs[0](block);
 }
 
 // Intent: reads the g_data entry table from disc (H_Cdvd_ReadSync) and builds the in-memory copy at iGpffffb1ac.
 // FUN_00104A60
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
 void datLoadEntryTable(void)
 {
     u8* obj;
@@ -313,9 +352,9 @@ void datEntryTableUseBuiltin(void)
 
 /* Return the reader's level; normalize the selector's signed low word at entry. */
 // FUN_00104C70
-s32 datCalcGetLevelById(s32 arg0)
+s32 datCalcGetLevelById(s32 unitId)
 {
-    s16 unit = (s16)arg0;
+    s16 unit = (s16)unitId;
 
     if (unit == 1)
     {
@@ -330,88 +369,92 @@ s32 datCalcGetLevelById(s32 arg0)
 /* Return the unit reader's value explicitly; both 108-byte bodies retain
  * their six relocations and four zero alignment bytes. */
 // FUN_00104CE0
-u32 datCalcGetHpById(s16 arg0)
+u32 datCalcGetHpById(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         return datCalcGetHp((DatUnit *)D_007973C4);
     }
     else
     {
-        return datCalcGetHp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
+        return datCalcGetHp(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
     }
 }
 
 // FUN_00104D50
-u32 datCalcGetSpById(s16 arg0)
+/* Read current SP from the protagonist record or the indexed party character. */
+u32 datCalcGetSpById(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         return datCalcGetSp((DatUnit *)D_007973C4);
     }
     else
     {
-        return datCalcGetSp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
+        return datCalcGetSp(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
     }
 }
 
 /* Character selectors are signed halfwords. Canonical getter/setter
  * declarations preserve both 108-byte wrappers and their caller bodies. */
 // FUN_00104DC0
-u16 datCalcMaxHpById(s16 arg0)
+u16 datCalcMaxHpById(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         return datCalcMaxHp((DatUnit *)D_007973C4);
     }
     else
     {
-        return datCalcMaxHp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
+        return datCalcMaxHp(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
     }
 }
 
 // FUN_00104E30
-u16 datCalcMaxSpById(s16 arg0)
+/* Compute maximum SP for the protagonist record or the indexed party character. */
+u16 datCalcMaxSpById(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         return datCalcMaxSp((DatUnit *)D_007973C4);
     }
     else
     {
-        return datCalcMaxSp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
+        return datCalcMaxSp(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
     }
 }
 
 // FUN_00104EA0
-s16 datGetCategoryValueById(s16 arg0, s16 arg1)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+s16 datGetCategoryValueById(s16 unitId, s16 category)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
-        return D_007973F4[arg1];
+        return D_007973F4[category];
     }
     else
     {
-        return *(s16*)((u8*)D_00796D74 + (s32)arg0 * 0x88 + (s32)arg1 * 2);
+        return *(s16*)((u8*)D_00796D74 + (s32)unitId * 0x88 + (s32)category * 2);
     }
 }
 
 // FUN_00104F10
-s16 datCategoryRank(s16 arg0)
+s16 datCategoryRank(s16 category)
 {
-    return datRankForPoints(arg0, D_007973F4[arg0]);
+    return datRankForPoints(category, D_007973F4[category]);
 }
 
 // FUN_00104F50
-s16 datRankForPoints(s16 arg0, s16 arg1)
+/* Accumulate five category thresholds; return the first rank whose cumulative threshold exceeds points. */
+s16 datRankForPoints(s16 category, s16 points)
 {
     s32 sum = 0;
     s32 i = 0;
-    s32 limit = arg1;
+    s32 limit = points;
 
     while (i < 5)
     {
-        sum = (s16)(sum + cmmRankThreshold(arg0, (s16)(i + 1)));
+        sum = (s16)(sum + cmmRankThreshold(category, (s16)(i + 1)));
         if (sum > limit)
         {
             break;
@@ -469,28 +512,29 @@ s16 datCategoryRankProgress(s16 category, f32 scale)
 #pragma pop
 
 // FUN_001051A0
-void datSetCategoryValueById(s16 arg0, s16 arg1, s16 arg2)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+void datSetCategoryValueById(s16 unitId, s16 category, s16 points)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
-        D_007973F4[arg1] = arg2;
+        D_007973F4[category] = points;
     }
     else
     {
-        *(s16*)((u8*)D_00796D74 + (s32)arg0 * 0x88 + (s32)arg1 * 2) = arg2;
+        *(s16*)((u8*)D_00796D74 + (s32)unitId * 0x88 + (s32)category * 2) = points;
     }
 }
 
 // FUN_00105210
-u32 datPersonaGetExpById(s16 arg0)
+u32 datPersonaGetExpById(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         return D_00797400[0];
     }
     else
     {
-        PersonaWork* persona = (PersonaWork *)datPersonaGetRecord(arg0);
+        PersonaWork* persona = (PersonaWork *)datPersonaGetRecord(unitId);
 
         K_ASSERT(persona != 0, 0x1B8);
         return datPersonaGetExp((int)persona);
@@ -498,9 +542,10 @@ u32 datPersonaGetExpById(s16 arg0)
 }
 
 // FUN_00105290
-u16 func_00105290(s16 arg0)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+u16 datGetPersonaIdByUnit(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         s32 v = D_00797F88[0];
 
@@ -509,7 +554,7 @@ u16 func_00105290(s16 arg0)
     }
     else
     {
-        return *(u16*)((u8*)D_00796D96 + (s32)arg0 * 0x88);
+        return *(u16*)((u8*)D_00796D96 + (s32)unitId * 0x88);
     }
 }
 
@@ -529,7 +574,8 @@ extern u32 DAT_00762ca0;
 
 
 // FUN_00105330
-s32 func_00105330(s32 character)
+/* Returns the active roster index and ignores its character selector. */
+s32 datGetActiveRosterIndex(s32 character)
 {
     return D_00797F88[0];
 }
@@ -537,96 +583,102 @@ s32 func_00105330(s32 character)
 
 
 // FUN_00105340
-void datCalcGetBadStatusNoDownById(s16 arg0)
+/* Apply the bad-status reader to the selected protagonist or party character. */
+void datCalcGetBadStatusNoDownById(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         datCalcGetBadStatusNoDown((DatUnit *)D_007973C4);
     }
     else
     {
-        datCalcGetBadStatusNoDown(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
+        datCalcGetBadStatusNoDown(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
     }
 }
 
 /* Both level-table lookups byte-mask the selected level after the branch join. */
 // FUN_001053B0
-u16 func_001053b0(s16 arg0)
+u16 datGetLevelTableFirstValue(s16 unitId)
 {
     s32 r;
 
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         r = datCalcGetLevel((DatUnit *)D_007973C4);
     }
     else
     {
-        r = datCalcGetLevel(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
+        r = datCalcGetLevel(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
     }
-    return *(u16*)((u8*)D_005DD844 + (r & 0xFF) * 0x2C + (s32)arg0 * 4);
+    return ((u16(*)[22])D_005DD844)[r & 0xFF][unitId * 2];
 }
 
 // FUN_00105460
-u16 func_00105460(s16 arg0)
+/* Looks up the second halfword of the unit-specific level-table pair using the current level. */
+u16 datGetLevelTableSecondValue(s16 unitId)
 {
     s32 r;
 
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         r = datCalcGetLevel((DatUnit *)D_007973C4);
     }
     else
     {
-        r = datCalcGetLevel(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
+        r = datCalcGetLevel(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
     }
-    return *(u16*)((u8*)D_005DD846 + (r & 0xFF) * 0x2C + (s32)arg0 * 4);
+    return ((u16(*)[22])D_005DD846)[r & 0xFF][unitId * 2];
 }
 
 // FUN_00105510
-u8* datUnitGetRecord(s16 arg0)
+/* Resolve unit 1 to the protagonist record and units 2..10 to the 0x88-stride party slots. */
+u8* datUnitGetRecord(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         return (u8 *)D_007973C4;
     }
     else
     {
-        K_ASSERT(arg0 < 0xB, 0x234);
-        return (u8 *)&((DatPartySlot *)D_00796E50)[arg0 - 2].character;
+        K_ASSERT(unitId < 0xB, 0x234);
+        return (u8 *)&((DatPartySlot *)D_00796E50)[unitId - 2].character;
     }
 }
 
 // FUN_001055A0
-void datCalcInitUnitById(s16 arg0)
+/* Initialize the selected character record with the same signed unit selector. */
+void datCalcInitUnitById(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
-        datCalcInitUnit((DatUnit *)D_007973C4, arg0);
+        datCalcInitUnit((DatUnit *)D_007973C4, unitId);
     }
     else
     {
-        datCalcInitUnit(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit, arg0);
+        datCalcInitUnit(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit, unitId);
     }
 }
 // FUN_00105610
-u32 datCalcIsDeadById(s16 arg0)
+/* Test the selected character for death without applying an HP delta. */
+u32 datCalcIsDeadById(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         return datCalcIsDead((int)(DatUnit *)D_007973C4, 0);
     }
     else
     {
-        return datCalcIsDead((int)(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit), 0);
+        return datCalcIsDead((int)(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit), 0);
     }
 }
 
 // FUN_00105690
-void func_00105690(s16 arg0, u8 arg1)
+/* Stores the byte at DatUnit.level for unit 1 and asserts for other units. */
+void datSetHeroLevel(s16 unitId, u8 value)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
-        D_007973CA[0] = arg1;
+        D_007973CA[0] = value;
     }
     else
     {
@@ -636,106 +688,109 @@ void func_00105690(s16 arg0, u8 arg1)
 
 // Intent: stores a unit's current HP (hero slot D_007973CC, party slots at +0x88 stride). The slot is the one datClampUnitHpSp writes.
 // FUN_001056E0
-void datSetUnitHp(s16 arg0, s16 arg1)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+void datSetUnitHp(s16 unitId, s16 hp)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
-        D_007973CC[0] = arg1;
+        D_007973CC[0] = hp;
     }
     else
     {
-        *(s16*)((u8*)D_00796D4C + (s32)arg0 * 0x88) = arg1;
+        *(s16*)((u8*)D_00796D4C + (s32)unitId * 0x88) = hp;
     }
 }
 
 // Intent: stores a unit's current SP (hero slot D_007973CE, party slots at +0x88 stride). The slot is the one datClampUnitHpSp writes.
 // FUN_00105730
-void datSetUnitSp(s16 arg0, s16 arg1)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+void datSetUnitSp(s16 unitId, s16 sp)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
-        D_007973CE[0] = arg1;
+        D_007973CE[0] = sp;
     }
     else
     {
-        *(s16*)((u8*)D_00796D4E + (s32)arg0 * 0x88) = arg1;
+        *(s16*)((u8*)D_00796D4E + (s32)unitId * 0x88) = sp;
     }
 }
 
 // Intent: clamps a unit's current HP and SP to its max HP and max SP (datCalcMaxHp / datCalcMaxSp). Writes the max back when the current value is larger.
 // FUN_00105780
-void datClampUnitHpSp(s16 arg0)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+void datClampUnitHpSp(s16 unitId)
 {
     u32 r;
     u16 v1;
     u16 v2;
 
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         r = datCalcGetHp((DatUnit *)D_007973C4);
     }
     else
     {
-        r = datCalcGetHp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
+        r = datCalcGetHp(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
     }
     v1 = (u16)r;
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         v2 = datCalcMaxHp((DatUnit *)D_007973C4);
     }
     else
     {
-        v2 = datCalcMaxHp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
+        v2 = datCalcMaxHp(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
     }
     if (v2 < v1)
     {
         s16 t = (s16)v2;
-        if (arg0 == 1)
+        if (unitId == 1)
         {
             D_007973CC[0] = t;
         }
         else
         {
-            *(s16*)((u8*)D_00796D4C + (s32)arg0 * 0x88) = t;
+            *(s16*)((u8*)D_00796D4C + (s32)unitId * 0x88) = t;
         }
     }
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         r = datCalcGetSp((DatUnit *)D_007973C4);
     }
     else
     {
-        r = datCalcGetSp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
+        r = datCalcGetSp(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
     }
     v1 = (u16)r;
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         v2 = datCalcMaxSp((DatUnit *)D_007973C4);
     }
     else
     {
-        v2 = datCalcMaxSp(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
+        v2 = datCalcMaxSp(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
     }
     if (v2 < v1)
     {
         s16 t = (s16)v2;
-        if (arg0 == 1)
+        if (unitId == 1)
         {
             D_007973CE[0] = t;
         }
         else
         {
-            *(s16*)((u8*)D_00796D4E + (s32)arg0 * 0x88) = t;
+            *(s16*)((u8*)D_00796D4E + (s32)unitId * 0x88) = t;
         }
     }
 }
 
 // FUN_00105990
-void datSetHeroExp(s16 arg0, u32 arg1)
+void datSetHeroExp(s16 unitId, u32 experience)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
-        D_00797400[0] = arg1;
+        D_00797400[0] = experience;
     }
     else
     {
@@ -746,7 +801,7 @@ void datSetHeroExp(s16 arg0, u32 arg1)
 /* 576/576 bytes; twenty-seven resolved relocations.
  * Independent byte counters retain both scans and the final experience reload. */
 // FUN_00105A50
-s32 func_00105a50(s16 arg0)
+s32 datGetExperienceToNextLevel(s16 unitId)
 {
     extern void kAssertFail(const char *file, s32 line);
     s32 value;
@@ -755,10 +810,10 @@ s32 func_00105a50(s16 arg0)
     u8 index;
     u8 i;
     u8 index2;
-    if (arg0 == 1)
+    if (unitId == 1)
         value = D_00797400[0];
     else {
-        PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)arg0);
+        PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)unitId);
         if (persona == 0)
             kAssertFail((const char *)D_005E4298, 0x1B8);
         value = datPersonaGetExp((int)persona);
@@ -781,10 +836,10 @@ first_test:
 first_done:
     if ((index & 0xFF) == 0x63)
         return 0;
-    if (arg0 == 1)
+    if (unitId == 1)
         value = D_00797400[0];
     else {
-        PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)arg0);
+        PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)unitId);
         if (persona == 0)
             kAssertFail((const char *)D_005E4298, 0x1B8);
         value = datPersonaGetExp((int)persona);
@@ -806,10 +861,10 @@ second_test:
     index2 = 0x63;
 second_done:
     value3 = D_005DD6DC[((index2 & 0xFF) + 1) & 0xFF];
-    if (arg0 == 1)
+    if (unitId == 1)
         value = D_00797400[0];
     else {
-        PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)arg0);
+        PersonaWork *persona = (PersonaWork *)datPersonaGetRecord((u16)unitId);
         if (persona == 0)
             kAssertFail((const char *)D_005E4298, 0x1B8);
         value = datPersonaGetExp((int)persona);
@@ -818,69 +873,73 @@ second_done:
 }
 
 // FUN_00105C90
-void func_00105c90(s16 arg0, s16 arg1)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+void datSetUnitRecordTailValue(s16 unitId, s16 value)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
-        D_00797404[0] = arg1;
+        D_00797404[0] = value;
     }
     else
     {
-        *(s16*)((u8*)D_00796D84 + (s32)arg0 * 0x88) = arg1;
+        *(s16*)((u8*)D_00796D84 + (s32)unitId * 0x88) = value;
     }
 }
 
 /* The retail initializer supplies a second halfword; this reset ignores it. */
 // FUN_00105CE0
-void datCalcSetBadStatusById(s16 arg0, s16 arg1)
+void datCalcSetBadStatusById(s16 unitId, s16 unusedValue)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         datCalcSetBadStatus((DatUnit *)D_007973C4);
     }
     else
     {
-        datCalcSetBadStatus(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit);
+        datCalcSetBadStatus(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
     }
 }
 
 // FUN_00105D50
-void datCalcClearBadStatusById(s16 arg0, u32 mask)
+/* Clear the requested status mask in the selected character record. */
+void datCalcClearBadStatusById(s16 unitId, u32 mask)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         datCalcClearBadStatus((int)(DatUnit *)D_007973C4, mask);
     }
     else
     {
-        datCalcClearBadStatus((int)(&((DatPartySlot *)D_00796E50)[arg0 - 2].character.unit), mask);
+        datCalcClearBadStatus((int)(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit), mask);
     }
 }
 
 // FUN_00105DC0
-void func_00105dc0(s16 arg0, s16 arg1, s16 arg2)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+void datSetEquippedItemByUnit(s16 unitId, s16 slotIndex, s16 itemId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
-        D_00797574[arg1] = arg2;
+        D_00797574[slotIndex] = itemId;
     }
     else
     {
-        *(s16*)((u8*)D_00796D8C + (s32)arg0 * 0x88 + (s32)arg1 * 2) = arg2;
+        *(s16*)((u8*)D_00796D8C + (s32)unitId * 0x88 + (s32)slotIndex * 2) = itemId;
     }
 }
 
 // FUN_00105E30
-void func_00105e30(s16 arg0, s16 arg1)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+void datSetUnitAiTactic(s16 unitId, s16 value)
 {
-    K_ASSERT(arg1 < 5, 0x322);
-    if (arg0 == 1)
+    K_ASSERT(value < 5, 0x322);
+    if (unitId == 1)
     {
-        D_007973D4[0] = arg1;
+        D_007973D4[0] = value;
     }
     else
     {
-        *(s8*)((u8*)D_00796D54 + (s32)arg0 * 0x88) = arg1;
+        *(s8*)((u8*)D_00796D54 + (s32)unitId * 0x88) = value;
     }
 }
 
@@ -901,35 +960,38 @@ s16 datGetPartyId(s32 idx)
 
 
 // FUN_00105F00
-s16 func_00105f00(s16 arg0)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+s16 datGetUnitAiTactic(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         return D_007973D4[0];
     }
     else
     {
-        return *(s8*)((u8*)D_00796D54 + (s32)arg0 * 0x88);
+        return *(s8*)((u8*)D_00796D54 + (s32)unitId * 0x88);
     }
 }
 
 // FUN_00105F50
-s8 func_00105f50(u16 arg0)
+/* Reads the persona arcana byte and resolves its community value. */
+s8 datGetPersonaArcanaCommunityValue(u16 personaId)
 {
     u8* table = DAT_007644c4;
-    u16 id = arg0;
+    u16 id = personaId;
 
     return (s8)cmmCommunityValueForArcana(table[id * 0xE + 2]);
 }
 
 // FUN_00105FA0
-void datSetMoney(u32 arg0)
+/* Store money after asserting it does not exceed the 9,999,999 cap. */
+void datSetMoney(u32 amount)
 {
-    if (arg0 > 0x98967F)
+    if (amount > 0x98967F)
     {
         FUN_0046d730(__FILE__, 0x359);
     }
-    D_0079B68C[0] = arg0;
+    D_0079B68C[0] = amount;
 }
 
 // FUN_00106000
@@ -941,9 +1003,10 @@ void datSetPartyId(s32 idx, s16 pcId)
 
 
 // FUN_00106020
-s32 datAddMoney(s32 arg0)
+/* Add a signed amount to money and clamp the result to 0..9,999,999. */
+s32 datAddMoney(s32 delta)
 {
-    s32 value = arg0 + D_0079B68C[0];
+    s32 value = delta + D_0079B68C[0];
 
     if (value > 0x98967F)
     {
@@ -1000,9 +1063,10 @@ s32 datGetPendingFlag(void)
 }
 
 // FUN_00106100
-void datSetDateIndex(s16 arg0)
+/* Store the date and refresh the weekday, calendar-entry and related day flags. */
+void datSetDateIndex(s16 date)
 {
-    u32 temp_2;
+    u32 weekday;
 
     datSetFlag(0xAD0, 0);
     datSetFlag(0xAD7, 0);
@@ -1016,9 +1080,9 @@ void datSetDateIndex(s16 arg0)
     datSetFlag(0xAD9, 0);
     datSetFlag(0xADA, 0);
     datSetFlag(0xADB, 0);
-    D_00797B7A[0] = arg0;
-    temp_2 = calGetWeekdayOfDay(arg0);
-    switch (temp_2)
+    D_00797B7A[0] = date;
+    weekday = calGetWeekdayOfDay(date);
+    switch (weekday)
     {
     case 0:
         datSetFlag(0xAD7, 1);
@@ -1049,30 +1113,31 @@ void datSetDateIndex(s16 arg0)
 }
 
 // FUN_001062F0
-void datSetTimeSlot(u8 arg0)
+void datSetTimeSlot(u8 timeSlot)
 {
-    D_00797B7C[0] = arg0;
+    D_00797B7C[0] = timeSlot;
 }
 
 // FUN_00106300
-void datSetPendingDateIndex(s16 arg0)
+void datSetPendingDateIndex(s16 date)
 {
-    D_00797B84[0] = arg0;
+    D_00797B84[0] = date;
 }
 
 // FUN_00106310
-void datSetPendingTimeSlot(u8 arg0)
+void datSetPendingTimeSlot(u8 timeSlot)
 {
-    D_00797B86[0] = arg0;
+    D_00797B86[0] = timeSlot;
 }
 
 // FUN_00106320
-void datSetPendingFlag(u32 arg0)
+void datSetPendingFlag(u32 flags)
 {
-    D_00797B80[0] = arg0;
+    D_00797B80[0] = flags;
 }
 
 // FUN_00106330
+/* Test one flag in the 0x1600-bit global bitmap using a word index and bit mask. */
 u32 datGetFlag(s32 bit)
 {
     s32 mask;
@@ -1087,22 +1152,23 @@ u32 datGetFlag(s32 bit)
 
 
 // FUN_00106390
-void datSetFlag(s32 arg0, s32 arg1)
+/* Set or clear one checked global flag; flag 0x1576 also emits a diagnostic. */
+void datSetFlag(s32 flagId, s32 enabled)
 {
     s32 idx;
     s32 bit;
 
-    if ((arg0 < 0) || (arg0 >= 0x1600))
+    if ((flagId < 0) || (flagId >= 0x1600))
     {
         FUN_0046d730(__FILE__, 0x471);
     }
-    if (arg0 == 0x1576)
+    if (flagId == 0x1576)
     {
         func_00440b68(&iGpffff9b18);
     }
-    idx = arg0 / 32;
-    bit = 1 << (arg0 % 32);
-    if (arg1 != 0)
+    idx = flagId / 32;
+    bit = 1 << (flagId % 32);
+    if (enabled != 0)
     {
         D_0079B1CC[idx] |= bit;
     }
@@ -1113,7 +1179,8 @@ void datSetFlag(s32 arg0, s32 arg1)
 }
 
 // FUN_00106480
-void func_00106480(void)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+void datClearFlags(void)
 {
     s32 i = 0;
 
@@ -1131,21 +1198,24 @@ void datPersonaClearRosterMode(void)
 }
 
 // FUN_001064F0
-u32 func_001064f0(s32 arg0)
+/* Checks an index below 0x80 and reads its global script-value word. */
+u32 datGetScriptValue(s32 index)
 {
-    K_ASSERT(arg0 < 0x80, 0x4AE);
-    return D_0079B48C[arg0];
+    K_ASSERT(index < 0x80, 0x4AE);
+    return D_0079B48C[index];
 }
 
 // FUN_00106550
-void func_00106550(s32 arg0, u32 arg1)
+/* Checks an index below 0x80 and writes its global script-value word. */
+void datSetScriptValue(s32 index, u32 value)
 {
-    K_ASSERT(arg0 < 0x80, 0x4B9);
-    D_0079B48C[arg0] = arg1;
+    K_ASSERT(index < 0x80, 0x4B9);
+    D_0079B48C[index] = value;
 }
 
 // FUN_001065C0
-void func_001065c0(void)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+void datClearScriptValues(void)
 {
     s32 i = 0;
 
@@ -1158,15 +1228,15 @@ void func_001065c0(void)
 
 // Intent: returns an item's stack count (byte at D_0079757A[id]). datItemSetCount writes the same table.
 // FUN_00106600
-s32 datItemCount(s16 arg0)
+s32 datItemCount(s16 itemId)
 {
-    return D_0079757A[arg0];
+    return D_0079757A[itemId];
 }
 
 // Intent: sets an item's stack count, clamped to 99 (0x63), in the D_0079757A table.
 // FUN_00106620
 /* Inventory and metadata queries share the signed halfword item ID. */
-void datItemSetCount(s16 arg0, s32 arg1)
+void datItemSetCount(s16 itemId, s32 count)
 {
     s16 id;
     u8 *p;
@@ -1175,15 +1245,15 @@ void datItemSetCount(s16 arg0, s32 arg1)
     s32 bit;
     s32 idx;
 
-    value = arg1 & 0xFF;
+    value = count & 0xFF;
     if (value > 0x63)
     {
         value = 0x63;
     }
-    id = (s16)arg0;
+    id = (s16)itemId;
     p = (u8 *)D_0079757A + id;
     *p = value;
-    if (func_00106850(arg0) == 4)
+    if (datEntryGetKind(itemId) == 4)
     {
         if (*p != 0)
         {
@@ -1196,7 +1266,7 @@ void datItemSetCount(s16 arg0, s32 arg1)
             {
                 func_00440b68(&iGpffff9b18);
             }
-            x = (s16)arg0 - 0x200;
+            x = (s16)itemId - 0x200;
             bit = 1 << (x % 32);
             idx = x / 32;
             D_0079B1CC[idx] |= bit;
@@ -1215,7 +1285,7 @@ void datItemSetCount(s16 arg0, s32 arg1)
             {
                 func_00440b68(&iGpffff9b18);
             }
-            x = (s16)arg0 - 0x200;
+            x = (s16)itemId - 0x200;
             bit2 = 1 << (x % 32);
             idx2 = x / 32;
             D_0079B1CC[idx2] &= ~bit2;
@@ -1224,153 +1294,170 @@ void datItemSetCount(s16 arg0, s32 arg1)
 }
 
 // FUN_001067F0
-u32 datGetItemNameId(s16 arg0)
+u32 datGetItemNameId(s16 itemId)
 {
-    return D_005E2200[arg0];
+    return D_005E2200[itemId];
 }
 
 // FUN_00106820
-GDataEntry* datEntryAt(s16 arg0)
+GDataEntry* datEntryAt(s16 itemId)
 {
-    return (GDataEntry*)((u8*)D_007242A0 + (s32)arg0 * 68);
+    return (GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68);
 }
 
 // FUN_00106850
-u32 func_00106850(s16 arg0)
+/* Reads the first word of the 68-byte item entry. */
+u32 datEntryGetKind(s16 itemId)
 {
-    return *(u32*)((u8*)D_007242A0 + (s32)(s16)arg0 * 68);
+    return D_007242A0[(s16)itemId].kind;
 }
 
 // FUN_00106880
-u32 datEntryGetFlags(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+u32 datEntryGetFlags(s16 itemId)
 {
-    return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 4);
+    return *(u32*)((u8*)D_007242A0 + (s32)itemId * 68 + 4);
 }
 
 // FUN_001068B0
-u16 func_001068b0(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+u16 datEntryGetPrimaryValue(s16 itemId)
 {
-    return *(u16*)((u8*)D_007242A0 + (s32)arg0 * 68 + 8);
+    return *(u16*)((u8*)D_007242A0 + (s32)itemId * 68 + 8);
 }
 
 // FUN_001068E0
-u16 func_001068e0(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+u16 datEntryGetSecondaryValue(s16 itemId)
 {
-    return *(u16*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0xA);
+    return *(u16*)((u8*)D_007242A0 + (s32)itemId * 68 + 0xA);
 }
 
 // FUN_00106910
-u8 func_00106910(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+u8 datEntryGetPropertyByte(s16 itemId)
 {
-    return *(u8*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0xE);
+    return *(u8*)((u8*)D_007242A0 + (s32)itemId * 68 + 0xE);
 }
 
 // FUN_00106940
-u16 func_00106940(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+u16 datEntryGetMiddleBandValue(s16 itemId)
 {
-    return *(u16*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x10);
+    return *(u16*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x10);
 }
 
 // FUN_00106970
-u16 func_00106970(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+u16 datEntryGetLastBandValue(s16 itemId)
 {
-    return *(u16*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x12);
+    return *(u16*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x12);
 }
 
 // Intent: returns the skill id an item grants (u32 at +0x24 of the entry). datCalcSkillCost and PTDatCalcHasSkill compare the result with skill ids.
 // FUN_001069A0
-u32 datItemGrantedSkill(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+u32 datItemGrantedSkill(s16 itemId)
 {
-    return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x24);
+    return *(u32*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x24);
 }
 
 // Intent: returns the item value (u16 at +0x28). code1_0013 reads it as itemValue.
 // FUN_001069D0
-u16 datItemValue(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+u16 datItemValue(s16 itemId)
 {
-    return *(u16*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x28);
+    return *(u16*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x28);
 }
 
 // Intent: returns the accessory's damage percent (u16 at +0x2A). DCDamageAccessoryFraction uses it as the percentage.
 // FUN_00106A00
-u16 datItemAccessoryPercent(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+u16 datItemAccessoryPercent(s16 itemId)
 {
-    return *(u16*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x2A);
+    return *(u16*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x2A);
 }
 
 // Intent: returns the item's element (u16 at +0x2C). datCalcSkillElement and datCalcHitResult read it for the equipped item.
 // FUN_00106A30
-u16 datItemElement(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+u16 datItemElement(s16 itemId)
 {
-    return *(u16*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x2C);
+    return *(u16*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x2C);
 }
 
 // Intent: returns the category bitmask (u32 at +0x30) that y_list.c tests against its filter.
 // FUN_00106A60
-u32 datEntryCategoryMask(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+u32 datEntryCategoryMask(s16 itemId)
 {
-    return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x30);
+    return *(u32*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x30);
 }
 
 // Intent: returns the item's price (u32 at +0x34). fclItemShopDiscountedPrice subtracts the discount from it.
 // FUN_00106A90
-u32 datItemPrice(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+u32 datItemPrice(s16 itemId)
 {
-    return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x34);
+    return *(u32*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x34);
 }
 
 // Intent: returns the calendar month (+0x38) an item is available from. Compared through func_002be100 with fclCalendarMonth.
 // FUN_00106AC0
-s8 datItemAvailableMonth(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+s8 datItemAvailableMonth(s16 itemId)
 {
-    return *(s8*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x38);
+    return *(s8*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x38);
 }
 
 // Intent: returns the calendar day (+0x39) an item is available from, paired with datItemAvailableMonth.
 // FUN_00106AF0
-s8 datItemAvailableDay(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+s8 datItemAvailableDay(s16 itemId)
 {
-    return *(s8*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x39);
+    return *(s8*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x39);
 }
 
 // Intent: returns the first moon-phase gate word (+0x3C). Bits 8..19 are the phase key and the low byte is the second fclMoonPhaseAtLeast argument.
 // FUN_00106B20
-u32 datItemMoonGateFirst(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+u32 datItemMoonGateFirst(s16 itemId)
 {
-    return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x3C);
+    return *(u32*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x3C);
 }
 
 // Intent: returns the second moon-phase gate word (+0x40), with the same layout as datItemMoonGateFirst.
 // FUN_00106B50
-u32 datItemMoonGateSecond(s16 arg0)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+u32 datItemMoonGateSecond(s16 itemId)
 {
-    return *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x40);
+    return *(u32*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x40);
 }
 
 /* The signed item ID selects a bank-relative metadata index. */
 // Intent: maps an item id to its offset within its 0x100-entry bank (ids 0x000..0x5FF).
 // FUN_00106B80
-s64 datItemBankOffset(s16 arg0)
+s64 datItemBankOffset(s16 encodedItemId)
 {
-    s16 temp_2;
+    s16 itemId;
 
-    temp_2 = (s16)arg0;
-    if (temp_2 < 0x100) {
-        return temp_2;
+    itemId = (s16)encodedItemId;
+    if (itemId < 0x100) {
+        return itemId;
     }
-    if (temp_2 < 0x200) {
-        return (s16)(temp_2 - 0x100);
+    if (itemId < 0x200) {
+        return (s16)(itemId - 0x100);
     }
-    if (temp_2 < 0x300) {
-        return (s16)(temp_2 - 0x200);
+    if (itemId < 0x300) {
+        return (s16)(itemId - 0x200);
     }
-    if (temp_2 < 0x400) {
-        return (s16)(temp_2 - 0x300);
+    if (itemId < 0x400) {
+        return (s16)(itemId - 0x300);
     }
-    if (temp_2 < 0x500) {
-        return (s16)(temp_2 - 0x400);
+    if (itemId < 0x500) {
+        return (s16)(itemId - 0x400);
     }
-    return (s16)(temp_2 - 0x500);
+    return (s16)(itemId - 0x500);
 }
 
 
@@ -1389,23 +1476,25 @@ s64 datItemBankOffset(s16 arg0)
 // Intent: tests bit (arg1 + 4) of the 32-bit flag word at +0x30 of a g_data entry; callers are the equipment screen and the new-game script.
 // FUN_00106C30
 #pragma opt_propagation off
-s32 datEntryHasFlag(s16 arg0, s16 arg1)
+/* Raw accesses retain MATCH: the typed rewrite changed instruction selection; field widths and offsets remain documented by the layout above. */
+s32 datEntryHasFlag(s16 itemId, s16 flagIndex)
 {
     u32 flags;
 
-    flags = *(u32*)((u8*)D_007242A0 + (s32)arg0 * 68 + 0x30);
-    return (flags & (1 << ((s32)arg1 + 4))) != 0;
+    flags = *(u32*)((u8*)D_007242A0 + (s32)itemId * 68 + 0x30);
+    return (flags & (1 << ((s32)flagIndex + 4))) != 0;
 }
 #pragma opt_propagation on
 
 // FUN_00106C80
-s32 datIdBand(s16 arg0)
+/* Classify item ids into the below-0x100, below-0x200 and remaining comparison bands. */
+s32 datIdBand(s16 itemId)
 {
-    if (arg0 < 0x100)
+    if (itemId < 0x100)
     {
         return 0;
     }
-    if (arg0 < 0x200)
+    if (itemId < 0x200)
     {
         return 1;
     }
@@ -1413,28 +1502,30 @@ s32 datIdBand(s16 arg0)
 }
 
 // FUN_00106CD0
-s16 func_00106cd0(s16 arg0, s16 arg1)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+s16 datGetEquippedItemByUnit(s16 unitId, s16 slotIndex)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
-        return D_00797574[arg1];
+        return D_00797574[slotIndex];
     }
     else
     {
-        return *(s16*)((u8*)D_00796D8C + (s32)arg0 * 0x88 + (s32)arg1 * 2);
+        return *(s16*)((u8*)D_00796D8C + (s32)unitId * 0x88 + (s32)slotIndex * 2);
     }
 }
 
 // FUN_00106D40
-void func_00106d40(s16 arg0, s16 arg1, s16 arg2)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+void datAssignEquippedItem(s16 unitId, s16 slotIndex, s16 itemId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
-        D_00797574[arg1] = arg2;
+        D_00797574[slotIndex] = itemId;
     }
     else
     {
-        *(s16*)((u8*)D_00796D8C + (s32)arg0 * 0x88 + (s32)arg1 * 2) = arg2;
+        *(s16*)((u8*)D_00796D8C + (s32)unitId * 0x88 + (s32)slotIndex * 2) = itemId;
     }
 }
 
@@ -1442,15 +1533,16 @@ void func_00106d40(s16 arg0, s16 arg1, s16 arg2)
 // FUN_00108CB0
 void datFreeTaskWork(u8 *unusedTask)
 {
-    int iVar1;
+    int work;
 
-    iVar1 = kwlnTaskGetWork();
-    DAT_008873ec_abs[0](iVar1);
+    work = kwlnTaskGetWork();
+    DAT_008873ec_abs[0](work);
 }
 
 
 
 // FUN_00108D80
+/* Destroy the named task hierarchy when the scheduler lookup succeeds. */
 void datDestroyTaskByName(void)
 {
   long handle;
@@ -1489,7 +1581,8 @@ void datResetTotalBtl(void)
    nd 7, an `i = 0` before the pointer setup is nd 12, index arithmetic without a
    pointer local is nd 101, and fourteen allocation/loop pragmas all leave nd 7. */
 // FUN_00109190
-f32 func_00109190(void) {
+/* Sums the halfword at offset six in 21 sixteen-byte records and divides by 210. */
+f32 datGetAverageRecordScore(void) {
     f32 sum;
     u8 *p;
     s32 i;
@@ -1497,7 +1590,7 @@ f32 func_00109190(void) {
     sum = 0.0f;
     p = &D_007973A0[0x70];
     for (i = 0; i < 21; i++) {
-        sum += (f32)(u32)*(u16 *)(p + 6);
+        sum += (f32)(u32)((DatScoreRecord*)p)->value;
         p += 16;
     }
     return sum / 210.0f;
@@ -1509,12 +1602,13 @@ f32 func_00109190(void) {
 // FUN_00109390
 u8 datPersonaGetLevel(int persona)
 {
-    return *(u8*)(persona + 4);
+    return ((DatPersonaRecord*)persona)->level;
 }
 
 
 
 // FUN_00109400
+/* Resolve the unit's persona record before reading its level byte. */
 u8 datPersonaGetLevelByPcId(u16 pcId)
 {
     PersonaWork* persona = (PersonaWork *)datPersonaGetRecord(pcId);
@@ -1527,7 +1621,7 @@ u8 datPersonaGetLevelByPcId(u16 pcId)
 // FUN_00109430
 u32 datPersonaGetExp(int persona)
 {
-    return *(u32*)(persona + 8);
+    return (u32)((DatPersonaRecord*)persona)->exp;
 }
 
 
@@ -1543,12 +1637,13 @@ u32 datPersonaGetExpToNextLevel(PersonaWork* persona)
 // FUN_001094D0
 u16 *datPersonaGetSkills(DatPersonaRecord *persona)
 {
-    return (u16 *)((u8 *)persona + 0xc);
+    return persona->skills;
 }
 
 
 
 // FUN_001094E0
+/* Resolve the unit's persona record and return its eight-skill array. */
 u16* datPersonaGetSkillsByPcId(u16 pcId)
 {
     PersonaWork* persona = (PersonaWork *)datPersonaGetRecord(pcId);
@@ -1559,6 +1654,7 @@ u16* datPersonaGetSkillsByPcId(u16 pcId)
 
 
 // FUN_00109D80
+/* Add a signed byte delta to one bonus stat in the resolved persona record. */
 void datPersonaAddToBonusStatByPcId(u16 pcId, u16 statId, s8 amount)
 {
     PersonaWork* persona = (PersonaWork *)datPersonaGetRecord(pcId);
@@ -1569,6 +1665,7 @@ void datPersonaAddToBonusStatByPcId(u16 pcId, u16 statId, s8 amount)
 
 
 // FUN_0010C6F0
+/* Reject level 99, otherwise compare experience against the next-level threshold. */
 s32 datPersonaCanLevelUp(PersonaWork* persona)
 {
     if (persona->level >= 99) {
@@ -1589,13 +1686,14 @@ static inline void datCollectValidSkills(u8* skillData, u16* skills,
         if (skillData[skillIdx * 4] == 0 &&
             ((s8*)skillData)[skillIdx * 4 + 1] == 1)
         {
-            skills[*validSkills] = *(u16*)(skillData + skillIdx * 4 + 2);
+            skills[*validSkills] = ((DatSkillRecord*)skillData)[skillIdx].skill;
             (*validSkills)++;
         }
     }
 }
 
 // FUN_0010D360
+/* Collect active kind-1 skills from the special 32-entry table or the ordinary 16-entry table. */
 void datPersonaCollectSkills(u16 personaId, u16* skills, s32* skillCount)
 {
     u8* skillData;
@@ -1617,12 +1715,14 @@ void datPersonaCollectSkills(u16 personaId, u16* skills, s32* skillCount)
 }
 
 // FUN_0010D480
+/* Retail no-op called during battle-unit setup; no state changes occur here. */
 void func_0010d480(void)
 {
 }
 
 // FUN_0010D490
-void func_0010d490(u8* param_1, u8* param_2)
+/* Copies two at-most-18-byte name parts and rebuilds the display-name buffers. */
+void datSetHeroNameParts(u8* firstName, u8* lastName)
 {
     s32 index;
     s8 value;
@@ -1632,7 +1732,7 @@ void func_0010d490(u8* param_1, u8* param_2)
 
     for (; index < 0x12; index = index + 1)
     {
-        value = *(s8*)(param_1 + index);
+        value = ((s8*)firstName)[index];
         if (value == '\0')
         {
             break;
@@ -1643,7 +1743,7 @@ void func_0010d490(u8* param_1, u8* param_2)
     index = 0;
     for (; index < 0x12; index = index + 1)
     {
-        value = *(s8*)(param_2 + index);
+        value = ((s8*)lastName)[index];
         if (value == '\0')
         {
             break;
@@ -1670,64 +1770,66 @@ void datBuildPersonaDisplayName(void)
 }
 
 // FUN_0010D620
-u32 datPersonaDisplayName(s16 arg0)
+/* Return the rebuilt protagonist display name for unit 1, otherwise the static name-table entry. */
+u32 datPersonaDisplayName(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         return (u32)DAT_00796e20;
     }
     else
     {
-        return D_005E4480[arg0];
+        return D_005E4480[unitId];
     }
 }
 
 // Intent: returns name part 0 for a persona id. Id 1 is the hero's buffer; ids below 11 use the part-0 table; other ids use the display-name table.
 // FUN_0010D660
-u32 datPersonaNamePart0(s16 arg0)
+u32 datPersonaNamePart0(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         return (u32)DAT_00796de0;
     }
-    if (arg0 < 0xB)
+    if (unitId < 0xB)
     {
-        return D_005E4540[arg0];
+        return D_005E4540[unitId];
     }
-    return D_005E4480[arg0];
+    return D_005E4480[unitId];
 }
 
 // Intent: returns name part 1 for a persona id, with the same lookup as datPersonaNamePart0 over the part-1 table.
 // FUN_0010D6D0
-u32 datPersonaNamePart1(s16 arg0)
+u32 datPersonaNamePart1(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         return (u32)DAT_00796e00;
     }
-    if (arg0 < 0xB)
+    if (unitId < 0xB)
     {
-        return D_005E4570[arg0];
+        return D_005E4570[unitId];
     }
-    return D_005E4480[arg0];
+    return D_005E4480[unitId];
 }
 
 // Intent: same body as datPersonaNamePart1 (a duplicate kept at its own address).
 // FUN_0010D740
-u32 datPersonaNamePart1Alt(s16 arg0)
+u32 datPersonaNamePart1Alt(s16 unitId)
 {
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         return (u32)DAT_00796e00;
     }
-    if (arg0 < 0xB)
+    if (unitId < 0xB)
     {
-        return D_005E4570[arg0];
+        return D_005E4570[unitId];
     }
-    return D_005E4480[arg0];
+    return D_005E4480[unitId];
 }
 
 // FUN_0010D7B0
+/* Retail no-op called from kernel initialization; no state changes occur here. */
 void func_0010d7b0(void)
 {
 }
@@ -1803,8 +1905,8 @@ u8 *datSaveBuildImage(s32 version, s32 *outSize, s32 compact)
     s32 experience;
     u8 *summaryBytes;
 
-    *(s32 *)D_0079B698 = *(s32 *)iGpffff9db0;
-    *(s32 *)D_0079B69C = *(s32 *)(iGpffff9db0 + 4);
+    *(s32 *)D_0079B698 = ((DatFieldState*)iGpffff9db0)->mode;
+    *(s32 *)D_0079B69C = ((DatFieldState*)iGpffff9db0)->submode;
     *(s32 *)D_0079B6A0 = FldStepIndex();
     chkmemAllocSiteTag(D_005E4298, 0x721);
     buffer = D_008873F4[0](1, 0x2A000, 0x40000);
@@ -1819,8 +1921,8 @@ u8 *datSaveBuildImage(s32 version, s32 *outSize, s32 compact)
         summary.names[0][nameIndex] = ((s8 *)D_007973A0)[nameIndex];
     for (surnameIndex = 0; surnameIndex < 18; surnameIndex++)
         summary.names[1][surnameIndex] = *((s8 *)D_007973A0 + surnameIndex + 18);
-    summary.mode = *(s32 *)iGpffff9db0;
-    summary.submode = *(s32 *)(iGpffff9db0 + 4);
+    summary.mode = ((DatFieldState*)iGpffff9db0)->mode;
+    summary.submode = ((DatFieldState*)iGpffff9db0)->submode;
     experience = D_00797400[0];
     level = 0;
     threshold = 0;
@@ -2069,24 +2171,24 @@ level_done:
 #pragma pop
 
 // FUN_0010E710
-void func_0010e710(s32 arg0, u8 *arg1, s32 arg2)
+void datSaveRestoreImage(s32 version, u8 *image, s32 unusedSize)
 {
-    u32 v1;
-    u32 v2;
-    u8* p = arg1 + 0x34;
+    u32 tag;
+    u32 length;
+    u8* cursor = image + 0x34;
 
     while (1)
     {
-        memcpy(&v1, p, 4);
-        func_00440b68(D_005E45C0, v1);
-        if (v1 == -1 || v1 == 0x2000)
+        memcpy(&tag, cursor, 4);
+        func_00440b68(D_005E45C0, tag);
+        if (tag == -1 || tag == 0x2000)
         {
             break;
         }
-        memcpy(&v2, p + 4, 4);
-        p = p + 8;
-        datSaveRestoreSection(arg0, v1, v2, p);
-        p = p + v2;
+        memcpy(&length, cursor + 4, 4);
+        cursor = cursor + 8;
+        datSaveRestoreSection(version, tag, length, cursor);
+        cursor = cursor + length;
     }
     iGpffffb19c = D_0079B67C[0];
     memset(DAT_00796de0, 0, 0x12);
@@ -2098,53 +2200,54 @@ void func_0010e710(s32 arg0, u8 *arg1, s32 arg2)
 }
 
 // FUN_0010E880
-s32 datSaveVerifyChecksum(s32 arg0, u8 *arg1, s32 arg2)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+s32 datSaveVerifyChecksum(s32 unusedVersion, u8 *image, s32 size)
 {
     u8 byte;
-    u32 v1;
-    u32 v2;
+    u32 tag;
+    u32 length;
     u32 limit;
     u32 sum;
-    u8* p;
+    u8* cursor;
     s32 checksum;
     u32 i;
 
-    if (arg2 < 0x1000)
+    if (size < 0x1000)
     {
         return 0;
     }
-    p = arg1 + 0x34;
+    cursor = image + 0x34;
     sum = 0;
-    limit = (u32)(arg2 - 0x34);
+    limit = (u32)(size - 0x34);
     while (1)
     {
-        memcpy(&v1, p, 4);
-        if (v1 == -1)
+        memcpy(&tag, cursor, 4);
+        if (tag == -1)
         {
             break;
         }
-        if (v1 == 0x2000)
+        if (tag == 0x2000)
         {
             checksum = 0;
             i = 0;
             while (i < sum)
             {
-                checksum = (checksum + *(u8*)(arg1 + i + 0x34)) & 0xFF;
+                checksum = (checksum + *(u8*)(image + i + 0x34)) & 0xFF;
                 i = i + 1;
             }
-            memcpy(&v2, p + 4, 4);
-            memcpy(&byte, p + 8, 1);
+            memcpy(&length, cursor + 4, 4);
+            memcpy(&byte, cursor + 8, 1);
             return (checksum & 0xFF) == byte;
         }
-        memcpy(&v2, p + 4, 4);
-        if (v2 == 0)
+        memcpy(&length, cursor + 4, 4);
+        if (length == 0)
         {
             return 0;
         }
-        p = p + 8;
-        p = p + v2;
+        cursor = cursor + 8;
+        cursor = cursor + length;
         sum = sum + 8;
-        sum = sum + v2;
+        sum = sum + length;
         if (sum >= limit)
         {
             return 0;
@@ -2155,139 +2258,139 @@ s32 datSaveVerifyChecksum(s32 arg0, u8 *arg1, s32 arg2)
 
 /* 2480/2480 bytes; 106 fully resolved relocations. */
 // FUN_0010E9E0
-void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3)
+void datSaveRestoreSection(s32 unusedVersion, u32 tag, u32 length, u8* data)
 {
     u32 index;
-    switch (arg1) {
+    switch (tag) {
     case 1:
-        if (arg2 == 36)
-            memcpy(D_007973A0, arg3, 36);
+        if (length == 36)
+            memcpy(D_007973A0, data, 36);
         break;
     case 2:
-        if (arg2 == 72)
-            memcpy(D_007973C4, arg3, 72);
+        if (length == 72)
+            memcpy(D_007973C4, data, 72);
         break;
     case 3:
-        if (arg2 == 344)
-            memcpy(D_0079740C, arg3, 344);
+        if (length == 344)
+            memcpy(D_0079740C, data, 344);
         break;
     case 4:
-        if (arg2 == 16)
-            memcpy(D_00797564, arg3, 16);
+        if (length == 16)
+            memcpy(D_00797564, data, 16);
         break;
     case 5:
-        if (arg2 == 6)
-            memcpy(D_00797574, arg3, 6);
+        if (length == 6)
+            memcpy(D_00797574, data, 6);
         break;
     case 6:
-        if (arg2 == 1536)
-            memcpy(D_0079757A, arg3, arg2);
+        if (length == 1536)
+            memcpy(D_0079757A, data, length);
         break;
     case 8:
-        if (arg2 == 2)
-            memcpy(D_00797B7A, arg3, arg2);
+        if (length == 2)
+            memcpy(D_00797B7A, data, length);
         break;
     case 9:
-        if (arg2 == 1)
-            memcpy(D_00797B7C, arg3, arg2);
+        if (length == 1)
+            memcpy(D_00797B7C, data, length);
         break;
     case 10:
-        if (arg2 == 4)
-            memcpy(D_00797B80, arg3, arg2);
+        if (length == 4)
+            memcpy(D_00797B80, data, length);
         break;
     case 11:
-        if (arg2 == 2)
-            memcpy(D_00797B84, arg3, arg2);
+        if (length == 2)
+            memcpy(D_00797B84, data, length);
         break;
     case 12:
-        if (arg2 == 1)
-            memcpy(D_00797B86, arg3, arg2);
+        if (length == 1)
+            memcpy(D_00797B86, data, length);
         break;
     case 13:
-        if (arg2 == 1024)
-            memcpy(D_00797B87, arg3, arg2);
+        if (length == 1024)
+            memcpy(D_00797B87, data, length);
         break;
     case 14:
-        if (arg2 == 2)
-            memcpy(D_00797F88, arg3, arg2);
+        if (length == 2)
+            memcpy(D_00797F88, data, length);
         break;
     case 15:
-        if (arg2 == 576)
-            memcpy(D_00797F8C, arg3, arg2);
+        if (length == 576)
+            memcpy(D_00797F8C, data, length);
         break;
     case 16:
-        if (arg2 == 12288)
-            memcpy(D_007981CC, arg3, arg2);
+        if (length == 12288)
+            memcpy(D_007981CC, data, length);
         break;
     case 17:
-        if (arg2 == 704)
-            memcpy(D_0079B1CC, arg3, arg2);
+        if (length == 704)
+            memcpy(D_0079B1CC, data, length);
         break;
     case 18:
-        if (arg2 == 4)
-            memcpy(D_0079B68C, arg3, arg2);
+        if (length == 4)
+            memcpy(D_0079B68C, data, length);
         break;
     case 19:
-        if (arg2 == 8)
-            memcpy(D_0079B690, arg3, arg2);
+        if (length == 8)
+            memcpy(D_0079B690, data, length);
         break;
     case 21:
-        if (arg2 == 4)
-            memcpy(D_0079B698, arg3, arg2);
+        if (length == 4)
+            memcpy(D_0079B698, data, length);
         break;
     case 22:
-        if (arg2 == 4)
-            memcpy(D_0079B69C, arg3, arg2);
+        if (length == 4)
+            memcpy(D_0079B69C, data, length);
         break;
     case 23:
-        if (arg2 == 4)
-            memcpy(D_0079B6A0, arg3, arg2);
+        if (length == 4)
+            memcpy(D_0079B6A0, data, length);
         break;
     case 24:
-        if (arg2 == 340)
-            memcpy(D_0079BCD8, arg3, arg2);
+        if (length == 340)
+            memcpy(D_0079BCD8, data, length);
         break;
     case 25:
-        if (arg2 == 512)
-            memcpy(D_0079B48C, arg3, arg2);
+        if (length == 512)
+            memcpy(D_0079B48C, data, length);
         break;
     case 26:
-        if (arg2 == 1536)
-            memcpy(D_0079B6D8, arg3, arg2);
+        if (length == 1536)
+            memcpy(D_0079B6D8, data, length);
         break;
     case 27:
-        if (arg2 == 52)
-            memcpy(D_0079B6A4, arg3, arg2);
+        if (length == 52)
+            memcpy(D_0079B6A4, data, length);
         break;
     case 32:
         break;
     case 34:
-        if (arg2 == 1)
-            memcpy(D_00797B7C, arg3, arg2);
+        if (length == 1)
+            memcpy(D_00797B7C, data, length);
         break;
     case 35:
-        if (arg2 == 4)
-            memcpy(D_0079BEF4, arg3, arg2);
+        if (length == 4)
+            memcpy(D_0079BEF4, data, length);
         break;
     case 37:
-        if (arg2 == 4)
-            memcpy(&iGpffffb1b4, arg3, arg2);
+        if (length == 4)
+            memcpy(&iGpffffb1b4, data, length);
         break;
     case 38:
-        if (arg2 == 4)
-            memcpy(&iGpffffb1b8, arg3, arg2);
+        if (length == 4)
+            memcpy(&iGpffffb1b8, data, length);
         break;
     case 39:
-        if (arg2 == 86016)
-            memcpy(D_007BBF00, arg3, arg2);
+        if (length == 86016)
+            memcpy(D_007BBF00, data, length);
         break;
     case 40:
-        if (arg2 == 200)
-            memcpy(D_0079BE2C, arg3, arg2);
+        if (length == 200)
+            memcpy(D_0079BE2C, data, length);
         break;
     case 41:
-        if (arg2 == FldStepTableSize())
-            memcpy(FldStepTable(), arg3, arg2);
+        if (length == FldStepTableSize())
+            memcpy(FldStepTable(), data, length);
         break;
     case 0x100:
     case 0x200:
@@ -2299,9 +2402,9 @@ void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3)
     case 0x800:
     case 0x900:
     case 0xa00:
-        index = arg1 >> 8;
-        if (arg2 == 4)
-            memcpy(&((DatPartySlot *)D_00796E50)[index - 1], arg3, arg2);
+        index = tag >> 8;
+        if (length == 4)
+            memcpy(&((DatPartySlot *)D_00796E50)[index - 1], data, length);
         break;
     case 0x101:
     case 0x201:
@@ -2313,9 +2416,9 @@ void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3)
     case 0x801:
     case 0x901:
     case 0xa01:
-        index = arg1 >> 8;
-        if (arg2 == 72)
-            memcpy(&((DatPartySlot *)D_00796E50)[index - 1].character, arg3, arg2);
+        index = tag >> 8;
+        if (length == 72)
+            memcpy(&((DatPartySlot *)D_00796E50)[index - 1].character, data, length);
         break;
     case 0x102:
     case 0x202:
@@ -2327,9 +2430,9 @@ void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3)
     case 0x802:
     case 0x902:
     case 0xa02:
-        index = arg1 >> 8;
-        if (arg2 == 6)
-            memcpy(((DatPartySlot *)D_00796E50)[index - 1].unknown4C, arg3, arg2);
+        index = tag >> 8;
+        if (length == 6)
+            memcpy(((DatPartySlot *)D_00796E50)[index - 1].unknown4C, data, length);
         break;
     case 0x105:
     case 0x205:
@@ -2341,15 +2444,16 @@ void datSaveRestoreSection(s32 arg0, u32 arg1, u32 arg2, u8* arg3)
     case 0x805:
     case 0x905:
     case 0xa05:
-        index = arg1 >> 8;
-        if (arg2 == 48)
-            memcpy(&((DatPartySlot *)D_00796E50)[index - 1].personaRecord, arg3, arg2);
+        index = tag >> 8;
+        if (length == 48)
+            memcpy(&((DatPartySlot *)D_00796E50)[index - 1].personaRecord, data, length);
         break;
     }
 }
 
 // FUN_0010F390
-void func_0010f390(void)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+void datClearCollectionBitmap(void)
 {
     u32 i = 0;
     u8* p = (u8*)DAT_007973a0;
@@ -2364,18 +2468,18 @@ void func_0010f390(void)
 /* Unsigned masks define bit 31 without changing either retail shift. */
 // Intent: sets bit (arg1 + arg0 * 8) in the bitmap D_0079BCD8. Pairs with datTestBitmapBit.
 // FUN_0010F3D0
-void datSetBitmapBit(u32 arg0, u32 arg1)
+void datSetBitmapBit(u32 entryIndex, u32 bitIndex)
 {
-    u32 bit = (arg1 & 0xffff) + (arg0 & 0xffff) * 8;
+    u32 bit = (bitIndex & 0xffff) + (entryIndex & 0xffff) * 8;
 
-    *(u32*)((u8*)D_0079BCD8 + (bit >> 5) * 4) |= 1U << (bit & 0x1f);
+    D_0079BCD8[bit >> 5] |= 1U << (bit & 0x1f);
 }
 
 // Intent: returns the state of bit (arg1 + arg0 * 8) in the bitmap D_0079BCD8. Reader for datSetBitmapBit.
 // FUN_0010F420
-u32 datTestBitmapBit(u32 arg0, u32 arg1)
+u32 datTestBitmapBit(u32 entryIndex, u32 bitIndex)
 {
-    u32 bit = (arg1 & 0xffff) + (arg0 & 0xffff) * 8;
+    u32 bit = (bitIndex & 0xffff) + (entryIndex & 0xffff) * 8;
     u32* p = &D_0079BCD8[bit >> 5];
 
     return *p & (1U << (bit & 0x1f));
@@ -2392,10 +2496,11 @@ static inline u32 bitAndFirst(u32 a, u32 b)
 #pragma opt_loop_invariants on
 
 // FUN_0010F460
-u32 func_0010f460(u16 arg0)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+u32 datGetCollectionEntryBits(u16 entryIndex)
 {
     u32 result = 0;
-    u32 j = (u32)arg0 * 8;
+    u32 j = (u32)entryIndex * 8;
     u32 i = 0;
     u8* base = DAT_007973a0;
 
@@ -2410,14 +2515,16 @@ u32 func_0010f460(u16 arg0)
 #pragma opt_loop_invariants off
 
 // FUN_0010F4C0
-void func_0010f4c0(void)
+/* Passes the saved battle-unit record table to its reset routine. */
+void datResetBattleUnitSaveTable(void)
 {
     btlUnitRecordResetSaveTable(D_0079BE2C);
 }
 
 // FUN_0010F4F0
-u8 *datPersonaGetRosterSlot(s32 arg0) {
-    s32 v = (s16)arg0;
+/* Return the per-unit 20-byte roster slot for a nonzero signed selector below eleven. */
+u8 *datPersonaGetRosterSlot(s32 unitId) {
+    s32 v = (s16)unitId;
 
     if ((v == 0) || (v >= 0xB)) {
         return NULL;
@@ -2426,167 +2533,176 @@ u8 *datPersonaGetRosterSlot(s32 arg0) {
 }
 
 // FUN_0010F540
-s32 func_0010f540(s32 arg0)
+/* Forwards the skill selector to datCalcIsSkillAvailable. */
+s32 datIsSkillAvailable(s32 skillId)
 {
-    return datCalcIsSkillAvailable(arg0);
+    return datCalcIsSkillAvailable(skillId);
 }
 
 // FUN_0010F560
-u16 datCalcThresholdKindById(s16 arg0, s32 arg1)
+/* Resolve the character by id and pass its record to the threshold-kind reader. */
+u16 datCalcThresholdKindById(s16 unitId, s32 skillId)
 {
     u8* p;
 
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         p = (u8 *)D_007973C4;
     }
     else
     {
-        K_ASSERT(arg0 < 0xB, 0x234);
-        p = (u8 *)&((DatPartySlot *)D_00796E50)[arg0 - 2].character;
+        K_ASSERT(unitId < 0xB, 0x234);
+        p = (u8 *)&((DatPartySlot *)D_00796E50)[unitId - 2].character;
     }
-    return datCalcThresholdKind(p, arg1);
+    return datCalcThresholdKind(p, skillId);
 }
 
 // FUN_0010F600
-u32 datCalcSkillCostById(s16 arg0, s32 arg1)
+/* Resolve the character by id and compute its cost for the requested skill. */
+u32 datCalcSkillCostById(s16 unitId, s32 skillId)
 {
     u8* p;
 
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         p = (u8 *)D_007973C4;
     }
     else
     {
-        K_ASSERT(arg0 < 0xB, 0x234);
-        p = (u8 *)&((DatPartySlot *)D_00796E50)[arg0 - 2].character;
+        K_ASSERT(unitId < 0xB, 0x234);
+        p = (u8 *)&((DatPartySlot *)D_00796E50)[unitId - 2].character;
     }
-    return datCalcSkillCost(p, arg1);
+    return datCalcSkillCost(p, skillId);
 }
 
 // FUN_0010F6A0
-s32 datCalcThresholdTriggerById(s16 arg0, u32 arg1)
+/* Resolve the character, validate its embedded id and evaluate the requested threshold trigger. */
+s32 datCalcThresholdTriggerById(s16 unitId, u32 skillId)
 {
     u8* ptr;
     u16 v;
 
-    if (arg0 == 1)
+    if (unitId == 1)
     {
         ptr = (u8 *)D_007973C4;
     }
     else
     {
-        K_ASSERT(arg0 < 0xB, 0x234);
-        ptr = (u8 *)&((DatPartySlot *)D_00796E50)[arg0 - 2].character;
+        K_ASSERT(unitId < 0xB, 0x234);
+        ptr = (u8 *)&((DatPartySlot *)D_00796E50)[unitId - 2].character;
     }
-    v = *(u16*)(ptr + 2);
+    v = ((DatUnit*)ptr)->id;
     K_ASSERT(v != 0 && v < 0xB, 0xE54);
-    return datCalcThresholdTrigger(ptr, arg1);
+    return datCalcThresholdTrigger(ptr, skillId);
 }
 
 // FUN_0010F770
-void datCalcApplySkillEffectById(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
+/* Resolve source and target character ids before applying the skill effect. */
+void datCalcApplySkillEffectById(s16 sourceId, s16 targetId, u32 skillId, u32 flags)
 {
-    u8* ptr1;
-    u8* ptr2;
+    u8* source;
+    u8* target;
 
-    K_ASSERT(arg1 != 0 && arg1 < 0xB, 0xE6A);
-    if (arg0 == 1)
+    K_ASSERT(targetId != 0 && targetId < 0xB, 0xE6A);
+    if (sourceId == 1)
     {
-        ptr1 = (u8 *)D_007973C4;
+        source = (u8 *)D_007973C4;
     }
     else
     {
-        K_ASSERT(arg0 < 0xB, 0x234);
-        ptr1 = (u8 *)&((DatPartySlot *)D_00796E50)[arg0 - 2].character;
+        K_ASSERT(sourceId < 0xB, 0x234);
+        source = (u8 *)&((DatPartySlot *)D_00796E50)[sourceId - 2].character;
     }
-    if (arg1 == 1)
+    if (targetId == 1)
     {
-        ptr2 = (u8 *)D_007973C4;
+        target = (u8 *)D_007973C4;
     }
     else
     {
-        K_ASSERT(arg1 < 0xB, 0x234);
-        ptr2 = (u8 *)&((DatPartySlot *)D_00796E50)[arg1 - 2].character;
+        K_ASSERT(targetId < 0xB, 0x234);
+        target = (u8 *)&((DatPartySlot *)D_00796E50)[targetId - 2].character;
     }
-    datCalcApplySkillEffect(arg2, ptr1, ptr2, arg3);
+    datCalcApplySkillEffect(skillId, source, target, flags);
 }
 
 // FUN_0010F8C0
-u16 func_0010f8c0(s32 arg0)
+/* Checks the skill id below 0x1B8 and returns byte eight of its 0x28-byte record. */
+u16 datGetSkillPropertyByte(s32 skillId)
 {
     u8* table;
     u16 id;
 
-    K_ASSERT((arg0 & 0xffff) < 0x1B8, 0xE87);
+    K_ASSERT((skillId & 0xffff) < 0x1B8, 0xE87);
     table = DAT_007644A8;
-    id = arg0;
+    id = skillId;
     return table[id * 0x28 + 8];
 }
 
 // FUN_0010F930
-s32 datCalcSkillEffectFlagsById(s16 arg0, s16 arg1, u32 arg2, u32 arg3)
+/* Resolve source and target character ids and return the skill-effect flags. */
+s32 datCalcSkillEffectFlagsById(s16 sourceId, s16 targetId, u32 skillId, u32 flags)
 {
-    u8* ptr1;
-    u8* ptr2;
+    u8* source;
+    u8* target;
 
-    K_ASSERT(arg1 != 0 && arg1 < 0xB, 0xEAC);
-    if (arg0 == 1)
+    K_ASSERT(targetId != 0 && targetId < 0xB, 0xEAC);
+    if (sourceId == 1)
     {
-        ptr1 = (u8 *)D_007973C4;
+        source = (u8 *)D_007973C4;
     }
     else
     {
-        K_ASSERT(arg0 < 0xB, 0x234);
-        ptr1 = (u8 *)&((DatPartySlot *)D_00796E50)[arg0 - 2].character;
+        K_ASSERT(sourceId < 0xB, 0x234);
+        source = (u8 *)&((DatPartySlot *)D_00796E50)[sourceId - 2].character;
     }
-    if (arg1 == 1)
+    if (targetId == 1)
     {
-        ptr2 = (u8 *)D_007973C4;
+        target = (u8 *)D_007973C4;
     }
     else
     {
-        K_ASSERT(arg1 < 0xB, 0x234);
-        ptr2 = (u8 *)&((DatPartySlot *)D_00796E50)[arg1 - 2].character;
+        K_ASSERT(targetId < 0xB, 0x234);
+        target = (u8 *)&((DatPartySlot *)D_00796E50)[targetId - 2].character;
     }
-    return datCalcSkillEffectFlags(arg2, ptr1, ptr2, arg3);
+    return datCalcSkillEffectFlags(skillId, source, target, flags);
 }
 
 // FUN_0010FA80
-void datCalcSkillOutcomeById(s16 arg0, s16 arg1, u32 arg2, u32 arg3, u32 arg4, u32 arg5, u32 arg6)
+/* Resolve source and target character ids and pass all three result addresses to the outcome calculator. */
+void datCalcSkillOutcomeById(s16 sourceId, s16 targetId, u32 skillId, u32 flags, u32 firstResult, u32 secondResult, u32 thirdResult)
 {
-    u8* ptr1;
-    u8* ptr2;
+    u8* source;
+    u8* target;
 
-    if (arg0 == 1)
+    if (sourceId == 1)
     {
-        ptr1 = (u8 *)D_007973C4;
+        source = (u8 *)D_007973C4;
     }
     else
     {
-        K_ASSERT(arg0 < 0xB, 0x234);
-        ptr1 = (u8 *)&((DatPartySlot *)D_00796E50)[arg0 - 2].character;
+        K_ASSERT(sourceId < 0xB, 0x234);
+        source = (u8 *)&((DatPartySlot *)D_00796E50)[sourceId - 2].character;
     }
-    if (arg1 == 1)
+    if (targetId == 1)
     {
-        ptr2 = (u8 *)D_007973C4;
+        target = (u8 *)D_007973C4;
     }
     else
     {
-        K_ASSERT(arg1 < 0xB, 0x234);
-        ptr2 = (u8 *)&((DatPartySlot *)D_00796E50)[arg1 - 2].character;
+        K_ASSERT(targetId < 0xB, 0x234);
+        target = (u8 *)&((DatPartySlot *)D_00796E50)[targetId - 2].character;
     }
-    datCalcSkillOutcome(arg2, ptr1, ptr2, arg3, (s32*)arg4, (s32*)arg5, (s32*)arg6);
+    datCalcSkillOutcome(skillId, source, target, flags, (s32*)firstResult, (s32*)secondResult, (s32*)thirdResult);
 }
 
 // FUN_0010FBD0
-u32 func_0010fbd0(u32 arg0)
+/* Returns the first set flag among bits 1, 2 and 3 of the persona flag table. */
+u32 datGetPersonaFlagClass(u32 personaId)
 {
     u16 f;
 
-    K_ASSERT(arg0 < 0x100, 0xF04);
-    f = *(u16*)((u8*)DAT_007644D0 + arg0 * 0x58);
+    K_ASSERT(personaId < 0x100, 0xF04);
+    f = ((DatPersonaFlags*)DAT_007644D0)[personaId].flags;
     if (f & 2)
     {
         return 2;
@@ -2603,26 +2719,29 @@ u32 func_0010fbd0(u32 arg0)
 }
 
 // FUN_0010FC80
-void func_0010fc80(void)
+/* Zeros the complete 0x3000-byte persona-record cache. */
+void datClearPersonaRecordCache(void)
 {
     FUN_0043f9c8(D_007981CC, 0, 0x3000);
 }
 
 // FUN_0010FCB0
-u8* datPersonaCachedRecord(s32 arg0)
+/* Return an active 0x30-byte cached persona record, or null when its active bit is clear. */
+u8* datPersonaCachedRecord(s32 personaId)
 {
     u16 v;
 
-    K_ASSERT(arg0 >= 0 && arg0 < 0x100, 0xF1D);
-    v = *(u16*)((u8*)D_007981CC + arg0 * 0x30);
+    K_ASSERT(personaId >= 0 && personaId < 0x100, 0xF1D);
+    v = ((DatPersonaRecord*)D_007981CC)[personaId].flags;
     if (v & 1)
     {
-        return (u8*)DAT_007973a0 + arg0 * 0x30 + 0xE2C;
+        return (u8*)DAT_007973a0 + personaId * 0x30 + 0xE2C;
     }
     return 0;
 }
 
 // FUN_0010FD40
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
 void datPersonaCacheRecord(u8* src)
 {
     s32 index;
@@ -2634,30 +2753,31 @@ void datPersonaCacheRecord(u8* src)
 }
 
 // FUN_0010FDE0
-u8* datPersonaResolveRecord(u8* arg0)
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
+u8* datPersonaResolveRecord(u8* record)
 {
     s32 v;
     u16 w;
     u8* q;
 
-    if (arg0 == NULL)
+    if (record == NULL)
     {
         FUN_0046d730(__FILE__, 0xF5D);
     }
-    v = *(u16*)(arg0 + 2);
+    v = *(u16*)(record + 2);
     if ((v < 0) || (v >= 0x100))
     {
         FUN_0046d730(__FILE__, 0xF5E);
     }
-    v = *(u16*)(arg0 + 2);
+    v = *(u16*)(record + 2);
     w = *(u16*)((u8*)iGpffffb3d4 + v * 14);
     if (w & 8)
     {
-        return arg0;
+        return record;
     }
     if (w & 0x20)
     {
-        return arg0;
+        return record;
     }
     if ((v < 0) || (v >= 0x100))
     {
@@ -2675,21 +2795,22 @@ u8* datPersonaResolveRecord(u8* arg0)
     {
         return q;
     }
-    if (arg0 == NULL)
+    if (record == NULL)
     {
         FUN_0046d730(__FILE__, 0xF27);
     }
-    v = *(u16*)(arg0 + 2);
+    v = *(u16*)(record + 2);
     if ((v < 0) || (v >= 0x100))
     {
         FUN_0046d730(__FILE__, 0xF28);
     }
-    v = *(u16*)(arg0 + 2);
-    memcpy((u8*)D_007973A0 + v * 0x30 + 0xE2C, arg0, 0x30);
+    v = *(u16*)(record + 2);
+    memcpy((u8*)D_007973A0 + v * 0x30 + 0xE2C, record, 0x30);
     return NULL;
 }
 
 // FUN_0010FFA0
+/* Raw accesses retain MATCH: the typed record rewrite changed code generation (measured in the whole owner). */
 void datPersonaInitAllRecords(void) {
     u8 buf[0x30];
     u8 *base;
@@ -2741,7 +2862,8 @@ void datPersonaInitAllRecords(void) {
 }
 
 // FUN_00110140
-s32 func_00110140(void)
+/* Divides the number of active cached persona records by the metadata-eligible count and scales by 100. */
+s32 datGetPersonaCacheCompletionPercent(void)
 {
     s32 count1 = 0;
     s32 i = 0;
@@ -2758,7 +2880,7 @@ s32 func_00110140(void)
             FUN_0046d730(__FILE__, 0xF1D);
         }
         p = (u8*)DAT_007973a0 + i * 0x30;
-        if (*(u16*)(p + 0xE2C) & 1)
+        if (((DatPersonaRecord*)(p + 0xE2C))->flags & 1)
         {
             q = p + 0xE2C;
         }
@@ -2777,7 +2899,7 @@ s32 func_00110140(void)
     p = (u8*)iGpffffb3d4;
     while (j < 0x100)
     {
-        v = *(u16*)(p + j * 0xE);
+        v = ((DatPersonaMetadata*)p)[j].flags;
         if (!(v & 8) && !(v & 0x20))
         {
             count2 = count2 + 1;
@@ -2788,16 +2910,16 @@ s32 func_00110140(void)
 }
 
 // FUN_00110270
-void datStageRecord(u8* src, u16 arg1)
+void datStageRecord(u8* src, u16 personaId)
 {
     memcpy(D_0079B6A8, src, 0x30);
-    D_0079B6A4[0] = arg1;
+    D_0079B6A4[0] = personaId;
 }
 
 // FUN_001102C0
-void datStageSetId(s16 arg0)
+void datStageSetId(s16 personaId)
 {
-    D_0079B6A4[0] = arg0;
+    D_0079B6A4[0] = personaId;
 }
 
 // FUN_001102D0
@@ -2813,28 +2935,29 @@ u8* datStagedRecord(void)
 }
 
 // FUN_001102F0
-u8* func_001102f0(u8* arg0, s32 arg1, s32 arg2, f32 fparg0)
+/* Builds and transforms a normalized camera-space ray and writes camera position plus scaled direction. */
+u8* datScreenPointToWorldPosition(u8* output, s32 screenX, s32 screenY, f32 distance)
 {
     f32 buf[3];
     u8* obj;
     u8* obj3;
 
-    if (arg0 == NULL)
+    if (output == NULL)
     {
         FUN_0046d730(__FILE__, 0xFB8);
     }
     obj = kwlnGetCamera();
-    buf[0] = -((f32)arg1 - 320.0f) * *(f32*)(obj + 0x68) / 320.0f;
-    buf[1] = -((f32)arg2 - 224.0f) * *(f32*)(obj + 0x6C) / 224.0f;
+    buf[0] = -((f32)screenX - 320.0f) * ((RwCamera*)obj)->viewWindow[0] / 320.0f;
+    buf[1] = -((f32)screenY - 224.0f) * ((RwCamera*)obj)->viewWindow[1] / 224.0f;
     buf[2] = 1.0f;
     RwV3dNormalize(buf, buf);
-    obj3 = func_003e9700(*(s32*)(kwlnGetCamera() + 4));
+    obj3 = func_003e9700((s32)((RwCamera*)kwlnGetCamera())->object.object.parent);
     func_003e4320(buf, buf, obj3);
-    buf[0] = buf[0] * fparg0;
-    buf[1] = buf[1] * fparg0;
-    buf[2] = buf[2] * fparg0;
-    *(f32*)(arg0 + 0) = *(f32*)(obj3 + 0x30) + buf[0];
-    *(f32*)(arg0 + 4) = *(f32*)(obj3 + 0x34) + buf[1];
-    *(f32*)(arg0 + 8) = *(f32*)(obj3 + 0x38) + buf[2];
-    return arg0;
+    buf[0] = buf[0] * distance;
+    buf[1] = buf[1] * distance;
+    buf[2] = buf[2] * distance;
+    ((f32*)output)[0] = ((RwMatrixTag*)obj3)->pos.x + buf[0];
+    ((f32*)output)[1] = ((RwMatrixTag*)obj3)->pos.y + buf[1];
+    ((f32*)output)[2] = ((RwMatrixTag*)obj3)->pos.z + buf[2];
+    return output;
 }

@@ -4,40 +4,43 @@
 #include "effect_instance_internal.h"
 #include "btl_cond_internal.h"
 #include "datCalc_unit_internal.h"
+#include "btl_formation_attach_internal.h"
+#include "btl_unit_internal.h"
+#include "btl_effect_internal.h"
 typedef struct BtlPacket BtlPacket;
 static inline s32 p4_001d7f10_add(s32 left, s32 right)
 {
     return left + right;
 }
 
-extern void btlTargetBlendVectors(void *out, void *first, void *second);
+extern void btlTargetBlendVectors(void *rotation, void *first, void *second);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb3b8;
 
-extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
+extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
 extern s32 mdlComputeIndexedAttachMatrix();
-extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
-extern void func_00485870(s32 arg0);
+extern void RtQuatTransformVectors(f32 *output, f32 *input, s32 count, u8 *rotation);
+extern void mdlEffectFlushTreeFrame(s32 effect);
 extern s32 TnGetTableBase(void);
-extern void TnSetTableBase(s32 arg0);
-extern void mdlEffectApplyPackedColor(u8 *arg0, s32 arg1);
-extern void func_00485630(u8 *arg0);
-extern void func_001d53e0(s32 arg0);
+extern void TnSetTableBase(s32 table);
+extern void mdlEffectApplyPackedColor(u8 *effect, s32 value);
+extern void mdlEffectCommitTreeFrame(u8 *effect);
+extern void btlFormationUpdateAttachments(s32 work);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(char *arg0, u8 *arg1);
+extern void PrimAppendNode(char *list, u8 *node);
 extern char D_005DC824[];
 extern char D_00794AE0[];
 extern char D_00794C00[];
 struct RwV3d;
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, struct RwV3d *outCenter,
                           f32 *outTop, f32 *outBottom, u32 options);
-extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
-extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
+extern f32 RwV3dNormalize(f32 *output, f32 *input);
+extern u8 *(*jtbl_008873E8[])(s32 size, s32 flags);
 extern u8 D_00609498[];
 extern f32 D_006094B0[];
 extern f32 D_006094D0[];
@@ -46,9 +49,9 @@ extern u8 D_0060A0F0[];
 
 
 extern u8 *kwlnGetCamera();
-extern void func_003e8110(u8 *arg0);
-extern void func_003e8120(u8 *arg0);
-extern void func_003e9cb0(s32 arg0, u8 *arg1, s32 arg2);
+extern void func_003e8110(u8 *camera);
+extern void func_003e8120(u8 *camera);
+extern void func_003e9cb0(s32 frame, u8 *transform, s32 combine);
 extern u8 D_008813B0[];
 extern u8 D_00607E50[];
 extern u8 D_00609558[];
@@ -67,22 +70,6 @@ typedef int (*code)();
 
 
 
-typedef struct RwV3d RwV3d;
-struct RwV3d
-{
-    f32 x;
-    f32 y;
-    f32 z;
-};
-
-typedef struct RtQuat RtQuat;
-struct RtQuat
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-};
 
 extern f32 D_0060A100[];
 extern f32 fGpffff8030;
@@ -92,59 +79,13 @@ extern f32 fGpffff8110;
 /* Source unit: src/promoted/code1_001d.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d4eb0-001d5b20 */
 
-extern s32 btlCameraFindFormationForCounts(u8 *arg0);
+extern s32 btlCameraFindFormationForCounts(u8 *counts);
 typedef void BtlAttachPositionCallback(u8 *work, u8 *unit, u8 *entry, f32 *position);
-typedef struct BtlAttachV3
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} BtlAttachV3;
-typedef struct BtlAttachV4
-{
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-} BtlAttachV4;
-typedef struct BtlAttachEntry
-{
-    u8 state;      // 0x00
-    u8 pad01[3];
-    u8 *resource;  // 0x04: template to clone, or an existing effect instance
-    u8 type;       // 0x08
-    u8 pad09[5];
-    u16 kind;      // 0x0E
-    u32 start;     // 0x10
-    u8 pad14[4];
-} BtlAttachEntry; // 0x18
-
-typedef struct BtlAttachWork
-{
-    u8 *owner;            // 0x00
-    u8 *table;            // 0x04
-    u32 flags;            // 0x08
-    u32 frame;            // 0x0C
-    u32 color;            // 0x10
-    u8 level;             // 0x14
-    u8 pad15[3];
-    u8 *unit;             // 0x18
-    u8 *target;           // 0x1C
-    BtlAttachV3 scale;    // 0x20
-    f32 radius;           // 0x2C
-    f32 height;           // 0x30
-    BtlAttachV3 pos;      // 0x34
-    BtlAttachV4 center;   // 0x40
-    f32 size;             // 0x50
-    u16 count;            // 0x54
-    u8 pad56[2];
-    u8 **handles;         // 0x58
-} BtlAttachWork;
 static inline f32 btlAttachEffectScale(u8 *unit)
 {
     f32 s;
 
-    s = 0.0125f * (0.5f * (*(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C) + 0.5f * (*(f32 *)(unit + 0x8C) * *(f32 *)(unit + 0x2C))));
+    s = 0.0125f * (0.5f * (((BtlUnit *)unit)->sphereRadius * ((BtlUnit *)unit)->scale + 0.5f * (((BtlUnit *)unit)->unk_8c * ((BtlUnit *)unit)->scale)));
     if (!(s <= 2.5f)) {
         s = 2.5f;
     } else if (s < 0.8f) {
@@ -156,10 +97,10 @@ static inline f32 btlAttachFieldScale(u8 *unit)
 {
     f32 s;
 
-    if (*(s32 *)(iGpffffb3ac + 0x314) == 0) {
+    if (((BtlBattleState *)iGpffffb3ac)->phase.singleUnit == 0) {
         return 4.25f;
     }
-    s = 2.0f * (*(f32 *)(unit + 0x90) * *(f32 *)(unit + 0x2C)) / 100.0f;
+    s = 2.0f * (((BtlUnit *)unit)->sphereRadius * ((BtlUnit *)unit)->scale) / 100.0f;
     if (!(s <= 5.0f)) {
         s = 5.0f;
     } else if (s < 2.0f) {
@@ -172,7 +113,9 @@ static inline f32 btlAttachFieldScale(u8 *unit)
 #pragma push
 #pragma pop
 // FUN_001D4EB0
-void btlFormationAttachPosition(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3)
+/* Resolve an attachment point from its indexed model matrix, with a cached-position mode and camera-
+ * distance adjustment. Raw camera/frame handles retain the SDK boundary layout. */
+void btlFormationAttachPosition(u8 *work, u8 *unit, u8 *attachment, f32 *output)
 {
     struct Frame {
         f32 value60;
@@ -192,68 +135,70 @@ void btlFormationAttachPosition(u8 *arg0, u8 *arg1, u8 *arg2, f32 *arg3)
         f32 value98;
         f32 pad9c;
     } frame;
-    u8 *temp_16;
-    u8 *temp_2;
-    u32 temp_4;
-    f32 temp_f20;
+    u8 *attachmentMode;
+    u8 *cameraFrame;
+    u32 cameraDistance;
+    f32 distanceFloat;
 
-    temp_16 = arg2 + 8;
-    if ((*(u8 *)(arg2 + 0xA) == 1) &&
-        (*(s32 *)(arg2 + 0x10) + 2 != *(s32 *)(arg0 + 0xC))) {
-        arg3[0] = *(f32 *)(arg0 + 0x5C);
-        arg3[1] = *(f32 *)(arg0 + 0x60);
-        arg3[2] = *(f32 *)(arg0 + 0x64);
+    attachmentMode = attachment + 8;
+    if ((((BtlAttachEntry *)attachment)->mode.positionMode == 1) &&
+        (*(s32 *)&((BtlAttachEntry *)attachment)->start + 2 != ((BtlAttachWork *)work)->frame)) {
+        output[0] = ((BtlAttachWork *)work)->cachedPosition.x;
+        output[1] = ((BtlAttachWork *)work)->cachedPosition.y;
+        output[2] = ((BtlAttachWork *)work)->cachedPosition.z;
         goto end;
     }
 
-    if ((*(s32 *)(arg1 + 0x98) & 2) == 0) {
-        btlUnitGetSphereWorldCenter(arg1, &frame.value90);
-    } else if (mdlComputeIndexedAttachMatrix(*(u8 **)(arg1 + 0xA00),
-                             *(u16 *)(temp_16 + 4),
+    if ((((BtlUnit *)unit)->flags2 & 2) == 0) {
+        btlUnitGetSphereWorldCenter(unit, &frame.value90);
+    } else if (mdlComputeIndexedAttachMatrix(((BtlUnit *)unit)->layerHandle,
+                             ((BtlAttachMode *)attachmentMode)->matrixIndex,
                              &frame.value90) == 0) {
-        frame.value70 = *(f32 *)(arg0 + 0x20) * *(f32 *)(arg0 + 0x50);
-        frame.value74 = *(f32 *)(arg0 + 0x24) * *(f32 *)(arg0 + 0x50);
-        frame.value78 = *(f32 *)(arg0 + 0x28) * *(f32 *)(arg0 + 0x50);
-        RtQuatTransformVectors(&frame.value60, &frame.value70, 1, arg0 + 0x40);
-        frame.value90 = frame.value60 + *(f32 *)(arg0 + 0x34);
-        frame.value94 = frame.value64 + *(f32 *)(arg0 + 0x38);
-        frame.value98 = frame.value68 + *(f32 *)(arg0 + 0x3C);
+        frame.value70 = ((BtlAttachWork *)work)->scale.x * ((BtlAttachWork *)work)->size;
+        frame.value74 = ((BtlAttachWork *)work)->scale.y * ((BtlAttachWork *)work)->size;
+        frame.value78 = ((BtlAttachWork *)work)->scale.z * ((BtlAttachWork *)work)->size;
+        RtQuatTransformVectors(&frame.value60, &frame.value70, 1, work + 0x40);
+        frame.value90 = frame.value60 + ((BtlAttachWork *)work)->pos.x;
+        frame.value94 = frame.value64 + ((BtlAttachWork *)work)->pos.y;
+        frame.value98 = frame.value68 + ((BtlAttachWork *)work)->pos.z;
     }
 
-    arg3[0] = frame.value90;
-    arg3[1] = frame.value94;
-    arg3[2] = frame.value98;
-    temp_4 = *(u16 *)(temp_16 + 6);
-    if (temp_4 != 0) {
-        if (temp_4 >= 0) {
-            temp_f20 = (f32)temp_4;
+    output[0] = frame.value90;
+    output[1] = frame.value94;
+    output[2] = frame.value98;
+    cameraDistance = ((BtlAttachMode *)attachmentMode)->kind;
+    if (cameraDistance != 0) {
+        if (cameraDistance >= 0) {
+            distanceFloat = (f32)cameraDistance;
         } else {
-            temp_4 = (temp_4 >> 1) | (temp_4 & 1);
-            temp_f20 = (f32)temp_4;
-            temp_f20 = temp_f20 + temp_f20;
+            cameraDistance = (cameraDistance >> 1) | (cameraDistance & 1);
+            distanceFloat = (f32)cameraDistance;
+            distanceFloat = distanceFloat + distanceFloat;
         }
-        temp_2 = *(u8 **)(kwlnGetCamera() + 4);
-        frame.value80 = *(f32 *)(temp_2 + 0x40) - frame.value90;
-        frame.value84 = *(f32 *)(temp_2 + 0x44) - frame.value94;
-        frame.value88 = *(f32 *)(temp_2 + 0x48) - frame.value98;
+        cameraFrame = *(u8 **)(kwlnGetCamera() + 4);
+        frame.value80 = *(f32 *)(cameraFrame + 0x40) - frame.value90;
+        frame.value84 = *(f32 *)(cameraFrame + 0x44) - frame.value94;
+        frame.value88 = *(f32 *)(cameraFrame + 0x48) - frame.value98;
         RwV3dNormalize(&frame.value80, &frame.value80);
-        arg3[0] = arg3[0] - frame.value80 * temp_f20;
-        arg3[1] = arg3[1] - frame.value84 * temp_f20;
-        arg3[2] = arg3[2] - frame.value88 * temp_f20;
+        output[0] = output[0] - frame.value80 * distanceFloat;
+        output[1] = output[1] - frame.value84 * distanceFloat;
+        output[2] = output[2] - frame.value88 * distanceFloat;
     }
 
-    if ((*(u8 *)(temp_16 + 2) == 1) &&
-        (*(s32 *)(arg2 + 0x10) + 2 == *(s32 *)(arg0 + 0xC))) {
-        *(f32 *)(arg0 + 0x5C) = arg3[0];
-        *(f32 *)(arg0 + 0x60) = arg3[1];
-        *(f32 *)(arg0 + 0x64) = arg3[2];
+    if ((((BtlAttachMode *)attachmentMode)->positionMode == 1) &&
+        (*(s32 *)&((BtlAttachEntry *)attachment)->start + 2 == ((BtlAttachWork *)work)->frame)) {
+        ((BtlAttachWork *)work)->cachedPosition.x = output[0];
+        ((BtlAttachWork *)work)->cachedPosition.y = output[1];
+        ((BtlAttachWork *)work)->cachedPosition.z = output[2];
     }
 end:
     ;
 }
 
 // FUN_001D5130
-void btlFormationAttachRotation(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
+/* Choose the attachment quaternion from the work orientation or an indexed parent/child model matrix.
+ * Raw child-model slots retain the opaque model-handle layout. */
+void btlFormationAttachRotation(u8 *work, u8 *unit, u8 *attachment, u8 *output)
 {
     struct Frame {
         f32 input[16];
@@ -264,20 +209,20 @@ void btlFormationAttachRotation(u8 *arg0, u8 *arg1, u8 *arg2, u8 *arg3)
     u8 *entry;
     s32 flags;
     s32 lookup;
-    s32 lookup_offset;
-    u8 *lookup_base;
+    s32 lookupOffset;
+    u8 *lookupBase;
 
-    extern void RtQuatTransformVectors(f32 *arg0, f32 *arg1, s32 arg2, u8 *arg3);
-    extern f32 func_0044b950(f32 arg0, f32 arg1);
-    extern s32 mdlCopyIndexedMatrix(u8 *arg0, s32 arg1, f32 *arg2);
-    extern void effMiscMatrixToQuatVU(f32 *arg0);
-    extern void effMiscEulerToQuatVU(f32 arg0, f32 arg1, f32 arg2);
+    extern void RtQuatTransformVectors(f32 *work, f32 *unit, s32 attachment, u8 *output);
+    extern f32 func_0044b950(f32 left, f32 right);
+    extern s32 mdlCopyIndexedMatrix(u8 *model, s32 index, f32 *destination);
+    extern void effMiscMatrixToQuatVU(f32 *matrix);
+    extern void effMiscEulerToQuatVU(f32 angleX, f32 angleY, f32 angleZ);
 
-    entry = arg2 + 8;
-    type = *(u8 *)(arg2 + 8);
+    entry = attachment + 8;
+    type = *(u8 *)(attachment + 8);
     switch (type) {
     case 0:
-        RtQuatTransformVectors(frame.vector, (f32 *)D_0060A0F0, 1, arg0 + 0x40);
+        RtQuatTransformVectors(frame.vector, (f32 *)D_0060A0F0, 1, work + 0x40);
         if (frame.vector[0] != 0.0f)
             goto case0_nonzero;
         if (frame.vector[2] == 0.0f)
@@ -286,25 +231,25 @@ case0_nonzero:
         effMiscEulerToQuatVU(0.0f,
                       func_0044b950(frame.vector[0], frame.vector[2]),
                       0.0f);
-        __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(arg3) : "memory");
+        __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(output) : "memory");
         goto case0_done;
 case0_zero:
-        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg3) : "memory");
+        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(output) : "memory");
 case0_done:
         break;
     case 2:
     case 3:
     case 4:
     case 0xC:
-        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg3) : "memory");
+        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(output) : "memory");
         break;
     case 1:
     case 0xD:
-        flags = *(s32 *)(arg1 + 0x98);
+        flags = ((BtlUnit *)unit)->flags2;
         if ((flags & 2) == 0)
             goto case1_no_flags;
-        if (mdlCopyIndexedMatrix(*(u8 **)(arg1 + 0xA00),
-                          *(u16 *)(entry + 4), frame.input) == 0)
+        if (mdlCopyIndexedMatrix(((BtlUnit *)unit)->layerHandle,
+                          ((BtlAttachMode *)entry)->matrixIndex, frame.input) == 0)
             goto case1_failure;
             frame.output[0] = frame.input[0];
             frame.output[1] = frame.input[1];
@@ -323,26 +268,26 @@ case0_done:
             frame.output[14] = frame.input[14];
             frame.output[15] = 0.0f;
             effMiscMatrixToQuatVU(frame.output);
-            __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(arg3) : "memory");
+            __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(output) : "memory");
         break;
 case1_failure:
-        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg3) : "memory");
+        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(output) : "memory");
         break;
 case1_no_flags:
-        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg3) : "memory");
+        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(output) : "memory");
         break;
     case 8:
     case 9:
-        flags = *(s32 *)(arg1 + 0x98);
+        flags = ((BtlUnit *)unit)->flags2;
         if ((flags & 2) != 0) {
-            lookup_offset = 12 * (type == 8);
-            lookup_base = *(u8 **)(arg1 + 0xA00);
-            lookup_base += 0x290;
-            lookup = *(s32 *)(lookup_base + lookup_offset);
+            lookupOffset = 12 * (type == 8);
+            lookupBase = ((BtlUnit *)unit)->layerHandle;
+            lookupBase += 0x290;
+            lookup = *(s32 *)(lookupBase + lookupOffset);
             if (lookup == 0)
                 break;
             if (mdlCopyIndexedMatrix((u8 *)lookup,
-                              *(u16 *)(entry + 4), frame.input) == 0)
+                              ((BtlAttachMode *)entry)->matrixIndex, frame.input) == 0)
                 goto case8_failure;
             frame.output[0] = frame.input[0];
             frame.output[1] = frame.input[1];
@@ -361,18 +306,18 @@ case1_no_flags:
             frame.output[14] = frame.input[14];
             frame.output[15] = 0.0f;
             effMiscMatrixToQuatVU(frame.output);
-            __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(arg3) : "memory");
+            __asm__ volatile("sqc2 vf10, 0(%0)" : : "r"(output) : "memory");
             break;
 case8_failure:
-            __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg3) : "memory");
+            __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(output) : "memory");
         } else {
-            __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg3) : "memory");
+            __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(output) : "memory");
         }
         break;
     case 7:
     case 0xA:
     case 0xB:
-        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(arg3) : "memory");
+        __asm__ volatile("sqc2 vf0, 0(%0)" : : "r"(output) : "memory");
         break;
     case 5:
     case 6:
@@ -383,12 +328,14 @@ case8_failure:
 }
 
 // FUN_001D53E0
-void func_001d53e0(s32 arg0)
+/* Advance active attachment entries, create effect instances, and publish position, rotation, scale
+ * and color. Raw unit vector copies retain the existing aggregate types at this API boundary. */
+void btlFormationUpdateAttachments(s32 work)
 {
-    extern void func_001fc2c0(u32 a0, u32 a1);
-    extern void mdlEffectSetChildPositions(u8 *a0, f32 *a1);
-    extern void mdlEffectSetChildRotations(u8 *a0, u8 *a1);
-    extern void mdlEffectSetChildScales(u8 *a0, f32 a1);
+    extern void mdlSetFileStatePair(u32 first, u32 second);
+    extern void mdlEffectSetChildPositions(u8 *effect, f32 *value);
+    extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
+    extern void mdlEffectSetChildScales(u8 *effect, f32 value);
     extern BtlAttachPositionCallback *D_00609500[];
     s32 count;
     BtlAttachWork *w;
@@ -405,7 +352,7 @@ void func_001d53e0(s32 arg0)
     f32 trans[4];
     f32 rot[4];
 
-    w = (BtlAttachWork *)arg0;
+    w = (BtlAttachWork *)work;
     unit = w->unit;
     color = w->color;
     if (w->flags & 0x800) {
@@ -415,12 +362,12 @@ void func_001d53e0(s32 arg0)
         return;
     }
     frame = w->frame;
-    if (frame == 0 || ((w->flags & 0x1000) && frame == *(u32 *)(w->owner + 0x320)) || (w->flags & 0x100)) {
+    if (frame == 0 || ((w->flags & 0x1000) && frame == ((BtlFormationData *)w->owner)->tables[1].unk04) || (w->flags & 0x100)) {
         w->scale = *(BtlAttachV3 *)(unit + 0x80);
-        w->radius = *(f32 *)(unit + 0x8C);
-        w->height = *(f32 *)(unit + 0x90);
+        w->radius = ((BtlUnit *)unit)->unk_8c;
+        w->height = ((BtlUnit *)unit)->sphereRadius;
         w->pos = *(BtlAttachV3 *)(unit + 4);
-        if (unit == w->target || (*(u32 *)(unit + 0x9C) & 0x2000)) {
+        if (unit == w->target || (((BtlUnit *)unit)->flags3 & 0x2000)) {
             w->center = *(BtlAttachV4 *)(unit + 0x1C);
         } else if (unit[0xA2] == w->target[0xA2] && unit[0xA2] == 1) {
             w->center = *(BtlAttachV4 *)(unit + 0x1C);
@@ -429,9 +376,9 @@ void func_001d53e0(s32 arg0)
             btlUnitGetSphereWorldCenter(w->target, targetCenter);
             btlTargetBlendVectors(&w->center, unitCenter, targetCenter);
         }
-        w->size = *(f32 *)(unit + 0x2C);
+        w->size = ((BtlUnit *)unit)->scale;
     }
-    func_001fc2c0((u32)w->unit, (u32)w->target);
+    mdlSetFileStatePair((u32)w->unit, (u32)w->target);
     now = (u32)frame;
     handles = w->handles;
     count = w->count;
@@ -446,7 +393,7 @@ void func_001d53e0(s32 arg0)
         if (*handles == 0) {
             u8 mode;
 
-            if ((*(u16 *)(w->owner + 0x630) & 4) && entry->state != 0xFD) {
+            if ((((BtlFormationData *)w->owner)->flags & 4) && entry->state != 0xFD) {
                 *handles = entry->resource;
                 created = 0;
                 entry->state = 0xFD;
@@ -454,11 +401,11 @@ void func_001d53e0(s32 arg0)
                 *handles = mdlEffectCloneWithNodes(entry->resource);
                 created = 1;
             }
-            mode = w->table[0x10];
+            mode = ((BtlAttachTable *)w->table)->scaleMode;
             if (mode != 0 && unit != NULL) {
                 f32 s;
 
-                switch (entry->type) {
+                switch (entry->mode.type) {
                 case 0:
                 case 1:
                 case 0xD:
@@ -484,7 +431,7 @@ void func_001d53e0(s32 arg0)
                 continue;
             }
         }
-        if (entry->kind == 1) {
+        if (entry->mode.kind == 1) {
             if (w->flags & 0x1E) {
                 continue;
             }
@@ -493,12 +440,12 @@ void func_001d53e0(s32 arg0)
             }
         }
         if (!(w->flags & 0x20000)) {
-            D_00609500[entry->type]((u8 *)w, unit, (u8 *)entry, trans);
+            D_00609500[entry->mode.type]((u8 *)w, unit, (u8 *)entry, trans);
         } else {
-            if (*(s32 *)(iGpffffb3ac + 0x314) != 0) {
-                trans[0] = *(f32 *)(unit + 4);
-                trans[1] = *(f32 *)(unit + 8);
-                trans[2] = *(f32 *)(unit + 0xC);
+            if (((BtlBattleState *)iGpffffb3ac)->phase.singleUnit != 0) {
+                trans[0] = ((BtlUnit *)unit)->pos.x;
+                trans[1] = ((BtlUnit *)unit)->pos.y;
+                trans[2] = ((BtlUnit *)unit)->pos.z;
             } else {
                 trans[0] = 0.0f;
                 trans[1] = 0.0f;
@@ -510,7 +457,7 @@ void func_001d53e0(s32 arg0)
         btlFormationAttachRotation((u8 *)w, unit, (u8 *)entry, (u8 *)rot);
         mdlEffectSetChildRotations(*handles, (u8 *)rot);
         mdlEffectApplyPackedColor(*handles, (s32)color);
-        func_00485630(*handles);
+        mdlEffectCommitTreeFrame(*handles);
     }
     w->frame++;
 }
@@ -519,28 +466,30 @@ void func_001d53e0(s32 arg0)
 /* measured: func_001d5990 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 1
 // FUN_001D5990
+/* Save the current camera matrix and install the formation camera basis and position. Raw SDK frame
+ * handles and paired word copies preserve the original transfer order. */
 void btlFormationCameraFrame(void)
 {
     struct Frame {
-        f32 sp10;
-        f32 sp14;
-        f32 sp18;
-        s32 sp1C;
-        f32 sp20;
-        f32 sp24;
-        f32 sp28;
+        f32 rightX;
+        f32 rightY;
+        f32 rightZ;
+        s32 matrixFlags;
+        f32 upX;
+        f32 upY;
+        f32 upZ;
         f32 pad2C;
-        f32 sp30;
-        f32 sp34;
-        f32 sp38;
+        f32 atX;
+        f32 atY;
+        f32 atZ;
         f32 pad3C;
-        f32 sp40;
-        f32 sp44;
-        f32 sp48;
+        f32 positionX;
+        f32 positionY;
+        f32 positionZ;
         f32 pad4C;
-        f32 sp50;
-        f32 sp54;
-        f32 sp58;
+        f32 sourceX;
+        f32 sourceY;
+        f32 sourceZ;
     } frame;
     u32 *source;
     u32 *destination;
@@ -579,29 +528,29 @@ void btlFormationCameraFrame(void)
         destination[1] = second;
         destination += 2;
     } while (count > 0);
-    frame.sp10 = fGpffff8444;
-    frame.sp14 = fGpffff8448;
-    frame.sp18 = fGpffff844c;
-    frame.sp20 = fGpffff8450;
-    frame.sp24 = fGpffff8454;
-    frame.sp28 = fGpffff8458;
-    frame.sp30 = fGpffff845c;
-    frame.sp34 = fGpffff8460;
-    frame.sp38 = fGpffff8464;
-    frame.sp40 = 0;
-    frame.sp44 = 0;
-    frame.sp48 = 0;
-    frame.sp1C = 3;
-    frame.sp50 = fGpffff8468;
-    frame.sp54 = fGpffff846c;
-    frame.sp58 = fGpffff8470;
-    temp1 = frame.sp50;
-    temp2 = frame.sp54;
-    temp3 = frame.sp58;
-    frame.sp40 = temp1;
-    frame.sp44 = temp2;
-    frame.sp48 = temp3;
-    func_003e9cb0(*(s32 *)(kwlnGetCamera() + 4), (u8 *)&frame.sp10, 0);
+    frame.rightX = fGpffff8444;
+    frame.rightY = fGpffff8448;
+    frame.rightZ = fGpffff844c;
+    frame.upX = fGpffff8450;
+    frame.upY = fGpffff8454;
+    frame.upZ = fGpffff8458;
+    frame.atX = fGpffff845c;
+    frame.atY = fGpffff8460;
+    frame.atZ = fGpffff8464;
+    frame.positionX = 0;
+    frame.positionY = 0;
+    frame.positionZ = 0;
+    frame.matrixFlags = 3;
+    frame.sourceX = fGpffff8468;
+    frame.sourceY = fGpffff846c;
+    frame.sourceZ = fGpffff8470;
+    temp1 = frame.sourceX;
+    temp2 = frame.sourceY;
+    temp3 = frame.sourceZ;
+    frame.positionX = temp1;
+    frame.positionY = temp2;
+    frame.positionZ = temp3;
+    func_003e9cb0(*(s32 *)(kwlnGetCamera() + 4), (u8 *)&frame.rightX, 0);
     func_003e8120(kwlnGetCamera());
 }
 
@@ -609,6 +558,8 @@ void btlFormationCameraFrame(void)
 /* measured: func_001d5b20 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 2
 // FUN_001D5AC0
+/* Restore the camera matrix saved before formation rendering; the raw frame pointer is the SDK camera
+ * attachment. */
 void btlFormationCameraUpdate(void) {
     func_003e8110(kwlnGetCamera());
     func_003e9cb0(*(s32 *)(kwlnGetCamera() + 4), D_008813B0, 0);
@@ -616,32 +567,34 @@ void btlFormationCameraUpdate(void) {
 }
 
 // FUN_001D5B20
-void btlFormationCameraTaskStart(u8 *arg0)
+/* Queue formation camera setup/restore nodes around effect rendering, or draw the instances directly.
+ * Raw primitive-node header words are opaque queue bookkeeping. */
+void btlFormationCameraTaskStart(u8 *work)
 {
-    s32 old_state;
+    s32 oldState;
     u8 **entries;
     s32 count;
     s32 index;
     u8 *task;
 
-    if ((*(s32 *)(arg0 + 8) & 0x400) != 0) {
+    if ((((BtlAttachWork *)work)->flags & 0x400) != 0) {
         return;
     }
-    entries = *(u8 ***)(arg0 + 0x58);
-    count = (u16)(*(u16 *)(arg0 + 0x54) & 0xFFFF);
-    if ((*(s32 *)(arg0 + 8) & 0x8000) == 0) {
+    entries = ((BtlAttachWork *)work)->handles;
+    count = (u16)(((BtlAttachWork *)work)->count & 0xFFFF);
+    if ((((BtlAttachWork *)work)->flags & 0x8000) == 0) {
         index = 0;
         count = (u16)(count & 0xFFFF);
         while ((u16)index < count) {
             if (*entries != NULL) {
-                func_00485870((s32)*entries);
+                mdlEffectFlushTreeFrame((s32)*entries);
             }
             index = (index + 1) & 0xFFFF;
             entries++;
         }
         return;
     }
-    old_state = TnGetTableBase();
+    oldState = TnGetTableBase();
     TnSetTableBase((s32)D_005DC824);
     task = PrimAllocQueueNode();
     *(s32 *)(task + 0) = 0;
@@ -653,12 +606,12 @@ void btlFormationCameraTaskStart(u8 *arg0)
     count = (u16)(count & 0xFFFF);
     while ((u16)index < count) {
         if (*entries != NULL) {
-            func_00485870((s32)*entries);
+            mdlEffectFlushTreeFrame((s32)*entries);
         }
         index = (index + 1) & 0xFFFF;
         entries++;
     }
-    TnSetTableBase(old_state);
+    TnSetTableBase(oldState);
     task = PrimAllocQueueNode();
     *(s32 *)(task + 0) = 0;
     *(s32 *)(task + 4) = 0;

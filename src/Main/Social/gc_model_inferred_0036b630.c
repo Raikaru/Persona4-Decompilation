@@ -5,6 +5,7 @@
 #include "fr_font_internal.h"
 struct RwMatrixTag;
 #include "rw_types_internal.h"
+#include "psc_model_internal.h"
 typedef struct {
     s32 lo;
     s32 hi;
@@ -25,9 +26,9 @@ typedef struct PersonaWork PersonaWork;
 
 
 extern f32 iGpffff84a4;
-extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
-                          u8 arg2, u8 arg3, u8 arg4, u8 arg5,
-                          f32 z, s32 arg6);
+extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
+                          u8 alphaSubtract, u8 red, u8 green, u8 blue,
+                          f32 z, s32 setStates);
 extern char D_005E5810[];
 extern char D_005E57F0[];
 extern char D_005E5850[];
@@ -95,8 +96,8 @@ extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 #pragma pop
 // Intent: Copies a 3-vector into the panel's stored vector, which the tile builder reads [inferred]
 // FUN_0036B630
-void pscModelCopyVector(u8 *arg0, RwV3d *arg1)
+void pscModelCopyVector(u8 *mesh, RwV3d *lightPosition)
 {
-    *(RwV3d *)(arg0 + 0x994) = *arg1;
+    *(RwV3d *)&((PscTileMesh *)mesh)->lightPosition = *lightPosition;
 }
 

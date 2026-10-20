@@ -2,31 +2,33 @@
 #include "sdk_task_registration.h"
 #include "include_asm.h"
 #include "sdk_snd_internal.h"
+#include "sdktask.h"
 
 /* ------------------------------------------------------------------ */
-/* sdkSnd: Sony SDK PS2 sound library (shared blob with P3 FES).      */
+/* sdkSnd: Atlus sound wrapper over the PS2/CRI sound interfaces.     */
 /* Channel table: 6 entries of 0x28 bytes (HsndSlotWork).             */
 /* Voice slots: 16 entries of 0x134 bytes (SndCh).                    */
 /* ------------------------------------------------------------------ */
 
 typedef struct SndCh
 {
-    s32 f00;         /* 0x000 */
-    s32 f04;         /* 0x004 */
-    s16 f08;         /* 0x008 */
-    s16 f0A;         /* 0x00A */
-    s16 f0C;         /* 0x00C */
-    s16 f0E;         /* 0x00E */
-    s32 f10;         /* 0x010 */
-    s16 f14;         /* 0x014 */
-    s16 f16;         /* 0x016 */
-    s16 f18;         /* 0x018 */
-    s16 f1A;         /* 0x01A */
-    s32 f1C;         /* 0x01C */
-    u8 pad20[0x110]; /* 0x020 */
-    s16 f130;        /* 0x130 */
-    s16 f132;        /* 0x132 */
-} SndCh;             /* size 0x134 */
+    s32 active;       /* 0x000 */
+    s32 fading;       /* 0x004 */
+    s16 cueId;        /* 0x008 */
+    s16 unkA;
+    s16 state;        /* 0x00C */
+    s16 unkE;
+    s32 handle;       /* 0x010 */
+    s16 requestMode;  /* 0x014 */
+    s16 previousMode; /* 0x016 */
+    char path[0x100]; /* 0x018 */
+    s32 source;       /* 0x118 */
+    s32 sourceAux;    /* 0x11C */
+    s32 sourceSize;   /* 0x120 */
+    u8 pad124[0xC];
+    s16 previousCue;  /* 0x130 */
+    s16 fadeFrames;   /* 0x132 */
+} SndCh;              /* size 0x134 */
 
 typedef struct HsndSlotWork
 {
@@ -44,6 +46,17 @@ typedef struct HsndSlotWork
     u32 data4;        /* 0x20 */
     u32 data5;        /* 0x24 */
 } HsndSlotWork;       /* size 0x28 */
+
+/* The task constructor allocates 0x118 bytes and stores the path inline. */
+typedef struct SdkSndStreamWork {
+    s32 state;
+    s32 stream;
+    s32 unk8;
+    s32 frame;
+    u8 path[0x100];
+    s32 callbackAddress;
+    s32 requestAddress;
+} SdkSndStreamWork;
 
 #define SND_IDX(i) ((i) * 0x134)
 #define SLOT_IDX(i) ((i) * 0x28)
@@ -173,8 +186,8 @@ extern void chkmemAllocSiteTag(char *file, s32 line);
 extern void func_00440b68(s32 fmt, ...);
 extern s32 sprintf(void *buf, void *fmt, ...);
 extern void strcpy();
-extern void H_Cdvd_Destroy(void *handle);
-extern void kwlnTaskDestroyWithHierarchy(s32 handle);
+extern void H_Cdvd_Destroy(void *cdvd);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern void kwlnTaskAddChild(void *parent, void *child);
 extern void H_Cdvd_StreamOpenHandle(void*, const char*);
 extern void H_Cdvd_StartStreamLoad();
@@ -214,8 +227,8 @@ extern void mwPlyInitSfdFx(void *);
 extern u32 hsndSlotIsStarting();
 extern void hsndSlotUpdate(HsndSlotWork *slot);
 
-s32 sdkSndStopChannelSlot(s32 arg0);
-s32 sdkSndStartRequest(s32 arg0);
+s32 sdkSndStopChannelSlot(s32 channelIndex);
+s32 sdkSndStartRequest(s32 channelIndex);
 extern s32 sdkSndStreamTaskUpdate(u8 *task);
 extern void sdkSndStreamTaskDestroy(u8 *task);
 
@@ -318,12 +331,12 @@ void sdkSndInit(void)
     }
     for (j = 0; j < 0x10; j++)
     {
-        D_008D2B90[j].f00 = 0;
-        D_008D2B90[j].f0A = 0;
-        D_008D2B90[j].f0C = 0;
-        D_008D2B90[j].f130 = -1;
-        D_008D2B90[j].f14 = -1;
-        D_008D2B90[j].f16 = -1;
+        D_008D2B90[j].active = 0;
+        D_008D2B90[j].unkA = 0;
+        D_008D2B90[j].state = 0;
+        D_008D2B90[j].previousCue = -1;
+        D_008D2B90[j].requestMode = -1;
+        D_008D2B90[j].previousMode = -1;
     }
 }
 /* measured: see the annotation above the matching `on` pragma (func_00458fa0). */
@@ -336,7 +349,7 @@ void sdkSndUpdate(void)
     s16 i;
     s32 j;
     SndCh *ch;
-    s32 *f10;
+    s32 *handlePointer;
     s16 *state;
     s16 idx;
     s32 result;
@@ -347,7 +360,7 @@ void sdkSndUpdate(void)
     {
         hsndSlotUpdate(&D_008D3ED0[i]);
     }
-    if (D_008D2B90[0].f00 != 0)
+    if (D_008D2B90[0].active != 0)
     {
         if (LD32(D_008D2B94, 0) != 0 && LD16(D_008D2CC2, 0) != 0)
         {
@@ -361,7 +374,7 @@ void sdkSndUpdate(void)
         result = func_004d8dd8(CH_HANDLE(0));
         if (result == 3 || result == 0)
         {
-            D_008D2B90[0].f00 = 0;
+            D_008D2B90[0].active = 0;
         }
         else if (result == 4)
         {
@@ -373,24 +386,24 @@ void sdkSndUpdate(void)
     for (j = 1; (s16)j < 5; j = (s16)(j + 1))
     {
         ch = &D_008D2B90[(s16)j];
-        if (ch->f00 != 0)
+        if (ch->active != 0)
         {
-            f10 = &ch->f10;
-            result = func_004d8dd8(*f10);
+            handlePointer = &ch->handle;
+            result = func_004d8dd8(*handlePointer);
             if (result == 3 || result == 0)
             {
-                ch->f00 = 0;
+                ch->active = 0;
             }
             else if (result == 4)
             {
                 idx = (s16)j;
                 sdkSndStopChannelSlot(idx);
                 sdkSndStartRequest(idx);
-                func_004d8e98(*f10, 1);
+                func_004d8e98(*handlePointer, 1);
             }
             else
             {
-                state = &ch->f0C;
+                state = &ch->state;
                 if (*state == 3)
                 {
                     goto state_three;
@@ -403,7 +416,7 @@ void sdkSndUpdate(void)
                     goto state_done;
                 }
 state_two:
-                func_004d8d90(*f10);
+                func_004d8d90(*handlePointer);
                 *state = 1;
                 goto state_done;
 state_three:
@@ -421,10 +434,10 @@ state_done:
 // FUN_00459880
 s32 sdkSndStopMainChannel(void)
 {
-    if (D_008D2B90[0].f00 != 0)
+    if (D_008D2B90[0].active != 0)
     {
         func_004d8d90(CH_HANDLE(0));
-        D_008D2B90[0].f00 = 0;
+        D_008D2B90[0].active = 0;
         LD16(D_008D2B9C, 0) = 0;
         LD16(D_008D2B98, 0) = -1;
     }
@@ -435,14 +448,15 @@ s32 sdkSndStopMainChannel(void)
 /* FUN_004598E0                                                        */
 /* ================================================================== */
 
+/* Set the main channel fade duration, stop playback and clear its active request. */
 // FUN_004598E0
-s32 sdkSndStopChannel(s16 arg0)
+s32 sdkSndStopChannel(s16 fadeFrames)
 {
-    func_004d8eb0(CH_HANDLE(0), arg0);
-    if (D_008D2B90[0].f00 != 0)
+    func_004d8eb0(CH_HANDLE(0), fadeFrames);
+    if (D_008D2B90[0].active != 0)
     {
         func_004d8d90(CH_HANDLE(0));
-        D_008D2B90[0].f00 = 0;
+        D_008D2B90[0].active = 0;
         LD16(D_008D2B9C, 0) = 0;
         LD16(D_008D2B98, 0) = -1;
     }
@@ -455,10 +469,10 @@ s32 sdkSndStopChannel(s16 arg0)
 
 // Intent: sets channel 0's parameter word and the data pointer passed in.
 // FUN_00459950
-void sdkSndSetMainChannelData(void *arg0)
+void sdkSndSetMainChannelData(void *data)
 {
     func_004d8ee0(CH_HANDLE(0), 0xF);
-    func_004d8e38(CH_HANDLE(0), (s32)arg0);
+    func_004d8e38(CH_HANDLE(0), (s32)data);
 }
 
 /* ================================================================== */
@@ -467,14 +481,14 @@ void sdkSndSetMainChannelData(void *arg0)
 
 // Intent: stops the channel at the given index if it is active and clears its record. Returns 1.
 // FUN_004599D0
-s32 sdkSndStopChannelSlot(s32 arg0)
+s32 sdkSndStopChannelSlot(s32 channelIndex)
 {
-    if (D_008D2B90[arg0].f00 != 0)
+    if (D_008D2B90[channelIndex].active != 0)
     {
-        func_004d8d90(LD32(D_008D2BA0, SND_IDX(arg0)));
-        LD16(D_008D2B9C, SND_IDX(arg0)) = 0;
-        D_008D2B90[arg0].f00 = 0;
-        LD16(D_008D2B98, SND_IDX(arg0)) = -1;
+        func_004d8d90(LD32(D_008D2BA0, SND_IDX(channelIndex)));
+        LD16(D_008D2B9C, SND_IDX(channelIndex)) = 0;
+        D_008D2B90[channelIndex].active = 0;
+        LD16(D_008D2B98, SND_IDX(channelIndex)) = -1;
     }
     return 1;
 }
@@ -487,7 +501,7 @@ s32 sdkSndStopChannelSlot(s32 arg0)
 // FUN_00459A60
 s32 sdkSndFadeMainChannel(void)
 {
-    if (D_008D2B90[0].f00 != 0 && LD32(D_008D2B94, 0) == 0)
+    if (D_008D2B90[0].active != 0 && LD32(D_008D2B94, 0) == 0)
     {
         func_004d8e38(CH_HANDLE(0), -0x3C0);
         LD32(D_008D2B94, 0) = 1;
@@ -508,20 +522,20 @@ s32 sdkSndFadeMainChannel(void)
 #pragma opt_dead_assignments off
 typedef struct SndHandleRecord { s32 handle; u8 rest[0x130]; } SndHandleRecord;
 typedef struct SndCreateRecord { u32 words[10]; } SndCreateRecord;
-// Intent: starts the pending request for channel arg0 (a stream open, a track or a handle create) according to its request mode. Returns 1.
+// Intent: starts the pending request for channelIndex (a stream open, a track or a handle create) according to its request mode. Returns 1.
 // FUN_00459AD0
-s32 sdkSndStartRequest(s32 arg0)
+s32 sdkSndStartRequest(s32 channelIndex)
 {
     char path[0x100];
     s32 handleValue;
     s16 modeValue;
 
-    if (arg0 == 0)
+    if (channelIndex == 0)
     {
         func_004d8e38(CH_HANDLE(0), -0x3C);
         sprintf(path, &D_00764000,
                      LD32(D_007118B4,
-                          LD16(D_008D2B98, SND_IDX(arg0)) * 0xC));
+                          LD16(D_008D2B98, SND_IDX(channelIndex)) * 0xC));
         if (func_004d8dc0(CH_HANDLE(0)) != 0)
         {
             func_004d8da8(CH_HANDLE(0), 0);
@@ -540,208 +554,209 @@ s32 sdkSndStartRequest(s32 arg0)
         }
         func_004d8d30((void*)CH_HANDLE(0), path);
         func_004d8e98(CH_HANDLE(0), 1);
-        D_008D2B90[arg0].f00 = 1;
-        LD16(D_008D2B9C, SND_IDX(arg0)) = 1;
+        D_008D2B90[channelIndex].active = 1;
+        LD16(D_008D2B9C, SND_IDX(channelIndex)) = 1;
         return 1;
     }
 
-    handleValue = CH_HANDLE(SND_IDX(arg0));
+    handleValue = CH_HANDLE(SND_IDX(channelIndex));
     if (handleValue != 0 &&
-        (arg0 != 2 || LD16(D_008D2BA6, SND_IDX(arg0)) != 0 ||
-         LD16(D_008D2BA4, SND_IDX(arg0)) != 0))
+        (channelIndex != 2 || LD16(D_008D2BA6, SND_IDX(channelIndex)) != 0 ||
+         LD16(D_008D2BA4, SND_IDX(channelIndex)) != 0))
     {
-        s32* destination = &((SndHandleRecord*)D_008D2BA0)[arg0].handle;
+        s32* destination = &((SndHandleRecord*)D_008D2BA0)[channelIndex].handle;
         func_004d8cf0(handleValue);
         *destination = 0;
     }
 
-    if (arg0 == 1)
+    if (channelIndex == 1)
     {
-        D_008D2A74[SLOT_IDX(arg0)] = 2;
+        D_008D2A74[SLOT_IDX(channelIndex)] = 2;
     }
     else
     {
-        D_008D2A74[SLOT_IDX(arg0)] = 3;
+        D_008D2A74[SLOT_IDX(channelIndex)] = 3;
     }
-    LD32(D_008D2A78, SLOT_IDX(arg0)) = 0;
-    LD32(D_008D2A80, SLOT_IDX(arg0)) = 0;
-    LD32(D_008D2A7C, SLOT_IDX(arg0)) = 0;
-    LD32(D_008D2A60, SLOT_IDX(arg0)) = 2;
-    LD32(D_008D2A64, SLOT_IDX(arg0)) = 2;
-    LD32(D_008D2A68, SLOT_IDX(arg0)) = 0x5DC0;
-    if (arg0 == 1)
+    LD32(D_008D2A78, SLOT_IDX(channelIndex)) = 0;
+    LD32(D_008D2A80, SLOT_IDX(channelIndex)) = 0;
+    LD32(D_008D2A7C, SLOT_IDX(channelIndex)) = 0;
+    LD32(D_008D2A60, SLOT_IDX(channelIndex)) = 2;
+    LD32(D_008D2A64, SLOT_IDX(channelIndex)) = 2;
+    LD32(D_008D2A68, SLOT_IDX(channelIndex)) = 0x5DC0;
+    if (channelIndex == 1)
     {
-        LD32(D_008D2A60, SLOT_IDX(arg0)) = 3;
-        LD32(D_008D2A64, SLOT_IDX(arg0)) = 1;
+        LD32(D_008D2A60, SLOT_IDX(channelIndex)) = 3;
+        LD32(D_008D2A64, SLOT_IDX(channelIndex)) = 1;
     }
 
-    modeValue = LD16(D_008D2BA4, SND_IDX(arg0));
+    modeValue = LD16(D_008D2BA4, SND_IDX(channelIndex));
     switch (modeValue)
     {
     case 6:
-        LD32(D_008D2A80, SLOT_IDX(arg0)) = 0;
-        LD32(D_008D2A70, SLOT_IDX(arg0)) = 1;
-        CH_HANDLE(SND_IDX(arg0)) = func_004d8cc0(&((SndCreateRecord*)D_008D2A60)[arg0],
-                                   D_008D2B50[arg0], D_008D2B30[arg0]);
-        func_004d8ec8(CH_HANDLE(SND_IDX(arg0)), 0);
-        if (arg0 == 3)
+        LD32(D_008D2A80, SLOT_IDX(channelIndex)) = 0;
+        LD32(D_008D2A70, SLOT_IDX(channelIndex)) = 1;
+        CH_HANDLE(SND_IDX(channelIndex)) = func_004d8cc0(&((SndCreateRecord*)D_008D2A60)[channelIndex],
+                                   D_008D2B50[channelIndex], D_008D2B30[channelIndex]);
+        func_004d8ec8(CH_HANDLE(SND_IDX(channelIndex)), 0);
+        if (channelIndex == 3)
         {
-            func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0x5A);
+            func_004d8eb0(CH_HANDLE(SND_IDX(channelIndex)), 0x5A);
         }
         else
         {
-            func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0);
+            func_004d8eb0(CH_HANDLE(SND_IDX(channelIndex)), 0);
         }
-        func_004d8f40(CH_HANDLE(SND_IDX(arg0)), 0);
-        func_004d8f70(CH_HANDLE(SND_IDX(arg0)), 0);
-        func_004d8d30((void*)CH_HANDLE(SND_IDX(arg0)),
-                     ((char *)&D_008D2B90[arg0] + 0x18));
-        func_004d8e98(CH_HANDLE(SND_IDX(arg0)), 1);
+        func_004d8f40(CH_HANDLE(SND_IDX(channelIndex)), 0);
+        func_004d8f70(CH_HANDLE(SND_IDX(channelIndex)), 0);
+        func_004d8d30((void*)CH_HANDLE(SND_IDX(channelIndex)),
+                     ((char *)&D_008D2B90[channelIndex] + 0x18));
+        func_004d8e98(CH_HANDLE(SND_IDX(channelIndex)), 1);
         break;
 
     case 0:
     case 1:
     case 5:
-        if (arg0 > 0)
+        if (channelIndex > 0)
         {
             if (modeValue == 0 || modeValue == 5)
             {
-                LD32(D_008D2A80, SLOT_IDX(arg0)) = 0;
+                LD32(D_008D2A80, SLOT_IDX(channelIndex)) = 0;
             }
             else
             {
-                LD32(D_008D2A80, SLOT_IDX(arg0)) = 1;
+                LD32(D_008D2A80, SLOT_IDX(channelIndex)) = 1;
             }
-            LD32(D_008D2A70, SLOT_IDX(arg0)) = 1;
-            if (CH_HANDLE(SND_IDX(arg0)) == 0)
+            LD32(D_008D2A70, SLOT_IDX(channelIndex)) = 1;
+            if (CH_HANDLE(SND_IDX(channelIndex)) == 0)
             {
-                CH_HANDLE(SND_IDX(arg0)) = func_004d8cc0(&((SndCreateRecord*)D_008D2A60)[arg0],
-                                       D_008D2B50[arg0], D_008D2B30[arg0]);
-                if (LD32(D_008D2A80, SLOT_IDX(arg0)) != 0)
+                CH_HANDLE(SND_IDX(channelIndex)) = func_004d8cc0(&((SndCreateRecord*)D_008D2A60)[channelIndex],
+                                       D_008D2B50[channelIndex], D_008D2B30[channelIndex]);
+                if (LD32(D_008D2A80, SLOT_IDX(channelIndex)) != 0)
                 {
-                    func_004d8fb8(CH_HANDLE(SND_IDX(arg0)));
+                    func_004d8fb8(CH_HANDLE(SND_IDX(channelIndex)));
                 }
-                func_004d8ec8(CH_HANDLE(SND_IDX(arg0)), 0);
-                if (arg0 == 3)
+                func_004d8ec8(CH_HANDLE(SND_IDX(channelIndex)), 0);
+                if (channelIndex == 3)
                 {
-                    func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0x5A);
+                    func_004d8eb0(CH_HANDLE(SND_IDX(channelIndex)), 0x5A);
                 }
                 else
                 {
-                    func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0);
+                    func_004d8eb0(CH_HANDLE(SND_IDX(channelIndex)), 0);
                 }
             }
         }
-        func_004d8f40(CH_HANDLE(SND_IDX(arg0)), 0);
-        func_004d8f70(CH_HANDLE(SND_IDX(arg0)), 0);
-        if (LD16(D_008D2BA4, SND_IDX(arg0)) == 5)
+        func_004d8f40(CH_HANDLE(SND_IDX(channelIndex)), 0);
+        func_004d8f70(CH_HANDLE(SND_IDX(channelIndex)), 0);
+        if (LD16(D_008D2BA4, SND_IDX(channelIndex)) == 5)
         {
-            func_004d8d48(CH_HANDLE(SND_IDX(arg0)), LD32(D_008D2CAC, SND_IDX(arg0)),
-                         LD16(D_008D2B98, SND_IDX(arg0)));
+            func_004d8d48(CH_HANDLE(SND_IDX(channelIndex)), LD32(D_008D2CAC, SND_IDX(channelIndex)),
+                         LD16(D_008D2B98, SND_IDX(channelIndex)));
         }
-        else if (arg0 != 0)
+        else if (channelIndex != 0)
         {
-            H_Cdvd_StreamOpenHandle((void*)CH_HANDLE(SND_IDX(arg0)),
-                         ((char *)&D_008D2B90[arg0] + 0x18));
+            H_Cdvd_StreamOpenHandle((void*)CH_HANDLE(SND_IDX(channelIndex)),
+                         ((char *)&D_008D2B90[channelIndex] + 0x18));
         }
         else
         {
-            H_Cdvd_StreamOpenByPath((void*)CH_HANDLE(SND_IDX(arg0)),
-                         ((char *)&D_008D2B90[arg0] + 0x18));
+            H_Cdvd_StreamOpenByPath((void*)CH_HANDLE(SND_IDX(channelIndex)),
+                         ((char *)&D_008D2B90[channelIndex] + 0x18));
         }
-        func_004d8e98(CH_HANDLE(SND_IDX(arg0)), 1);
+        func_004d8e98(CH_HANDLE(SND_IDX(channelIndex)), 1);
         break;
 
     case 2:
     case 4:
-        if (arg0 > 0)
+        if (channelIndex > 0)
         {
-            if (arg0 == 1)
+            if (channelIndex == 1)
             {
-                D_008D2A74[SLOT_IDX(arg0)] = 2;
+                D_008D2A74[SLOT_IDX(channelIndex)] = 2;
             }
             else
             {
-                D_008D2A74[SLOT_IDX(arg0)] = 3;
+                D_008D2A74[SLOT_IDX(channelIndex)] = 3;
             }
-            LD32(D_008D2A64, SLOT_IDX(arg0)) = 1;
+            LD32(D_008D2A64, SLOT_IDX(channelIndex)) = 1;
             if (modeValue == 4)
             {
-                LD32(D_008D2A80, SLOT_IDX(arg0)) = 0;
-                LD32(D_008D2A64, SLOT_IDX(arg0)) = 2;
+                LD32(D_008D2A80, SLOT_IDX(channelIndex)) = 0;
+                LD32(D_008D2A64, SLOT_IDX(channelIndex)) = 2;
             }
             else
             {
-                LD32(D_008D2A80, SLOT_IDX(arg0)) = 1;
+                LD32(D_008D2A80, SLOT_IDX(channelIndex)) = 1;
             }
-            LD32(D_008D2A70, SLOT_IDX(arg0)) = 0;
-            CH_HANDLE(SND_IDX(arg0)) = func_004d8cc0(&((SndCreateRecord*)D_008D2A60)[arg0],
-                                   D_008D2B50[arg0], D_008D2B30[arg0]);
-            if (LD32(D_008D2A80, SLOT_IDX(arg0)) != 0)
+            LD32(D_008D2A70, SLOT_IDX(channelIndex)) = 0;
+            CH_HANDLE(SND_IDX(channelIndex)) = func_004d8cc0(&((SndCreateRecord*)D_008D2A60)[channelIndex],
+                                   D_008D2B50[channelIndex], D_008D2B30[channelIndex]);
+            if (LD32(D_008D2A80, SLOT_IDX(channelIndex)) != 0)
             {
-                func_004d8fb8(CH_HANDLE(SND_IDX(arg0)));
+                func_004d8fb8(CH_HANDLE(SND_IDX(channelIndex)));
             }
-            func_004d8ec8(CH_HANDLE(SND_IDX(arg0)), 0);
-            if (arg0 == 3)
+            func_004d8ec8(CH_HANDLE(SND_IDX(channelIndex)), 0);
+            if (channelIndex == 3)
             {
-                func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0x5A);
+                func_004d8eb0(CH_HANDLE(SND_IDX(channelIndex)), 0x5A);
             }
             else
             {
-                func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0);
+                func_004d8eb0(CH_HANDLE(SND_IDX(channelIndex)), 0);
             }
         }
-        func_004d8f40(CH_HANDLE(SND_IDX(arg0)), 0);
-        func_004d8f70(CH_HANDLE(SND_IDX(arg0)), 0);
-        func_004d8d60(CH_HANDLE(SND_IDX(arg0)), LD32(D_008D2CA8, SND_IDX(arg0)),
-                     LD32(D_008D2CB0, SND_IDX(arg0)));
+        func_004d8f40(CH_HANDLE(SND_IDX(channelIndex)), 0);
+        func_004d8f70(CH_HANDLE(SND_IDX(channelIndex)), 0);
+        func_004d8d60(CH_HANDLE(SND_IDX(channelIndex)), LD32(D_008D2CA8, SND_IDX(channelIndex)),
+                     LD32(D_008D2CB0, SND_IDX(channelIndex)));
         break;
 
     case 3:
-        if (arg0 > 0)
+        if (channelIndex > 0)
         {
-            D_008D2A74[SLOT_IDX(arg0)] = 3;
-            LD32(D_008D2A64, SLOT_IDX(arg0)) = 2;
-            LD32(D_008D2A70, SLOT_IDX(arg0)) = 0;
-            CH_HANDLE(SND_IDX(arg0)) = func_004d8cc0(&((SndCreateRecord*)D_008D2A60)[arg0],
-                                   D_008D2B50[arg0], D_008D2B30[arg0]);
-            if (LD32(D_008D2A80, SLOT_IDX(arg0)) != 0)
+            D_008D2A74[SLOT_IDX(channelIndex)] = 3;
+            LD32(D_008D2A64, SLOT_IDX(channelIndex)) = 2;
+            LD32(D_008D2A70, SLOT_IDX(channelIndex)) = 0;
+            CH_HANDLE(SND_IDX(channelIndex)) = func_004d8cc0(&((SndCreateRecord*)D_008D2A60)[channelIndex],
+                                   D_008D2B50[channelIndex], D_008D2B30[channelIndex]);
+            if (LD32(D_008D2A80, SLOT_IDX(channelIndex)) != 0)
             {
-                func_004d8fb8(CH_HANDLE(SND_IDX(arg0)));
+                func_004d8fb8(CH_HANDLE(SND_IDX(channelIndex)));
             }
-            func_004d8ec8(CH_HANDLE(SND_IDX(arg0)), 0);
-            if (arg0 == 3)
+            func_004d8ec8(CH_HANDLE(SND_IDX(channelIndex)), 0);
+            if (channelIndex == 3)
             {
-                func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0x1E);
+                func_004d8eb0(CH_HANDLE(SND_IDX(channelIndex)), 0x1E);
             }
             else
             {
-                func_004d8eb0(CH_HANDLE(SND_IDX(arg0)), 0);
+                func_004d8eb0(CH_HANDLE(SND_IDX(channelIndex)), 0);
             }
         }
-        func_004d8f40(CH_HANDLE(SND_IDX(arg0)), 0);
-        func_004d8f70(CH_HANDLE(SND_IDX(arg0)), 0);
-        func_004d8d78(CH_HANDLE(SND_IDX(arg0)), LD32(D_008D2CA8, SND_IDX(arg0)),
-                     LD32(D_008D2CAC, SND_IDX(arg0)));
+        func_004d8f40(CH_HANDLE(SND_IDX(channelIndex)), 0);
+        func_004d8f70(CH_HANDLE(SND_IDX(channelIndex)), 0);
+        func_004d8d78(CH_HANDLE(SND_IDX(channelIndex)), LD32(D_008D2CA8, SND_IDX(channelIndex)),
+                     LD32(D_008D2CAC, SND_IDX(channelIndex)));
         break;
     }
-    D_008D2B90[arg0].f00 = 1;
-    LD16(D_008D2B9C, SND_IDX(arg0)) = 1;
+    D_008D2B90[channelIndex].active = 1;
+    LD16(D_008D2B9C, SND_IDX(channelIndex)) = 1;
     return 1;
 }
 #pragma pop
 
+/* Select a main-channel cue, restoring its volume if the same cue was fading. */
 // FUN_0045A3E0
-s32 sdkSndPlayCue(s16 arg0)
+s32 sdkSndPlayCue(s16 cueId)
 {
     s32 x, cur, v;
 
-    x = (s16)arg0;
+    x = (s16)cueId;
     if (!((u32)x < 0x31))
     {
         kAssertFail(D_00712238, 0x295);
     }
-    cur = D_008D2B90[0].f00;
+    cur = D_008D2B90[0].active;
     if (cur == 0)
     {
         v = -1;
@@ -766,10 +781,10 @@ s32 sdkSndPlayCue(s16 arg0)
     {
         func_004d8e98(CH_HANDLE(0), 1);
         LD32(D_008D2B94, 0) = 0;
-        D_008D2B90[0].f00 = 1;
+        D_008D2B90[0].active = 1;
         LD16(D_008D2B9C, 0) = 1;
         LD16(D_008D2CC0, 0) = LD16(D_008D2B98, 0);
-        LD16(D_008D2B98, 0) = arg0;
+        LD16(D_008D2B98, 0) = cueId;
         LD16(D_008D2BA6, 0) = LD16(D_008D2BA4, 0);
         LD16(D_008D2BA4, 0) = 0;
         sprintf(&D_008D2BA8[0], &D_00764008, LD32(D_007118B4, x * 0xC));
@@ -785,59 +800,59 @@ s32 sdkSndPlayCue(s16 arg0)
 /* measured: 448/448B MATCH. Forward the raw slot word to readiness, narrow
    only for table access, and retain the constant success return. A void
    return changes register allocation (28 differing words). */
-// Intent: queues a request on slot arg0 by storing its six data words and marking it queued. Returns 1.
+// Intent: queues a request on slotIndex by storing its six data words and marking it queued. Returns 1.
 // FUN_0045A570
-s32 sdkSndQueueSlotRequest(s32 arg0, void *arg1, u32 arg2, void *arg3, u32 arg4, void *arg5, u32 arg6)
+s32 sdkSndQueueSlotRequest(s32 slotIndex, void *input, u32 inputSize, void *intermediate, u32 intermediateSize, void *output, u32 outputSize)
 {
-    if (hsndSlotIsStarting(arg0) != 0)
+    if (hsndSlotIsStarting(slotIndex) != 0)
     {
-        D_008D3ED0[(s16)arg0].param2 = 999;
+        D_008D3ED0[(s16)slotIndex].param2 = 999;
     }
-    else if (D_008D3ED0[(s16)arg0].state == 3)
+    else if (D_008D3ED0[(s16)slotIndex].state == 3)
     {
         kAssertFail(D_00712238, 713);
     }
-    D_008D3ED0[(s16)arg0].callbackMode = 1;
-    D_008D3ED0[(s16)arg0].completed = 0;
-    D_008D3ED0[(s16)arg0].param1 = (s16)arg0;
-    D_008D3ED0[(s16)arg0].param2 = 999;
-    D_008D3ED0[(s16)arg0].state = 2;
-    D_008D3ED0[(s16)arg0].data0 = arg1;
-    D_008D3ED0[(s16)arg0].data1 = arg3;
-    D_008D3ED0[(s16)arg0].data2 = arg5;
-    D_008D3ED0[(s16)arg0].data3 = arg2;
-    D_008D3ED0[(s16)arg0].data4 = arg4;
-    D_008D3ED0[(s16)arg0].data5 = arg6;
+    D_008D3ED0[(s16)slotIndex].callbackMode = 1;
+    D_008D3ED0[(s16)slotIndex].completed = 0;
+    D_008D3ED0[(s16)slotIndex].param1 = (s16)slotIndex;
+    D_008D3ED0[(s16)slotIndex].param2 = 999;
+    D_008D3ED0[(s16)slotIndex].state = 2;
+    D_008D3ED0[(s16)slotIndex].data0 = input;
+    D_008D3ED0[(s16)slotIndex].data1 = intermediate;
+    D_008D3ED0[(s16)slotIndex].data2 = output;
+    D_008D3ED0[(s16)slotIndex].data3 = inputSize;
+    D_008D3ED0[(s16)slotIndex].data4 = intermediateSize;
+    D_008D3ED0[(s16)slotIndex].data5 = outputSize;
     return 1;
 }
 /* ================================================================== */
 /* FUN_0045A730                                                        */
 /* ================================================================== */
 
-// Intent: sets the track id on slot arg0 and marks it queued. Returns 1.
+// Intent: sets the track id on slotIndex and marks it queued. Returns 1.
 // FUN_0045A730
-s32 sdkSndSetSlotTrack(s16 arg0, s16 arg1)
+s32 sdkSndSetSlotTrack(s16 slotIndex, s16 trackId)
 {
     if (hsndSlotIsStarting() != 0)
     {
-        if (LD16(D_008D3ED2, SLOT_IDX(arg0)) == arg1)
+        if (LD16(D_008D3ED2, SLOT_IDX(slotIndex)) == trackId)
         {
             return 1;
         }
     }
     else
     {
-        if (D_008D3ED0[arg0].state == 3 &&
-            arg1 != LD16(D_008D3ED2, SLOT_IDX(arg0)))
+        if (D_008D3ED0[slotIndex].state == 3 &&
+            trackId != LD16(D_008D3ED2, SLOT_IDX(slotIndex)))
         {
             kAssertFailAt(D_007122D0, D_00712238, 0x2E5);
         }
     }
-    LD16(D_008D3EDC, SLOT_IDX(arg0)) = 0;
-    LD32(D_008D3ED8, SLOT_IDX(arg0)) = 0;
-    LD16(D_008D3ED4, SLOT_IDX(arg0)) = arg0;
-    LD16(D_008D3ED2, SLOT_IDX(arg0)) = arg1;
-    D_008D3ED0[arg0].state = 2;
+    LD16(D_008D3EDC, SLOT_IDX(slotIndex)) = 0;
+    LD32(D_008D3ED8, SLOT_IDX(slotIndex)) = 0;
+    LD16(D_008D3ED4, SLOT_IDX(slotIndex)) = slotIndex;
+    LD16(D_008D3ED2, SLOT_IDX(slotIndex)) = trackId;
+    D_008D3ED0[slotIndex].state = 2;
     return 1;
 }
 
@@ -845,18 +860,19 @@ s32 sdkSndSetSlotTrack(s16 arg0, s16 arg1)
 /* FUN_0045A8D0                                                        */
 /* ================================================================== */
 
+/* Apply the default fade duration before stopping and resetting an active channel. */
 // FUN_0045A8D0
-s32 sdkSndFadeOutChannel(s16 arg0)
+s32 sdkSndFadeOutChannel(s16 channelIndex)
 {
-    if (D_008D2B90[arg0].f00 != 0)
+    if (D_008D2B90[channelIndex].active != 0)
     {
-        func_004d8eb0(LD32(D_008D2BA0, SND_IDX(arg0)), 0x1E);
-        if (D_008D2B90[arg0].f00 != 0)
+        func_004d8eb0(LD32(D_008D2BA0, SND_IDX(channelIndex)), 0x1E);
+        if (D_008D2B90[channelIndex].active != 0)
         {
-            func_004d8d90(LD32(D_008D2BA0, SND_IDX(arg0)));
-            LD16(D_008D2B9C, SND_IDX(arg0)) = 0;
-            D_008D2B90[arg0].f00 = 0;
-            LD16(D_008D2B98, SND_IDX(arg0)) = -1;
+            func_004d8d90(LD32(D_008D2BA0, SND_IDX(channelIndex)));
+            LD16(D_008D2B9C, SND_IDX(channelIndex)) = 0;
+            D_008D2B90[channelIndex].active = 0;
+            LD16(D_008D2B98, SND_IDX(channelIndex)) = -1;
         }
     }
     return 1;
@@ -868,24 +884,24 @@ s32 sdkSndFadeOutChannel(s16 arg0)
 
 // Intent: stops the channel at index arg0 if it is active and resets its record. Indexes of 5 or more are ignored. Returns 1.
 // FUN_0045A9A0
-s32 sdkSndResetChannel(s16 arg0)
+s32 sdkSndResetChannel(s16 channelIndex)
 {
-    if (arg0 < 5)
+    if (channelIndex < 5)
     {
-        if (D_008D2B90[arg0].f00 != 0)
+        if (D_008D2B90[channelIndex].active != 0)
         {
-            func_004d8d90(LD32(D_008D2BA0, SND_IDX(arg0)));
-            LD16(D_008D2B9C, SND_IDX(arg0)) = 0;
-            D_008D2B90[arg0].f00 = 0;
-            LD16(D_008D2B98, SND_IDX(arg0)) = -1;
+            func_004d8d90(LD32(D_008D2BA0, SND_IDX(channelIndex)));
+            LD16(D_008D2B9C, SND_IDX(channelIndex)) = 0;
+            D_008D2B90[channelIndex].active = 0;
+            LD16(D_008D2B98, SND_IDX(channelIndex)) = -1;
         }
     }
     else
     {
         return 1;
     }
-    D_008D2B90[arg0].f00 = 0;
-    LD16(D_008D2B9C, SND_IDX(arg0)) = 0;
+    D_008D2B90[channelIndex].active = 0;
+    LD16(D_008D2B9C, SND_IDX(channelIndex)) = 0;
     return 1;
 }
 
@@ -893,6 +909,7 @@ s32 sdkSndResetChannel(s16 arg0)
 /* FUN_0045AA90                                                        */
 /* ================================================================== */
 
+/* Forward a stop request to the selected decode-slot stream. */
 // FUN_0045AA90
 s32 sdkSndStopStream(s16 index, s16 stream)
 {
@@ -908,70 +925,72 @@ s32 sdkSndStopStream(s16 index, s16 stream)
    earlier hand probes of direct-table, pointer-temporary, parameter-type,
    remasked and pragma spellings all stalled at normalized_diff 7-12 on the
    argument-materialization order. */
+/* Inherited matching-required source shape: retain its casts, comma expressions and reset carriers; only local names are recovered here. */
 // FUN_0045AAC0
-s32 sdkSndFadeOutChannelFrames(s16 arg0, s16 arg1, s32 arg2)
+s32 sdkSndFadeOutChannelFrames(s16 channelIndex, s16 requestValue, s32 fadeFrames)
 {
-  int new_var3;
-  unsigned int new_var;
-  short new_var7;
-  int new_var12;
-  s16 new_var10;
-  int new_var2;
-  s32 *new_var6;
-  short new_var8;
-  u8 *new_var5;
-  int new_var13;
-  int new_var11;
-  int new_var4;
-  int new_var9;
-  new_var12 = arg0;
-  new_var10 = new_var12;
-  new_var = arg1;
-  func_00440b68((s32) D_007122F0, new_var10, new_var, arg2);
-  if (arg0 < ((5 - 1) + 1))
+  int isActive;
+  unsigned int channelValue;
+  short channelValueShort;
+  int indexOrReset;
+  s16 channelOrReset;
+  int channelOffset;
+  s32 *handlePointer;
+  short savedChannelValue;
+  u8 *handleBytes;
+  int inactive;
+  int invalidCueMask;
+  int indexOrInvalidCue;
+  int channelStride;
+  indexOrReset = channelIndex;
+  channelOrReset = indexOrReset;
+  channelValue = requestValue;
+  func_00440b68((s32) D_007122F0, channelOrReset, channelValue, fadeFrames);
+  if (channelIndex < ((5 - 1) + 1))
   {
-    new_var = D_008D2B90[arg0].f00;
-    new_var13 = 0;
-    if (new_var != new_var13)
+    channelValue = D_008D2B90[channelIndex].active;
+    inactive = 0;
+    if (channelValue != inactive)
     {
-      new_var5 = &D_008D2BA0[(7 * arg0) * 44];
-      new_var6 = (s32 *) new_var5;
-      func_004d8eb0(*new_var6, arg2);
-      new_var7 = 0x134;
+      handleBytes = &D_008D2BA0[(7 * channelIndex) * 44];
+      handlePointer = (s32 *) handleBytes;
+      func_004d8eb0(*handlePointer, fadeFrames);
+      channelValueShort = 0x134;
       ;
-      new_var3 = D_008D2B90[arg0].f00 != 0;
-      if (new_var3)
+      isActive = D_008D2B90[channelIndex].active != 0;
+      if (isActive)
       {
-        func_004d8d90((unsigned long long) (*((s32 *) (&D_008D2BA0[arg0 * new_var7]))));
-        new_var2 = (new_var4 = ((new_var8, arg0)) * 0x134);
-        new_var4 = -1;
-        new_var8 = new_var;
-        new_var10 = (0, 0);
-        *((s16 *) (&D_008D2B9C[new_var2])) = new_var10;
-        new_var9 = 0x134;
-        new_var12 = 0x134 * 0;
-        D_008D2B90[new_var7 = arg0].f00 = new_var12;
-        new_var11 = 0xFFFFFFFFFFFFFFFFu;
-        *((s16 *) (&D_008D2B98[arg0 * new_var9])) = (((((((((new_var4 & new_var11) & new_var11) & new_var11) & new_var11) & new_var11) & new_var11) & new_var11) & new_var11) & new_var11) & new_var11;
+        func_004d8d90((unsigned long long) (*((s32 *) (&D_008D2BA0[channelIndex * channelValueShort]))));
+        channelOffset = (indexOrInvalidCue = ((savedChannelValue, channelIndex)) * 0x134);
+        indexOrInvalidCue = -1;
+        savedChannelValue = channelValue;
+        channelOrReset = (0, 0);
+        *((s16 *) (&D_008D2B9C[channelOffset])) = channelOrReset;
+        channelStride = 0x134;
+        indexOrReset = 0x134 * 0;
+        D_008D2B90[channelValueShort = channelIndex].active = indexOrReset;
+        invalidCueMask = 0xFFFFFFFFFFFFFFFFu;
+        *((s16 *) (&D_008D2B98[channelIndex * channelStride])) = (((((((((indexOrInvalidCue & invalidCueMask) & invalidCueMask) & invalidCueMask) & invalidCueMask) & invalidCueMask) & invalidCueMask) & invalidCueMask) & invalidCueMask) & invalidCueMask) & invalidCueMask;
       }
-      new_var = D_008D2B90[arg0].f00;
+      channelValue = D_008D2B90[channelIndex].active;
     }
   }
   return 1;
 }
 
+/* Starts request mode three with the supplied source and auxiliary source value. */
 // FUN_0045ABD0
-s32 func_0045abd0(s16 arg0, s32 arg1, s16 arg2)
+s32 sdkSndStartSourceStream(s16 channelIndex, s32 source, s16 sourceAux)
 {
-    if (arg0 < 5)
+    if (channelIndex < 5)
     {
-        D_008D2B90[arg0].f00 = 1;
-        LD32(D_008D2CAC, SND_IDX(arg0)) = arg2;
-        LD16(D_008D2B9C, SND_IDX(arg0)) = 0;
-        LD16(D_008D2BA6, SND_IDX(arg0)) = LD16(D_008D2BA4, SND_IDX(arg0));
-        LD16(D_008D2BA4, SND_IDX(arg0)) = 3;
-        LD32(D_008D2CA8, SND_IDX(arg0)) = arg1;
-        sdkSndStartRequest(arg0);
+        D_008D2B90[channelIndex].active = 1;
+        LD32(D_008D2CAC, SND_IDX(channelIndex)) = sourceAux;
+        LD16(D_008D2B9C, SND_IDX(channelIndex)) = 0;
+        LD16(D_008D2BA6, SND_IDX(channelIndex)) = LD16(D_008D2BA4, SND_IDX(channelIndex));
+        LD16(D_008D2BA4, SND_IDX(channelIndex)) = 3;
+        LD32(D_008D2CA8, SND_IDX(channelIndex)) = source;
+        sdkSndStartRequest(channelIndex);
     }
     return 1;
 }
@@ -980,19 +999,20 @@ s32 func_0045abd0(s16 arg0, s32 arg1, s16 arg2)
 /* FUN_0045AC90                                                        */
 /* ================================================================== */
 
+/* Starts buffer request mode two, whose creation record selects one channel. */
 // FUN_0045AC90
-s32 func_0045ac90(s16 arg0, s32 arg1, s32 arg2)
+s32 sdkSndStartMonoBuffer(s16 channelIndex, s32 source, s32 sourceSize)
 {
-    if (arg0 < 5)
+    if (channelIndex < 5)
     {
-        D_008D2B90[arg0].f00 = 1;
-        LD16(D_008D2B98, SND_IDX(arg0)) = 0x3E7;
-        LD16(D_008D2B9C, SND_IDX(arg0)) = 0;
-        LD16(D_008D2BA6, SND_IDX(arg0)) = LD16(D_008D2BA4, SND_IDX(arg0));
-        LD16(D_008D2BA4, SND_IDX(arg0)) = 2;
-        LD32(D_008D2CB0, SND_IDX(arg0)) = arg2;
-        LD32(D_008D2CA8, SND_IDX(arg0)) = arg1;
-        sdkSndStartRequest(arg0);
+        D_008D2B90[channelIndex].active = 1;
+        LD16(D_008D2B98, SND_IDX(channelIndex)) = 0x3E7;
+        LD16(D_008D2B9C, SND_IDX(channelIndex)) = 0;
+        LD16(D_008D2BA6, SND_IDX(channelIndex)) = LD16(D_008D2BA4, SND_IDX(channelIndex));
+        LD16(D_008D2BA4, SND_IDX(channelIndex)) = 2;
+        LD32(D_008D2CB0, SND_IDX(channelIndex)) = sourceSize;
+        LD32(D_008D2CA8, SND_IDX(channelIndex)) = source;
+        sdkSndStartRequest(channelIndex);
     }
     return 1;
 }
@@ -1001,19 +1021,20 @@ s32 func_0045ac90(s16 arg0, s32 arg1, s32 arg2)
 /* FUN_0045AD50                                                        */
 /* ================================================================== */
 
+/* Starts buffer request mode four, whose creation record selects two channels. */
 // FUN_0045AD50
-s32 func_0045ad50(s16 arg0, s32 arg1, s32 arg2)
+s32 sdkSndStartStereoBuffer(s16 channelIndex, s32 source, s32 sourceSize)
 {
-    if (arg0 < 5)
+    if (channelIndex < 5)
     {
-        D_008D2B90[arg0].f00 = 1;
-        LD16(D_008D2B98, SND_IDX(arg0)) = 0x3E7;
-        LD16(D_008D2B9C, SND_IDX(arg0)) = 0;
-        LD16(D_008D2BA6, SND_IDX(arg0)) = LD16(D_008D2BA4, SND_IDX(arg0));
-        LD16(D_008D2BA4, SND_IDX(arg0)) = 4;
-        LD32(D_008D2CB0, SND_IDX(arg0)) = arg2;
-        LD32(D_008D2CA8, SND_IDX(arg0)) = arg1;
-        sdkSndStartRequest(arg0);
+        D_008D2B90[channelIndex].active = 1;
+        LD16(D_008D2B98, SND_IDX(channelIndex)) = 0x3E7;
+        LD16(D_008D2B9C, SND_IDX(channelIndex)) = 0;
+        LD16(D_008D2BA6, SND_IDX(channelIndex)) = LD16(D_008D2BA4, SND_IDX(channelIndex));
+        LD16(D_008D2BA4, SND_IDX(channelIndex)) = 4;
+        LD32(D_008D2CB0, SND_IDX(channelIndex)) = sourceSize;
+        LD32(D_008D2CA8, SND_IDX(channelIndex)) = source;
+        sdkSndStartRequest(channelIndex);
     }
     return 1;
 }
@@ -1022,16 +1043,17 @@ s32 func_0045ad50(s16 arg0, s32 arg1, s32 arg2)
 /* FUN_0045AE10                                                        */
 /* ================================================================== */
 
+/* Starts request mode five with a source value and cue index. */
 // FUN_0045AE10
-s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2)
+s32 sdkSndStartIndexedSource(s32 sourceAux, s32 channelIndex, s32 cueId)
 {
-    D_008D2B90[arg1].f00 = 1;
-    LD16(D_008D2B98, SND_IDX(arg1)) = arg2;
-    LD32(D_008D2CAC, SND_IDX(arg1)) = arg0;
-    LD16(D_008D2B9C, SND_IDX(arg1)) = 0;
-    LD16(D_008D2BA6, SND_IDX(arg1)) = LD16(D_008D2BA4, SND_IDX(arg1));
-    LD16(D_008D2BA4, SND_IDX(arg1)) = 5;
-    sdkSndStartRequest(arg1);
+    D_008D2B90[channelIndex].active = 1;
+    LD16(D_008D2B98, SND_IDX(channelIndex)) = cueId;
+    LD32(D_008D2CAC, SND_IDX(channelIndex)) = sourceAux;
+    LD16(D_008D2B9C, SND_IDX(channelIndex)) = 0;
+    LD16(D_008D2BA6, SND_IDX(channelIndex)) = LD16(D_008D2BA4, SND_IDX(channelIndex));
+    LD16(D_008D2BA4, SND_IDX(channelIndex)) = 5;
+    sdkSndStartRequest(channelIndex);
     return 1;
 }
 
@@ -1039,21 +1061,22 @@ s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2)
 /* FUN_0045AEB0                                                        */
 /* ================================================================== */
 
+/* Copy a path into the selected channel and start its file-backed request. */
 // FUN_0045AEB0
-s32 sdkSndStartChannel(s16 arg0, const char * arg1)
+s32 sdkSndStartChannel(s16 channelIndex, const char * path)
 {
     SndCh *ch;
 
-    if (arg0 < 5)
+    if (channelIndex < 5)
     {
-        ch = &D_008D2B90[arg0];
-        ch->f00 = 1;
-        LD16(D_008D2B98, SND_IDX(arg0)) = 0;
-        LD16(D_008D2B9C, SND_IDX(arg0)) = 0;
-        LD16(D_008D2BA6, SND_IDX(arg0)) = LD16(D_008D2BA4, SND_IDX(arg0));
-        LD16(D_008D2BA4, SND_IDX(arg0)) = 0;
-        strcpy((u8 *)ch + 0x18, arg1, ch, SND_IDX(arg0));
-        sdkSndStartRequest(arg0);
+        ch = &D_008D2B90[channelIndex];
+        ch->active = 1;
+        LD16(D_008D2B98, SND_IDX(channelIndex)) = 0;
+        LD16(D_008D2B9C, SND_IDX(channelIndex)) = 0;
+        LD16(D_008D2BA6, SND_IDX(channelIndex)) = LD16(D_008D2BA4, SND_IDX(channelIndex));
+        LD16(D_008D2BA4, SND_IDX(channelIndex)) = 0;
+        strcpy((u8 *)ch + 0x18, path, ch, SND_IDX(channelIndex));
+        sdkSndStartRequest(channelIndex);
     }
     return 1;
 }
@@ -1061,10 +1084,11 @@ s32 sdkSndStartChannel(s16 arg0, const char * arg1)
 /* FUN_0045AF60                                                        */
 /* ================================================================== */
 
+/* Forward the stream start parameters to the selected decode slot. */
 // FUN_0045AF60
-s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3)
+s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags)
 {
-    sdkSndStartStreamSlot(index, stream, arg2, arg3);
+    sdkSndStartStreamSlot(index, stream, value, flags);
     return 1;
 }
 
@@ -1072,19 +1096,19 @@ s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3)
 /* FUN_0045AF90                                                        */
 /* ================================================================== */
 
-// Intent: returns 1 while channel arg0's handle is playing; the fourth channel never reports playing.
+// Intent: returns 1 while channelIndex's handle is playing; the fourth channel never reports playing.
 // FUN_0045AF90
-s32 sdkSndIsChannelPlaying(s16 arg0)
+s32 sdkSndIsChannelPlaying(s16 channelIndex)
 {
     s32 r;
 
-    if (arg0 == 4)
+    if (channelIndex == 4)
     {
         return 0;
     }
-    if (D_008D2B90[arg0].f00 != 0)
+    if (D_008D2B90[channelIndex].active != 0)
     {
-        r = func_004d8dd8(LD32(D_008D2BA0, SND_IDX(arg0)));
+        r = func_004d8dd8(LD32(D_008D2BA0, SND_IDX(channelIndex)));
         if (r == 3 || r == 0)
         {
             return 0;
@@ -1100,40 +1124,40 @@ s32 sdkSndIsChannelPlaying(s16 arg0)
 
 // Intent: state machine of a stream-load task: opens the stream, waits for it to finish, and marks the task done or failed.
 // FUN_0045B030
-s32 sdkSndStreamTaskUpdate(u8 *arg0)
+s32 sdkSndStreamTaskUpdate(u8 *task)
 {
     s32 state;
     s32 result;
     u8 *work;
     u8 *callback;
 
-    work = *(u8 **)((u8 *)arg0 + 0x38);
-    state = *(s32 *)work;
+    work = ((SdkTask *)task)->work;
+    state = ((SdkSndStreamWork *)work)->state;
     switch (state)
     {
     case 0:
-        *(s32 *)(work + 0xC) = 0;
-        callback = *(u8 **)(work + 0x110);
+        ((SdkSndStreamWork *)work)->frame = 0;
+        callback = (u8 *)((SdkSndStreamWork *)work)->callbackAddress;
         if (callback == NULL)
         {
-            H_Cdvd_StartStreamLoad(*(s32 *)(work + 4), work + 0x10, 0, &D_008D1F10);
+            H_Cdvd_StartStreamLoad(((SdkSndStreamWork *)work)->stream, work + 0x10, 0, &D_008D1F10);
         }
         else
         {
-            H_Cdvd_StartStreamLoad(*(s32 *)(work + 4), work + 0x10, 0, callback);
+            H_Cdvd_StartStreamLoad(((SdkSndStreamWork *)work)->stream, work + 0x10, 0, callback);
         }
-        *(s32 *)work = 1;
+        ((SdkSndStreamWork *)work)->state = 1;
         break;
     case 1:
-        *(s32 *)(work + 0xC) = *(s32 *)(work + 0xC) + 1;
-        result = func_004c7ef8(*(s32 *)(work + 4));
+        ((SdkSndStreamWork *)work)->frame = ((SdkSndStreamWork *)work)->frame + 1;
+        result = func_004c7ef8(((SdkSndStreamWork *)work)->stream);
         if (result == 4)
         {
-            *(s32 *)work = 0;
+            ((SdkSndStreamWork *)work)->state = 0;
         }
         else if (result == 3)
         {
-            *(s32 *)work = 2;
+            ((SdkSndStreamWork *)work)->state = 2;
         }
         break;
     case 2:
@@ -1146,15 +1170,16 @@ s32 sdkSndStreamTaskUpdate(u8 *arg0)
 /* ================================================================== */
 
 // Intent: destroy callback for a stream-load task: frees its handle and its work block.
+/* measured: typing the final request-address clear loses MATCH; the preceding request test and release remain typed. */
 // FUN_0045B120
-void sdkSndStreamTaskDestroy(u8 *arg0)
+void sdkSndStreamTaskDestroy(u8 *task)
 {
     u8 *w;
 
-    w = *(u8 **)((u8 *)arg0 + 0x38);
-    if (*(s32 *)(w + 0x114) != 0)
+    w = ((SdkTask *)task)->work;
+    if (((SdkSndStreamWork *)w)->requestAddress != 0)
     {
-        H_Cdvd_Destroy(*(void **)(w + 0x114));
+        H_Cdvd_Destroy((void *)((SdkSndStreamWork *)w)->requestAddress);
         *(s32 *)(w + 0x114) = 0;
     }
     jtbl_008873EC[0](w);
@@ -1166,11 +1191,11 @@ void sdkSndStreamTaskDestroy(u8 *arg0)
 
 // Intent: destroys the stream-load task and its hierarchy once it is done. Returns 1 when it destroyed the task.
 // FUN_0045B170
-s32 sdkSndStreamTaskReap(void *arg0)
+s32 sdkSndStreamTaskReap(void *task)
 {
-    if (*(s32 *)(*(u8 **)((u8 *)arg0 + 0x38)) == 2)
+    if (((SdkSndStreamWork *)((SdkTask *)task)->work)->state == 2)
     {
-        kwlnTaskDestroyWithHierarchy((s32)arg0);
+        kwlnTaskDestroyWithHierarchy((s32)task);
         return 1;
     }
     return 0;
@@ -1180,9 +1205,9 @@ s32 sdkSndStreamTaskReap(void *arg0)
 /* FUN_0045B1C0                                                        */
 /* ================================================================== */
 
-// Intent: creates a stream-load task under parent arg0 for the given stream and copies the path into its record.
+// Intent: creates a stream-load task under parent for the given stream and copies the path into its record.
 // FUN_0045B1C0
-s32 sdkSndCreateStreamTask(void *arg0, s32 arg1, s32 arg2, void *arg3)
+s32 sdkSndCreateStreamTask(void *parent, s32 stream, s32 callbackAddress, void *path)
 {
     s32 h;
     u8 *p;
@@ -1198,10 +1223,10 @@ s32 sdkSndCreateStreamTask(void *arg0, s32 arg1, s32 arg2, void *arg3)
     {
         return 0;
     }
-    kwlnTaskAddChild(arg0, (void *)h);
-    *(s32 *)(p + 4) = arg1;
-    *(s32 *)(p + 0x110) = arg2;
-    strcpy((s32)(p + 0x10), (s32)arg3);
+    kwlnTaskAddChild(parent, (void *)h);
+    ((SdkSndStreamWork *)p)->stream = stream;
+    ((SdkSndStreamWork *)p)->callbackAddress = callbackAddress;
+    strcpy((s32)(p + 0x10), (s32)path);
     return h;
 }
 
@@ -1209,20 +1234,21 @@ s32 sdkSndCreateStreamTask(void *arg0, s32 arg1, s32 arg2, void *arg3)
 /* FUN_0045B2E0                                                        */
 /* ================================================================== */
 
+/* Resolve a track path, select the stream request mode and start channel three. */
 // FUN_0045B2E0
-s32 sdkSndRequestTrack(s32 arg0)
+s32 sdkSndRequestTrack(s32 trackId)
 {
     u8 buf[0x100];
 
-    if (!((u32)arg0 < 0x42))
+    if (!((u32)trackId < 0x42))
     {
         kAssertFail(D_00712238, 0x50A);
     }
-    if (D_008D2F2C[0] != 0 && arg0 == D_008D2F34[0])
+    if (D_008D2F2C[0] != 0 && trackId == D_008D2F34[0])
     {
         return 1;
     }
-    sprintf(buf, &D_00764010, LD32(D_00711F24, arg0 * 0xC));
+    sprintf(buf, &D_00764010, LD32(D_00711F24, trackId * 0xC));
     D_008D2F2C[0] = 1;
     D_008D2F34[0] = 0;
     D_008D2F38[0] = 0;
@@ -1230,10 +1256,10 @@ s32 sdkSndRequestTrack(s32 arg0)
     D_008D2F40[0] = 6;
     strcpy(&D_008D2F44[0], (char *)buf);
     sdkSndStartRequest(3);
-    if (arg0 <= 0)
+    if (trackId <= 0)
     {
         kAssertFail(D_00712238, 0x510);
     }
-    D_008D2F34[0] = arg0;
+    D_008D2F34[0] = trackId;
     return 1;
 }

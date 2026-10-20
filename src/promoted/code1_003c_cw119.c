@@ -362,7 +362,7 @@ extern void *func_003df4d0(void *arg0);
 extern s32 func_003e2910(u8 *arg0, void *arg1, s32 arg2);
 extern u32 **_rpObjectGetMeshCacheResize(u32 **arg0, u32 arg1);
 extern void reDestroyCallBack(u8 *arg0);
-extern void func_0043f9c8(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern void func_003ce230(u8 *arg0);
 extern void func_004220d8(u8 *arg0, u8 *arg1);
 
@@ -441,7 +441,7 @@ u8 *func_003cebb0(u8 *arg0, u8 *arg1) {
             }
             temp_19[0] = 0;
             temp_19[1] = 0;
-            func_0043f9c8(temp_19, 0, 0x1B0);
+            memset(temp_19, 0, 0x1B0);
             temp_19[2] = ((s32)((u8 *)temp_19 + 0x1B0) + 0x3F) & ~0x3F;
             if (spB0 != 0) {
                 temp_19[2] = (temp_19[2] + 0x7F) & ~0x7F;

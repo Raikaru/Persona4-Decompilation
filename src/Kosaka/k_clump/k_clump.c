@@ -1,3 +1,6 @@
+#include "rw_object_internal.h"
+#include "rw_texture_internal.h"
+#include "rw_atomic_layout_internal.h"
 /* Source unit: src/Kosaka/k_clump/k_clump_004578b0.c (1 function markers) */
 #include "include_asm.h"
 #include "Kosaka/k_clump_property_internal.h"
@@ -32,7 +35,7 @@ extern s32 RwCameraFrustumTestSphere(void* camera, void* sphere);
 extern void* D_008872E0[];
 extern u32 D_00764068;
 extern f32 D_00764b80;
-extern void primSphereLine3D(void* center, f32 radius, void* color, u32 saveAndRestoreRenderState);
+extern void primSphereLine3D(void* center, f32 radius, void* color, u32 preserveState);
 
 extern s32 func_003b83f0(void* object);
 extern s32 func_003b85b0(void* object);
@@ -55,6 +58,21 @@ extern void (*jtbl_008873EC[])(void*);
 
 
 
+/* Texture-name nodes are allocated as 0x44 bytes and chained at +0x40. */
+typedef struct KClumpTextureName {
+    char name[0x40];
+    struct KClumpTextureName *next;
+} KClumpTextureName;
+
+/* RpWorld material list prefix, rw/world/baworld.h and bamatlst.h. */
+struct RpWorld {
+    RwObject object;
+    u32 flags;
+    s32 renderOrder;
+    struct { struct RpMaterial **materials; s32 count, capacity; } matList;
+};
+
+/* Return the first named integer material property, defaulting to zero. */
 // FUN_004578B0
 s32 K_Clump_MatUsrDataGetInt(const RpMaterial* material, const char* name)
 {
@@ -78,6 +96,7 @@ s32 K_Clump_MatUsrDataGetInt(const RpMaterial* material, const char* name)
 
 
 
+/* Return the first named real material property, defaulting to one. */
 // FUN_004579A0
 f32 K_Clump_MatUsrDataGetFloat(const RpMaterial* material, const char* name)
 {
@@ -132,7 +151,7 @@ void* K_Clump_AtomicMatUsrDataCb(void* geometry, void* data)
     u32 found;
     RpUserDataArray* userData;
 
-    resourceList = *(KClumpResourceList**)((u8*)geometry + 0x18);
+    resourceList = (KClumpResourceList *)((struct RpAtomic *)geometry)->geometry;
     for (resourceIndex = 0; resourceIndex < (s32)resourceList->count; resourceIndex++)
     {
         material = resourceList->materials[resourceIndex];
@@ -158,6 +177,7 @@ void* K_Clump_AtomicMatUsrDataCb(void* geometry, void* data)
 
 
 
+/* Search every atomic for a material property matching a copied name. */
 // FUN_00457C90
 u32 K_Clump_ClumpHasMatUsrData(void* clump, const char* name)
 {
@@ -175,6 +195,7 @@ u32 K_Clump_ClumpHasMatUsrData(void* clump, const char* name)
 
 
 
+/* Search the world-format material list for any property with the requested name. */
 // FUN_00457CE0
 u32 K_Clump_GeometryHasMatUsrData(void* geometry, const char* name)
 {
@@ -184,9 +205,9 @@ u32 K_Clump_GeometryHasMatUsrData(void* geometry, const char* name)
     u32 result;
     RpUserDataArray* userData;
 
-    for (resourceIndex = 0; resourceIndex < (s32)*(u32*)((u8*)geometry + 0x14); resourceIndex++)
+    for (resourceIndex = 0; resourceIndex < (s32)(u32)((struct RpWorld *)geometry)->matList.count; resourceIndex++)
     {
-        material = *(void**)(*(u32*)((u8*)geometry + 0x10) + resourceIndex * 4);
+        material = ((struct RpWorld *)geometry)->matList.materials[resourceIndex];
         result = 0;
         for (materialIndex = 0; materialIndex < func_003bcfb0((RpMaterial*)material); materialIndex++)
         {
@@ -208,6 +229,7 @@ u32 K_Clump_GeometryHasMatUsrData(void* geometry, const char* name)
 
 
 
+/* Search this frame and its descendants for the requested integer property value. */
 // FUN_00457E00
 void* K_Clump_FindIntUsrDataFrameCb(void* object, void* data)
 {
@@ -241,6 +263,7 @@ void* K_Clump_FindIntUsrDataFrameCb(void* object, void* data)
 
 
 
+/* Search the root frame and descendants for a named integer property equal to value. */
 // FUN_00457F40
 void* K_Clump_FindIntUsrDataFrame(void* object, const char* name, s32 value)
 {
@@ -255,7 +278,7 @@ void* K_Clump_FindIntUsrDataFrame(void* object, const char* name, s32 value)
     void* geometry;
     void* material;
 
-    geometry = *(void**)((u8*)object + 4);
+    geometry = ((RwObject *)object)->parent;
     strcpy(context.nameCopy, name);
     context.result = NULL;
     context.inputValue = value;
@@ -281,10 +304,11 @@ void* K_Clump_FindIntUsrDataFrame(void* object, const char* name, s32 value)
 
 
 
+/* Accumulate integer elements with the requested property name while traversing child frames. */
 // FUN_00458090
 void* K_Clump_CountIntUsrDataCb(void* object, void* data)
 {
-    u32* context = data;
+    u32* search = data;
     s32 resourceIndex;
     s32 elementIndex;
     void* material;
@@ -292,23 +316,24 @@ void* K_Clump_CountIntUsrDataCb(void* object, void* data)
     for (resourceIndex = 0; resourceIndex < func_003bcf10(object); resourceIndex++)
     {
         material = func_003bcf60(object, resourceIndex);
-        if (strcmp(func_003bd040((RpUserDataArray*)material), (const char*)context) == 0)
+        if (strcmp(func_003bd040((RpUserDataArray*)material), (const char*)search) == 0)
         {
             for (elementIndex = 0; elementIndex < func_003bd060(material); elementIndex++)
             {
                 if (func_003bd050((RpUserDataArray*)material) == rpINTUSERDATA)
                 {
-                    context[0x10]++;
+                    search[0x10]++;
                 }
             }
         }
     }
-    func_003e9af0(object, K_Clump_CountIntUsrDataCb, context);
+    func_003e9af0(object, K_Clump_CountIntUsrDataCb, search);
     return object;
 }
 
 
 
+/* Count integer property elements over the complete frame hierarchy. */
 // FUN_004581A0
 s32 K_Clump_CountIntUsrData(void* object, const char* name)
 {
@@ -318,7 +343,7 @@ s32 K_Clump_CountIntUsrData(void* object, const char* name)
     void* clump;
     void* material;
 
-    clump = *(void**)((u8*)object + 4);
+    clump = ((RwObject *)object)->parent;
     strcpy(context.name, name);
     context.count = 0;
     for (resourceIndex = 0; resourceIndex < func_003bcf10(clump); resourceIndex++)
@@ -355,6 +380,7 @@ typedef struct KClumpIntSearchContext
 typedef char KClumpIntSearchContextSize[
     (sizeof(KClumpIntSearchContext) == 0x54) ? 1 : -1];
 
+/* Stop at the requested integer-property ordinal and retain its value and owning frame. */
 // FUN_004582C0
 void* K_Clump_IntUsrDataAtCb(void* object, void* data)
 {
@@ -394,6 +420,7 @@ void* K_Clump_IntUsrDataAtCb(void* object, void* data)
 
 
 
+/* Return the selected named integer property and frame, using a zeroed search context. */
 // FUN_00458430
 void K_Clump_GetIntUsrDataAt(KClumpIntPropertyResult* result, void* object, const char* name, s32 index)
 {
@@ -403,7 +430,7 @@ void K_Clump_GetIntUsrDataAt(KClumpIntPropertyResult* result, void* object, cons
     void* geometry;
     void* material;
 
-    geometry = *(void**)((u8*)object + 4);
+    geometry = ((RwObject *)object)->parent;
     memset(&context, 0, 0x54);
     strcpy(context.nameCopy, name);
     context.targetIndex = index;
@@ -434,31 +461,35 @@ void K_Clump_GetIntUsrDataAt(KClumpIntPropertyResult* result, void* object, cons
 
 
 
+/* Mark the caller output when traversal finds the sentinel byte FF at offset seven. */
+/* The traversal item's owning layout is not established: only the sentinel byte at +7 is observed, so retain
+ * this byte access. */
 // FUN_00461530
-s32 K_Clump_CheckSentinelFrameCb(u8 *arg0, s32 *arg1)
+s32 K_Clump_CheckSentinelFrameCb(u8 *frame, s32 *found)
 {
-    if (*(u8 *)(arg0 + 7) == 0xFF) {
-        *arg1 = 1;
+    if (*(u8 *)(frame + 7) == 0xFF) {
+        *found = 1;
     }
-    return (s32)arg0;
+    return (s32)frame;
 }
+/* Render enabled atomics whose bounding spheres intersect the camera frustum; optionally draw debug bounds. */
 // FUN_00462170
 void* K_Clump_RenderAtomicIfVisibleCb(void* item, void* data)
 {
     RwSphere* sphere;
 
-    if ((*(u8*)((u8*)item + 2) & 4) != 0)
+    if ((((struct RpAtomic *)item)->flags & 4) != 0)
     {
         goto process;
     }
     return item;
 process:
-    if (*(u32*)((u8*)item + 0x18) != 0)
+    if ((u32)((struct RpAtomic *)item)->geometry != 0)
     {
         sphere = func_003bfae0(item);
         if (RwCameraFrustumTestSphere(*(void**)D_008872E0, sphere) != 0)
         {
-            (*(void (**)(void*))((u8*)item + 0x48))(item);
+            ((struct RpAtomic *)item)->renderCallBack((struct RpAtomic *)item);
             if (D_00764068 == 1)
             {
                 f32 debugValue;
@@ -475,6 +506,7 @@ process:
 
 
 
+/* Treat a null state as disabled; otherwise test the ninth state word. */
 // FUN_00462E80
 u32 K_Clump_StateFlagIsSet(const u32* state)
 {
@@ -489,8 +521,9 @@ u32 K_Clump_StateFlagIsSet(const u32* state)
 
 /* measured: opt_propagation off preserves the delimiter preheader instruction order; this bracket was verified at object 592B/window 592B with normalized_diff 0. */
 #pragma opt_propagation off
+/* Scan stream chunk headers and log counts without decoding their payloads. */
 // FUN_00462EB0
-void K_Clump_LogCodeCounts(s8* arg0)
+void K_Clump_LogCodeCounts(s8* path)
 {
     extern u8* H_Cdvd_LookupRequest(void*, u32*);
     extern void strcat();
@@ -512,85 +545,85 @@ void K_Clump_LogCodeCounts(s8* arg0)
         u32 output;
     } ParseWork;
     ParseWork work;
-    s32 temp_2;
-    s32 var_20;
-    s32 var_19;
-    s32 var_18;
-    s32 var_17;
-    s32 var_21;
-    s32 var_4;
-    s8* var_16;
-    s32 var_22;
-    s32 var_23;
+    s32 stream;
+    s32 worldCount;
+    s32 clumpCount;
+    s32 animationCount;
+    s32 chunkCount;
+    s32 dictionaryCount;
+    s32 characterIndex;
+    s8* pathCursor;
+    s32 teamDictionaryCount;
+    s32 lightCount;
     s32 delimiter;
 
-    var_20 = 0;
-    var_19 = 0;
-    var_18 = 0;
-    var_17 = 0;
-    var_21 = 0;
-    var_22 = 0;
-    var_23 = 0;
-    var_16 = arg0;
-    H_Cdvd_LookupRequest(arg0, &work.output);
+    worldCount = 0;
+    clumpCount = 0;
+    animationCount = 0;
+    chunkCount = 0;
+    dictionaryCount = 0;
+    teamDictionaryCount = 0;
+    lightCount = 0;
+    pathCursor = path;
+    H_Cdvd_LookupRequest(path, &work.output);
     strcpy(work.buffer, (const char*)&iGpffffaf80);
-    var_4 = 0;
+    characterIndex = 0;
     delimiter = 0x3A;
     goto scan_cond;
 scan:
-    if (*var_16 == delimiter)
+    if (*pathCursor == delimiter)
     {
         goto scan_colon;
     }
-    var_16++;
+    pathCursor++;
     goto scan_inc;
 scan_colon:
-    var_16++;
+    pathCursor++;
     goto scan_found;
 scan_inc:
-    var_4++;
+    characterIndex++;
 scan_cond:
-    if (var_4 < 0x100)
+    if (characterIndex < 0x100)
     {
         goto scan;
     }
 scan_found:
-    strcat(work.buffer, (const char*)var_16);
-    temp_2 = func_003e2f60(2, 1, arg0);
-    if (temp_2 != 0)
+    strcat(work.buffer, (const char*)pathCursor);
+    stream = func_003e2f60(2, 1, path);
+    if (stream != 0)
     {
-        while (func_003df3c0(temp_2, &work.code) != 0)
+        while (func_003df3c0(stream, &work.code) != 0)
         {
             switch (work.code)
             {
             case 11:
-                var_20++;
+                worldCount++;
                 break;
             case 16:
-                var_19++;
+                clumpCount++;
                 break;
             case 27:
-                var_18++;
+                animationCount++;
                 break;
             case 35:
-                var_17++;
+                chunkCount++;
                 break;
             case 22:
-                var_21++;
+                dictionaryCount++;
                 break;
             case 43:
-                var_22++;
+                teamDictionaryCount++;
                 break;
             case 12:
-                var_23++;
+                lightCount++;
                 break;
             }
-            func_003e2ce0(temp_2, work.value);
+            func_003e2ce0(stream, work.value);
         }
-        func_003e2e40(temp_2, 0);
+        func_003e2e40(stream, 0);
     }
     func_00440b68(D_00712580, work.buffer);
-    func_00440b68(D_007125A0, var_20, var_19, var_18, var_22, var_17, var_21, var_23);
+    func_00440b68(D_007125A0, worldCount, clumpCount, animationCount, teamDictionaryCount, chunkCount, dictionaryCount, lightCount);
     func_00440b68(D_007125E0);
 }
 /* measured: opt_propagation on closes the target-only bracket. */
@@ -598,37 +631,37 @@ scan_found:
 // FUN_00463100
 struct RwTexture *K_Clump_AppendTextureName(struct RwTexture *texture, void *list)
 {
-    u8* arg0;
-    u32** arg1;
+    u8* textureBytes;
+    u32** listHead;
     u8* resource;
     char* work;
     u8* current;
     u32** next;
 
-    arg0 = (u8*)texture;
-    arg1 = (u32**)list;
+    textureBytes = (u8*)texture;
+    listHead = (u32**)list;
 
-    resource = func_003ef650(func_003ef6d0(), arg0 + 0x10);
+    resource = func_003ef650(func_003ef6d0(), textureBytes + 0x10);
     if (resource != NULL)
     {
-        (*(u32*)(resource + 0x54))++;
+        (((RwTexture *)resource)->refCount)++;
     }
     else
     {
-        func_003ef5b0(func_003ef6d0(), (s32)arg0);
+        func_003ef5b0(func_003ef6d0(), (s32)textureBytes);
     }
-    resource = func_003ef650(func_003ef6d0(), arg0 + 0x10);
-    func_00440b68(D_00712620, resource + 0x10, *(u8*)(resource + 0x50), *(u32*)(resource + 0x54));
+    resource = func_003ef650(func_003ef6d0(), textureBytes + 0x10);
+    func_00440b68(D_00712620, resource + 0x10, (u8)((RwTexture *)resource)->filterAddressing, ((RwTexture *)resource)->refCount);
     chkmemAllocSiteTag(D_00712640, 0x97);
     work = (char*)D_008873F4[0](1, 0x44, 0x40000);
-    strcpy(work, (const char*)(arg0 + 0x10));
-    if (*arg1 == NULL)
+    strcpy(work, (const char*)(textureBytes + 0x10));
+    if (*listHead == NULL)
     {
-        *arg1 = (u32*)work;
+        *listHead = (u32*)work;
     }
     else
     {
-        current = (u8*)*arg1;
+        current = (u8*)*listHead;
         next = (u32**)(current + 0x40);
         while (*next != NULL)
         {
@@ -640,29 +673,30 @@ struct RwTexture *K_Clump_AppendTextureName(struct RwTexture *texture, void *lis
     return texture;
 }
 // FUN_00463250
-void K_Clump_FreeTextureNameList(u32* arg0)
+void K_Clump_FreeTextureNameList(u32* listHead)
 {
     u32* next;
     u32* current;
     u8* resource;
 
-    current = arg0;
+    current = listHead;
     while (current != NULL)
     {
-        next = (u32*)current[0x40 / 4];
+        next = (u32 *)((KClumpTextureName *)current)->next;
         resource = func_003ef650(func_003ef6d0(), (s32)current);
-        func_00440b68(D_00712650, current, *(s32*)(resource + 0x54));
+        func_00440b68(D_00712650, current, ((RwTexture *)resource)->refCount);
         func_003ef3a0(resource);
         jtbl_008873EC[0](current);
         current = next;
     }
 }
+/* Update a ready object, normalizing its state when needed; otherwise release the supplied data. */
 // FUN_004632F0
 void* K_Clump_UpdateObjectCb(void* object, void* data)
 {
     s32 state;
 
-    if (func_003b83f0(*(void**)((u8*)object + 0x18)) == 0)
+    if (func_003b83f0((void *)((struct RpAtomic *)object)->geometry) == 0)
     {
         goto fail;
     }

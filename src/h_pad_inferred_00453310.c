@@ -2,6 +2,7 @@
 
 #include "include_asm.h"
 #include "type.h"
+#include "sdk_pad_record.h"
 #include "primitive_rectangle_packet.h"
 #include "shd_misc_internal.h"
 #include "Kosaka/k_clump_internal.h"
@@ -14,7 +15,7 @@ extern s16 iGpffffba2c;
 extern s16 iGpffffba30;
 extern s16 iGpffffba34;
 extern void sdkPadStepSequence(void);
-extern void sdkPadRepeatButtonDispatch(s32 arg0, u16 arg1, s32 arg2);
+extern void sdkPadRepeatButtonDispatch(s32 padIndex, u16 buttonMask, s32 timerIndex);
 extern u8 D_008C0314[];
 extern u8 D_008C0316[];
 extern u8 D_008C031A[];
@@ -24,27 +25,32 @@ extern u8 D_008C031E[];
 #pragma push
 #pragma optimization_level 2
 // Same body as sdkPadRepeatButton (sdkTask_inferred.c), run on the dispatch-stage held/edge words (D_008C0314..D_008C031E) instead of the cook-stage words.
+/* measured: retain any byte-addressed dispatch access below: using full record
+ * fields changes timer/mask address materialization under b210 (nd 2..107).
+ * D_008C0314/+2/+6/+0xA are held, pressed, repeat, and per-button timers. */
+/* measured: individual typed rewrites of the remaining raw accesses give
+ * normalized_diff 2, 105; retain their original address/alias expressions. */
 // FUN_00453310
-void sdkPadRepeatButtonDispatch(s32 arg0, u16 arg1, s32 arg2) {
-    s32 off;
-    s32 bits;
-    u16 *word;
-    u8 *timer;
+void sdkPadRepeatButtonDispatch(s32 padIndex, u16 buttonMask, s32 timerIndex) {
+    s32 recordOffset;
+    s32 maskedButtons;
+    u16 *repeatWord;
+    u8 *repeatTimer;
 
-    off = arg0 * 0x4A;
-    bits = arg1 & 0xFFFF;
-    if (bits & *(u16 *)(D_008C0316 + off)) {
-        *(u8 *)(D_008C031E + off + arg2) = 7;
+    recordOffset = padIndex * 0x4A;
+    maskedButtons = buttonMask & 0xFFFF;
+    if (maskedButtons & *(u16 *)(D_008C0316 + recordOffset)) {
+        *(u8 *)(D_008C031E + recordOffset + timerIndex) = 7;
         return;
     }
-    if (bits & *(u16 *)(D_008C0314 + off)) {
-        timer = D_008C031E + off;
-        timer = timer + arg2;
-        *timer -= 1;
-        if (*timer == 0) {
-            word = (u16 *)(D_008C031A + off);
-            *word |= arg1;
-            *timer = 3;
+    if (maskedButtons & *(u16 *)(D_008C0314 + recordOffset)) {
+        repeatTimer = D_008C031E + recordOffset;
+        repeatTimer = repeatTimer + timerIndex;
+        *repeatTimer -= 1;
+        if (*repeatTimer == 0) {
+            repeatWord = (u16 *)(D_008C031A + recordOffset);
+            *repeatWord |= buttonMask;
+            *repeatTimer = 3;
         }
     }
 }
@@ -52,6 +58,7 @@ void sdkPadRepeatButtonDispatch(s32 arg0, u16 arg1, s32 arg2) {
 
 #pragma push
 #pragma optimization_level 2
+/* Alternate generated button pulses and idle intervals until the duration expires. */
 // FUN_004533D0
 void sdkPadStepSequence(void)
 {
@@ -103,16 +110,17 @@ void sdkPadStepSequence(void)
 
 #pragma push
 #pragma optimization_level 2
+/* Start a generated button sequence with independent on/off intervals. */
 // FUN_004534F0
-void sdkPadStartSequence(s16 arg0, s16 arg1, s16 arg2, s16 arg3) {
+void sdkPadStartSequence(s16 duration, s16 buttons, s16 onFrames, s16 offFrames) {
     if (sdkPadSequenceEnabled() == 0) {
         return;
     }
-    iGpffffba34 = arg0;
+    iGpffffba34 = duration;
     iGpffffba30 = 0;
-    iGpffffba2c = arg2;
-    iGpffffba28 = arg3;
-    iGpffffba20 = arg1;
+    iGpffffba2c = onFrames;
+    iGpffffba28 = offFrames;
+    iGpffffba20 = buttons;
     iGpffffba1c = 2;
     iGpffffba24 = 0;
 }

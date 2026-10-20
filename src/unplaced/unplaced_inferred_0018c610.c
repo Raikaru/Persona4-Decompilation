@@ -19,7 +19,7 @@ typedef struct RwTexture RwTexture;
 #include "scene_event_internal.h"
 typedef struct RpMaterial *(*MaterialCallback)(struct RpMaterial *, void *);
 
-extern s32 K_Clump_MatUsrDataHasData(u8 *arg0, u8 *arg1);
+extern s32 K_Clump_MatUsrDataHasData(u8 *material, u8 *name);
 extern struct RpMaterial *func_003c42b0(struct RpMaterial *material, RwTexture *texture);
 extern u8 D_005F5438[];
 typedef struct MaterialTextureContext {
@@ -34,6 +34,7 @@ typedef struct MaterialTextureContext {
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
 // FUN_0018C610
+/* Replace the texture only on materials carrying the mipmap user-data tag. */
 struct RpMaterial *FldRcMaterialSetMipmapTex(struct RpMaterial *material, void *data) {
     MaterialTextureContext *context = data;
 

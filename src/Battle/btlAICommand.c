@@ -6,9 +6,19 @@
 #include "include_asm.h"
 #include "btl_cond_internal.h"
 #include "btl_action_internal.h"
+#include "btl_ai_internal.h"
+#include "btl_effect_internal.h"
+#include "kwln_task_internal.h"
+#include "dat_skill_entry_internal.h"
 
-typedef u8 bool;
-typedef int (*code)();
+/* AI condition words pack an opcode in the high byte and a 24-bit argument.
+ * Script handlers send the predicate value through scrSetReturnInt and retain
+ * their original scheduler return status, including the query handlers returning -1. */
+
+typedef s32 (*code)();
+
+
+
 
 typedef struct DatUnit DatUnit;
 extern u16 datCalcMaxHp(DatUnit *unit);
@@ -16,9 +26,9 @@ extern u16 datCalcMaxHp(DatUnit *unit);
 
 s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled);
 
-extern u64 func_0010f460();
+extern u64 datGetCollectionEntryBits();
 
-extern s32 datCalcGetAffinity(u8 *arg0, s32 arg1);
+extern s32 datCalcGetAffinity(u8 *unit, s32 elementIndex);
 
 typedef void (*FormationCallback)(void);
 
@@ -27,33 +37,33 @@ extern s32 btlAICommandSelectCandidates();
 extern u64 kwlnTaskIsLinked();
 
 extern u8 *btlActionFindById();
-extern s32 btlAICommandCollectCommandsOfType(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3);
+extern s32 btlAICommandCollectCommandsOfType(u8 *action, u8 *target, s16 element, s32 costPreference);
 extern u32 scrGetParamInt();
 extern void scrSetReturnInt();
 extern u8 *scrGetAiState();
 
 extern s32 btlSideSelectUnits();
 extern s32 datCalcSkillAmount(s32 skill, u8 *source, u8 *target, s32 count, s32 hit, s32 relation, s32 options, s32 channel);
-extern void datCalcClearField18(u32 arg0);
-extern s32 btlEffectSelectNearestEntry(u32 arg0, u8 *arg1);
-extern u32 btlFormationCurrentEntry(u8 *arg0);
-extern s32 datCalcSkillElement(u8 *unit, u16 command);
-extern s32 datCalcElementBit(s16 index);
-extern s8 datCalcGetBuffStatus(u8 *unit, s32 status);
-extern u32 datCalcUnderlyingSkillId(u32 arg0);
+extern void datCalcClearField18(u32 object);
+extern s32 btlEffectSelectNearestEntry(u32 action, u8 *targets);
+extern u32 btlFormationCurrentEntry(u8 *formation);
+extern s32 datCalcSkillElement(u8 *unit, u16 skillId);
+extern s32 datCalcElementBit(s16 element);
+extern s8 datCalcGetBuffStatus(u8 *unit, s32 buffIndex);
+extern u32 datCalcUnderlyingSkillId(u32 personaSkillId);
 extern u32 *btlEffectFindUnitByIdAndStatus();
-extern s32 func_001f9ce0(u8 *arg0, s32 arg1);
-extern u32 datTestBitmapBit(u32 arg0, u32 arg1);
-extern void btlFormationEntryCopySelected(u8 *arg0, u8 *arg1);
+extern s32 func_001f9ce0(u8 *, s32);
+extern u32 datTestBitmapBit(u32 entryIndex, u32 bitIndex);
+extern void btlFormationEntryCopySelected(u8 *destination, u8 *source);
 extern u8 *D_0072449C;
 extern void *D_00609850[];
 extern u32 D_00609600[];
-extern u32 btlActionGetQueueEntry(u16 arg0);
-extern u32 datCalcClearBuffLevel(u32 arg0, u32 arg1);
-extern u32 datCalcRandomBelow(u32 arg0);
+extern u32 btlActionGetQueueEntry(u16 index);
+extern u32 datCalcClearBuffLevel(u32 unit, u32 buffIndex);
+extern u32 datCalcRandomBelow(u32 limit);
 extern u16 datCalcGetHp(s32 unit);
-extern s32 datCalcGetElementAffinity(u8 *unit, s32 index);
-extern void btlAICommandSetActionCode(u8 *a, u8 *b, u16 c);
+extern s32 datCalcGetElementAffinity(u8 *unit, s32 elementIndex);
+extern void btlAICommandSetActionCode(u8 *action, u8 *work, u16 actionCode);
 
 extern void *D_00609934[];
 extern void *D_00609940[];
@@ -77,77 +87,80 @@ extern void *D_00609D78[];
 extern void *D_00609D80[];
 extern void *D_00609DF0[];
 extern void *D_00609E18[];
-extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u16 arg2, s32 arg3, u8 *arg4);
-extern s32 btlAICommandCollectSkillCandidates(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3);
-extern s32 btlAICommandPickAiTarget(u8 *arg0, u32 arg1);
+extern void btlEffectCollectTargetUnits(u8 *action, u8 *selection, u16 sideFlags, s32 filterFlags, u8 *statusMask);
+extern s32 btlAICommandCollectSkillCandidates(u8 *action, u8 *target, s32 costPreference, s32 effectFilter);
+extern s32 btlAICommandPickAiTarget(u8 *action, u32 value);
 extern char D_006095E0[];
 extern void kAssertFail(void *file, s32 line);
-extern u32 datCalcChkBadStatus(s32 unit, u32 mask);
-extern s32 datCalcHasSkill(u8 *unit, s32 command);
-extern s32 datCalcThresholdTrigger(u8 *unit, s32 command);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
+extern s32 datCalcHasSkill(u8 *unit, s32 skillId);
+extern s32 datCalcThresholdTrigger(u8 *unit, s32 skillId);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
-extern void func_001ebc00(u8 *a, u8 *b);
+extern void btlAiChooseUsableAttackSkill(u8 *action, u8 *command);
 extern s32 datCalcDefaultSkillId(u8 *unit);
-extern s32 datCalcPickSpecialItem(u8 *arg0);
-extern u32 datCalcGetLevel(u32 arg0);
-extern s32 datCalcIsDead(u32 arg0, u32 arg1);
+extern s32 datCalcPickSpecialItem(u8 *unit);
+extern u32 datCalcGetLevel(u32 unit);
+extern s32 datCalcIsDead(u32 unit, u32 hpDelta);
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb42c;
 extern u8 *iGpffffb3cc;
 extern u8 iGpffffa2a8;
 extern u8 *iGpffffb444;
 extern void sprintf(u8 *a, u8 *b, u32 c, u8 d);
-extern s32 scrFindPrcdIdxByName(u32 a, u8 *b);
-extern s32 scrStartProcedureIndex(u8 *a, u32 b, s32 c);
-extern void scrSetTaskProc(u32 a, u8 *b);
-extern u8 *kwlnTaskGetWork(u32 a);
-extern s32 datPersonaNamePart1Alt(s32 a);
-extern void itfMesWindowSetString(s32 a, s32 b, u32 c);
-extern void kwlnTaskAddChild(u8 *a, u32 b);
+extern s32 scrFindPrcdIdxByName(u32 header, u8 *name);
+extern s32 scrStartProcedureIndex(u8 *priority, u32 header, s32 procedureIndex);
+extern void scrSetTaskProc(u32 task, u8 *proc);
+extern u8 *kwlnTaskGetWork(u32 task);
+extern s32 datPersonaNamePart1Alt(s32 unitId);
+extern void itfMesWindowSetString(s32 handle, s32 slotIndex, u32 text);
+extern void kwlnTaskAddChild(u8 *parent, u32 child);
 extern u8 D_00609E20[];
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
-extern void func_001eb3b0(u8 *a);
+extern void btlTargetResetCommandRecord(u8 *record);
 
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB040 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* Shared by the exported callback and retail's inlined value query. */
-static inline s32 btlCommandUsable(u8 *p, u32 arg1) {
-    s32 a;
+/* Historical whole-layout probe changed the inline body (normalized diff 178); only measured reloads remain raw. */
+static inline s32 btlCommandUsable(u8 *subject, u32 command) {
+    s32 commandId;
 
-    a = arg1 & 0xFFFF;
-    if (a >= 0x240) {
+    commandId = command & 0xFFFF;
+    if (commandId >= 0x240) {
         kAssertFail(D_006095E0, 0x45F);
     }
-    p = *(u8 **)(p + 0x30);
-    if (a < 0x1B8) {
-        if (datCalcChkBadStatus((s32)*(u8 **)(p + 0xA64), 0x80008) != 0)
+    subject = (u8 *)((BtlAction *)subject)->unit;
+    if (commandId < 0x1B8) {
+        if (datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)subject)->datUnit, 0x80008) != 0)
             return 0;
-        if (datCalcHasSkill(*(u8 **)(p + 0xA64), a) == 0)
+        if (datCalcHasSkill(*(u8 **)(subject + 0xA64), commandId) == 0) /* measured: access-site field substitution loses MATCH. */
             return 0;
-        if (datCalcThresholdTrigger(*(u8 **)(p + 0xA64), a) == 0)
+        if (datCalcThresholdTrigger(*(u8 **)(subject + 0xA64), commandId) == 0) /* measured: access-site field substitution loses MATCH. */
             goto ret1;
         return 0;
     }
-    if (datCalcHasSkill(*(u8 **)(p + 0xA64), a) != 0)
+    if (datCalcHasSkill((u8 *)((BtlUnit *)subject)->datUnit, commandId) != 0)
         goto ret1;
     return 0;
 ret1:
     return 1;
 }
 
+/* Historical whole-layout probe: normalized diff 178; the access-site pass retains only measured raw culprits. */
 // FUN_001DAF40
-s32 btlCond_MYABLESKIL(u8 *p, u32 arg1) {
-    return btlCommandUsable(p, arg1);
+s32 btlCond_MYABLESKIL(u8 *action, u32 command) {
+    return btlCommandUsable(action, command);
 }
 
+/* Evaluate weakness on the opposite genus, excluding defeated units. */
 // FUN_001DB040
-void btlCond_ENWEAK_PAI(u8 *arg0, u32 arg1) {
+void btlCond_ENWEAK_PAI(u8 *action, u32 value) {
     u32 shift;
     {
-        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+        if ((((BtlAction *)action))->unit->genus != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -156,18 +169,19 @@ void btlCond_ENWEAK_PAI(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 6, (code *)&btlCond_MYWEAK);
+    btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 6, (code *)&btlCond_MYWEAK);
 }
 
 #pragma opt_rebuildconditionals on
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB0A0 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
+/* Evaluate weakness on the opposite genus, excluding defeated and down units. */
 // FUN_001DB0A0
-void btlCond_ENWEAK_ST_PAI(u8 *arg0, u32 arg1) {
+void btlCond_ENWEAK_ST_PAI(u8 *action, u32 value) {
     u32 shift;
     {
-        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+        if ((((BtlAction *)action))->unit->genus != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -176,20 +190,21 @@ void btlCond_ENWEAK_ST_PAI(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 6, (code *)&btlCond_MYWEAK);
+    btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 6, (code *)&btlCond_MYWEAK);
 }
 
 #pragma opt_rebuildconditionals on
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB100 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
+/* Evaluate the alternate weakness predicate on the opposite genus. */
 // FUN_001DB100
-void btlCond_ENWEAK_DW_PAI(int param_1, u32 param_2)
+void btlCond_ENWEAK_DW_PAI(s32 action, u32 value)
 {
   u32 shift;
 
   {
-      if (*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) != 0)
+      if ((((BtlAction *)action))->unit->genus != 0)
           goto nonzero;
       shift = 1;
       goto done;
@@ -198,7 +213,7 @@ void btlCond_ENWEAK_DW_PAI(int param_1, u32 param_2)
   done:
       ;
   }
-  btlEffectFindUnitMatchingCallback(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 7,
+  btlEffectFindUnitMatchingCallback(action, value, 1 << (shift & 0xffff) & 0xffff, 0x80000, 7,
                  (code *)&btlCond_MYWEAK);
   return;
 }
@@ -209,6 +224,7 @@ void btlCond_ENWEAK_DW_PAI(int param_1, u32 param_2)
 /* measured: shared usability inlining and explicit signed query guards give
    508B/512B, verify nd0; the remaining four bytes are zero tail padding.
    Keep the entry reload after the value query and the existing s32 input ABI. */
+/* Historical whole-layout probe: normalized diff 376; the access-site pass retains only measured raw culprits. */
 // FUN_001DB160
 s32 btlCond_MYATTRSKIL(u8 *action, s32 value)
 {
@@ -220,20 +236,20 @@ s32 btlCond_MYATTRSKIL(u8 *action, s32 value)
     u16 *entry;
     s16 queried;
 
-    unit = *(u8 **)(action + 0x30);
-    queried = datCalcSkillElement(*(u8 **)(unit + 0xA64), 0);
+    unit = *(u8 **)(action + 0x30); /* measured: access-site field substitution loses MATCH. */
+    queried = datCalcSkillElement((u8 *)((BtlUnit *)unit)->datUnit, 0);
     if (queried != value)
         goto scan;
     return 1;
 scan:
-    count = datCalcGetTableLength(*(DatUnit **)(unit + 0xA64));
-    commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64));
+    count = datCalcGetTableLength(*(DatUnit **)(unit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
+    commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
     index = 0;
     limit = count;
     while (index < limit) {
         entry = &commands[index];
         if (*entry != 0 && *entry < 0x1B8) {
-            queried = datCalcSkillElement(*(u8 **)(unit + 0xA64), *entry);
+            queried = datCalcSkillElement(*(u8 **)(unit + 0xA64), *entry); /* measured: access-site field substitution loses MATCH. */
             if (queried != value)
                 goto next;
             if (btlCommandUsable(action, *entry))
@@ -250,6 +266,7 @@ next:
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
+/* Historical whole-layout probe: normalized diff 417; the access-site pass retains only measured raw culprits. */
 // FUN_001DB360
 s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled)
 {
@@ -261,32 +278,32 @@ s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled)
     s32 limit;
     u16 command;
 
-    unit = *(u8 **)(formation + 0x30);
-    if (*(u8 *)(unit + 0xA2) == 1 &&
+    unit = (u8 *)((BtlAction *)formation)->unit;
+    if (((BtlUnit *)unit)->genus == 1 &&
         func_001f9ce0(formation, (s16)index) == 0) {
         u32 queryIndex = (u16)index;
-        if (datTestBitmapBit(*(u16 *)(unit + 0xA4), queryIndex) == 0)
+        if (datTestBitmapBit(((BtlUnit *)unit)->charId, queryIndex) == 0)
             return 1;
     }
 
     flags = datCalcElementBit((s16)index);
     if (enabled == 1 && !(flags & 0xE0001)) {
         if (flags & 2) {
-            if (datCalcGetBuffStatus(*(u8 **)(unit + 0xA64), 0x10) > 0)
+            if (datCalcGetBuffStatus((u8 *)((BtlUnit *)unit)->datUnit, 0x10) > 0)
                 return 0;
         } else if (!(flags & 0x40) &&
-                   datCalcGetBuffStatus(*(u8 **)(unit + 0xA64), 0x11) > 0) {
+                   datCalcGetBuffStatus((u8 *)((BtlUnit *)unit)->datUnit, 0x11) > 0) {
             return 0;
         }
     }
 
     if (flags & 2) {
-        if (*(u8 *)(unit + 0xA2) == 1) {
-            if (*(u16 *)*(u8 **)(unit + 0xA64) & 0x100)
+        if (*(u8 *)(unit + 0xA2) == 1) { /* measured: access-site field substitution loses MATCH. */
+            if (((BtlUnit *)unit)->datUnit->flags & 0x100)
                 return 0;
         } else {
-            count = datCalcGetTableLength(*(DatUnit **)(unit + 0xA64));
-            commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64));
+            count = datCalcGetTableLength(((BtlUnit *)unit)->datUnit);
+            commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
             i = 0;
             limit = count;
             while (i < limit) {
@@ -301,7 +318,7 @@ s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled)
             }
         }
     }
-    return !(datCalcGetElementAffinity(*(u8 **)(unit + 0xA64), (s16)index) & 0x07000000);
+    return !(datCalcGetElementAffinity((u8 *)((BtlUnit *)unit)->datUnit, (s16)index) & 0x07000000);
 }
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
@@ -322,18 +339,19 @@ s32 btlAICommandNomalCheckNoGate(u8 *formation, s32 index)
 
 
 // FUN_001DB5E0
-s32 btlAICommandNomalStatusCheck(u8 *arg0, s16 arg1) {
-    return !(datCalcGetElementAffinity(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x7000000);
+s32 btlAICommandNomalStatusCheck(u8 *action, s16 value) {
+    return !(datCalcGetElementAffinity((u8 *)(((BtlAction *)action))->unit->datUnit, (s32)value) & 0x7000000);
 }
 
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB620 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
+/* Evaluate normal-affinity targets on the opposite genus. */
 // FUN_001DB620
-void btlCond_ENNOMAL(u8 *arg0, u32 arg1) {
+void btlCond_ENNOMAL(u8 *action, u32 value) {
     u32 shift;
     {
-        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+        if ((((BtlAction *)action))->unit->genus != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -342,18 +360,19 @@ void btlCond_ENNOMAL(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOMAL);
+    btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOMAL);
 }
 
 #pragma opt_rebuildconditionals on
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB680 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
+/* Evaluate normal-affinity targets, excluding defeated and down units. */
 // FUN_001DB680
-void btlCond_ENNOMAL_ST(u8 *arg0, u32 arg1) {
+void btlCond_ENNOMAL_ST(u8 *action, u32 value) {
     u32 shift;
     {
-        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+        if ((((BtlAction *)action))->unit->genus != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -362,20 +381,21 @@ void btlCond_ENNOMAL_ST(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0xA, (code *)&btlCond_MYNOMAL);
+    btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0xA, (code *)&btlCond_MYNOMAL);
 }
 
 #pragma opt_rebuildconditionals on
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB6E0 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
+/* Evaluate the alternate normal-affinity predicate on the opposite genus. */
 // FUN_001DB6E0
-void btlCond_ENNOMAL_DW(int param_1, u32 param_2)
+void btlCond_ENNOMAL_DW(s32 action, u32 value)
 {
   u32 shift;
 
   {
-      if (*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) != 0)
+      if ((((BtlAction *)action))->unit->genus != 0)
           goto nonzero;
       shift = 1;
       goto done;
@@ -384,7 +404,7 @@ void btlCond_ENNOMAL_DW(int param_1, u32 param_2)
   done:
       ;
   }
-  btlEffectFindUnitMatchingCallback(param_1, param_2, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0xb,
+  btlEffectFindUnitMatchingCallback(action, value, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0xb,
                  (code *)&btlCond_MYNOMAL);
   return;
 }
@@ -392,29 +412,30 @@ void btlCond_ENNOMAL_DW(int param_1, u32 param_2)
 
 
 
+/* Test the analysis flag for enemy-genus units; other genera return false. */
 // FUN_001DB740
-bool btlCond_ANALYZE(int param_1)
+u8 btlCond_ANALYZE(s32 action)
 {
-  long lVar2 = 0;
-  if (*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) != 1) {
+  long analysisFlag = 0;
+  if ((((BtlAction *)action))->unit->genus != 1) {
     return 0;
   }
-  lVar2 = func_0010f460(*(u16 *)(*(int *)(param_1 + 0x30) + 0xa4));
-  return lVar2 != 0;
+  analysisFlag = datGetCollectionEntryBits((((BtlAction *)action))->unit->charId);
+  return analysisFlag != 0;
 }
 
 
 
 // FUN_001DB790
-s32 btlCond_DOWN(u8 *arg0) {
-    return (**(u16 **)((u8 *)*(u8 **)((u8 *)arg0 + 0x30) + 0xA64) & DAT_UNIT_FLAG_DOWN) ? 0 : 1;
+s32 btlCond_DOWN(u8 *action) {
+    return (((BtlAction *)action)->unit->datUnit->flags & DAT_UNIT_FLAG_DOWN) ? 0 : 1;
 }
 
 
 
 // FUN_001DB7B0
-s32 btlCond_SLIP(u8 *arg0) {
-    return (**(u16 **)((u8 *)*(u8 **)((u8 *)arg0 + 0x30) + 0xA64) & 0x10) ? 0 : 1;
+s32 btlCond_SLIP(u8 *action) {
+    return (((BtlAction *)action)->unit->datUnit->flags & 0x10) ? 0 : 1;
 }
 
 
@@ -423,12 +444,13 @@ s32 btlCond_SLIP(u8 *arg0) {
    func_002ffcc0->func_00231e20 (masked u8); iGpffffb6fc+0x14c->iGpffffb3ac+0x174;
    offsets 0xa2c->0xa64, 0x4a8->0x450. Pragma disables the shift-fold. */
 #pragma opt_rebuildconditionals off
+/* Find an active opposite-genus action whose level exceeds the caller by the requested amount. */
 // FUN_001DB7D0
-u32 btlCond_ENOVERLV(int param_1, u32 param_2)
+u32 btlCond_ENOVERLV(s32 action, u32 value)
 {
     u32 genusValue;
 
-    if (*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) != 0) {
+    if ((((BtlAction *)action))->unit->genus != 0) {
         goto nonzero_genus;
     }
     genusValue = 1;
@@ -438,29 +460,29 @@ nonzero_genus:
 genus_done:
     {
         u32 genus = (u16)genusValue;
-        u32 current = (u8)datCalcGetLevel(*(u32 *)(*(int *)(param_1 + 0x30) + 0xa64));
-        int unit = *(int *)(iGpffffb3ac + 0x174);
+        u32 current = (u8)datCalcGetLevel((u32)((BtlUnit *)(((BtlAction *)action)->unit))->datUnit);
+        s32 unit = (s32)((BtlBattleState *)iGpffffb3ac)->actions;
         u32 candidate;
         u32 comparison;
 
         genus = (u16)genus;
         while (unit != 0) {
-            if (((*(u16 *)(unit + 0x1a) & 1) != 0) &&
-                ((*(u16 *)(unit + 0x1a) & 8) != 0) &&
-                (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) == genus)) {
-                candidate = (u8)datCalcGetLevel(*(u32 *)(*(int *)(unit + 0x30) + 0xa64));
+            if (((((BtlAction *)unit)->unk_1a & 1) != 0) &&
+                ((((BtlAction *)unit)->unk_1a & 8) != 0) &&
+                ((((BtlAction *)unit))->unit->genus == genus)) {
+                candidate = (u8)datCalcGetLevel((u32)((BtlUnit *)(((BtlAction *)unit)->unit))->datUnit);
                 comparison = candidate < current;
                 if (comparison != 0) {
                     goto next_unit;
                 }
-                comparison = (candidate - current) < param_2;
+                comparison = (candidate - current) < value;
                 if (comparison != 0) {
                     goto next_unit;
                 }
                 return 1;
             }
 next_unit:
-            unit = *(int *)(unit + 0x450);
+            unit = (s32)((BtlAction *)unit)->next;
         }
     }
     return 0;
@@ -469,30 +491,32 @@ next_unit:
 
 
 // FUN_001DB8D0
-s32 btlCond_MYHOJO(u8 *arg0, s32 arg1) {
-    return (s32)(datCalcHasBuffMask(*(DatUnit **)(*(u8 **)(arg0 + 0x30) + 0xA64), arg1) != 0);
+s32 btlCond_MYHOJO(u8 *action, s32 value) {
+    return (s32)(datCalcHasBuffMask((((BtlAction *)action))->unit->datUnit, value) != 0);
 }
 
 // FUN_001DB900
-s32 btlCond_MYTAISEI(u8 *arg0, s16 arg1) {
-    return (s32)((datCalcGetAffinity(*(u8 **)(*(u8 **)(arg0 + 0x30) + 0xA64), (s32)arg1) & 0x10000000) != 0);
+s32 btlCond_MYTAISEI(u8 *action, s16 value) {
+    return (s32)((datCalcGetAffinity((u8 *)(((BtlAction *)action))->unit->datUnit, (s32)value) & 0x10000000) != 0);
 }
 
 
 
+/* Evaluate affinity on units of the caller genus. */
 // FUN_001DB940
-void btlCond_FRTAISEI(u8 *arg0, u32 arg1) {
-    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2))) & 0xFFFF, 0x80000, 0, (code *)&btlCond_MYTAISEI);
+void btlCond_FRTAISEI(u8 *action, u32 value) {
+    btlEffectFindUnitMatchingCallback((s32)action, value, (1 << ((((BtlAction *)action))->unit->genus)) & 0xFFFF, 0x80000, 0, (code *)&btlCond_MYTAISEI);
 }
 
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DB990 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
+/* Evaluate affinity on units of the opposite genus. */
 // FUN_001DB990
-void btlCond_ENTAISEI(u8 *arg0, u32 arg1) {
+void btlCond_ENTAISEI(u8 *action, u32 value) {
     u32 shift;
     {
-        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+        if ((((BtlAction *)action))->unit->genus != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -501,7 +525,7 @@ void btlCond_ENTAISEI(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code *)&btlCond_MYTAISEI);
+    btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code *)&btlCond_MYTAISEI);
 }
 
 #pragma opt_rebuildconditionals on
@@ -509,26 +533,28 @@ void btlCond_ENTAISEI(u8 *arg0, u32 arg1) {
    with the canonical u32 bitmap arguments; 156B/window 160B, normalized_diff 0. */
 #pragma push
 #pragma opt_propagation off
+/* Check the enemy affinity bitmap and test whether the requested affinity is non-normal. */
 // FUN_001DB9F0
-s32 btlCond_MYNOTNOMAL(u8 *arg0, s16 arg1) {
-    u8 *p = *(u8 **)(arg0 + 0x30);
-    if (*(u8 *)(p + 0xA2) == 1 && func_001f9ce0(arg0, arg1) == 0) {
-        u32 index = (u16)arg1;
-        if (datTestBitmapBit(*(u16 *)(p + 0xA4), index) == 0)
+s32 btlCond_MYNOTNOMAL(u8 *action, s16 value) {
+    u8 *p = (u8 *)((BtlAction *)action)->unit;
+    if (((BtlUnit *)p)->genus == 1 && func_001f9ce0(action, value) == 0) {
+        u32 index = (u16)value;
+        if (datTestBitmapBit(((BtlUnit *)p)->charId, index) == 0)
             return 0;
     }
-    return (datCalcGetElementAffinity(*(u8 **)(p + 0xA64), (s32)arg1) & 0x7000000) != 0;
+    return (datCalcGetElementAffinity((u8 *)((BtlUnit *)p)->datUnit, (s32)value) & 0x7000000) != 0;
 }
 #pragma pop
 
 #pragma opt_rebuildconditionals off
 /* Removing this loses FUN_001DBA90 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
+/* Evaluate non-normal affinity on units of the opposite genus. */
 // FUN_001DBA90
-void btlCond_ENNOTNOMAL(u8 *arg0, u32 arg1) {
+void btlCond_ENNOTNOMAL(u8 *action, u32 value) {
     u32 shift;
     {
-        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) != 0)
+        if ((((BtlAction *)action))->unit->genus != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -537,24 +563,25 @@ void btlCond_ENNOTNOMAL(u8 *arg0, u32 arg1) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)arg0, arg1, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOTNOMAL);
+    btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOTNOMAL);
 }
 
 #pragma opt_rebuildconditionals on
+/* Translate four wall-selector bits into the corresponding buff-status mask. */
 // FUN_001DBAF0
-s32 btlCond_MYWALL(u8 *arg0, u32 arg1) {
+s32 btlCond_MYWALL(u8 *action, u32 value) {
     s32 mask = 0;
-    if (arg1 & 1)
+    if (value & 1)
         mask |= 0x8000000;
-    if (arg1 & 2)
+    if (value & 2)
         mask |= 0x10000000;
-    if (arg1 & 4)
+    if (value & 4)
         mask |= 0x20000000;
-    if (arg1 & 8)
+    if (value & 8)
         mask |= 0x40000000;
     if (mask == 0)
         return 0;
-    return datCalcHasBuffMask(*(DatUnit **)(*(u8 **)(arg0 + 0x30) + 0xA64), mask) != 0;
+    return datCalcHasBuffMask((((BtlAction *)action))->unit->datUnit, mask) != 0;
 }
 
 // FUN_001DBB90
@@ -564,7 +591,7 @@ s32 btlAICommandAlwaysTrue(void) {
 
 /* MATCH.  `opt_dead_assignments off` is the whole difference: with it the
    two remaining words - retail evaluating the second argument of
-   datTestBitmapBit(*(u16 *)(temp16 + 0xA4), index) first, `andi $a1, $s4,
+   datTestBitmapBit(((BtlUnit *)temp16)->charId, index) first, `andi $a1, $s4,
    0xffff` before `lhu $a0, 0xa4($s0)` - come out in retail's order.  Found by
    a pairwise sweep; the pragma is not in the usual four and had never been
    measured anywhere in this tree.  `opt_strength_reduction off` alone is
@@ -580,136 +607,138 @@ s32 btlAICommandAlwaysTrue(void) {
    mask `arg1 & 0xFFFF`, and all four of `schedule on` (199),
    `opt_loop_invariants on` (147), `opt_common_subs off` (193) and
    `opt_propagation off` (191). */
+/* Filter the classified targets by status, affinity and predicate; copy all matches or choose one. */
+/* Historical whole-layout probe: normalized diff 6; the access-site pass retains only measured raw culprits. */
 // FUN_001DBBA0
 #pragma opt_dead_assignments off
-s32 btlAICommandSelectCandidates(arg0, arg1, arg2, arg3, arg4, arg5)
-s32 arg0;
-s32 arg1;
-s32 arg2;
-s32 arg3;
-s32 arg4;
-code arg5;
+s32 btlAICommandSelectCandidates(action, queryValue, excludedStatus, selectionFlags, rejectedResult, predicate)
+s32 action;
+s32 queryValue;
+s32 excludedStatus;
+s32 selectionFlags;
+s32 rejectedResult;
+code predicate;
 {
-    s32 f23;
-    s32 f17;
-    s32 m1;
-    s32 m2;
-    s32 m3;
-    s32 m4;
-    u8 *temp19;
-    u8 *temp16;
-    s32 c18;
-    s32 i22;
+    s32 flags;
+    s32 filterFlags;
+    s32 requireDown;
+    s32 requireKnownAffinity;
+    s32 requireSkill;
+    s32 excludeBuffs;
+    u8 *candidateAction;
+    u8 *candidateUnit;
+    s32 selectedCount;
+    s32 candidateIndex;
     u8 *selected[12];
 
-    f23 = arg3 & 0xFFFF;
-    if ((f23 & 0x20) != 0) {
-        btlEffectCollectTargetUnits((u8 *)arg0, (u8 *)arg0 + 0x98, 2, 0, 0);
+    flags = selectionFlags & 0xFFFF;
+    if ((flags & 0x20) != 0) {
+        btlEffectCollectTargetUnits((u8 *)action, (u8 *)action + 0x98, 2, 0, 0);
     } else {
         u16 available;
 
-        available = btlSkillClassifyTargets((u8 *)arg0, (u8 *)arg0 + 0x98, *(u16 *)((u8 *)arg0 + 0x6E), 0);
+        available = btlSkillClassifyTargets((u8 *)action, (u8 *)action + 0x98, ((BtlAction *)((u8 *)action))->unk_6e, 0);
         if (available != 0) {
-            u16 eindex;
-            u16 ecount;
+            u16 copyIndex;
+            u16 copyCount;
 
-            eindex = 0;
-            while ((ecount = *(u16 *)((u8 *)arg0 + 0xD0)), (u16)eindex < ecount) {
-                *(u32 *)((u8 *)arg0 + (eindex & 0xFFFF) * 4 + 0x38) =
-                    *(u32 *)((u8 *)arg0 + (eindex & 0xFFFF) * 4 + 0x98);
-                eindex++;
+            copyIndex = 0;
+            while ((copyCount = ((BtlAction *)((u8 *)action))->unk_d0), (u16)copyIndex < copyCount) {
+                ((BtlAiCommandWork *)((BtlAction *)(u8 *)action)->unk_38)->targets[(copyIndex & 0xFFFF)] =
+                    (u32)((BtlAction *)(u8 *)action)->parameters.candidates[(copyIndex & 0xFFFF)];
+                copyIndex++;
             }
-            *(u16 *)((u8 *)arg0 + 0x6A) = ecount;
+            ((BtlAction *)((u8 *)action))->unk_6a = copyCount;
             return 1;
         }
     }
-    c18 = 0;
-    i22 = 0;
-    f17 = (u16)arg3;
-    m1 = f17 & 1;
-    m2 = f17 & 2;
-    m3 = f17 & 0x10;
-    m4 = f17 & 0x40;
-    for (; (u16)i22 < *(u16 *)((u8 *)arg0 + 0xD0); i22 = (i22 + 1) & 0xFFFF) {
-        temp19 = *(u8 **)((u8 *)arg0 + (i22 & 0xFFFF) * 4 + 0x98);
-        if ((*(u16 *)(temp19 + 0x1A) & 1) == 0) {
+    selectedCount = 0;
+    candidateIndex = 0;
+    filterFlags = (u16)selectionFlags;
+    requireDown = filterFlags & 1;
+    requireKnownAffinity = filterFlags & 2;
+    requireSkill = filterFlags & 0x10;
+    excludeBuffs = filterFlags & 0x40;
+    for (; (u16)candidateIndex < ((BtlAction *)((u8 *)action))->unk_d0; candidateIndex = (candidateIndex + 1) & 0xFFFF) {
+        candidateAction = ((BtlAction *)(u8 *)action)->parameters.candidates[(candidateIndex & 0xFFFF)];
+        if ((((BtlAction *)candidateAction)->unk_1a & 1) == 0) {
             continue;
         }
-        temp16 = *(u8 **)(temp19 + 0x30);
-        if (f17 == 0) {
+        candidateUnit = (u8 *)((BtlAction *)candidateAction)->unit;
+        if (filterFlags == 0) {
             goto testm4;
         }
-        if (m1 == 0) {
+        if (requireDown == 0) {
             goto testm2;
         }
-        if (datCalcChkBadStatus(*(u32 *)(temp16 + 0xA64), 0x100000) == 0) {
+        if (datCalcChkBadStatus((u32)((BtlUnit *)candidateUnit)->datUnit, 0x100000) == 0) {
             continue;
         }
     testm2:
-        if (m2 == 0) {
+        if (requireKnownAffinity == 0) {
             goto testm3;
         }
-        if (*(u8 *)(temp16 + 0xA2) != 1 || func_001f9ce0(temp19, (s16)arg1) != 0) {
+        if (((BtlUnit *)candidateUnit)->genus != 1 || func_001f9ce0(candidateAction, (s16)queryValue) != 0) {
             goto testm3;
         }
         {
-            u32 index = (u16)arg1;
-            if (datTestBitmapBit(*(u16 *)(temp16 + 0xA4), index) == 0) {
+            u32 index = (u16)queryValue;
+            if (datTestBitmapBit(((BtlUnit *)candidateUnit)->charId, index) == 0) {
                 continue;
             }
         }
     testm3:
-        if (m3 == 0) {
+        if (requireSkill == 0) {
             goto testm4;
         }
-        if (btlAICommandCollectSkillCandidates((u8 *)arg0, temp19, 0, 0) < 0) {
+        if (btlAICommandCollectSkillCandidates((u8 *)action, candidateAction, 0, 0) < 0) {
             continue;
         }
     testm4:
-        if (m4 == 0) {
-            if (datCalcChkBadStatus(*(u32 *)(temp16 + 0xA64), arg2) != 0) {
+        if (excludeBuffs == 0) {
+            if (datCalcChkBadStatus((u32)((BtlUnit *)candidateUnit)->datUnit, excludedStatus) != 0) {
                 continue;
             } else {
                 goto docallback;
             }
         }
-        if (datCalcHasBuffMask(*(DatUnit **)(temp16 + 0xA64), arg2) != 0) {
+        if (datCalcHasBuffMask(((BtlUnit *)candidateUnit)->datUnit, excludedStatus) != 0) {
             continue;
         }
     docallback:
-        if (arg5(temp19, arg1) != arg4) {
-            selected[(u16)c18] = temp19;
-            c18 = (c18 + 1) & 0xFFFF;
+        if (predicate(candidateAction, queryValue) != rejectedResult) {
+            selected[(u16)selectedCount] = candidateAction;
+            selectedCount = (selectedCount + 1) & 0xFFFF;
         }
     }
     {
         s32 count;
 
-        count = c18 & 0xFFFF;
+        count = selectedCount & 0xFFFF;
         if (count == 0) {
-            if ((f23 & 8) != 0) {
+            if ((flags & 8) != 0) {
                 return 0;
             }
-            return btlAICommandPickAiTarget((u8 *)arg0, arg1);
+            return btlAICommandPickAiTarget((u8 *)action, queryValue);
         }
-        if ((f23 & 4) == 0) {
+        if ((flags & 4) == 0) {
             s32 pick;
 
             pick = 0;
             if (count > 1) {
                 pick = datCalcRandomBelow(count) & 0xFFFF;
             }
-            *(u8 **)((u8 *)arg0 + 0x38) = selected[pick & 0xFFFF];
-            *(u16 *)((u8 *)arg0 + 0x6A) = 1;
+            ((BtlAction *)(u8 *)action)->targets[0] = selected[pick & 0xFFFF];
+            ((BtlAction *)((u8 *)action))->unk_6a = 1;
         } else {
-            s32 k;
+            s32 selectedIndex;
 
-            k = 0;
-            while ((u16)k < count) {
-                *(u8 **)((u8 *)arg0 + (k & 0xFFFF) * 4 + 0x38) = selected[k & 0xFFFF];
-                k = (k + 1) & 0xFFFF;
+            selectedIndex = 0;
+            while ((u16)selectedIndex < count) {
+                ((BtlAction *)(u8 *)action)->targets[(selectedIndex & 0xFFFF)] = selected[selectedIndex & 0xFFFF];
+                selectedIndex = (selectedIndex + 1) & 0xFFFF;
             }
-            *(u16 *)((u8 *)arg0 + 0x6A) = c18;
+            ((BtlAction *)((u8 *)action))->unk_6a = selectedCount;
         }
         return 1;
     }
@@ -727,110 +756,113 @@ code arg5;
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
+/* HP-ratio ranking row used by the weighted target picker. */
 typedef struct SortEnt {
     u32 unit;
     f32 ratio;
 } SortEnt;
+/* Use uniform targeting unless eligible party targets can be ranked by HP ratio and weighted. */
+/* Historical whole-layout probe: normalized diff 815; the access-site pass retains only measured raw culprits. */
 // FUN_001DBF20
-s32 btlAICommandPickAiTarget(u8 *arg0, u32 arg1) {
+s32 btlAICommandPickAiTarget(u8 *action, u32 value) {
     extern u8 D_006095F0[];
-    u16 available;
-    u16 i;
-    u16 v7;
-    s32 v8;
-    s32 j;
-    u8 g;
-    u16 n;
-    s32 c18;
-    u8 *e;
-    u32 w;
-    u32 f15;
-    u32 f16;
-    SortEnt stab[12];
+    u16 classification;
+    u16 copyIndex;
+    u16 candidateCount;
+    s32 chooseUniformly;
+    s32 scanIndex;
+    u8 targetKind;
+    u16 candidateIndex;
+    s32 sortCount;
+    u8 *candidateEntry;
+    u32 candidateAction;
+    u32 maxHp;
+    u32 currentHp;
+    SortEnt rankedTargets[12];
     s32 swapped;
-    f32 r0;
-    u32 t0;
-    s32 tot;
-    u16 m;
-    u16 rnd;
+    f32 leftRatio;
+    u32 leftAction;
+    s32 totalWeight;
+    u16 weightedIndex;
+    u16 randomWeight;
 
-    available = btlSkillClassifyTargets(arg0, arg0 + 0x98, *(u16 *)(arg0 + 0x6E), 0);
-    if (available != 0) {
-        i = 0;
-        while ((v7 = *(u16 *)(arg0 + 0xD0)), (u16)i < v7) {
-            *(u32 *)(arg0 + (i & 0xFFFF) * 4 + 0x38) = *(u32 *)(arg0 + (i & 0xFFFF) * 4 + 0x98);
-            i++;
+    classification = btlSkillClassifyTargets(action, action + 0x98, ((BtlAction *)action)->unk_6e, 0);
+    if (classification != 0) {
+        copyIndex = 0;
+        while ((candidateCount = ((BtlAction *)action)->unk_d0), (u16)copyIndex < candidateCount) {
+            ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets[(copyIndex & 0xFFFF)] = (u32)((BtlAction *)action)->parameters.candidates[(copyIndex & 0xFFFF)];
+            copyIndex++;
         }
-        *(u16 *)(arg0 + 0x6A) = v7;
+        ((BtlAction *)action)->unk_6a = candidateCount;
         return 1;
     }
-    v7 = *(u16 *)(arg0 + 0xD0);
-    v8 = 1;
-    if (v7 == 1) {
-        *(u32 *)(arg0 + 0x38) = *(u32 *)(arg0 + 0x98);
-        *(u16 *)(arg0 + 0x6A) = 1;
+    candidateCount = ((BtlAction *)action)->unk_d0;
+    chooseUniformly = 1;
+    if (candidateCount == 1) {
+        ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets[0] = (u32)((BtlAction *)action)->parameters.candidates[0];
+        ((BtlAction *)action)->unk_6a = 1;
     } else {
-        if (*(u8 *)(*(u8 **)(arg0 + 0x30) + 0xA2) == 1) {
-            j = 0;
-            while ((u16)j < v7) {
-                if (*(u8 *)(*(u8 **)(*(u32 *)(arg0 + (j & 0xFFFF) * 4 + 0x98) + 0x30) + 0xA2) != 0) {
+        if (((BtlUnit *)((u8 *)((BtlAction *)action)->unit))->genus == 1) {
+            scanIndex = 0;
+            while ((u16)scanIndex < candidateCount) {
+                if (((BtlUnit *)((u8 *)((BtlAction *)((u32)((BtlAction *)action)->parameters.candidates[scanIndex & 0xFFFF]))->unit))->genus != 0) {
                     break;
                 }
-                j = (j + 1) & 0xFFFF;
+                scanIndex = (scanIndex + 1) & 0xFFFF;
             }
-            if ((u16)j == v7) {
-                v8 = 0;
+            if ((u16)scanIndex == candidateCount) {
+                chooseUniformly = 0;
             }
         }
-        g = *(iGpffffb3b8 + *(u16 *)(arg0 + 0x6E) * 40 + 17);
-        if (g == 0x10 || g == 0x0E || g == 0x0D || g == 0x0C || g == 0x0A || g == 0x08 || g == 0x04 || g == 0x03 || g == 0x01) {
+        targetKind = *(iGpffffb3b8 + *(u16 *)(action + 0x6E) * 40 + 17); /* measured: access-site field substitution loses MATCH. */
+        if (targetKind == 0x10 || targetKind == 0x0E || targetKind == 0x0D || targetKind == 0x0C || targetKind == 0x0A || targetKind == 0x08 || targetKind == 0x04 || targetKind == 0x03 || targetKind == 0x01) {
         } else {
-            v8 = 1;
+            chooseUniformly = 1;
         }
-        if (v8 != 0 || v7 > 4) {
-            *(u32 *)(arg0 + 0x38) = ((u32 *)(arg0 + 0x98))[(u16)datCalcRandomBelow(v7)];
-            *(u16 *)(arg0 + 0x6A) = 1;
+        if (chooseUniformly != 0 || candidateCount > 4) {
+            ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets[0] = ((u32 *)(action + 0x98))[(u16)datCalcRandomBelow(candidateCount)];
+            ((BtlAction *)action)->unk_6a = 1;
         } else {
-            n = 0;
-            c18 = v7 & 0xFFFF;
-            while (n < c18) {
-                e = arg0 + (n & 0xFFFF) * 4 + 0x98;
-                w = *(u32 *)e;
-                f15 = datCalcMaxHp((DatUnit *)*(u32 *)(*(u32 *)(w + 0x30) + 0xA64)) & 0xFFFF;
-                f16 = datCalcGetHp(*(u32 *)(*(u32 *)(w + 0x30) + 0xA64)) & 0xFFFF;
-                stab[n & 0xFFFF].unit = *(u32 *)e;
-                stab[n & 0xFFFF].ratio = (f32)f16 / (f32)f15;
-                n++;
+            candidateIndex = 0;
+            sortCount = candidateCount & 0xFFFF;
+            while (candidateIndex < sortCount) {
+                candidateEntry = action + (candidateIndex & 0xFFFF) * 4 + 0x98;
+                candidateAction = *(u32 *)candidateEntry;
+                maxHp = datCalcMaxHp((DatUnit *)(u32)((BtlUnit *)((u32)((BtlAction *)candidateAction)->unit))->datUnit) & 0xFFFF;
+                currentHp = datCalcGetHp((u32)((BtlUnit *)(*(u32 *)(candidateAction + 0x30)))->datUnit) & 0xFFFF; /* measured: access-site field substitution loses MATCH. */
+                rankedTargets[candidateIndex & 0xFFFF].unit = *(u32 *)candidateEntry;
+                rankedTargets[candidateIndex & 0xFFFF].ratio = (f32)currentHp / (f32)maxHp;
+                candidateIndex++;
             }
             do {
                 swapped = 0;
-                for (n = 0; n < (s32)c18 - 1; n++) {
-                    if ((r0 = stab[n].ratio) < stab[n + 1].ratio) {
-                        t0 = stab[n].unit;
-                        stab[n].unit = stab[n + 1].unit;
-                        stab[n].ratio = stab[n + 1].ratio;
-                        stab[n + 1].unit = t0;
-                        stab[n + 1].ratio = r0;
+                for (candidateIndex = 0; candidateIndex < (s32)sortCount - 1; candidateIndex++) {
+                    if ((leftRatio = rankedTargets[candidateIndex].ratio) < rankedTargets[candidateIndex + 1].ratio) {
+                        leftAction = rankedTargets[candidateIndex].unit;
+                        rankedTargets[candidateIndex].unit = rankedTargets[candidateIndex + 1].unit;
+                        rankedTargets[candidateIndex].ratio = rankedTargets[candidateIndex + 1].ratio;
+                        rankedTargets[candidateIndex + 1].unit = leftAction;
+                        rankedTargets[candidateIndex + 1].ratio = leftRatio;
                         swapped = 1;
                     }
                 }
             } while (swapped != 0);
-            rnd = datCalcRandomBelow(100);
-            tot = 0;
-            m = 0;
-            while (m < v7) {
-                tot = (tot + D_006095F0[4 * v7 - 4 + m]) & 0xFFFF;
-                if (tot >= rnd) {
+            randomWeight = datCalcRandomBelow(100);
+            totalWeight = 0;
+            weightedIndex = 0;
+            while (weightedIndex < candidateCount) {
+                totalWeight = (totalWeight + D_006095F0[4 * candidateCount - 4 + weightedIndex]) & 0xFFFF;
+                if (totalWeight >= randomWeight) {
                     break;
                 }
-                m++;
+                weightedIndex++;
             }
-            if (c18 != m) {
-                *(u32 *)(arg0 + 0x38) = stab[m].unit;
-                *(u16 *)(arg0 + 0x6A) = 1;
+            if (sortCount != weightedIndex) {
+                ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets[0] = rankedTargets[weightedIndex].unit;
+                ((BtlAction *)action)->unk_6a = 1;
             } else {
-                *(u32 *)(arg0 + 0x38) = stab[datCalcRandomBelow(v7)].unit;
-                *(u16 *)(arg0 + 0x6A) = 1;
+                ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets[0] = rankedTargets[datCalcRandomBelow(candidateCount)].unit;
+                ((BtlAction *)action)->unk_6a = 1;
             }
         }
     }
@@ -842,24 +874,26 @@ s32 btlAICommandPickAiTarget(u8 *arg0, u32 arg1) {
 /* Ported from P3FES btlEffect.c func_002c3be0 (copy-all / min-stat select).
    func_002bff60_u16->func_001d7f10; offsets 0x88->0x98, 0xc0->0xd0, 0xa2c->0xa64;
    lowest init 0xfffffff. */
+/* Copy all classified targets or choose the candidate with the lowest current HP. */
+/* Historical whole-layout probe: normalized diff 4; the access-site pass retains only measured raw culprits. */
 // FUN_001DC380
-u32 btlCond_HPMIN(u32 param_1)
+u32 btlCond_HPMIN(u32 action)
 {
     u32 unit;
     u16 available;
 
-    unit = param_1;
-    available = btlSkillClassifyTargets((u8 *)unit, (u8 *)(unit + 0x98), *(u16 *)(unit + 0x6e), 0);
+    unit = action;
+    available = btlSkillClassifyTargets((u8 *)unit, (u8 *)(unit + 0x98), ((BtlAction *)unit)->unk_6e, 0);
     if (available != 0) {
         u16 index;
         u16 count;
         index = 0;
-        while ((count = *(u16 *)(unit + 0xd0)), (u16)index < count) {
-            *(u32 *)(unit + (index & 0xffff) * 4 + 0x38) =
-                *(u32 *)(unit + (index & 0xffff) * 4 + 0x98);
+        while ((count = ((BtlAction *)unit)->unk_d0), (u16)index < count) {
+            ((BtlAiCommandWork *)((BtlAction *)unit)->unk_38)->targets[(index & 0xffff)] =
+                (u32)((BtlAction *)unit)->parameters.candidates[(index & 0xffff)];
             index++;
         }
-        *(u16 *)(unit + 0x6a) = count;
+        ((BtlAction *)unit)->unk_6a = count;
         return 1;
     }
     {
@@ -872,19 +906,19 @@ u32 btlCond_HPMIN(u32 param_1)
         selected = 0;
         lowest = 0xfffffff;
         index = 0;
-        count = *(u16 *)(unit + 0xd0);
+        count = ((BtlAction *)unit)->unk_d0;
         while (index < count) {
-            candidate = *(u32 *)(unit + index * 4 + 0x98);
-            stat = *(u16 *)(*(int *)(*(int *)(candidate + 0x30) + 0xa64) + 8);
+            candidate = (u32)((BtlAction *)unit)->parameters.candidates[index];
+            stat = ((DatUnit *)((s32)((BtlUnit *)((s32)((BtlAction *)candidate)->unit))->datUnit))->hp;
             if (stat < lowest) {
                 selected = candidate;
                 lowest = stat;
             }
             index++;
         }
-        *(u32 *)(unit + 0x38) = selected;
+        ((BtlAiCommandWork *)((BtlAction *)unit)->unk_38)->targets[0] = selected;
     }
-    *(u16 *)(unit + 0x6a) = 1;
+    ((BtlAction *)unit)->unk_6a = 1;
     return 1;
 }
 
@@ -892,40 +926,42 @@ u32 btlCond_HPMIN(u32 param_1)
 /* Ported from P3FES btlEffect.c func_002c3ce0 (target-choose min-score loop).
    func_002bff60_u16->func_001d7f10, func_002ffcc0->func_00231e20 (score masked
    (u8)); offsets 0x88->0x98, 0xc0->0xd0, 0xa2c->0xa64. */
+/* Copy all classified targets or choose the candidate with the lowest level. */
+/* Historical whole-layout probe: normalized diff 4; the access-site pass retains only measured raw culprits. */
 // FUN_001DC480
-u32 btlCond_LVMIN(u32 param_1)
+u32 btlCond_LVMIN(u32 action)
 {
     u16 result;
     u16 copyIndex;
-    int unit;
-    int selected;
+    s32 unit;
+    s32 selected;
     u16 index;
     u16 best;
     u16 score;
     u32 idx32;
 
-    result = btlSkillClassifyTargets((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
+    result = btlSkillClassifyTargets((u8 *)action, (u8 *)(action + 0x98), ((BtlAction *)action)->unk_6e, 0);
     if (result != 0) {
-        for (copyIndex = 0; copyIndex < *(u16 *)(param_1 + 0xd0); copyIndex++) {
-            *(u32 *)(param_1 + copyIndex * 4 + 0x38) = *(u32 *)(param_1 + copyIndex * 4 + 0x98);
+        for (copyIndex = 0; copyIndex < ((BtlAction *)action)->unk_d0; copyIndex++) {
+            ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets[copyIndex] = (u32)((BtlAction *)action)->parameters.candidates[copyIndex];
         }
-        *(u16 *)(param_1 + 0x6a) = *(u16 *)(param_1 + 0xd0);
+        ((BtlAction *)action)->unk_6a = ((BtlAction *)action)->unk_d0;
         return 1;
     }
     selected = 0;
     best = 0xffff;
-    for (index = 0; index < *(u16 *)(param_1 + 0xd0); index++) {
+    for (index = 0; index < ((BtlAction *)action)->unk_d0; index++) {
         idx32 = index;
         idx32 = idx32 & 0xffff;
-        unit = *(int *)(param_1 + idx32 * 4 + 0x98);
-        score = (u8)datCalcGetLevel(*(u32 *)(*(int *)(unit + 0x30) + 0xa64));
+        unit = (s32)((BtlAction *)action)->parameters.candidates[idx32];
+        score = (u8)datCalcGetLevel((u32)((BtlUnit *)((s32)((BtlAction *)unit)->unit))->datUnit);
         if (score < best) {
             selected = unit;
             best = score;
         }
     }
-    *(int *)(param_1 + 0x38) = selected;
-    *(u16 *)(param_1 + 0x6a) = 1;
+    ((s32 *)((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets)[0] = selected;
+    ((BtlAction *)action)->unk_6a = 1;
     return 1;
 }
 
@@ -962,32 +998,33 @@ void btlAICommandPickMyId(u64 formation, u32 flags) {
    iGpffffb6fc+0x14c -> iGpffffb3ac+0x174; func_00300580 -> func_00232710;
    func_002ffbc0 -> func_00231d70 (extern switched u16->u32 so the index
    call doesn't re-mask the return); field 0xa2c -> 0xa64, 0x4a8 -> 0x450. */
+/* Choose another active same-genus action, falling back to the caller when none qualifies. */
 // FUN_001DC6A0
-u32 btlCond_MYAI(int param_1)
+u32 btlCond_MYAI(s32 action)
 {
-    int iVar1;
-    u16 uVar3;
-    int aiStack_30[12];
+    s32 candidateAction;
+    u16 candidateCount;
+    s32 candidates[12];
 
-    uVar3 = 0;
-    for (iVar1 = *(int *)(iGpffffb3ac + 0x174); iVar1 != 0; iVar1 = *(int *)(iVar1 + 0x450)) {
-        if ((((param_1 != iVar1) && ((*(u16 *)(iVar1 + 0x1a) & 1) != 0)) &&
-            ((*(u16 *)(iVar1 + 0x1a) & 8) != 0)) &&
-           ((*(u8 *)(*(int *)(param_1 + 0x30) + 0xa2) == *(u8 *)(*(int *)(iVar1 + 0x30) + 0xa2) &&
-            (datCalcChkBadStatus(*(u32 *)(*(int *)(iVar1 + 0x30) + 0xa64), 0x80000) == 0))
+    candidateCount = 0;
+    for (candidateAction = (s32)((BtlBattleState *)iGpffffb3ac)->actions; candidateAction != 0; candidateAction = (s32)((BtlAction *)candidateAction)->next) {
+        if ((((action != candidateAction) && ((((BtlAction *)candidateAction)->unk_1a & 1) != 0)) &&
+            ((((BtlAction *)candidateAction)->unk_1a & 8) != 0)) &&
+           (((((BtlAction *)action))->unit->genus == (((BtlAction *)candidateAction))->unit->genus &&
+            (datCalcChkBadStatus((u32)((BtlUnit *)(((BtlAction *)candidateAction)->unit))->datUnit, 0x80000) == 0))
            )) {
-            aiStack_30[uVar3] = iVar1;
-            uVar3++;
+            candidates[candidateCount] = candidateAction;
+            candidateCount++;
         }
     }
-    if (uVar3 == 0) {
-        *(int *)(param_1 + 0x38) = param_1;
-        *(u16 *)(param_1 + 0x6a) = 1;
+    if (candidateCount == 0) {
+        ((s32 *)((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets)[0] = action;
+        ((BtlAction *)action)->unk_6a = 1;
         return 1;
     }
     else {
-        *(int *)(param_1 + 0x38) = aiStack_30[datCalcRandomBelow(uVar3)];
-        *(u16 *)(param_1 + 0x6a) = 1;
+        ((s32 *)((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets)[0] = candidates[datCalcRandomBelow(candidateCount)];
+        ((BtlAction *)action)->unk_6a = 1;
         return 1;
     }
 }
@@ -1046,25 +1083,28 @@ void btlAICommandPickNotMyWeak(u64 formation, u32 flags) {
 /* Ported from P3FES btlEffect.c func_002c4200 (copy-all / random-select).
    func_002bff60_u16->func_001d7f10 (4th arg 1), func_002ffbc0_u16->func_00231d70;
    offsets 0x88->0x98, 0xc0->0xd0. */
+/* The random slot offset stays in bytes: preserving its byte-base operand order makes the typed access MATCH. */
+/* Copy classified reverse targets or choose one candidate uniformly. */
+/* Historical whole-layout probe: normalized diff 2; the access-site pass retains only measured raw culprits. */
 // FUN_001DC9A0
-u32 btlCond_AI_REV(u32 param_1)
+u32 btlCond_AI_REV(u32 action)
 {
     u16 result;
     u16 index;
     u32 address;
 
-    result = btlSkillClassifyTargets((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 1);
+    result = btlSkillClassifyTargets((u8 *)action, (u8 *)(action + 0x98), ((BtlAction *)action)->unk_6e, 1);
     if (result != 0) {
-        for (index = 0; index < *(u16 *)(param_1 + 0xd0); index++) {
-            *(u32 *)(param_1 + index * 4 + 0x38) = *(u32 *)(param_1 + index * 4 + 0x98);
+        for (index = 0; index < ((BtlAction *)action)->unk_d0; index++) {
+            ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets[index] = (u32)((BtlAction *)action)->parameters.candidates[index];
         }
-        *(u16 *)(param_1 + 0x6a) = *(u16 *)(param_1 + 0xd0);
+        ((BtlAction *)action)->unk_6a = ((BtlAction *)action)->unk_d0;
         return 1;
     }
-    index = datCalcRandomBelow(*(u16 *)(param_1 + 0xd0));
+    index = datCalcRandomBelow(((BtlAction *)action)->unk_d0);
     address = (index & 0xffff) * 4;
-    *(u32 *)(param_1 + 0x38) = *(u32 *)(address + param_1 + 0x98);
-    *(u16 *)(param_1 + 0x6a) = 1;
+    ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets[0] = (u32)((BtlAction *)(address + action))->parameters.candidates[0];
+    ((BtlAction *)action)->unk_6a = 1;
     return 1;
 }
 
@@ -1080,25 +1120,27 @@ u32 btlCond_AI_REV(u32 param_1)
    the store block falls through. The opposite spelling (store block in the
    if with return 1, func_001dbf20 as trailing return) emits the mirror
    layout at nd 36. */
+/* Use the nearest candidate when available, otherwise use the normal AI target picker. */
+/* Historical whole-layout probe: normalized diff 2; the access-site pass retains only measured raw culprits. */
 // FUN_001DCA60
-s32 btlCond_APPOINT(u8 *param_1, u32 param_2)
+s32 btlCond_APPOINT(u8 *action, u32 value)
 {
     u16 result;
     u16 index;
 
-    result = btlSkillClassifyTargets((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
+    result = btlSkillClassifyTargets((u8 *)action, (u8 *)(action + 0x98), ((BtlAction *)action)->unk_6e, 0);
     if (result != 0) {
-        for (index = 0; index < *(u16 *)(param_1 + 0xd0); index++) {
-            *(u32 *)(param_1 + index * 4 + 0x38) = *(u32 *)(param_1 + index * 4 + 0x98);
+        for (index = 0; index < ((BtlAction *)action)->unk_d0; index++) {
+            ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets[index] = (u32)((BtlAction *)action)->parameters.candidates[index];
         }
-        *(u16 *)(param_1 + 0x6a) = *(u16 *)(param_1 + 0xd0);
+        ((BtlAction *)action)->unk_6a = ((BtlAction *)action)->unk_d0;
         return 1;
     }
-    if (btlEffectSelectNearestEntry(0, (u8 *)(param_1 + 0x98)) == 0) {
-        return btlAICommandPickAiTarget(param_1, param_2);
+    if (btlEffectSelectNearestEntry(0, (u8 *)(action + 0x98)) == 0) {
+        return btlAICommandPickAiTarget(action, value);
     }
-    *(u32 *)(param_1 + 0x38) = btlFormationCurrentEntry((u8 *)(param_1 + 0x98));
-    *(u16 *)(param_1 + 0x6a) = 1;
+    ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets[0] = btlFormationCurrentEntry((u8 *)(action + 0x98));
+    ((BtlAction *)action)->unk_6a = 1;
     return 1;
 }
 
@@ -1186,25 +1228,28 @@ void btlAICommandPickNotMyId(u64 formation, u32 flags) {
 /* Ported from P3FES btlEffect.c func_002c4760 (copy-all / random-select).
    func_002bff60_u16->func_001d7f10 (4th arg 0), func_002ffbc0_u16->func_00231d70;
    offsets 0x88->0x98, 0xc0->0xd0. */
+/* The random slot offset stays in bytes: preserving its byte-base operand order makes the typed access MATCH. */
+/* Copy classified targets or choose one candidate uniformly. */
+/* Historical whole-layout probe: normalized diff 2; the access-site pass retains only measured raw culprits. */
 // FUN_001DCF10
-u32 btlCond_RND(u32 param_1)
+u32 btlCond_RND(u32 action)
 {
     u16 result;
     u16 index;
     u32 address;
 
-    result = btlSkillClassifyTargets((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
+    result = btlSkillClassifyTargets((u8 *)action, (u8 *)(action + 0x98), ((BtlAction *)action)->unk_6e, 0);
     if (result != 0) {
-        for (index = 0; index < *(u16 *)(param_1 + 0xd0); index++) {
-            *(u32 *)(param_1 + index * 4 + 0x38) = *(u32 *)(param_1 + index * 4 + 0x98);
+        for (index = 0; index < ((BtlAction *)action)->unk_d0; index++) {
+            ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets[index] = (u32)((BtlAction *)action)->parameters.candidates[index];
         }
-        *(u16 *)(param_1 + 0x6a) = *(u16 *)(param_1 + 0xd0);
+        ((BtlAction *)action)->unk_6a = ((BtlAction *)action)->unk_d0;
         return 1;
     }
-    index = datCalcRandomBelow(*(u16 *)(param_1 + 0xd0));
+    index = datCalcRandomBelow(((BtlAction *)action)->unk_d0);
     address = (index & 0xffff) * 4;
-    *(u32 *)(param_1 + 0x38) = *(u32 *)(address + param_1 + 0x98);
-    *(u16 *)(param_1 + 0x6a) = 1;
+    ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets[0] = (u32)((BtlAction *)(address + action))->parameters.candidates[0];
+    ((BtlAction *)action)->unk_6a = 1;
     return 1;
 }
 
@@ -1235,8 +1280,10 @@ void btlAICommandPickMyNomal(u64 formation, u32 flags) {
    emits the count load before j=0 in the preheader (nd 8); the while form
    preserves source order and reproduces retail's best,bestScore,j,count
    preheader exactly. bestScore u32 (sltu). */
+/* Copy all classified targets or choose the candidate with the highest current HP. */
+/* Historical whole-layout probe: normalized diff 4; the access-site pass retains only measured raw culprits. */
 // FUN_001DD0D0
-u32 btlCond_HPMAX(u32 param_1)
+u32 btlCond_HPMAX(u32 action)
 {
     u16 result;
     u16 index;
@@ -1245,126 +1292,132 @@ u32 btlCond_HPMAX(u32 param_1)
     u32 bestScore;
     u32 count;
 
-    result = btlSkillClassifyTargets((u8 *)param_1, (u8 *)(param_1 + 0x98), *(u16 *)(param_1 + 0x6e), 0);
+    result = btlSkillClassifyTargets((u8 *)action, (u8 *)(action + 0x98), ((BtlAction *)action)->unk_6e, 0);
     if (result != 0) {
-        for (index = 0; index < *(u16 *)(param_1 + 0xd0); index++) {
-            *(u32 *)(param_1 + index * 4 + 0x38) = *(u32 *)(param_1 + index * 4 + 0x98);
+        for (index = 0; index < ((BtlAction *)action)->unk_d0; index++) {
+            ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets[index] = (u32)((BtlAction *)action)->parameters.candidates[index];
         }
-        *(u16 *)(param_1 + 0x6a) = *(u16 *)(param_1 + 0xd0);
+        ((BtlAction *)action)->unk_6a = ((BtlAction *)action)->unk_d0;
         return 1;
     }
     best = 0;
     bestScore = 0;
     j = 0;
-    count = *(u16 *)(param_1 + 0xd0);
+    count = ((BtlAction *)action)->unk_d0;
     while (j < count) {
-        u8 *ptr = (u8 *)*(u32 *)(param_1 + j * 4 + 0x98);
-        u32 score = *(u16 *)(*(u32 *)(*(u32 *)(ptr + 0x30) + 0xA64) + 0x8);
+        u8 *ptr = (u8 *)(u32)((BtlAction *)action)->parameters.candidates[j];
+        u32 score = ((DatUnit *)((u32)((BtlUnit *)((u32)((BtlAction *)ptr)->unit))->datUnit))->hp;
         if (bestScore < score) {
             best = (u32)ptr;
             bestScore = score;
         }
         j++;
     }
-    *(u32 *)(param_1 + 0x38) = best;
-    *(u16 *)(param_1 + 0x6a) = 1;
+    ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->targets[0] = best;
+    ((BtlAction *)action)->unk_6a = 1;
     return 1;
 }
+/* Skill-table byte +8 remains unnamed; it is unknown04[4] in the shared 0x28-byte row. */
+/* Select a usable command by predicted remaining target HP and the requested cost class. */
+/* Historical whole-layout probe: normalized diff 21; the access-site pass retains only measured raw culprits. */
 // FUN_001DD1C0
-s32 btlAICommandPickSkillTargetByHp(u8 *p, u8 *q, u16 *t, u16 u, u32 v) {
-    u32 s;
-    s32 bd;
-    s32 best;
-    s32 i;
-    u32 v2;
-    s32 u2;
-    u16 *e;
-    u16 w;
-    u8 b;
-    s32 d;
-    s32 d2;
+s32 btlAICommandPickSkillTargetByHp(u8 *action, u8 *target, u16 *commands, u16 count, u32 requestedCostClass) {
+    u32 targetHp;
+    s32 bestRemainingHp;
+    s32 bestCommand;
+    s32 commandIndex;
+    u32 costClass;
+    s32 commandCount;
+    u16 *commandEntry;
+    u16 commandId;
+    u8 costKind;
+    s32 hpDelta;
+    s32 remainingHp;
 
-    s = datCalcGetHp(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64)) & 0xFFFF;
-    best = -1;
-    bd = 0xFFFFFF;
-    i = 0;
-    v2 = v & 0xFFFF;
-    u2 = u & 0xFFFF;
-    while ((i & 0xFFFF) < u2) {
-        e = t + (u16)i;
-        w = *(u16 *)e;
-        if (w == 0)
-            b = 0;
+    targetHp = datCalcGetHp((u32)((BtlUnit *)((u32)((BtlAction *)target)->unit))->datUnit) & 0xFFFF;
+    bestCommand = -1;
+    bestRemainingHp = 0xFFFFFF;
+    commandIndex = 0;
+    costClass = requestedCostClass & 0xFFFF;
+    commandCount = count & 0xFFFF;
+    while ((commandIndex & 0xFFFF) < commandCount) {
+        commandEntry = commands + (u16)commandIndex;
+        commandId = *(u16 *)commandEntry;
+        if (commandId == 0)
+            costKind = 0;
         else
-            b = *(u8 *)(iGpffffb3b8 + w * 40 + 8);
-        if ((v2 != 0 || (b & 0xFF) == 1) && (v2 != 1 || (b & 0xFF) == 0)) {
-            d = datCalcSkillAmount(w, (u8 *)*(u32 *)(*(u32 *)(p + 0x30) + 0xA64), (u8 *)*(u32 *)(*(u32 *)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1);
-            d2 = s + d;
-            if (d2 > 0 && bd > 0) {
-                if (d2 < bd) {
-                    best = *(u16 *)e;
-                    bd = d2;
+            costKind = ((DatSkillEntry *)iGpffffb3b8)[commandId].unknown04[4];
+        if ((costClass != 0 || (costKind & 0xFF) == 1) && (costClass != 1 || (costKind & 0xFF) == 0)) {
+            hpDelta = datCalcSkillAmount(commandId, (u8 *)*(u32 *)((u32)((BtlAction *)action)->unit + 0xA64), (u8 *)*(u32 *)(*(u32 *)(target + 0x30) + 0xA64), 1, 1, 1, 0, 1); /* measured: access-site field substitution loses MATCH. */
+            remainingHp = targetHp + hpDelta;
+            if (remainingHp > 0 && bestRemainingHp > 0) {
+                if (remainingHp < bestRemainingHp) {
+                    bestCommand = *(u16 *)commandEntry;
+                    bestRemainingHp = remainingHp;
                 }
                 goto next;
             }
-            if (d2 <= 0 && (bd > 0 || bd < d2)) {
-                best = *(u16 *)e;
-                bd = d2;
+            if (remainingHp <= 0 && (bestRemainingHp > 0 || bestRemainingHp < remainingHp)) {
+                bestCommand = *(u16 *)commandEntry;
+                bestRemainingHp = remainingHp;
             }
         }
     next:
-        i = (i + 1) & 0xFFFF;
+        commandIndex = (commandIndex + 1) & 0xFFFF;
     }
-    datCalcClearField18(*(u32 *)(*(u32 *)(p + 0x30) + 0xA64));
-    datCalcClearField18(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64));
-    return best;
+    datCalcClearField18((u32)((BtlUnit *)((u32)((BtlAction *)action)->unit))->datUnit);
+    datCalcClearField18((u32)((BtlUnit *)(*(u32 *)(target + 0x30)))->datUnit); /* measured: access-site field substitution loses MATCH. */
+    return bestCommand;
 }
+/* Skill-table byte +8 remains unnamed; it is unknown04[4] in the shared 0x28-byte row. */
+/* Choose the command whose predicted target HP is closest to its maximum. */
+/* Historical whole-layout probe: normalized diff 35; the access-site pass retains only measured raw culprits. */
 // FUN_001DD3A0
-s32 btlAICommandPickSkillTargetNearMaxHp(u8 *p, u8 *q, u16 *t, u16 u, s32 v) {
-    u32 s1;
-    u32 s2;
-    s32 bd;
-    s32 best;
-    s32 i;
-    u32 v2;
-    s32 u2;
-    u16 *e;
-    u16 w;
-    u8 b;
-    s32 d;
+s32 btlAICommandPickSkillTargetNearMaxHp(u8 *action, u8 *target, u16 *commands, u16 count, s32 requestedCostClass) {
+    u32 targetHp;
+    u32 maxHp;
+    s32 bestDistance;
+    s32 bestCommand;
+    s32 commandIndex;
+    u32 costClass;
+    s32 commandCount;
+    u16 *commandEntry;
+    u16 commandId;
+    u8 costKind;
+    s32 distance;
 
-    s1 = datCalcGetHp(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64)) & 0xFFFF;
-    s2 = datCalcMaxHp((DatUnit *)*(u32 *)(*(u32 *)(q + 0x30) + 0xA64)) & 0xFFFF;
-    best = -1;
-    bd = 0xFFFFFF;
-    i = 0;
-    v2 = v & 0xFFFF;
-    u2 = u & 0xFFFF;
-    while ((i & 0xFFFF) < u2) {
-        e = t + (u16)i;
-        w = *(u16 *)e;
-        if (w != 0 && w < 0x1B8) {
-            b = *(u8 *)(iGpffffb3b8 + w * 40 + 8);
-            if ((v2 != 0 || (b & 0xFF) == 1) && (v2 != 1 || (b & 0xFF) == 0)) {
-                d = func_0043c6a0(s2 - (s1 + datCalcSkillAmount(w, (u8 *)*(u32 *)(*(u32 *)(p + 0x30) + 0xA64), (u8 *)*(u32 *)(*(u32 *)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1)));
-                if (d < bd) {
-                    best = *(u16 *)e;
-                    bd = d;
+    targetHp = datCalcGetHp((u32)((BtlUnit *)((u32)((BtlAction *)target)->unit))->datUnit) & 0xFFFF;
+    maxHp = datCalcMaxHp((DatUnit *)(u32)((BtlUnit *)(*(u32 *)(target + 0x30)))->datUnit) & 0xFFFF; /* measured: access-site field substitution loses MATCH. */
+    bestCommand = -1;
+    bestDistance = 0xFFFFFF;
+    commandIndex = 0;
+    costClass = requestedCostClass & 0xFFFF;
+    commandCount = count & 0xFFFF;
+    while ((commandIndex & 0xFFFF) < commandCount) {
+        commandEntry = commands + (u16)commandIndex;
+        commandId = *(u16 *)commandEntry;
+        if (commandId != 0 && commandId < 0x1B8) {
+            costKind = ((DatSkillEntry *)iGpffffb3b8)[commandId].unknown04[4];
+            if ((costClass != 0 || (costKind & 0xFF) == 1) && (costClass != 1 || (costKind & 0xFF) == 0)) {
+                distance = func_0043c6a0(maxHp - (targetHp + datCalcSkillAmount(commandId, (u8 *)*(u32 *)((u32)((BtlAction *)action)->unit + 0xA64), (u8 *)*(u32 *)(*(u32 *)(target + 0x30) + 0xA64), 1, 1, 1, 0, 1))); /* measured: access-site field substitution loses MATCH. */
+                if (distance < bestDistance) {
+                    bestCommand = *(u16 *)commandEntry;
+                    bestDistance = distance;
                 }
             }
         }
-        i = (i + 1) & 0xFFFF;
+        commandIndex = (commandIndex + 1) & 0xFFFF;
     }
-    datCalcClearField18(*(u32 *)(*(u32 *)(p + 0x30) + 0xA64));
-    datCalcClearField18(*(u32 *)(*(u32 *)(q + 0x30) + 0xA64));
-    return best;
+    datCalcClearField18((u32)((BtlUnit *)((u32)((BtlAction *)action)->unit))->datUnit);
+    datCalcClearField18((u32)((BtlUnit *)(*(u32 *)(target + 0x30)))->datUnit); /* measured: access-site field substitution loses MATCH. */
+    return bestCommand;
 }
 /* Recovered: retail's shape is a scoped `opt_propagation off` translation
    unit region, which is why the object keeps folds this build would remove
    (the first tally increment stays `addiu $v0,$s2,1; andi $s2,$v0,0xffff`
    after the tally is zeroed, and `ok = 1` is still tested by `beqz $v0`).
    Four source shapes carry the rest: the loop bound is a separate `s32`
-   copy of the u16 limit (retail keeps the u16 in $s1 and spills the int
+   copy of the u16 limit (retail keeps the u16 in $s1 and spills the s32
    copy to 0xB0, masking once instead of once per iteration), `idx = 0`
    precedes that copy, both legs of the command test assign `ok = 0` and
    jump to a single shared `ok = 1`, and the dispatch is a `switch` whose
@@ -1372,107 +1425,109 @@ s32 btlAICommandPickSkillTargetNearMaxHp(u8 *p, u8 *q, u16 *t, u16 u, s32 v) {
    `return -1` left as the function's last statement.  With the limit mask
    written `(u16)call()` (propagation-off lowers `call() & 0xFFFF` as
    ori/and) this is byte-exact. */
+/* Collect usable commands effective on the target and choose by predicted HP outcome. */
+/* Historical whole-layout probe: normalized diff 627; the access-site pass retains only measured raw culprits. */
 // FUN_001DD570
 #pragma push
 #pragma opt_propagation off
-s32 btlAICommandCollectSkillCandidates(u8 *p, u8 *q, s32 arg2, s32 arg3)
+s32 btlAICommandCollectSkillCandidates(u8 *action, u8 *target, s32 costPreference, s32 effectFilter)
 {
-    u8 *unit0;
-    s16 cur0;
-    u16 buf[8];
-    u16 idx;
-    u16 n;
-    u16 *table;
-    u16 limit;
-    s32 count;
-    u16 *e;
-    u16 v;
-    s16 cur;
-    s32 flags;
-    u16 cmd;
-    u8 *unitP;
-    s32 ok;
-    s32 r;
+    u8 *sourceUnit;
+    s16 defaultElement;
+    u16 candidates[8];
+    u16 commandIndex;
+    u16 candidateCount;
+    u16 *commands;
+    u16 commandCount;
+    s32 scanCount;
+    u16 *entry;
+    u16 listCommand;
+    s16 commandElement;
+    s32 elementFlags;
+    u16 command;
+    u8 *usabilityUnit;
+    s32 usable;
+    s32 selectedCommand;
 
-    n = 0;
-    unit0 = *(u8 **)(p + 0x30);
-    cur0 = (s16)datCalcSkillElement(*(u8 **)(unit0 + 0xA64), 0);
-    if (btlAICommandNomalCheck(q, cur0, 1) != 0) {
-        buf[0] = 0;
-        n++;
+    candidateCount = 0;
+    sourceUnit = (u8 *)((BtlAction *)action)->unit;
+    defaultElement = (s16)datCalcSkillElement((u8 *)((BtlUnit *)sourceUnit)->datUnit, 0);
+    if (btlAICommandNomalCheck(target, defaultElement, 1) != 0) {
+        candidates[0] = 0;
+        candidateCount++;
     }
-    limit = (u16)datCalcGetTableLength(*(DatUnit **)(unit0 + 0xA64));
-    table = (u16 *)datCalcSkillList(*(DatUnit **)(unit0 + 0xA64));
-    idx = 0;
-    count = limit;
-    while (idx < count) {
-        e = table + idx;
-        v = *e;
-        if (v != 0 && v < 0x1B8) {
-            cur = (s16)datCalcSkillElement(*(u8 **)(unit0 + 0xA64), v);
-            flags = datCalcElementBit(cur);
-            if (arg3 == 0) {
-                if ((flags & 0x7E) == 0)
+    commandCount = (u16)datCalcGetTableLength(*(DatUnit **)(sourceUnit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
+    commands = (u16 *)datCalcSkillList(*(DatUnit **)(sourceUnit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
+    commandIndex = 0;
+    scanCount = commandCount;
+    while (commandIndex < scanCount) {
+        entry = commands + commandIndex;
+        listCommand = *entry;
+        if (listCommand != 0 && listCommand < 0x1B8) {
+            commandElement = (s16)datCalcSkillElement(*(u8 **)(sourceUnit + 0xA64), listCommand); /* measured: access-site field substitution loses MATCH. */
+            elementFlags = datCalcElementBit(commandElement);
+            if (effectFilter == 0) {
+                if ((elementFlags & 0x7E) == 0)
                     goto next;
-            } else if (arg3 == 1) {
-                if ((flags & 0x7E) == 0 || (flags & 2) != 0)
+            } else if (effectFilter == 1) {
+                if ((elementFlags & 0x7E) == 0 || (elementFlags & 2) != 0)
                     goto next;
-            } else if (arg3 == 2) {
-                if ((flags & 2) == 0)
+            } else if (effectFilter == 2) {
+                if ((elementFlags & 2) == 0)
                     goto next;
             }
-            cmd = *e;
-            if (cmd >= 0x240)
+            command = *entry;
+            if (command >= 0x240)
                 kAssertFail(D_006095E0, 0x45F);
-            unitP = *(u8 **)(p + 0x30);
-            if (cmd < 0x1B8) {
-                if (datCalcChkBadStatus(*(u32 *)(unitP + 0xA64), 0x80008) != 0) {
-                    ok = 0;
+            usabilityUnit = *(u8 **)(action + 0x30); /* measured: access-site field substitution loses MATCH. */
+            if (command < 0x1B8) {
+                if (datCalcChkBadStatus((u32)((BtlUnit *)usabilityUnit)->datUnit, 0x80008) != 0) {
+                    usable = 0;
                     goto have_ok;
                 }
-                if (datCalcHasSkill(*(u8 **)(unitP + 0xA64), cmd) == 0) {
-                    ok = 0;
+                if (datCalcHasSkill(*(u8 **)(usabilityUnit + 0xA64), command) == 0) { /* measured: access-site field substitution loses MATCH. */
+                    usable = 0;
                     goto have_ok;
                 }
-                if (datCalcThresholdTrigger(*(u8 **)(unitP + 0xA64), cmd) != 0) {
-                    ok = 0;
+                if (datCalcThresholdTrigger(*(u8 **)(usabilityUnit + 0xA64), command) != 0) { /* measured: access-site field substitution loses MATCH. */
+                    usable = 0;
                     goto have_ok;
                 }
             } else {
-                if (datCalcHasSkill(*(u8 **)(unitP + 0xA64), cmd) == 0) {
-                    ok = 0;
+                if (datCalcHasSkill((u8 *)((BtlUnit *)usabilityUnit)->datUnit, command) == 0) {
+                    usable = 0;
                     goto have_ok;
                 }
             }
-            ok = 1;
+            usable = 1;
 have_ok:
-            if (ok == 0)
+            if (usable == 0)
                 goto next;
-            if (btlAICommandNomalCheck(q, cur, 1) != 0) {
-                buf[n] = *e;
-                n++;
+            if (btlAICommandNomalCheck(target, commandElement, 1) != 0) {
+                candidates[candidateCount] = *entry;
+                candidateCount++;
             }
         }
 next:
-        idx++;
+        commandIndex++;
     }
-    if (n > 0) {
-        switch (arg2) {
+    if (candidateCount > 0) {
+        switch (costPreference) {
         case 0:
-            r = btlAICommandPickSkillTargetByHp(p, q, buf, n, 0);
-            if (r < 0)
-                r = btlAICommandPickSkillTargetByHp(p, q, buf, n, 1);
+            selectedCommand = btlAICommandPickSkillTargetByHp(action, target, candidates, candidateCount, 0);
+            if (selectedCommand < 0)
+                selectedCommand = btlAICommandPickSkillTargetByHp(action, target, candidates, candidateCount, 1);
             break;
         case 1:
-            r = btlAICommandPickSkillTargetByHp(p, q, buf, n, 1);
-            if (r < 0)
-                r = btlAICommandPickSkillTargetByHp(p, q, buf, n, 0);
+            selectedCommand = btlAICommandPickSkillTargetByHp(action, target, candidates, candidateCount, 1);
+            if (selectedCommand < 0)
+                selectedCommand = btlAICommandPickSkillTargetByHp(action, target, candidates, candidateCount, 0);
             break;
         default:
-            r = btlAICommandPickSkillTargetByHp(p, q, buf, n, 0xFFFF);
+            selectedCommand = btlAICommandPickSkillTargetByHp(action, target, candidates, candidateCount, 0xFFFF);
             break;
         }
-        return r;
+        return selectedCommand;
     }
     return -1;
 }
@@ -1482,60 +1537,62 @@ next:
    halfword boundaries; both scans reload entries after the usability calls.
    Allocator capture traced the former selector/count exchange to the healing
    scan's command/index coloring, rather than their declaration order. */
+/* Collect revive, healing or status-cure commands according to the target condition. */
+/* Historical whole-layout probe: normalized diff 1175; the access-site pass retains only measured raw culprits. */
 // FUN_001DD920
-s32 btlAICommandCollectRecoveryCommands(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
+s32 btlAICommandCollectRecoveryCommands(u8 *action, u8 *target, s16 unusedElement, s32 costPreference)
 {
     u8 *unit;
-    u16 count;
+    u16 commandCount;
     u16 *commands;
-    u16 table[8];
-    u16 n;
-    s16 result;
-    u16 cmd;
-    u32 hp;
-    u32 max;
-    s32 cur;
-    s32 r;
+    u16 candidates[8];
+    u16 candidateCount;
+    s16 recoveryKind;
+    u16 command;
+    u32 targetHp;
+    u32 maxHp;
+    s32 currentHp;
+    s32 selectedCommand;
 
-    result = -1;
-    n = 0;
-    unit = *(u8 **)(arg0 + 0x30);
-    count = datCalcGetTableLength(*(DatUnit **)(unit + 0xA64));
-    commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64));
-    if (datCalcIsDead(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64), 0) != 0) {
-        result = 0;
+    recoveryKind = -1;
+    candidateCount = 0;
+    unit = *(u8 **)(action + 0x30); /* measured: access-site field substitution loses MATCH. */
+    commandCount = datCalcGetTableLength(((BtlUnit *)unit)->datUnit);
+    commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
+    if (datCalcIsDead((u32)((BtlUnit *)((u32)((BtlAction *)target)->unit))->datUnit, 0) != 0) {
+        recoveryKind = 0;
     } else {
-        hp = *(u16 *)(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64) + 8);
-        max = (u16)datCalcMaxHp((DatUnit *)*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64));
-        if (hp * 100 <= max * 60) {
-            result = 1;
+        targetHp = ((DatUnit *)((u32)((BtlUnit *)((u32)((BtlAction *)target)->unit))->datUnit))->hp;
+        maxHp = (u16)datCalcMaxHp((DatUnit *)(u32)((BtlUnit *)((u32)((BtlAction *)target)->unit))->datUnit);
+        if (targetHp * 100 <= maxHp * 60) {
+            recoveryKind = 1;
         } else {
-            if (datCalcChkBadStatus(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64), 0xC) != 0) {
-                result = 2;
+            if (datCalcChkBadStatus((u32)((BtlUnit *)(*(u32 *)(target + 0x30)))->datUnit, 0xC) != 0) { /* measured: access-site field substitution loses MATCH. */
+                recoveryKind = 2;
             } else {
-                cur = datCalcGetHp(*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64)) & 0xFFFF;
-                if (cur < (s32)(datCalcMaxHp((DatUnit *)*(u32 *)(*(u32 *)(arg1 + 0x30) + 0xA64)) & 0xFFFF))
-                    result = 1;
+                currentHp = datCalcGetHp((u32)((BtlUnit *)(*(u32 *)(target + 0x30)))->datUnit) & 0xFFFF; /* measured: access-site field substitution loses MATCH. */
+                if (currentHp < (s32)(datCalcMaxHp((DatUnit *)(u32)((BtlUnit *)(*(u32 *)(target + 0x30)))->datUnit) & 0xFFFF)) /* measured: access-site field substitution loses MATCH. */
+                    recoveryKind = 1;
             }
         }
     }
-    switch (result) {
+    switch (recoveryKind) {
     case 0: {
         u16 i;
         u16 *entry;
         s32 limit;
 
         i = 0;
-        limit = count;
+        limit = commandCount;
         while (i < limit) {
             entry = commands + i;
-            cmd = *entry;
-            if (cmd != 0 && cmd < 0x1B8) {
-                switch (cmd) {
+            command = *entry;
+            if (command != 0 && command < 0x1B8) {
+                switch (command) {
                 case 0xD1: case 0xD2:
-                    if (btlCommandUsable(arg0, cmd)) {
-                        table[n] = *entry;
-                        n++;
+                    if (btlCommandUsable(action, command)) {
+                        candidates[candidateCount] = *entry;
+                        candidateCount++;
                     }
                     break;
                 }
@@ -1552,40 +1609,40 @@ s32 btlAICommandCollectRecoveryCommands(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
         } scan;
 
         scan.i = 0;
-        scan.limit = count;
+        scan.limit = commandCount;
         while (scan.i < scan.limit) {
             scan.entry = commands + scan.i;
-            cmd = *scan.entry;
-            if (cmd != 0 && cmd < 0x1B8) {
-                switch (cmd) {
+            command = *scan.entry;
+            if (command != 0 && command < 0x1B8) {
+                switch (command) {
                 case 0xC0: case 0xC1: case 0xC2: case 0xC3:
                 case 0xC4: case 0xC5: case 0xC6:
-                    if (btlCommandUsable(arg0, cmd)) {
-                        table[n] = *scan.entry;
-                        n++;
+                    if (btlCommandUsable(action, command)) {
+                        candidates[candidateCount] = *scan.entry;
+                        candidateCount++;
                     }
                     break;
                 }
             }
             scan.i++;
         }
-        if (n > 0) {
-            switch (arg3) {
+        if (candidateCount > 0) {
+            switch (costPreference) {
             case 0:
-                r = btlAICommandPickSkillTargetNearMaxHp(arg0, arg1, table, n, 0);
-                if (r < 0)
-                    r = btlAICommandPickSkillTargetNearMaxHp(arg0, arg1, table, n, 1);
+                selectedCommand = btlAICommandPickSkillTargetNearMaxHp(action, target, candidates, candidateCount, 0);
+                if (selectedCommand < 0)
+                    selectedCommand = btlAICommandPickSkillTargetNearMaxHp(action, target, candidates, candidateCount, 1);
                 break;
             case 1:
-                r = btlAICommandPickSkillTargetNearMaxHp(arg0, arg1, table, n, 1);
-                if (r < 0)
-                    r = btlAICommandPickSkillTargetNearMaxHp(arg0, arg1, table, n, 0);
+                selectedCommand = btlAICommandPickSkillTargetNearMaxHp(action, target, candidates, candidateCount, 1);
+                if (selectedCommand < 0)
+                    selectedCommand = btlAICommandPickSkillTargetNearMaxHp(action, target, candidates, candidateCount, 0);
                 break;
             default:
-                r = btlAICommandPickSkillTargetNearMaxHp(arg0, arg1, table, n, 0xFFFF);
+                selectedCommand = btlAICommandPickSkillTargetNearMaxHp(action, target, candidates, candidateCount, 0xFFFF);
                 break;
             }
-            return r;
+            return selectedCommand;
         }
         break;
     }
@@ -1597,16 +1654,16 @@ s32 btlAICommandCollectRecoveryCommands(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
         } scan;
 
         scan.i = 0;
-        scan.limit = count;
+        scan.limit = commandCount;
         while ((u16)scan.i < scan.limit) {
             scan.entry = commands + (u16)scan.i;
-            cmd = *scan.entry;
-            if (cmd != 0 && cmd < 0x1B8) {
-                switch (cmd) {
+            command = *scan.entry;
+            if (command != 0 && command < 0x1B8) {
+                switch (command) {
                 case 0xC7: case 0xC8:
-                    if (btlCommandUsable(arg0, cmd)) {
-                        table[n] = *scan.entry;
-                        n++;
+                    if (btlCommandUsable(action, command)) {
+                        candidates[candidateCount] = *scan.entry;
+                        candidateCount++;
                     }
                     break;
                 }
@@ -1616,85 +1673,87 @@ s32 btlAICommandCollectRecoveryCommands(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
         break;
     }
     }
-    if (n > 0)
-        return table[datCalcRandomBelow(n)];
+    if (candidateCount > 0)
+        return candidates[datCalcRandomBelow(candidateCount)];
     return -1;
 }
 /* measured: matched by declaring func_001dd1c0's count parameter u16, so
    the u16 tally passes raw ($a3 = $s2) instead of reusing a promoted
    copy; the guard and the table index keep their own andi temps, which
    is retail's shape. The callee is unaffected (still exact). */
+/* Collect usable commands of the requested element and choose by predicted HP outcome. */
+/* Historical whole-layout probe: normalized diff 600; the access-site pass retains only measured raw culprits. */
 // FUN_001DE000
 #pragma push
 #pragma opt_propagation off
-s32 btlAICommandCollectCommandsOfType(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
+s32 btlAICommandCollectCommandsOfType(u8 *action, u8 *target, s16 element, s32 costPreference)
 {
-    extern s32 btlAICommandCollectRecoveryCommands(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3);
+    extern s32 btlAICommandCollectRecoveryCommands(u8 *action, u8 *target, s16 unusedElement, s32 costPreference);
     u8 *unit;
     s16 queried;
-    s16 q;
-    u16 count;
-    s32 limit;
+    s16 targetElement;
+    u16 commandCount;
+    s32 scanCount;
     u16 *commands;
-    u16 j;
-    u16 n;
+    u16 commandIndex;
+    u16 candidateCount;
     u16 *entry;
-    u16 cmd;
-    u16 table[8];
-    s32 r;
+    u16 command;
+    u16 candidates[8];
+    s32 selectedCommand;
 
-    if (arg2 == 0x10)
-        return btlAICommandCollectRecoveryCommands(arg0, arg1, arg2, arg3);
+    if (element == 0x10)
+        return btlAICommandCollectRecoveryCommands(action, target, element, costPreference);
 
-    n = 0;
-    unit = *(u8 **)(arg0 + 0x30);
-    queried = datCalcSkillElement(*(u8 **)(unit + 0xA64), 0);
-    if (queried == arg2 && btlAICommandNomalCheck(arg1, queried, 1) != 0) {
-        table[0] = 0;
-        n++;
+    candidateCount = 0;
+    unit = (u8 *)((BtlAction *)action)->unit;
+    queried = datCalcSkillElement((u8 *)((BtlUnit *)unit)->datUnit, 0);
+    if (queried == element && btlAICommandNomalCheck(target, queried, 1) != 0) {
+        candidates[0] = 0;
+        candidateCount++;
     }
-    count = datCalcGetTableLength(*(DatUnit **)(unit + 0xA64));
-    commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64));
-    j = 0;
-    limit = count;
-    for (; j < limit; j++) {
-        entry = commands + j;
+    commandCount = datCalcGetTableLength(*(DatUnit **)(unit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
+    commands = (u16 *)datCalcSkillList(*(DatUnit **)(unit + 0xA64)); /* measured: access-site field substitution loses MATCH. */
+    commandIndex = 0;
+    scanCount = commandCount;
+    for (; commandIndex < scanCount; commandIndex++) {
+        entry = commands + commandIndex;
         if (*entry == 0 || *entry >= 0x1B8)
             goto next;
-        queried = datCalcSkillElement(*(u8 **)(unit + 0xA64), *entry);
-        if (queried != arg2)
+        queried = datCalcSkillElement(*(u8 **)(unit + 0xA64), *entry); /* measured: access-site field substitution loses MATCH. */
+        if (queried != element)
             goto next;
-        cmd = *entry;
-        if (btlCommandUsable(arg0, cmd) == 0)
+        command = *entry;
+        if (btlCommandUsable(action, command) == 0)
             goto next;
-        q = queried;
-        if (btlAICommandNomalCheck(arg1, q, 1) == 0)
+        targetElement = queried;
+        if (btlAICommandNomalCheck(target, targetElement, 1) == 0)
             goto next;
-        table[n] = *entry;
-        n++;
+        candidates[candidateCount] = *entry;
+        candidateCount++;
     next:
         ;
     }
-    if (n > 0) {
-        switch (arg3) {
+    if (candidateCount > 0) {
+        switch (costPreference) {
         case 0:
-            r = btlAICommandPickSkillTargetByHp(arg0, arg1, table, n, 0);
-            if (r < 0)
-                r = btlAICommandPickSkillTargetByHp(arg0, arg1, table, n, 1);
+            selectedCommand = btlAICommandPickSkillTargetByHp(action, target, candidates, candidateCount, 0);
+            if (selectedCommand < 0)
+                selectedCommand = btlAICommandPickSkillTargetByHp(action, target, candidates, candidateCount, 1);
             break;
         case 1:
-            r = btlAICommandPickSkillTargetByHp(arg0, arg1, table, n, 1);
-            if (r < 0)
-                r = btlAICommandPickSkillTargetByHp(arg0, arg1, table, n, 0);
+            selectedCommand = btlAICommandPickSkillTargetByHp(action, target, candidates, candidateCount, 1);
+            if (selectedCommand < 0)
+                selectedCommand = btlAICommandPickSkillTargetByHp(action, target, candidates, candidateCount, 0);
             break;
         default:
-            r = btlAICommandPickSkillTargetByHp(arg0, arg1, table, n, 0xFFFF);
+            selectedCommand = btlAICommandPickSkillTargetByHp(action, target, candidates, candidateCount, 0xFFFF);
             break;
         }
     } else {
         return -1;
     }
-    return r;
+    return selectedCommand;
 }
 #pragma pop
 #pragma push
@@ -1702,37 +1761,39 @@ s32 btlAICommandCollectCommandsOfType(u8 *arg0, u8 *arg1, s16 arg2, s32 arg3)
    bubble-sort register coloring; the COP1 chain is ordinary C arithmetic and
    D_00609600 is a real, placeable linker symbol. */
 #pragma opt_loop_invariants on
+/* Rank candidates by missing HP and status bonus, then choose from the ranked weight table. */
+/* Historical whole-layout probe: normalized diff 558; the access-site pass retains only measured raw culprits. */
 // FUN_001DE370
-u32 btlAICommandPickUnitByHpWeight(u8 *arg0)
+u32 btlAICommandPickUnitByHpWeight(u8 *action)
 {
-    u32 i;
+    u32 candidateIndex;
     u32 random;
     u32 cumulative;
     s16 scores[16];
     u32 selectionIndex;
     u32 total;
 
-    if (*(u16 *)(arg0 + 0xD0) == 1)
-        return *(u32 *)(arg0 + 0x98);
+    if (((BtlAction *)action)->unk_d0 == 1)
+        return (u32)((BtlAction *)action)->parameters.candidates[0];
 
     total = 0;
-    i = 0;
-    while (i < *(u16 *)(arg0 + 0xD0)) {
+    candidateIndex = 0;
+    while (candidateIndex < *(u16 *)(action + 0xD0)) { /* measured: access-site field substitution loses MATCH. */
         u8 *unit;
         s16 *score;
-        u32 max;
-        u32 current;
+        u32 maxHp;
+        u32 currentHp;
         f32 scoreFloat;
         f32 bonus;
 
-        total += D_00609600[i];
-        unit = *(u8 **)(arg0 + i * 4 + 0x98);
-        score = scores + i;
+        total += D_00609600[candidateIndex];
+        unit = ((BtlAction *)action)->parameters.candidates[candidateIndex];
+        score = scores + candidateIndex;
         *score = 0;
-        max = datCalcMaxHp((DatUnit *)*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64)) & 0xFFFF;
-        current = datCalcGetHp(*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64)) & 0xFFFF;
-        *score += (s16)(100.0f - 100.0f * ((f32)current / (f32)max));
-        switch (datCalcGetBadStatusNoDown(*(u32 *)(*(u32 *)(unit + 0x30) + 0xA64))) {
+        maxHp = datCalcMaxHp((DatUnit *)(u32)((BtlUnit *)((u32)((BtlAction *)unit)->unit))->datUnit) & 0xFFFF;
+        currentHp = datCalcGetHp((u32)((BtlUnit *)(*(u32 *)(unit + 0x30)))->datUnit) & 0xFFFF; /* measured: access-site field substitution loses MATCH. */
+        *score += (s16)(100.0f - 100.0f * ((f32)currentHp / (f32)maxHp));
+        switch (datCalcGetBadStatusNoDown((u32)((BtlUnit *)(*(u32 *)(unit + 0x30)))->datUnit)) { /* measured: access-site field substitution loses MATCH. */
         case 0x40:
             bonus = 50.0f;
             scoreFloat = (f32)*score;
@@ -1741,7 +1802,7 @@ u32 btlAICommandPickUnitByHpWeight(u8 *arg0)
         default:
             break;
         }
-        i++;
+        candidateIndex++;
     }
     {
         u32 bubbleIndex;
@@ -1751,7 +1812,7 @@ u32 btlAICommandPickUnitByHpWeight(u8 *arg0)
         one = 1;
         do {
         swapped = 0;
-        for (bubbleIndex = 0; bubbleIndex < *(u16 *)(arg0 + 0xD0) - 1; bubbleIndex++) {
+        for (bubbleIndex = 0; bubbleIndex < *(u16 *)(action + 0xD0) - 1; bubbleIndex++) { /* measured: access-site field substitution loses MATCH. */
             s32 left;
             s32 right;
             s16 *nextScore;
@@ -1762,12 +1823,12 @@ u32 btlAICommandPickUnitByHpWeight(u8 *arg0)
             left = *sortScore;
             if (left < right) {
                 u8 *entry;
-                u32 temp;
+                u32 swappedAction;
 
-                entry = arg0 + bubbleIndex * 4;
-                temp = *(u32 *)(entry + 0x98);
-                *(u32 *)(entry + 0x98) = *(u32 *)(entry + 0x9C);
-                *(u32 *)(entry + 0x9C) = temp;
+                entry = action + bubbleIndex * 4;
+                swappedAction = (u32)((BtlAction *)entry)->parameters.candidates[0];
+                ((BtlAction *)entry)->parameters.candidates[0] = ((BtlAction *)entry)->parameters.candidates[1];
+                ((BtlAction *)entry)->parameters.candidates[1] = (u8 *)swappedAction;
                 *sortScore = right;
                 *nextScore = left;
                 swapped = one;
@@ -1778,10 +1839,10 @@ u32 btlAICommandPickUnitByHpWeight(u8 *arg0)
     cumulative = 0;
     random = datCalcRandomBelow(total);
     selectionIndex = 0;
-    for (; selectionIndex < *(u16 *)(arg0 + 0xD0); selectionIndex++) {
+    for (; selectionIndex < *(u16 *)(action + 0xD0); selectionIndex++) { /* measured: access-site field substitution loses MATCH. */
         cumulative += D_00609600[selectionIndex];
         if (random < cumulative)
-            return *(u32 *)((u8 *)(selectionIndex * 4) + (u32)arg0 + 0x98);
+            return (u32)((BtlAction *)((u8 *)(selectionIndex * 4) + (u32)action))->parameters.candidates[0];
     }
     return 0;
 }
@@ -1795,100 +1856,102 @@ u32 btlAICommandPickUnitByHpWeight(u8 *arg0)
    0x8004 falls through into default (v = datCalcPickSpecialItem(...)&0xFFFF then the
    shared q+0x34=2/q+0x36=v body, reusing the v parameter in $a2 exactly as
    retail). if/else t = v / v & 0xF000, then switch(t & 0xFFFF). */
+/* Decode the packed action code into command-work kind, skill and plan fields. */
 // FUN_001DE640
-void btlAICommandSetActionCode(u8 *p, u8 *q, u16 v)
+void btlAICommandSetActionCode(u8 *action, u8 *work, u16 actionCode)
 {
-    u16 t;
+    u16 kindCode;
 
-    if ((v & 0xF000) == 0x8000)
-        t = v;
+    if ((actionCode & 0xF000) == 0x8000)
+        kindCode = actionCode;
     else
-        t = v & 0xF000;
-    switch (t & 0xFFFF) {
+        kindCode = actionCode & 0xF000;
+    switch (kindCode & 0xFFFF) {
     case 0x8000:
-        *(u16 *)(q + 0x34) = 1;
-        *(u16 *)(q + 0x36) = datCalcDefaultSkillId(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64)) & 0xFFFF;
+        ((BtlAiCommandWork *)work)->kind = 1;
+        ((BtlAiCommandWork *)work)->command = datCalcDefaultSkillId((u8 *)(((BtlAction *)action))->unit->datUnit) & 0xFFFF;
         break;
     case 0x1000:
-        *(u16 *)(q + 0x34) = 9;
-        *(u16 *)(q + 0x36) = 0x111;
-        *(u16 *)(q + 0x3E) = v & 0xFFFF0FFF;
+        ((BtlAiCommandWork *)work)->kind = 9;
+        ((BtlAiCommandWork *)work)->command = 0x111;
+        ((BtlAiCommandWork *)work)->plan = actionCode & 0xFFFF0FFF;
         break;
     case 0x2000:
-        *(u16 *)(p + 0xEC) = v & 0xFFFF0FFF;
+        ((u16 *)((BtlAction *)action)->targetBlock.unk_e8)[2] = actionCode & 0xFFFF0FFF;
     case 0x8002:
-        *(u16 *)(q + 0x34) = 0x7;
+        ((BtlAiCommandWork *)work)->kind = 0x7;
         break;
     case 0x8007:
-        *(u16 *)(q + 0x34) = 0x8;
+        ((BtlAiCommandWork *)work)->kind = 0x8;
         break;
     case 0x8005:
         break;
     case 0x8006:
-        *(u16 *)(q + 0x34) = 0xB;
+        ((BtlAiCommandWork *)work)->kind = 0xB;
         break;
     case 0x8001:
-        *(u16 *)(q + 0x34) = 0x6;
+        ((BtlAiCommandWork *)work)->kind = 0x6;
         break;
     case 0x8008:
-        *(u16 *)(q + 0x34) = 0xC;
+        ((BtlAiCommandWork *)work)->kind = 0xC;
         break;
     case 0x8009:
-        func_001ebc00(p, q);
+        btlAiChooseUsableAttackSkill(action, work);
         break;
     case 0x8004:
-        v = (u16)(datCalcPickSpecialItem(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64)) & 0xFFFF);
+        actionCode = (u16)(datCalcPickSpecialItem((u8 *)(((BtlAction *)action))->unit->datUnit) & 0xFFFF);
     default:
-        *(u16 *)(q + 0x34) = 2;
-        *(u16 *)(q + 0x36) = v;
+        ((BtlAiCommandWork *)work)->kind = 2;
+        ((BtlAiCommandWork *)work)->command = actionCode;
         break;
     }
 }
+/* Evaluate two rows of three conditions and return the first eligible action selector. */
 // FUN_001DE800
-u8 btlAICommandPickTableAction(u8 *p) {
-    u8 *base;
-    u8 *row;
-    s32 k;
-    s32 j;
-    u32 w;
-    u32 e;
-    u32 a2;
-    s32 x;
-    u32 arr[3];
+u8 btlAICommandPickTableAction(u8 *action) {
+    BtlAiRecord *base;
+    BtlAiConditionRow *row;
+    s32 rowIndex;
+    s32 conditionIndex;
+    u32 packedCondition;
+    u32 conditionKind;
+    u32 conditionValue;
+    s32 conditionResult;
+    u32 conditionResults[3];
 
-    base = iGpffffb3d0 + (*(u16 *)(*(u32 *)(p + 0x30) + 0xA4)) * 164;
-    k = 0;
-    while ((u16)k < 2) {
-        row = base + (k & 0xFFFF) * 20 + 4;
-        j = 0;
-        while ((u16)j < 3) {
-            w = *(s32 *)(row + (j & 0xFFFF) * 4);
-            e = (w & 0xFF000000) >> 24;
-            a2 = w & 0xFFFFFF;
-            if (e == 0)
-                x = 0;
+    base = &((BtlAiRecord *)iGpffffb3d0)[((BtlUnit *)(u32)((BtlAction *)action)->unit)->charId];
+    rowIndex = 0;
+    while ((u16)rowIndex < 2) {
+        row = &base->conditionRows[rowIndex & 0xFFFF];
+        conditionIndex = 0;
+        while ((u16)conditionIndex < 3) {
+            packedCondition = (s32)row->conditions[conditionIndex & 0xFFFF];
+            conditionKind = (packedCondition & 0xFF000000) >> 24;
+            conditionValue = packedCondition & 0xFFFFFF;
+            if (conditionKind == 0)
+                conditionResult = 0;
             else
-                x = ((s32 (*)(u8 *, u32))D_00609850[e * 3])(p, a2);
-            arr[j & 0xFFFF] = x;
-            j = (j + 1) & 0xFFFF;
+                conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+            conditionResults[conditionIndex & 0xFFFF] = conditionResult;
+            conditionIndex = (conditionIndex + 1) & 0xFFFF;
         }
-        if (arr[0] && arr[1] && arr[2] && *(u8 *)(row + 0xC) != 8)
-            return *(u8 *)(row + 0xC);
-        if (arr[0] && arr[1] && *(u8 *)(row + 0xD) != 8)
-            return *(u8 *)(row + 0xD);
-        if (arr[0] && arr[2] && *(u8 *)(row + 0xE) != 8)
-            return *(u8 *)(row + 0xE);
-        if (arr[1] && arr[2] && *(u8 *)(row + 0xF) != 8)
-            return *(u8 *)(row + 0xF);
-        if (arr[0] && *(u8 *)(row + 0x10) != 8)
-            return *(u8 *)(row + 0x10);
-        if (arr[1] && *(u8 *)(row + 0x11) != 8)
-            return *(u8 *)(row + 0x11);
-        if (arr[2] && *(u8 *)(row + 0x12) != 8)
-            return *(u8 *)(row + 0x12);
-        if (*(u8 *)(row + 0x13) != 8)
-            return *(u8 *)(row + 0x13);
-        k = (k + 1) & 0xFFFF;
+        if (conditionResults[0] && conditionResults[1] && conditionResults[2] && row->actions[0] != 8)
+            return row->actions[0];
+        if (conditionResults[0] && conditionResults[1] && row->actions[1] != 8)
+            return row->actions[1];
+        if (conditionResults[0] && conditionResults[2] && row->actions[2] != 8)
+            return row->actions[2];
+        if (conditionResults[1] && conditionResults[2] && row->actions[3] != 8)
+            return row->actions[3];
+        if (conditionResults[0] && row->actions[4] != 8)
+            return row->actions[4];
+        if (conditionResults[1] && row->actions[5] != 8)
+            return row->actions[5];
+        if (conditionResults[2] && row->actions[6] != 8)
+            return row->actions[6];
+        if (row->actions[7] != 8)
+            return row->actions[7];
+        rowIndex = (rowIndex + 1) & 0xFFFF;
     }
     return 0;
 }
@@ -1896,38 +1959,40 @@ u8 btlAICommandPickTableAction(u8 *p) {
 /* Measured: 288B/288B, nd 0. Separate loop locals preserve register
    lifetimes; random-first comparison selects retail's $at branch.
    The random helper takes the summed weights, not the record pointer. */
+/* Preserve the precomputed table/row byte offsets when accessing the weighted-command layout. */
+/* Choose a positive-weight command from the selected five-entry AI table. */
 // FUN_001DEA90
-u8 *btlAISelectWeightedEntry(u8 *p, u32 index)
+u8 *btlAISelectWeightedEntry(u8 *action, u32 index)
 {
     u8 *node;
     u8 *entry;
-    u32 i;
-    u32 sum;
-    u32 total;
-    u32 j;
-    s32 random;
+    u32 entryIndex;
+    u32 weightSum;
+    u32 cumulativeWeight;
+    u32 candidateIndex;
+    s32 randomWeight;
     s32 weight;
 
-    node = iGpffffb3d0 + *(u16 *)(*(u32 *)(p + 0x30) + 0xA4) * 164;
-    sum = 0;
-    i = 0;
+    node = iGpffffb3d0 + ((BtlUnit *)(u32)((BtlAction *)action)->unit)->charId * 164;
+    weightSum = 0;
+    entryIndex = 0;
     node += (index & 0xffff) * 40;
-    while ((u16)i < 5) {
-        sum = (sum + *(u8 *)(node + (i & 0xffff) * 8 + 0x2c)) & 0xffff;
-        i = (i + 1) & 0xffff;
+    while ((u16)entryIndex < 5) {
+        weightSum = (weightSum + ((BtlAiWeightedCommand *)(node + (entryIndex & 0xffff) * 8 + 0x2c))->weight) & 0xffff;
+        entryIndex = (entryIndex + 1) & 0xffff;
     }
-    if ((sum & 0xffff) == 0)
+    if ((weightSum & 0xffff) == 0)
         return &iGpffffa2a8;
-    random = datCalcRandomBelow(sum & 0xffff) & 0xffff;
-    total = 0;
-    j = 0;
-    while ((u16)j < 5) {
-        entry = node + (j & 0xffff) * 8;
+    randomWeight = datCalcRandomBelow(weightSum & 0xffff) & 0xffff;
+    cumulativeWeight = 0;
+    candidateIndex = 0;
+    while ((u16)candidateIndex < 5) {
+        entry = node + (candidateIndex & 0xffff) * 8;
         weight = entry[0x2c];
-        total = (total + weight) & 0xffff;
-        if (random <= (s32)total && weight > 0)
+        cumulativeWeight = (cumulativeWeight + weight) & 0xffff;
+        if (randomWeight <= (s32)cumulativeWeight && weight > 0)
             return entry + 0x2c;
-        j = (j + 1) & 0xffff;
+        candidateIndex = (candidateIndex + 1) & 0xffff;
     }
     return 0;
 }
@@ -1939,38 +2004,41 @@ u8 *btlAISelectWeightedEntry(u8 *p, u32 index)
    on the 0x130 load must be SIGNED (s32) or b210 eliminates it as `u32>=0`
    always-true. t declared before d (reverse decl order -> d=$19/t=$20),
    buf[32], case 0/1 switch, iGpffffb444 + x*21 chain. */
+/* KwlnTask+0x20 supplies the procedure priority, decremented by one. */
+/* Start the action procedure, set its message name and attach it to the battle task. */
+/* Historical whole-layout probe: normalized diff 231; the access-site pass retains only measured raw culprits. */
 // FUN_001DEBB0
-s32 btlAICommandSpawnActionProc(u8 *p, u8 *q, u32 v, u32 w)
+s32 btlAICommandSpawnActionProc(u8 *action, u8 *work, u32 scriptData, u32 procedureId)
 {
-    u8 buf[32];
-    u32 c;
-    u32 t;
-    u32 d;
-    u32 v2;
-
-    if (*(u8 *)(*(u32 *)(p + 0x30) + 0xA2) == 0) {
-        c = *(u8 *)(*(u32 *)(*(u32 *)(p + 0x30) + 0xA64) + 0x10);
-        sprintf(buf, D_00609E20, w, c);
-        c = scrFindPrcdIdxByName(v, buf);
+    u8 procedureName[32];
+    u32 procedureValue;
+    u32 procedureTask;
+    u32 speakerName;
+    u32 procedureWork;
+    struct ScrData { u8 pad00[0x130]; s32 messageWindow; u8 pad134[0x14]; }; /* VM extent: scrTraceCode.c; +0x130 is passed to itfMesWindowSetString. */
+    if (((BtlUnit *)((u32)((BtlAction *)action)->unit))->genus == 0) {
+        procedureValue = (u8)((DatUnit *)((u32)((BtlUnit *)((u32)((BtlAction *)action)->unit))->datUnit))->aiTactic;
+        sprintf(procedureName, D_00609E20, procedureId, procedureValue);
+        procedureValue = scrFindPrcdIdxByName(scriptData, procedureName);
     } else {
-        c = w;
+        procedureValue = procedureId;
     }
-    t = scrStartProcedureIndex((u8 *)(*(u32 *)(*(u32 *)(iGpffffb3ac + 0xDC8) + 0x20) - 1), v, c);
-    scrSetTaskProc(t, p);
-    v2 = (u32)kwlnTaskGetWork(t);
-    if (*(s32 *)(v2 + 0x130) >= 0) {
-        switch (*(u8 *)(*(u32 *)(p + 0x30) + 0xA2)) {
+    procedureTask = scrStartProcedureIndex((u8 *)((u32)((struct KwlnTask *)((u32)((BtlBattleState *)(iGpffffb3ac))->cutinTaskParent))->unk20Value - 1), scriptData, procedureValue);
+    scrSetTaskProc(procedureTask, action);
+    procedureWork = (u32)kwlnTaskGetWork(procedureTask);
+    if (((struct ScrData *)procedureWork)->messageWindow >= 0) {
+        switch (((BtlUnit *)(*(u32 *)(action + 0x30)))->genus) { /* measured: access-site field substitution loses MATCH. */
         case 0:
-            d = (u32)datPersonaNamePart1Alt(*(s16 *)(*(u32 *)(p + 0x30) + 0xA4));
+            speakerName = (u32)datPersonaNamePart1Alt((s16)((BtlUnit *)(*(u32 *)(action + 0x30)))->charId); /* measured: access-site field substitution loses MATCH. */
             break;
         case 1:
-            d = (u32)iGpffffb444 + (*(u16 *)(*(u32 *)(p + 0x30) + 0xA4)) * 21;
+            speakerName = (u32)iGpffffb444 + (((BtlUnit *)(*(u32 *)(action + 0x30)))->charId) * 21; /* measured: access-site field substitution loses MATCH. */
             break;
         }
-        itfMesWindowSetString(*(s32 *)(v2 + 0x130), 0, d);
+        itfMesWindowSetString(*(s32 *)(procedureWork + 0x130), 0, speakerName); /* measured: access-site field substitution loses MATCH. */
     }
-    kwlnTaskAddChild((u8 *)(*(u32 *)(iGpffffb3ac + 0xDC8)), t);
-    *(u32 *)(q + 0x4C) = t;
+    kwlnTaskAddChild((u8 *)((u32)((BtlBattleState *)(iGpffffb3ac))->cutinTaskParent), procedureTask);
+    ((BtlAiCommandWork *)work)->procedureTask = procedureTask;
     return 1;
 }
 /* measured: three 1-2 word scheduler residuals. (1) case 1's chain: retail
@@ -1987,81 +2055,85 @@ s32 btlAICommandSpawnActionProc(u8 *p, u8 *q, u32 v, u32 w)
    DAT_007ce41c->iGpffffb3d0 (integer-domain address forces the early base load),
    DAT_007ce4cc->iGpffffb3cc, DAT_007ce4d0->iGpffffb42c. func_001de800 declared
    locally as u32 to keep the &0xFFFF mask from folding to 0xff. */
+/* Use an explicit AI procedure when present, otherwise decode a weighted table command. */
+/* Historical whole-layout probe: normalized diff 262; the access-site pass retains only measured raw culprits. */
 // FUN_001DED30
-void btlAICommandSetUnitAction(int param_1, int param_2)
+void btlAICommandSetUnitAction(s32 action, s32 work)
 {
-    u8 type;
+    u8 genus;
     u16 baseActionId;
     u16 actionId;
-    int entry;
-    u32 actionWord;
-    u32 data;
-    u32 result;
+    s32 weightedCommand;
+    u32 packedCondition;
+    u32 scriptData;
+    u32 conditionResult;
 
-    baseActionId = *(u16 *)(*(int *)(param_1 + 0x30) + 0xa4);
-    func_001eb3b0((u8 *)param_2);
-    type = *(u8 *)(*(int *)(param_1 + 0x30) + 0xa2);
-    switch (type) {
+    baseActionId = ((BtlUnit *)((s32)((BtlAction *)action)->unit))->charId;
+    btlTargetResetCommandRecord((u8 *)work);
+    genus = ((BtlUnit *)(*(s32 *)(action + 0x30)))->genus; /* measured: access-site field substitution loses MATCH. */
+    switch (genus) {
     case 0:
         actionId = baseActionId;
-        data = (u32)iGpffffb428;
+        scriptData = (u32)iGpffffb428;
         break;
     case 1:
         {
-            u8 *table;
-            u32 off;
+            u8 *aiRecord;
+            u32 recordOffset;
 
             /* measured: the integer-domain address spelling forces the early base load (retail lw $a0,-0x4c30($gp) first), ported from donor func_002c70d0 */
-            table = *(u8 **)((u32)&iGpffffb3d0);
-            off = ((u32)baseActionId * 0x28 + (u32)baseActionId) * 4;
-            table = (u8 *)(off) + (int)table;
-            actionId = *(u16 *)(table + 2);
-            data = (u32)iGpffffb42c;
+            aiRecord = *(u8 **)((u32)&iGpffffb3d0); /* measured: access-site field substitution loses MATCH. */
+            recordOffset = ((u32)baseActionId * 0x28 + (u32)baseActionId) * 4;
+            aiRecord = (u8 *)(recordOffset) + (s32)aiRecord;
+            actionId = ((BtlAiRecord *)aiRecord)->procedure;
+            scriptData = (u32)iGpffffb42c;
         }
         break;
     }
     if (actionId > 0) {
-        btlAICommandSpawnActionProc((u8 *)param_1, (u8 *)param_2, data, actionId);
-        *(u8 *)(param_2 + 0x30) = 1;
+        btlAICommandSpawnActionProc((u8 *)action, (u8 *)work, scriptData, actionId);
+        ((BtlAiCommandWork *)work)->procedureActive = 1;
     }
     else {
         extern u32 btlAICommandPickTableAction(u8 *);
-        actionId = btlAICommandPickTableAction((u8 *)param_1) & 0xFFFF;
-        entry = (int)btlAISelectWeightedEntry((u8 *)param_1, actionId);
-        btlAICommandSetActionCode((u8 *)param_1, (u8 *)param_2, *(u16 *)(entry + 2));
-        actionWord = *(u32 *)(entry + 4);
-        result = ((s32 (*)(u8 *, u32))D_00609CE0[((actionWord & 0xff000000) >> 0x18) * 2])((u8 *)param_1, actionWord & 0xffffff);
-        if (result == 0) {
-            ((s32 (*)(u8 *, u32))D_00609CE0[0])((u8 *)param_1, 0);
+        actionId = btlAICommandPickTableAction((u8 *)action) & 0xFFFF;
+        weightedCommand = (s32)btlAISelectWeightedEntry((u8 *)action, actionId);
+        btlAICommandSetActionCode((u8 *)action, (u8 *)work, ((BtlAiWeightedCommand *)weightedCommand)->command);
+        packedCondition = ((BtlAiWeightedCommand *)weightedCommand)->targetCondition;
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609CE0[((packedCondition & 0xff000000) >> 0x18) * 2])((u8 *)action, packedCondition & 0xffffff);
+        if (conditionResult == 0) {
+            ((s32 (*)(u8 *, u32))D_00609CE0[0])((u8 *)action, 0);
         }
     }
 }
 
 
+/* Clear the procedure-active flag and task handle after the task is no longer linked. */
+/* Historical whole-layout probe: normalized diff 86; the access-site pass retains only measured raw culprits. */
 // FUN_001DEEE0
-u32 btlAICommandTryReleaseProc(int param_1)
+u32 btlAICommandTryReleaseProc(s32 work)
 {
-  u32 uVar1 = 0;
-  long lVar2 = 0;
+  u32 released = 0;
+  long taskLinked = 0;
 
-  if (*(u8 *)(param_1 + 0x30) == 0) {
-    uVar1 = 1;
+  if (((BtlAiCommandWork *)work)->procedureActive == 0) {
+    released = 1;
   }
-  else if (*(int *)(param_1 + 0x4c) == 0) {
-    uVar1 = 1;
+  else if ((s32)((BtlAiCommandWork *)work)->procedureTask == 0) {
+    released = 1;
   }
   else {
-    lVar2 = kwlnTaskIsLinked(*(int *)(param_1 + 0x4c));
-    if (lVar2 == 0) {
-      *(u8 *)(param_1 + 0x30) = 0;
-      *(u32 *)(param_1 + 0x4c) = 0;
-      uVar1 = 1;
+    taskLinked = kwlnTaskIsLinked((s32)((BtlAiCommandWork *)work)->procedureTask);
+    if (taskLinked == 0) {
+      *(u8 *)(work + 0x30) = 0; /* measured: access-site field substitution loses MATCH. */
+      *(u32 *)(work + 0x4c) = 0; /* measured: access-site field substitution loses MATCH. */
+      released = 1;
     }
     else {
-      uVar1 = 0;
+      released = 0;
     }
   }
-  return uVar1;
+  return released;
 }
 
 
@@ -2072,9 +2144,9 @@ u32 btlAICommandScriptSetDefaultAction(void)
 {
   extern u8 *scrGetAiState(void);
   extern void btlAICommandSetActionCode(void *, void *, u16);
-  char *pVar1 = (char *)scrGetAiState();
+  char *action = (char *)scrGetAiState();
 
-  btlAICommandSetActionCode(pVar1, pVar1 + 0x38, 0x8000);
+  btlAICommandSetActionCode(action, action + 0x38, 0x8000);
   return 1;
 }
 
@@ -2083,28 +2155,28 @@ u32 btlAICommandScriptSetDefaultAction(void)
 /* AI script command 0x203e (p4flow AI.json AI_FUNCTION_003E). */
 // FUN_001DEFA0
 s32 btlAICommandScriptSetActionParam(void) {
-    u8 *p = scrGetAiState();
-    s32 r = scrGetParamInt(0);
-    if (r == 0)
-        btlAICommandSetActionCode(p, p + 0x38, 0x8000);
-    else if (r > 0)
-        btlAICommandSetActionCode(p, p + 0x38, (u16)r);
+    u8 *action = scrGetAiState();
+    s32 actionCode = scrGetParamInt(0);
+    if (actionCode == 0)
+        btlAICommandSetActionCode(action, action + 0x38, 0x8000);
+    else if (actionCode > 0)
+        btlAICommandSetActionCode(action, action + 0x38, (u16)actionCode);
     else
-        btlAICommandSetActionCode(p, p + 0x38, 0x8002);
+        btlAICommandSetActionCode(action, action + 0x38, 0x8002);
     return 1;
 }
 
 /* AI script command 0x2068 (p4flow AI.json AI_FUNCTION_0068). */
 // FUN_001DF040
 s32 btlAICommandScriptSetSkillAction(void) {
-    u8 *p = scrGetAiState();
-    s32 r = scrGetParamInt(0);
-    if (r >= 0) {
-        *(u16 *)(p + 0x6C) = 3;
-        *(u16 *)(p + 0x70) = r;
-        *(u16 *)(p + 0x6E) = datCalcUnderlyingSkillId((u16)r);
+    u8 *action = scrGetAiState();
+    s32 skillId = scrGetParamInt(0);
+    if (skillId >= 0) {
+        ((BtlAction *)action)->unk_6c = 3;
+        ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->skill = skillId;
+        ((BtlAction *)action)->unk_6e = datCalcUnderlyingSkillId((u16)skillId);
     } else {
-        btlAICommandSetActionCode(p, p + 0x38, 0x8002);
+        btlAICommandSetActionCode(action, action + 0x38, 0x8002);
     }
     return 1;
 }
@@ -2115,10 +2187,10 @@ u32 btlAICommandScriptSetAction8001(void)
 {
   extern u8 *scrGetAiState(void);
   extern void btlAICommandSetActionCode(void *, void *, u16);
-  char *pVar1 = 0;
+  char *action = 0;
 
-  pVar1 = (char *)scrGetAiState();
-  btlAICommandSetActionCode(pVar1, pVar1 + 0x38, 0x8001);
+  action = (char *)scrGetAiState();
+  btlAICommandSetActionCode(action, action + 0x38, 0x8001);
   return 1;
 }
 
@@ -2130,10 +2202,10 @@ u32 btlAICommandScriptSetAction8002(void)
 {
   extern u8 *scrGetAiState(void);
   extern void btlAICommandSetActionCode(void *, void *, u16);
-  char *pVar1 = 0;
+  char *action = 0;
 
-  pVar1 = (char *)scrGetAiState();
-  btlAICommandSetActionCode(pVar1, pVar1 + 0x38, 0x8002);
+  action = (char *)scrGetAiState();
+  btlAICommandSetActionCode(action, action + 0x38, 0x8002);
   return 1;
 }
 
@@ -2142,34 +2214,35 @@ u32 btlAICommandScriptSetAction8002(void)
 /* AI script command 0x20d5 (p4flow AI.json AI_FUNCTION_00D5). */
 // FUN_001DF140
 s32 btlAICommandScriptSetActionSubword(void) {
-    u8 *p = scrGetAiState();
-    *(u16 *)(p + 0xEC) = scrGetParamInt(0);
-    btlAICommandSetActionCode(p, p + 0x38, 0x8002);
+    u8 *action = scrGetAiState();
+    ((u16 *)((BtlAction *)action)->targetBlock.unk_e8)[2] = scrGetParamInt(0);
+    btlAICommandSetActionCode(action, action + 0x38, 0x8002);
     return 1;
 }
 
 /* AI script command 0x2041 (p4flow AI.json AI_FUNCTION_0041). */
 // FUN_001DF1A0
 s32 btlAICommandScriptSetAiPlan(void) {
-    u8 *p = scrGetAiState();
-    *(u16 *)(p + 0x6C) = 9;
-    *(u16 *)(p + 0x6E) = 0x111;
-    *(u16 *)(p + 0x76) = scrGetParamInt(0);
-    if (!((s32 (*)(u8 *, s32))D_00609D20[0])(p, 0))
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    ((BtlAction *)action)->unk_6c = 9;
+    ((BtlAction *)action)->unk_6e = 0x111;
+    ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->plan = scrGetParamInt(0);
+    if (!((s32 (*)(u8 *, s32))D_00609D20[0])(action, 0))
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
 /* AI script command 0x2059 (p4flow AI.json AI_FUNCTION_0059). */
+/* Historical whole-layout probe: normalized diff 113; the access-site pass retains only measured raw culprits. */
 // FUN_001DF230
 s32 btlAICommandScriptSetAiPlanWithArg(void) {
-    u8 *p = scrGetAiState();
-    *(u16 *)(p + 0x6C) = 9;
-    *(u16 *)(p + 0x6E) = 0x111;
-    *(u16 *)(p + 0x76) = scrGetParamInt(0);
-    *(u16 *)(p + 0x78) = scrGetParamInt(1);
-    if (!((s32 (*)(u8 *, s32))D_00609D20[0])(p, 0))
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    ((BtlAction *)action)->unk_6c = 9;
+    ((BtlAction *)action)->unk_6e = 0x111;
+    ((BtlAction *)action)->parameters.summonIds[0] = scrGetParamInt(0);
+    ((BtlAction *)action)->parameters.summonIds[1] = scrGetParamInt(1);
+    if (!((s32 (*)(u8 *, s32))D_00609D20[0])(action, 0))
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -2179,10 +2252,10 @@ u32 btlAICommandScriptSetAction8007(void)
 {
   extern u8 *scrGetAiState(void);
   extern void btlAICommandSetActionCode(void *, void *, u16);
-  char *pVar1 = 0;
+  char *action = 0;
 
-  pVar1 = (char *)scrGetAiState();
-  btlAICommandSetActionCode(pVar1, pVar1 + 0x38, 0x8007);
+  action = (char *)scrGetAiState();
+  btlAICommandSetActionCode(action, action + 0x38, 0x8007);
   return 1;
 }
 
@@ -2191,288 +2264,288 @@ u32 btlAICommandScriptSetAction8007(void)
 /* AI script command 0x2000 (p4flow AI.json AI_FUNCTION_0000). */
 // FUN_001DF310
 s32 btlAICommandScriptQueryMyHp(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x1000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2001 (p4flow AI.json AI_FUNCTION_0001). */
 // FUN_001DF3C0
 s32 btlAICommandScriptQueryMyMp(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x2000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2002 (p4flow AI.json AI_FUNCTION_0002). */
 // FUN_001DF470
 s32 btlAICommandScriptQueryFrHp(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x3000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2003 (p4flow AI.json AI_FUNCTION_0003). */
 // FUN_001DF520
 s32 btlAICommandScriptQueryEnHp(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x4000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x4000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2004 (p4flow AI.json AI_FUNCTION_0004). */
 // FUN_001DF5D0
 s32 btlAICommandScriptQueryEnHpO(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x5000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x5000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2005 (p4flow AI.json AI_FUNCTION_0005). */
 // FUN_001DF680
 s32 btlAICommandScriptQueryMyLvO(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x6000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x6000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2006 (p4flow AI.json AI_FUNCTION_0006). */
 // FUN_001DF730
 s32 btlAICommandScriptQueryFrLvO(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x7000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x7000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2007 (p4flow AI.json AI_FUNCTION_0007). */
 // FUN_001DF7E0
 s32 btlAICommandScriptQueryEnLvO(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x8000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x8000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2008 (p4flow AI.json AI_FUNCTION_0008). */
 // FUN_001DF890
 s32 btlAICommandScriptQueryFrCnt(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x9000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x9000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2009 (p4flow AI.json AI_FUNCTION_0009). */
 // FUN_001DF940
 s32 btlAICommandScriptQueryEnCnt(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xA000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0xA000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x200a (p4flow AI.json AI_FUNCTION_000A). */
 // FUN_001DF9F0
 s32 btlAICommandScriptQueryMyBad(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xB000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0xB000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x200b (p4flow AI.json AI_FUNCTION_000B). */
 // FUN_001DFAA0
 s32 btlAICommandScriptQueryFrBad(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xC000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0xC000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x200c (p4flow AI.json AI_FUNCTION_000C). */
 // FUN_001DFB50
 s32 btlAICommandScriptQueryEnBad(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xD000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0xD000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x200d (p4flow AI.json AI_FUNCTION_000D). */
 // FUN_001DFC00
 s32 btlAICommandScriptQueryEnBadAll(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xE000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0xE000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x200e (p4flow AI.json AI_FUNCTION_000E). */
 // FUN_001DFCB0
 s32 btlAICommandScriptQueryFrId(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xF000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0xF000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x200f (p4flow AI.json AI_FUNCTION_000F). */
 // FUN_001DFD60
 s32 btlAICommandScriptQueryEnId(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x10000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x10000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2010 (p4flow AI.json AI_FUNCTION_0010). */
 // FUN_001DFE10
 s32 btlAICommandScriptQueryFrHojo(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x11000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x11000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2011 (p4flow AI.json AI_FUNCTION_0011). */
 // FUN_001DFEC0
 s32 btlAICommandScriptQueryEnHojo(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x12000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x12000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
@@ -2500,288 +2573,288 @@ s32 btlAICommandScriptQuerySensei(void) {
 /* AI script command 0x2015 (p4flow AI.json AI_FUNCTION_0015). */
 // FUN_001E0060
 s32 btlAICommandScriptQueryMyHansya(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x16000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x16000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2016 (p4flow AI.json AI_FUNCTION_0016). */
 // FUN_001E0110
 s32 btlAICommandScriptQueryMyKyusyu(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x17000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x17000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2017 (p4flow AI.json AI_FUNCTION_0017). */
 // FUN_001E01C0
 s32 btlAICommandScriptQueryMyMukou(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x18000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x18000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2018 (p4flow AI.json AI_FUNCTION_0018). */
 // FUN_001E0270
 s32 btlAICommandScriptQueryMyWeak(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x19000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x19000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2019 (p4flow AI.json AI_FUNCTION_0019). */
 // FUN_001E0320
 s32 btlAICommandScriptQueryFrHansya(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1A000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x1A000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x201a (p4flow AI.json AI_FUNCTION_001A). */
 // FUN_001E03D0
 s32 btlAICommandScriptQueryEnHansya(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1B000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x1B000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x201b (p4flow AI.json AI_FUNCTION_001B). */
 // FUN_001E0480
 s32 btlAICommandScriptQueryFrKyusyu(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1C000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x1C000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x201c (p4flow AI.json AI_FUNCTION_001C). */
 // FUN_001E0530
 s32 btlAICommandScriptQueryEnKyusyu(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1D000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x1D000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x201d (p4flow AI.json AI_FUNCTION_001D). */
 // FUN_001E05E0
 s32 btlAICommandScriptQueryFrMukou(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1E000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x1E000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x201e (p4flow AI.json AI_FUNCTION_001E). */
 // FUN_001E0690
 s32 btlAICommandScriptQueryEnMukou(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1F000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x1F000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x201f (p4flow AI.json AI_FUNCTION_001F). */
 // FUN_001E0740
 s32 btlAICommandScriptQueryFrWeak(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x20000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x20000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2020 (p4flow AI.json AI_FUNCTION_0020). */
 // FUN_001E07F0
 s32 btlAICommandScriptQueryEnWeak(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x21000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x21000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2021 (p4flow AI.json AI_FUNCTION_0021). */
 // FUN_001E08A0
 s32 btlAICommandScriptQueryMyUseAttr(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x22000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x22000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2022 (p4flow AI.json AI_FUNCTION_0022). */
 // FUN_001E0950
 s32 btlAICommandScriptQueryFrUseAttr(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x23000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x23000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2023 (p4flow AI.json AI_FUNCTION_0023). */
 // FUN_001E0A00
 s32 btlAICommandScriptQueryEnUseAttr(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x24000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x24000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2024 (p4flow AI.json AI_FUNCTION_0024). */
 // FUN_001E0AB0
 s32 btlAICommandScriptQueryMyUseSkil(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x25000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x25000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2025 (p4flow AI.json AI_FUNCTION_0025). */
 // FUN_001E0B60
 s32 btlAICommandScriptQueryFrUseSkil(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x26000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x26000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2026 (p4flow AI.json AI_FUNCTION_0026). */
 // FUN_001E0C10
 s32 btlAICommandScriptQueryEnUseSkil(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x27000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x27000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
@@ -2809,32 +2882,32 @@ s32 btlAICommandScriptQueryEnGroup(void) {
 /* AI script command 0x202a (p4flow AI.json AI_FUNCTION_002A). */
 // FUN_001E0DB0
 s32 btlAICommandScriptQueryTurn(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2B000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x2B000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x202b (p4flow AI.json AI_FUNCTION_002B). */
 // FUN_001E0E60
 s32 btlAICommandScriptQueryTurnO(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2C000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x2C000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
@@ -2855,128 +2928,128 @@ s32 btlAICommandScriptQueryMore(void) {
 /* AI script command 0x2051 (p4flow AI.json AI_FUNCTION_0051). */
 // FUN_001E0FB0
 s32 btlAICommandScriptQueryFrHansyaSt(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x2F000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x2F000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2052 (p4flow AI.json AI_FUNCTION_0052). */
 // FUN_001E1060
 s32 btlAICommandScriptQueryEnHansyaSt(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x30000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x30000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2053 (p4flow AI.json AI_FUNCTION_0053). */
 // FUN_001E1110
 s32 btlAICommandScriptQueryFrKyusyuSt(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x31000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x31000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2054 (p4flow AI.json AI_FUNCTION_0054). */
 // FUN_001E11C0
 s32 btlAICommandScriptQueryEnKyusyuSt(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x32000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x32000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2055 (p4flow AI.json AI_FUNCTION_0055). */
 // FUN_001E1270
 s32 btlAICommandScriptQueryFrMukouSt(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x33000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x33000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2056 (p4flow AI.json AI_FUNCTION_0056). */
 // FUN_001E1320
 s32 btlAICommandScriptQueryEnMukouSt(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x34000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x34000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2057 (p4flow AI.json AI_FUNCTION_0057). */
 // FUN_001E13D0
 s32 btlAICommandScriptQueryFrWeakSt(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x35000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x35000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2058 (p4flow AI.json AI_FUNCTION_0058). */
 // FUN_001E1480
 s32 btlAICommandScriptQueryEnWeakSt(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x36000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x36000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
@@ -2998,12 +3071,12 @@ u32 btlAICommandSideIdQueryMyHp(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << (((BtlAction *)unit))->unit->genus & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x01000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3036,12 +3109,12 @@ u32 btlAICommandSideIdQueryMyMp(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << (((BtlAction *)unit))->unit->genus & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x02000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3074,12 +3147,12 @@ u32 btlAICommandSideIdQueryMyLvO(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << (((BtlAction *)unit))->unit->genus & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x06000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3113,12 +3186,12 @@ u32 btlAICommandSideIdQueryMyBad(void)
     u8 *context;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     argument = scrGetParamInt(1);
     unit = scrGetAiState();
-    sideMask = 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff;
+    sideMask = 1 << (((BtlAction *)unit))->unit->genus & 0xffff;
     if ((argument & 0x80000) != 0) {
         id = scrGetParamInt(0);
         context = (u8 *)btlEffectFindUnitByIdAndStatus(id, sideMask, 0);
@@ -3144,14 +3217,14 @@ u32 btlAICommandSideIdQueryMyBad(void)
 /* AI script command 0x205e (p4flow AI.json AI_FUNCTION_005E). */
 // FUN_001E1940
 s32 btlAICommandSideIdQueryHasBuff(void) {
-    u8 *p = scrGetAiState();
-    u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
-    s32 x;
-    if (r != 0)
-        x = datCalcHasBuffMask(*(DatUnit **)(*(u8 **)((u8 *)r + 0x30) + 0xA64), scrGetParamInt(1));
+    u8 *action = scrGetAiState();
+    u32 *targetAction = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << ((((BtlAction *)action))->unit->genus)) & 0xFFFF, 0x80000);
+    s32 queryResult;
+    if (targetAction != 0)
+        queryResult = datCalcHasBuffMask((((BtlAction *)(targetAction)))->unit->datUnit, scrGetParamInt(1));
     else
-        x = 0;
-    scrSetReturnInt(x != 0);
+        queryResult = 0;
+    scrSetReturnInt(queryResult != 0);
     return 1;
 }
 
@@ -3169,12 +3242,12 @@ u32 btlAICommandSideIdQueryMyHansya(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << (((BtlAction *)unit))->unit->genus & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x16000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3207,12 +3280,12 @@ u32 btlAICommandSideIdQueryMyKyusyu(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << (((BtlAction *)unit))->unit->genus & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x17000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3245,12 +3318,12 @@ u32 btlAICommandSideIdQueryMyMukou(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << (((BtlAction *)unit))->unit->genus & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x18000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3283,12 +3356,12 @@ u32 btlAICommandSideIdQueryMyWeak(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << (((BtlAction *)unit))->unit->genus & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x19000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3321,12 +3394,12 @@ u32 btlAICommandSideIdQueryMyUseAttr(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << (((BtlAction *)unit))->unit->genus & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x22000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3359,12 +3432,12 @@ u32 btlAICommandSideIdQueryMyUseSkil(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << (((BtlAction *)unit))->unit->genus & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x25000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -3386,28 +3459,28 @@ u32 btlAICommandSideIdQueryMyUseSkil(void)
 /* AI script command 0x2065 (p4flow AI.json AI_FUNCTION_0065). */
 // FUN_001E1F90
 s32 btlAICommandSideIdQueryMyGroup(void) {
-    u8 *p = scrGetAiState();
-    u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
-    s32 x;
-    if (r != 0)
-        x = ((s32 (*)(u8 *, s32))D_00609A30[0])((u8 *)r, 0);
+    u8 *action = scrGetAiState();
+    u32 *targetAction = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << ((((BtlAction *)action))->unit->genus)) & 0xFFFF, 0x80000);
+    s32 queryResult;
+    if (targetAction != 0)
+        queryResult = ((s32 (*)(u8 *, s32))D_00609A30[0])((u8 *)targetAction, 0);
     else
-        x = 0;
-    scrSetReturnInt(x != 0);
+        queryResult = 0;
+    scrSetReturnInt(queryResult != 0);
     return 1;
 }
 
 /* AI script command 0x2066 (p4flow AI.json AI_FUNCTION_0066). */
 // FUN_001E2030
 s32 btlAICommandSideIdQueryMyHrec(void) {
-    u8 *p = scrGetAiState();
-    u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
-    s32 x;
-    if (r != 0)
-        x = ((s32 (*)(u8 *, s32))D_00609A6C[0])((u8 *)r, 0);
+    u8 *action = scrGetAiState();
+    u32 *targetAction = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << ((((BtlAction *)action))->unit->genus)) & 0xFFFF, 0x80000);
+    s32 queryResult;
+    if (targetAction != 0)
+        queryResult = ((s32 (*)(u8 *, s32))D_00609A6C[0])((u8 *)targetAction, 0);
     else
-        x = 0;
-    scrSetReturnInt(x != 0);
+        queryResult = 0;
+    scrSetReturnInt(queryResult != 0);
     return 1;
 }
 
@@ -3433,11 +3506,11 @@ u32 btlAICommandOppSideIdQueryMyHp(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
-    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+    if ((((BtlAction *)unit))->unit->genus != 0)
         goto nonzero;
     shift = 1;
     goto done;
@@ -3488,11 +3561,11 @@ u32 btlAICommandOppSideIdQueryMyMp(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
-    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+    if ((((BtlAction *)unit))->unit->genus != 0)
         goto nonzero;
     shift = 1;
     goto done;
@@ -3545,11 +3618,11 @@ u32 btlAICommandOppSideIdQueryMyLvO(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
-    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+    if ((((BtlAction *)unit))->unit->genus != 0)
         goto nonzero;
     shift = 1;
     goto done;
@@ -3595,12 +3668,12 @@ u32 btlAICommandOppSideIdQueryMyBad(void)
     u8 *context;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     argument = scrGetParamInt(1);
     unit = scrGetAiState();
-    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+    if ((((BtlAction *)unit))->unit->genus != 0)
         goto nonzero;
     shift = 1;
     goto done;
@@ -3634,47 +3707,48 @@ done:
 
 
 /* AI script command 0x210e (p4flow AI.json AI_FUNCTION_010E). */
+/* Historical whole-layout probe: normalized diff 134; the access-site pass retains only measured raw culprits. */
 // FUN_001E2550
 s32 btlAICommandSideIdQueryAllBadStatus(void) {
-    u32 v;
-    u32 m2;
-    u32 c02;
-    u32 m;
-    u32 c0;
-    u8 *node;
-    s32 n;
-    s32 k;
-    u8 *np;
-    u32 flag;
+    u32 statusMask;
+    u32 sideMask;
+    u32 unitId;
+    u32 selector;
+    u32 unitValue;
+    u8 *candidateAction;
+    s32 livingCount;
+    s32 matchingCount;
+    u8 *unit;
+    u32 allMatch;
 
-    m = (1 << (*(u8 *)(*(u32 *)(scrGetAiState() + 0x30) + 0xA2))) & 0xFFFF;
-    c0 = scrGetParamInt(0) & 0xFFFF;
-    v = scrGetParamInt(1);
-    n = 0;
-    k = 0;
-    node = *(u8 **)(iGpffffb3ac + 0x174);
-    m2 = m & 0xFFFF;
-    c02 = c0 & 0xFFFF;
-    while (node != 0) {
-        if ((*(u16 *)(node + 0x1A) & 1) && (*(u16 *)(node + 0x1A) & 8)) {
-            np = *(u8 **)(node + 0x30);
-            if ((m2 & (1 << (*(u8 *)(np + 0xA2)))) != 0) {
-                if (*(u16 *)(np + 0xA4) == c02) {
-                    if (datCalcIsDead(*(u32 *)(np + 0xA64), 0) == 0) {
-                        n = (n + 1) & 0xFFFF;
-                        if (datCalcChkBadStatus(*(u32 *)(np + 0xA64), v) != 0) {
-                            k = (k + 1) & 0xFFFF;
+    selector = (1 << (((BtlUnit *)((u32)((BtlAction *)(scrGetAiState()))->unit))->genus)) & 0xFFFF;
+    unitValue = scrGetParamInt(0) & 0xFFFF;
+    statusMask = scrGetParamInt(1);
+    livingCount = 0;
+    matchingCount = 0;
+    candidateAction = (u8 *)((BtlBattleState *)(iGpffffb3ac))->actions;
+    sideMask = selector & 0xFFFF;
+    unitId = unitValue & 0xFFFF;
+    while (candidateAction != 0) {
+        if ((((BtlAction *)candidateAction)->unk_1a & 1) && (((BtlAction *)candidateAction)->unk_1a & 8)) {
+            unit = (u8 *)((BtlAction *)candidateAction)->unit;
+            if ((sideMask & (1 << (((BtlUnit *)unit)->genus))) != 0) {
+                if (((BtlUnit *)unit)->charId == unitId) {
+                    if (datCalcIsDead((u32)((BtlUnit *)unit)->datUnit, 0) == 0) {
+                        livingCount = (livingCount + 1) & 0xFFFF;
+                        if (datCalcChkBadStatus(*(u32 *)(unit + 0xA64), statusMask) != 0) { /* measured: access-site field substitution loses MATCH. */
+                            matchingCount = (matchingCount + 1) & 0xFFFF;
                         }
                     }
                 }
             }
         }
-        node = *(u8 **)(node + 0x450);
+        candidateAction = (u8 *)((BtlAction *)candidateAction)->next;
     }
-    flag = 0;
-    if ((n & 0xFFFF) > 0 && (n & 0xFFFF) == (k & 0xFFFF))
-        flag = 1;
-    scrSetReturnInt(flag != 0);
+    allMatch = 0;
+    if ((livingCount & 0xFFFF) > 0 && (livingCount & 0xFFFF) == (matchingCount & 0xFFFF))
+        allMatch = 1;
+    scrSetReturnInt(allMatch != 0);
     return 1;
 }
 
@@ -3683,55 +3757,56 @@ s32 btlAICommandSideIdQueryAllBadStatus(void) {
    ranges; #pragma opt_rebuildconditionals off preserves the branchy shift
    sequence and its 392-byte object (retail window 400 bytes). */
 /* AI script command 0x210d (p4flow AI.json AI_FUNCTION_010D). */
+/* Historical whole-layout probe: normalized diff 134; the access-site pass retains only measured raw culprits. */
 // FUN_001E26C0
 /* measured: retains the branch-rebuild setting required for the byte-exact body. */
 #pragma opt_rebuildconditionals off
 s32 btlAICommandOppSideIdQueryAllBadStatus(void)
 {
     u32 shift;
-    u32 v;
-    u32 m2;
-    u32 m;
-    u8 *c0;
-    u8 *node;
-    s32 n;
-    s32 k;
-    u32 flag;
+    u32 statusMask;
+    u32 sideMask;
+    u32 selector;
+    u8 *unitValue;
+    u8 *candidateAction;
+    s32 livingCount;
+    s32 matchingCount;
+    u32 allMatch;
 
-    if (*(u8 *)(*(u8 **)(scrGetAiState() + 0x30) + 0xa2) != 0)
+    if (((BtlUnit *)((u8 *)((BtlAction *)(scrGetAiState()))->unit))->genus != 0)
         goto nonzero;
     shift = 1;
     goto done;
 nonzero:
     shift = 0;
 done:
-    m = (1 << (shift & 0xffff)) & 0xffff;
-    c0 = (u8 *)(scrGetParamInt(0) & 0xffff);
-    v = scrGetParamInt(1);
-    n = 0;
-    k = 0;
-    node = *(u8 **)(iGpffffb3ac + 0x174);
-    m2 = m & 0xffff;
-    m = (u32)c0 & 0xffff;
-    while (node != 0) {
-        if ((*(u16 *)(node + 0x1a) & 1) && (*(u16 *)(node + 0x1a) & 8)) {
-            c0 = *(u8 **)(node + 0x30);
-            if ((m2 & (1 << (*(u8 *)(c0 + 0xa2)))) != 0) {
-                if (*(u16 *)(c0 + 0xa4) == m) {
-                    if (datCalcIsDead(*(u32 *)(c0 + 0xa64), 0) == 0) {
-                        n = (n + 1) & 0xffff;
-                        if (datCalcChkBadStatus(*(u32 *)(c0 + 0xa64), v) != 0)
-                            k = (k + 1) & 0xffff;
+    selector = (1 << (shift & 0xffff)) & 0xffff;
+    unitValue = (u8 *)(scrGetParamInt(0) & 0xffff);
+    statusMask = scrGetParamInt(1);
+    livingCount = 0;
+    matchingCount = 0;
+    candidateAction = (u8 *)((BtlBattleState *)(iGpffffb3ac))->actions;
+    sideMask = selector & 0xffff;
+    selector = (u32)unitValue & 0xffff;
+    while (candidateAction != 0) {
+        if ((((BtlAction *)candidateAction)->unk_1a & 1) && (((BtlAction *)candidateAction)->unk_1a & 8)) {
+            unitValue = (u8 *)((BtlAction *)candidateAction)->unit;
+            if ((sideMask & (1 << (((BtlUnit *)unitValue)->genus))) != 0) {
+                if (((BtlUnit *)unitValue)->charId == selector) {
+                    if (datCalcIsDead((u32)((BtlUnit *)unitValue)->datUnit, 0) == 0) {
+                        livingCount = (livingCount + 1) & 0xffff;
+                        if (datCalcChkBadStatus(*(u32 *)(unitValue + 0xa64), statusMask) != 0) /* measured: access-site field substitution loses MATCH. */
+                            matchingCount = (matchingCount + 1) & 0xffff;
                     }
                 }
             }
         }
-        node = *(u8 **)(node + 0x450);
+        candidateAction = (u8 *)((BtlAction *)candidateAction)->next;
     }
-    flag = 0;
-    if ((n & 0xffff) > 0 && (n & 0xffff) == (k & 0xffff))
-        flag = 1;
-    scrSetReturnInt(flag != 0);
+    allMatch = 0;
+    if ((livingCount & 0xffff) > 0 && (livingCount & 0xffff) == (matchingCount & 0xffff))
+        allMatch = 1;
+    scrSetReturnInt(allMatch != 0);
     return 1;
 }
 /* measured: closes the conditional-rebuild scope for FUN_001E26C0. */
@@ -3744,10 +3819,10 @@ done:
 // FUN_001E2850
 s32 btlAICommandOppSideIdQueryHasBuff(void) {
     u32 shift;
-    u32 *r;
-    s32 x;
+    u32 *targetAction;
+    s32 queryResult;
     {
-        if (*(u8 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA2) != 0)
+        if ((((BtlAction *)(scrGetAiState())))->unit->genus != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -3756,112 +3831,114 @@ s32 btlAICommandOppSideIdQueryHasBuff(void) {
     done:
         ;
     }
-    r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
-    if (r != 0)
-        x = datCalcHasBuffMask(*(DatUnit **)(*(u8 **)((u8 *)r + 0x30) + 0xA64), scrGetParamInt(1));
+    targetAction = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
+    if (targetAction != 0)
+        queryResult = datCalcHasBuffMask((((BtlAction *)(targetAction)))->unit->datUnit, scrGetParamInt(1));
     else
-        x = 0;
-    scrSetReturnInt(x != 0);
+        queryResult = 0;
+    scrSetReturnInt(queryResult != 0);
     return 1;
 }
 #pragma opt_rebuildconditionals on
 
 /* AI script command 0x2111 (p4flow AI.json AI_FUNCTION_0111). */
+/* Historical whole-layout probe: normalized diff 134; the access-site pass retains only measured raw culprits. */
 // FUN_001E2910
 s32 btlAICommandSideIdQueryAllHasBuff(void) {
-    u32 v;
-    u32 m2;
-    u32 c02;
-    u32 m;
-    u32 c0;
-    u8 *node;
-    s32 n;
-    s32 k;
-    u8 *np;
-    u32 flag;
+    u32 statusMask;
+    u32 sideMask;
+    u32 unitId;
+    u32 selector;
+    u32 unitValue;
+    u8 *candidateAction;
+    s32 livingCount;
+    s32 matchingCount;
+    u8 *unit;
+    u32 allMatch;
 
-    m = (1 << (*(u8 *)(*(u32 *)(scrGetAiState() + 0x30) + 0xA2))) & 0xFFFF;
-    c0 = scrGetParamInt(0) & 0xFFFF;
-    v = scrGetParamInt(1);
-    n = 0;
-    k = 0;
-    node = *(u8 **)(iGpffffb3ac + 0x174);
-    m2 = m & 0xFFFF;
-    c02 = c0 & 0xFFFF;
-    while (node != 0) {
-        if ((*(u16 *)(node + 0x1A) & 1) && (*(u16 *)(node + 0x1A) & 8)) {
-            np = *(u8 **)(node + 0x30);
-            if ((m2 & (1 << (*(u8 *)(np + 0xA2)))) != 0) {
-                if (*(u16 *)(np + 0xA4) == c02) {
-                    if (datCalcIsDead(*(u32 *)(np + 0xA64), 0) == 0) {
-                        n = (n + 1) & 0xFFFF;
-                        if (datCalcHasBuffMask(*(DatUnit **)(np + 0xA64), v) != 0) {
-                            k = (k + 1) & 0xFFFF;
+    selector = (1 << (((BtlUnit *)((u32)((BtlAction *)(scrGetAiState()))->unit))->genus)) & 0xFFFF;
+    unitValue = scrGetParamInt(0) & 0xFFFF;
+    statusMask = scrGetParamInt(1);
+    livingCount = 0;
+    matchingCount = 0;
+    candidateAction = (u8 *)((BtlBattleState *)(iGpffffb3ac))->actions;
+    sideMask = selector & 0xFFFF;
+    unitId = unitValue & 0xFFFF;
+    while (candidateAction != 0) {
+        if ((((BtlAction *)candidateAction)->unk_1a & 1) && (((BtlAction *)candidateAction)->unk_1a & 8)) {
+            unit = (u8 *)((BtlAction *)candidateAction)->unit;
+            if ((sideMask & (1 << (((BtlUnit *)unit)->genus))) != 0) {
+                if (((BtlUnit *)unit)->charId == unitId) {
+                    if (datCalcIsDead((u32)((BtlUnit *)unit)->datUnit, 0) == 0) {
+                        livingCount = (livingCount + 1) & 0xFFFF;
+                        if (datCalcHasBuffMask(*(DatUnit **)(unit + 0xA64), statusMask) != 0) { /* measured: access-site field substitution loses MATCH. */
+                            matchingCount = (matchingCount + 1) & 0xFFFF;
                         }
                     }
                 }
             }
         }
-        node = *(u8 **)(node + 0x450);
+        candidateAction = (u8 *)((BtlAction *)candidateAction)->next;
     }
-    flag = 0;
-    if ((n & 0xFFFF) > 0 && (n & 0xFFFF) == (k & 0xFFFF))
-        flag = 1;
-    scrSetReturnInt(flag != 0);
+    allMatch = 0;
+    if ((livingCount & 0xFFFF) > 0 && (livingCount & 0xFFFF) == (matchingCount & 0xFFFF))
+        allMatch = 1;
+    scrSetReturnInt(allMatch != 0);
     return 1;
 }
 
 /* measured: byte-exact sibling of FUN_001E26C0; reusing c0 for the node
    payload and m for c02 with conditional rebuilds disabled gives nd 0. */
 /* AI script command 0x2110 (p4flow AI.json AI_FUNCTION_0110). */
+/* Historical whole-layout probe: normalized diff 134; the access-site pass retains only measured raw culprits. */
 // FUN_001E2A80
 #pragma opt_rebuildconditionals off
 s32 btlAICommandOppSideIdQueryAllHasBuff(void)
 {
     u32 shift;
-    u32 v;
-    u32 m2;
-    u32 m;
-    u8 *c0;
-    u8 *node;
-    s32 n;
-    s32 k;
-    u32 flag;
+    u32 statusMask;
+    u32 sideMask;
+    u32 selector;
+    u8 *unitValue;
+    u8 *candidateAction;
+    s32 livingCount;
+    s32 matchingCount;
+    u32 allMatch;
 
-    if (*(u8 *)(*(u8 **)(scrGetAiState() + 0x30) + 0xa2) != 0)
+    if (((BtlUnit *)((u8 *)((BtlAction *)(scrGetAiState()))->unit))->genus != 0)
         goto nonzero;
     shift = 1;
     goto done;
 nonzero:
     shift = 0;
 done:
-    m = (1 << (shift & 0xffff)) & 0xffff;
-    c0 = (u8 *)(scrGetParamInt(0) & 0xffff);
-    v = scrGetParamInt(1);
-    n = 0;
-    k = 0;
-    node = *(u8 **)(iGpffffb3ac + 0x174);
-    m2 = m & 0xffff;
-    m = (u32)c0 & 0xffff;
-    while (node != 0) {
-        if ((*(u16 *)(node + 0x1a) & 1) && (*(u16 *)(node + 0x1a) & 8)) {
-            c0 = *(u8 **)(node + 0x30);
-            if ((m2 & (1 << (*(u8 *)(c0 + 0xa2)))) != 0) {
-                if (*(u16 *)(c0 + 0xa4) == m) {
-                    if (datCalcIsDead(*(u32 *)(c0 + 0xa64), 0) == 0) {
-                        n = (n + 1) & 0xffff;
-                        if (datCalcHasBuffMask(*(DatUnit **)(c0 + 0xa64), v) != 0)
-                            k = (k + 1) & 0xffff;
+    selector = (1 << (shift & 0xffff)) & 0xffff;
+    unitValue = (u8 *)(scrGetParamInt(0) & 0xffff);
+    statusMask = scrGetParamInt(1);
+    livingCount = 0;
+    matchingCount = 0;
+    candidateAction = (u8 *)((BtlBattleState *)(iGpffffb3ac))->actions;
+    sideMask = selector & 0xffff;
+    selector = (u32)unitValue & 0xffff;
+    while (candidateAction != 0) {
+        if ((((BtlAction *)candidateAction)->unk_1a & 1) && (((BtlAction *)candidateAction)->unk_1a & 8)) {
+            unitValue = (u8 *)((BtlAction *)candidateAction)->unit;
+            if ((sideMask & (1 << (((BtlUnit *)unitValue)->genus))) != 0) {
+                if (((BtlUnit *)unitValue)->charId == selector) {
+                    if (datCalcIsDead((u32)((BtlUnit *)unitValue)->datUnit, 0) == 0) {
+                        livingCount = (livingCount + 1) & 0xffff;
+                        if (datCalcHasBuffMask(*(DatUnit **)(unitValue + 0xa64), statusMask) != 0) /* measured: access-site field substitution loses MATCH. */
+                            matchingCount = (matchingCount + 1) & 0xffff;
                     }
                 }
             }
         }
-        node = *(u8 **)(node + 0x450);
+        candidateAction = (u8 *)((BtlAction *)candidateAction)->next;
     }
-    flag = 0;
-    if ((n & 0xffff) > 0 && (n & 0xffff) == (k & 0xffff))
-        flag = 1;
-    scrSetReturnInt(flag != 0);
+    allMatch = 0;
+    if ((livingCount & 0xffff) > 0 && (livingCount & 0xffff) == (matchingCount & 0xffff))
+        allMatch = 1;
+    scrSetReturnInt(allMatch != 0);
     return 1;
 }
 /* measured: closes the conditional-rebuild scope for the byte-exact body. */
@@ -3886,11 +3963,11 @@ u32 btlAICommandOppSideIdQueryMyHansya(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
-    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+    if ((((BtlAction *)unit))->unit->genus != 0)
         goto nonzero;
     shift = 1;
     goto done;
@@ -3943,11 +4020,11 @@ u32 btlAICommandOppSideIdQueryMyKyusyu(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
-    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+    if ((((BtlAction *)unit))->unit->genus != 0)
         goto nonzero;
     shift = 1;
     goto done;
@@ -4000,11 +4077,11 @@ u32 btlAICommandOppSideIdQueryMyMukou(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
-    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+    if ((((BtlAction *)unit))->unit->genus != 0)
         goto nonzero;
     shift = 1;
     goto done;
@@ -4057,11 +4134,11 @@ u32 btlAICommandOppSideIdQueryMyWeak(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
-    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+    if ((((BtlAction *)unit))->unit->genus != 0)
         goto nonzero;
     shift = 1;
     goto done;
@@ -4114,11 +4191,11 @@ u32 btlAICommandOppSideIdQueryMyUseAttr(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
-    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+    if ((((BtlAction *)unit))->unit->genus != 0)
         goto nonzero;
     shift = 1;
     goto done;
@@ -4171,11 +4248,11 @@ u32 btlAICommandOppSideIdQueryMyUseSkil(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
-    if (*(u8 *)(*(int *)(unit + 0x30) + 0xa2) != 0)
+    if ((((BtlAction *)unit))->unit->genus != 0)
         goto nonzero;
     shift = 1;
     goto done;
@@ -4212,10 +4289,10 @@ done:
 // FUNC_001E3270
 s32 btlAICommandOppSideIdQueryMyGroup(void) {
     u32 shift;
-    u32 *r;
-    s32 x;
+    u32 *targetAction;
+    s32 queryResult;
     {
-        if (*(u8 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA2) != 0)
+        if ((((BtlAction *)(scrGetAiState())))->unit->genus != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -4224,12 +4301,12 @@ s32 btlAICommandOppSideIdQueryMyGroup(void) {
     done:
         ;
     }
-    r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
-    if (r != 0)
-        x = ((s32 (*)(u8 *, s32))D_00609A30[0])((u8 *)r, 0);
+    targetAction = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
+    if (targetAction != 0)
+        queryResult = ((s32 (*)(u8 *, s32))D_00609A30[0])((u8 *)targetAction, 0);
     else
-        x = 0;
-    scrSetReturnInt(x != 0);
+        queryResult = 0;
+    scrSetReturnInt(queryResult != 0);
     return 1;
 }
 #pragma opt_rebuildconditionals on
@@ -4242,10 +4319,10 @@ s32 btlAICommandOppSideIdQueryMyGroup(void) {
 // FUNC_001E3320
 s32 btlAICommandOppSideIdQueryMyHrec(void) {
     u32 shift;
-    u32 *r;
-    s32 x;
+    u32 *targetAction;
+    s32 queryResult;
     {
-        if (*(u8 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA2) != 0)
+        if ((((BtlAction *)(scrGetAiState())))->unit->genus != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -4254,12 +4331,12 @@ s32 btlAICommandOppSideIdQueryMyHrec(void) {
     done:
         ;
     }
-    r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
-    if (r != 0)
-        x = ((s32 (*)(u8 *, s32))D_00609A6C[0])((u8 *)r, 0);
+    targetAction = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
+    if (targetAction != 0)
+        queryResult = ((s32 (*)(u8 *, s32))D_00609A6C[0])((u8 *)targetAction, 0);
     else
-        x = 0;
-    scrSetReturnInt(x != 0);
+        queryResult = 0;
+    scrSetReturnInt(queryResult != 0);
     return 1;
 }
 #pragma opt_rebuildconditionals on
@@ -4267,201 +4344,201 @@ s32 btlAICommandOppSideIdQueryMyHrec(void) {
 /* AI script command 0x2069 (p4flow AI.json AI_FUNCTION_0069). */
 // FUN_001E33D0
 s32 btlAICommandScriptUnitIsIdOnSide(void) {
-    u8 *p = scrGetAiState();
+    u8 *action = scrGetAiState();
     u32 a = scrGetParamInt(0) & 0xFFFF;
-    u32 b = scrGetParamInt(1) & 0xFFFF;
-    u32 flag = 1;
+    u32 unitId = scrGetParamInt(1) & 0xFFFF;
+    u32 matches = 1;
     switch (a & 0xFFFF) {
     case 0:
-        if (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2) != 0)
-            flag = 0;
+        if ((((BtlAction *)action))->unit->genus != 0)
+            matches = 0;
         break;
     case 1:
-        if (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2) != 1)
-            flag = 0;
+        if ((((BtlAction *)action))->unit->genus != 1)
+            matches = 0;
         break;
     default:
         break;
     }
-    if (flag == 1 && *(u16 *)(*(u8 **)(p + 0x30) + 0xA4) != (b & 0xFFFF))
-        flag = 0;
-    scrSetReturnInt(flag != 0);
+    if (matches == 1 && (((BtlAction *)action))->unit->charId != (unitId & 0xFFFF))
+        matches = 0;
+    scrSetReturnInt(matches != 0);
     return 1;
 }
 
 /* AI script command 0x206a (p4flow AI.json AI_FUNCTION_006A). */
 // FUN_001E34B0
 s32 btlAICommandScriptQueryFrAllHp(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x38000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x38000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x206b (p4flow AI.json AI_FUNCTION_006B). */
 // FUN_001E3560
 s32 btlAICommandScriptQueryEnAllHp(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x39000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x39000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x206c (p4flow AI.json AI_FUNCTION_006C). */
 // FUN_001E3610
 s32 btlAICommandScriptQueryMyAbleSkil(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3A000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x3A000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x206d (p4flow AI.json AI_FUNCTION_006D). */
 // FUN_001E36C0
 s32 btlAICommandScriptQueryEnWeakPai(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3B000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x3B000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x206e (p4flow AI.json AI_FUNCTION_006E). */
 // FUN_001E3770
 s32 btlAICommandScriptQueryEnWeakStPai(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3C000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x3C000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x206f (p4flow AI.json AI_FUNCTION_006F). */
 // FUN_001E3820
 s32 btlAICommandScriptQueryEnWeakDwPai(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3D000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x3D000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2070 (p4flow AI.json AI_FUNCTION_0070). */
 // FUN_001E38D0
 s32 btlAICommandScriptQueryMyAttrSkil(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3E000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x3E000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2071 (p4flow AI.json AI_FUNCTION_0071). */
 // FUN_001E3980
 s32 btlAICommandScriptQueryMyNomal(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x3F000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x3F000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2072 (p4flow AI.json AI_FUNCTION_0072). */
 // FUN_001E3A30
 s32 btlAICommandScriptQueryEnNomal(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x40000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x40000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2073 (p4flow AI.json AI_FUNCTION_0073). */
 // FUN_001E3AE0
 s32 btlAICommandScriptQueryEnNomalSt(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x41000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x41000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2074 (p4flow AI.json AI_FUNCTION_0074). */
 // FUN_001E3B90
 s32 btlAICommandScriptQueryEnNomalDw(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x42000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x42000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
@@ -4489,16 +4566,16 @@ s32 btlAICommandScriptQuerySlip(void) {
 /* AI script command 0x20af (p4flow AI.json AI_FUNCTION_00AF). */
 // FUN_001E3D30
 s32 btlAICommandScriptQueryEnOverlv(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x46000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x46000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
@@ -4516,8 +4593,8 @@ u32 btlAICommandSideSwitchIdQueryMyWeak(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     side = scrGetParamInt(0);
     id = scrGetParamInt(1) & 0xFFFF;
@@ -4550,125 +4627,125 @@ u32 btlAICommandSideSwitchIdQueryMyWeak(void)
 /* AI script command 0x20ba (p4flow AI.json AI_FUNCTION_00BA). */
 // FUN_001E3F10
 s32 btlScriptIsSideUnitHitFlagged(void) {
-    u32 a = scrGetParamInt(0) & 0xFFFF;
-    u32 b = scrGetParamInt(1) & 0xFFFF;
-    u32 *r = 0;
-    s32 x;
-    switch (a & 0xFFFF) {
+    u32 side = scrGetParamInt(0) & 0xFFFF;
+    u32 unitId = scrGetParamInt(1) & 0xFFFF;
+    u32 *targetAction = 0;
+    s32 queryResult;
+    switch (side & 0xFFFF) {
     case 0:
-        r = btlEffectFindUnitByIdAndStatus(b, 1, 0x80000);
+        targetAction = btlEffectFindUnitByIdAndStatus(unitId, 1, 0x80000);
         break;
     case 1:
-        r = btlEffectFindUnitByIdAndStatus(b, 2, 0x80000);
+        targetAction = btlEffectFindUnitByIdAndStatus(unitId, 2, 0x80000);
         break;
     default:
         break;
     }
-    if (r != 0)
-        x = (*(u16 *)((u8 *)r + 0x18) & (BTL_ACTION_FLAG_HIT_CRITICAL | BTL_ACTION_FLAG_HIT_WEAK)) != 0;
+    if (targetAction != 0)
+        queryResult = (((BtlAction *)(targetAction))->flags & (BTL_ACTION_FLAG_HIT_CRITICAL | BTL_ACTION_FLAG_HIT_WEAK)) != 0;
     else
-        x = 0;
-    scrSetReturnInt(x != 0);
+        queryResult = 0;
+    scrSetReturnInt(queryResult != 0);
     return 1;
 }
 
 /* AI script command 0x20d6 (p4flow AI.json AI_FUNCTION_00D6). */
 // FUN_001E3FD0
 s32 btlScriptIsSideUnitCriticalFlagged(void) {
-    u32 a = scrGetParamInt(0) & 0xFFFF;
-    u32 b = scrGetParamInt(1) & 0xFFFF;
-    u32 *r = 0;
-    s32 x;
-    switch (a & 0xFFFF) {
+    u32 side = scrGetParamInt(0) & 0xFFFF;
+    u32 unitId = scrGetParamInt(1) & 0xFFFF;
+    u32 *targetAction = 0;
+    s32 queryResult;
+    switch (side & 0xFFFF) {
     case 0:
-        r = btlEffectFindUnitByIdAndStatus(b, 1, 0x80000);
+        targetAction = btlEffectFindUnitByIdAndStatus(unitId, 1, 0x80000);
         break;
     case 1:
-        r = btlEffectFindUnitByIdAndStatus(b, 2, 0x80000);
+        targetAction = btlEffectFindUnitByIdAndStatus(unitId, 2, 0x80000);
         break;
     default:
         break;
     }
-    if (r != 0)
-        x = (*(u16 *)((u8 *)r + 0x18) & BTL_ACTION_FLAG_HIT_CRITICAL) != 0;
+    if (targetAction != 0)
+        queryResult = (((BtlAction *)(targetAction))->flags & BTL_ACTION_FLAG_HIT_CRITICAL) != 0;
     else
-        x = 0;
-    scrSetReturnInt(x != 0);
+        queryResult = 0;
+    scrSetReturnInt(queryResult != 0);
     return 1;
 }
 
 /* AI script command 0x20d7 (p4flow AI.json AI_FUNCTION_00D7). */
 // FUN_001E4090
 s32 btlScriptIsSideUnitWeakFlagged(void) {
-    u32 a = scrGetParamInt(0) & 0xFFFF;
-    u32 b = scrGetParamInt(1) & 0xFFFF;
-    u32 *r = 0;
-    s32 x;
-    switch (a & 0xFFFF) {
+    u32 side = scrGetParamInt(0) & 0xFFFF;
+    u32 unitId = scrGetParamInt(1) & 0xFFFF;
+    u32 *targetAction = 0;
+    s32 queryResult;
+    switch (side & 0xFFFF) {
     case 0:
-        r = btlEffectFindUnitByIdAndStatus(b, 1, 0x80000);
+        targetAction = btlEffectFindUnitByIdAndStatus(unitId, 1, 0x80000);
         break;
     case 1:
-        r = btlEffectFindUnitByIdAndStatus(b, 2, 0x80000);
+        targetAction = btlEffectFindUnitByIdAndStatus(unitId, 2, 0x80000);
         break;
     default:
         break;
     }
-    if (r != 0)
-        x = (*(u16 *)((u8 *)r + 0x18) & BTL_ACTION_FLAG_HIT_WEAK) != 0;
+    if (targetAction != 0)
+        queryResult = (((BtlAction *)(targetAction))->flags & BTL_ACTION_FLAG_HIT_WEAK) != 0;
     else
-        x = 0;
-    scrSetReturnInt(x != 0);
+        queryResult = 0;
+    scrSetReturnInt(queryResult != 0);
     return 1;
 }
 
 /* AI script command 0x20d8 (p4flow AI.json AI_FUNCTION_00D8). */
 // FUN_001E4150
 s32 btlScriptIsSideUnitDownFlagged(void) {
-    u32 a = scrGetParamInt(0) & 0xFFFF;
-    u32 b = scrGetParamInt(1) & 0xFFFF;
-    u32 *r = 0;
-    s32 x;
-    switch (a & 0xFFFF) {
+    u32 side = scrGetParamInt(0) & 0xFFFF;
+    u32 unitId = scrGetParamInt(1) & 0xFFFF;
+    u32 *targetAction = 0;
+    s32 queryResult;
+    switch (side & 0xFFFF) {
     case 0:
-        r = btlEffectFindUnitByIdAndStatus(b, 1, 0x80000);
+        targetAction = btlEffectFindUnitByIdAndStatus(unitId, 1, 0x80000);
         break;
     case 1:
-        r = btlEffectFindUnitByIdAndStatus(b, 2, 0x80000);
+        targetAction = btlEffectFindUnitByIdAndStatus(unitId, 2, 0x80000);
         break;
     default:
         break;
     }
-    if (r != 0)
-        x = (*(u16 *)((u8 *)r + 0x18) & BTL_ACTION_FLAG_DOWN) != 0;
+    if (targetAction != 0)
+        queryResult = (((BtlAction *)(targetAction))->flags & BTL_ACTION_FLAG_DOWN) != 0;
     else
-        x = 0;
-    scrSetReturnInt(x != 0);
+        queryResult = 0;
+    scrSetReturnInt(queryResult != 0);
     return 1;
 }
 
 /* AI script command 0x20c9 (p4flow AI.json AI_FUNCTION_00C9). */
 // FUN_001E4210
 s32 btlAICommandSideSwitchQueryAnalyze(void) {
-    u32 a = scrGetParamInt(0) & 0xFFFF;
-    u32 b = scrGetParamInt(1) & 0xFFFF;
-    u32 *r = 0;
-    s32 x;
-    switch (a & 0xFFFF) {
+    u32 side = scrGetParamInt(0) & 0xFFFF;
+    u32 unitId = scrGetParamInt(1) & 0xFFFF;
+    u32 *targetAction = 0;
+    s32 queryResult;
+    switch (side & 0xFFFF) {
     case 0:
-        r = btlEffectFindUnitByIdAndStatus(b, 1, 0x80000);
+        targetAction = btlEffectFindUnitByIdAndStatus(unitId, 1, 0x80000);
         break;
     case 1:
-        r = btlEffectFindUnitByIdAndStatus(b, 2, 0x80000);
+        targetAction = btlEffectFindUnitByIdAndStatus(unitId, 2, 0x80000);
         break;
     default:
         break;
     }
-    if (r != 0)
-        x = ((s32 (*)(u8 *, s32))D_00609B74[0])((u8 *)r, 0);
+    if (targetAction != 0)
+        queryResult = ((s32 (*)(u8 *, s32))D_00609B74[0])((u8 *)targetAction, 0);
     else
-        x = 0;
-    scrSetReturnInt(x != 0);
+        queryResult = 0;
+    scrSetReturnInt(queryResult != 0);
     return 1;
 }
 
@@ -4686,12 +4763,12 @@ u32 btlAICommandSideIdQueryMyAbleSkil(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << (((BtlAction *)unit))->unit->genus & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x3a000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -4713,8 +4790,8 @@ u32 btlAICommandSideIdQueryMyAbleSkil(void)
 /* AI script command 0x20cc (p4flow AI.json AI_FUNCTION_00CC). */
 // FUN_001E43D0
 s32 btlAICommandScriptSelfHasBuff(void) {
-    u8 *p = scrGetAiState();
-    scrSetReturnInt(datCalcHasBuffMask(*(DatUnit **)(*(u8 **)(p + 0x30) + 0xA64), scrGetParamInt(0)) != 0);
+    u8 *action = scrGetAiState();
+    scrSetReturnInt(datCalcHasBuffMask((((BtlAction *)action))->unit->datUnit, scrGetParamInt(0)) != 0);
     return 1;
 }
 
@@ -4732,12 +4809,12 @@ u32 btlAICommandSideIdQueryMyAttrSkil(void)
     u32 selector;
     u32 dispatchType;
     u32 payload;
-    int result;
-    int dispatchResult;
+    s32 result;
+    s32 dispatchResult;
 
     unit = scrGetAiState();
     id = scrGetParamInt(0) & 0xFFFF;
-    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << *(u8 *)(*(int *)(unit + 0x30) + 0xa2) & 0xffff, 0x80000);
+    context = (u8 *)btlEffectFindUnitByIdAndStatus(id, 1 << (((BtlAction *)unit))->unit->genus & 0xffff, 0x80000);
     if (context != 0) {
         selector = (scrGetParamInt(1) & 0xffffff) | 0x3e000000;
         dispatchType = (selector & 0xff000000) >> 24;
@@ -4759,16 +4836,16 @@ u32 btlAICommandSideIdQueryMyAttrSkil(void)
 /* AI script command 0x20d9 (p4flow AI.json AI_FUNCTION_00D9). */
 // FUN_001E4520
 s32 btlAICommandScriptIsSelfListed(void) {
-    u8 *p = scrGetAiState();
+    u8 *action = scrGetAiState();
     u32 flag = 0;
     u16 i;
     for (i = 1; i < 0xC; i++) {
         u32 r = btlActionGetQueueEntry(i);
         if (r == 0)
             break;
-        if (r == *(u32 *)(D_0072449C + 0x170))
+        if (r == (u32)((BtlBattleState *)D_0072449C)->selectedAction)
             break;
-        if (r == (u32)p) {
+        if (r == (u32)action) {
             flag = 1;
             break;
         }
@@ -4787,84 +4864,84 @@ s32 btlAICommandScriptAlwaysFalse(void) {
 /* AI script command 0x20eb (p4flow AI.json AI_FUNCTION_00EB). */
 // FUN_001E4600
 s32 btlAICommandScriptQueryMyTaisei(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x48000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x48000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x20ec (p4flow AI.json AI_FUNCTION_00EC). */
 // FUN_001E46B0
 s32 btlAICommandScriptQueryFrTaisei(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x49000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x49000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x20ed (p4flow AI.json AI_FUNCTION_00ED). */
 // FUN_001E4760
 s32 btlAICommandScriptQueryEnTaisei(void) {
-    u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x4A000000;
-    u8 *p = scrGetAiState();
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = v & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x4A000000;
+    u8 *action = scrGetAiState();
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = packedCondition & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x202c (p4flow AI.json AI_FUNCTION_002C). */
 // FUN_001E4810
 s32 btlAICommandScriptRunAi(void) {
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0))
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0))
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
 /* AI script command 0x202d (p4flow AI.json AI_FUNCTION_002D). */
 // FUN_001E4880
 s32 btlAICommandAiUnlessHpMin(void) {
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, s32))D_00609CE8[0])(p, 0))
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, s32))D_00609CE8[0])(action, 0))
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
 /* AI script command 0x202e (p4flow AI.json AI_FUNCTION_002E). */
 // FUN_001E48F0
 s32 btlAICommandAiUnlessLvMin(void) {
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, s32))D_00609CF0[0])(p, 0))
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, s32))D_00609CF0[0])(action, 0))
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
 /* AI script command 0x202f (p4flow AI.json AI_FUNCTION_002F). */
 // FUN_001E4960
 s32 btlAICommandAiUnlessMpMax(void) {
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, s32))D_00609CF8[0])(p, 0))
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, s32))D_00609CF8[0])(action, 0))
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -4872,9 +4949,9 @@ s32 btlAICommandAiUnlessMpMax(void) {
 // FUN_001E49D0
 s32 btlAICommandCondQueryBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x4000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -4882,18 +4959,18 @@ s32 btlAICommandCondQueryBad(void) {
 // FUN_001E4A80
 s32 btlAICommandCondQueryNotBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x5000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
 /* AI script command 0x210c (p4flow AI.json AI_FUNCTION_010C). */
 // FUN_001E4B30
 s32 btlAICommandScriptPickMyIdFromArgs(void) {
-    u32 a = scrGetParamInt(0);
-    u32 b = scrGetParamInt(1);
-    btlAICommandSelectCandidates(scrGetAiState(), a, b, 0, 0, btlCond_MYID);
+    u32 unitId = scrGetParamInt(0);
+    u32 excludedStatus = scrGetParamInt(1);
+    btlAICommandSelectCandidates(scrGetAiState(), unitId, excludedStatus, 0, 0, btlCond_MYID);
     return 1;
 }
 
@@ -4901,27 +4978,27 @@ s32 btlAICommandScriptPickMyIdFromArgs(void) {
 // FUN_001E4BB0
 s32 btlAICommandCondQueryId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x6000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
 /* AI script command 0x2033 (p4flow AI.json AI_FUNCTION_0033). */
 // FUN_001E4C60
 s32 btlAICommandAiUnlessMine(void) {
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, s32))D_00609D18[0])(p, 0))
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, s32))D_00609D18[0])(action, 0))
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
 /* AI script command 0x2034 (p4flow AI.json AI_FUNCTION_0034). */
 // FUN_001E4CD0
 s32 btlAICommandAiUnlessMyAi(void) {
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, s32))D_00609D20[0])(p, 0))
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, s32))D_00609D20[0])(action, 0))
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -4929,9 +5006,9 @@ s32 btlAICommandAiUnlessMyAi(void) {
 // FUN_001E4D40
 s32 btlAICommandCondQueryHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x9000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -4939,9 +5016,9 @@ s32 btlAICommandCondQueryHansya(void) {
 // FUN_001E4DF0
 s32 btlAICommandCondQueryKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xA000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -4949,9 +5026,9 @@ s32 btlAICommandCondQueryKyusyu(void) {
 // FUN_001E4EA0
 s32 btlAICommandCondQueryMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xB000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -4959,9 +5036,9 @@ s32 btlAICommandCondQueryMukou(void) {
 // FUN_001E4F50
 s32 btlAICommandCondQueryWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xC000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -4969,9 +5046,9 @@ s32 btlAICommandCondQueryWeak(void) {
 // FUN_001E5000
 s32 btlAICommandCondQueryNotHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xD000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -4979,9 +5056,9 @@ s32 btlAICommandCondQueryNotHansya(void) {
 // FUN_001E50B0
 s32 btlAICommandCondQueryNotKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xE000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -4989,9 +5066,9 @@ s32 btlAICommandCondQueryNotKyusyu(void) {
 // FUN_001E5160
 s32 btlAICommandCondQueryNotMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xF000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -4999,36 +5076,36 @@ s32 btlAICommandCondQueryNotMukou(void) {
 // FUN_001E5210
 s32 btlAICommandCondQueryNotWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x10000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
 /* AI script command 0x2043 (p4flow AI.json AI_FUNCTION_0043). */
 // FUN_001E52C0
 s32 btlAICommandAiUnlessAppoint(void) {
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, s32))D_00609D70[0])(p, 0))
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, s32))D_00609D70[0])(action, 0))
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
 /* AI script command 0x2044 (p4flow AI.json AI_FUNCTION_0044). */
 // FUN_001E5330
 s32 btlAICommandAiUnlessDown(void) {
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, s32))D_00609D78[0])(p, 0))
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, s32))D_00609D78[0])(action, 0))
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
 /* AI script command 0x2045 (p4flow AI.json AI_FUNCTION_0045). */
 // FUN_001E53A0
 s32 btlAICommandAiUnlessStand(void) {
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, s32))D_00609D80[0])(p, 0))
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, s32))D_00609D80[0])(action, 0))
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -5036,9 +5113,9 @@ s32 btlAICommandAiUnlessStand(void) {
 // FUN_001E5410
 s32 btlAICommandCondQueryHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x15000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -5046,9 +5123,9 @@ s32 btlAICommandCondQueryHansyaSt(void) {
 // FUN_001E54C0
 s32 btlAICommandCondQueryKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x16000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -5056,9 +5133,9 @@ s32 btlAICommandCondQueryKyusyuSt(void) {
 // FUN_001E5570
 s32 btlAICommandCondQueryMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x17000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -5066,9 +5143,9 @@ s32 btlAICommandCondQueryMukouSt(void) {
 // FUN_001E5620
 s32 btlAICommandCondQueryWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x18000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -5076,9 +5153,9 @@ s32 btlAICommandCondQueryWeakSt(void) {
 // FUN_001E56D0
 s32 btlAICommandCondQueryNotHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x19000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -5086,9 +5163,9 @@ s32 btlAICommandCondQueryNotHansyaSt(void) {
 // FUN_001E5780
 s32 btlAICommandCondQueryNotKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1A000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -5096,9 +5173,9 @@ s32 btlAICommandCondQueryNotKyusyuSt(void) {
 // FUN_001E5830
 s32 btlAICommandCondQueryNotMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1B000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -5106,21 +5183,21 @@ s32 btlAICommandCondQueryNotMukouSt(void) {
 // FUN_001E58E0
 s32 btlAICommandCondQueryNotWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1C000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
 /* AI script command 0x2067 (p4flow AI.json AI_FUNCTION_0067). */
 // FUN_001E5990
 s32 btlAICommandScriptAppointCurrent(void) {
-    u8 *p = scrGetAiState();
-    u32 q = *(u32 *)(D_0072449C + 0x170);
+    u8 *action = scrGetAiState();
+    u32 q = (u32)((BtlBattleState *)D_0072449C)->selectedAction;
     if (q != 0) {
-        btlFormationEntryCopySelected(p + 0x98, (u8 *)q + 0x98);
-        if (!((s32 (*)(u8 *, s32))D_00609D70[0])(p, 0))
-            ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
+        btlFormationEntryCopySelected(action + 0x98, (u8 *)q + 0x98);
+        if (!((s32 (*)(u8 *, s32))D_00609D70[0])(action, 0))
+            ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     }
     return 1;
 }
@@ -5129,18 +5206,18 @@ s32 btlAICommandScriptAppointCurrent(void) {
 // FUN_001E5A20
 s32 btlAICommandCondQueryNotId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x21000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
 /* AI script command 0x209a (p4flow AI.json AI_FUNCTION_009A). */
 // FUN_001E5AD0
 s32 btlAICommandAiUnlessRnd(void) {
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, s32))D_00609DF0[0])(p, 0))
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, s32))D_00609DF0[0])(action, 0))
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -5148,9 +5225,9 @@ s32 btlAICommandAiUnlessRnd(void) {
 // FUN_001E5B40
 s32 btlAICommandCondQueryHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x23000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
@@ -5158,55 +5235,56 @@ s32 btlAICommandCondQueryHojo(void) {
 // FUN_001E5BF0
 s32 btlAICommandCondQueryNotHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x24000000;
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(p, v & 0xFFFFFF))
-        ((s32 (*)(u8 *, u32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, u32))D_00609CE0[(((v & 0xFF000000) >> 24) * 2)])(action, v & 0xFFFFFF))
+        ((s32 (*)(u8 *, u32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
 /* AI script command 0x210f (p4flow AI.json AI_FUNCTION_010F). */
 // FUN_001E5CA0
 s32 btlAICommandScriptPickMyIdFiltered(void) {
-    u32 a = scrGetParamInt(0);
-    u32 b = scrGetParamInt(1);
-    btlAICommandSelectCandidates(scrGetAiState(), a, b, 0x40, 0, btlCond_MYID);
+    u32 unitId = scrGetParamInt(0);
+    u32 excludedBuffs = scrGetParamInt(1);
+    btlAICommandSelectCandidates(scrGetAiState(), unitId, excludedBuffs, 0x40, 0, btlCond_MYID);
     return 1;
 }
 
 /* AI script command 0x2112 (p4flow AI.json AI_FUNCTION_0112). */
 // FUN_001E5D20
 s32 btlAICommandAiUnlessHpMax(void) {
-    u8 *p = scrGetAiState();
-    if (!((s32 (*)(u8 *, s32))D_00609E18[0])(p, 0))
-        ((s32 (*)(u8 *, s32))D_00609CE0[0])(p, 0);
+    u8 *action = scrGetAiState();
+    if (!((s32 (*)(u8 *, s32))D_00609E18[0])(action, 0))
+        ((s32 (*)(u8 *, s32))D_00609CE0[0])(action, 0);
     return 1;
 }
 
 /* AI script command 0x2091 (p4flow AI.json AI_FUNCTION_0091). */
+/* Historical whole-layout probe: normalized diff 117; the access-site pass retains only measured raw culprits. */
 // FUN_001E5D90
 s32 btlAICommandScriptSetId2ClearBuffs(void) {
-    u8 *p = scrGetAiState();
-    u32 a = scrGetParamInt(0) & 0xFFFF;
-    u32 q;
-    datCalcClearBuffLevel(*(u32 *)(*(u8 **)(p + 0x30) + 0xA64), 8);
-    datCalcClearBuffLevel(*(u32 *)(*(u8 **)(p + 0x30) + 0xA64), 9);
-    datCalcClearBuffLevel(*(u32 *)(*(u8 **)(p + 0x30) + 0xA64), 0xA);
-    datCalcClearBuffLevel(*(u32 *)(*(u8 **)(p + 0x30) + 0xA64), 0xB);
-    q = *(u32 *)(*(u8 **)(p + 0x30) + 0xA64);
-    *(u16 *)(q + 4) = a;
+    u8 *action = scrGetAiState();
+    u32 secondaryId = scrGetParamInt(0) & 0xFFFF;
+    u32 data;
+    datCalcClearBuffLevel((u32)((BtlUnit *)((u8 *)((BtlAction *)action)->unit))->datUnit, 8);
+    datCalcClearBuffLevel((u32)((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit, 9); /* measured: access-site field substitution loses MATCH. */
+    datCalcClearBuffLevel((u32)((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit, 0xA); /* measured: access-site field substitution loses MATCH. */
+    datCalcClearBuffLevel((u32)((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit, 0xB); /* measured: access-site field substitution loses MATCH. */
+    data = (u32)((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit; /* measured: access-site field substitution loses MATCH. */
+    ((DatUnit *)(data))->id2 = secondaryId;
     return 1;
 }
 
 /* AI script command 0x2095 (p4flow AI.json AI_FUNCTION_0095). */
 // FUN_001E5E40
 s32 btlAICommandScriptSetDownFlag(void) {
-    u8 *p = scrGetAiState();
+    u8 *action = scrGetAiState();
     if ((scrGetParamInt(0) & 0xFFFF) == 0) {
-        u32 f = *(u32 *)(*(u8 **)(p + 0x30) + 0xA64);
-        *(u16 *)f |= 8;
+        u32 dataAddress = (u32)((BtlUnit *)(((BtlAction *)action)->unit))->datUnit;
+        *(u16 *)dataAddress |= 8;
     } else {
-        u32 f = *(u32 *)(*(u8 **)(p + 0x30) + 0xA64);
-        *(u16 *)f &= 0xFFF7;
+        u32 dataAddress = (u32)((BtlUnit *)(((BtlAction *)action)->unit))->datUnit;
+        *(u16 *)dataAddress &= 0xFFF7;
     }
     return 1;
 }
@@ -5214,40 +5292,41 @@ s32 btlAICommandScriptSetDownFlag(void) {
 /* AI script command 0x2096 (p4flow AI.json AI_FUNCTION_0096). */
 // FUN_001E5EC0
 s32 btlAICommandScriptSetSlipFlag(void) {
-    u8 *p = scrGetAiState();
+    u8 *action = scrGetAiState();
     if ((scrGetParamInt(0) & 0xFFFF) == 0) {
-        u32 f = *(u32 *)(*(u8 **)(p + 0x30) + 0xA64);
-        *(u16 *)f |= 0x10;
+        u32 dataAddress = (u32)((BtlUnit *)(((BtlAction *)action)->unit))->datUnit;
+        *(u16 *)dataAddress |= 0x10;
     } else {
-        u32 f = *(u32 *)(*(u8 **)(p + 0x30) + 0xA64);
-        *(u16 *)f &= 0xFFEF;
+        u32 dataAddress = (u32)((BtlUnit *)(((BtlAction *)action)->unit))->datUnit;
+        *(u16 *)dataAddress &= 0xFFEF;
     }
     return 1;
 }
 
 /* AI script command 0x20db (p4flow AI.json AI_FUNCTION_00DB). */
+/* Historical whole-layout probe: normalized diff 6; the access-site pass retains only measured raw culprits. */
 // FUN_001E5F40
 s32 btlAICommandScriptSetCommandOverride(void) {
-    u8 *p = scrGetAiState();
-    *(u16 *)(p + 0x80) = scrGetParamInt(0);
-    *(u8 *)(p + 0x82) = scrGetParamInt(1);
+    u8 *action = scrGetAiState();
+    ((BtlAiCommandWork *)((BtlAction *)action)->unk_38)->overrideCommand = scrGetParamInt(0);
+    ((BtlAiCommandWork *)(action + 0x38))->overrideEnabled = scrGetParamInt(1);
     return 1;
 }
 
 /* AI script command 0x2099 (p4flow AI.json AI_FUNCTION_0099). */
 // FUN_001E5F90
 s32 btlAICommandScriptGetSelfId2(void) {
-    u32 a = *(u32 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA64);
-    scrSetReturnInt(*(u16 *)(a + 4));
+    u32 data = (u32)((BtlUnit *)(((BtlAction *)(scrGetAiState()))->unit))->datUnit;
+    scrSetReturnInt(((DatUnit *)data)->id2);
     return 1;
 }
 
 /* AI script command 0x20ab (p4flow AI.json AI_FUNCTION_00AB). */
 // FUN_001E5FD0
 s32 btlScriptGetSameSideUnitValue(void) {
-    u8 *p = scrGetAiState();
-    u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << (*(u8 *)(*(u8 **)(p + 0x30) + 0xA2))) & 0xFFFF, 0x80000);
-    scrSetReturnInt(r != 0 ? *(u32 *)((u8 *)r + 0x20) : 0);
+    u8 *action = scrGetAiState();
+    u32 *r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << ((((BtlAction *)action))->unit->genus)) & 0xFFFF, 0x80000);
+    scrSetReturnInt(r != 0 ? ((BtlAction *)r)->unk_20 : 0);
     return 1;
 }
 
@@ -5260,7 +5339,7 @@ s32 btlScriptGetOppositeSideUnitValue(void) {
     u32 shift;
     u32 *r;
     {
-        if (*(u8 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA2) != 0)
+        if ((((BtlAction *)(scrGetAiState())))->unit->genus != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -5270,7 +5349,7 @@ s32 btlScriptGetOppositeSideUnitValue(void) {
         ;
     }
     r = btlEffectFindUnitByIdAndStatus(scrGetParamInt(0) & 0xFFFF, (1 << shift) & 0xffff, 0x80000);
-    scrSetReturnInt(r != 0 ? *(u32 *)((u8 *)r + 0x20) : 0);
+    scrSetReturnInt(r != 0 ? ((BtlAction *)r)->unk_20 : 0);
     return 1;
 }
 #pragma opt_rebuildconditionals on
@@ -5278,63 +5357,63 @@ s32 btlScriptGetOppositeSideUnitValue(void) {
 /* AI script command 0x20b0 (p4flow AI.json AI_FUNCTION_00B0). */
 // FUN_001E60F0
 s32 btlAICommandScriptCountOwnHojo(void) {
-    u8 *p = scrGetAiState();
-    scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYHOJO, 0) & 0xFFFF);
+    u8 *action = scrGetAiState();
+    scrSetReturnInt(btlSideSelectUnits(action, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 /* AI script command 0x20b1 (p4flow AI.json AI_FUNCTION_00B1). */
 // FUN_001E6160
 s32 btlAICommandScriptCountOwnNotHojo(void) {
-    u8 *p = scrGetAiState();
-    scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 1, 1, &btlCond_MYHOJO, 0) & 0xFFFF);
+    u8 *action = scrGetAiState();
+    scrSetReturnInt(btlSideSelectUnits(action, scrGetParamInt(0), 0x80000, 1, 1, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 /* AI script command 0x20b2 (p4flow AI.json AI_FUNCTION_00B2). */
 // FUN_001E61D0
 s32 btlAICommandScriptCountOwnBad(void) {
-    u8 *p = scrGetAiState();
-    scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYBAD, 0) & 0xFFFF);
+    u8 *action = scrGetAiState();
+    scrSetReturnInt(btlSideSelectUnits(action, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYBAD, 0) & 0xFFFF);
     return 1;
 }
 
 /* AI script command 0x20ea (p4flow AI.json AI_FUNCTION_00EA). */
 // FUN_001E6240
 s32 btlAICommandScriptCountOppBad(void) {
-    u8 *p = scrGetAiState();
-    scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 2, 0, &btlCond_MYBAD, 0) & 0xFFFF);
+    u8 *action = scrGetAiState();
+    scrSetReturnInt(btlSideSelectUnits(action, scrGetParamInt(0), 0x80000, 2, 0, &btlCond_MYBAD, 0) & 0xFFFF);
     return 1;
 }
 
 /* AI script command 0x20b3 (p4flow AI.json AI_FUNCTION_00B3). */
 // FUN_001E62B0
 s32 btlAICommandScriptCountOppHojo(void) {
-    u8 *p = scrGetAiState();
-    scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 2, 0, &btlCond_MYHOJO, 0) & 0xFFFF);
+    u8 *action = scrGetAiState();
+    scrSetReturnInt(btlSideSelectUnits(action, scrGetParamInt(0), 0x80000, 2, 0, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 /* AI script command 0x20b4 (p4flow AI.json AI_FUNCTION_00B4). */
 // FUN_001E6320
 s32 btlAICommandScriptCountOppNotHojo(void) {
-    u8 *p = scrGetAiState();
-    scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 2, 1, &btlCond_MYHOJO, 0) & 0xFFFF);
+    u8 *action = scrGetAiState();
+    scrSetReturnInt(btlSideSelectUnits(action, scrGetParamInt(0), 0x80000, 2, 1, &btlCond_MYHOJO, 0) & 0xFFFF);
     return 1;
 }
 
 /* AI script command 0x20cd (p4flow AI.json AI_FUNCTION_00CD). */
 // FUN_001E6390
 s32 btlAICommandScriptCountOwnHp(void) {
-    u8 *p = scrGetAiState();
-    scrSetReturnInt(btlSideSelectUnits(p, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYHP, 0) & 0xFFFF);
+    u8 *action = scrGetAiState();
+    scrSetReturnInt(btlSideSelectUnits(action, scrGetParamInt(0), 0x80000, 1, 0, &btlCond_MYHP, 0) & 0xFFFF);
     return 1;
 }
 
 /* AI script command 0x20ce (p4flow AI.json AI_FUNCTION_00CE). */
 // FUN_001E6400
 s32 btlAICommandScriptAverageOwnLevel(void) {
-    scrSetReturnInt(btlSideAverageLevel((1 << (*(u8 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA2))) & 0xFFFF, 0x80000) & 0xFFFF);
+    scrSetReturnInt(btlSideAverageLevel((1 << ((((BtlAction *)(scrGetAiState())))->unit->genus)) & 0xFFFF, 0x80000) & 0xFFFF);
     return -1;
 }
 
@@ -5346,7 +5425,7 @@ s32 btlAICommandScriptAverageOwnLevel(void) {
 s32 btlAICommandScriptAverageOppLevel(void) {
     u32 shift;
     {
-        if (*(u8 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA2) != 0)
+        if ((((BtlAction *)(scrGetAiState())))->unit->genus != 0)
             goto nonzero;
         shift = 1;
         goto done;
@@ -5363,9 +5442,9 @@ s32 btlAICommandScriptAverageOppLevel(void) {
 /* AI script command 0x20d0 (p4flow AI.json AI_FUNCTION_00D0). */
 // FUN_001E64C0
 s32 btlAICommandScriptGetCommandRow(void) {
-    u8 *p = scrGetAiState();
-    short r = (short)scrGetParamInt(0);
-    scrSetReturnInt((s16)datCalcSkillElement(*(u8 **)(*(u8 **)(p + 0x30) + 0xA64), (u16)r));
+    u8 *action = scrGetAiState();
+    short commandId = (short)scrGetParamInt(0);
+    scrSetReturnInt((s16)datCalcSkillElement((u8 *)(((BtlAction *)action))->unit->datUnit, (u16)commandId));
     return -1;
 }
 
@@ -5388,65 +5467,66 @@ s32 btlAICommandScriptCountOppAlive(void) {
 /* AI script command 0x2113 (p4flow AI.json AI_FUNCTION_0113). */
 // FUN_001E65B0
 s32 btlAICommandScriptGetSelfHp(void) {
-    scrSetReturnInt(datCalcGetHp(*(u32 *)(*(u8 **)((u8 *)scrGetAiState() + 0x30) + 0xA64)) & 0xFFFF);
+    scrSetReturnInt(datCalcGetHp((u32)((BtlUnit *)(((BtlAction *)(scrGetAiState()))->unit))->datUnit) & 0xFFFF);
     return -1;
 }
 
 /* AI script command 0x2075 (p4flow AI.json AI_FUNCTION_0075). */
 // FUN_001E65F0
 s32 btlAICommandIdScriptQueryMyHp(void) {
-    u32 a = scrGetParamInt(0);
-    u32 b = scrGetParamInt(1);
-    u8 *p = btlActionFindById(a & 0xFFFFFFF);
-    u32 v = (b & 0xFFFFFF) | 0x1000000;
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = (b | 0x1000000) & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 actionId = scrGetParamInt(0);
+    u32 queryValue = scrGetParamInt(1);
+    u8 *action = btlActionFindById(actionId & 0xFFFFFFF);
+    u32 packedCondition = (queryValue & 0xFFFFFF) | 0x1000000;
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = (queryValue | 0x1000000) & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x2076 (p4flow AI.json AI_FUNCTION_0076). */
 // FUN_001E66C0
 s32 btlAICommandIdScriptQueryHasBuff(void) {
-    u32 a = scrGetParamInt(0);
-    u32 b = scrGetParamInt(1);
-    u8 t = datCalcHasBuffMask(*(DatUnit **)(*(u8 **)((u8 *)btlActionFindById(a & 0xFFFFFFF) + 0x30) + 0xA64), b) != 0;
-    scrSetReturnInt(t != 0);
+    u32 actionId = scrGetParamInt(0);
+    u32 queryValue = scrGetParamInt(1);
+    u8 hasBuff = datCalcHasBuffMask((((BtlAction *)(btlActionFindById(actionId & 0xFFFFFFF))))->unit->datUnit, queryValue) != 0;
+    scrSetReturnInt(hasBuff != 0);
     return 1;
 }
 
 /* AI script command 0x2077 (p4flow AI.json AI_FUNCTION_0077). */
+/* Historical whole-layout probe: normalized diff 111; the access-site pass retains only measured raw culprits. */
 // FUN_001E6740
 s32 btlAICommandScriptWouldBeKilled(void) {
-    u8 *p = scrGetAiState();
-    u8 *q = btlActionFindById(scrGetParamInt(0) & 0xFFFFFFF);
-    s32 x = datCalcSkillAmount(0, (u8 *)*(u32 *)(*(u8 **)(p + 0x30) + 0xA64), (u8 *)*(u32 *)(*(u8 **)(q + 0x30) + 0xA64), 1, 1, 1, 0, 1);
-    s32 off;
-    s32 sum;
-    datCalcClearField18(*(u32 *)(*(u8 **)(p + 0x30) + 0xA64));
-    datCalcClearField18(*(u32 *)(*(u8 **)(q + 0x30) + 0xA64));
-    off = (s32)(datCalcGetHp(*(u32 *)(*(u8 **)(q + 0x30) + 0xA64)) & 0xFFFF);
-    sum = off + x;
-    scrSetReturnInt(sum <= 0);
+    u8 *action = scrGetAiState();
+    u8 *target = btlActionFindById(scrGetParamInt(0) & 0xFFFFFFF);
+    s32 hpDelta = datCalcSkillAmount(0, (u8 *)*(u32 *)((u8 *)((BtlAction *)action)->unit + 0xA64), (u8 *)*(u32 *)((u8 *)((BtlAction *)target)->unit + 0xA64), 1, 1, 1, 0, 1); /* measured: access-site field substitution loses MATCH. */
+    s32 currentHp;
+    s32 remainingHp;
+    datCalcClearField18((u32)((BtlUnit *)(*(u8 **)(action + 0x30)))->datUnit); /* measured: access-site field substitution loses MATCH. */
+    datCalcClearField18((u32)((BtlUnit *)(*(u8 **)(target + 0x30)))->datUnit); /* measured: access-site field substitution loses MATCH. */
+    currentHp = (s32)(datCalcGetHp((u32)((BtlUnit *)(*(u8 **)(target + 0x30)))->datUnit) & 0xFFFF); /* measured: access-site field substitution loses MATCH. */
+    remainingHp = currentHp + hpDelta;
+    scrSetReturnInt(remainingHp <= 0);
     return 1;
 }
 
 /* AI script command 0x2078 (p4flow AI.json AI_FUNCTION_0078). */
 // FUN_001E6820
 s32 btlAICommandScriptHasCommandOfType(void) {
-    u32 temp_16;
-    u32 temp_17;
-    u8 *temp_18;
+    u32 element;
+    u32 targetId;
+    u8 *action;
 
-    temp_18 = (u8 *)(scrGetAiState());
-    temp_17 = scrGetParamInt(0);
-    temp_16 = scrGetParamInt(1);
-    scrSetReturnInt(~btlAICommandCollectCommandsOfType(temp_18, btlActionFindById(temp_17 & 0xFFFFFFF), (s16) temp_16, 0) != 0);
+    action = (u8 *)(scrGetAiState());
+    targetId = scrGetParamInt(0);
+    element = scrGetParamInt(1);
+    scrSetReturnInt(~btlAICommandCollectCommandsOfType(action, btlActionFindById(targetId & 0xFFFFFFF), (s16) element, 0) != 0);
     return 1;
 }
 
@@ -5455,12 +5535,12 @@ s32 btlAICommandScriptHasCommandOfType(void) {
 /* AI script command 0x2079 (p4flow AI.json AI_FUNCTION_0079). */
 // FUN_001E68C0
 s32 btlAICommandScriptLookupOnlyFalse(void) {
-    u32 temp_16;
+    u32 actionId;
 
     scrGetAiState();
-    temp_16 = scrGetParamInt(0);
+    actionId = scrGetParamInt(0);
     scrGetParamInt(1);
-    btlActionFindById(temp_16 & 0xFFFFFFF);
+    btlActionFindById(actionId & 0xFFFFFFF);
     scrSetReturnInt(0U);
     return 1;
 }
@@ -5470,55 +5550,56 @@ s32 btlAICommandScriptLookupOnlyFalse(void) {
 /* AI script command 0x209c (p4flow AI.json AI_FUNCTION_009C). */
 // FUN_001E6930
 s32 btlAICommandIdScriptQueryMyNomal(void) {
-    u32 a = scrGetParamInt(0);
-    u32 b = scrGetParamInt(1);
-    u8 *p = btlActionFindById(a & 0xFFFFFFF);
-    u32 v = (b & 0xFFFFFF) | 0x3F000000;
-    u32 cmd = (v & 0xFF000000) >> 24;
-    u32 arg = (b | 0x3F000000) & 0xFFFFFF;
-    s32 x;
-    if (cmd == 0)
-        x = 0;
+    u32 actionId = scrGetParamInt(0);
+    u32 queryValue = scrGetParamInt(1);
+    u8 *action = btlActionFindById(actionId & 0xFFFFFFF);
+    u32 packedCondition = (queryValue & 0xFFFFFF) | 0x3F000000;
+    u32 conditionKind = (packedCondition & 0xFF000000) >> 24;
+    u32 conditionValue = (queryValue | 0x3F000000) & 0xFFFFFF;
+    s32 conditionResult;
+    if (conditionKind == 0)
+        conditionResult = 0;
     else
-        x = ((s32 (*)(u8 *, u32))D_00609850[cmd * 3])(p, arg);
-    scrSetReturnInt(x != 0);
+        conditionResult = ((s32 (*)(u8 *, u32))D_00609850[conditionKind * 3])(action, conditionValue);
+    scrSetReturnInt(conditionResult != 0);
     return 1;
 }
 
 /* AI script command 0x20e3 (p4flow AI.json AI_FUNCTION_00E3). */
 // FUN_001E6A00
 s32 btlAICommandIdScriptQueryOnSideZero(void) {
-    scrSetReturnInt(*(u8 *)(*(u8 **)(btlActionFindById(scrGetParamInt(0) & 0xFFFFFFF) + 0x30) + 0xA2) == 0);
+    scrSetReturnInt((((BtlAction *)btlActionFindById(scrGetParamInt(0) & 0xFFFFFFF)))->unit->genus == 0);
     return 1;
 }
 /* AI script command 0x20e4 (p4flow AI.json AI_FUNCTION_00E4). */
+/* Historical whole-layout probe: normalized diff 218; the access-site pass retains only measured raw culprits. */
 // FUN_001E6A50
 s32 btlAICommandIdScriptQueryCanUseCommand(void) {
-    s32 r0 = scrGetParamInt(0);
-    s32 r1 = scrGetParamInt(1);
-    u8 *q = btlActionFindById(r0 & 0xFFFFFFF);
-    s32 idx = r1 & 0xFFFF;
-    s32 x;
-    if (idx >= 0x240)
+    s32 actionId = scrGetParamInt(0);
+    s32 commandId = scrGetParamInt(1);
+    u8 *subject = btlActionFindById(actionId & 0xFFFFFFF);
+    s32 command = commandId & 0xFFFF;
+    s32 usable;
+    if (command >= 0x240)
         kAssertFail(D_006095E0, 0x45F);
-    q = *(u8 **)(q + 0x30);
-    if (idx < 0x1B8) {
-        if (datCalcChkBadStatus((s32)*(u8 **)(q + 0xA64), 0x80008) != 0)
-            x = 0;
-        else if (datCalcHasSkill(*(u8 **)(q + 0xA64), idx) == 0)
-            x = 0;
-        else if (datCalcThresholdTrigger(*(u8 **)(q + 0xA64), idx) != 0)
-            x = 0;
+    subject = (u8 *)((BtlAction *)subject)->unit;
+    if (command < 0x1B8) {
+        if (datCalcChkBadStatus((s32)(u8 *)((BtlUnit *)subject)->datUnit, 0x80008) != 0)
+            usable = 0;
+        else if (datCalcHasSkill(*(u8 **)(subject + 0xA64), command) == 0) /* measured: access-site field substitution loses MATCH. */
+            usable = 0;
+        else if (datCalcThresholdTrigger(*(u8 **)(subject + 0xA64), command) != 0) /* measured: access-site field substitution loses MATCH. */
+            usable = 0;
         else
             goto one;
-    } else if (datCalcHasSkill(*(u8 **)(q + 0xA64), idx) != 0)
+    } else if (datCalcHasSkill((u8 *)((BtlUnit *)subject)->datUnit, command) != 0)
         goto one;
     else
-        x = 0;
+        usable = 0;
     goto done;
 one:
-    x = 1;
+    usable = 1;
 done:
-    scrSetReturnInt(x != 0);
+    scrSetReturnInt(usable != 0);
     return 1;
 }

@@ -29,25 +29,38 @@ extern u8 D_007E8020[];
 extern u8 *iGpffff9db0;
 extern s32 FldStepIndex();
 extern s32 FldDayEventActive();
-extern s32 FldRoomIsListed(u16 arg0, u16 arg1);
-extern s16 datGetPartyId(s32 arg0);
+extern s32 FldRoomIsListed(u16, u16);
+extern s16 datGetPartyId(s32);
 extern s64 datGetDateIndex(void);
-extern s32 calGetDayWindowFlags(s32 arg0);
-extern s32 calIsCurrentMonthDay(s32 arg0, s32 arg1, s32 arg2);
+extern s32 calGetDayWindowFlags(s32);
+extern s32 calIsCurrentMonthDay(s32, s32, s32);
 extern s32 datGetTimeSlot(void);
-extern s32 calGetDayEntryByPhase(s16 arg0, s32 arg1);
+extern s32 calGetDayEntryByPhase(s16, s32);
 extern s32 D_005F1350[];
-extern void mdlSetColor(void *arg0, void *arg1);
-extern void mdlSetLookAtRequested(void *arg0);
-extern void mdlAttachSlotModelFromResource(void *arg0, u16 arg1, u32 arg2, u16 arg3,
-                           void *arg4, u32 arg5);
-extern void mdlSetAttachedSlotValue(u8 *arg0, u16 arg1, s32 arg2);
+extern void mdlSetColor(void *, void *);
+extern void mdlSetLookAtRequested(void *);
+extern void mdlAttachSlotModelFromResource(void *, u16, u32, u16,
+                           void *, u32);
+extern void mdlSetAttachedSlotValue(u8 *, u16, s32);
 extern u8 iGpffff9f10;
 extern u8 D_005F13A0[];
+/* Four cached party models use an 8-byte (type, id, model) record. */
+typedef struct { u16 type, id; u8 *model; } FldPartyModelCache;
+typedef struct { s32 field, room; } FldDayEventLocation;
+/* Party model identity fields and the five 0xC-byte attachment entries read by this unit. */
+typedef struct {
+    u8 pad0[0xD4];
+    u16 type, id;
+    u8 padD8[0x1B4];
+    struct { u8 flags; u8 pad1[0xB]; } attachments[5];
+} FldPartyModelObject;
+
+
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 // FUN_00162120
+/* Clear field actor/cache tables and reset their counters; mark both stored indices absent. */
 void FldStateTablesClear(void)
 {
     memset(D_007F16F0, 0, 0x20);
@@ -69,34 +82,36 @@ void FldStateTablesClear(void)
 #pragma opt_loop_invariants off
 #pragma opt_propagation off
 // FUN_00162200
-void FldPartyModelRelease(s32 arg0) {
-    s32 saved_arg0;
-    s32 temp_18;
-    s32 *temp_17;
-    u8 *temp_16;
-    u8 *temp_3;
-    s32 var_6;
+/* Release one cached party model after marking its five attached slots for removal. */
+/* Raw access: D_007F16F2/F4 are interior aliases of the 8-byte cache; retain their native symbol-relative indexing. Attachment flags are at model +0x28C with stride 0xC. */
+void FldPartyModelRelease(s32 slot) {
+    s32 savedSlot;
+    s32 slotOffset;
+    s32 *modelSlot;
+    u8 *entry;
+    u8 *attachment;
+    s32 attachmentIndex;
 
-    saved_arg0 = arg0;
-    if (*(s32 *)(D_007F16F4 + (arg0 * 8)) != 0) {
-        var_6 = 0;
-        temp_16 = D_007F16F0 + (arg0 * 8);
+    savedSlot = slot;
+    if (*(u8 **)(D_007F16F4 + (slot * 8)) != 0) {
+        attachmentIndex = 0;
+        entry = D_007F16F0 + (slot * 8);
         goto loop_test;
 loop_body:
-        temp_3 = (u8 *)(*(s32 *)(temp_16 + 4) + (var_6 * 0xC));
-        *(u8 *)(temp_3 + 0x28C) =
-            (u8)(*(u8 *)(temp_3 + 0x28C) | 1);
-        var_6 += 1;
+        attachment = (u8 *)(*(s32 *)(entry + 4) + (attachmentIndex * 0xC));
+        *(u8 *)(attachment + 0x28C) =
+            (u8)(*(u8 *)(attachment + 0x28C) | 1);
+        attachmentIndex += 1;
 loop_test:
-        if (var_6 < 5) {
+        if (attachmentIndex < 5) {
             goto loop_body;
         }
-        temp_18 = saved_arg0 * 8;
-        temp_17 = (s32 *)(D_007F16F4 + temp_18);
-        mdlDestroyModelObject(*temp_17);
-        *temp_17 = 0;
-        *(s16 *)(temp_16 + 0) = 0;
-        *(s16 *)(D_007F16F2 + temp_18) = 0;
+        slotOffset = savedSlot * 8;
+        modelSlot = (s32 *)(D_007F16F4 + slotOffset);
+        mdlDestroyModelObject(*modelSlot);
+        *modelSlot = 0;
+        *(s16 *)(entry + 0) = 0;
+        *(s16 *)(D_007F16F2 + slotOffset) = 0;
     }
 }
 #pragma pop
@@ -106,16 +121,17 @@ loop_test:
 #pragma opt_propagation on
 // FUN_001622D0
 #pragma opt_loop_invariants on
+/* Reset the four party actor slots and invalidate their cached model identities. */
 void FldSlotTablesReset(void) {
     s32 i = 0;
     s32 one = 1;
     s32 stride = 0x750;
 
     while (i < 4) {
-        *(s32 *)(D_007EF9B0 + i * stride + 0x44) = one;
-        *(s32 *)(D_007F16F0 + i * 8 + 4) = 0;
-        *(s16 *)(D_007F16F0 + i * 8) = 0;
-        *(s16 *)(D_007F16F0 + i * 8 + 2) = 0;
+        ((FldEventActor *)(D_007EF9B0 + i * stride))->unknown44 = one;
+        ((FldPartyModelCache *)(D_007F16F0 + i * 8))->model = 0;
+        ((FldPartyModelCache *)(D_007F16F0 + i * 8))->type = 0;
+        ((FldPartyModelCache *)(D_007F16F0 + i * 8))->id = 0;
         i++;
     }
 }
@@ -128,20 +144,21 @@ void FldSlotTablesReset(void) {
 /* measured: direct global address expression preserves retail base/stride
    register assignment while loop invariants hoist the stride (nd 0). */
 #pragma opt_loop_invariants on
+/* Return the first of four party actor slots without a unit, or NULL. */
 u8 *FldSlotFindFree(void) {
-    u8 *r = NULL;
-    s32 i = 0;
-    u8 *e;
+    u8 *result = NULL;
+    s32 slotIndex = 0;
+    u8 *entry;
 
-    while (i < 4) {
-        e = D_007EF9B0 + i * 0x750;
-        if (*(s32 *)(e + 0x48) == 0) {
-            r = e;
+    while (slotIndex < 4) {
+        entry = D_007EF9B0 + slotIndex * 0x750;
+        if (((FldEventActor *)entry)->unit == 0) {
+            result = entry;
             break;
         }
-        i++;
+        slotIndex++;
     }
-    return r;
+    return result;
 }
 #pragma pop
 
@@ -152,21 +169,22 @@ u8 *FldSlotFindFree(void) {
 /* measured: direct global address expression preserves retail base/stride
    register assignment while loop invariants hoist the stride (nd 0). */
 #pragma opt_loop_invariants on
+/* Return the first of fifteen object actor slots without a unit, or NULL. */
 u8 *FldObjFindFree(void) {
-    u8 *r = NULL;
-    s32 i = 0;
+    u8 *result = NULL;
+    s32 slotIndex = 0;
     s32 stride = 0x750;
-    u8 *e;
+    u8 *entry;
 
-    while (i < 0xF) {
-        e = D_007E8C00 + i * stride;
-        if (*(s32 *)(e + 0x48) == 0) {
-            r = e;
+    while (slotIndex < 0xF) {
+        entry = D_007E8C00 + slotIndex * stride;
+        if (((FldEventActor *)entry)->unit == 0) {
+            result = entry;
             break;
         }
-        i++;
+        slotIndex++;
     }
-    return r;
+    return result;
 }
 #pragma pop
 
@@ -175,47 +193,48 @@ u8 *FldObjFindFree(void) {
 #pragma opt_propagation on
 #pragma optimization_level 1
 // FUN_001623F0
+/* Test the current location against the day-event table and calendar phase, excluding March 20. */
 s32 FldDayEventActive(void)
 {
-    u8 *temp_5;
-    s32 temp_3;
-    s32 var_17;
-    s32 var_16;
-    s16 temp_18;
-    s32 temp_3_2;
-    s32 var_2;
-    u8 *temp_4;
+    u8 *fieldState;
+    s32 fieldId;
+    s32 active;
+    s32 entryIndex;
+    s16 date;
+    s32 phase;
+    s32 parity;
+    u8 *entry;
 
-    var_17 = 0;
+    active = 0;
     if (calIsCurrentMonthDay((s16)datGetDateIndex(), 3, 0x14) == 1) {
         return 0;
     }
-    var_16 = 0;
+    entryIndex = 0;
     goto loop_test;
 loop_body:
-    temp_5 = iGpffff9db0;
-    if ((*(s32 *)(temp_5 + 0) == temp_3) &&
-        (*(s32 *)(temp_5 + 4) == *(s32 *)(temp_4 + 4))) {
-        temp_18 = (s16)datGetDateIndex();
-        temp_3_2 = (s8)calGetDayEntryByPhase(temp_18, datGetTimeSlot() & 0xFF);
-        var_2 = temp_3_2 & 1;
-        if ((temp_3_2 < 0) && (var_2 != 0)) {
-            var_2 -= 2;
+    fieldState = iGpffff9db0;
+    if ((((FldDayEventLocation *)fieldState)->field == fieldId) &&
+        (((FldDayEventLocation *)fieldState)->room == ((FldDayEventLocation *)entry)->room)) {
+        date = (s16)datGetDateIndex();
+        phase = (s8)calGetDayEntryByPhase(date, datGetTimeSlot() & 0xFF);
+        parity = phase & 1;
+        if ((phase < 0) && (parity != 0)) {
+            parity -= 2;
         }
-        if (var_2 != 0) {
-            var_17 = 1;
+        if (parity != 0) {
+            active = 1;
             goto done;
         }
     }
-    var_16 += 1;
+    entryIndex += 1;
 loop_test:
-    temp_4 = (u8 *)D_005F1350 + (var_16 * 8);
-    temp_3 = *(s32 *)(temp_4 + 0);
-    if (temp_3 != -1) {
+    entry = (u8 *)D_005F1350 + (entryIndex * 8);
+    fieldId = ((FldDayEventLocation *)entry)->field;
+    if (fieldId != -1) {
         goto loop_body;
     }
 done:
-    return var_17;
+    return active;
 }
 #pragma pop
 
@@ -224,70 +243,71 @@ done:
 #pragma opt_propagation on
 #pragma optimization_level 2
 // FUN_00162510
-s32 FldRoomIsListed(u16 arg0, u16 arg1)
+/* Test the explicit field/room list used to choose party model resources. */
+s32 FldRoomIsListed(u16 field, u16 room)
 {
     s32 result;
 
     result = 0;
-    if (arg0 == 0x14) {
-        if (arg1 == 1) {
+    if (field == 0x14) {
+        if (room == 1) {
             goto success;
         }
     }
-    if (arg0 == 0x15) {
-        if (arg1 == 1) {
+    if (field == 0x15) {
+        if (room == 1) {
             goto success;
         }
     }
-    if (arg0 == 0x16) {
-        if (arg1 == 1) {
+    if (field == 0x16) {
+        if (room == 1) {
             goto success;
         }
     }
-    if (arg0 == 0x16) {
-        if (arg1 == 2) {
+    if (field == 0x16) {
+        if (room == 2) {
             goto success;
         }
     }
-    if (arg0 == 0x17) {
-        if (arg1 == 1) {
+    if (field == 0x17) {
+        if (room == 1) {
             goto success;
         }
     }
-    if (arg0 == 0x18) {
-        if (arg1 == 1) {
+    if (field == 0x18) {
+        if (room == 1) {
             goto success;
         }
     }
-    if (arg0 == 0x19) {
-        if (arg1 == 1) {
+    if (field == 0x19) {
+        if (room == 1) {
             goto success;
         }
     }
-    if (arg0 == 0x1A) {
-        if (arg1 == 1) {
+    if (field == 0x1A) {
+        if (room == 1) {
             goto success;
         }
     }
-    if (arg0 == 0x1B) {
-        if (arg1 == 1) {
+    if (field == 0x1B) {
+        if (room == 1) {
             goto success;
         }
     }
-    if (arg0 == 0x1C) {
-        if (arg1 == 1) {
+    if (field == 0x1C) {
+        if (room == 1) {
             goto success;
         }
     }
-    if (arg0 == 0x1D) {
-        if (arg1 == 1) {
+    if (field == 0x1D) {
+        if (room == 1) {
             goto success;
         }
     }
-    if (arg0 != 0x1E) {
+    if (field != 0x1E) {
         goto done;
     }
-    if (arg1 != 2) {
+    if (room != 2) {
         goto done;
     }
 success:
@@ -302,9 +322,11 @@ done:
    of the refresh code with block-local `entry` and loop counter; the
    default arm narrows `member` into a u16. The cache stores a 16-bit
    type key; the constructor takes a separate integer model kind. */
+/* Return the model only when both cached identity halfwords match. */
+/* Raw access: The id and model globals are interior cache aliases; byte indexing retains the native relocation symbols rather than rebasing them. */
 static inline u8 *fldPartyModelCached(s32 slot, u16 type, u16 id)
 {
-    if (type == *(u16 *)(D_007F16F0 + slot * 8) && id == *(u16 *)(D_007F16F2 + slot * 8)) {
+    if (type == ((FldPartyModelCache *)(D_007F16F0 + slot * 8))->type && id == *(u16 *)(D_007F16F2 + slot * 8)) {
         return *(u8 **)(D_007F16F4 + slot * 8);
     }
     return NULL;
@@ -315,6 +337,8 @@ static inline u8 *fldPartyModelCached(s32 slot, u16 type, u16 id)
 #pragma opt_propagation on
 #pragma optimization_level 2
 // FUN_00162680
+/* Choose the party member model for this field/calendar context, reusing or replacing its cache slot. */
+/* Raw access: The id/model globals are interior aliases of the 8-byte cache; preserve their native symbol-relative loads and stores. */
 u8 *FldPartyModelGet(u16 field, u16 room, s32 member)
 {
     s32 i;
@@ -401,14 +425,14 @@ u8 *FldPartyModelGet(u16 field, u16 room, s32 member)
                 s32 j;
 
                 for (j = 0; j < 5; j++) {
-                    *(u8 *)(*(u8 **)(entry + 4) + j * 0xC + 0x28C) |= 1;
+                    ((FldPartyModelObject *)((FldPartyModelCache *)entry)->model)->attachments[j].flags |= 1;
                 }
                 mdlDestroyModelObject(*(u8 **)(D_007F16F4 + slot * 8));
                 *(u8 **)(D_007F16F4 + slot * 8) = NULL;
             }
             *(u8 **)(D_007F16F4 + slot * 8) = obj;
-            *(u16 *)entry = *(u16 *)(obj + 0xD4);
-            *(u16 *)(D_007F16F2 + slot * 8) = *(u16 *)(*(u8 **)(D_007F16F4 + slot * 8) + 0xD6);
+            *(u16 *)entry = ((FldPartyModelObject *)obj)->type;
+            *(u16 *)(D_007F16F2 + slot * 8) = ((FldPartyModelObject *)*(u8 **)(D_007F16F4 + slot * 8))->id;
         } else {
             mdlSetColor(obj, &iGpffff9f10);
             mdlSetLookAtRequested(obj);
@@ -428,14 +452,14 @@ u8 *FldPartyModelGet(u16 field, u16 room, s32 member)
                 s32 j;
 
                 for (j = 0; j < 5; j++) {
-                    *(u8 *)(*(u8 **)(entry + 4) + j * 0xC + 0x28C) |= 1;
+                    ((FldPartyModelObject *)((FldPartyModelCache *)entry)->model)->attachments[j].flags |= 1;
                 }
                 mdlDestroyModelObject(*(u8 **)(D_007F16F4 + slot * 8));
                 *(u8 **)(D_007F16F4 + slot * 8) = NULL;
             }
             *(u8 **)(D_007F16F4 + slot * 8) = obj;
-            *(u16 *)entry = *(u16 *)(obj + 0xD4);
-            *(u16 *)(D_007F16F2 + slot * 8) = *(u16 *)(*(u8 **)(D_007F16F4 + slot * 8) + 0xD6);
+            *(u16 *)entry = ((FldPartyModelObject *)obj)->type;
+            *(u16 *)(D_007F16F2 + slot * 8) = ((FldPartyModelObject *)*(u8 **)(D_007F16F4 + slot * 8))->id;
         } else {
             mdlSetColor(obj, &iGpffff9f10);
             mdlSetLookAtRequested(obj);

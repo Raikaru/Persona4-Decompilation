@@ -14,8 +14,8 @@ u8 *btlTargetCreateActionPacket(u8 *action, u8 flags);
  * +0x6c and +0x70; each callback receives the work-area pointer. */
 typedef void (*BtlTargetStateHook)(u8 *work);
 typedef u32 (*BtlTargetStateUpdate)(void *work);
-void btlTargetActionAddPending(u8 *work);
-u32 btlTargetStatePacketUpdate(void *work);
+void btlTargetActionAddPending(u8 *arg);
+u32 btlTargetStatePacketUpdate(void *arg);
 void btlTargetReleaseUnitPending(u8 *work);
 
 #endif

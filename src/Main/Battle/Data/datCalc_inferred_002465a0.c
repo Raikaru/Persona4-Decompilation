@@ -7,8 +7,8 @@ extern void chkmemAllocSiteTag(void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00635990[];
 extern u8 D_006359A0[];
-extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
-extern s32 kwlnTaskGetTaskByName(void *path);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
+extern s32 kwlnTaskGetTaskByName(void *name);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_006359B0[];
 extern u8 D_006359C0[];
@@ -57,12 +57,12 @@ s32 mdlNeckTestExists(void)
 // FUN_00246670
 void mdlNeckTestDestroy(void)
 {
-    s32 temp_2;
+    s32 task;
 
-    temp_2 = kwlnTaskGetTaskByName(D_006359B0);
-    if (temp_2 == 0) {
+    task = kwlnTaskGetTaskByName(D_006359B0);
+    if (task == 0) {
         kAssertFail(D_006359C0, 0x3D);
     }
-    kwlnTaskDestroyWithHierarchy(temp_2);
+    kwlnTaskDestroyWithHierarchy(task);
 }
 

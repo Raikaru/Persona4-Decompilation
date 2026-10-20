@@ -42,11 +42,11 @@ extern u8 D_00714658[];
 
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *arg0, s32 arg1);
+extern void func_004bd6a0(u8 *object, s32 value);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
-extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
+extern void *(*jtbl_008873E8[])(u32 size, u32 alignment);
 extern u8 D_008872FC_abs[];
 extern BtlShuffleRenderStateSet D_00887300[];
 extern BtlShuffleRenderPrimitive D_00887310_abs[];
@@ -63,35 +63,37 @@ typedef struct {
     f32 y;
     f32 z;
     f32 w;
-} Code1_004bBddVec4;
+} EffMiscVector;
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 /* measured: restore propagation for the rest of the unit. */
+/* Normalize both quaternions and return their clamped dot product, not acos.
+ * Identical normalized inputs take the explicit zero-return path in retail. */
 // FUN_004BD4A0
-f32 effMiscQuatAngle(u8 *arg0, u8 *arg1)
+f32 effMiscQuatAngle(u8 *firstQuaternion, u8 *secondQuaternion)
 {
-    Code1_004bBddVec4 a;
-    Code1_004bBddVec4 b;
-    f32 ad;
-    f32 bd;
+    EffMiscVector a;
+    EffMiscVector b;
+    f32 firstLength;
+    f32 secondLength;
     f32 dot;
 
-    a = *(Code1_004bBddVec4 *)arg0;
-    b = *(Code1_004bBddVec4 *)arg1;
-    ad = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
-    ad = __sqrt(ad, 0.0f);
-    a.x = a.x / ad;
-    a.y = a.y / ad;
-    a.z = a.z / ad;
-    a.w = a.w / ad;
-    bd = b.x * b.x + b.y * b.y + b.z * b.z + b.w * b.w;
-    bd = __sqrt(bd, 0.0f);
-    b.x = b.x / bd;
-    b.y = b.y / bd;
-    b.z = b.z / bd;
-    b.w = b.w / bd;
+    a = *(EffMiscVector *)firstQuaternion;
+    b = *(EffMiscVector *)secondQuaternion;
+    firstLength = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
+    firstLength = __sqrt(firstLength, 0.0f);
+    a.x = a.x / firstLength;
+    a.y = a.y / firstLength;
+    a.z = a.z / firstLength;
+    a.w = a.w / firstLength;
+    secondLength = b.x * b.x + b.y * b.y + b.z * b.z + b.w * b.w;
+    secondLength = __sqrt(secondLength, 0.0f);
+    b.x = b.x / secondLength;
+    b.y = b.y / secondLength;
+    b.z = b.z / secondLength;
+    b.w = b.w / secondLength;
     if ((a.x == b.x) && (a.y == b.y) && (a.z == b.z) && (a.w == b.w)) {
         return 0.0f;
     }

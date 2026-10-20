@@ -4,6 +4,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "radar_menu_internal.h"
 #include "primitive_point_buffer.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
@@ -18,29 +19,29 @@ static inline s32 code1_0012_stride_loop(s32 base, s32 index)
     return base + index;
 }
 
-extern u8 *resourceFindByName(char *filename);
-extern s32 titleSlotSetMode(u8 *arg0, s32 arg1);
+extern u8 *resourceFindByName(char *name);
+extern s32 titleSlotSetMode(u8 *, s32 );
 extern void sdkSpriteFreeNode(void *node);
 extern s32 nLineIsIdle(void);
-extern void radarAnimateValue(u8 *arg0, s32 arg1, s32 arg2);
-extern void datCommunityEntryStep(u8 *arg0);
-extern void radarDrawPanel(u8 *arg0);
-extern void radarStepSlotAnimB(u8 *arg0);
-extern void radarStepPairAnim(u8 *arg0);
+extern void radarAnimateValue(u8 *, s32 , s32 );
+extern void datCommunityEntryStep(u8 *);
+extern void radarDrawPanel(u8 *);
+extern void radarStepSlotAnimB(u8 *);
+extern void radarStepPairAnim(u8 *);
 extern void kAssertFail(const void *file, s32 line);
-extern s32 datItemCount(s16 id);
+extern s32 datItemCount(s16 itemId);
 extern u8 D_005E76C8[];
-extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern s16 datBuildPartyIdList(void *arg0);
-extern u8 *sdkSpriteNewNode(u32 sprites, u32 index);
+extern void memset(void *, s32 , s32 );
+extern s16 datBuildPartyIdList(void *);
+extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
 extern u8 D_005E5F40[];
 extern u8 D_005E7670[];
 extern u8 D_005E5830[];
 extern u8 D_005E5850[];
 extern u8 D_005E57F0[];
 extern u8 D_005E76C8[];
-extern void titleCollectFlaggedIds(u8 *arg0);
-extern s32 titleSetMenuLayout(u8 *arg0, u32 arg1);
+extern void titleCollectFlaggedIds(u8 *);
+extern s32 titleSetMenuLayout(u8 *, u32 );
 #include "btl_shuffle_draw_internal.h"
 typedef struct Code12FrameVector { f32 x, y, z; } Code12FrameVector;
 
@@ -53,15 +54,16 @@ typedef union Code12FrameVectorTransfer {
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
+/* Change the selected title slot, preserve the old selection and start layout mode 2. */
 // FUN_0012DB80
-s32 func_0012db80(u8 *arg0, s32 arg1)
+s32 titleSelectSlot(u8 *menu, s32 selection)
 {
-    if (arg1 != *(s32 *)(arg0 + 0x10)) {
+    if (selection != ((TitleSlotMenu *)menu)->selection) {
         sdkSndStartStream(0, 1, 0, 0);
-        *(s32 *)(arg0 + 0x14) = *(s32 *)(arg0 + 0x10);
-        *(s32 *)(arg0 + 0x10) = arg1;
-        *(s32 *)(arg0 + 0x18) = -1;
-        titleSlotSetMode(arg0, 2);
+        ((TitleSlotMenu *)menu)->previousSelection = ((TitleSlotMenu *)menu)->selection;
+        ((TitleSlotMenu *)menu)->selection = selection;
+        ((TitleSlotMenu *)menu)->mode = -1;
+        titleSlotSetMode(menu, 2);
     }
     return 1;
 }
@@ -71,162 +73,165 @@ s32 func_0012db80(u8 *arg0, s32 arg1)
 #pragma opt_propagation on
 #pragma optimization_level 2
 #pragma opt_loop_invariants on
+/* Set slot transition endpoints for adjacent moves and wraparound selection. */
 // FUN_0012DC00
-void titleLayoutSlots(u8 *arg0)
+void titleLayoutSlots(u8 *menu)
 {
-    s32 temp_10;
-    s32 temp_3;
-    s32 temp_5;
-    s32 temp_7;
-    s32 temp_9;
-    s32 temp_8;
-    s32 var_11;
-    s32 var_11_2;
-    s32 var_12;
-    s32 var_c_ff;
-    f32 var_c_1;
-    f32 var_c_2;
-    s32 var_c_7f;
-    s32 var_c_3;
-    u8 *temp_3_2;
-    u8 *temp_3_3;
-    u8 *temp_5_2;
-    u8 *temp_5_3;
-    u8 *temp_6;
-    u8 *temp_6_2;
-    u8 *temp_6_3;
-    u8 *temp_6_4;
-    u8 *temp_6_5;
+    s32 previousSelection;
+    s32 slotCount;
+    s32 selection;
+    s32 selectionDelta;
+    s32 lastSlot;
+    s32 reverseWrap;
+    s32 slotIndex;
+    s32 reverseIndex;
+    s32 wrapIndex;
+    s32 opaqueAlpha;
+    f32 targetX;
+    f32 targetY;
+    s32 halfAlpha;
+    s32 endFrame;
+    MenuSlotAnimation *previousCursor;
+    MenuSlotAnimation *previousCursorReverse;
+    MenuSlotAnimation *selectedCursor;
+    MenuSlotAnimation *selectedCursorReverse;
+    MenuSlotAnimation *slotCursor;
+    MenuSlotAnimation *selectedWrapCursor;
+    MenuSlotAnimation *otherWrapCursor;
+    MenuSlotAnimation *selectedReverseCursor;
+    MenuSlotAnimation *otherReverseCursor;
 
-    temp_5 = *(s32 *)(arg0 + 0x10);
-    temp_10 = *(s32 *)(arg0 + 0x14);
-    temp_3 = *(s32 *)(arg0 + 0x38);
-    temp_9 = temp_3 - 1;
-    temp_8 = -temp_9;
-    temp_7 = temp_5 - temp_10;
-    var_11 = 0;
+    selection = ((TitleSlotMenu *)menu)->selection;
+    previousSelection = ((TitleSlotMenu *)menu)->previousSelection;
+    slotCount = ((TitleSlotMenu *)menu)->slotCount;
+    lastSlot = slotCount - 1;
+    reverseWrap = -lastSlot;
+    selectionDelta = selection - previousSelection;
+    slotIndex = 0;
     goto loop_0012dc00_2_check;
 loop_0012dc00_2_body:
-    temp_6 = (var_11 * 0x30) + arg0;
-    *(s32 *)(temp_6 + 0xBC) = 0;
-    *(s32 *)(temp_6 + 0xC0) = 0;
-    var_11 += 1;
+    slotCursor = (MenuSlotAnimation *)((u8 *)((slotIndex * 0x30) + menu) + 0x94);
+    slotCursor->startFrame.s = 0;
+    slotCursor->endFrame.s = 0;
+    slotIndex += 1;
 loop_0012dc00_2_check:
-    if (var_11 < 0xB) {
+    if (slotIndex < 0xB) {
         goto loop_0012dc00_2_body;
     }
-    if (temp_7 == 1) {
-        temp_3_2 = (u8 *)code1_0012_stride(temp_10 * 0x30, (s32)(u32)arg0);
-        *(s32 *)(temp_3_2 + 0x9C) = 0;
-        *(s32 *)(temp_3_2 + 0x98) = 0;
-        *(s32 *)(temp_3_2 + 0xA0) = 0;
-        *(u8 *)(temp_3_2 + 0xAC) = 0xFF;
-        *(u8 *)(temp_3_2 + 0xAD) = 0xFF;
-        *(s32 *)(temp_3_2 + 0xC0) = 0;
-        temp_5_2 = (u8 *)code1_0012_stride(temp_5 * 0x30, (s32)(u32)arg0);
-        *(s32 *)(temp_5_2 + 0x9C) = 0;
-        *(s32 *)(temp_5_2 + 0x98) = (s32)0xC1700000;
-        *(s32 *)(temp_5_2 + 0xA0) = (s32)0x40B00000;
-        *(s8 *)(temp_5_2 + 0xAC) = 0x7F;
-        *(u8 *)(temp_5_2 + 0xAD) = 0xFF;
-        *(s32 *)(temp_5_2 + 0xC0) = 3;
-        *(s32 *)(arg0 + 0x278) = (s32)0x3F800000;
-        *(s32 *)(arg0 + 0x280) = (s32)0x3F800000;
-    } else if (temp_7 == -1) {
-        temp_3_3 = (u8 *)code1_0012_stride(temp_10 * 0x30, (s32)(u32)arg0);
-        *(s32 *)(temp_3_3 + 0x9C) = 0;
-        *(s32 *)(temp_3_3 + 0x98) = 0;
-        *(s32 *)(temp_3_3 + 0xA0) = 0;
-        *(u8 *)(temp_3_3 + 0xAC) = 0xFF;
-        *(u8 *)(temp_3_3 + 0xAD) = 0xFF;
-        *(s32 *)(temp_3_3 + 0xC0) = 0;
-        temp_5_3 = (u8 *)code1_0012_stride(temp_5 * 0x30, (s32)(u32)arg0);
-        *(s32 *)(temp_5_3 + 0x9C) = 0;
-        *(s32 *)(temp_5_3 + 0x98) = (s32)0x41700000;
-        *(s32 *)(temp_5_3 + 0xA0) = (s32)0xC0B00000;
-        *(s8 *)(temp_5_3 + 0xAC) = 0x7F;
-        *(u8 *)(temp_5_3 + 0xAD) = 0xFF;
-        *(s32 *)(temp_5_3 + 0xC0) = 3;
-        *(s32 *)(arg0 + 0x278) = 0;
-        *(s32 *)(arg0 + 0x280) = 0;
-    } else if (temp_7 == temp_9) {
-        var_12 = 0;
-        var_c_ff = 0xFF;
-        var_c_1 = -15.0f;
-        var_c_2 = 5.5f;
-        var_c_7f = 0x7F;
-        var_c_3 = 3;
+    if (selectionDelta == 1) {
+        previousCursor = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride(previousSelection * 0x30, (s32)(u32)menu)) + 0x94);
+        previousCursor->targetX.s = 0;
+        previousCursor->startY.s = 0;
+        previousCursor->targetY.s = 0;
+        previousCursor->startAlpha.u = 0xFF;
+        previousCursor->targetAlpha = 0xFF;
+        previousCursor->endFrame.s = 0;
+        selectedCursor = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride(selection * 0x30, (s32)(u32)menu)) + 0x94);
+        selectedCursor->targetX.s = 0;
+        selectedCursor->startY.s = (s32)0xC1700000;
+        selectedCursor->targetY.s = (s32)0x40B00000;
+        selectedCursor->startAlpha.s = 0x7F;
+        selectedCursor->targetAlpha = 0xFF;
+        selectedCursor->endFrame.s = 3;
+        ((TitleSlotMenu *)menu)->slots[10].startY.s = (s32)0x3F800000;
+        ((TitleSlotMenu *)menu)->slots[10].targetY.s = (s32)0x3F800000;
+    } else if (selectionDelta == -1) {
+        previousCursorReverse = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride(previousSelection * 0x30, (s32)(u32)menu)) + 0x94);
+        previousCursorReverse->targetX.s = 0;
+        previousCursorReverse->startY.s = 0;
+        previousCursorReverse->targetY.s = 0;
+        previousCursorReverse->startAlpha.u = 0xFF;
+        previousCursorReverse->targetAlpha = 0xFF;
+        previousCursorReverse->endFrame.s = 0;
+        selectedCursorReverse = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride(selection * 0x30, (s32)(u32)menu)) + 0x94);
+        selectedCursorReverse->targetX.s = 0;
+        selectedCursorReverse->startY.s = (s32)0x41700000;
+        selectedCursorReverse->targetY.s = (s32)0xC0B00000;
+        selectedCursorReverse->startAlpha.s = 0x7F;
+        selectedCursorReverse->targetAlpha = 0xFF;
+        selectedCursorReverse->endFrame.s = 3;
+        ((TitleSlotMenu *)menu)->slots[10].startY.s = 0;
+        ((TitleSlotMenu *)menu)->slots[10].targetY.s = 0;
+    } else if (selectionDelta == lastSlot) {
+        wrapIndex = 0;
+        opaqueAlpha = 0xFF;
+        targetX = -15.0f;
+        targetY = 5.5f;
+        halfAlpha = 0x7F;
+        endFrame = 3;
         goto loop_0012dc00_13_check;
 loop_0012dc00_13_body:
-        if (var_12 == temp_5) {
-            temp_6_2 = (u8 *)code1_0012_stride_loop((s32)(u32)arg0, var_12 * 0x30);
-            *(f32 *)(temp_6_2 + 0x98) = var_c_1;
-            *(f32 *)(temp_6_2 + 0xA0) = var_c_2;
-            *(s8 *)(temp_6_2 + 0xAC) = var_c_7f;
-            *(u8 *)(temp_6_2 + 0xAD) = var_c_ff;
-            *(s32 *)(temp_6_2 + 0xC0) = var_c_3;
+        if (wrapIndex == selection) {
+            selectedWrapCursor = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride_loop((s32)(u32)menu, wrapIndex * 0x30)) + 0x94);
+            selectedWrapCursor->startY.f = targetX;
+            selectedWrapCursor->targetY.f = targetY;
+            selectedWrapCursor->startAlpha.s = halfAlpha;
+            selectedWrapCursor->targetAlpha = opaqueAlpha;
+            selectedWrapCursor->endFrame.s = endFrame;
         } else {
-            temp_6_3 = (u8 *)code1_0012_stride_loop((s32)(u32)arg0, var_12 * 0x30);
-            *(s32 *)(temp_6_3 + 0x9C) = 0;
-            *(s32 *)(temp_6_3 + 0x98) = 0;
-            *(s32 *)(temp_6_3 + 0xA0) = 0;
-            *(u8 *)(temp_6_3 + 0xAC) = var_c_ff;
-            *(u8 *)(temp_6_3 + 0xAD) = var_c_ff;
-            *(s32 *)(temp_6_3 + 0xC0) = 0;
+            otherWrapCursor = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride_loop((s32)(u32)menu, wrapIndex * 0x30)) + 0x94);
+            otherWrapCursor->targetX.s = 0;
+            otherWrapCursor->startY.s = 0;
+            otherWrapCursor->targetY.s = 0;
+            otherWrapCursor->startAlpha.u = opaqueAlpha;
+            otherWrapCursor->targetAlpha = opaqueAlpha;
+            otherWrapCursor->endFrame.s = 0;
         }
-        var_12 += 1;
+        wrapIndex += 1;
 loop_0012dc00_13_check:
-        if (var_12 < temp_3) {
+        if (wrapIndex < slotCount) {
             goto loop_0012dc00_13_body;
         }
-        *(s32 *)(arg0 + 0x278) = (s32)0x3F800000;
-        *(s32 *)(arg0 + 0x280) = (s32)0x3F800000;
-    } else if (temp_7 == temp_8) {
-        var_11_2 = 0;
-        var_c_ff = 0xFF;
-        var_c_1 = 15.0f;
-        var_c_2 = -5.5f;
-        var_c_3 = 3;
+        ((TitleSlotMenu *)menu)->slots[10].startY.s = (s32)0x3F800000;
+        ((TitleSlotMenu *)menu)->slots[10].targetY.s = (s32)0x3F800000;
+    } else if (selectionDelta == reverseWrap) {
+        reverseIndex = 0;
+        opaqueAlpha = 0xFF;
+        targetX = 15.0f;
+        targetY = -5.5f;
+        endFrame = 3;
         goto loop_0012dc00_21_check;
 loop_0012dc00_21_body:
-        if (var_11_2 == temp_5) {
-            temp_6_4 = (u8 *)code1_0012_stride_loop((s32)(u32)arg0, var_11_2 * 0x30);
-            *(f32 *)(temp_6_4 + 0x98) = var_c_1;
-            *(f32 *)(temp_6_4 + 0xA0) = var_c_2;
-            *(s8 *)(temp_6_4 + 0xAC) = 0;
-            *(u8 *)(temp_6_4 + 0xAD) = var_c_ff;
-            *(s32 *)(temp_6_4 + 0xC0) = var_c_3;
+        if (reverseIndex == selection) {
+            selectedReverseCursor = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride_loop((s32)(u32)menu, reverseIndex * 0x30)) + 0x94);
+            selectedReverseCursor->startY.f = targetX;
+            selectedReverseCursor->targetY.f = targetY;
+            selectedReverseCursor->startAlpha.s = 0;
+            selectedReverseCursor->targetAlpha = opaqueAlpha;
+            selectedReverseCursor->endFrame.s = endFrame;
         } else {
-            temp_6_5 = (u8 *)code1_0012_stride_loop((s32)(u32)arg0, var_11_2 * 0x30);
-            *(s32 *)(temp_6_5 + 0x9C) = 0;
-            *(s32 *)(temp_6_5 + 0x98) = 0;
-            *(s32 *)(temp_6_5 + 0xA0) = 0;
-            *(u8 *)(temp_6_5 + 0xAC) = var_c_ff;
-            *(u8 *)(temp_6_5 + 0xAD) = var_c_ff;
-            *(s32 *)(temp_6_5 + 0xC0) = 0;
+            otherReverseCursor = (MenuSlotAnimation *)((u8 *)((u8 *)code1_0012_stride_loop((s32)(u32)menu, reverseIndex * 0x30)) + 0x94);
+            otherReverseCursor->targetX.s = 0;
+            otherReverseCursor->startY.s = 0;
+            otherReverseCursor->targetY.s = 0;
+            otherReverseCursor->startAlpha.u = opaqueAlpha;
+            otherReverseCursor->targetAlpha = opaqueAlpha;
+            otherReverseCursor->endFrame.s = 0;
         }
-        var_11_2 += 1;
+        reverseIndex += 1;
 loop_0012dc00_21_check:
-        if (var_11_2 < temp_3) {
+        if (reverseIndex < slotCount) {
             goto loop_0012dc00_21_body;
         }
-        *(s32 *)(arg0 + 0x278) = 0;
-        *(s32 *)(arg0 + 0x280) = 0;
+        ((TitleSlotMenu *)menu)->slots[10].startY.s = 0;
+        ((TitleSlotMenu *)menu)->slots[10].targetY.s = 0;
     }
-    *(s16 *)(arg0 + 0xC) = 0;
+    ((TitleSlotMenu *)menu)->frame = 0;
 }
 #pragma pop
 
 extern u8 D_005E58C0[];
 extern u8 D_005E59A0[];
 extern u8 D_005E5A80[];
-extern void titleLayoutSlots(u8 *arg0);
+extern void titleLayoutSlots(u8 *menu);
 #pragma push
 #pragma opt_propagation on
 #pragma optimization_level 2
 #pragma opt_loop_invariants on
+/* Snapshot eleven slot animations and set the target table for the requested mode. */
 // FUN_0012DEA0
-s32 titleSlotSetMode(u8 *arg0, s32 arg1)
+/* Raw offsets preserve the measured match: TitleSlotMenu access changed codegen (nd 468). */
+s32 titleSlotSetMode(u8 *menu, s32 mode)
 {
     s32 i;
     s32 i0;
@@ -240,14 +245,14 @@ s32 titleSlotSetMode(u8 *arg0, s32 arg1)
     u8 *src3;
     u8 *dst3;
 
-    if (*(s32 *)(arg0 + 0x18) == arg1) {
+    if (*(s32 *)(menu + 0x18) == mode) {
         return 0;
     }
-    *(s32 *)(arg0 + 0x18) = arg1;
-    *(s16 *)(arg0 + 0xC) = 0;
+    *(s32 *)(menu + 0x18) = mode;
+    *(s16 *)(menu + 0xC) = 0;
     i = 0;
     while (i < 0xB) {
-        p = arg0 + i * 0x30;
+        p = menu + i * 0x30;
         *(f32 *)(p + 0x94) = *(f32 *)(p + 0xA4);
         *(f32 *)(p + 0x98) = *(f32 *)(p + 0xA8);
         *(u8 *)(p + 0xAC) = *(u8 *)(p + 0xAE);
@@ -255,13 +260,13 @@ s32 titleSlotSetMode(u8 *arg0, s32 arg1)
         *(u16 *)(p + 0xB6) = *(u16 *)(p + 0xBA);
         i++;
     }
-    switch (arg1) {
+    switch (mode) {
     case 0:
         i0 = 0;
         while (i0 < 0xB) {
-            if (i0 != *(s32 *)(arg0 + 0x10)) {
+            if (i0 != *(s32 *)(menu + 0x10)) {
                 src0 = D_005E58C0 + i0 * 0x14;
-                dst0 = arg0 + i0 * 0x30;
+                dst0 = menu + i0 * 0x30;
                 *(f32 *)(dst0 + 0x9C) = *(f32 *)(src0 + 0);
                 *(f32 *)(dst0 + 0xA0) = *(f32 *)(src0 + 4);
                 *(u8 *)(dst0 + 0xAD) = *(u8 *)(src0 + 8);
@@ -269,7 +274,7 @@ s32 titleSlotSetMode(u8 *arg0, s32 arg1)
                 *(s32 *)(dst0 + 0xBC) = *(s32 *)(src0 + 0xC);
                 *(s32 *)(dst0 + 0xC0) = *(s32 *)(src0 + 0x10);
             } else {
-                dst0 = arg0 + i0 * 0x30;
+                dst0 = menu + i0 * 0x30;
                 *(s32 *)(dst0 + 0x94) = 0;
                 *(s32 *)(dst0 + 0x9C) = 0;
                 *(s32 *)(dst0 + 0x98) = 0x41B80000;
@@ -288,7 +293,7 @@ s32 titleSlotSetMode(u8 *arg0, s32 arg1)
         i1 = 0;
         while (i1 < 0xB) {
             src1 = D_005E59A0 + i1 * 0x14;
-            dst1 = arg0 + i1 * 0x30;
+            dst1 = menu + i1 * 0x30;
             *(f32 *)(dst1 + 0x9C) = *(f32 *)(src1 + 0);
             *(f32 *)(dst1 + 0xA0) = *(f32 *)(src1 + 4);
             *(u8 *)(dst1 + 0xAD) = *(u8 *)(src1 + 8);
@@ -299,12 +304,12 @@ s32 titleSlotSetMode(u8 *arg0, s32 arg1)
         }
         break;
     case 2:
-        titleLayoutSlots(arg0);
+        titleLayoutSlots(menu);
         break;
     case 3:
         i3 = 0;
         while (i3 < 0xB) {
-            dst3 = arg0 + i3 * 0x30;
+            dst3 = menu + i3 * 0x30;
             *(s32 *)(dst3 + 0x94) = 0;
             *(s32 *)(dst3 + 0x98) = 0;
             src3 = D_005E5A80 + i3 * 0x14;
@@ -326,24 +331,25 @@ s32 titleSlotSetMode(u8 *arg0, s32 arg1)
 #pragma opt_propagation on
 #pragma optimization_level 2
 #pragma opt_loop_invariants off
+/* Free all 21 sprite nodes in the title selector. */
 // FUN_0012E150
-void titleFreeSpriteNodes(s32 arg0)
+void titleFreeSpriteNodes(s32 menuAddress)
 {
-    s32 temp_4;
-    s32 var_17;
-    u8 *temp_3;
-    u8 *temp_16;
+    s32 sprite;
+    s32 spriteIndex;
+    u8 *spriteCursor;
+    u8 *spriteSlot;
 
-    var_17 = 0;
-    while (var_17 < 0x15) {
-        temp_3 = (u8 *)(arg0 + (var_17 * 4));
-        temp_16 = temp_3 + 0x3C;
-        temp_4 = *(s32 *)temp_16;
-        if (temp_4 != 0) {
-            sdkSpriteFreeNode((void *)temp_4);
-            *(s32 *)temp_16 = 0;
+    spriteIndex = 0;
+    while (spriteIndex < 0x15) {
+        spriteCursor = (u8 *)(menuAddress + (spriteIndex * 4));
+        spriteSlot = spriteCursor + 0x3C;
+        sprite = *(s32 *)spriteSlot;
+        if (sprite != 0) {
+            sdkSpriteFreeNode((void *)sprite);
+            *(s32 *)spriteSlot = 0;
         }
-        var_17 += 1;
+        spriteIndex += 1;
     }
 }
 #pragma pop
@@ -352,20 +358,21 @@ void titleFreeSpriteNodes(s32 arg0)
 #pragma opt_propagation on
 #pragma optimization_level 2
 #pragma opt_loop_invariants off
+/* Report whether all eleven slot end frames have elapsed and the external line is idle. */
 // FUN_0012E1D0
-s32 func_0012e1d0(u8 *arg0)
+s32 titleSlotFramesElapsed(u8 *menu)
 {
-    s32 var_16 = 1;
-    s32 var_5 = 0;
-    s32 temp_3 = *(s16 *)(arg0 + 0xC);
+    s32 settled = 1;
+    s32 slotIndex = 0;
+    s32 frame = ((TitleSlotMenu *)menu)->frame;
 
-    while (var_5 < 0xB) {
-        if (temp_3 < *(s32 *)(arg0 + (var_5 * 0x30) + 0xC0)) {
-            var_16 = 0;
+    while (slotIndex < 0xB) {
+        if (frame < ((TitleSlotMenu *)menu)->slots[slotIndex].endFrame.s) {
+            settled = 0;
         }
-        var_5 += 1;
+        slotIndex += 1;
     }
-    return var_16 & nLineIsIdle();
+    return settled & nLineIsIdle();
 }
 #pragma pop
 
@@ -373,32 +380,33 @@ s32 func_0012e1d0(u8 *arg0)
 #pragma opt_propagation on
 #pragma optimization_level 2
 #pragma opt_loop_invariants off
+/* Treat modes 1/2 as settled; otherwise check all slot end frames and line idleness. */
 // FUN_0012E250
-s32 titleSlotsSettled(u8 *arg0)
+s32 titleSlotsSettled(u8 *menu)
 {
-    s32 temp_3 = *(s32 *)(arg0 + 0x18);
-    s32 var_16 = 1;
-    s32 var_5;
-    s32 temp_4;
+    s32 mode = ((TitleSlotMenu *)menu)->mode;
+    s32 settled = 1;
+    s32 slotIndex;
+    s32 frame;
 
-    if (temp_3 == var_16) {
+    if (mode == settled) {
         goto block_early;
     }
-    if (temp_3 != 2) {
+    if (mode != 2) {
         goto block_loop;
     }
 block_early:
     return 1;
 block_loop:
-    var_5 = 0;
-    temp_4 = *(s16 *)(arg0 + 0xC);
-    while (var_5 < 0xB) {
-        if (temp_4 < *(s32 *)(arg0 + (var_5 * 0x30) + 0xC0)) {
-            var_16 = 0;
+    slotIndex = 0;
+    frame = ((TitleSlotMenu *)menu)->frame;
+    while (slotIndex < 0xB) {
+        if (frame < ((TitleSlotMenu *)menu)->slots[slotIndex].endFrame.s) {
+            settled = 0;
         }
-        var_5 += 1;
+        slotIndex += 1;
     }
-    return var_16 & nLineIsIdle();
+    return settled & nLineIsIdle();
 }
 #pragma pop
 
@@ -407,119 +415,121 @@ block_loop:
 #pragma optimization_level 2
 #pragma opt_loop_invariants on
 #pragma opt_rebuildconditionals off
+/* Initialize the 0x1BE8-byte radar menu, its animation arrays, inventory and sprite nodes. */
 // FUN_0012E2F0
-s32 titleStateInit(u8 *arg0)
+/* Raw offsets preserve the measured match: RadarMenu array accesses changed codegen (nd 712). */
+s32 titleStateInit(u8 *menu)
 {
     s16 i;
     s16 j;
     s16 k;
     s16 m;
     s16 n;
-    u8 *temp_2;
-    u8 *temp_3;
-    u8 *temp_4;
-    u8 *base_5f40;
-    u8 *res_1;
-    u8 *res_2;
-    u8 *res_3;
-    u8 *res_slot;
-    s32 temp_16;
-    s32 temp_17;
-    s32 temp_18;
-    s32 temp_19;
-    u16 temp_u16;
-    s32 temp_byte;
+    u8 *target;
+    u8 *slotCursor;
+    u8 *value;
+    u8 *defaultTargets;
+    u8 *itemSprites;
+    u8 *badgeSprites;
+    u8 *extraSprites;
+    u8 *spriteSlot;
+    s32 resource;
+    s32 resourceValue;
+    s32 resourceResult;
+    s32 resourceState;
+    u16 scale;
+    s32 spriteIndex;
     s16 ii;
 
-    memset(arg0, 0, 0x1BE8);
-    *(s32 *)(arg0 + 4) = 0;
-    *(s32 *)(arg0 + 8) = 0;
-    *(u8 *)arg0 = 0xFF;
-    *(s32 *)(arg0 + 0x30) = -1;
-    *(s16 *)(arg0 + 0x1C) = 0;
-    *(s32 *)(arg0 + 0x18) = 0;
+    memset(menu, 0, 0x1BE8);
+    *(s32 *)(menu + 4) = 0;
+    *(s32 *)(menu + 8) = 0;
+    *(u8 *)menu = 0xFF;
+    *(s32 *)(menu + 0x30) = -1;
+    *(s16 *)(menu + 0x1C) = 0;
+    *(s32 *)(menu + 0x18) = 0;
     for (i = 0; i < 3; i++) {
-        *(s16 *)(arg0 + (i * 2) + 0x22) = 0;
+        *(s16 *)(menu + (i * 2) + 0x22) = 0;
     }
     j = 0;
-    base_5f40 = D_005E5F40;
+    defaultTargets = D_005E5F40;
     for (; j < 30; j++) {
-        temp_2 = base_5f40 + (j * 0x1C);
-        temp_3 = arg0 + (j * 0x30);
-        *(f32 *)(temp_3 + 0x12E8) = *(f32 *)temp_2;
-        *(f32 *)(temp_3 + 0x12EC) = *(f32 *)(temp_2 + 4);
-        *(u8 *)(temp_3 + 0x12F2) = *(u8 *)(temp_2 + 0x10);
-        temp_u16 = (u16)*(f32 *)(temp_2 + 8);
-        *(u16 *)(temp_3 + 0x12F8) = temp_u16;
-        temp_u16 = (u16)*(f32 *)(temp_2 + 0xC);
-        *(u16 *)(temp_3 + 0x12FE) = temp_u16;
+        target = defaultTargets + (j * 0x1C);
+        slotCursor = menu + (j * 0x30);
+        *(f32 *)(slotCursor + 0x12E8) = *(f32 *)target;
+        *(f32 *)(slotCursor + 0x12EC) = *(f32 *)(target + 4);
+        *(u8 *)(slotCursor + 0x12F2) = *(u8 *)(target + 0x10);
+        scale = (u16)*(f32 *)(target + 8);
+        *(u16 *)(slotCursor + 0x12F8) = scale;
+        scale = (u16)*(f32 *)(target + 0xC);
+        *(u16 *)(slotCursor + 0x12FE) = scale;
     }
     for (k = 0; k < 12; k++) {
-        *(s32 *)(arg0 + (k * 0x30) + 0x1888) = 0;
-        *(s32 *)(arg0 + (k * 0x30) + 0x1878) = 0;
-        *(s32 *)(arg0 + (k * 0x30) + 0x1884) = -1027080192;
-        *(s32 *)(arg0 + (k * 0x30) + 0x187C) = -1027080192;
-        *(u8 *)(arg0 + (k * 0x30) + 0x1891) = 127;
-        *(u8 *)(arg0 + (k * 0x30) + 0x1890) = 127;
-        *(s32 *)(arg0 + (k * 0x30) + 0x18A0) = 0;
-        *(s32 *)(arg0 + (k * 0x30) + 0x18A4) = 10;
+        *(s32 *)(menu + (k * 0x30) + 0x1888) = 0;
+        *(s32 *)(menu + (k * 0x30) + 0x1878) = 0;
+        *(s32 *)(menu + (k * 0x30) + 0x1884) = -1027080192;
+        *(s32 *)(menu + (k * 0x30) + 0x187C) = -1027080192;
+        *(u8 *)(menu + (k * 0x30) + 0x1891) = 127;
+        *(u8 *)(menu + (k * 0x30) + 0x1890) = 127;
+        *(s32 *)(menu + (k * 0x30) + 0x18A0) = 0;
+        *(s32 *)(menu + (k * 0x30) + 0x18A4) = 10;
     }
     for (m = 0; m < 84; m++) {
-        *(s32 *)(arg0 + (m * 0x14) + 0xC4C) = m % 7;
-        *(s32 *)(arg0 + (m * 0x14) + 0xC54) = 7;
-        *(s32 *)(arg0 + (m * 0x14) + 0xC50) = m / 7;
-        *(s32 *)(arg0 + (m * 0x14) + 0xC58) = 12;
+        *(s32 *)(menu + (m * 0x14) + 0xC4C) = m % 7;
+        *(s32 *)(menu + (m * 0x14) + 0xC54) = 7;
+        *(s32 *)(menu + (m * 0x14) + 0xC50) = m / 7;
+        *(s32 *)(menu + (m * 0x14) + 0xC58) = 12;
     }
     for (n = 0; n < 2; n++) {
-        *(s32 *)(arg0 + (n * 0x30) + 0x1AC8) = 0;
-        *(s32 *)(arg0 + (n * 0x30) + 0x1AB8) = 0;
-        *(s32 *)(arg0 + (n * 0x30) + 0x1AC4) = 0;
-        *(s32 *)(arg0 + (n * 0x30) + 0x1ABC) = 0;
-        *(u8 *)(arg0 + (n * 0x30) + 0x1AD1) = 0;
-        *(u8 *)(arg0 + (n * 0x30) + 0x1AD0) = 0;
-        *(s32 *)(arg0 + (n * 0x30) + 0x1AE0) = 0;
-        *(s32 *)(arg0 + (n * 0x30) + 0x1AE4) = 3;
+        *(s32 *)(menu + (n * 0x30) + 0x1AC8) = 0;
+        *(s32 *)(menu + (n * 0x30) + 0x1AB8) = 0;
+        *(s32 *)(menu + (n * 0x30) + 0x1AC4) = 0;
+        *(s32 *)(menu + (n * 0x30) + 0x1ABC) = 0;
+        *(u8 *)(menu + (n * 0x30) + 0x1AD1) = 0;
+        *(u8 *)(menu + (n * 0x30) + 0x1AD0) = 0;
+        *(s32 *)(menu + (n * 0x30) + 0x1AE0) = 0;
+        *(s32 *)(menu + (n * 0x30) + 0x1AE4) = 3;
     }
-    *(s16 *)(arg0 + 0x3C) = datBuildPartyIdList(arg0 + 0x34);
-    res_1 = (u8 *)resourceFindByName((char *)D_005E5830);
-    if (res_1 == NULL) {
+    *(s16 *)(menu + 0x3C) = datBuildPartyIdList(menu + 0x34);
+    itemSprites = (u8 *)resourceFindByName((char *)D_005E5830);
+    if (itemSprites == NULL) {
         kAssertFail(D_005E76C8, 0x1FA);
     }
-    res_2 = (u8 *)resourceFindByName((char *)D_005E5850);
-    if (res_2 == NULL) {
+    badgeSprites = (u8 *)resourceFindByName((char *)D_005E5850);
+    if (badgeSprites == NULL) {
         kAssertFail(D_005E76C8, 0x1FC);
     }
-    temp_16 = (s32)resourceFindByName((char *)D_005E57F0);
-    res_3 = (u8 *)temp_16;
-    *(u8 **)(arg0 + 0x1BE4) = (u8 *)temp_16;
-    if (res_3 == NULL) {
+    resource = (s32)resourceFindByName((char *)D_005E57F0);
+    extraSprites = (u8 *)resource;
+    *(u8 **)(menu + 0x1BE4) = (u8 *)resource;
+    if (extraSprites == NULL) {
         kAssertFail(D_005E76C8, 0x1FE);
     }
     ii = 0;
     while (ii < 51) {
         if (ii < 28) {
-            res_slot = arg0 + (ii * 4) + 0x1B18;
-            temp_byte = D_005E7670[ii];
-            temp_16 = (s32)sdkSpriteNewNode((u32)res_1, temp_byte);
-            *(s32 *)res_slot = temp_16;
+            spriteSlot = menu + (ii * 4) + 0x1B18;
+            spriteIndex = D_005E7670[ii];
+            resource = (s32)sdkSpriteNewNode((u32)itemSprites, spriteIndex);
+            *(s32 *)spriteSlot = resource;
         } else if (ii < 49) {
-            res_slot = arg0 + (ii * 4) + 0x1B18;
-            temp_byte = D_005E7670[ii];
-            temp_16 = (s32)sdkSpriteNewNode((u32)res_2, temp_byte);
-            *(s32 *)res_slot = temp_16;
+            spriteSlot = menu + (ii * 4) + 0x1B18;
+            spriteIndex = D_005E7670[ii];
+            resource = (s32)sdkSpriteNewNode((u32)badgeSprites, spriteIndex);
+            *(s32 *)spriteSlot = resource;
         } else {
-            res_slot = arg0 + (ii * 4) + 0x1B18;
-            temp_byte = D_005E7670[ii];
-            temp_16 = (s32)sdkSpriteNewNode((u32)res_3, temp_byte);
-            *(s32 *)res_slot = temp_16;
+            spriteSlot = menu + (ii * 4) + 0x1B18;
+            spriteIndex = D_005E7670[ii];
+            resource = (s32)sdkSpriteNewNode((u32)extraSprites, spriteIndex);
+            *(s32 *)spriteSlot = resource;
         }
-        if (*(s32 *)res_slot == 0) {
+        if (*(s32 *)spriteSlot == 0) {
             kAssertFail(D_005E76C8, 0x20B);
         }
         ii++;
     }
-    titleCollectFlaggedIds(arg0);
-    return titleSetMenuLayout(arg0, 0);
+    titleCollectFlaggedIds(menu);
+    return titleSetMenuLayout(menu, 0);
 }
 #pragma pop
 
@@ -528,36 +538,37 @@ s32 titleStateInit(u8 *arg0)
 #pragma optimization_level 2
 #pragma opt_loop_invariants off
 #pragma opt_rebuildconditionals on
+/* Collect held item IDs 0x300..0x5FF and their counts into the inventory list. */
 // FUN_0012E7C0
-void titleCollectFlaggedIds(u8 *arg0)
+void titleCollectFlaggedIds(u8 *menu)
 {
-    s32 temp_16;
-    s32 temp_4;
-    s64 temp_4_2;
-    s16 var_18;
-    s16 var_17;
-    u8 *temp_3;
+    s32 itemId;
+    s32 itemIndex;
+    s64 itemCount;
+    s16 candidateIndex;
+    s16 entryCount;
+    RadarInventoryEntry *entryCursor;
 
-    var_17 = 0;
-    var_18 = 0;
+    entryCount = 0;
+    candidateIndex = 0;
     goto loop_test;
 loop_body:
-    temp_16 = (s32)temp_4 + 0x300;
-    temp_4_2 = (s64)(s16)(datItemCount(temp_16) & 0xFF);
-    if (temp_4_2 != 0) {
-        temp_3 = arg0 + ((s16)var_17 * 4);
-        *(s16 *)(temp_3 + 0x3E) = (s16)temp_16;
-        *(s16 *)(temp_3 + 0x40) = (s16)temp_4_2;
-        var_17 += 1;
+    itemId = (s32)itemIndex + 0x300;
+    itemCount = (s64)(s16)(datItemCount(itemId) & 0xFF);
+    if (itemCount != 0) {
+        entryCursor = &((RadarMenu *)menu)->inventory[(s16)entryCount];
+        entryCursor->id = (s16)itemId;
+        entryCursor->count = (s16)itemCount;
+        entryCount += 1;
     }
-    var_18 += 1;
+    candidateIndex += 1;
 loop_test:
-    temp_4 = var_18;
-    if (temp_4 < 0x300) {
+    itemIndex = candidateIndex;
+    if (itemIndex < 0x300) {
         goto loop_body;
     }
-    *(s16 *)(arg0 + 0xC3E) = var_17;
-    if (var_17 <= 0x300) {
+    ((RadarMenu *)menu)->inventoryCount = entryCount;
+    if (entryCount <= 0x300) {
         goto guard_done;
     }
     kAssertFail(D_005E76C8, 0x225);
@@ -571,15 +582,17 @@ guard_done:
 #pragma optimization_level 2
 #pragma opt_loop_invariants off
 #pragma opt_rebuildconditionals on
+/* Advance mode 0 to 1 and report whether the menu is in either wait mode. */
 // FUN_0012E8B0
-s32 titleAdvanceWait(u8 *arg0)
+/* Raw offsets preserve the measured match: RadarMenu access changed codegen (nd 45). */
+s32 titleAdvanceWait(u8 *menu)
 {
-    s32 temp_3;
+    s32 mode;
 
-    temp_3 = *(s32 *)(arg0 + 0x18);
-    switch (temp_3) {
+    mode = *(s32 *)(menu + 0x18);
+    switch (mode) {
     case 0:
-        *(s32 *)(arg0 + 0x18) = temp_3 + 1;
+        *(s32 *)(menu + 0x18) = mode + 1;
         return 1;
     case 1:
         return 1;
@@ -594,35 +607,37 @@ s32 titleAdvanceWait(u8 *arg0)
 #pragma optimization_level 2
 #pragma opt_loop_invariants off
 #pragma opt_rebuildconditionals on
+/* Advance the thirty entry animations, then the scatter, indicator and draw passes. */
 // FUN_0012E900
-s32 radarStepSlotAnimA(u8 *arg0) {
-    s16 temp_2;
-    s32 var_17;
-    s32 var_16;
-    u8 *temp_19;
+/* Raw offsets preserve the measured match: RadarMenu access changed codegen (nd 162). */
+s32 radarStepSlotAnimA(u8 *menu) {
+    s16 frame;
+    s32 slotIndex;
+    s32 settled;
+    u8 *slotCursor;
 
-    var_16 = 1;
-    temp_2 = *(s16 *)(arg0 + 0x1C);
-    if (temp_2 < 0x64) {
-        *(s16 *)(arg0 + 0x1C) = temp_2 + 1;
+    settled = 1;
+    frame = *(s16 *)(menu + 0x1C);
+    if (frame < 0x64) {
+        *(s16 *)(menu + 0x1C) = frame + 1;
     }
-    var_17 = 0;
+    slotIndex = 0;
     goto loop_test_0012e900;
 loop_body_0012e900:
-    temp_19 = arg0 + (var_17 * 0x30);
-    radarAnimateValue(temp_19 + 0x12D8, *(s16 *)(arg0 + 0x1C), 0);
-    if (*(u8 *)(temp_19 + 0x12F2) != 0) {
-        var_16 = 0;
+    slotCursor = menu + (slotIndex * 0x30);
+    radarAnimateValue(slotCursor + 0x12D8, *(s16 *)(menu + 0x1C), 0);
+    if (*(u8 *)(slotCursor + 0x12F2) != 0) {
+        settled = 0;
     }
-    var_17 += 1;
+    slotIndex += 1;
 loop_test_0012e900:
-    if (var_17 < 0x1E) {
+    if (slotIndex < 0x1E) {
         goto loop_body_0012e900;
     }
-    radarStepSlotAnimB(arg0);
-    radarStepPairAnim(arg0);
-    radarDrawPanel(arg0);
-    return var_16;
+    radarStepSlotAnimB(menu);
+    radarStepPairAnim(menu);
+    radarDrawPanel(menu);
+    return settled;
 }
 #pragma pop
 
@@ -631,26 +646,28 @@ loop_test_0012e900:
 #pragma optimization_level 2
 #pragma opt_loop_invariants off
 #pragma opt_rebuildconditionals on
+/* Advance twelve scatter animations and update all 84 grid entries. */
 // FUN_0012FDF0
-void radarStepSlotAnimB(u8 *arg0)
+/* Raw offsets preserve the measured match: RadarMenu access changed codegen (nd 147). */
+void radarStepSlotAnimB(u8 *menu)
 {
-    s16 temp_3;
-    s32 var_16;
-    s32 var_16_2;
-    u8 *temp_2;
+    s16 frame;
+    s32 slotIndex;
+    s32 gridIndex;
+    u8 *slotCursor;
 
-    temp_3 = *(s16 *)(arg0 + 0x1E);
-    if (temp_3 < 0x64) {
-        temp_3 += 1;
-        *(s16 *)(arg0 + 0x1E) = temp_3;
+    frame = *(s16 *)(menu + 0x1E);
+    if (frame < 0x64) {
+        frame += 1;
+        *(s16 *)(menu + 0x1E) = frame;
     }
-    for (var_16 = 0; var_16 < 0xC; var_16++) {
-        temp_2 = arg0 + (var_16 * 0x30);
-        radarAnimateValue(temp_2 + 0x1878, *(s16 *)(arg0 + 0x1E), 0);
+    for (slotIndex = 0; slotIndex < 0xC; slotIndex++) {
+        slotCursor = menu + (slotIndex * 0x30);
+        radarAnimateValue(slotCursor + 0x1878, *(s16 *)(menu + 0x1E), 0);
     }
-    for (var_16_2 = 0; var_16_2 < 0x54; var_16_2++) {
-        temp_2 = arg0 + (var_16_2 * 0x14);
-        datCommunityEntryStep(temp_2 + 0xC48);
+    for (gridIndex = 0; gridIndex < 0x54; gridIndex++) {
+        slotCursor = menu + (gridIndex * 0x14);
+        datCommunityEntryStep(slotCursor + 0xC48);
     }
 }
 #pragma pop
@@ -661,20 +678,21 @@ void radarStepSlotAnimB(u8 *arg0)
 #pragma opt_loop_invariants off
 #pragma opt_rebuildconditionals on
 #pragma opt_common_subs off
+/* Advance the two indicator animations with the shared capped frame counter. */
 // FUN_0012FEB0
-void radarStepPairAnim(u8 *arg0)
+void radarStepPairAnim(u8 *menu)
 {
     s32 i;
     u8 *p;
     s32 v;
 
-    v = *(s16 *)(arg0 + 0x20);
+    v = ((RadarMenu *)menu)->indicatorFrame;
     if (v < 0x64) {
-        *(s16 *)(arg0 + 0x20) = v + 1;
+        ((RadarMenu *)menu)->indicatorFrame = v + 1;
     }
     for (i = 0; i < 2; i++) {
-        p = arg0 + i * 0x30 + 0x1AB8;
-        radarAnimateValue(p, *(s16 *)(arg0 + 0x20), 0);
+        p = menu + i * 0x30 + 0x1AB8;
+        radarAnimateValue(p, ((RadarMenu *)menu)->indicatorFrame, 0);
     }
 }
 #pragma pop
@@ -686,14 +704,16 @@ void radarStepPairAnim(u8 *arg0)
 #pragma opt_rebuildconditionals on
 #pragma opt_common_subs on
 /* The selection is passed as a word; the field stores its low halfword. */
+/* Push one of three selection halfwords into its previous-selection slot. */
 // FUN_0012FF40
-s32 radarPushHistoryValue(s32 arg0, s32 arg1, s32 arg2)
+/* Raw offsets preserve the measured match: RadarMenu selection arrays changed codegen (nd 1). */
+s32 radarPushHistoryValue(s32 menuAddress, s32 selectionIndex, s32 selection)
 {
     u8 *p;
 
-    p = (u8 *)code1_0012_stride(arg1 * 2, arg0);
+    p = (u8 *)code1_0012_stride(selectionIndex * 2, menuAddress);
     *(s16 *)(p + 0x28) = *(s16 *)(p + 0x22);
-    *(s16 *)(p + 0x22) = arg2;
+    *(s16 *)(p + 0x22) = selection;
     return 1;
 }
 #pragma pop
@@ -711,8 +731,10 @@ extern u8 D_005E7320[];
 #pragma opt_loop_invariants off
 #pragma opt_rebuildconditionals on
 #pragma opt_common_subs off
+/* Snapshot thirty entries and apply the layout table, flags and target animation values. */
 // FUN_0012FF60
-s32 titleSetMenuLayout(u8 *arg0, u32 arg1)
+/* Raw offsets preserve the measured match: RadarMenu/RadarSlotTarget access changed codegen (nd 663). */
+s32 titleSetMenuLayout(u8 *menu, u32 layout)
 {
     s32 i;
     s32 j;
@@ -722,69 +744,69 @@ s32 titleSetMenuLayout(u8 *arg0, u32 arg1)
     f32 value;
 
     table = 0;
-    if (arg1 == *(u32 *)(arg0 + 0x30)) {
+    if (layout == *(u32 *)(menu + 0x30)) {
         return 0;
     }
     for (i = 0; i < 30; i++) {
-        dst = arg0 + (i * 0x30);
+        dst = menu + (i * 0x30);
         *(f32 *)(dst + 0x12d8) = *(f32 *)(dst + 0x12e8);
         *(f32 *)(dst + 0x12dc) = *(f32 *)(dst + 0x12ec);
         *(u16 *)(dst + 0x12f4) = *(u16 *)(dst + 0x12f8);
         *(u16 *)(dst + 0x12fa) = *(u16 *)(dst + 0x12fe);
         *(u8 *)(dst + 0x12f0) = *(u8 *)(dst + 0x12f2);
     }
-    switch (arg1) {
+    switch (layout) {
     case 0:
-        *(s32 *)(arg0 + 0x14) = 0x447;
+        *(s32 *)(menu + 0x14) = 0x447;
         table = D_005E5BF0;
-        *(s16 *)(arg0 + 0xc40) = 0x13;
+        *(s16 *)(menu + 0xc40) = 0x13;
         break;
     case 1:
         table = D_005E5F40;
         break;
     case 2:
-        *(s32 *)(arg0 + 0x14) = 0x547;
+        *(s32 *)(menu + 0x14) = 0x547;
         table = D_005E6290;
-        *(s16 *)(arg0 + 0xc40) = 0x13;
+        *(s16 *)(menu + 0xc40) = 0x13;
         break;
     case 3:
-        *(s32 *)(arg0 + 0x14) = 0x447;
+        *(s32 *)(menu + 0x14) = 0x447;
         table = D_005E6290;
-        *(s16 *)(arg0 + 0xc40) = 0x13;
+        *(s16 *)(menu + 0xc40) = 0x13;
         break;
     case 4:
-        *(s32 *)(arg0 + 0x14) = 0x2dd;
+        *(s32 *)(menu + 0x14) = 0x2dd;
         table = D_005E65E0;
-        *(s16 *)(arg0 + 0x2c) = *(s16 *)(arg0 + 0x26);
-        *(s16 *)(arg0 + 0x26) = 0;
-        *(f32 *)(arg0 + 0x145c) = 34.0f * (f32)*(s16 *)(arg0 + 0x22);
-        *(s16 *)(arg0 + 0xc40) = 0;
+        *(s16 *)(menu + 0x2c) = *(s16 *)(menu + 0x26);
+        *(s16 *)(menu + 0x26) = 0;
+        *(f32 *)(menu + 0x145c) = 34.0f * (f32)*(s16 *)(menu + 0x22);
+        *(s16 *)(menu + 0xc40) = 0;
         break;
     case 5:
-        *(s32 *)(arg0 + 0x14) = 0x2ed;
+        *(s32 *)(menu + 0x14) = 0x2ed;
         table = D_005E6C80;
-        *(f32 *)(arg0 + 0x145c) = 34.0f * (f32)*(s16 *)(arg0 + 0x22);
-        *(s16 *)(arg0 + 0xc40) = 0;
+        *(f32 *)(menu + 0x145c) = 34.0f * (f32)*(s16 *)(menu + 0x22);
+        *(s16 *)(menu + 0xc40) = 0;
         break;
     case 6:
-        *(s32 *)(arg0 + 0x14) = 0x29d;
+        *(s32 *)(menu + 0x14) = 0x29d;
         table = D_005E6930;
-        *(s16 *)(arg0 + 0xc40) = 0;
+        *(s16 *)(menu + 0xc40) = 0;
         break;
     case 7:
-        *(s32 *)(arg0 + 0x14) = 0x2ad;
+        *(s32 *)(menu + 0x14) = 0x2ad;
         table = D_005E6FD0;
-        *(s16 *)(arg0 + 0xc40) = 0;
+        *(s16 *)(menu + 0xc40) = 0;
         break;
     case 8:
-        *(s32 *)(arg0 + 0x14) = 0x547;
+        *(s32 *)(menu + 0x14) = 0x547;
         table = D_005E7320;
-        *(s16 *)(arg0 + 0xc40) = 0x14;
+        *(s16 *)(menu + 0xc40) = 0x14;
         break;
     case 9:
-        *(s32 *)(arg0 + 0x14) = 0x547;
+        *(s32 *)(menu + 0x14) = 0x547;
         table = D_005E7320;
-        *(s16 *)(arg0 + 0xc40) = 0x14;
+        *(s16 *)(menu + 0xc40) = 0x14;
         break;
     default:
         kAssertFail(D_005E76C8, 0x4ab);
@@ -797,7 +819,7 @@ s32 titleSetMenuLayout(u8 *arg0, u32 arg1)
     if (table != 0) {
         for (j = 0; j < 30; j++) {
             src = table + (j * 0x1c);
-            dst = arg0 + (j * 0x30);
+            dst = menu + (j * 0x30);
             *(f32 *)(dst + 0x12e0) = *(f32 *)(src + 0);
             *(f32 *)(dst + 0x12e4) = *(f32 *)(src + 4);
             *(u8 *)(dst + 0x12f1) = *(u8 *)(src + 0x10);
@@ -808,8 +830,8 @@ s32 titleSetMenuLayout(u8 *arg0, u32 arg1)
             *(s32 *)(dst + 0x1300) = *(s32 *)(src + 0x14);
             *(s32 *)(dst + 0x1304) = *(s32 *)(src + 0x18);
         }
-        *(u32 *)(arg0 + 0x30) = arg1;
-        *(s16 *)(arg0 + 0x1c) = 0;
+        *(u32 *)(menu + 0x30) = layout;
+        *(s16 *)(menu + 0x1c) = 0;
     }
     return 1;
 }

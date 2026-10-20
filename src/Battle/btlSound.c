@@ -4,39 +4,19 @@
 #include "sdk_snd_internal.h"
 #include "btl_packet_create_internal.h"
 #include "datCalc_unit_internal.h"
-extern u8 *mdlEffectBuildFromResource(u8 *resource);
-extern s32 sdkSndStartStream(s16 index, s16 stream, s16 arg2, s16 arg3);
-extern s32 btlCond_ESCAPE(u8 *arg0, s32 arg1);
+#include "btl_sound_internal.h"
+#include "h_cdvd_request_internal.h"
+extern u8 *mdlEffectBuildFromResource(u8 *effect);
+extern s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
+extern s32 btlCond_ESCAPE(u8 *action, s32 conditionValue);
 
-typedef struct Battle Battle;
-struct Battle
-{
-    u8 _pad00[0xc];
-    u32 flags;
-};
-
-extern Battle* iGpffffb3ac;
+extern BtlBattleState* iGpffffb3ac; /* active battle state */
 extern void sdkSndStopMainChannel(void);
-extern void sdkSndStopChannel(s32 fadeDuration);
+extern void sdkSndStopChannel(s32 fadeFrames);
 
-extern void sdkSndFadeOutChannelFrames(s16 channel, s32 unused, s32 fadeFrames);
+extern void sdkSndFadeOutChannelFrames(s16 channelIndex, s32 requestValue, s32 fadeFrames);
 
-typedef u32 (*BtlPacketFunc)(void* work);
-
-typedef struct BtlPacket BtlPacket;
-struct BtlPacket
-{
-    u8 _pad00[0x47];
-    u8 unk_47;
-    u8 _pad48[0x20];
-    BtlPacketFunc initFunc;
-    BtlPacketFunc updateFunc;
-    BtlPacketFunc destroyFunc;
-    u8 _pad74[4];
-    void* workData;
-};
-
-extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
+extern BtlPacket* btlPacketAlloc(u32 packetType, u32 workSize);
 extern void btlSoundRefreshSlotChannel(void* work);
 extern u32 btlSoundSetSlotChannel(void* work);
 
@@ -65,26 +45,27 @@ extern char sGpffffa4F8[7];
 extern char DAT_00624F40[15];
 extern char D_00624F20[];
 extern char D_00624F30[];
-extern u8 sdkSndStartChannel(s16 channelIndex, const char* name);
+extern u8 sdkSndStartChannel(s16 channelIndex, const char* path);
 extern u8 *D_0076449C;
 
 extern void func_00440b68(const char* fmt, const char* file, s32 line);
 extern void* H_Cdvd_AcquireDirectory(const char* path, s32 flags);
-extern s32 H_Cdvd_IsFileLoaded(void* handle);
-extern void H_Cdvd_Destroy(void* handle);
-extern u8* H_Cdvd_GetArchiveEntry(u8* handle, s32 index, s32* out);
-extern s32 sdkSndQueueSlotRequest(s32 bank, void* file1, u32 size1, void* file2, u32 size2, void* file3, u32 size3);
-extern s32 hsndSlotIsStarting(s32 bank);
+extern s32 H_Cdvd_IsFileLoaded(void* cdvd);
+extern void H_Cdvd_Destroy(void* cdvd);
+extern u8* H_Cdvd_GetArchiveEntry(u8* request, s32 entryIndex, s32* size);
+extern s32 sdkSndQueueSlotRequest(s32 slotIndex, void* input, u32 inputSize, void* intermediate, u32 intermediateSize, void* output, u32 outputSize);
+extern s32 hsndSlotIsStarting(s32 slotIndex);
 
 extern u32 strlen(const char* text);
 extern u32 btlSoundLoadStream(u16* work);
 extern void strcpy(char* destination, const char* source);
 extern u32 btlSoundClearUnitFlag10(void* work);
 extern u32 btlSoundSetUnitFlag10(void* work);
-extern u32 func_001f9750(void* work);
+extern u32 btlVoiceEnablePlaybackPacketUpdate(void* context);
 
 
 
+/* Stop the main battle stream only when the battle-audio flag is enabled. */
 // FUN_001F7530
 void btlSoundStopBgmIfEnabled(void)
 {
@@ -96,6 +77,7 @@ void btlSoundStopBgmIfEnabled(void)
 
 
 
+/* Fade the main battle stream when audio is enabled. */
 // FUN_001F7570
 void btlSoundFadeOutBgm(s16 fadeDuration)
 {
@@ -115,6 +97,7 @@ void btlSoundFadeChannel(s16 channel, s32 fadeFrames)
 
 
 
+/* Allocate a cue packet that refreshes the cached channel before playback. */
 // FUN_001F7C20
 BtlPacket* btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant)
 {
@@ -152,6 +135,7 @@ u32 btlSoundPlayCue(s16* work)
 
 
 
+/* Allocate a cue packet that stops its channel before starting the requested cue. */
 // FUN_001F7D10
 BtlPacket* btlSoundCreateCuePacket(u16 channel, u16 cue, u16 variant)
 {
@@ -170,6 +154,7 @@ BtlPacket* btlSoundCreateCuePacket(u16 channel, u16 cue, u16 variant)
 
 
 
+/* Begin loading the skill sound directory unless the caller requested deferred loading. */
 // FUN_001F7D90
 void btlSoundSkillSEInit(void* work)
 {
@@ -193,6 +178,7 @@ void btlSoundSkillSEInit(void* work)
     packet->timer = 0;
 }
 
+/* Load the skill bank, replace its streams and release the archive once the slot starts. */
 // FUN_001F7E30
 u32 btlSoundSkillSEUpdate(void* work)
 {
@@ -246,6 +232,7 @@ u32 btlSoundSkillSEUpdate(void* work)
     packet->timer++;
     return 0;
 }
+/* Create a skill sound-bank packet and retain its skill ID and loading flags. */
 // FUN_001F8000
 BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags)
 {
@@ -253,7 +240,7 @@ BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags)
     BtlSoundPacketSkillSE* work;
 
     packet = btlPacketAlloc(0x903, sizeof(BtlSoundPacketSkillSE));
-    packet->unk_47 &= ~(1 << 0);
+    packet->flags &= ~(1 << 0);
     packet->initFunc = (BtlPacketFunc)btlSoundSkillSEInit;
     packet->updateFunc = btlSoundSkillSEUpdate;
     work = (BtlSoundPacketSkillSE*)packet->workData;
@@ -264,6 +251,7 @@ BtlPacket* btlSoundCreateSkillSEPacket(u16 skillId, u16 flags)
 
 
 
+/* Play the fixed cue or advance through the available rotating cue channels. */
 // FUN_001F8070
 u32 btlSoundRunCueQueue(u16* work)
 {
@@ -279,20 +267,21 @@ u32 btlSoundRunCueQueue(u16* work)
         break;
     case 1:
         global = D_0076449C;
-        if (*(s8*)(global + 0xaca) == -1)
+        if (((BtlSoundQueue *)(global + 0xAC8))->frame == -1)
         {
-            channel = *(u16*)(global + 0xac8);
+            channel = ((BtlSoundQueue *)(global + 0xAC8))->channel;
             sdkSndStartStream(2, channel, 0, (s16)state);
-            D_0076449C[0xaca] = 0;
-            if ((*(u16*)(D_0076449C + 0xac8) += 1) >= 9)
+            ((BtlSoundQueue *)(D_0076449C + 0xAC8))->frame = 0;
+            if ((((BtlSoundQueue *)(D_0076449C + 0xAC8))->channel += 1) >= 9)
             {
-                *(u16*)(D_0076449C + 0xac8) = 5;
+                ((BtlSoundQueue *)(D_0076449C + 0xAC8))->channel = 5;
             }
         }
         break;
     }
     return 1;
 }
+/* Create the two-byte work packet that dispatches a queued cue. */
 // FUN_001F8140
 BtlPacket* btlSoundCreateCueQueuePacket(u16 state)
 {
@@ -306,18 +295,20 @@ BtlPacket* btlSoundCreateCueQueuePacket(u16 state)
 
 
 
+/* Format the stream path from the packet name and start its channel. */
 // FUN_001F8190
 u32 btlSoundLoadStream(u16* work)
 {
     char path[512];
 
-    sprintf(path, sGpffffa500, DAT_00624F40, *(u32*)(work + 2));
+    sprintf(path, sGpffffa500, DAT_00624F40, *(u32 *)&((BtlSoundStreamWork *)work)->name);
     sdkSndStartChannel((s16)*work, path);
     return 1;
 }
 
 
 
+/* Create a stream packet with an owned, trailing copy of its name. */
 // FUN_001F81F0
 BtlPacket* btlSoundCreateStreamPacket(u16 channel, const char* streamName)
 {
@@ -330,25 +321,27 @@ BtlPacket* btlSoundCreateStreamPacket(u16 channel, const char* streamName)
     packet->updateFunc = (BtlPacketFunc)btlSoundLoadStream;
     work = (u8*)packet->workData;
     *(u16*)work = channel;
-    *(char**)(work + 4) = (char*)(work + 8);
+    ((BtlSoundStreamWork *)work)->name = (char*)(work + 8);
     strcpy((char*)work + 8, streamName);
     return packet;
 }
 
 
 
+/* Clear motion flag 0x10 on units with the motion-state flag set. */
 // FUN_001F8280
 u32 btlSoundClearUnitFlag10(void* work)
 {
     u8* unit;
 
     unit = (u8*)*(struct BtlUnit**)work;
-    if ((*(s32*)(unit + 0x98) & 2) != 0)
+    if ((*(s32 *)&((BtlUnit *)unit)->flags2 & 2) != 0)
     {
-        *(u16*)(unit + 0x9d8) &= (u16)~0x10;
+        ((BtlUnit *)unit)->unk_9d8 &= (u16)~0x10;
     }
     return 1;
 }
+/* Create the packet that clears the unit motion-flag override. */
 // FUN_001F82B0
 BtlPacket* btlSoundCreateUnitFlagClearPacket(struct BtlUnit* unit)
 {
@@ -362,18 +355,20 @@ BtlPacket* btlSoundCreateUnitFlagClearPacket(struct BtlUnit* unit)
 
 
 
+/* Set motion flag 0x10 on units with the motion-state flag set. */
 // FUN_001F8300
 u32 btlSoundSetUnitFlag10(void* work)
 {
     u8* unit;
 
     unit = (u8*)*(struct BtlUnit**)work;
-    if ((*(s32*)(unit + 0x98) & 2) != 0)
+    if ((*(s32 *)&((BtlUnit *)unit)->flags2 & 2) != 0)
     {
-        *(u16*)(unit + 0x9d8) |= 0x10;
+        ((BtlUnit *)unit)->unk_9d8 |= 0x10;
     }
     return 1;
 }
+/* Create the packet that enables the unit motion-flag override. */
 // FUN_001F8330
 BtlPacket* btlSoundCreateUnitFlagSetPacket(struct BtlUnit* unit)
 {
@@ -387,6 +382,7 @@ BtlPacket* btlSoundCreateUnitFlagSetPacket(struct BtlUnit* unit)
 
 
 
+/* Create the zero-initialized wait packet used by the target-state callback. */
 // FUN_001F97B0
 void btlSoundCreateWaitPacket(void)
 {
@@ -394,39 +390,39 @@ void btlSoundCreateWaitPacket(void)
     u32* work;
 
     packet = btlPacketAlloc(0xA00, 8);
-    packet->unk_47 &= ~(1 << 0);
-    packet->updateFunc = func_001f9750;
+    packet->flags &= ~(1 << 0);
+    packet->updateFunc = btlVoiceEnablePlaybackPacketUpdate;
     work = (u32*)packet->workData;
     work[0] = 0;
     work[1] = 0;
 }
 extern s32 btlCdvdLoadPoll(void);
-extern s32 btlSoundLoadPoll(s32 *arg0);
+extern s32 btlSoundLoadPoll(s32 *progress);
 static inline u32 addOffsetFirst(u32 offset, u32 base) {
     return offset + base;
 }
 extern u8 *iGpffffb3b8;
-extern s32 btlSoundLoadPoll(s32 *arg0);
+extern s32 btlSoundLoadPoll(s32 *progress);
 extern s32 btlSoundStopStep(void);
 extern s32 btlSoundReleaseStep(void);
-extern void mdlEffectDestroyWithNodes(s32 arg0);
-extern void mdlEffectUpdateChildren(s32 arg0);
-extern void func_00120f20(s32 arg0);
-extern void memcpy(void *arg0, void *arg1, u32 arg2);
+extern void mdlEffectDestroyWithNodes(s32 effect);
+extern void mdlEffectUpdateChildren(s32 effect);
+extern void taskRecordRequestPrimary(s32 task);
+extern void memcpy(void *input, void *value, u32 option);
 extern void func_001fa490(void);
 extern s32 btlCdvdLoadPoll(void);
-extern s32 btlUnitStatusWindowShow(u8 *arg0, s16 arg1);
-extern s32 btlTaskSlotIsLinked(s32 arg0);
+extern s32 btlUnitStatusWindowShow(u8 *action, s16 slotIndex);
+extern s32 btlTaskSlotIsLinked(s32 slotIndex);
 extern s32 btlTaskSlotIsSet(void);
-extern s32 taskRecordIsDone(s32 arg0);
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceB(u8 *arg0);
+extern s32 taskRecordIsDone(s32 task);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *action);
+extern s32 btlSoundPickStatusTalkVoiceB(u8 *action);
 extern void btlSoundAdvanceSlotQueue(void);
-extern s32 btlSoundPickPartnerCallVoice(u8 *arg0, s32 arg1);
-extern s32 btlSoundPickPartnerReplyVoice(u8 *arg0, s32 arg1);
-extern s32 btlSoundPickPartnerAssistVoice(u8 *arg0, s32 arg1);
-extern s32 btlSoundPickRandomPartnerVoice(u8 *arg0);
-extern s32 btlVoiceIdPacketUpdate(u8 *arg0);
+extern s32 btlSoundPickPartnerCallVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickPartnerReplyVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickPartnerAssistVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickRandomPartnerVoice(u8 *action);
+extern s32 btlVoiceIdPacketUpdate(u8 *context);
 #pragma push
 #pragma pop
 /* measured: retail materialises this loop's invariant in the preheader; plain
@@ -460,22 +456,22 @@ s32 btlCdvdLoadPoll(void)
     u8 *flag_ptr;
 
     base = (u8 *)iGpffffb3ac;
-    if (*(u16 *)(base + 0xB7C) == 5) {
-        return taskRecordIsDone(*(s32 *)(base + 0xB88));
+    if (((BtlBattleState *)base)->cutinNameKind == 5) {
+        return taskRecordIsDone(((BtlBattleState *)base)->cutinNameTask);
     }
-    if (H_Cdvd_IsFileLoaded(*(u8 **)(base + 0xB84)) != 0) {
+    if (H_Cdvd_IsFileLoaded(((BtlBattleState *)base)->cutinNameHandle) != 0) {
         base = (u8 *)iGpffffb3ac;
         flag_ptr = base + 0xB4C;
         flags = *(s32 *)flag_ptr;
         if ((flags & 2) == 0) {
-            work = *(u8 **)(base + 0xB84);
-            *(u8 **)((u8 *)iGpffffb3ac + 0xB80) =
-                mdlEffectBuildFromResource(*(u8 **)(work + 0x110));
+            work = ((BtlBattleState *)base)->cutinNameHandle;
+            *(u8 **)&((BtlSoundNameState *)((u8 *)iGpffffb3ac + 0xB7C))->effect =
+                mdlEffectBuildFromResource(*(u8 **)&((HCdvdRequest *)work)->data);
         } else {
             *(s32 *)flag_ptr = flags & ~2;
         }
-        H_Cdvd_Destroy(*(u8 **)((u8 *)iGpffffb3ac + 0xB84));
-        *(u8 **)((u8 *)iGpffffb3ac + 0xB84) = NULL;
+        H_Cdvd_Destroy(((BtlBattleState *)(u8 *)iGpffffb3ac)->cutinNameHandle);
+        ((BtlBattleState *)(u8 *)iGpffffb3ac)->cutinNameHandle = NULL;
         return 1;
     }
     return 0;
@@ -484,150 +480,157 @@ s32 btlCdvdLoadPoll(void)
 
 #pragma push
 #pragma pop
+/* Create a load packet containing the caller-supplied ten-byte request. */
 // FUN_001FA720
-u8 *btlSoundLoadPacketNew(const void *arg0) {
-    u8 *temp_2;
+u8 *btlSoundLoadPacketNew(const void *request) {
+    u8 *packetBytes;
 
-    temp_2 = (u8 *)btlPacketAlloc(0xC04, 0xA);
-    temp_2[0x47] &= 0xEE;
-    *(void **)(temp_2 + 0x68) = (void *)func_001fa490;
-    *(void **)(temp_2 + 0x6C) = (void *)btlCdvdLoadPoll;
-    memcpy(*(s32 **)(temp_2 + 0x78), (void *)arg0, 0xA);
-    return temp_2;
+    packetBytes = (u8 *)btlPacketAlloc(0xC04, 0xA);
+    ((BtlPacket *)packetBytes)->flags &= 0xEE;
+    *(void **)&((BtlPacket *)packetBytes)->initFunc = (void *)func_001fa490;
+    *(void **)&((BtlPacket *)packetBytes)->updateFunc = (void *)btlCdvdLoadPoll;
+    memcpy(*(s32 **)&((BtlPacket *)packetBytes)->workData, (void *)request, 0xA);
+    return packetBytes;
 }
 
 
 /* Steps the sound load at +0xB80 with the progress counter arg0. While the load runs it starts the stream on the first step and loads the table at D_005DC8CC, returning 0. When the load finishes it releases the resource and returns 1. */
 // FUN_001FA7A0
-s32 btlSoundLoadPoll(s32 *arg0)
+s32 btlSoundLoadPoll(s32 *progress)
 {
-    extern void func_00120f00(s32 arg0);
-    extern s32 mdlEffectIsFinished(s32 arg0);
+    extern void taskRecordRequestSecondary(s32 task);
+    extern s32 mdlEffectIsFinished(s32 effect);
     extern s32 TnGetTableBase(void);
-    extern void TnSetTableBase(void *arg0);
-    extern void func_00485630(s32 arg0);
-    extern void func_00485870(u8 *arg0);
-    extern void mdlEffectDestroyWithNodes(s32 arg0);
+    extern void TnSetTableBase(void *table);
+    extern void mdlEffectCommitTreeFrame(s32 effect);
+    extern void mdlEffectFlushTreeFrame(u8 *effect);
+    extern void mdlEffectDestroyWithNodes(s32 effect);
     extern u8 D_005DC8CC[];
-    void *temp_17;
-    s32 temp_4_2;
-    s32 temp_4_3;
-    u8 *temp_4;
+    void *savedTable;
+    s32 task;
+    s32 effect;
+    u8 *battle;
 
-    temp_4 = (u8 *)iGpffffb3ac;
-    if (*(u16 *)(temp_4 + 0xB7C) == 5) {
-        temp_4_2 = *(s32 *)(temp_4 + 0xB88);
-        if (temp_4_2 == 0) {
+    battle = (u8 *)iGpffffb3ac;
+    if (((BtlBattleState *)battle)->cutinNameKind == 5) {
+        task = ((BtlBattleState *)battle)->cutinNameTask;
+        if (task == 0) {
             return 1;
         }
-        if (*arg0 == 0) {
-            func_00120f00(temp_4_2);
+        if (*progress == 0) {
+            taskRecordRequestSecondary(task);
         }
         goto block_12;
     }
-    temp_4_3 = *(s32 *)(temp_4 + 0xB80);
-    if (temp_4_3 == 0) {
+    effect = ((BtlSoundNameState *)(battle + 0xB7C))->effect;
+    if (effect == 0) {
         return 1;
     }
-    if (mdlEffectIsFinished(temp_4_3) == 0) {
-        if (*arg0 == 0) {
+    if (mdlEffectIsFinished(effect) == 0) {
+        if (*progress == 0) {
             sdkSndStartStream(1, 0xE, 2, 0x10);
         }
-        temp_17 = (void *)TnGetTableBase();
+        savedTable = (void *)TnGetTableBase();
         TnSetTableBase(&D_005DC8CC);
-        func_00485630(*(s32 *)((u8 *)iGpffffb3ac + 0xB80));
-        func_00485870((u8 *)*(s32 *)((u8 *)iGpffffb3ac + 0xB80));
-        TnSetTableBase(temp_17);
-        *arg0 += 1;
+        mdlEffectCommitTreeFrame(((BtlSoundNameState *)((u8 *)iGpffffb3ac + 0xB7C))->effect);
+        mdlEffectFlushTreeFrame((u8 *)((BtlSoundNameState *)((u8 *)iGpffffb3ac + 0xB7C))->effect);
+        TnSetTableBase(savedTable);
+        *progress += 1;
         goto block_12;
     }
-    mdlEffectDestroyWithNodes(*(s32 *)((u8 *)iGpffffb3ac + 0xB80));
-    *(s32 *)((u8 *)iGpffffb3ac + 0xB80) = 0;
+    mdlEffectDestroyWithNodes(((BtlSoundNameState *)((u8 *)iGpffffb3ac + 0xB7C))->effect);
+    ((BtlSoundNameState *)((u8 *)iGpffffb3ac + 0xB7C))->effect = 0;
     return 1;
 block_12:
         return 0;
 }
 
 
+/* Create a polling packet with a zeroed sound-load progress counter. */
 // FUN_001FA8F0
 void btlSoundLoadTaskStart(void) {
-    u8 *temp_2;
+    u8 *packetBytes;
 
-    temp_2 = (u8 *)btlPacketAlloc(0xC05, 4);
-    temp_2[0x47] &= 0xEE;
-    *(void **)(temp_2 + 0x6C) = (void *)btlSoundLoadPoll;
-    *(s32 **)(*(u8 **)(temp_2 + 0x78)) = NULL;
+    packetBytes = (u8 *)btlPacketAlloc(0xC05, 4);
+    ((BtlPacket *)packetBytes)->flags &= 0xEE;
+    *(void **)&((BtlPacket *)packetBytes)->updateFunc = (void *)btlSoundLoadPoll;
+    /* The typed packet payload is one progress word; this dereference is not an object-offset access. */
+    *(s32 *)((BtlPacket *)packetBytes)->workData = 0;
 }
 
 
+/* Cancel an outstanding cut-in name load or destroy its live effect and task. */
 // FUN_001FA940
 s32 btlSoundStopStep(void) {
-    s32 temp_4;
-    s32 temp_4_2;
-    u8 *temp_3;
+    s32 effect;
+    s32 task;
+    u8 *battle;
 
-    temp_3 = D_0076449C;
-    if (*(s32 *)(temp_3 + 0xB84) != 0) {
-        *(s32 *)(temp_3 + 0xB4C) |= 2;
+    battle = D_0076449C;
+    if (*(s32 *)&((BtlBattleState *)battle)->cutinNameHandle != 0) {
+        *(s32 *)&((BtlBattleState *)battle)->cutinFlags |= 2;
     } else {
-        temp_4 = *(s32 *)(temp_3 + 0xB80);
-        if (temp_4 != 0) {
-            mdlEffectDestroyWithNodes(temp_4);
-            *(s32 *)(D_0076449C + 0xB80) = 0;
+        effect = ((BtlSoundNameState *)(battle + 0xB7C))->effect;
+        if (effect != 0) {
+            mdlEffectDestroyWithNodes(effect);
+            ((BtlSoundNameState *)(D_0076449C + 0xB7C))->effect = 0;
         }
     }
-    temp_4_2 = *(s32 *)(D_0076449C + 0xB88);
-    if (temp_4_2 != 0) {
-        func_00120f20(temp_4_2);
-        *(s32 *)(D_0076449C + 0xB88) = 0;
+    task = ((BtlBattleState *)D_0076449C)->cutinNameTask;
+    if (task != 0) {
+        taskRecordRequestPrimary(task);
+        ((BtlBattleState *)D_0076449C)->cutinNameTask = 0;
     }
     return 1;
 }
 
 
+/* Create the packet that stops pending cut-in sound-name work. */
 // FUN_001FA9C0
 void btlSoundStopTaskStart(void) {
-    u8 *temp_2;
+    u8 *packetBytes;
 
-    temp_2 = (u8 *)btlPacketAlloc(0xC06, 0);
-    temp_2[0x47] &= 0xEE;
-    *(void **)(temp_2 + 0x6C) = (void *)btlSoundStopStep;
+    packetBytes = (u8 *)btlPacketAlloc(0xC06, 0);
+    ((BtlPacket *)packetBytes)->flags &= 0xEE;
+    *(void **)&((BtlPacket *)packetBytes)->updateFunc = (void *)btlSoundStopStep;
 }
 
 
+/* Update the cut-in name effect and release any outstanding name task. */
 // FUN_001FAA00
 s32 btlSoundReleaseStep(void) {
-    s32 temp_4;
-    s32 temp_4_2;
+    s32 effect;
+    s32 task;
 
-    temp_4 = *(s32 *)(D_0076449C + 0xB80);
-    if (temp_4 != 0) {
-        mdlEffectUpdateChildren(temp_4);
+    effect = ((BtlSoundNameState *)(D_0076449C + 0xB7C))->effect;
+    if (effect != 0) {
+        mdlEffectUpdateChildren(effect);
     }
-    temp_4_2 = *(s32 *)(D_0076449C + 0xB88);
-    if (temp_4_2 != 0) {
-        func_00120f20(temp_4_2);
-        *(s32 *)(D_0076449C + 0xB88) = 0;
+    task = ((BtlBattleState *)D_0076449C)->cutinNameTask;
+    if (task != 0) {
+        taskRecordRequestPrimary(task);
+        ((BtlBattleState *)D_0076449C)->cutinNameTask = 0;
     }
     return 1;
 }
 
 
+/* Create the packet that releases cut-in name work. */
 // FUN_001FAA60
 void btlSoundReleaseTaskStart(void) {
-    u8 *temp_2;
+    u8 *packetBytes;
 
-    temp_2 = (u8 *)btlPacketAlloc(0xC07, 0);
-    temp_2[0x47] &= 0xEE;
-    *(void **)(temp_2 + 0x6C) = (void *)btlSoundReleaseStep;
+    packetBytes = (u8 *)btlPacketAlloc(0xC07, 0);
+    ((BtlPacket *)packetBytes)->flags &= 0xEE;
+    *(void **)&((BtlPacket *)packetBytes)->updateFunc = (void *)btlSoundReleaseStep;
 }
 
 
 /* Shows the battle status window for slot 0 when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FAAA0
-s32 btlStatusWindowShowSlot0(u8 *arg0) {
-    if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
-        return btlUnitStatusWindowShow(arg0, 0);
+s32 btlStatusWindowShowSlot0(u8 *unit) {
+    if (*(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->flags & 0x200000) {
+        return btlUnitStatusWindowShow(unit, 0);
     }
     return 0;
 }
@@ -636,7 +639,7 @@ s32 btlStatusWindowShowSlot0(u8 *arg0) {
 /* Returns whether task slot 0 is linked when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FAAF0
 s32 btlTaskSlotLinkedSlot0(void) {
-    if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
+    if (*(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->flags & 0x200000) {
         return btlTaskSlotIsLinked(0);
     }
     return 0;
@@ -645,9 +648,9 @@ s32 btlTaskSlotLinkedSlot0(void) {
 
 /* Shows the battle status window for slot 1 when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FAB40
-s32 btlStatusWindowShowSlot1(u8 *arg0) {
-    if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
-        return btlUnitStatusWindowShow(arg0, 1);
+s32 btlStatusWindowShowSlot1(u8 *unit) {
+    if (*(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->flags & 0x200000) {
+        return btlUnitStatusWindowShow(unit, 1);
     }
     return 0;
 }
@@ -656,7 +659,7 @@ s32 btlStatusWindowShowSlot1(u8 *arg0) {
 /* Returns whether task slot 1 is linked when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FAB90
 s32 btlTaskSlotLinkedSlot1(void) {
-    if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
+    if (*(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->flags & 0x200000) {
         return btlTaskSlotIsLinked(1);
     }
     return 0;
@@ -665,9 +668,9 @@ s32 btlTaskSlotLinkedSlot1(void) {
 
 /* Shows the battle status window for slot 2 when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FABE0
-s32 btlStatusWindowShowSlot2(u8 *arg0) {
-    if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
-        return btlUnitStatusWindowShow(arg0, 2);
+s32 btlStatusWindowShowSlot2(u8 *unit) {
+    if (*(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->flags & 0x200000) {
+        return btlUnitStatusWindowShow(unit, 2);
     }
     return 0;
 }
@@ -676,7 +679,7 @@ s32 btlStatusWindowShowSlot2(u8 *arg0) {
 /* Returns whether task slot 2 is linked when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FAC30
 s32 btlTaskSlotLinkedSlot2(void) {
-    if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
+    if (*(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->flags & 0x200000) {
         return btlTaskSlotIsLinked(2);
     }
     return 0;
@@ -685,23 +688,23 @@ s32 btlTaskSlotLinkedSlot2(void) {
 
 /* Slot 3 status window: when the flag is set and no task slot is set, runs the callback at +0xB40 once and returns 1; otherwise shows the window for slot 3. */
 // FUN_001FAC80
-s32 btlStatusWindowShowSlot3Callback(u8 *arg0)
+s32 btlStatusWindowShowSlot3Callback(u8 *unit)
 {
     u8 *base;
 
     base = (u8 *)iGpffffb3ac;
-    if ((*(s32 *)(base + 0xC) & 0x200000) == 0) {
+    if ((*(s32 *)&((BtlBattleState *)base)->flags & 0x200000) == 0) {
         goto return_zero;
     }
     if (btlTaskSlotIsSet() == 0) {
         base = (u8 *)iGpffffb3ac;
-        if (*(s32 *)(base + 0xB40) != 0) {
-            ((void (*)(void *))(*(void **)(base + 0xB40)))(
-                *(void **)(base + 0xB48));
+        if (((BtlSoundEncounterSequence *)(base + 0xB40))->start != 0) {
+            ((void (*)(void *))(*(void **)&((BtlSoundEncounterSequence *)(base + 0xB40))->start))(
+                *(void **)&((BtlSoundEncounterSequence *)(base + 0xB40))->argument);
             return 1;
         }
     }
-    return btlUnitStatusWindowShow(arg0, 3);
+    return btlUnitStatusWindowShow(unit, 3);
 return_zero:
     return 0;
 }
@@ -716,16 +719,16 @@ s32 btlTaskSlotLinkedSlot3Callback(void)
     u8 *base;
 
     result = 0;
-    if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
+    if (*(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->flags & 0x200000) {
         if (btlTaskSlotIsSet() == 0) {
             base = (u8 *)iGpffffb3ac;
-            callback = *(s32 (**)(s32))(base + 0xB44);
+            callback = *(s32 (**)(s32))&((BtlSoundEncounterSequence *)(base + 0xB40))->update;
             if (callback != NULL) {
-                result = callback(*(s32 *)(base + 0xB48));
+                result = callback(((BtlSoundEncounterSequence *)(base + 0xB40))->argument);
                 if (result == 0) {
-                    *(s32 *)((u8 *)iGpffffb3ac + 0xB40) = 0;
-                    *(s32 *)((u8 *)iGpffffb3ac + 0xB44) = 0;
-                    *(s32 *)((u8 *)iGpffffb3ac + 0xB48) = 0;
+                    ((BtlSoundEncounterSequence *)((u8 *)iGpffffb3ac + 0xB40))->start = 0;
+                    ((BtlSoundEncounterSequence *)((u8 *)iGpffffb3ac + 0xB40))->update = 0;
+                    ((BtlSoundEncounterSequence *)((u8 *)iGpffffb3ac + 0xB40))->argument = 0;
                 }
             }
         }
@@ -739,9 +742,9 @@ s32 btlTaskSlotLinkedSlot3Callback(void)
 
 /* Shows the battle status window for slot 4 when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FADC0
-s32 btlStatusWindowShowSlot4(u8 *arg0) {
-    if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
-        return btlUnitStatusWindowShow(arg0, 4);
+s32 btlStatusWindowShowSlot4(u8 *unit) {
+    if (*(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->flags & 0x200000) {
+        return btlUnitStatusWindowShow(unit, 4);
     }
     return 0;
 }
@@ -750,50 +753,51 @@ s32 btlStatusWindowShowSlot4(u8 *arg0) {
 /* Returns whether task slot 4 is linked when the flag 0x200000 at +0x0C is set; returns 0 otherwise. */
 // FUN_001FAE10
 s32 btlTaskSlotLinkedSlot4(void) {
-    if (*(s32 *)((u8 *)iGpffffb3ac + 0xC) & 0x200000) {
+    if (*(s32 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->flags & 0x200000) {
         return btlTaskSlotIsLinked(4);
     }
     return 0;
 }
 
 
+/* Store the encounter sequence callbacks and their shared argument. */
 // FUN_001FAE60
-void btlEncounterSetSequence(s32 arg0, s32 arg1, s32 arg2)
+void btlEncounterSetSequence(s32 start, s32 update, s32 argument)
 {
-    *(s32 *)(D_0076449C + 0xB40) = arg0;
-    *(s32 *)(D_0076449C + 0xB44) = arg1;
-    *(s32 *)(D_0076449C + 0xB48) = arg2;
+    ((BtlSoundEncounterSequence *)(D_0076449C + 0xB40))->start = start;
+    ((BtlSoundEncounterSequence *)(D_0076449C + 0xB40))->update = update;
+    ((BtlSoundEncounterSequence *)(D_0076449C + 0xB40))->argument = argument;
 }
 
 
+/* Check escape skill targets and return the corresponding failure condition. */
 // FUN_001FAE80
-s32 btlActionEscapeCondition(u8 *arg0, s32 arg1)
+s32 btlActionEscapeCondition(u8 *action, s32 skillId)
 {
-    extern void btlEffectCollectTargetUnits(u8 *arg0, u8 *arg1, u8 arg2, u8 arg3,
-                              u32 arg4);
-    u8 sp30[0x38];
-    s32 temp_16;
-    u8 *temp_3;
+    extern void btlEffectCollectTargetUnits(u8 *action, u8 *selection, u8 sideFlags, u8 filterFlags,
+                              u32 statusMask);
+    u8 targetBuffer[0x38];
+    s32 skillOffset;
+    u8 *skill;
 
-    if (arg1 <= 0) {
+    if (skillId <= 0) {
         return 0;
     }
-    temp_16 = arg1 * 0x28;
-    temp_3 = (u8 *)((u32)iGpffffb3b8 + temp_16);
-    if ((*(u8 *)temp_3 & 8) == 0) {
+    skillOffset = skillId * 0x28;
+    skill = (u8 *)((u32)iGpffffb3b8 + skillOffset);
+    if ((((BtlSoundSkill *)skill)->flags & 8) == 0) {
         return 0;
     }
-    btlEffectCollectTargetUnits(arg0, sp30,
-                   *(u8 *)(temp_3 + 9),
-                   *(u8 *)(temp_3 + 0xA),
-                   *(u16 *)(temp_3 + 0xC));
-    if (*(u16 *)(sp30 + 0x38) == 0) {
+    btlEffectCollectTargetUnits(action, targetBuffer,
+                   ((BtlSoundSkill *)skill)->targetGroup,
+                   ((BtlSoundSkill *)skill)->targetMode,
+                   ((BtlSoundSkill *)skill)->targetFlags);
+    if (((BtlTargetSelection *)targetBuffer)->count == 0) {
         return 2;
     }
-    switch (*(u8 *)((u8 *)addOffsetFirst((u32)temp_16,
-                                         (u32)iGpffffb3b8) + 0x24)) {
+    switch (((BtlSoundSkill *)((u8 *)addOffsetFirst((u32)skillOffset, (u32)iGpffffb3b8)))->condition) {
     case 2:
-        if (btlCond_ESCAPE(arg0, 0) == 0) {
+        if (btlCond_ESCAPE(action, 0) == 0) {
             return 6;
         }
         break;
@@ -804,91 +808,94 @@ s32 btlActionEscapeCondition(u8 *arg0, s32 arg1)
 }
 
 
+/* Reject a buff when every selected target already has its effects or disallows the skill. */
 // FUN_001FAF70
-s32 btlActionBuffCondition(u8 *arg0, s32 arg1, s32 arg2)
+s32 btlActionBuffCondition(u8 *action, s32 skillId, s32 targetMode)
 {
-    extern s32 datCalcSkillEffectFlags(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3);
-    s32 temp_18;
-    u32 var_21;
-    u32 var_20;
-    s32 temp_19;
-    s32 temp_2;
-    s32 var_2;
-    u32 var_18;
-    u8 *temp_3;
+    extern s32 datCalcSkillEffectFlags(s32 skillId, u8 *source, u8 *target, s32 options);
+    s32 effectMask;
+    u32 bitIndex;
+    u32 targetIndex;
+    s32 effectBit;
+    s32 result;
+    s32 condition;
+    u32 targetCursor;
+    u8 *skill;
 
-    if (arg1 <= 0) {
+    if (skillId <= 0) {
         return 0;
     }
-    temp_3 = iGpffffb3b8 + (arg1 * 0x28);
-    if (!( *(u8 *)(temp_3 + 0) & 8)) {
+    skill = iGpffffb3b8 + (skillId * 0x28);
+    if (!( ((BtlSoundSkill *)skill)->flags & 8)) {
         return 0;
     }
-    temp_18 = *(s32 *)(temp_3 + 0x20);
-    if ((temp_18 & 0x7F7FFFFF) && !(temp_18 & 0x80800000)) {
-        var_21 = 0;
+    effectMask = ((BtlSoundSkill *)skill)->effectFlags;
+    if ((effectMask & 0x7F7FFFFF) && !(effectMask & 0x80800000)) {
+        bitIndex = 0;
         goto loop_outer_test;
 loop_outer_body:
-        temp_19 = 1 << var_21;
-        if (temp_18 & temp_19) {
-            var_20 = 0;
+        effectBit = 1 << bitIndex;
+        if (effectMask & effectBit) {
+            targetIndex = 0;
             goto loop_inner_test;
 loop_inner_body:
             if (datCalcHasBuffMask(
-                    *(DatUnit **)(*(u8 **)(*(u8 **)(arg0 + (var_20 * 4) + 0x38) +
+                    /* measured: typed target-list links change offset-first address operands at these retained sites. */
+                    *(DatUnit **)(*(u8 **)(*(u8 **)(action + (targetIndex * 4) + 0x38) +
                                       0x30) + 0xA64),
-                    temp_19) != 0) {
-                var_20 += 1;
+                    effectBit) != 0) {
+                targetIndex += 1;
                 goto loop_inner_test;
             } else {
                 goto loop_inner_exit;
             }
 loop_inner_test:
-            if (var_20 < *(u16 *)(arg0 + 0x6A)) {
+            /* measured: typed loop-bound reloads alter allocation across the target calls; the final count comparisons are typed. */
+            if (targetIndex < *(u16 *)(action + 0x6A)) {
                 goto loop_inner_body;
             }
 loop_inner_exit:
-            if (var_20 != *(u16 *)(arg0 + 0x6A)) {
+            if (targetIndex != ((BtlAction *)action)->unk_6a) {
                 goto loop_outer_after;
             }
         }
 loop_outer_increment:
-        var_21 += 1;
+        bitIndex += 1;
 loop_outer_test:
-        if (var_21 < 0x20U) {
+        if (bitIndex < 0x20U) {
             goto loop_outer_body;
         }
 loop_outer_after:
-        if (var_21 == 0x20) {
-            if (temp_18 & 0x3000) {
-                var_2 = 5;
+        if (bitIndex == 0x20) {
+            if (effectMask & 0x3000) {
+                condition = 5;
             } else {
-                var_2 = 3;
+                condition = 3;
             }
-            return var_2;
+            return condition;
         }
     }
-    var_18 = 0;
+    targetCursor = 0;
     goto loop_24_test;
 loop_24_body:
-    temp_2 = datCalcSkillEffectFlags(
-        arg1 & 0xFFFF,
-        (u8 *)*(s32 *)(*(u8 **)(arg0 + 0x30) + 0xA64),
-        (u8 *)*(s32 *)(*(u8 **)(*(u8 **)(arg0 + (var_18 * 4) + 0x38) +
+    result = datCalcSkillEffectFlags(
+        skillId & 0xFFFF,
+        (u8 *)*(s32 *)&((BtlUnit *)*(u8 **)&((BtlAction *)action)->unit)->datUnit,
+        (u8 *)*(s32 *)(*(u8 **)(*(u8 **)(action + (targetCursor * 4) + 0x38) +
                             0x30) + 0xA64),
-        arg2);
-    if (temp_2 != 0 && temp_2 != 0xFFFF) {
-        var_18 += 1;
+        targetMode);
+    if (result != 0 && result != 0xFFFF) {
+        targetCursor += 1;
         goto loop_24_test;
     } else {
         goto loop_24_exit;
     }
 loop_24_test:
-    if (var_18 < *(u16 *)(arg0 + 0x6A)) {
+    if (targetCursor < *(u16 *)(action + 0x6A)) {
         goto loop_24_body;
     }
 loop_24_exit:
-    if (var_18 == *(u16 *)(arg0 + 0x6A)) {
+    if (targetCursor == ((BtlAction *)action)->unk_6a) {
         return 4;
     }
     return 0;
@@ -897,11 +904,11 @@ loop_24_exit:
 
 // Maps a condition code from btlActionEscapeCondition (0, 2, 6), btlActionBuffCondition or btlBuffMaskCheck* (0, 3, 7) to its battle message id: 2 -> 0x8A, 3 -> 0x8B, 4 -> 0x8C, 5 -> 0x8D, 6 -> 0x8E, 7 -> 0x98, anything else -> 0 (no message).
 // FUN_001FB170
-s32 btlConditionMessageId(s32 arg0) {
-    u32 temp_2;
+s32 btlConditionMessageId(s32 condition) {
+    u32 code;
 
-    temp_2 = arg0 & 0xFFFF;
-    switch (temp_2) {
+    code = condition & 0xFFFF;
+    switch (code) {
     case 2:
         return 0x8A;
     case 3:
@@ -920,64 +927,67 @@ s32 btlConditionMessageId(s32 arg0) {
 }
 
 
+/* Check whether all selected targets already carry every requested buff bit. */
 // FUN_001FB1F0
-s32 btlBuffMaskCheckEntries(u8 *arg0, s32 arg1)
+s32 btlBuffMaskCheckEntries(u8 *action, s32 skillId)
 {
-    s32 temp_16;
-    u32 var_19;
-    u32 var_18;
-    s32 temp_17;
-    s32 var_2;
-    u8 *temp_3;
+    s32 effectMask;
+    u32 bitIndex;
+    u32 targetIndex;
+    s32 effectBit;
+    s32 condition;
+    u8 *skill;
 
-    if (arg1 <= 0) {
+    if (skillId <= 0) {
         return 0;
     }
-    temp_3 = iGpffffb3b8 + (arg1 * 0x28);
-    if (!(*(u8 *)(temp_3 + 0) & 8)) {
+    skill = iGpffffb3b8 + (skillId * 0x28);
+    if (!(((BtlSoundSkill *)skill)->flags & 8)) {
         return 0;
     }
-    temp_16 = *(s32 *)(temp_3 + 0x20);
-    if ((temp_16 & 0x7F7FFFFF) && !(temp_16 & 0x80800000)) {
-        var_19 = 0;
+    effectMask = ((BtlSoundSkill *)skill)->effectFlags;
+    if ((effectMask & 0x7F7FFFFF) && !(effectMask & 0x80800000)) {
+        bitIndex = 0;
         goto loop_outer_test;
 loop_outer_body:
-        temp_17 = 1 << var_19;
-        if (temp_16 & temp_17) {
-            var_18 = 0;
+        effectBit = 1 << bitIndex;
+        if (effectMask & effectBit) {
+            targetIndex = 0;
             goto loop_inner_test;
 loop_inner_body:
             if (datCalcHasBuffMask(
-                *(DatUnit **)(*(u8 **)(*(u8 **)(arg0 + (var_18 * 4) + 0x38) + 0x30) + 0xA64),
-                temp_17) != 0) {
-                var_18 += 1;
+                /* measured: typed target-list links change offset-first address operands at these retained sites. */
+                *(DatUnit **)(*(u8 **)(*(u8 **)(action + (targetIndex * 4) + 0x38) + 0x30) + 0xA64),
+                effectBit) != 0) {
+                targetIndex += 1;
                 goto loop_inner_test;
             } else {
                 goto loop_inner_exit;
             }
 loop_inner_test:
-            if (var_18 < *(u16 *)(arg0 + 0x6A)) {
+            /* measured: typed loop-bound reloads alter allocation across the target calls; the final count comparisons are typed. */
+            if (targetIndex < *(u16 *)(action + 0x6A)) {
                 goto loop_inner_body;
             }
 loop_inner_exit:
-            if (var_18 != *(u16 *)(arg0 + 0x6A)) {
+            if (targetIndex != ((BtlAction *)action)->unk_6a) {
                 goto loop_outer_after;
             }
         }
 loop_outer_increment:
-        var_19 += 1;
+        bitIndex += 1;
 loop_outer_test:
-        if (var_19 < 0x20U) {
+        if (bitIndex < 0x20U) {
             goto loop_outer_body;
         }
 loop_outer_after:
-        if (var_19 == 0x20) {
-            if (temp_16 & 0x3000) {
-                var_2 = 7;
+        if (bitIndex == 0x20) {
+            if (effectMask & 0x3000) {
+                condition = 7;
             } else {
-                var_2 = 3;
+                condition = 3;
             }
-            return var_2;
+            return condition;
         }
     }
 done:
@@ -986,52 +996,51 @@ done:
 
 
 /* measured: candidate object 284B/window 288B, normalized_diff 1. Committed at nd 1. */
+/* Check whether the acting unit already carries every relevant requested buff bit. */
 // FUN_001FB360
-s32 btlBuffMaskCheckUnit(u8 *arg0, s32 arg1)
+s32 btlBuffMaskCheckUnit(u8 *action, s32 skillId)
 {
-    s32 temp_16;
-    s32 temp_5;
-    s32 var_2;
-    u32 var_17;
-    u8 *temp_3;
+    s32 effectMask;
+    s32 effectBit;
+    s32 condition;
+    u32 bitIndex;
+    u8 *skill;
 
-    if (arg1 <= 0) {
+    if (skillId <= 0) {
         return 0;
     }
-    temp_3 = iGpffffb3b8 + (arg1 * 0x28);
-    if (!(*(u8 *)(temp_3 + 0) & 8)) {
+    skill = iGpffffb3b8 + (skillId * 0x28);
+    if (!(((BtlSoundSkill *)skill)->flags & 8)) {
         return 0;
     }
-    temp_16 = *(s32 *)(temp_3 + 0x20);
-    if ((temp_16 & 0x7C7FFFFF) && !(temp_16 & 0x83800000)) {
-        var_17 = 0;
+    effectMask = ((BtlSoundSkill *)skill)->effectFlags;
+    if ((effectMask & 0x7C7FFFFF) && !(effectMask & 0x83800000)) {
+        bitIndex = 0;
         goto loop_test;
 loop_body:
-        temp_5 = 1 << var_17;
-        if (!(temp_16 & temp_5)) {
+        effectBit = 1 << bitIndex;
+        if (!(effectMask & effectBit)) {
             goto loop_increment;
         }
-        if (datCalcHasBuffMask(*(DatUnit **)(*(u8 **)(arg0 + 0x30) + 0xA64),
-                          temp_5) == 0) {
+        if (datCalcHasBuffMask(((BtlUnit *)*(u8 **)&((BtlAction *)action)->unit)->datUnit,
+                          effectBit) == 0) {
             goto loop_after_call;
         }
 loop_increment:
-        var_17 += 1;
+        bitIndex += 1;
 loop_test:
-        if (var_17 < 0x20U) {
+        if (bitIndex < 0x20U) {
             goto loop_body;
         }
 loop_after_call:
-        if (var_17 == 0x20) {
-            if (temp_16 & 0x3000) {
-                var_2 = 7;
+        if (bitIndex == 0x20) {
+            if (effectMask & 0x3000) {
+                condition = 7;
             } else {
-                var_2 = 3;
+                condition = 3;
             }
-            return var_2;
+            return condition;
         }
     }
     return 0;
 }
-
-

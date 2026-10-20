@@ -3,6 +3,7 @@
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "effect_vu0_internal.h"
+#include "mdl_effect_resource_internal.h"
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 typedef struct RwV3d
@@ -25,16 +26,22 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern void func_003c02e0(u8 *arg0);
-extern void func_003c4220(s32 arg0);
-extern void func_003e9390(s32 arg0);
+/* RenderWare rpworld.h: eight bytes, with the material index after the vertices. */
+typedef struct RpTriangle {
+    u16 vertIndex[3];
+    s16 matIndex;
+} RpTriangle;
+
+extern void func_003c02e0(u8 *source);
+extern void func_003c4220(s32 source);
+extern void func_003e9390(s32 source);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-s32 TnGetOffset1C(s32 arg0);
-extern void PrimAppendNode(s32 arg0, void *arg1);
-extern void func_003c42b0(void *arg0, s32 arg1);
-extern s32 func_003c2150(u8 *arg0, u8 *arg1, s32 arg2);
-extern u8 *func_003c22f0(u8 *arg0);
-extern u8 *GeometryCreateMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+s32 TnGetOffset1C(s32 slotIndex);
+extern void PrimAppendNode(s32 list, void *node);
+extern void func_003c42b0(void *source, s32 texture);
+extern s32 func_003c2150(u8 *source, u8 *texture, s32 output);
+extern u8 *func_003c22f0(u8 *source);
+extern u8 *GeometryCreateMultiPart(s32 partCount, s32 verticesPerPart, s32 trianglesPerPart, s32 flags);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];
 extern u8 D_00713488[];
@@ -60,128 +67,151 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484010-004842d0 */
 
+/* Clone multipart geometry, retaining textures and rebuilding material indices. */
 // FUN_00484010
-u8 *func_00484010(u8 *arg0)
+u8 *mdlEffectCloneMultipartGeometry(u8 *source)
 {
-    u8 *temp_23;
-    u8 *temp_22;
-    s32 var_20;
-    u8 *temp_19;
-    u8 *temp_18;
-    u8 *var_17;
-    u8 *temp_6;
-    s32 var_16;
+    u8 *clone;
+    u8 *materials;
+    s32 partIndex;
+    u8 *sourceGeometry;
+    u8 *cloneGeometry;
+    u8 *triangle;
+    u8 *materialSlot;
+    s32 index;
 
-    temp_23 = GeometryCreateMultiPart(
-        *(u16 *)(arg0 + 0x48),
-        *(u16 *)(arg0 + 8),
-        *(u16 *)(arg0 + 0xA),
-        *(s32 *)(arg0 + 4));
-    temp_22 = *(u8 **)(temp_23 + 0x54);
-    temp_19 = *(u8 **)(*(u8 **)(arg0 + 0x10) + 0x18);
-    temp_18 = *(u8 **)(*(u8 **)(temp_23 + 0x10) + 0x18);
+    clone = GeometryCreateMultiPart(
+        ((MdlEffectMultipartGeometry *)source)->partCount.value,
+        ((MdlEffectMultipartGeometry *)source)->vertexCount,
+        ((MdlEffectMultipartGeometry *)source)->trianglesPerPart,
+        ((MdlEffectMultipartGeometry *)source)->flags);
+    materials = ((MdlEffectMultipartGeometry *)clone)->materials;
+    sourceGeometry = ((MdlEffectGeometryModel *)((MdlEffectMultipartGeometry *)source)->model)->geometry;
+    cloneGeometry = ((MdlEffectGeometryModel *)((MdlEffectMultipartGeometry *)clone)->model)->geometry;
 
-    var_16 = 0;
-    while (var_16 < *(s16 *)(arg0 + 0x48)) {
-        s32 temp_3;
+    index = 0;
+    while (index < *(s16 *)(source + 0x48)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
         u8 *p;
 
-        temp_3 = var_16 * 4;
-        p = *(u8 **)(*(u8 **)(arg0 + 0x54) + temp_3);
+        p = ((u8 **)((MdlEffectMultipartGeometry *)source)->materials)[index];
         if (*(s32 *)p != 0) {
-            func_003c42b0(*(void **)(temp_22 + temp_3), *(s32 *)p);
+            func_003c42b0(((void **)materials)[index], *(s32 *)p);
         }
-        var_16 += 1;
+        index += 1;
     }
 
-    RpGeometryLock((RpGeometry *)temp_19, 1);
+    RpGeometryLock((RpGeometry *)sourceGeometry, 1);
 
     {
         u8 *src;
         u8 *dst;
-        s32 var_3;
+        s32 triangleIndex;
 
-        src = *(u8 **)(temp_19 + 0x2C);
-        dst = *(u8 **)(temp_18 + 0x2C);
-        var_17 = dst;
-        for (var_3 = 0; var_3 < *(s16 *)(arg0 + 0x4C); var_3++) {
-            *(u16 *)dst = *(u16 *)src;
-            *(u16 *)(dst + 2) = *(u16 *)(src + 2);
-            *(u16 *)(dst + 4) = *(u16 *)(src + 4);
+        src = ((MdlEffectGeometryData *)sourceGeometry)->triangles;
+        dst = ((MdlEffectGeometryData *)cloneGeometry)->triangles;
+        triangle = dst;
+        for (triangleIndex = 0; triangleIndex < ((MdlEffectMultipartGeometry *)source)->triangleCount; triangleIndex++) {
+            ((RpTriangle *)dst)->vertIndex[0] = ((RpTriangle *)src)->vertIndex[0];
+            ((RpTriangle *)dst)->vertIndex[1] = ((RpTriangle *)src)->vertIndex[1];
+            ((RpTriangle *)dst)->vertIndex[2] = ((RpTriangle *)src)->vertIndex[2];
             src += 8;
             dst += 8;
         }
     }
 
-    var_20 = 0;
-    while (var_20 < *(s16 *)(arg0 + 0x48)) {
-        var_16 = 0;
-        temp_6 = (u8 *)(temp_22 + var_20 * 4);
-        while (var_16 < *(s16 *)(arg0 + 0xA)) {
-            func_003c2150(temp_18, var_17, *(s32 *)temp_6);
-            var_17 += 8;
-            var_16 += 1;
+    partIndex = 0;
+    while (partIndex < *(s16 *)(source + 0x48)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        index = 0;
+        materialSlot = (u8 *)(materials + partIndex * 4);
+        while (index < *(s16 *)(source + 0xA)) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            func_003c2150(cloneGeometry, triangle, *(s32 *)materialSlot);
+            triangle += 8;
+            index += 1;
         }
-        var_20 += 1;
+        partIndex += 1;
     }
 
-    func_003c22f0(temp_19);
-    return temp_23;
+    func_003c22f0(sourceGeometry);
+    return clone;
 }
 
+/* Release the model, resource and each material before freeing the wrapper. */
 // FUN_004841C0
-void func_004841c0(u8 *arg0)
+void mdlEffectDestroyMultipartGeometry(u8 *source)
 {
-    s32 temp_4;
-    s32 temp_4_2;
-    s32 var_16;
+    s32 model;
+    s32 resource;
+    s32 index;
 
-    temp_4 = *(s32 *)(arg0 + 0x10);
-    if (temp_4 != 0) {
-        func_003c02e0((u8 *)temp_4);
+    model = *(s32 *)&((MdlEffectMultipartGeometry *)source)->model;
+    if (model != 0) {
+        func_003c02e0((u8 *)model);
     }
-    temp_4_2 = *(s32 *)(arg0 + 0xC);
-    if (temp_4_2 != 0) {
-        func_003e9390(temp_4_2);
+    resource = ((MdlEffectMultipartGeometry *)source)->resource;
+    if (resource != 0) {
+        func_003e9390(resource);
     }
-    if (*(s32 *)(arg0 + 0x54) != 0) {
-        var_16 = 0;
+    if (*(s32 *)(source + 0x54) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        index = 0;
         goto loop_004841c0_check;
 loop_004841c0_body:
-        func_003c4220(*(s32 *)(*(u8 **)(arg0 + 0x54) + ((u16)var_16 * 4)));
-        var_16 = (var_16 + 1) & 0xFFFF;
+        func_003c4220(((s32 *)((MdlEffectMultipartGeometry *)source)->materials)[(u16)index]);
+        index = (index + 1) & 0xFFFF;
 loop_004841c0_check:
-        if ((var_16 & 0xFFFF) < *(s16 *)(arg0 + 0x48)) {
+        if ((index & 0xFFFF) < ((MdlEffectMultipartGeometry *)source)->partCount.signedValue) {
             goto loop_004841c0_body;
         }
     }
-    jtbl_008873EC[0](arg0);
+    jtbl_008873EC[0](source);
 }
 
+/* Append the wrapper's embedded link to the stream's primitive list. */
 // FUN_00484280
-void func_00484280(u8 *arg0, s32 arg1)
+void mdlEffectAppendGeometryPrimitive(u8 *source, s32 texture)
 {
-    s32 temp_2;
+    s32 list;
 
-    temp_2 = TnGetOffset1C(arg1);
-    *(s32 *)(arg0 + 0x18) = 0;
-    *(s32 *)(arg0 + 0x1C) = 0;
-    PrimAppendNode(temp_2, arg0 + 0x18);
+    list = TnGetOffset1C(texture);
+    ((MdlEffectMultipartGeometry *)source)->link[0] = 0;
+    ((MdlEffectMultipartGeometry *)source)->link[1] = 0;
+    PrimAppendNode(list, source + 0x18);
 }
 
+/* Assign the same texture handle to all multipart materials. */
 // FUN_004842D0
-void func_004842d0(u8 *arg0, s32 arg1)
+void mdlEffectSetGeometryTexture(u8 *source, s32 texture)
 {
-    s32 var_16;
+    s32 index;
 
-    var_16 = 0;
+    index = 0;
     goto loop_004842d0_check;
 loop_004842d0_body:
-    func_003c42b0(*(void **)(*(u8 **)(arg0 + 0x54) + ((u16)var_16 * 4)), arg1);
-    var_16 = (var_16 + 1) & 0xFFFF;
+    func_003c42b0(((void **)((MdlEffectMultipartGeometry *)source)->materials)[(u16)index], texture);
+    index = (index + 1) & 0xFFFF;
 loop_004842d0_check:
-    if ((var_16 & 0xFFFF) < *(s16 *)(arg0 + 0x48)) {
+    if ((index & 0xFFFF) < ((MdlEffectMultipartGeometry *)source)->partCount.signedValue) {
         goto loop_004842d0_body;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

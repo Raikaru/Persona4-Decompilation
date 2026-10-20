@@ -1,3 +1,4 @@
+#include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
 #include "btl_skill_target_internal.h"
@@ -7,29 +8,12 @@
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
 #include "btl_cond_internal.h"
-typedef struct BtlPacket BtlPacket;
-typedef signed __int128 s128;
-typedef struct P4Vec4_001EC2B0 {
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-} P4Vec4_001EC2B0;
-typedef struct P4Vec4Holder_001EC2B0 {
-    P4Vec4_001EC2B0 quat;
-} P4Vec4Holder_001EC2B0;
-typedef struct P4RouteSlerp_001EF110 {
-    P4Vec4_001EC2B0 first;
-    P4Vec4_001EC2B0 second;
-    f32 angle;
-    s32 mode;
-} P4RouteSlerp_001EF110;
 extern void btlCameraLookAtQuat(void *out, const void *first,
-                          const void *second, const void *up);
+                          const void *second, const void *config);
 extern void *D_00609850[];
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
-static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
+static inline u8 *btlTargetOffsetAddress(u32 offset, u8 *base)
 {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -82,7 +66,7 @@ extern u8 *iGpffffb42c;
 
 extern s32 btlAiGetGlobal(void);
 extern s32 btlAiSetGlobal(void);
-extern void btlTargetInitSpring(u8 *arg0, f32 arg1);
+extern void btlTargetInitSpring(u8 *, f32);
 #pragma push
 #pragma pop
 /* measured probe: preserve the retail filter branch chain */
@@ -101,17 +85,18 @@ extern void btlTargetInitSpring(u8 *arg0, f32 arg1);
 /* measured: third 001ec5e0 probe tests opt_propagation off for FPU-zero placement. */
 /* measured: closes opt_propagation probe for btlTargetInitSpring. */
 // FUN_001ED060
-int func_001ed060(float *param_1, float *param_2)
+/* Reject obstacle-edge crossings and active corner-link crossings; shared endpoints are exempt. */
+int btlTargetCheckObstacleCrossings(float *first, float *second)
 {
     u8 *node;
     int i;
 
-    if (*(u8 **)((u8 *)param_2 + 0x10) == (u8 *)param_1)
+    if ((u8 *)((BtlTargetCorner *)second)->link == (u8 *)first)
     {
         return 1;
     }
 
-    for (node = *(u8 **)(iGpffffb3ac + 0x318); node != NULL; node = *(u8 **)(node + 0x4cc))
+    for (node = (u8 *)(((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->obstacles); node != NULL; node = (u8 *)(((BtlTargetObstacle *)node)->next))
     {
         for (i = 0; i < 4; ++i)
         {
@@ -119,25 +104,25 @@ int func_001ed060(float *param_1, float *param_2)
             float *edge = (float *)(node + i * 0x130 + 0x08);
             float *next;
 
-            if ((edge == param_1) || (edge == param_2))
+            if ((edge == first) || (edge == second))
             {
                 continue;
             }
             next = (float *)(node + wrap * 0x130 + 0x08);
-            if ((next == param_1) || (next == param_2))
+            if ((next == first) || (next == second))
             {
                 continue;
             }
             else
             {
                 int intersects;
-                int side_a = btlTargetCheckSide(edge, next, param_1);
-                int side_b = btlTargetCheckSide(edge, next, param_2);
-                if (side_a != side_b)
+                int firstSide = btlTargetCheckSide(edge, next, first);
+                int secondSide = btlTargetCheckSide(edge, next, second);
+                if (firstSide != secondSide)
                 {
-                    side_a = btlTargetCheckSide(param_1, param_2, edge);
-                    side_b = btlTargetCheckSide(param_1, param_2, next);
-                    if (side_a != side_b)
+                    firstSide = btlTargetCheckSide(first, second, edge);
+                    secondSide = btlTargetCheckSide(first, second, next);
+                    if (firstSide != secondSide)
                     {
                         intersects = 1;
                     }
@@ -164,31 +149,31 @@ int func_001ed060(float *param_1, float *param_2)
         float *edge;
         u8 *node2;
         int j;
-        for (node2 = *(u8 **)(iGpffffb3ac + 0x318); node2 != NULL; node2 = *(u8 **)(node2 + 0x4cc))
+        for (node2 = (u8 *)(((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->obstacles); node2 != NULL; node2 = (u8 *)(((BtlTargetObstacle *)node2)->next))
         for (j = 0; j < 4; ++j)
         {
             record = node2 + j * 0x130;
             edge = (float *)(record + 0x08);
 
-            if (edge == param_1)
+            if (edge == first)
             {
                 return 0;
             }
-            if (*(float *)(record + 0x1c) <= 0.0f)
+            if ((float)(((BtlTargetObstacle *)record)->corners[0].linkDistance) <= 0.0f)
             {
                 continue;
             }
-            next = *(float **)(record + 0x18);
+            next = (float *)(((BtlTargetObstacle *)record)->corners[0].link);
             if (next != NULL)
             {
                 int intersects;
-                int side_a = btlTargetCheckSide(edge, next, param_1);
-                int side_b = btlTargetCheckSide(edge, next, param_2);
-                if (side_a != side_b)
+                int firstSide = btlTargetCheckSide(edge, next, first);
+                int secondSide = btlTargetCheckSide(edge, next, second);
+                if (firstSide != secondSide)
                 {
-                    side_a = btlTargetCheckSide(param_1, param_2, edge);
-                    side_b = btlTargetCheckSide(param_1, param_2, next);
-                    if (side_a != side_b)
+                    firstSide = btlTargetCheckSide(first, second, edge);
+                    secondSide = btlTargetCheckSide(first, second, next);
+                    if (firstSide != secondSide)
                     {
                         intersects = 1;
                     }

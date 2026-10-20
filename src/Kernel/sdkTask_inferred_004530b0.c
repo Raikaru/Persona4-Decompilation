@@ -1,3 +1,4 @@
+#include "sdk_pad_record.h"
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_rectangle_packet.h"
@@ -79,7 +80,7 @@ extern s16 iGpffffba28;
 extern s16 iGpffffba2c;
 extern s16 iGpffffba30;
 extern s16 iGpffffba34;
-extern void sdkPadDispatchButtons(s32 arg0);
+extern void sdkPadDispatchButtons(s32 slot);
 extern u8 D_008C02E0[];
 extern s16 D_008C0336[];
 extern s16 D_008C0338[];
@@ -90,7 +91,7 @@ extern u8 D_008C0346[];
 extern u8 D_008C0347[];
 extern u8 D_008C0348[];
 extern u8 D_008C0349[];
-extern void sdkPadRepeatButtonDispatch(s32 arg0, u16 arg1, s32 arg2);
+extern void sdkPadRepeatButtonDispatch(s32 padIndex, u16 buttonMask, s32 timerIndex);
 extern u8 D_007117B0[];
 extern u8 D_00711738[];
 extern u8 D_00711720[];
@@ -228,7 +229,7 @@ static inline s32 fontAtlasColumn(s32 value)
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 004530b0-004530b0 */
 
-extern void sdkPadRepeatButtonDispatch(s32 arg0, u16 arg1, s32 arg2);
+extern void sdkPadRepeatButtonDispatch(s32 padIndex, u16 buttonMask, s32 timerIndex);
 #pragma pop
 /* measured: restore O2 after func_00450e80. */
 /* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */
@@ -240,31 +241,33 @@ extern void sdkPadRepeatButtonDispatch(s32 arg0, u16 arg1, s32 arg2);
 #pragma push
 #pragma pop
 // Intent: computes the held and edge masks for slot `arg0` and dispatches each button through func_00453310.
+/* SdkPadRecord proves the masks; retain interior-symbol loads because
+ * typed record accesses changed the measured matching address/load order. */
 // FUN_004530B0
-void sdkPadDispatchButtons(s32 arg0) {
-    s32 off;
+void sdkPadDispatchButtons(s32 slot) {
+    s32 recordOffset;
     u16 *edge;
     u16 *held;
     u16 heldBits;
 
-    off = arg0 * 0x4A;
-    held = (u16 *)(D_008C0314 + off);
-    *held = (u16)(*(u16 *)(D_008C02EC + off) | *(u16 *)(D_008C02F6 + off));
+    recordOffset = slot * 0x4A;
+    held = (u16 *)(D_008C0314 + recordOffset);
+    *held = (u16)(*(u16 *)(D_008C02EC + recordOffset) | *(u16 *)(D_008C02F6 + recordOffset));
     heldBits = *held;
-    edge = (u16 *)(D_008C0316 + off);
-    *edge = (u16)(heldBits & (heldBits ^ *(u16 *)(D_008C0318 + off)));
-    *(u16 *)(D_008C031A + off) = *edge;
-    sdkPadRepeatButtonDispatch(arg0, 0x1000, 0);
-    sdkPadRepeatButtonDispatch(arg0, 0x4000, 1);
-    sdkPadRepeatButtonDispatch(arg0, 0x8000, 2);
-    sdkPadRepeatButtonDispatch(arg0, 0x2000, 3);
-    sdkPadRepeatButtonDispatch(arg0, 4, 4);
-    sdkPadRepeatButtonDispatch(arg0, 1, 5);
-    sdkPadRepeatButtonDispatch(arg0, 8, 6);
-    sdkPadRepeatButtonDispatch(arg0, 2, 7);
-    sdkPadRepeatButtonDispatch(arg0, 0x40, 8);
-    sdkPadRepeatButtonDispatch(arg0, 0x20, 9);
-    sdkPadRepeatButtonDispatch(arg0, 0x10, 0xA);
-    sdkPadRepeatButtonDispatch(arg0, 0x80, 0xB);
+    edge = (u16 *)(D_008C0316 + recordOffset);
+    *edge = (u16)(heldBits & (heldBits ^ *(u16 *)(D_008C0318 + recordOffset)));
+    *(u16 *)(D_008C031A + recordOffset) = *edge;
+    sdkPadRepeatButtonDispatch(slot, 0x1000, 0);
+    sdkPadRepeatButtonDispatch(slot, 0x4000, 1);
+    sdkPadRepeatButtonDispatch(slot, 0x8000, 2);
+    sdkPadRepeatButtonDispatch(slot, 0x2000, 3);
+    sdkPadRepeatButtonDispatch(slot, 4, 4);
+    sdkPadRepeatButtonDispatch(slot, 1, 5);
+    sdkPadRepeatButtonDispatch(slot, 8, 6);
+    sdkPadRepeatButtonDispatch(slot, 2, 7);
+    sdkPadRepeatButtonDispatch(slot, 0x40, 8);
+    sdkPadRepeatButtonDispatch(slot, 0x20, 9);
+    sdkPadRepeatButtonDispatch(slot, 0x10, 0xA);
+    sdkPadRepeatButtonDispatch(slot, 0x80, 0xB);
 }
 

@@ -1,3 +1,6 @@
+#include "message_window_internal.h"
+#include "shd_sprite_pack.h"
+#include "primitive_queue_internal.h"
 /* Original translation unit itfMsgProcedure_Window.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "message_frame_internal.h"
@@ -11,12 +14,12 @@
 
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern void kAssertFail(const void *file, u32 line);
-extern s32 shdSpriteEnsureLoaded(void *arg);
-extern void sdkSpritePackDestroy(u32 arg);
-extern void func_0046a750(void *arg);
-extern s32 H_Cdvd_LookupRequest(char *str, void *out);
+extern s32 shdSpriteEnsureLoaded(void *pack);
+extern void sdkSpritePackDestroy(u32 pack);
+extern void hMaestroDecodeIsReady(void *state);
+extern s32 H_Cdvd_LookupRequest(char *pathAddress, void *slot);
 
-extern s32 sdkSpritePackCreate(char *str);
+extern s32 sdkSpritePackCreate(char *descriptor);
 extern s32 mtSceneBuildSpriteTable(void);
 extern s32 memset(void *a0, s32 a1, s32 a2);
 
@@ -24,7 +27,7 @@ extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern float sinf(float angle);
 extern float cosf(float angle);
-extern void PrimQueueBatchAlpha(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+extern void PrimQueueBatchAlpha(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType, s32 preserveState, s16 offsetX, s16 offsetY, f32 rotation, f32 scaleX, f32 scaleY, void *queue);
 extern float D_007612D0;
 extern f32 iGpffff81e0;
 extern f32 iGpffff8094;
@@ -35,28 +38,28 @@ extern s32 iGpffffb4dc;
 extern s32 iGpffffb4d8;
 extern u8 D_00796430[];
 extern u8 D_00796490[];
-extern void msgWinDrawShape(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32 f1, f32 f2, f32 f3, void *t2);
-extern void msgWinDrawRing(s32 a0, s32 a1, f32 f0, s32 a2, s32 a3, s32 t0, s32 t1, s16 t2, s16 t3, f32 f1, f32 f2, f32 f3, void *a4);
+extern void msgWinDrawShape(s32 x, s32 y, s32 rgb, s32 opacity, s16 pivotX, s16 pivotY, f32 depth, f32 rotation, f32 scaleX, f32 scaleY, void *queue);
+extern void msgWinDrawRing(s32 centerX, s32 centerY, f32 depth, s32 radius, s32 rgb, s32 alpha, s32 mode, s16 pivotX, s16 pivotY, f32 rotation, f32 scaleX, f32 scaleY, void *queue);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(void *a0, void *a1);
-extern void calDrawScreen(u8 *arg);
-extern void msgWinDrawSprite(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, s16 t3, void *s0, float f0, float f1, float f2, float f3);
+extern void PrimAppendNode(void *list, void *node);
+extern void calDrawScreen(u8 *unusedTask, MsgProcWindowEntry *entry);
+extern void msgWinDrawSprite(u32 x, u32 y, u32 width, u32 height, u32 rgb, u32 alpha, u32 pivotX, s16 pivotY, void *queue, float depth, float rotation, float scaleX, float scaleY);
 extern void msgWinSelectionPoll(void);
 extern void msgCalResourcePoll(void);
-extern void itfMesWindowSetFlagBits(void *arg0, u32 arg1);
-extern void itfMesWindowClearFlagBits(void *arg0, u32 arg1);
-extern s32 itfMesWindowGetBodyList(void *arg0);
-extern s32 itfMesWindowGetTextList(void *arg0);
-extern void frFontMoveListToFloat(void *arg0, f32 f0, f32 f1);
-extern void frFontSetListSlot(void *arg0, s32 arg1);
-extern void frFontSetGlyphAux(void *arg0, s32 arg1);
-extern void frFontReplaceGlyphAux(void *arg0, s32 a1, s32 a2);
-extern void frFontSetListFlag(void *arg0, s32 arg1);
-extern void frFontSetNodeId(void *arg0, s32 arg1);
-extern s32 func_0027b6e0(void *arg0, s32 arg1);
-extern void func_0027b750(void *arg0, s32 a1, s32 a2);
-extern void msgCalendarDraw(u8 *arg0, u8 *arg1);
+extern void itfMesWindowSetFlagBits(void *handle, u32 flags);
+extern void itfMesWindowClearFlagBits(void *handle, u32 flags);
+extern s32 itfMesWindowGetBodyList(void *handle);
+extern s32 itfMesWindowGetTextList(void *handle);
+extern void frFontMoveListToFloat(void *list, f32 x, f32 y);
+extern void frFontSetListSlot(void *list, s32 slot);
+extern void frFontSetGlyphAux(void *list, s32 palette);
+extern void frFontReplaceGlyphAux(void *list, s32 oldPalette, s32 newPalette);
+extern void frFontSetListFlag(void *list, s32 intensity);
+extern void frFontSetNodeId(void *list, s32 code);
+extern s32 itfMesWindowGetProcedureParam(void *handle, s32 index);
+extern void itfMesWindowSetProcedureParam(void *handle, s32 index, s32 value);
+extern void msgCalendarDraw(u8 *unusedTask, u8 *parameters);
 extern u32 D_00882080[];
 extern s16 D_00882084[];
 extern s16 D_00882088[];
@@ -69,22 +72,21 @@ extern s16 D_00882064[];
 extern s16 D_00882066[];
 extern f32 iGpffff81d8;
 extern void sdkSpriteDrawQueuedUnscaled(f32, f32, f32, s32, u8, s32, void *, s32, void *);
-extern s32 frFontNodeWidth(void *arg0);
-extern void frFontSetGlyphColor(void *arg0, s32 arg1);
+extern s32 frFontNodeWidth(void *node);
+extern void frFontSetGlyphColor(void *list, s32 color);
 extern void itfMesListSetColorEntry(void *a0, s32 a1, s32 a2, s32 a3);
 extern void itfMesListSetRangeFlagEntry(void *a0, s32 a1, s32 a2, s32 a3);
 extern void fclBankCancelPending(void);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
-extern s32 itfMesWindowGetFontList(void *arg0);
-extern s32 fclMiscSlotValue(s32 a0);
+extern s32 itfMesWindowGetFontList(void *handle);
+extern s32 fclMiscSlotValue(s32 slotIndex);
 
 typedef struct MsgProcWindowWork {
-    s16 field0;
-    s16 field2;
-    u32 field4;
-    u32 field8;
+    s16 state;
+    s16 flags;
+    u32 resources[2];
 } MsgProcWindowWork;
 
 typedef struct MsgProcWindowResource {
@@ -94,16 +96,8 @@ typedef struct MsgProcWindowResource {
 } MsgProcWindowResource;
 typedef char MsgProcWindowResourceSize[sizeof(MsgProcWindowResource) == 8 ? 1 : -1];
 
-typedef struct MsgProcWindowEntry {
-    s32 field0;
-    s32 field4;
-    f32 field8;
-    s32 fieldC;
-    s32 field10;
-    s32 field14;
-} MsgProcWindowEntry;
 
-extern s32 msgWinEntryStep(MsgProcWindowEntry *arg);
+extern s32 msgWinEntryStep(MsgProcWindowEntry *entry);
 
 typedef struct MsgProcWindowF2 {
     float x;
@@ -153,258 +147,264 @@ extern MsgProcWindowF2 D_0063C030[10];
 
 
 
+/* Advance one queued window exit effect; return nonzero when its frame sequence ends. */
 // FUN_0027CAE0
-s32 msgWinEntryStep(MsgProcWindowEntry *arg)
+s32 msgWinEntryStep(MsgProcWindowEntry *entry)
 {
-    s32 ret;
-    s32 v1;
-    s32 v0;
-    float f;
-    float g;
-    u8 *tmp;
+    s32 finished;
+    s32 spriteIndex;
+    s32 slideDistance;
+    float ease;
+    float fade;
+    u8 *node;
 
-    ret = 0;
-    arg->field10++;
-    switch (arg->field4) {
+    finished = 0;
+    entry->elapsed++;
+    switch (entry->kind) {
     case 0:
-        if (arg->field10 < 4) {
+        if (entry->elapsed < 4) {
             msgWinDrawShape(0x23, 0x128, 0xFFA107, 0xFF, 0, 0, 0.0f, -4.7f, 1.0f, 1.0f, D_00796430);
             msgWinDrawShape(0x25, 0x152, 0x423C2B, 0xFF, 0, 0, 0.0f, 0.0f, 1.0f, 1.0f, D_00796490);
-        } else if (arg->field10 < 7) {
-            f = (float)(arg->field10 - 3) / 3.0f;
-            msgWinDrawShape((s32)(f * 2.0f + 35.0f), (s32)(f * 42.0f + 296.0f), 0xFFA107, 0xFF, 0, 0, 0.0f, -4.7f * (1.0f - f), 1.0f, 1.0f, D_00796430);
+        } else if (entry->elapsed < 7) {
+            ease = (float)(entry->elapsed - 3) / 3.0f;
+            msgWinDrawShape((s32)(ease * 2.0f + 35.0f), (s32)(ease * 42.0f + 296.0f), 0xFFA107, 0xFF, 0, 0, 0.0f, -4.7f * (1.0f - ease), 1.0f, 1.0f, D_00796430);
             msgWinDrawShape(0x25, 0x152, 0x423C2B, 0xFF, 0, 0, 0.0f, 0.0f, 1.0f, 1.0f, D_00796490);
-        } else if (arg->field10 < 12) {
-            f = sinf(iGpffff8094 * (float)(arg->field10 - 6) / 5.0f);
-            msgWinDrawShape((s32)(f * 200.0f + 37.0f), (s32)(f * 200.0f + 338.0f), 0x423C2B, 0xFF, 0, 0, 0.0f, f * 10.0f, 1.0f, 1.0f, D_00796490);
+        } else if (entry->elapsed < 12) {
+            ease = sinf(iGpffff8094 * (float)(entry->elapsed - 6) / 5.0f);
+            msgWinDrawShape((s32)(ease * 200.0f + 37.0f), (s32)(ease * 200.0f + 338.0f), 0x423C2B, 0xFF, 0, 0, 0.0f, ease * 10.0f, 1.0f, 1.0f, D_00796490);
         }
-        if (arg->field10 < 11) {
+        if (entry->elapsed < 11) {
             break;
         }
-        ret = 1;
+        finished = 1;
         break;
     case 1:
     case 2:
     case 3:
-        switch (arg->field4) {
+        switch (entry->kind) {
         case 1:
-            v0 = 0x45;
-            v1 = 0xD;
+            slideDistance = 0x45;
+            spriteIndex = 0xD;
             break;
         case 2:
-            v0 = 0x51;
-            v1 = 0xC;
+            slideDistance = 0x51;
+            spriteIndex = 0xC;
             break;
         case 3:
-            v0 = 0x76;
-            v1 = 0xB;
+            slideDistance = 0x76;
+            spriteIndex = 0xB;
             break;
         default:
             break;
         }
-        f = sinf(iGpffff8094 * (float)arg->field10 / 5.0f);
-        sdkSpriteDrawQueued(0.0f, (float)v0 * f + 123.0f, 0.0f, 0xFFFFFF, 0xD8, v1, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, 1.0f - f, D_00796490);
-        if (arg->field10 < 5) {
+        ease = sinf(iGpffff8094 * (float)entry->elapsed / 5.0f);
+        sdkSpriteDrawQueued(0.0f, (float)slideDistance * ease + 123.0f, 0.0f, 0xFFFFFF, 0xD8, spriteIndex, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, 1.0f - ease, D_00796490);
+        if (entry->elapsed < 5) {
             break;
         }
         msgWinSelectionPoll();
-        ret = 1;
+        finished = 1;
         break;
     case 4:
-        if (arg == 0) {
+        if (entry == 0) {
             kAssertFail(D_0063BFC0, 0xCC);
         }
-        tmp = PrimAllocQueueNode();
-        *(void **)(tmp + 8) = (void *)calDrawScreen;
-        *(MsgProcWindowEntry **)(tmp + 0x10) = arg;
-        PrimAppendNode(D_00796490, tmp);
-        if (arg->field10 < 20) {
+        node = PrimAllocQueueNode();
+        ((PrimQueueNode *)node)->callback = (void *)calDrawScreen;
+        ((PrimQueueNode *)node)->argument.data = (u8 *)entry;
+        PrimAppendNode(D_00796490, node);
+        if (entry->elapsed < 20) {
             break;
         }
         msgCalResourcePoll();
-        ret = 1;
+        finished = 1;
         break;
     case 5:
-        f = sinf(iGpffff8094 * (float)arg->field10 / 7.0f);
-        if (arg->field10 < 8) {
-            g = 1.0f - f;
-            msgWinDrawSprite((s32)(f * 202.0f + 70.0f), (s32)(f * 27.0f + 27.0f), (s32)(g * 394.0f + 10.0f), (s32)(g * 45.0f + 10.0f), 0, 0xB2, 0, 0, D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
+        ease = sinf(iGpffff8094 * (float)entry->elapsed / 7.0f);
+        if (entry->elapsed < 8) {
+            fade = 1.0f - ease;
+            msgWinDrawSprite((s32)(ease * 202.0f + 70.0f), (s32)(ease * 27.0f + 27.0f), (s32)(fade * 394.0f + 10.0f), (s32)(fade * 45.0f + 10.0f), 0, 0xB2, 0, 0, D_00796490, 0.0f, 0.0f, 1.0f, 1.0f);
         }
-        g = (float)arg->field10 / 4.0f;
-        if (arg->field10 < 5) {
-            msgWinDrawRing(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f - g, 1.0f - iGpffff8198 * g, D_00796490);
+        fade = (float)entry->elapsed / 4.0f;
+        if (entry->elapsed < 5) {
+            msgWinDrawRing(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f - fade, 1.0f - iGpffff8198 * fade, D_00796490);
         }
-        if (arg->field10 < 7) {
+        if (entry->elapsed < 7) {
             break;
         }
-        ret = 1;
+        finished = 1;
         break;
     case 6:
-        f = sinf(iGpffff8094 * (float)arg->field10 / 10.0f);
-        g = (1.0f - f) * 255.0f;
-        sdkSpriteDrawQueued(592.0f, 394.0f, 0.0f, 0xFFA107, (u8)g, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 360.0f + 180.0f, 1.0f, 1.0f, D_00796490);
-        if (arg->field10 < 10) {
+        ease = sinf(iGpffff8094 * (float)entry->elapsed / 10.0f);
+        fade = (1.0f - ease) * 255.0f;
+        sdkSpriteDrawQueued(592.0f, 394.0f, 0.0f, 0xFFA107, (u8)fade, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, ease * 360.0f + 180.0f, 1.0f, 1.0f, D_00796490);
+        if (entry->elapsed < 10) {
             break;
         }
-        ret = 1;
+        finished = 1;
         break;
     default:
         break;
     }
-    return ret;
+    return finished;
 }
 
+/* Poll the shared sprite resources and retire completed exit effects in the eight-slot table. */
 // FUN_0027D230
 s32 msgWinUpdateEntries(u8 *unusedTask)
 {
-    s32 i;
+    s32 entryIndex;
 
     if (D_007245C8 != 0) {
-        func_0046a750((void *)D_007245C8);
+        hMaestroDecodeIsReady((void *)D_007245C8);
     }
     if (D_007245CC != 0) {
-        func_0046a750((void *)D_007245CC);
+        hMaestroDecodeIsReady((void *)D_007245CC);
     }
-    for (i = 0; i < 8; i++) {
-        if ((D_008820B0[i].field0 & 1) != 0) {
-            if (msgWinEntryStep(&D_008820B0[i]) != 0) {
-                D_008820B0[i].field0 &= ~1;
+    for (entryIndex = 0; entryIndex < 8; entryIndex++) {
+        if ((D_008820B0[entryIndex].flags & 1) != 0) {
+            if (msgWinEntryStep(&D_008820B0[entryIndex]) != 0) {
+                D_008820B0[entryIndex].flags &= ~1;
             }
         }
     }
     return 0;
 }
 
+/* Adopt any resident window sprites and create the child task that advances exit effects. */
 // FUN_0027D2F0
-void msgWinStart(void *arg0)
+void msgWinStart(void *parent)
 {
-    s32 local;
-    s32 tmp;
+    s32 requestInfo;
+    s32 resource;
 
-    tmp = H_Cdvd_LookupRequest(D_0063BFE0, &local);
-    if (tmp != 0) {
-        D_007245C8 = (s32)sdkSpriteAdoptBlob((u32)tmp);
+    resource = H_Cdvd_LookupRequest(D_0063BFE0, &requestInfo);
+    if (resource != 0) {
+        D_007245C8 = (s32)sdkSpriteAdoptBlob((u32)resource);
     } else {
         D_007245C8 = 0;
     }
-    tmp = H_Cdvd_LookupRequest(D_0063C000, &local);
-    if (tmp != 0) {
-        D_007245CC = (s32)sdkSpriteAdoptBlob((u32)tmp);
+    resource = H_Cdvd_LookupRequest(D_0063C000, &requestInfo);
+    if (resource != 0) {
+        D_007245CC = (s32)sdkSpriteAdoptBlob((u32)resource);
     } else {
         D_007245CC = 0;
     }
-    (s32)kwlnTaskCreateChild((void *)(arg0), (const void *)(D_0063C018), 0xF, 0, 0, msgWinUpdateEntries, 0, (u8 *)((void *)0));
+    (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_0063C018), 0xF, 0, 0, msgWinUpdateEntries, 0, (u8 *)((void *)0));
 }
 
 /* measured: byte-exact after preserving the mixed ABI order in both the
-   function signature and PrimQueueBatchAlpha declaration: arg0,arg1,fparg0,arg2,
+   function signature and PrimQueueBatchAlpha declaration: parent,arg1,fparg0,arg2,
    arg3,arg4,arg5,arg6,arg7,fparg1,fparg2,fparg3,arg_sp0. The call uses the
    same order, reproducing retail's f12 move before integer setup and stack
    pointer last. Scoped verify: MATCH nd 0, object 600B/window 608B. */
+/* Build the 42-point filled ring fan, repeating its first perimeter point to close it. */
 // FUN_0027D3C0
-void msgWinDrawRing(s32 arg0, s32 arg1, f32 fparg0, s32 arg2, s32 arg3, s32 arg4, s32 arg5, s16 arg6, s16 arg7, f32 fparg1, f32 fparg2, f32 fparg3, void *arg_sp0)
+void msgWinDrawRing(s32 centerX, s32 centerY, f32 depth, s32 radius, s32 rgb, s32 alpha, s32 mode, s16 pivotX, s16 pivotY, f32 rotation, f32 scaleX, f32 scaleY, void *queue)
 {
-    MsgProcWindowF2 sp180[42];
-    MsgProcWindowRGBA spD0[42];
-    s16 spCE;
-    s16 spCC;
+    MsgProcWindowF2 points[42];
+    MsgProcWindowRGBA colors[42];
+    s16 pivotXCopy;
+    s16 pivotYCopy;
     u32 i;
     s32 r, g, b, a;
     u32 packed;
-    float f24, fsin, f25;
-    MsgProcWindowF2 *p;
-    MsgProcWindowRGBA *c;
+    float sine, cosine, angle;
+    MsgProcWindowF2 *point;
+    MsgProcWindowRGBA *color;
 
-    spCE = arg6;
-    spCC = arg7;
-    sp180[0].x = (float)arg0;
-    sp180[0].y = (float)arg1;
-    packed = ((u32)arg3 << 8) | (u32)arg4;
+    pivotXCopy = pivotX;
+    pivotYCopy = pivotY;
+    points[0].x = (float)centerX;
+    points[0].y = (float)centerY;
+    packed = ((u32)rgb << 8) | (u32)alpha;
     r = (packed >> 24) & 0xFF;
-    spD0[0].r = (u8)(packed >> 24);
+    colors[0].r = (u8)(packed >> 24);
     g = (packed >> 16) & 0xFF;
-    spD0[0].g = (u8)(packed >> 16);
+    colors[0].g = (u8)(packed >> 16);
     b = (packed >> 8) & 0xFF;
-    spD0[0].b = (u8)(packed >> 8);
+    colors[0].b = (u8)(packed >> 8);
     a = packed & 0xFF;
-    spD0[0].a = (u8)packed;
+    colors[0].a = (u8)packed;
     for (i = 1; i < 0x29; i++) {
-        f25 = (D_007612D0 * (float)(s32)(i - 1)) / 40.0f;
-        f24 = sinf(f25);
-        fsin = cosf(f25);
-        p = &sp180[i];
-        p->x = fparg2 * ((float)arg2 * fsin) + (float)arg0;
-        p->y = fparg3 * ((float)arg2 * (-f24)) + (float)arg1;
-        c = &spD0[i];
-        c->r = (u8)r;
-        c->g = (u8)g;
-        c->b = (u8)b;
-        c->a = (u8)a;
+        angle = (D_007612D0 * (float)(s32)(i - 1)) / 40.0f;
+        sine = sinf(angle);
+        cosine = cosf(angle);
+        point = &points[i];
+        point->x = scaleX * ((float)radius * cosine) + (float)centerX;
+        point->y = scaleY * ((float)radius * (-sine)) + (float)centerY;
+        color = &colors[i];
+        color->r = (u8)r;
+        color->g = (u8)g;
+        color->b = (u8)b;
+        color->a = (u8)a;
     }
-    sp180[i] = sp180[1];
-    spD0[i].r = (u8)r;
-    spD0[i].g = (u8)g;
-    spD0[i].b = (u8)b;
-    spD0[i].a = (u8)a;
-    PrimQueueBatchAlpha(&spD0[0], &sp180[0], fparg0, 0x2A, 5, arg5, spCE, spCC, fparg1, fparg2, fparg3, arg_sp0);
+    points[i] = points[1];
+    colors[i].r = (u8)r;
+    colors[i].g = (u8)g;
+    colors[i].b = (u8)b;
+    colors[i].a = (u8)a;
+    PrimQueueBatchAlpha(&colors[0], &points[0], depth, 0x2A, 5, mode, pivotXCopy, pivotYCopy, rotation, scaleX, scaleY, queue);
 }
 
 // FUN_0027D620
-void msgWinDrawSprite(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, s16 t3, void *s0, float f0, float f1, float f2, float f3) { func_00366380(a0, a1, f0, a2, a3, t0, t1, 1, t2, t3, s0, f1, f2, f3); }
+void msgWinDrawSprite(u32 x, u32 y, u32 width, u32 height, u32 rgb, u32 alpha, u32 pivotX, s16 pivotY, void *queue, float depth, float rotation, float scaleX, float scaleY) { sflDataDrawNarrowRoundedFrame(x, y, depth, width, height, rgb, alpha, 1, pivotX, pivotY, queue, rotation, scaleX, scaleY); }
 
+/* Queue a transparent rectangle with the window renderer state and restore the tag state. */
 // FUN_0027D660
-void msgWinDrawRect(s32 arg0, s32 arg1, s32 arg2, s32 arg3, float f0, void *arg4)
+void msgWinDrawRect(s32 x, s32 y, s32 width, s32 height, float depth, void *queue)
 {
     PrimitiveRectangleColor color;
     PrimitiveRectangleColor clearColor;
     PrimitiveRectangleWords q2;
     PrimitiveRectangleWords q1;
-    u8 *p;
-    u32 n;
+    u8 *clearCursor;
+    u32 remaining;
 
-    p = (u8 *)&clearColor;
-    n = 4;
-    if (p != 0) {
+    clearCursor = (u8 *)&clearColor;
+    remaining = 4;
+    if (clearCursor != 0) {
         do {
-            *p = 0;
-            p++;
-            n--;
-        } while (n != 0);
+            *clearCursor = 0;
+            clearCursor++;
+            remaining--;
+        } while (remaining != 0);
     }
     color = clearColor;
-    p = (u8 *)&q1;
-    n = 0x10;
-    if (p != 0) {
+    clearCursor = (u8 *)&q1;
+    remaining = 0x10;
+    if (clearCursor != 0) {
         do {
-            *p = 0;
-            p++;
-            n--;
-        } while (n != 0);
+            *clearCursor = 0;
+            clearCursor++;
+            remaining--;
+        } while (remaining != 0);
     }
-    q1.bits[0] = arg0;
-    q1.bits[1] = arg1;
-    q1.bits[2] = arg2;
-    q1.bits[3] = arg3;
+    q1.bits[0] = x;
+    q1.bits[1] = y;
+    q1.bits[2] = width;
+    q1.bits[3] = height;
     q2 = q1;
-    PrimQueueStateSet(arg4, 0x6, 0x1);
-    PrimQueueStateSet(arg4, 0xE, 0x0);
-    PrimQueueStateSet(arg4, 0xC, 0x1);
-    PrimQueueStateSet(arg4, 0x7, 0x2);
-    PrimQueueStateSet(arg4, 0x9, 0x1);
-    PrimQueueStateSet(arg4, 0x14, 0x1);
-    PrimQueueStateSet(arg4, 0x6, 0x0);
-    PrimQueueStateSet(arg4, 0x8, 0x1);
-    PrimQueueStateSetAlt(arg4, 0x3, 0x31003);
-    PrimQueueStateSetAlt(arg4, 0x2, 0x44);
+    PrimQueueStateSet(queue, 0x6, 0x1);
+    PrimQueueStateSet(queue, 0xE, 0x0);
+    PrimQueueStateSet(queue, 0xC, 0x1);
+    PrimQueueStateSet(queue, 0x7, 0x2);
+    PrimQueueStateSet(queue, 0x9, 0x1);
+    PrimQueueStateSet(queue, 0x14, 0x1);
+    PrimQueueStateSet(queue, 0x6, 0x0);
+    PrimQueueStateSet(queue, 0x8, 0x1);
+    PrimQueueStateSetAlt(queue, 0x3, 0x31003);
+    PrimQueueStateSetAlt(queue, 0x2, 0x44);
     mdlEffectEmitMaskedTagPair();
-    PrimQueueRectangle(&color, &q2, f0, 0, arg4);
+    PrimQueueRectangle(&color, &q2, depth, 0, queue);
     mdlEffectEmitTagPair();
 }
 
 /* 364/368 bytes; three resolved relocations; four zero alignment bytes.
  * The signed-halfword centers and explicit float arguments preserve the draw ABI. */
+/* Copy the ten-point window outline, scale its height and translate its vertices. */
 // FUN_0027D800
-void msgWinDrawShape(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32 f1, f32 f2, f32 f3, void *t2)
+void msgWinDrawShape(s32 x, s32 y, s32 rgb, s32 opacity, s16 pivotX, s16 pivotY, f32 depth, f32 rotation, f32 scaleX, f32 scaleY, void *queue)
 {
   struct 
   {
@@ -413,32 +413,32 @@ void msgWinDrawShape(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32
     MsgProcWindowF2 points[10];
   } work;
   MsgProcWindowU32Pair *src;
-  s32 new_var;
+  s32 originY;
   MsgProcWindowU32Pair *dst;
-  int new_var3;
-  MsgProcWindowF2 *p;
-  MsgProcWindowRGBA *c;
+  int pointLimit;
+  MsgProcWindowF2 *point;
+  MsgProcWindowRGBA *color;
   s32 count;
   u32 lo;
   u32 hi;
   u32 i;
-  f32 new_var7;
-  f32 new_var6;
-  s32 new_var2;
+  f32 xOffset;
+  f32 translatedX;
+  s32 alphaValue;
   u32 packed;
-  u8 new_var5;
+  u8 greenByte;
   u32 red;
   u32 green;
-  int new_var10;
+  int blueValue;
   u32 blue;
   u32 alpha;
-  u8 new_var8;
+  u8 blueByte;
   f32 scaled;
   f32 dx;
   f32 dy;
-  MsgProcWindowRGBA *new_var4;
-  new_var3 = 3;
-  new_var = a1;
+  MsgProcWindowRGBA *outputColor;
+  pointLimit = 3;
+  originY = y;
   src = (MsgProcWindowU32Pair *) D_0063C030;
   dst = (MsgProcWindowU32Pair *) work.points;
   count = 10;
@@ -453,40 +453,40 @@ void msgWinDrawShape(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32
     dst++;
   }
   while (count > 0);
-  scaled = 78.0f * f3;
+  scaled = 78.0f * scaleY;
   work.points[1].y = scaled + 5.0f;
-  work.points[new_var3].y = 2.0f + (scaled + 5.0f);
+  work.points[pointLimit].y = 2.0f + (scaled + 5.0f);
   work.points[5].y = 4.0f + (scaled + 5.0f);
   work.points[7].y = 5.0f + (scaled + 5.0f);
   work.points[9].y = work.points[7].y;
-  new_var3 = 10;
+  pointLimit = 10;
   i = 0;
-  new_var2 = a3;
-  packed = (((u32) a2) << 8) | ((u32) new_var2);
+  alphaValue = opacity;
+  packed = (((u32) rgb) << 8) | ((u32) alphaValue);
   red = 0xFF & (packed >> 24);
   green = (packed >> 16) & 0xFF;
   blue = (packed >> 8) & 0xFF;
   alpha = packed & 0xFF;
-  dx = (f32) a0;
-  dy = (f32) new_var;
-  for (; i < new_var3; i++)
+  dx = (f32) x;
+  dy = (f32) originY;
+  for (; i < pointLimit; i++)
   {
-    p = &work.points[i];
-    new_var7 = dx;
-    new_var6 = new_var7;
-    p->x += new_var6;
-    p->y = p->y + dy;
-    new_var5 = (u8) green;
-    c = (new_var4 = &work.colors[i]);
-    new_var10 = blue;
-    c->r = (u8) red;
-    c->g = new_var5;
-    new_var8 = (u8) new_var10;
-    c->b = new_var8;
-    c->a = (u8) alpha;
+    point = &work.points[i];
+    xOffset = dx;
+    translatedX = xOffset;
+    point->x += translatedX;
+    point->y = point->y + dy;
+    greenByte = (u8) green;
+    color = (outputColor = &work.colors[i]);
+    blueValue = blue;
+    color->r = (u8) red;
+    color->g = greenByte;
+    blueByte = (u8) blueValue;
+    color->b = blueByte;
+    color->a = (u8) alpha;
   }
 
-  PrimQueueBatchAlpha(&work.colors[0], &work.points[0], f0, 10, 4, 1, t0, t1, f1, f2, f3, t2);
+  PrimQueueBatchAlpha(&work.colors[0], &work.points[0], depth, 10, 4, 1, pivotX, pivotY, rotation, scaleX, scaleY, queue);
 }
 
 /* Message-window choice phases (cases 0-18). Checked against retail:
@@ -522,15 +522,16 @@ static inline MsgProcWindowEntry *msgWinFreeEntry(void)
     for (j = 0; j < 8; j++) {
         MsgProcWindowEntry *e = &D_008820B0[j];
 
-        if ((e->field0 & 1) == 0) {
+        if ((e->flags & 1) == 0) {
             return e;
         }
     }
     return (MsgProcWindowEntry *)0;
 }
 
+/* Dispatch choice-window setup, text layout, opening/closing animations and cursor phases. */
 // FUN_0027D970
-s32 msgWinChoicePhase(s32 arg0, u32 arg1)
+s32 msgWinChoicePhase(s32 window, u32 operation)
 {
     extern MsgProcWindowF2 D_0063C080[];
     extern u8 D_00796400[];
@@ -540,56 +541,56 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
     extern s16 D_00882008[];
     extern f32 iGpffff81e8;
     extern f32 iGpffff81ec;
-    extern s32 func_002e0fb0(void);
+    extern s32 fclBankHasPendingLoad(void);
     extern void fclBankSetReadyFlag(void);
     extern s32 frFontGetPendingFlag(void);
-    extern void PrimQueueBatch(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s32 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+    extern void PrimQueueBatch(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType, s32 preserveState, s32 offsetX, s16 offsetY, f32 rotation, f32 scaleX, f32 scaleY, void *queue);
     typedef struct { MsgProcWindowRGBA colors[10]; u8 gap[24]; MsgProcWindowF2 points[10]; } Work10;
     typedef struct { MsgProcWindowRGBA colors[16]; MsgProcWindowF2 points[16]; } Work16;
-    Work10 w0;
-    Work10 w1;
-    Work10 w2;
-    Work10 w3;
-    Work10 w4;
-    Work16 w5;
-    Work16 w6;
-    Work16 w7;
-    MsgProcWindowF2 *p;
-    MsgProcWindowRGBA *c;
+    Work10 introBackground;
+    Work10 outroAccent;
+    Work10 outroBackground;
+    Work10 idleAccent;
+    Work10 idleBackground;
+    Work16 introChoices;
+    Work16 idleChoices;
+    Work16 outroChoices;
+    MsgProcWindowF2 *point;
+    MsgProcWindowRGBA *color;
     u32 i;
-    s32 ret;
-    s32 tmp;
-    s16 cnt16;
-    s32 cnt32;
-    s16 need;
-    s32 need32;
-    s32 v0;
-    s32 v1;
-    float f;
-    float g;
-    float f1;
-    float f2;
-    float f3;
-    float ftmp;
-    s32 sret;
-    s16 s16tmp;
+    s32 completed;
+    s32 value;
+    s16 frameCount;
+    s32 frameCountWord;
+    s16 duration;
+    s32 durationWord;
+    s32 rowY;
+    s32 cursorY;
+    float progress;
+    float ease;
+    float extent;
+    float scale;
+    float offset;
+    float product;
+    s32 flags;
+    s16 shortValue;
 
-    sret = itfMesWindowGetFlags((s32)arg0);
-    ret = 0;
-    switch (arg1) {
+    flags = itfMesWindowGetFlags((s32)window);
+    completed = 0;
+    switch (operation) {
     case 0:
-        itfMesWindowClearFlagBits((void *)arg0, 0x100000);
-        itfMesWindowClearFlagBits((void *)arg0, 0x400000);
-        itfMesWindowClearFlagBits((void *)arg0, 0x800000);
+        itfMesWindowClearFlagBits((void *)window, 0x100000);
+        itfMesWindowClearFlagBits((void *)window, 0x400000);
+        itfMesWindowClearFlagBits((void *)window, 0x800000);
         if ((void *)D_00882000 == (void *)0) {
             kAssertFail(D_0063BFC0, 0x18F);
         }
         memset((void *)D_00882000, 0, 0x18);
         break;
     case 4:
-        if (func_002e0fb0() != 0) {
+        if (fclBankHasPendingLoad() != 0) {
             fclBankSetReadyFlag();
-        } else if (func_0027bec0((s32)arg0) != 0) {
+        } else if (itfMsgWindowCanDraw((s32)window) != 0) {
             if ((D_00882000[0] & 2) == 0) {
                 D_00882000[0] |= 2;
                 D_00882004[0] = 0;
@@ -599,398 +600,398 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
                 fclBankSetReadyFlag();
             }
             if (D_00882004[0] < 11) {
-                f = cosf(iGpffff8094 * (float)D_00882004[0] / 10.0f);
-                *(MsgProcWindowCopy10 *)w0.points = *(MsgProcWindowCopy10 *)D_0063C030;
-                w0.points[1].y = 83.0f;
-                w0.points[3].y = 85.0f;
-                w0.points[5].y = 87.0f;
-                w0.points[7].y = 88.0f;
-                w0.points[9].y = 88.0f;
+                progress = cosf(iGpffff8094 * (float)D_00882004[0] / 10.0f);
+                *(MsgProcWindowCopy10 *)introBackground.points = *(MsgProcWindowCopy10 *)D_0063C030;
+                introBackground.points[1].y = 83.0f;
+                introBackground.points[3].y = 85.0f;
+                introBackground.points[5].y = 87.0f;
+                introBackground.points[7].y = 88.0f;
+                introBackground.points[9].y = 88.0f;
                 for (i = 0; i < 10; i++) {
-                    p = &w0.points[i];
-                    p->x += 37.0f;
-                    p->y += 338.0f;
-                    c = &w0.colors[i];
-                    c->r = 0x42;
-                    c->g = 0x3C;
-                    c->b = 0x2B;
-                    c->a = 0xFF;
+                    point = &introBackground.points[i];
+                    point->x += 37.0f;
+                    point->y += 338.0f;
+                    color = &introBackground.colors[i];
+                    color->r = 0x42;
+                    color->g = 0x3C;
+                    color->b = 0x2B;
+                    color->a = 0xFF;
                 }
-                PrimQueueBatchAlpha(&w0.colors[0], &w0.points[0], 0.0f, 10, 4, 1, 2000, 0, f * 5.0f, 1.0f, 1.0f, D_00796490);
+                PrimQueueBatchAlpha(&introBackground.colors[0], &introBackground.points[0], 0.0f, 10, 4, 1, 2000, 0, progress * 5.0f, 1.0f, 1.0f, D_00796490);
             } else if (D_00882004[0] >= 11) {
-                f = 1.0f - (float)(D_00882004[0] - 11) / 3.0f;
-                *(MsgProcWindowCopy10 *)w1.points = *(MsgProcWindowCopy10 *)D_0063C030;
-                w1.points[1].y = 83.0f;
-                w1.points[3].y = 85.0f;
-                w1.points[5].y = 87.0f;
-                w1.points[7].y = 88.0f;
-                w1.points[9].y = 88.0f;
+                progress = 1.0f - (float)(D_00882004[0] - 11) / 3.0f;
+                *(MsgProcWindowCopy10 *)outroAccent.points = *(MsgProcWindowCopy10 *)D_0063C030;
+                outroAccent.points[1].y = 83.0f;
+                outroAccent.points[3].y = 85.0f;
+                outroAccent.points[5].y = 87.0f;
+                outroAccent.points[7].y = 88.0f;
+                outroAccent.points[9].y = 88.0f;
                 for (i = 0; i < 10; i++) {
-                    p = &w1.points[i];
-                    p->x += (float)(int)(35.0f + 2.0f * f);
-                    p->y += (float)(int)(296.0f + 42.0f * f);
-                    c = &w1.colors[i];
-                    c->r = 0xFF;
-                    c->g = 0xA1;
-                    c->b = 0x07;
-                    c->a = 0xFF;
+                    point = &outroAccent.points[i];
+                    point->x += (float)(int)(35.0f + 2.0f * progress);
+                    point->y += (float)(int)(296.0f + 42.0f * progress);
+                    color = &outroAccent.colors[i];
+                    color->r = 0xFF;
+                    color->g = 0xA1;
+                    color->b = 0x07;
+                    color->a = 0xFF;
                 }
-                PrimQueueBatchAlpha(&w1.colors[0], &w1.points[0], 0.0f, 10, 4, 1, 0, 0, iGpffff81e8 * (1.0f - f), 1.0f, 1.0f, D_00796430);
-                *(MsgProcWindowCopy10 *)w2.points = *(MsgProcWindowCopy10 *)D_0063C030;
-                w2.points[1].y = 83.0f;
-                w2.points[3].y = 85.0f;
-                w2.points[5].y = 87.0f;
-                w2.points[7].y = 88.0f;
-                w2.points[9].y = 88.0f;
+                PrimQueueBatchAlpha(&outroAccent.colors[0], &outroAccent.points[0], 0.0f, 10, 4, 1, 0, 0, iGpffff81e8 * (1.0f - progress), 1.0f, 1.0f, D_00796430);
+                *(MsgProcWindowCopy10 *)outroBackground.points = *(MsgProcWindowCopy10 *)D_0063C030;
+                outroBackground.points[1].y = 83.0f;
+                outroBackground.points[3].y = 85.0f;
+                outroBackground.points[5].y = 87.0f;
+                outroBackground.points[7].y = 88.0f;
+                outroBackground.points[9].y = 88.0f;
                 for (i = 0; i < 10; i++) {
-                    p = &w2.points[i];
-                    p->x += 37.0f;
-                    p->y += 338.0f;
-                    c = &w2.colors[i];
-                    c->r = 0x42;
-                    c->g = 0x3C;
-                    c->b = 0x2B;
-                    c->a = 0xFF;
+                    point = &outroBackground.points[i];
+                    point->x += 37.0f;
+                    point->y += 338.0f;
+                    color = &outroBackground.colors[i];
+                    color->r = 0x42;
+                    color->g = 0x3C;
+                    color->b = 0x2B;
+                    color->a = 0xFF;
                 }
-                PrimQueueBatchAlpha(&w2.colors[0], &w2.points[0], 0.0f, 10, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
+                PrimQueueBatchAlpha(&outroBackground.colors[0], &outroBackground.points[0], 0.0f, 10, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
             }
             if (D_00882004[0] >= 13) {
                 D_00882000[0] &= ~2;
                 D_00882004[0] = 0;
-                ret = 1;
+                completed = 1;
             }
         }
         break;
     case 5:
-        if (func_0027bec0((s32)arg0) != 0) {
-            *(MsgProcWindowCopy10 *)w3.points = *(MsgProcWindowCopy10 *)D_0063C030;
-            w3.points[1].y = 83.0f;
-            w3.points[3].y = 85.0f;
-            w3.points[5].y = 87.0f;
-            w3.points[7].y = 88.0f;
-            w3.points[9].y = 88.0f;
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
+            *(MsgProcWindowCopy10 *)idleAccent.points = *(MsgProcWindowCopy10 *)D_0063C030;
+            idleAccent.points[1].y = 83.0f;
+            idleAccent.points[3].y = 85.0f;
+            idleAccent.points[5].y = 87.0f;
+            idleAccent.points[7].y = 88.0f;
+            idleAccent.points[9].y = 88.0f;
             for (i = 0; i < 10; i++) {
-                p = &w3.points[i];
-                p->x += 35.0f;
-                p->y += 296.0f;
-                c = &w3.colors[i];
-                c->r = 0xFF;
-                c->g = 0xA1;
-                c->b = 0x07;
-                c->a = 0xFF;
+                point = &idleAccent.points[i];
+                point->x += 35.0f;
+                point->y += 296.0f;
+                color = &idleAccent.colors[i];
+                color->r = 0xFF;
+                color->g = 0xA1;
+                color->b = 0x07;
+                color->a = 0xFF;
             }
-            PrimQueueBatchAlpha(&w3.colors[0], &w3.points[0], 0.0f, 10, 4, 1, 0, 0, iGpffff81e8, 1.0f, 1.0f, D_00796430);
-            *(MsgProcWindowCopy10 *)w4.points = *(MsgProcWindowCopy10 *)D_0063C030;
-            w4.points[1].y = 83.0f;
-            w4.points[3].y = 85.0f;
-            w4.points[5].y = 87.0f;
-            w4.points[7].y = 88.0f;
-            w4.points[9].y = 88.0f;
+            PrimQueueBatchAlpha(&idleAccent.colors[0], &idleAccent.points[0], 0.0f, 10, 4, 1, 0, 0, iGpffff81e8, 1.0f, 1.0f, D_00796430);
+            *(MsgProcWindowCopy10 *)idleBackground.points = *(MsgProcWindowCopy10 *)D_0063C030;
+            idleBackground.points[1].y = 83.0f;
+            idleBackground.points[3].y = 85.0f;
+            idleBackground.points[5].y = 87.0f;
+            idleBackground.points[7].y = 88.0f;
+            idleBackground.points[9].y = 88.0f;
             for (i = 0; i < 10; i++) {
-                p = &w4.points[i];
-                p->x += 37.0f;
-                p->y += 338.0f;
-                c = &w4.colors[i];
-                c->r = 0x42;
-                c->g = 0x3C;
-                c->b = 0x2B;
-                c->a = 0xFF;
+                point = &idleBackground.points[i];
+                point->x += 37.0f;
+                point->y += 338.0f;
+                color = &idleBackground.colors[i];
+                color->r = 0x42;
+                color->g = 0x3C;
+                color->b = 0x2B;
+                color->a = 0xFF;
             }
-            PrimQueueBatchAlpha(&w4.colors[0], &w4.points[0], 0.0f, 10, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
+            PrimQueueBatchAlpha(&idleBackground.colors[0], &idleBackground.points[0], 0.0f, 10, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
         }
-        ret = 1;
+        completed = 1;
         break;
     case 6: {
-        MsgProcWindowEntry *e;
-        if (func_0027bec0((s32)arg0) != 0) {
-            e = msgWinFreeEntry();
-            if (e != (MsgProcWindowEntry *)0) {
-                memset(e, 0, 0x18);
-                e->field0 |= 1;
-                e->field8 = 0;
-                e->fieldC = 0;
-                e->field4 = 0;
+        MsgProcWindowEntry *entry;
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
+            entry = msgWinFreeEntry();
+            if (entry != (MsgProcWindowEntry *)0) {
+                memset(entry, 0, 0x18);
+                entry->flags |= 1;
+                entry->frameOffset = 0;
+                entry->unk0C = 0;
+                entry->kind = 0;
             }
         }
-        ret = 1;
+        completed = 1;
         break;
     }
     case 8: {
-        void *t0;
-        void *t1;
-        if ((t0 = (void *)itfMesWindowGetBodyList((void *)arg0)) != (void *)0) {
-            frFontMoveListToFloat(t0, 44.0f, 306.0f);
-            frFontSetListSlot(t0, 0);
-            frFontSetGlyphAux(t0, 0);
-            frFontSetGlyphColor(t0, 0x1B1B1BFF);
+        void *bodyList;
+        void *textList;
+        if ((bodyList = (void *)itfMesWindowGetBodyList((void *)window)) != (void *)0) {
+            frFontMoveListToFloat(bodyList, 44.0f, 306.0f);
+            frFontSetListSlot(bodyList, 0);
+            frFontSetGlyphAux(bodyList, 0);
+            frFontSetGlyphColor(bodyList, 0x1B1B1BFF);
         }
-        if ((t1 = (void *)itfMesWindowGetTextList((void *)arg0)) != (void *)0) {
-            frFontMoveListToFloat(t1, 57.0f, 338.0f);
-            frFontSetListSlot(t1, 0);
-            frFontReplaceGlyphAux(t1, 0, 0);
+        if ((textList = (void *)itfMesWindowGetTextList((void *)window)) != (void *)0) {
+            frFontMoveListToFloat(textList, 57.0f, 338.0f);
+            frFontSetListSlot(textList, 0);
+            frFontReplaceGlyphAux(textList, 0, 0);
         }
-        ret = 1;
+        completed = 1;
         break;
     }
     case 7:
         fclBankCancelPending();
-        if ((sret & 0x200) != 0) {
-            MsgProcWindowEntry *e2 = msgWinFreeEntry();
+        if ((flags & 0x200) != 0) {
+            MsgProcWindowEntry *immediateEntry = msgWinFreeEntry();
 
-            if (e2 != (MsgProcWindowEntry *)0) {
-                memset(e2, 0, 0x18);
-                e2->field0 |= 1;
-                e2->field8 = 0;
-                e2->fieldC = 0;
-                e2->field4 = 0;
+            if (immediateEntry != (MsgProcWindowEntry *)0) {
+                memset(immediateEntry, 0, 0x18);
+                immediateEntry->flags |= 1;
+                immediateEntry->frameOffset = 0;
+                immediateEntry->unk0C = 0;
+                immediateEntry->kind = 0;
             }
         }
         break;
     case 9: {
-        s32 lvl;
-        lvl = func_0027b6e0((void *)arg0, 0);
-        func_0027b750((void *)arg0, 0, 0x2D0);
-        func_0027b750((void *)arg0, 1, ((5 - lvl) * 0x1E + 0x89) * 8);
-        func_0027b750((void *)arg0, 2, 0xF0);
-        ret = 1;
+        s32 rowCount;
+        rowCount = itfMesWindowGetProcedureParam((void *)window, 0);
+        itfMesWindowSetProcedureParam((void *)window, 0, 0x2D0);
+        itfMesWindowSetProcedureParam((void *)window, 1, ((5 - rowCount) * 0x1E + 0x89) * 8);
+        itfMesWindowSetProcedureParam((void *)window, 2, 0xF0);
+        completed = 1;
         break;
     }
     case 10: {
-        void *t;
-        if ((t = (void *)itfMesWindowGetFontList((void *)arg0)) != (void *)0) {
-            frFontSetListSlot(t, 0);
-            frFontSetGlyphAux(t, 0);
+        void *fontList;
+        if ((fontList = (void *)itfMesWindowGetFontList((void *)window)) != (void *)0) {
+            frFontSetListSlot(fontList, 0);
+            frFontSetGlyphAux(fontList, 0);
         }
         break;
     }
     case 11: {
-        s16 lvl2;
-        s32 v;
-        if (func_0027bec0((s32)arg0) != 0) {
+        s16 openingRowCount;
+        s32 openingY;
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
             if ((D_00882000[0] & 8) == 0) {
                 D_00882000[0] |= 8;
                 D_00882006[0] = 0;
             }
             D_00882006[0]++;
-            f = sinf(iGpffff8094 * (float)D_00882006[0] / 6.0f);
-            lvl2 = func_00279010((s32)arg0);
-            v = (5 - lvl2) * 0x1E + 0x87;
-            *(MsgProcWindowCopy16 *)w5.points = *(MsgProcWindowCopy16 *)D_0063C080;
-            ftmp = (float)(5 - lvl2) * 30.0f;
-            f1 = 254.0f * (((259.0f - ftmp) / 259.0f) * f);
-            w5.points[1].y = f1;
-            w5.points[3].y = f1 + 2.0f;
-            w5.points[5].y = f1 + 4.0f;
-            w5.points[7].y = f1 + 5.0f;
-            w5.points[9].y = f1 + 5.0f;
-            w5.points[11].y = f1 + 4.0f;
-            w5.points[13].y = f1 + 2.0f;
-            w5.points[15].y = f1;
+            progress = sinf(iGpffff8094 * (float)D_00882006[0] / 6.0f);
+            openingRowCount = itfMesWindowGetChoiceCount((s32)window);
+            openingY = (5 - openingRowCount) * 0x1E + 0x87;
+            *(MsgProcWindowCopy16 *)introChoices.points = *(MsgProcWindowCopy16 *)D_0063C080;
+            product = (float)(5 - openingRowCount) * 30.0f;
+            extent = 254.0f * (((259.0f - product) / 259.0f) * progress);
+            introChoices.points[1].y = extent;
+            introChoices.points[3].y = extent + 2.0f;
+            introChoices.points[5].y = extent + 4.0f;
+            introChoices.points[7].y = extent + 5.0f;
+            introChoices.points[9].y = extent + 5.0f;
+            introChoices.points[11].y = extent + 4.0f;
+            introChoices.points[13].y = extent + 2.0f;
+            introChoices.points[15].y = extent;
             for (i = 0; i < 16; i++) {
-                p = &w5.points[i];
-                p->x += 20.0f;
-                p->y += (float)(int)((float)v + (1.0f - f) * 128.0f);
-                c = &w5.colors[i];
-                c->r = 0x1B;
-                c->g = 0x18;
-                c->b = 0x11;
-                c->a = 0xD8;
+                point = &introChoices.points[i];
+                point->x += 20.0f;
+                point->y += (float)(int)((float)openingY + (1.0f - progress) * 128.0f);
+                color = &introChoices.colors[i];
+                color->r = 0x1B;
+                color->g = 0x18;
+                color->b = 0x11;
+                color->a = 0xD8;
             }
-            PrimQueueBatch(&w5.colors[0], &w5.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
+            PrimQueueBatch(&introChoices.colors[0], &introChoices.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
             if (D_00882006[0] >= 6) {
                 D_00882000[0] &= ~8;
                 D_00882006[0] = 0;
-                itfMesWindowGetBodyList((void *)arg0);
-                if ((tmp = itfMesWindowGetTextList((void *)arg0)) != 0) {
-                    frFontSetGlyphColor((void *)tmp, -128);
-                    frFontSetListFlag((void *)tmp, 0);
+                itfMesWindowGetBodyList((void *)window);
+                if ((value = itfMesWindowGetTextList((void *)window)) != 0) {
+                    frFontSetGlyphColor((void *)value, -128);
+                    frFontSetListFlag((void *)value, 0);
                 }
-                ret = 1;
+                completed = 1;
             }
         }
         break;
     }
     case 12: {
-        s32 a;
-        s32 b;
-        if (func_0027bec0((s32)arg0) != 0) {
+        s32 selectedRow;
+        s32 rowCount;
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
             if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
-                tmp = 1;
+                value = 1;
             } else {
-                tmp = 0;
+                value = 0;
             }
-            if (tmp != 0) {
-                a = itfMesWindowGetAnimAux((s32)arg0);
-                b = (s16)func_00279010((s32)arg0);
-                v0 = (5 - b) * 0x1E + 0x87;
-                *(MsgProcWindowCopy16 *)w6.points = *(MsgProcWindowCopy16 *)D_0063C080;
-                ftmp = 30.0f * (float)(5 - b);
-                f1 = 254.0f * ((259.0f - ftmp) / 259.0f);
-                w6.points[1].y = f1;
-                w6.points[3].y = f1 + 2.0f;
-                w6.points[5].y = f1 + 4.0f;
-                w6.points[7].y = f1 + 5.0f;
-                w6.points[9].y = f1 + 5.0f;
-                w6.points[11].y = f1 + 4.0f;
-                w6.points[13].y = f1 + 2.0f;
-                w6.points[15].y = f1;
+            if (value != 0) {
+                selectedRow = itfMesWindowGetAnimAux((s32)window);
+                rowCount = (s16)itfMesWindowGetChoiceCount((s32)window);
+                rowY = (5 - rowCount) * 0x1E + 0x87;
+                *(MsgProcWindowCopy16 *)idleChoices.points = *(MsgProcWindowCopy16 *)D_0063C080;
+                product = 30.0f * (float)(5 - rowCount);
+                extent = 254.0f * ((259.0f - product) / 259.0f);
+                idleChoices.points[1].y = extent;
+                idleChoices.points[3].y = extent + 2.0f;
+                idleChoices.points[5].y = extent + 4.0f;
+                idleChoices.points[7].y = extent + 5.0f;
+                idleChoices.points[9].y = extent + 5.0f;
+                idleChoices.points[11].y = extent + 4.0f;
+                idleChoices.points[13].y = extent + 2.0f;
+                idleChoices.points[15].y = extent;
                 for (i = 0; i < 16; i++) {
-                    p = &w6.points[i];
-                    p->x += 20.0f;
-                    p->y += (float)v0;
-                    c = &w6.colors[i];
-                    c->r = 0x1B;
-                    c->g = 0x18;
-                    c->b = 0x11;
-                    c->a = 0xD8;
+                    point = &idleChoices.points[i];
+                    point->x += 20.0f;
+                    point->y += (float)rowY;
+                    color = &idleChoices.colors[i];
+                    color->r = 0x1B;
+                    color->g = 0x18;
+                    color->b = 0x11;
+                    color->a = 0xD8;
                 }
-                PrimQueueBatch(&w6.colors[0], &w6.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
-                v1 = (5 - b) * 0x1E + 0x8A;
-                v1 = (float)v1 + 30.0f * (float)a;
-                sdkSpriteDrawQueuedUnscaled(23.0f, (float)v1, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
-                sdkSpriteDrawQueuedUnscaled(407.0f, (float)v1, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
-                if ((tmp = itfMesWindowGetFontList((void *)arg0)) != 0) {
-                    frFontSetGlyphAux((void *)tmp, 0);
-                    frFontSetGlyphColor((void *)tmp, -1);
-                    itfMesListSetColorEntry((void *)tmp, a, b, 0);
-                    itfMesListSetRangeFlagEntry((void *)tmp, a, b, 0x1B1B1BFF);
+                PrimQueueBatch(&idleChoices.colors[0], &idleChoices.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
+                cursorY = (5 - rowCount) * 0x1E + 0x8A;
+                cursorY = (float)cursorY + 30.0f * (float)selectedRow;
+                sdkSpriteDrawQueuedUnscaled(23.0f, (float)cursorY, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
+                sdkSpriteDrawQueuedUnscaled(407.0f, (float)cursorY, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
+                if ((value = itfMesWindowGetFontList((void *)window)) != 0) {
+                    frFontSetGlyphAux((void *)value, 0);
+                    frFontSetGlyphColor((void *)value, -1);
+                    itfMesListSetColorEntry((void *)value, selectedRow, rowCount, 0);
+                    itfMesListSetRangeFlagEntry((void *)value, selectedRow, rowCount, 0x1B1B1BFF);
                 }
             }
         }
-        ret = 1;
+        completed = 1;
         break;
     }
     case 13: {
-        s32 a2;
-        s32 b2;
-        void *t;
-        if ((t = (void *)itfMesWindowGetFontList((void *)arg0)) != (void *)0) {
-            itfMesWindowGetAnimAux((s32)arg0);
-            func_00279010((s32)arg0);
-            frFontSetGlyphAux(t, 0);
-            frFontSetGlyphColor(t, 0x1B1B1BFF);
+        s32 closingRow;
+        s32 closingRowCount;
+        void *fontList;
+        if ((fontList = (void *)itfMesWindowGetFontList((void *)window)) != (void *)0) {
+            itfMesWindowGetAnimAux((s32)window);
+            itfMesWindowGetChoiceCount((s32)window);
+            frFontSetGlyphAux(fontList, 0);
+            frFontSetGlyphColor(fontList, 0x1B1B1BFF);
         }
-        if (func_0027bec0((s32)arg0) != 0) {
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
             if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
-                tmp = 1;
+                value = 1;
             } else {
-                tmp = 0;
+                value = 0;
             }
-            if (tmp != 0) {
+            if (value != 0) {
                 if ((D_00882000[0] & 0x10) == 0) {
                     D_00882000[0] |= 0x10;
                     D_00882006[0] = 0;
                 }
                 D_00882006[0]++;
-                a2 = itfMesWindowGetAnimAux((s32)arg0);
-                b2 = (s16)func_00279010((s32)arg0);
-                v0 = (b2 - (a2 + 1)) * 0x1E + 0x6D;
-                v1 = a2 * 0x1E;
-                if (v1 < v0) {
-                    f = iGpffff8094;
-                    need32 = (s32)(14.0f * sinf(f * (float)v0 / 229.0f));
+                closingRow = itfMesWindowGetAnimAux((s32)window);
+                closingRowCount = (s16)itfMesWindowGetChoiceCount((s32)window);
+                rowY = (closingRowCount - (closingRow + 1)) * 0x1E + 0x6D;
+                cursorY = closingRow * 0x1E;
+                if (cursorY < rowY) {
+                    progress = iGpffff8094;
+                    durationWord = (s32)(14.0f * sinf(progress * (float)rowY / 229.0f));
                 } else {
-                    f = iGpffff8094;
-                    need32 = (s32)(14.0f * sinf(f * (30.0f * (float)a2) / 229.0f));
+                    progress = iGpffff8094;
+                    durationWord = (s32)(14.0f * sinf(progress * (30.0f * (float)closingRow) / 229.0f));
                 }
-                if (need32 < 5) {
-                    need32 = 5;
+                if (durationWord < 5) {
+                    durationWord = 5;
                 }
-                if (D_00882006[0] <= need32) {
-                    g = sinf(f * (float)D_00882006[0] / (float)need32);
-                    f1 = (float)((b2 * 16 - b2) * 2 + 0x6D);
-                    f2 = (f1 / 259.0f) * (1.0f - g * g);
-                    f3 = g * (float)(a2 * 0x1E);
-                    if (f2 * f1 < (float)((a2 + 1) * 0x1E) - f3) {
-                        ftmp = (float)((a2 + 1) * 0x1E);
-                        f2 = (ftmp - g * ftmp) / 259.0f;
+                if (D_00882006[0] <= durationWord) {
+                    ease = sinf(progress * (float)D_00882006[0] / (float)durationWord);
+                    extent = (float)((closingRowCount * 16 - closingRowCount) * 2 + 0x6D);
+                    scale = (extent / 259.0f) * (1.0f - ease * ease);
+                    offset = ease * (float)(closingRow * 0x1E);
+                    if (scale * extent < (float)((closingRow + 1) * 0x1E) - offset) {
+                        product = (float)((closingRow + 1) * 0x1E);
+                        scale = (product - ease * product) / 259.0f;
                     }
-                    if (f2 <= iGpffff81ec) {
-                        f2 = iGpffff81ec;
+                    if (scale <= iGpffff81ec) {
+                        scale = iGpffff81ec;
                     }
-                    v1 = (5 - b2) * 0x1E + 0x87;
-                    *(MsgProcWindowCopy16 *)w7.points = *(MsgProcWindowCopy16 *)D_0063C080;
-                    f1 = 254.0f * f2;
-                    w7.points[1].y = f1;
-                    w7.points[3].y = f1 + 2.0f;
-                    w7.points[5].y = f1 + 4.0f;
-                    w7.points[7].y = f1 + 5.0f;
-                    w7.points[9].y = f1 + 5.0f;
-                    w7.points[11].y = f1 + 4.0f;
-                    w7.points[13].y = f1 + 2.0f;
-                    w7.points[15].y = f1;
+                    cursorY = (5 - closingRowCount) * 0x1E + 0x87;
+                    *(MsgProcWindowCopy16 *)outroChoices.points = *(MsgProcWindowCopy16 *)D_0063C080;
+                    extent = 254.0f * scale;
+                    outroChoices.points[1].y = extent;
+                    outroChoices.points[3].y = extent + 2.0f;
+                    outroChoices.points[5].y = extent + 4.0f;
+                    outroChoices.points[7].y = extent + 5.0f;
+                    outroChoices.points[9].y = extent + 5.0f;
+                    outroChoices.points[11].y = extent + 4.0f;
+                    outroChoices.points[13].y = extent + 2.0f;
+                    outroChoices.points[15].y = extent;
                     for (i = 0; i < 16; i++) {
-                        p = &w7.points[i];
-                        p->x += 20.0f;
-                        p->y += (float)(s32)((float)v1 + f3);
-                        c = &w7.colors[i];
-                        c->r = 0x1B;
-                        c->g = 0x18;
-                        c->b = 0x11;
-                        c->a = 0xD8;
+                        point = &outroChoices.points[i];
+                        point->x += 20.0f;
+                        point->y += (float)(s32)((float)cursorY + offset);
+                        color = &outroChoices.colors[i];
+                        color->r = 0x1B;
+                        color->g = 0x18;
+                        color->b = 0x11;
+                        color->a = 0xD8;
                     }
-                    PrimQueueBatch(&w7.colors[0], &w7.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
+                    PrimQueueBatch(&outroChoices.colors[0], &outroChoices.points[0], 0.0f, 16, 4, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796400);
                 }
-                v0 = (5 - b2) * 0x1E + 0x8A;
-                v0 = (float)v0 + 30.0f * (float)a2;
-                if (D_00882006[0] < need32 - 5) {
-                    sdkSpriteDrawQueuedUnscaled(23.0f, (float)v0, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
-                    sdkSpriteDrawQueuedUnscaled(407.0f, (float)v0, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
+                rowY = (5 - closingRowCount) * 0x1E + 0x8A;
+                rowY = (float)rowY + 30.0f * (float)closingRow;
+                if (D_00882006[0] < durationWord - 5) {
+                    sdkSpriteDrawQueuedUnscaled(23.0f, (float)rowY, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, D_00796400);
+                    sdkSpriteDrawQueuedUnscaled(407.0f, (float)rowY, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, D_00796400);
                 } else {
-                    f1 = (float)(D_00882006[0] - (need32 - 5)) / 5.0f;
-                    if (f1 > 1.0f) {
-                        f1 = 1.0f;
+                    extent = (float)(D_00882006[0] - (durationWord - 5)) / 5.0f;
+                    if (extent > 1.0f) {
+                        extent = 1.0f;
                     }
-                    f2 = 1.0f - f1;
-                    ftmp = f1 * 16.0f;
-                    f3 = (float)v0 + ftmp;
-                    sdkSpriteDrawQueued(23.0f, f3, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, f2, D_00796400);
-                    sdkSpriteDrawQueued(407.0f, f3, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, f2, D_00796400);
+                    scale = 1.0f - extent;
+                    product = extent * 16.0f;
+                    offset = (float)rowY + product;
+                    sdkSpriteDrawQueued(23.0f, offset, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, scale, D_00796400);
+                    sdkSpriteDrawQueued(407.0f, offset, 0.0f, 0xFFFFFF, 0xFF, 1, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, scale, D_00796400);
                 }
-                if ((tmp = itfMesWindowGetFontList((void *)arg0)) != 0 && D_00882006[0] >= need32 - 5) {
-                    f1 = (float)(D_00882006[0] - (need32 - 5)) / 5.0f;
-                    frFontSetGlyphAux((void *)tmp, 0);
-                    frFontSetGlyphColor((void *)tmp, ((int)(255.0f * (1.0f - f1)) & 0xFF) | 0x1B1B1B00);
+                if ((value = itfMesWindowGetFontList((void *)window)) != 0 && D_00882006[0] >= durationWord - 5) {
+                    extent = (float)(D_00882006[0] - (durationWord - 5)) / 5.0f;
+                    frFontSetGlyphAux((void *)value, 0);
+                    frFontSetGlyphColor((void *)value, ((int)(255.0f * (1.0f - extent)) & 0xFF) | 0x1B1B1B00);
                 }
-                if (D_00882006[0] >= need32) {
+                if (D_00882006[0] >= durationWord) {
                     D_00882000[0] &= ~0x10;
                     D_00882006[0] = 0;
-                    ret = 1;
+                    completed = 1;
                 }
             }
         }
         break;
     }
     case 16: {
-        s32 cur;
-        if (func_0027bec0((s32)arg0) != 0) {
+        s32 frame;
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
             if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
-                tmp = 1;
+                value = 1;
             } else {
-                tmp = 0;
+                value = 0;
             }
-            if (tmp != 0) {
-                cur = D_00882008[0];
+            if (value != 0) {
+                frame = D_00882008[0];
                 if ((D_00882000[0] & 0x20) == 0) {
                     D_00882000[0] |= 0x20;
-                    cur = 0;
+                    frame = 0;
                 }
-                cur++;
-                f = sinf(iGpffff8094 * (float)cur / 5.0f);
-                sdkSpriteDrawQueued(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 180.0f, 1.0f, 1.0f, D_00796490);
+                frame++;
+                progress = sinf(iGpffff8094 * (float)frame / 5.0f);
+                sdkSpriteDrawQueued(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, progress * 180.0f, 1.0f, 1.0f, D_00796490);
                 sdkSpriteDrawQueuedUnscaled(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 3, (void *)iGpffffb4d8, 1, D_00796490);
-                if (cur >= 5) {
+                if (frame >= 5) {
                     D_00882000[0] &= ~0x20;
-                    cur = 0;
-                    ret = 1;
+                    frame = 0;
+                    completed = 1;
                 }
-                D_00882008[0] = cur;
+                D_00882008[0] = frame;
             }
         }
         break;
     }
     case 17:
-        if (func_0027bec0((s32)arg0) != 0) {
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
             if (msgWinReady() != 0) {
                 sdkSpriteDrawQueued(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, 180.0f, 1.0f, 1.0f, D_00796490);
                 sdkSpriteDrawQueuedUnscaled(592.0f, 394.0f, 0.0f, 0xFFA107, 0xFF, 3, (void *)iGpffffb4d8, 1, D_00796490);
@@ -999,29 +1000,30 @@ s32 msgWinChoicePhase(s32 arg0, u32 arg1)
         break;
     case 18:
         if (frFontGetPendingFlag() == 1) {
-            ret = 1;
-        } else if (func_0027bec0((s32)arg0) != 0) {
+            completed = 1;
+        } else if (itfMsgWindowCanDraw((s32)window) != 0) {
             if (msgWinReady() != 0) {
-                MsgProcWindowEntry *e3 = msgWinFreeEntry();
+                MsgProcWindowEntry *cursorEntry = msgWinFreeEntry();
 
-                if (e3 != (MsgProcWindowEntry *)0) {
-                    memset(e3, 0, 0x18);
-                    e3->field0 |= 1;
-                    e3->field8 = 0;
-                    e3->fieldC = 0;
-                    e3->field4 = 6;
+                if (cursorEntry != (MsgProcWindowEntry *)0) {
+                    memset(cursorEntry, 0, 0x18);
+                    cursorEntry->flags |= 1;
+                    cursorEntry->frameOffset = 0;
+                    cursorEntry->unk0C = 0;
+                    cursorEntry->kind = 6;
                 }
-                ret = 1;
+                completed = 1;
             }
         }
         break;
     default:
         break;
     }
-    return ret;
+    return completed;
 }
 #pragma pop
 
+/* Load the selection sprite pack and wait until a release request ends its task. */
 // FUN_0027F560
 s32 msgWinSelectionUpdate(u8 *unusedTask)
 {
@@ -1047,6 +1049,7 @@ s32 msgWinSelectionUpdate(u8 *unusedTask)
     return 0;
 }
 
+/* Release the selection sprite pack after asserting that its loading is complete. */
 // FUN_0027F630
 void msgWinSelectionDestroy(u8 *unusedTask)
 {
@@ -1061,6 +1064,7 @@ void msgWinSelectionDestroy(u8 *unusedTask)
     }
 }
 
+/* Request shutdown of the selection resource task, if one is registered. */
 // FUN_0027F6A0
 void msgWinSelectionPoll(void)
 {
@@ -1081,7 +1085,7 @@ static inline MsgProcWindowEntry *msgWinFindFreeEntry(void)
 
     for (i = 0; i < 8; i++) {
         e = &D_008820B0[i];
-        if ((e->field0 & 1) == 0) {
+        if ((e->flags & 1) == 0) {
             return e;
         }
     }
@@ -1134,8 +1138,9 @@ static inline PrimitiveRectangleWords *msgWinCopyRectangle(u8 *destination, cons
 
 /* measured: 103 -> 0 fnalign edits. Per-phase coordinates and the shared resource
  * handle reproduce retail lifetimes; address-taking copies retain both snapshots. */
+/* Render the selection window phases, including its panel, labels and animated cursor. */
 // FUN_0027F6F0
-s32 msgWinDrawSelection(s32 arg0, u32 arg1)
+s32 msgWinDrawSelection(s32 window, u32 operation)
 {
     extern u32 D_00882020[];
     extern s16 D_00882024[];
@@ -1151,15 +1156,15 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
     extern PrimitiveRectangleColor iGpffffa784;
     extern PrimitiveRectangleWords D_0063C130;
     extern PrimitiveRectangleWords D_0063C140;
-    extern s32 shdSpriteDrawQueued(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, void *a6, f32 f0, f32 f1, f32 f2);
-    extern s32 frFontCountRuns(s32 arg0);
+    extern s32 shdSpriteDrawQueued(s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 *pack, s32 flags, void *drawList, f32 x, f32 y, f32 depth);
+    extern s32 frFontCountRuns(s32 node);
     PrimitiveRectangleColor color;
     PrimitiveRectangleColor backgroundColor;
     PrimitiveRectangleColor selectionColor;
     PrimitiveRectangleWords rectangle;
     PrimitiveRectangleWords background;
     PrimitiveRectangleWords selection;
-    s32 ret;
+    s32 completed;
     s32 windowX18;
     s32 windowY18;
     s32 windowX17;
@@ -1172,51 +1177,51 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
     s32 i;
     u32 k;
     s32 j;
-    s32 tmp;
-    s32 tmp2;
-    s32 v0;
-    s32 cntB;
-    s32 cntB32;
-    float f;
-    float g;
-    float f2;
-    float f3;
-    float f4;
-    float f5;
-    float prodA;
-    float prodB;
-    float chainA;
-    float chainC;
-    float chainD;
-    float divA;
-    float divB;
-    float subA;
-    float cvtA;
-    u8 *mp;
-    u32 mn;
-    void *pv;
-    void *pv2;
-    s32 *tw;
-    MsgProcWindowEntry *e;
+    s32 value;
+    s32 extent;
+    s32 rowY;
+    s32 frameCount;
+    s32 frameCountWord;
+    float progress;
+    float angle;
+    float factor;
+    float offset;
+    float widthScale;
+    float heightScale;
+    float firstProduct;
+    float secondProduct;
+    float spriteY;
+    float scaleX;
+    float scaleY;
+    float firstQuotient;
+    float secondQuotient;
+    float remainingRatio;
+    float baseY;
+    u8 *clearCursor;
+    u32 remaining;
+    void *bodyList;
+    void *textList;
+    s32 *tableWords;
+    MsgProcWindowEntry *entry;
     MsgProcWindowBlock blocks[12];
-    MsgProcWindowF2 *pt;
-    MsgProcWindowRGBA *cl;
+    MsgProcWindowF2 *point;
+    MsgProcWindowRGBA *vertexColor;
 
-    itfMesWindowGetFlags((s32)arg0);
-    ret = 0;
+    itfMesWindowGetFlags((s32)window);
+    completed = 0;
     handle = 0;
-    switch (arg1) {
+    switch (operation) {
     case 0:
-        itfMesWindowClearFlagBits((void *)arg0, 0x100000);
-        itfMesWindowSetFlagBits((void *)arg0, 0x400000);
-        itfMesWindowClearFlagBits((void *)arg0, 0x800000);
+        itfMesWindowClearFlagBits((void *)window, 0x100000);
+        itfMesWindowSetFlagBits((void *)window, 0x400000);
+        itfMesWindowClearFlagBits((void *)window, 0x800000);
         if ((void *)D_00882020 == (void *)0) {
             kAssertFail(D_0063BFC0, 0x18F);
         }
         memset(D_00882020, 0, 0x18);
         break;
     case 2:
-        D_0088202A[0] = (s16)func_0027b6e0((void *)arg0, 0);
+        D_0088202A[0] = (s16)itfMesWindowGetProcedureParam((void *)window, 0);
         break;
     case 4:
         if (D_0088202A[0] != 0) {
@@ -1225,7 +1230,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
                 break;
             }
         }
-        if (func_0027bec0((s32)arg0) == 0) {
+        if (itfMsgWindowCanDraw((s32)window) == 0) {
             break;
         }
         if ((D_00882020[0] & 2) == 0) {
@@ -1248,195 +1253,195 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
             break;
         }
         if (D_00882024[0] < 0xB) {
-            f = sinf(iGpffff81dc + (iGpffff8084 * (float)D_00882024[0]) / 10.0f);
-            f = (f + 1.0f) / 2.0f;
-            subA = 1.0f - f;
-            cvtA = (float)(windowX4 + 0x7B);
-            chainA = cvtA - (16.0f * subA);
-            prodA = 300.0f - (300.0f * f);
-            chainC = 0.2f + (iGpffff811c * f);
-            chainD = 0.2f - (iGpffff8118 * f);
-            sdkSpriteDrawQueued(prodA, chainA, 0.0f, 0xFFFFFF, 0xD8, windowY4, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, chainC, chainD, (void *)D_00796490);
+            progress = sinf(iGpffff81dc + (iGpffff8084 * (float)D_00882024[0]) / 10.0f);
+            progress = (progress + 1.0f) / 2.0f;
+            remainingRatio = 1.0f - progress;
+            baseY = (float)(windowX4 + 0x7B);
+            spriteY = baseY - (16.0f * remainingRatio);
+            firstProduct = 300.0f - (300.0f * progress);
+            scaleX = 0.2f + (iGpffff811c * progress);
+            scaleY = 0.2f - (iGpffff8118 * progress);
+            sdkSpriteDrawQueued(firstProduct, spriteY, 0.0f, 0xFFFFFF, 0xD8, windowY4, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, scaleX, scaleY, (void *)D_00796490);
         } else if (D_00882024[0] < 0x10) {
-            f = sinf((iGpffff8094 * (float)(D_00882024[0] - 10)) / 5.0f);
-            chainA = (float)windowX4 * (1.0f - f) + 123.0f;
-            chainC = iGpffff80d4 * f + iGpffff81e4;
-            sdkSpriteDrawQueued(0.0f, chainA, 0.0f, 0xFFFFFF, 0xD8, windowY4, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, chainC, (void *)D_00796490);
+            progress = sinf((iGpffff8094 * (float)(D_00882024[0] - 10)) / 5.0f);
+            spriteY = (float)windowX4 * (1.0f - progress) + 123.0f;
+            scaleX = iGpffff80d4 * progress + iGpffff81e4;
+            sdkSpriteDrawQueued(0.0f, spriteY, 0.0f, 0xFFFFFF, 0xD8, windowY4, (void *)iGpffffb4dc, 1, 0, 0, 0.0f, 1.0f, scaleX, (void *)D_00796490);
         } else if (D_00882024[0] < 0x15) {
             sdkSpriteDrawQueuedUnscaled(0.0f, 123.0f, 0.0f, 0xFFFFFF, 0xD8, windowY4, (void *)iGpffffb4dc, 1, (void *)D_00796490);
-            f = sinf((iGpffff8094 * (float)(D_00882024[0] - 15)) / 5.0f);
+            progress = sinf((iGpffff8094 * (float)(D_00882024[0] - 15)) / 5.0f);
             if (D_0088202A[0] == 0) {
-                chainA = 36.0f - ((1.0f - f) * 100.0f);
-                sdkSpriteDrawQueuedUnscaled(chainA, 143.0f, 0.0f, 0xFFE92C, 0xFF, 0, (void *)iGpffffb4dc, 1, (void *)D_00796490);
+                spriteY = 36.0f - ((1.0f - progress) * 100.0f);
+                sdkSpriteDrawQueuedUnscaled(spriteY, 143.0f, 0.0f, 0xFFE92C, 0xFF, 0, (void *)iGpffffb4dc, 1, (void *)D_00796490);
             } else {
                 switch (D_0088202A[0]) {
                 case 1:
-                    chainA = 38.0f - ((1.0f - f) * 100.0f);
-                    shdSpriteDrawQueued(0xFFE92C, 0xFF, 4, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
+                    spriteY = 38.0f - ((1.0f - progress) * 100.0f);
+                    shdSpriteDrawQueued(0xFFE92C, 0xFF, 4, 0, (u8 *)handle, 1, (void *)D_00796490, spriteY, 143.0f, 0.0f);
                     break;
                 case 2:
-                    chainA = 38.0f - ((1.0f - f) * 100.0f);
-                    shdSpriteDrawQueued(0xFFE92C, 0xFF, 3, 0, (u8 *)handle, 1, (void *)D_00796490, chainA, 143.0f, 0.0f);
+                    spriteY = 38.0f - ((1.0f - progress) * 100.0f);
+                    shdSpriteDrawQueued(0xFFE92C, 0xFF, 3, 0, (u8 *)handle, 1, (void *)D_00796490, spriteY, 143.0f, 0.0f);
                     break;
                 case 3:
-                    prodB = 1.0f - f;
-                    prodA = 100.0f * prodB;
-                    shdSpriteDrawQueued(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f - prodA, 143.0f, 0.0f);
-                    shdSpriteDrawQueued(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, 234.0f - prodA, 143.0f, 0.0f);
+                    secondProduct = 1.0f - progress;
+                    firstProduct = 100.0f * secondProduct;
+                    shdSpriteDrawQueued(0xFFE92C, 0xFF, 1, 0, (u8 *)handle, 1, (void *)D_00796490, 38.0f - firstProduct, 143.0f, 0.0f);
+                    shdSpriteDrawQueued(0xFFE92C, 0xFF, 2, 0, (u8 *)handle, 1, (void *)D_00796490, 234.0f - firstProduct, 143.0f, 0.0f);
                     break;
                 }
             }
             msgWinDrawRect(0, 0, 200, 300, 0.0f, (void *)D_00796490);
             msgWinDrawRect(0, 0x7B, 200, 200, 10.0f, (void *)D_00796490);
-            mp = (u8 *)&blocks[11].pts[0];
-            mn = 0x20;
-            if (mp != (u8 *)0) {
+            clearCursor = (u8 *)&blocks[11].pts[0];
+            remaining = 0x20;
+            if (clearCursor != (u8 *)0) {
                 do {
-                    *mp = 0;
-                    mp++;
-                    mn--;
-                } while (mn != 0);
+                    *clearCursor = 0;
+                    clearCursor++;
+                    remaining--;
+                } while (remaining != 0);
             }
             blocks[11].pts[1].x = 250.0f;
             blocks[11].pts[2].y = 5.0f;
             blocks[11].pts[3].x = 250.0f;
             blocks[11].pts[3].y = 5.0f;
             for (k = 0; k < 4; k++) {
-                pt = &blocks[11].pts[k];
-                pt->x += -70.0f;
-                pt->y += 156.0f;
-                cl = &blocks[11].cols[k];
-                cl->r = 0x93;
-                cl->g = 0x8D;
-                cl->b = 0x17;
-                cl->a = 0xFF;
+                point = &blocks[11].pts[k];
+                point->x += -70.0f;
+                point->y += 156.0f;
+                vertexColor = &blocks[11].cols[k];
+                vertexColor->r = 0x93;
+                vertexColor->g = 0x8D;
+                vertexColor->b = 0x17;
+                vertexColor->a = 0xFF;
             }
-            PrimQueueBatchAlpha(&blocks[11].cols[0], &blocks[11].pts[0], 5.0f, 4, 4, 1, 0, -1, 15.0f, f, 1.0f, (void *)D_00796490);
-            mp = (u8 *)&blocks[10].pts[0];
-            mn = 0x20;
-            if (mp != (u8 *)0) {
+            PrimQueueBatchAlpha(&blocks[11].cols[0], &blocks[11].pts[0], 5.0f, 4, 4, 1, 0, -1, 15.0f, progress, 1.0f, (void *)D_00796490);
+            clearCursor = (u8 *)&blocks[10].pts[0];
+            remaining = 0x20;
+            if (clearCursor != (u8 *)0) {
                 do {
-                    *mp = 0;
-                    mp++;
-                    mn--;
-                } while (mn != 0);
+                    *clearCursor = 0;
+                    clearCursor++;
+                    remaining--;
+                } while (remaining != 0);
             }
             blocks[10].pts[1].x = 250.0f;
             blocks[10].pts[2].y = 3.0f;
             blocks[10].pts[3].x = 250.0f;
             blocks[10].pts[3].y = 3.0f;
             for (k = 0; k < 4; k++) {
-                pt = &blocks[10].pts[k];
-                pt->x += -70.0f;
-                pt->y += 155.0f;
-                cl = &blocks[10].cols[k];
-                cl->r = 0xCB;
-                cl->g = 0xF2;
-                cl->b = 0x00;
-                cl->a = 0xFF;
+                point = &blocks[10].pts[k];
+                point->x += -70.0f;
+                point->y += 155.0f;
+                vertexColor = &blocks[10].cols[k];
+                vertexColor->r = 0xCB;
+                vertexColor->g = 0xF2;
+                vertexColor->b = 0x00;
+                vertexColor->a = 0xFF;
             }
-            PrimQueueBatchAlpha(&blocks[10].cols[0], &blocks[10].pts[0], 5.0f, 4, 4, 1, 0, 0, 15.0f, f, 1.0f, (void *)D_00796490);
-            mp = (u8 *)&blocks[9].pts[0];
-            mn = 0x20;
-            if (mp != (u8 *)0) {
+            PrimQueueBatchAlpha(&blocks[10].cols[0], &blocks[10].pts[0], 5.0f, 4, 4, 1, 0, 0, 15.0f, progress, 1.0f, (void *)D_00796490);
+            clearCursor = (u8 *)&blocks[9].pts[0];
+            remaining = 0x20;
+            if (clearCursor != (u8 *)0) {
                 do {
-                    *mp = 0;
-                    mp++;
-                    mn--;
-                } while (mn != 0);
+                    *clearCursor = 0;
+                    clearCursor++;
+                    remaining--;
+                } while (remaining != 0);
             }
             blocks[9].pts[1].x = 250.0f;
             blocks[9].pts[2].y = 4.0f;
             blocks[9].pts[3].x = 250.0f;
             blocks[9].pts[3].y = 4.0f;
             for (k = 0; k < 4; k++) {
-                pt = &blocks[9].pts[k];
-                pt->x += -70.0f;
-                pt->y += 161.0f;
-                cl = &blocks[9].cols[k];
-                cl->r = 0xF1;
-                cl->g = 0x24;
-                cl->b = 0x00;
-                cl->a = 0xFF;
+                point = &blocks[9].pts[k];
+                point->x += -70.0f;
+                point->y += 161.0f;
+                vertexColor = &blocks[9].cols[k];
+                vertexColor->r = 0xF1;
+                vertexColor->g = 0x24;
+                vertexColor->b = 0x00;
+                vertexColor->a = 0xFF;
             }
-            PrimQueueBatchAlpha(&blocks[9].cols[0], &blocks[9].pts[0], 5.0f, 4, 4, 1, 0, -6, 15.0f, f, 1.0f, (void *)D_00796490);
-            mp = (u8 *)&blocks[8].pts[0];
-            mn = 0x20;
-            if (mp != (u8 *)0) {
+            PrimQueueBatchAlpha(&blocks[9].cols[0], &blocks[9].pts[0], 5.0f, 4, 4, 1, 0, -6, 15.0f, progress, 1.0f, (void *)D_00796490);
+            clearCursor = (u8 *)&blocks[8].pts[0];
+            remaining = 0x20;
+            if (clearCursor != (u8 *)0) {
                 do {
-                    *mp = 0;
-                    mp++;
-                    mn--;
-                } while (mn != 0);
+                    *clearCursor = 0;
+                    clearCursor++;
+                    remaining--;
+                } while (remaining != 0);
             }
             blocks[8].pts[1].x = 250.0f;
             blocks[8].pts[2].y = 7.0f;
             blocks[8].pts[3].x = 250.0f;
             blocks[8].pts[3].y = 7.0f;
             for (k = 0; k < 4; k++) {
-                pt = &blocks[8].pts[k];
-                pt->x += -70.0f;
-                pt->y += 171.0f;
-                cl = &blocks[8].cols[k];
-                cl->r = 0xFF;
-                cl->g = 0xE9;
-                cl->b = 0x2C;
-                cl->a = 0xFF;
+                point = &blocks[8].pts[k];
+                point->x += -70.0f;
+                point->y += 171.0f;
+                vertexColor = &blocks[8].cols[k];
+                vertexColor->r = 0xFF;
+                vertexColor->g = 0xE9;
+                vertexColor->b = 0x2C;
+                vertexColor->a = 0xFF;
             }
-            PrimQueueBatchAlpha(&blocks[8].cols[0], &blocks[8].pts[0], 5.0f, 4, 4, 1, 0, -16, 15.0f, f, 1.0f, (void *)D_00796490);
-            mp = (u8 *)&blocks[7].pts[0];
-            mn = 0x20;
-            if (mp != (u8 *)0) {
+            PrimQueueBatchAlpha(&blocks[8].cols[0], &blocks[8].pts[0], 5.0f, 4, 4, 1, 0, -16, 15.0f, progress, 1.0f, (void *)D_00796490);
+            clearCursor = (u8 *)&blocks[7].pts[0];
+            remaining = 0x20;
+            if (clearCursor != (u8 *)0) {
                 do {
-                    *mp = 0;
-                    mp++;
-                    mn--;
-                } while (mn != 0);
+                    *clearCursor = 0;
+                    clearCursor++;
+                    remaining--;
+                } while (remaining != 0);
             }
             blocks[7].pts[1].x = 250.0f;
             blocks[7].pts[2].y = 4.0f;
             blocks[7].pts[3].x = 250.0f;
             blocks[7].pts[3].y = 4.0f;
             for (k = 0; k < 4; k++) {
-                pt = &blocks[7].pts[k];
-                pt->x += -70.0f;
-                pt->y += 168.0f;
-                cl = &blocks[7].cols[k];
-                cl->r = 0xFF;
-                cl->g = 0xFF;
-                cl->b = 0xFF;
-                cl->a = 0xFF;
+                point = &blocks[7].pts[k];
+                point->x += -70.0f;
+                point->y += 168.0f;
+                vertexColor = &blocks[7].cols[k];
+                vertexColor->r = 0xFF;
+                vertexColor->g = 0xFF;
+                vertexColor->b = 0xFF;
+                vertexColor->a = 0xFF;
             }
-            PrimQueueBatchAlpha(&blocks[7].cols[0], &blocks[7].pts[0], 5.0f, 4, 4, 1, 0, -13, 15.0f, f, 1.0f, (void *)D_00796490);
-            mp = (u8 *)&blocks[6].pts[0];
-            mn = 0x20;
-            if (mp != (u8 *)0) {
+            PrimQueueBatchAlpha(&blocks[7].cols[0], &blocks[7].pts[0], 5.0f, 4, 4, 1, 0, -13, 15.0f, progress, 1.0f, (void *)D_00796490);
+            clearCursor = (u8 *)&blocks[6].pts[0];
+            remaining = 0x20;
+            if (clearCursor != (u8 *)0) {
                 do {
-                    *mp = 0;
-                    mp++;
-                    mn--;
-                } while (mn != 0);
+                    *clearCursor = 0;
+                    clearCursor++;
+                    remaining--;
+                } while (remaining != 0);
             }
             blocks[6].pts[1].x = 250.0f;
             blocks[6].pts[2].y = 5.0f;
             blocks[6].pts[3].x = 250.0f;
             blocks[6].pts[3].y = 5.0f;
             for (k = 0; k < 4; k++) {
-                pt = &blocks[6].pts[k];
-                pt->x += -70.0f;
-                pt->y += 164.0f;
-                cl = &blocks[6].cols[k];
-                cl->r = 0xFF;
-                cl->g = 0xAE;
-                cl->b = 0x20;
-                cl->a = 0xFF;
+                point = &blocks[6].pts[k];
+                point->x += -70.0f;
+                point->y += 164.0f;
+                vertexColor = &blocks[6].cols[k];
+                vertexColor->r = 0xFF;
+                vertexColor->g = 0xAE;
+                vertexColor->b = 0x20;
+                vertexColor->a = 0xFF;
             }
-            PrimQueueBatchAlpha(&blocks[6].cols[0], &blocks[6].pts[0], 5.0f, 4, 4, 1, 0, -9, 15.0f, f, 1.0f, (void *)D_00796490);
+            PrimQueueBatchAlpha(&blocks[6].cols[0], &blocks[6].pts[0], 5.0f, 4, 4, 1, 0, -9, 15.0f, progress, 1.0f, (void *)D_00796490);
         }
         if (D_00882024[0] >= 0x14) {
             D_00882020[0] &= ~2u;
             D_00882024[0] = 0;
-            ret = 1;
+            completed = 1;
         }
         break;
     case 5:
@@ -1446,7 +1451,7 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
                 break;
             }
         }
-        if (func_0027bec0((s32)arg0) == 0) {
+        if (itfMsgWindowCanDraw((s32)window) == 0) {
             break;
         }
         switch (D_0088202C[0]) {
@@ -1478,248 +1483,248 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
         }
         msgWinDrawRect(0, 0x32, 200, 200, 0.0f, (void *)D_00796490);
         msgWinDrawRect(0, 0x7B, 200, 200, 10.0f, (void *)D_00796490);
-        mp = (u8 *)&blocks[5].pts[0];
-        mn = 0x20;
-        if (mp != (u8 *)0) {
+        clearCursor = (u8 *)&blocks[5].pts[0];
+        remaining = 0x20;
+        if (clearCursor != (u8 *)0) {
             do {
-                *mp = 0;
-                mp++;
-                mn--;
-            } while (mn != 0);
+                *clearCursor = 0;
+                clearCursor++;
+                remaining--;
+            } while (remaining != 0);
         }
         blocks[5].pts[1].x = 250.0f;
         blocks[5].pts[2].y = 5.0f;
         blocks[5].pts[3].x = 250.0f;
         blocks[5].pts[3].y = 5.0f;
         for (k = 0; k < 4; k++) {
-            pt = &blocks[5].pts[k];
-            pt->x += -70.0f;
-            pt->y += 156.0f;
-            cl = &blocks[5].cols[k];
-            cl->r = 0x93;
-            cl->g = 0x8D;
-            cl->b = 0x17;
-            cl->a = 0xFF;
+            point = &blocks[5].pts[k];
+            point->x += -70.0f;
+            point->y += 156.0f;
+            vertexColor = &blocks[5].cols[k];
+            vertexColor->r = 0x93;
+            vertexColor->g = 0x8D;
+            vertexColor->b = 0x17;
+            vertexColor->a = 0xFF;
         }
         PrimQueueBatchAlpha(&blocks[5].cols[0], &blocks[5].pts[0], 5.0f, 4, 4, 1, 0, -1, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
-        mp = (u8 *)&blocks[4].pts[0];
-        mn = 0x20;
-        if (mp != (u8 *)0) {
+        clearCursor = (u8 *)&blocks[4].pts[0];
+        remaining = 0x20;
+        if (clearCursor != (u8 *)0) {
             do {
-                *mp = 0;
-                mp++;
-                mn--;
-            } while (mn != 0);
+                *clearCursor = 0;
+                clearCursor++;
+                remaining--;
+            } while (remaining != 0);
         }
         blocks[4].pts[1].x = 250.0f;
         blocks[4].pts[2].y = 3.0f;
         blocks[4].pts[3].x = 250.0f;
         blocks[4].pts[3].y = 3.0f;
         for (k = 0; k < 4; k++) {
-            pt = &blocks[4].pts[k];
-            pt->x += -70.0f;
-            pt->y += 155.0f;
-            cl = &blocks[4].cols[k];
-            cl->r = 0xCB;
-            cl->g = 0xF2;
-            cl->b = 0x00;
-            cl->a = 0xFF;
+            point = &blocks[4].pts[k];
+            point->x += -70.0f;
+            point->y += 155.0f;
+            vertexColor = &blocks[4].cols[k];
+            vertexColor->r = 0xCB;
+            vertexColor->g = 0xF2;
+            vertexColor->b = 0x00;
+            vertexColor->a = 0xFF;
         }
         PrimQueueBatchAlpha(&blocks[4].cols[0], &blocks[4].pts[0], 5.0f, 4, 4, 1, 0, 0, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
-        mp = (u8 *)&blocks[3].pts[0];
-        mn = 0x20;
-        if (mp != (u8 *)0) {
+        clearCursor = (u8 *)&blocks[3].pts[0];
+        remaining = 0x20;
+        if (clearCursor != (u8 *)0) {
             do {
-                *mp = 0;
-                mp++;
-                mn--;
-            } while (mn != 0);
+                *clearCursor = 0;
+                clearCursor++;
+                remaining--;
+            } while (remaining != 0);
         }
         blocks[3].pts[1].x = 250.0f;
         blocks[3].pts[2].y = 4.0f;
         blocks[3].pts[3].x = 250.0f;
         blocks[3].pts[3].y = 4.0f;
         for (k = 0; k < 4; k++) {
-            pt = &blocks[3].pts[k];
-            pt->x += -70.0f;
-            pt->y += 161.0f;
-            cl = &blocks[3].cols[k];
-            cl->r = 0xF1;
-            cl->g = 0x24;
-            cl->b = 0x00;
-            cl->a = 0xFF;
+            point = &blocks[3].pts[k];
+            point->x += -70.0f;
+            point->y += 161.0f;
+            vertexColor = &blocks[3].cols[k];
+            vertexColor->r = 0xF1;
+            vertexColor->g = 0x24;
+            vertexColor->b = 0x00;
+            vertexColor->a = 0xFF;
         }
         PrimQueueBatchAlpha(&blocks[3].cols[0], &blocks[3].pts[0], 5.0f, 4, 4, 1, 0, -6, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
-        mp = (u8 *)&blocks[2].pts[0];
-        mn = 0x20;
-        if (mp != (u8 *)0) {
+        clearCursor = (u8 *)&blocks[2].pts[0];
+        remaining = 0x20;
+        if (clearCursor != (u8 *)0) {
             do {
-                *mp = 0;
-                mp++;
-                mn--;
-            } while (mn != 0);
+                *clearCursor = 0;
+                clearCursor++;
+                remaining--;
+            } while (remaining != 0);
         }
         blocks[2].pts[1].x = 250.0f;
         blocks[2].pts[2].y = 7.0f;
         blocks[2].pts[3].x = 250.0f;
         blocks[2].pts[3].y = 7.0f;
         for (k = 0; k < 4; k++) {
-            pt = &blocks[2].pts[k];
-            pt->x += -70.0f;
-            pt->y += 171.0f;
-            cl = &blocks[2].cols[k];
-            cl->r = 0xFF;
-            cl->g = 0xE9;
-            cl->b = 0x2C;
-            cl->a = 0xFF;
+            point = &blocks[2].pts[k];
+            point->x += -70.0f;
+            point->y += 171.0f;
+            vertexColor = &blocks[2].cols[k];
+            vertexColor->r = 0xFF;
+            vertexColor->g = 0xE9;
+            vertexColor->b = 0x2C;
+            vertexColor->a = 0xFF;
         }
         PrimQueueBatchAlpha(&blocks[2].cols[0], &blocks[2].pts[0], 5.0f, 4, 4, 1, 0, -16, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
-        mp = (u8 *)&blocks[1].pts[0];
-        mn = 0x20;
-        if (mp != (u8 *)0) {
+        clearCursor = (u8 *)&blocks[1].pts[0];
+        remaining = 0x20;
+        if (clearCursor != (u8 *)0) {
             do {
-                *mp = 0;
-                mp++;
-                mn--;
-            } while (mn != 0);
+                *clearCursor = 0;
+                clearCursor++;
+                remaining--;
+            } while (remaining != 0);
         }
         blocks[1].pts[1].x = 250.0f;
         blocks[1].pts[2].y = 4.0f;
         blocks[1].pts[3].x = 250.0f;
         blocks[1].pts[3].y = 4.0f;
         for (k = 0; k < 4; k++) {
-            pt = &blocks[1].pts[k];
-            pt->x += -70.0f;
-            pt->y += 168.0f;
-            cl = &blocks[1].cols[k];
-            cl->r = 0xFF;
-            cl->g = 0xFF;
-            cl->b = 0xFF;
-            cl->a = 0xFF;
+            point = &blocks[1].pts[k];
+            point->x += -70.0f;
+            point->y += 168.0f;
+            vertexColor = &blocks[1].cols[k];
+            vertexColor->r = 0xFF;
+            vertexColor->g = 0xFF;
+            vertexColor->b = 0xFF;
+            vertexColor->a = 0xFF;
         }
         PrimQueueBatchAlpha(&blocks[1].cols[0], &blocks[1].pts[0], 5.0f, 4, 4, 1, 0, -13, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
-        mp = (u8 *)&blocks[0].pts[0];
-        mn = 0x20;
-        if (mp != (u8 *)0) {
+        clearCursor = (u8 *)&blocks[0].pts[0];
+        remaining = 0x20;
+        if (clearCursor != (u8 *)0) {
             do {
-                *mp = 0;
-                mp++;
-                mn--;
-            } while (mn != 0);
+                *clearCursor = 0;
+                clearCursor++;
+                remaining--;
+            } while (remaining != 0);
         }
         blocks[0].pts[1].x = 250.0f;
         blocks[0].pts[2].y = 5.0f;
         blocks[0].pts[3].x = 250.0f;
         blocks[0].pts[3].y = 5.0f;
         for (k = 0; k < 4; k++) {
-            pt = &blocks[0].pts[k];
-            pt->x += -70.0f;
-            pt->y += 164.0f;
-            cl = &blocks[0].cols[k];
-            cl->r = 0xFF;
-            cl->g = 0xAE;
-            cl->b = 0x20;
-            cl->a = 0xFF;
+            point = &blocks[0].pts[k];
+            point->x += -70.0f;
+            point->y += 164.0f;
+            vertexColor = &blocks[0].cols[k];
+            vertexColor->r = 0xFF;
+            vertexColor->g = 0xAE;
+            vertexColor->b = 0x20;
+            vertexColor->a = 0xFF;
         }
         PrimQueueBatchAlpha(&blocks[0].cols[0], &blocks[0].pts[0], 5.0f, 4, 4, 1, 0, -9, 15.0f, 1.0f, 1.0f, (void *)D_00796490);
         break;
     case 6:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     case 8:
-        if ((pv = (void *)itfMesWindowGetBodyList((void *)arg0)) != (void *)0) {
-            frFontMoveListToFloat(pv, 400.0f, 145.0f);
-            frFontSetListSlot(pv, 0);
-            frFontSetGlyphAux(pv, 0);
+        if ((bodyList = (void *)itfMesWindowGetBodyList((void *)window)) != (void *)0) {
+            frFontMoveListToFloat(bodyList, 400.0f, 145.0f);
+            frFontSetListSlot(bodyList, 0);
+            frFontSetGlyphAux(bodyList, 0);
         }
-        if ((pv2 = (void *)itfMesWindowGetTextList((void *)arg0)) != (void *)0) {
-            frFontMoveListToFloat(pv2, 57.0f, 169.0f);
-            frFontSetListSlot(pv2, 0);
-            frFontReplaceGlyphAux(pv2, 0, 0);
-            frFontSetListFlag(pv2, 0xFF);
-            frFontSetNodeId(pv2, 0xFF);
-            tmp2 = frFontCountRuns((s32)pv2);
-            if (tmp2 < 3) {
+        if ((textList = (void *)itfMesWindowGetTextList((void *)window)) != (void *)0) {
+            frFontMoveListToFloat(textList, 57.0f, 169.0f);
+            frFontSetListSlot(textList, 0);
+            frFontReplaceGlyphAux(textList, 0, 0);
+            frFontSetListFlag(textList, 0xFF);
+            frFontSetNodeId(textList, 0xFF);
+            extent = frFontCountRuns((s32)textList);
+            if (extent < 3) {
                 D_0088202C[0] = 0;
-            } else if (tmp2 < 4) {
+            } else if (extent < 4) {
                 D_0088202C[0] = 1;
             } else {
                 D_0088202C[0] = 2;
             }
         }
-        ret = 1;
+        completed = 1;
         break;
     case 7:
         switch (D_0088202C[0]) {
         case 0:
-            e = msgWinFindFreeEntry();
-            if (e != NULL) {
-                memset(e, 0, 0x18);
-                e->field0 |= 1;
-                e->field8 = 0;
-                e->fieldC = 0;
-                e->field4 = 1;
+            entry = msgWinFindFreeEntry();
+            if (entry != NULL) {
+                memset(entry, 0, 0x18);
+                entry->flags |= 1;
+                entry->frameOffset = 0;
+                entry->unk0C = 0;
+                entry->kind = 1;
             }
             break;
         case 1:
-            e = msgWinFindFreeEntry();
-            if (e != NULL) {
-                memset(e, 0, 0x18);
-                e->field0 |= 1;
-                e->field8 = 0;
-                e->fieldC = 0;
-                e->field4 = 2;
+            entry = msgWinFindFreeEntry();
+            if (entry != NULL) {
+                memset(entry, 0, 0x18);
+                entry->flags |= 1;
+                entry->frameOffset = 0;
+                entry->unk0C = 0;
+                entry->kind = 2;
             }
             break;
         case 2:
-            e = msgWinFindFreeEntry();
-            if (e != NULL) {
-                memset(e, 0, 0x18);
-                e->field0 |= 1;
-                e->field8 = 0;
-                e->fieldC = 0;
-                e->field4 = 3;
+            entry = msgWinFindFreeEntry();
+            if (entry != NULL) {
+                memset(entry, 0, 0x18);
+                entry->flags |= 1;
+                entry->frameOffset = 0;
+                entry->unk0C = 0;
+                entry->kind = 3;
             }
             break;
         }
         break;
     case 9:
-        tmp = func_0027b6e0((void *)arg0, 0);
-        if (tmp == 5) {
+        value = itfMesWindowGetProcedureParam((void *)window, 0);
+        if (value == 5) {
             handle = 0x550;
-            tmp2 = 0xF0;
+            extent = 0xF0;
         } else {
-            f = 100.0f / (float)tmp;
-            tmp2 = (s32)f;
-            handle = (tmp2 >> 1) * 8 + 0x550;
-            tmp2 = tmp2 * 8;
+            progress = 100.0f / (float)value;
+            extent = (s32)progress;
+            handle = (extent >> 1) * 8 + 0x550;
+            extent = extent * 8;
         }
-        func_0027b750((void *)arg0, 0, 0x460);
-        func_0027b750((void *)arg0, 1, handle);
-        func_0027b750((void *)arg0, 2, tmp2);
-        ret = 1;
+        itfMesWindowSetProcedureParam((void *)window, 0, 0x460);
+        itfMesWindowSetProcedureParam((void *)window, 1, handle);
+        itfMesWindowSetProcedureParam((void *)window, 2, extent);
+        completed = 1;
         break;
     case 11:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     case 12:
-        if (func_0027bec0((s32)arg0) != 0) {
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
             backgroundColor = iGpffffa780;
             msgWinCopyColor((u8 *)&color, (const u8 *)&backgroundColor);
             background = D_0063C130;
             msgWinCopyRectangle((u8 *)&rectangle, (const u8 *)&background);
             PrimQueueRectangle(&color, &rectangle, 0.0f, 1, (void *)D_00796490);
-            tmp = itfMesWindowGetAnimAux((s32)arg0);
-            tmp2 = func_00279010((s32)arg0);
-            if ((s16)tmp2 == 5) {
-                j = tmp * 0xF0 + 0x550;
+            value = itfMesWindowGetAnimAux((s32)window);
+            extent = itfMesWindowGetChoiceCount((s32)window);
+            if ((s16)extent == 5) {
+                j = value * 0xF0 + 0x550;
             } else {
-                f = 100.0f;
-                f = f / (float)(s16)tmp2;
-                tmp2 = (s32)f;
-                j = (tmp2 >> 1) * 8 + 0x550 + msgWinColumnOffset(tmp2 * 8, tmp);
+                progress = 100.0f;
+                progress = progress / (float)(s16)extent;
+                extent = (s32)progress;
+                j = (extent >> 1) * 8 + 0x550 + msgWinColumnOffset(extent * 8, value);
             }
             selectionColor = iGpffffa784;
             msgWinCopyColor((u8 *)&color, (const u8 *)&selectionColor);
@@ -1729,20 +1734,20 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
             rectangle = selection;
             PrimQueueRectangle(&color, &rectangle, 0.0f, 1, (void *)D_00796490);
         }
-        ret = 1;
+        completed = 1;
         break;
     case 13:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     case 16:
-        if (func_0027bec0((s32)arg0) != 0) {
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
             if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
-                tmp = 1;
+                value = 1;
             } else {
-                tmp = 0;
+                value = 0;
             }
-            if (tmp != 0) {
+            if (value != 0) {
                 switch (D_0088202C[0]) {
                 case 0:
                     windowX16 = 0x24E;
@@ -1757,36 +1762,36 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
                     windowY16 = 0x142;
                     break;
                 }
-                cntB = D_00882028[0];
+                frameCount = D_00882028[0];
                 if ((D_00882020[0] & 0x20) == 0) {
                     D_00882020[0] |= 0x20;
-                    cntB = 0;
+                    frameCount = 0;
                 }
-                cntB++;
-                cntB32 = (s32)cntB;
-                f = sinf((iGpffff8094 * (float)cntB32) / 5.0f);
-                prodA = (float)windowX16;
-                prodB = (float)windowY16;
-                g = f * 180.0f;
-                sdkSpriteDrawQueued(prodA, prodB, 0.0f, 0xFFFFFF, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, g, 1.0f, 1.0f, (void *)D_00796490);
+                frameCount++;
+                frameCountWord = (s32)frameCount;
+                progress = sinf((iGpffff8094 * (float)frameCountWord) / 5.0f);
+                firstProduct = (float)windowX16;
+                secondProduct = (float)windowY16;
+                angle = progress * 180.0f;
+                sdkSpriteDrawQueued(firstProduct, secondProduct, 0.0f, 0xFFFFFF, 0xFF, 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, angle, 1.0f, 1.0f, (void *)D_00796490);
                 sdkSpriteDrawQueuedUnscaled((float)windowX16, (float)windowY16, 0.0f, 0xFAFF20, 0xFF, 3, (void *)iGpffffb4d8, 1, (void *)D_00796490);
-                if (cntB32 >= 5) {
+                if (frameCountWord >= 5) {
                     D_00882020[0] &= ~0x20u;
-                    cntB = 0;
-                    ret = 1;
+                    frameCount = 0;
+                    completed = 1;
                 }
-                D_00882028[0] = cntB;
+                D_00882028[0] = frameCount;
             }
         }
         break;
     case 17:
-        if (func_0027bec0((s32)arg0) != 0) {
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
             if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
-                tmp = 1;
+                value = 1;
             } else {
-                tmp = 0;
+                value = 0;
             }
-            if (tmp != 0) {
+            if (value != 0) {
                 switch (D_0088202C[0]) {
                 case 0:
                     windowX17 = 0x24E;
@@ -1807,13 +1812,13 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
         }
         break;
     case 18:
-        if (func_0027bec0((s32)arg0) != 0) {
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
             if (iGpffffb4d8 != 0 && iGpffffb4dc != 0) {
-                tmp = 1;
+                value = 1;
             } else {
-                tmp = 0;
+                value = 0;
             }
-            if (tmp != 0) {
+            if (value != 0) {
                 switch (D_0088202C[0]) {
                 case 0:
                     windowX18 = 0x24E;
@@ -1828,38 +1833,38 @@ s32 msgWinDrawSelection(s32 arg0, u32 arg1)
                     windowY18 = 0x142;
                     break;
                 }
-                cntB = D_00882028[0];
+                frameCount = D_00882028[0];
                 if ((D_00882020[0] & 0x80) == 0) {
                     D_00882020[0] |= 0x80;
-                    cntB = 0;
+                    frameCount = 0;
                 }
-                cntB++;
-                cntB32 = (s32)cntB;
-                f = sinf((iGpffff8094 * (float)cntB32) / 10.0f);
-                sdkSpriteDrawQueued((float)windowX18, (float)windowY18, 0.0f, 0xFFFFFF, (u8)((1.0f - f) * 255.0f), 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, f * 360.0f + 180.0f, 1.0f, 1.0f, (void *)D_00796490);
-                if (cntB32 >= 10) {
+                frameCount++;
+                frameCountWord = (s32)frameCount;
+                progress = sinf((iGpffff8094 * (float)frameCountWord) / 10.0f);
+                sdkSpriteDrawQueued((float)windowX18, (float)windowY18, 0.0f, 0xFFFFFF, (u8)((1.0f - progress) * 255.0f), 2, (void *)iGpffffb4d8, 1, 0xE, 0xE, progress * 360.0f + 180.0f, 1.0f, 1.0f, (void *)D_00796490);
+                if (frameCountWord >= 10) {
                     D_00882020[0] &= ~0x80u;
-                    cntB = 0;
-                    ret = 1;
+                    frameCount = 0;
+                    completed = 1;
                 }
-                D_00882028[0] = cntB;
+                D_00882028[0] = frameCount;
             }
         }
         break;
     default:
         break;
     }
-    return ret;
+    return completed;
 }
 #pragma pop
 
 // FUN_002818A0
-void msgWinStoreSlot(s32 arg0, s32 arg1) {
-    s32 *temp_2;
+void msgWinStoreSlot(s32 window, s32 value) {
+    s32 *slot;
 
-    temp_2 = itfMesWindowSubTablePtr(arg0);
-    if (temp_2 != NULL) {
-        *temp_2 = arg1;
+    slot = itfMesWindowSubTablePtr(window);
+    if (slot != NULL) {
+        *slot = value;
     }
 }
 
@@ -1871,50 +1876,51 @@ void msgWinStoreSlot(s32 arg0, s32 arg1) {
    case 8/10 handles are tested as they come back in $v0.
    opt_loop_invariants hoists the entry-table base out of the free-entry scan. */
 #pragma opt_loop_invariants on
+/* Dispatch the compact window phases; its user-data slot selects the portrait sprite. */
 // FUN_002818E0
-s32 msgWinRunPhase(u8 *arg0, s32 arg1)
+s32 msgWinRunPhase(u8 *window, s32 operation)
 {
-    s32 ret;
-    s32 *tex;
-    f32 f;
-    MsgProcWindowEntry *e;
+    s32 completed;
+    s32 *resourceSlot;
+    f32 progress;
+    MsgProcWindowEntry *entry;
 
-    itfMesWindowGetFlags((s32)arg0);
-    ret = 0;
-    switch (arg1) {
+    itfMesWindowGetFlags((s32)window);
+    completed = 0;
+    switch (operation) {
     case 0:
-        itfMesWindowSetFlagBits(arg0, 0x4000000);
-        itfMesWindowSetFlagBits(arg0, 0x100000);
-        itfMesWindowSetFlagBits(arg0, 0x400000);
+        itfMesWindowSetFlagBits(window, 0x4000000);
+        itfMesWindowSetFlagBits(window, 0x100000);
+        itfMesWindowSetFlagBits(window, 0x400000);
         if (D_00882040 == NULL) {
             kAssertFail(D_0063BFC0, 0x18F);
         }
         memset(D_00882040, 0, 0x18);
-        if (itfMesWindowSubTablePtr((s32)arg0) == NULL) {
+        if (itfMesWindowSubTablePtr((s32)window) == NULL) {
             chkmemAllocSiteTag(D_0063BFC0, 0x5C0);
-            fclMesWindowSetUserData((s32)arg0, D_008873F4[0](1, 8, 0x40000));
+            fclMesWindowSetUserData((s32)window, D_008873F4[0](1, 8, 0x40000));
         }
         break;
     case 1:
-        if ((tex = itfMesWindowSubTablePtr((s32)arg0)) != NULL) {
-            jtbl_008873EC[0](tex);
-            fclMesWindowSetUserData((s32)arg0, NULL);
+        if ((resourceSlot = itfMesWindowSubTablePtr((s32)window)) != NULL) {
+            jtbl_008873EC[0](resourceSlot);
+            fclMesWindowSetUserData((s32)window, NULL);
         }
         break;
     case 4:
-        if (func_0027bec0((s32)arg0) != 0) {
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
             if ((D_00882040[0] & 2) == 0) {
                 D_00882040[0] |= 2;
                 D_00882044[0] = 0;
             }
             D_00882044[0]++;
             if (D_00882044[0] < 5) {
-                f = sinf(iGpffff81dc + iGpffff8084 * (f32)D_00882044[0] / 4.0f);
-                f = (1.0f + f) / 2.0f;
-                func_00366380((s32)(200.0f * (1.0f - f) + 70.0f), (s32)(47.0f - 5.0f * (1.0f - f)), 0.0f, (s32)(404.0f * f), (s32)(20.0f - 15.0f * f), 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
+                progress = sinf(iGpffff81dc + iGpffff8084 * (f32)D_00882044[0] / 4.0f);
+                progress = (1.0f + progress) / 2.0f;
+                sflDataDrawNarrowRoundedFrame((s32)(200.0f * (1.0f - progress) + 70.0f), (s32)(47.0f - 5.0f * (1.0f - progress)), 0.0f, (s32)(404.0f * progress), (s32)(20.0f - 15.0f * progress), 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
             } else if (D_00882044[0] < 11) {
-                f = sinf(iGpffff8094 * (f32)(D_00882044[0] - 4) / 6.0f);
-                func_00366380(0x46, (s32)(20.0f * (1.0f - f) + 27.0f), 0.0f, 0x194, (s32)(50.0f * f + 5.0f), 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
+                progress = sinf(iGpffff8094 * (f32)(D_00882044[0] - 4) / 6.0f);
+                sflDataDrawNarrowRoundedFrame(0x46, (s32)(20.0f * (1.0f - progress) + 27.0f), 0.0f, 0x194, (s32)(50.0f * progress + 5.0f), 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
             }
             if (D_00882044[0] < 6) {
                 msgWinDrawRing(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f,
@@ -1923,101 +1929,101 @@ s32 msgWinRunPhase(u8 *arg0, s32 arg1)
                 msgWinDrawRing(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
             }
             if (D_00882044[0] > 3 && D_00882044[0] < 11) {
-                tex = itfMesWindowSubTablePtr((s32)arg0);
-                if (tex != NULL) {
-                    f = sinf(iGpffff8094 * (f32)(D_00882044[0] - 3) / 7.0f);
-                    sdkSpriteDrawQueued(9.0f - 60.0f * (1.0f - f), 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)fclMiscSlotValue(*tex), 1,
+                resourceSlot = itfMesWindowSubTablePtr((s32)window);
+                if (resourceSlot != NULL) {
+                    progress = sinf(iGpffff8094 * (f32)(D_00882044[0] - 3) / 7.0f);
+                    sdkSpriteDrawQueued(9.0f - 60.0f * (1.0f - progress), 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)fclMiscSlotValue(*resourceSlot), 1,
                                   0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
                 }
             }
             if (D_00882044[0] >= 10) {
                 D_00882040[0] &= ~2u;
                 D_00882044[0] = 0;
-                ret = 1;
+                completed = 1;
             }
         }
         break;
     case 5:
-        if (func_0027bec0((s32)arg0) != 0) {
-            func_00366380(0x46, 0x1B, 0.0f, 0x194, 0x37, 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
+            sflDataDrawNarrowRoundedFrame(0x46, 0x1B, 0.0f, 0x194, 0x37, 0, 0xB2, 1, 0, 0, D_00796490, 0.0f, 1.0f, 1.0f);
             msgWinDrawRing(0x47, 0x40, 0.0f, 0x36, 0x96FF02, 0xFF, 1, 0, 0, 0.0f, 1.0f, 1.0f, D_00796490);
-            if ((tex = itfMesWindowSubTablePtr((s32)arg0)) != NULL) {
-                sdkSpriteDrawQueued(9.0f, 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)fclMiscSlotValue(*tex), 1, 0, 0, 0.0f, 1.0f, 1.0f,
+            if ((resourceSlot = itfMesWindowSubTablePtr((s32)window)) != NULL) {
+                sdkSpriteDrawQueued(9.0f, 1.0f, 0.0f, 0xFFFFFF, 0xFF, 0, (void *)fclMiscSlotValue(*resourceSlot), 1, 0, 0, 0.0f, 1.0f, 1.0f,
                               D_00796490);
             }
         }
-        ret = 1;
+        completed = 1;
         break;
     case 6:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     case 8: {
-        void *p1;
-        void *p2;
+        void *bodyList;
+        void *textList;
 
-        if ((p1 = (void *)itfMesWindowGetBodyList(arg0)) != NULL) {
-            frFontMoveListToFloat(p1, 10.0f, 90.0f);
-            frFontSetListSlot(p1, 0);
-            frFontSetGlyphAux(p1, 2);
+        if ((bodyList = (void *)itfMesWindowGetBodyList(window)) != NULL) {
+            frFontMoveListToFloat(bodyList, 10.0f, 90.0f);
+            frFontSetListSlot(bodyList, 0);
+            frFontSetGlyphAux(bodyList, 2);
         }
-        if ((p2 = (void *)itfMesWindowGetTextList(arg0)) != NULL) {
-            frFontMoveListToFloat(p2, 141.0f, 25.0f);
-            frFontSetListSlot(p2, 1);
-            frFontReplaceGlyphAux(p2, 0, 0);
-            frFontSetListFlag(p2, 0x20);
-            frFontSetNodeId(p2, 0);
+        if ((textList = (void *)itfMesWindowGetTextList(window)) != NULL) {
+            frFontMoveListToFloat(textList, 141.0f, 25.0f);
+            frFontSetListSlot(textList, 1);
+            frFontReplaceGlyphAux(textList, 0, 0);
+            frFontSetListFlag(textList, 0x20);
+            frFontSetNodeId(textList, 0);
         }
-        ret = 1;
+        completed = 1;
         break;
     }
     case 7:
-        e = msgWinFindFreeEntry();
-        if (e != NULL) {
-            memset(e, 0, 0x18);
-            e->field0 |= 1;
-            e->field8 = 0;
-            e->fieldC = 0;
-            e->field4 = 5;
+        entry = msgWinFindFreeEntry();
+        if (entry != NULL) {
+            memset(entry, 0, 0x18);
+            entry->flags |= 1;
+            entry->frameOffset = 0;
+            entry->unk0C = 0;
+            entry->kind = 5;
         }
         break;
     case 9:
-        ret = 1;
+        completed = 1;
         break;
     case 10: {
-        void *p;
+        void *fontList;
 
-        if ((p = (void *)itfMesWindowGetFontList(arg0)) != NULL) {
-            frFontSetListSlot(p, 0);
+        if ((fontList = (void *)itfMesWindowGetFontList(window)) != NULL) {
+            frFontSetListSlot(fontList, 0);
         }
         break;
     }
     case 11:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     case 12:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     case 13:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     case 16:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     case 17:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     case 18:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     }
-    return ret;
+    return completed;
 }
 #pragma pop
 
@@ -2027,236 +2033,237 @@ s32 msgWinRunPhase(u8 *arg0, s32 arg1)
  * background Y and case 12's baseline share function-scope locals with case
  * 12/13, case 13's next-row offset reuses i2, and its scaled height reuses the
  * block's row local. The case-11 declaration order gives retail's $s1/$s3. */
+/* Dispatch the alternate choice layout, animating the panel and row arrows. */
 // FUN_00282250
-s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
+s32 msgWinRunPhaseAlt(u8 *window, s32 operation)
 {
-    s32 ret;
+    s32 completed;
     s32 baseline;
     s32 backgroundY;
-    itfMesWindowGetFlags((s32)arg0);
-    ret = 0;
-    switch (arg1) {
+    itfMesWindowGetFlags((s32)window);
+    completed = 0;
+    switch (operation) {
     case 0:
-        itfMesWindowSetFlagBits(arg0, 0x100000);
-        itfMesWindowSetFlagBits(arg0, 0x400000);
-        itfMesWindowSetFlagBits(arg0, 0x800000);
+        itfMesWindowSetFlagBits(window, 0x100000);
+        itfMesWindowSetFlagBits(window, 0x400000);
+        itfMesWindowSetFlagBits(window, 0x800000);
         if (D_00882060 == NULL) {
             kAssertFail(D_0063BFC0, 0x18F);
         }
         memset(D_00882060, 0, 0x18);
         break;
     case 4: {
-        s32 cnt32;
-        if (func_0027bec0((s32)arg0) != 0) {
+        s32 frame;
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
             if ((D_00882060[0] & 2) == 0) {
                 D_00882060[0] |= 2;
                 D_00882064[0] = 0;
             }
             D_00882064[0]++;
-            cnt32 = (s32)D_00882064[0];
-            if (cnt32 >= 0) {
+            frame = (s32)D_00882064[0];
+            if (frame >= 0) {
                 D_00882060[0] &= ~2u;
                 D_00882064[0] = 0;
-                ret = 1;
+                completed = 1;
             }
         }
         break;
     }
     case 5:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     case 6:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     case 8: {
-        void *pv;
-        void *pv2;
-        if ((pv = (void *)itfMesWindowGetBodyList(arg0)) != NULL) {
-            frFontMoveListToFloat(pv, 44.0f, 306.0f);
-            frFontSetListSlot(pv, 0);
-            frFontSetGlyphAux(pv, 5);
+        void *fontList;
+        void *textList;
+        if ((fontList = (void *)itfMesWindowGetBodyList(window)) != NULL) {
+            frFontMoveListToFloat(fontList, 44.0f, 306.0f);
+            frFontSetListSlot(fontList, 0);
+            frFontSetGlyphAux(fontList, 5);
         }
-        if ((pv2 = (void *)itfMesWindowGetTextList(arg0)) != NULL) {
-            frFontMoveListToFloat(pv2, 650.0f, 0.0f);
-            frFontSetListFlag(pv2, 0xFF);
-            frFontSetNodeId(pv2, 0xFF);
+        if ((textList = (void *)itfMesWindowGetTextList(window)) != NULL) {
+            frFontMoveListToFloat(textList, 650.0f, 0.0f);
+            frFontSetListFlag(textList, 0xFF);
+            frFontSetNodeId(textList, 0xFF);
         }
-        ret = 1;
+        completed = 1;
         break;
     }
     case 7:
         fclBankCancelPending();
         break;
     case 9: {
-        s32 tmp;
-        tmp = func_0027b6e0(arg0, 0);
-        func_0027b750(arg0, 0, 0x3A0);
-        func_0027b750(arg0, 1, ((4 - tmp) * 0x1E + 0xD5) * 8);
-        func_0027b750(arg0, 2, 0xF0);
-        ret = 1;
+        s32 value;
+        value = itfMesWindowGetProcedureParam(window, 0);
+        itfMesWindowSetProcedureParam(window, 0, 0x3A0);
+        itfMesWindowSetProcedureParam(window, 1, ((4 - value) * 0x1E + 0xD5) * 8);
+        itfMesWindowSetProcedureParam(window, 2, 0xF0);
+        completed = 1;
         break;
     }
     case 10: {
-        void *pv;
-        void *pv2;
-        if ((pv = (void *)itfMesWindowGetFontList(arg0)) != NULL) {
-            frFontSetListSlot(pv, 0);
-            frFontSetGlyphAux(pv, 0);
+        void *fontList;
+        void *textList;
+        if ((fontList = (void *)itfMesWindowGetFontList(window)) != NULL) {
+            frFontSetListSlot(fontList, 0);
+            frFontSetGlyphAux(fontList, 0);
         }
-        if ((pv2 = (void *)itfMesWindowGetTextList(arg0)) != NULL) {
-            frFontNodeWidth(pv2);
-            frFontSetListSlot(pv2, 0);
-            frFontSetGlyphAux(pv2, 0);
-            frFontSetGlyphColor(pv2, 0xFFAE20FF);
-            frFontSetListFlag(pv2, 0xFF);
-            frFontSetNodeId(pv2, 0xFF);
+        if ((textList = (void *)itfMesWindowGetTextList(window)) != NULL) {
+            frFontNodeWidth(textList);
+            frFontSetListSlot(textList, 0);
+            frFontSetGlyphAux(textList, 0);
+            frFontSetGlyphColor(textList, 0xFFAE20FF);
+            frFontSetListFlag(textList, 0xFF);
+            frFontSetNodeId(textList, 0xFF);
         }
         break;
     }
     case 11: {
-        s32 v79010;
-        s32 v77070;
-        void *pv;
-        void *pv2;
-        s32 v738d0;
-        s32 cnt32;
-        float f;
-        if (func_0027bec0((s32)arg0) != 0) {
-            v77070 = itfMesWindowGetAnimAux((s32)arg0);
-            v79010 = (s16)func_00279010((s32)arg0);
-            if (v77070 == -1) {
-                v77070 = 0;
+        s32 rowCount;
+        s32 selectedRow;
+        void *fontList;
+        void *textList;
+        s32 textWidth;
+        s32 frame;
+        float progress;
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
+            selectedRow = itfMesWindowGetAnimAux((s32)window);
+            rowCount = (s16)itfMesWindowGetChoiceCount((s32)window);
+            if (selectedRow == -1) {
+                selectedRow = 0;
             }
             if ((D_00882060[0] & 8) == 0) {
                 D_00882060[0] |= 8;
                 D_00882066[0] = 0;
             }
             D_00882066[0]++;
-            cnt32 = (s32)D_00882066[0];
-            f = sinf(iGpffff8094 * (float)cnt32 / 10.0f);
-            backgroundY = (4 - v79010) * 0x1E + 0xCE;
-            func_00366380((s32)(-5.0f - (1.0f - f) * 500.0f), backgroundY, 0.0f, 0x1C0, (v79010 - 4) * 0x1E + 0xB3, 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
-            if ((pv = (void *)itfMesWindowGetTextList(arg0)) != NULL) {
-                v738d0 = frFontNodeWidth(pv);
-                frFontMoveListToFloat(pv, (f * 443.0f - 4.0f) - (float)v738d0, 351.0f);
+            frame = (s32)D_00882066[0];
+            progress = sinf(iGpffff8094 * (float)frame / 10.0f);
+            backgroundY = (4 - rowCount) * 0x1E + 0xCE;
+            sflDataDrawNarrowRoundedFrame((s32)(-5.0f - (1.0f - progress) * 500.0f), backgroundY, 0.0f, 0x1C0, (rowCount - 4) * 0x1E + 0xB3, 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
+            if ((fontList = (void *)itfMesWindowGetTextList(window)) != NULL) {
+                textWidth = frFontNodeWidth(fontList);
+                frFontMoveListToFloat(fontList, (progress * 443.0f - 4.0f) - (float)textWidth, 351.0f);
             }
-            if ((pv2 = (void *)itfMesWindowGetFontList(arg0)) != NULL) {
-                frFontSetGlyphAux(pv2, 0);
-                frFontSetGlyphColor(pv2, -1);
-                itfMesListSetColorEntry(pv2, v77070, v79010, 0);
-                itfMesListSetRangeFlagEntry(pv2, v77070, v79010, 0x1B1B1BFF);
+            if ((textList = (void *)itfMesWindowGetFontList(window)) != NULL) {
+                frFontSetGlyphAux(textList, 0);
+                frFontSetGlyphColor(textList, -1);
+                itfMesListSetColorEntry(textList, selectedRow, rowCount, 0);
+                itfMesListSetRangeFlagEntry(textList, selectedRow, rowCount, 0x1B1B1BFF);
             }
             if (D_00882066[0] >= 10) {
                 D_00882060[0] &= ~8u;
                 D_00882066[0] = 0;
-                ret = 1;
+                completed = 1;
             }
         }
         break;
     }
     case 12: {
-        s32 tmp;
-        void *pv;
-        s32 v77070;
-        s32 v79010;
-        s32 i1;
-        s32 i2;
-        if (func_0027bec0((s32)arg0) != 0) {
-            tmp = msgWinReady();
-            if (tmp != 0) {
-                v77070 = itfMesWindowGetAnimAux((s32)arg0);
-                v79010 = (s16)func_00279010((s32)arg0);
-                i1 = (4 - v79010) * 0x1E;
-                backgroundY = i1 + 0xCE;
-                func_00366380(-5, backgroundY, 0.0f, 0x1C0, (v79010 - 4) * 0x1E + 0xB3, 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
-                baseline = i1 + 0xD5;
-                i2 = (s32)((float)v77070 * 30.0f + (float)baseline + 0.0f);
-                sdkSpriteDrawQueuedUnscaled(23.0f, (float)i2, 0.0f, 0xFFAE20, 0xFF, 0, (void *)iGpffffb4d8, 1, (void *)D_00796490);
-                sdkSpriteDrawQueuedUnscaled(407.0f, (float)i2, 0.0f, 0xFFAE20, 0xFF, 1, (void *)iGpffffb4d8, 1, (void *)D_00796490);
-                if ((pv = (void *)itfMesWindowGetFontList(arg0)) != NULL) {
-                    frFontSetGlyphAux(pv, 0);
-                    frFontSetGlyphColor(pv, -1);
-                    itfMesListSetColorEntry(pv, v77070, v79010, 0);
-                    itfMesListSetRangeFlagEntry(pv, v77070, v79010, 0x1B1B1BFF);
+        s32 value;
+        void *fontList;
+        s32 selectedRow;
+        s32 rowCount;
+        s32 rowOffset;
+        s32 rowPosition;
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
+            value = msgWinReady();
+            if (value != 0) {
+                selectedRow = itfMesWindowGetAnimAux((s32)window);
+                rowCount = (s16)itfMesWindowGetChoiceCount((s32)window);
+                rowOffset = (4 - rowCount) * 0x1E;
+                backgroundY = rowOffset + 0xCE;
+                sflDataDrawNarrowRoundedFrame(-5, backgroundY, 0.0f, 0x1C0, (rowCount - 4) * 0x1E + 0xB3, 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
+                baseline = rowOffset + 0xD5;
+                rowPosition = (s32)((float)selectedRow * 30.0f + (float)baseline + 0.0f);
+                sdkSpriteDrawQueuedUnscaled(23.0f, (float)rowPosition, 0.0f, 0xFFAE20, 0xFF, 0, (void *)iGpffffb4d8, 1, (void *)D_00796490);
+                sdkSpriteDrawQueuedUnscaled(407.0f, (float)rowPosition, 0.0f, 0xFFAE20, 0xFF, 1, (void *)iGpffffb4d8, 1, (void *)D_00796490);
+                if ((fontList = (void *)itfMesWindowGetFontList(window)) != NULL) {
+                    frFontSetGlyphAux(fontList, 0);
+                    frFontSetGlyphColor(fontList, -1);
+                    itfMesListSetColorEntry(fontList, selectedRow, rowCount, 0);
+                    itfMesListSetRangeFlagEntry(fontList, selectedRow, rowCount, 0x1B1B1BFF);
                 }
             }
         }
-        ret = 1;
+        completed = 1;
         break;
     }
     case 13: {
-        s32 tmp;
-        void *pv;
+        s32 value;
+        void *fontList;
         void *closingSelection;
         void *selection;
-        s32 v77070;
-        s32 v79010;
-        float f;
-        s32 i1;
-        s32 i2;
-        s32 i3;
-        s32 i5;
+        s32 selectedRow;
+        s32 rowCount;
+        float progress;
+        s32 rowOffset;
+        s32 rowPosition;
+        s32 rowCountCopy;
+        s32 cursorY;
         s32 total;
         s32 need;
-        if ((closingSelection = (void *)itfMesWindowGetFontList(arg0)) != NULL) {
-            itfMesWindowGetAnimAux((s32)arg0);
-            func_00279010((s32)arg0);
+        if ((closingSelection = (void *)itfMesWindowGetFontList(window)) != NULL) {
+            itfMesWindowGetAnimAux((s32)window);
+            itfMesWindowGetChoiceCount((s32)window);
             frFontSetGlyphAux(closingSelection, 5);
         }
-        if (func_0027bec0((s32)arg0) != 0) {
-            tmp = msgWinReady();
-            if (tmp != 0) {
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
+            value = msgWinReady();
+            if (value != 0) {
                 if ((D_00882060[0] & 0x10) == 0) {
                     D_00882060[0] |= 0x10;
                     D_00882066[0] = 0;
                 }
                 D_00882066[0]++;
-                v77070 = itfMesWindowGetAnimAux((s32)arg0);
-                v79010 = (s16)func_00279010((s32)arg0);
-                i1 = ((s32)v79010 - (v77070 + 1)) * 0x1E + 0x3B;
-                i2 = v77070 * 0x1E;
-                if (i2 < i1) {
-                    f = iGpffff8094;
-                    total = (s32)(14.0f * sinf((f * (float)i1) / 179.0f));
+                selectedRow = itfMesWindowGetAnimAux((s32)window);
+                rowCount = (s16)itfMesWindowGetChoiceCount((s32)window);
+                rowOffset = ((s32)rowCount - (selectedRow + 1)) * 0x1E + 0x3B;
+                rowPosition = selectedRow * 0x1E;
+                if (rowPosition < rowOffset) {
+                    progress = iGpffff8094;
+                    total = (s32)(14.0f * sinf((progress * (float)rowOffset) / 179.0f));
                 } else {
-                    f = iGpffff8094;
-                    total = (s32)(14.0f * sinf((f * (30.0f * (float)v77070)) / 179.0f));
+                    progress = iGpffff8094;
+                    total = (s32)(14.0f * sinf((progress * (30.0f * (float)selectedRow)) / 179.0f));
                 }
                 if (total < 5) {
                     total = 5;
                 }
                 need = total;
-                i3 = (s32)v79010;
+                rowCountCopy = (s32)rowCount;
                 if (D_00882066[0] <= total) {
                     float scale;
                     float displacement;
                     float nextRow;
                     s32 extent;
                     float rowY;
-                    f = sinf((f * (float)D_00882066[0]) / (float)need);
-                    scale = 1.0f - f * f;
-                    displacement = f * (float)(v77070 * 0x1E);
-                    i2 = (v77070 + 1) * 0x1E;
-                    extent = (v79010 * 0x10 - i3) * 2 + 0x3B;
+                    progress = sinf((progress * (float)D_00882066[0]) / (float)need);
+                    scale = 1.0f - progress * progress;
+                    displacement = progress * (float)(selectedRow * 0x1E);
+                    rowPosition = (selectedRow + 1) * 0x1E;
+                    extent = (rowCount * 0x10 - rowCountCopy) * 2 + 0x3B;
                     rowY = scale * (float)extent;
-                    nextRow = (float)i2;
+                    nextRow = (float)rowPosition;
                     if (rowY < nextRow - displacement) {
-                        scale = ((nextRow + 0.0f) - f * nextRow) / 229.0f;
+                        scale = ((nextRow + 0.0f) - progress * nextRow) / 229.0f;
                     }
                     if (scale <= iGpffff81d8) {
                         scale = iGpffff81d8;
                     }
-                    rowY = (float)((4 - i3) * 0x1E + 0xCE);
+                    rowY = (float)((4 - rowCountCopy) * 0x1E + 0xCE);
                     rowY += displacement;
-                    func_00366380(-5, (s32)rowY, 0.0f, 0x1C0, (s32)(scale * (float)extent), 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
+                    sflDataDrawNarrowRoundedFrame(-5, (s32)rowY, 0.0f, 0x1C0, (s32)(scale * (float)extent), 0x1B1811, 0xE5, 1, 0, 0, (void *)D_00796490, 0.0f, 1.0f, 1.0f);
                 }
-                baseline = (4 - i3) * 0x1E + 0xD5;
-                i5 = (s32)((float)v77070 * 30.0f + (float)baseline + 0.0f);
+                baseline = (4 - rowCountCopy) * 0x1E + 0xD5;
+                cursorY = (s32)((float)selectedRow * 30.0f + (float)baseline + 0.0f);
                 if ((s32)D_00882066[0] < need - 5) {
-                    sdkSpriteDrawQueuedUnscaled(23.0f, (float)i5, 0.0f, 0xFFAE20, 0xFF, 0, (void *)iGpffffb4d8, 1, (void *)D_00796490);
-                    sdkSpriteDrawQueuedUnscaled(407.0f, (float)i5, 0.0f, 0xFFAE20, 0xFF, 1, (void *)iGpffffb4d8, 1, (void *)D_00796490);
+                    sdkSpriteDrawQueuedUnscaled(23.0f, (float)cursorY, 0.0f, 0xFFAE20, 0xFF, 0, (void *)iGpffffb4d8, 1, (void *)D_00796490);
+                    sdkSpriteDrawQueuedUnscaled(407.0f, (float)cursorY, 0.0f, 0xFFAE20, 0xFF, 1, (void *)iGpffffb4d8, 1, (void *)D_00796490);
                 } else {
                     float ratio;
                     float opacity;
@@ -2269,11 +2276,11 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
                     opacity = 1.0f - ratio;
                     advance = 16.0f;
                     advance *= ratio;
-                    arrowY = (float)i5 + advance;
+                    arrowY = (float)cursorY + advance;
                     sdkSpriteDrawQueued(23.0f, arrowY, 0.0f, 0xFFAE20, 0xFF, 0, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, opacity, (void *)D_00796490);
                     sdkSpriteDrawQueued(407.0f, arrowY, 0.0f, 0xFFAE20, 0xFF, 1, (void *)iGpffffb4d8, 1, 0, 0, 0.0f, 1.0f, opacity, (void *)D_00796490);
                 }
-                if ((selection = (void *)itfMesWindowGetFontList(arg0)) != NULL) {
+                if ((selection = (void *)itfMesWindowGetFontList(window)) != NULL) {
                     s32 frame;
                     s32 fadeStart;
                     frame = D_00882066[0];
@@ -2285,59 +2292,60 @@ s32 msgWinRunPhaseAlt(u8 *arg0, s32 arg1)
                         frFontSetGlyphColor(selection, (s32)alpha | 0x1B1B1B00);
                     }
                 }
-                if ((pv = (void *)itfMesWindowGetTextList(arg0)) != NULL && D_00882066[0] < 3) {
-                    frFontSetListFlag(pv, 0);
-                    frFontSetNodeId(pv, 0);
-                    f = (float)D_00882066[0] / 2.0f;
-                    frFontSetGlyphAux(pv, 5);
-                    frFontSetGlyphColor(pv, (s32)(255.0f * (1.0f - f)) | 0x1B1B1B00);
+                if ((fontList = (void *)itfMesWindowGetTextList(window)) != NULL && D_00882066[0] < 3) {
+                    frFontSetListFlag(fontList, 0);
+                    frFontSetNodeId(fontList, 0);
+                    progress = (float)D_00882066[0] / 2.0f;
+                    frFontSetGlyphAux(fontList, 5);
+                    frFontSetGlyphColor(fontList, (s32)(255.0f * (1.0f - progress)) | 0x1B1B1B00);
                 }
                 if (!((s32)D_00882066[0] < total)) {
                     D_00882060[0] &= ~0x10u;
                     D_00882066[0] = 0;
-                    ret = 1;
+                    completed = 1;
                 }
             }
         }
         break;
     }
     case 16:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     case 17:
-        if (func_0027bec0((s32)arg0) != 0) {
-            ret = 0;
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
+            completed = 0;
         }
         break;
     case 18:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     default:
         break;
     }
-    return ret;
+    return completed;
 }
 
+/* Load calendar sprite/font resources and keep them alive until shutdown is requested. */
 // FUN_002831C0
 s32 msgCalResourceUpdate(u8 *unusedTask)
 {
     MsgProcWindowWork *work = &D_00882098;
 
-    switch (*(s16 *)&D_00882098) {
+    switch (D_00882098.state) {
     case 0:
-        work->field4 = sdkSpritePackCreate(D_0063C170);
-        work->field8 = mtSceneBuildSpriteTable();
-        work->field0 = 1;
+        work->resources[0] = sdkSpritePackCreate(D_0063C170);
+        work->resources[1] = mtSceneBuildSpriteTable();
+        work->state = 1;
     case 1:
-        if (shdSpriteEnsureLoaded((void *)work->field4) != 0 && shdSpriteEnsureLoaded((void *)work->field8) != 0) {
-            work->field0 = 2;
+        if (shdSpriteEnsureLoaded((void *)work->resources[0]) != 0 && shdSpriteEnsureLoaded((void *)work->resources[1]) != 0) {
+            work->state = 2;
         }
         break;
     case 2:
-        if ((work->field2 & 1) != 0) {
-            work->field0 = 3;
+        if ((work->flags & 1) != 0) {
+            work->state = 3;
         }
         break;
     case 3:
@@ -2346,46 +2354,49 @@ s32 msgCalResourceUpdate(u8 *unusedTask)
     return 0;
 }
 
+/* Destroy both loaded calendar resources after checking their readiness. */
 // FUN_002832B0
 void msgCalResourceDestroy(u8 *unusedTask)
 {
     MsgProcWindowWork *work = &D_00882098;
 
     if (D_0088209C[0] != 0) {
-        if (shdSpriteEnsureLoaded((void *)work->field4) == 0) {
+        if (shdSpriteEnsureLoaded((void *)work->resources[0]) == 0) {
             kAssertFail(D_0063BFC0, 0x7AA);
         }
-        sdkSpritePackDestroy(work->field4);
-        work->field4 = 0;
+        sdkSpritePackDestroy(work->resources[0]);
+        work->resources[0] = 0;
     }
-    if (work->field8 != 0) {
-        if (shdSpriteEnsureLoaded((void *)work->field8) == 0) {
+    if (work->resources[1] != 0) {
+        if (shdSpriteEnsureLoaded((void *)work->resources[1]) == 0) {
             kAssertFail(D_0063BFC0, 0x7B0);
         }
-        sdkSpritePackDestroy(work->field8);
-        work->field8 = 0;
+        sdkSpritePackDestroy(work->resources[1]);
+        work->resources[1] = 0;
     }
 }
 
+/* Request shutdown of the registered calendar resource task. */
 // FUN_00283360
 void msgCalResourcePoll(void)
 {
     u8 *work = (u8 *)&D_00882098;
 
     if (kwlnTaskGetTaskByName((s8 *)D_0063C180) != 0) {
-        *(s16 *)(work + 2) |= 1;
+        ((MsgProcWindowWork *)work)->flags |= 1;
     }
 }
 
+/* Return a ready calendar resource by index, or start its resource task and return zero. */
 // FUN_002833B0
-s32 msgCalResourceGet(s32 arg0)
+s32 msgCalResourceGet(s32 index)
 {
     MsgProcWindowWork *work = &D_00882098;
 
     if (kwlnTaskGetTaskByName((s8 *)D_0063C180) != 0) {
-        if (work->field0 >= 2) {
-            u32 *arr = (u32 *)((u8 *)work + 4);
-            return arr[arg0];
+        if (work->state >= 2) {
+            u32 *resources = work->resources;
+            return resources[index];
         }
     } else if (kwlnTaskGetTaskByName((s8 *)D_0063C180) == 0) {
         memset(work, 0, 0xC);
@@ -2410,9 +2421,9 @@ static inline u8 *msgCalendarResource(s32 index)
     MsgProcWindowWork *work = &D_00882098;
 
     if (kwlnTaskGetTaskByName((s8 *)D_0063C180) != 0) {
-        if (work->field0 >= 2) {
-            u32 *arr = (u32 *)((u8 *)work + 4);
-            return (u8 *)arr[index];
+        if (work->state >= 2) {
+            u32 *resources = work->resources;
+            return (u8 *)resources[index];
         }
     } else if (kwlnTaskGetTaskByName((s8 *)D_0063C180) == 0) {
         memset(work, 0, 0xC);
@@ -2421,8 +2432,9 @@ static inline u8 *msgCalendarResource(s32 index)
     return NULL;
 }
 
+/* Draw the calendar introduction or idle screen from a snapshot of its phase arguments. */
 // FUN_00283490
-void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
+void msgCalendarDraw(u8 *unusedTask, u8 *parameters)
 {
     typedef struct {
         s32 x;
@@ -2432,27 +2444,27 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
     } CalendarRectangle;
     typedef union { u8 rgba[4]; f32 value; } CalendarColor;
     typedef struct {
-        s32 f0;
-        s16 count;
-        s16 f6;
-        s32 f8;
-        s32 fC;
-        s32 task;
-        s32 kind;
+        s32 flags;
+        s16 elapsed;
+        s16 unk06;
+        s32 unk08;
+        s32 unk0C;
+        s32 window;
+        s32 operation;
     } CalendarArgs;
-    extern void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 fparg0, s32 arg2);
-    extern u8 *resourceFindByName(char *arg0);
+    extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
+    extern u8 *resourceFindByName(char *name);
     extern s32 (*D_00887300[])(s32 state, void *value);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void *arg3, s32 arg4, s16 arg5, s16 arg6, f32 farg3, f32 farg4, f32 farg5);
-    extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 arg0, u8 arg1, s32 arg2, void *arg3, s32 arg4);
-    extern s32 calGetWeekdayOfDay(s32 arg0);
-    extern s32 calHasDayEntry(s32 arg0);
-    extern s32 calGetPackedDayEntry(s32 arg0, s32 arg1);
-    extern void calSplitDayOfYear(s32 arg0, s32 *arg1, s32 *arg2);
+    extern s32 sdkSpriteDrawNow(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex, void *pack, s32 setStates, s16 pivotX, s16 pivotY, f32 angle, f32 scaleX, f32 scaleY);
+    extern void sdkSpriteDrawNowUnscaled(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex, void *pack, s32 setStates);
+    extern s32 calGetWeekdayOfDay(s32 dateIndex);
+    extern s32 calHasDayEntry(s32 day);
+    extern s32 calGetPackedDayEntry(s32 day, s32 referenceDay);
+    extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
     extern s16 datGetDateIndex(void);
     extern void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite);
-    extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2, s32 arg3, s32 arg4, f32 fparg1, f32 fparg2, s32 arg5, s32 arg6, s32 arg7, s32 arg_sp0);
+    extern void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highlight, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipWidth, s32 font, s32 forcedHighlight);
     extern f32 fGpffff803c;
     extern f32 fGpffff811c;
     extern f32 fGpffff813c;
@@ -2483,24 +2495,24 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
     CalendarColor depthColor;
     s32 (**table)(s32, void *);
     s32 lineRgb;
-    u8 *handle;
-    s32 task;
+    ShdSpritePack *handle;
+    s32 window;
     s32 frame;
 
-    args = *(CalendarArgs *)arg1;
-    task = args.task;
-    switch (args.kind) {
+    args = *(CalendarArgs *)parameters;
+    window = args.window;
+    switch (args.operation) {
     case 4: {
         CalendarColor color;
 
-        handle = msgCalendarResource(0);
+        handle = (ShdSpritePack *)msgCalendarResource(0);
         if (handle == NULL) {
             break;
         }
-        if (func_0027bec0(task) == 0) {
+        if (itfMsgWindowCanDraw(window) == 0) {
             break;
         }
-        frame = args.count;
+        frame = args.elapsed;
         {
             f32 intro;
 
@@ -2552,25 +2564,25 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
             f32 back = 1.0f - t;
             f32 slide = 140.0f * back;
 
-            sdkSpriteDrawNow(-59.0f - slide, -103.0f - slide, 10.0f, 0xFFFFFF, 255.0f * t, 2, **(void ***)(handle + 8), 1, 0x80, 0x80, -90.0f * back, 1.0f, 1.0f);
+            sdkSpriteDrawNow(-59.0f - slide, -103.0f - slide, 10.0f, 0xFFFFFF, 255.0f * t, 2, handle->sprites[0], 1, 0x80, 0x80, -90.0f * back, 1.0f, 1.0f);
         }
         if ((s32)frame < 5) {
             fade = sinf(angle / 5.0f);
-            func_00366380(176.0f + 500.0f * (1.0f - fade), 0x14F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, fGpffff803c);
+            sflDataDrawNarrowRoundedFrame(176.0f + 500.0f * (1.0f - fade), 0x14F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, fGpffff803c);
         } else if (frame < 12) {
             fade = sinf(iGpffff8094 * (f32)(frame - 5) / 7.0f);
             if (handle == NULL) {
                 kAssertFail(D_007482F0, 0x59);
             }
             alpha = 1.0f - fade;
-            sdkSpriteDrawNow(165.0f, 254.0f + 95.0f * alpha - 10.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1, 0, 0, 0.0f, 1.0f, fade);
-            func_00366380(0xB0, 281 + 64.0f * alpha - 10.0f, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, fGpffff803c + fGpffff811c * fade);
+            sdkSpriteDrawNow(165.0f, 254.0f + 95.0f * alpha - 10.0f, 0.0f, 0, 0xCC, 1, handle->sprites[0], 1, 0, 0, 0.0f, 1.0f, fade);
+            sflDataDrawNarrowRoundedFrame(0xB0, 281 + 64.0f * alpha - 10.0f, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, fGpffff803c + fGpffff811c * fade);
         } else {
             if (handle == NULL) {
                 kAssertFail(D_007482F0, 0x59);
             }
-            sdkSpriteDrawNowUnscaled(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1);
-            func_00366380(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
+            sdkSpriteDrawNowUnscaled(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, handle->sprites[0], 1);
+            sflDataDrawNarrowRoundedFrame(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
         }
         font = msgCalendarResource(1);
         {
@@ -2607,13 +2619,13 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
                 if ((u8 *)(u32)handle == NULL) {
                     kAssertFail(D_007482F0, 0x59);
                 }
-                sdkSpriteDrawNow(i * 0x53 + 0x4B, 69.0f, 0.0f, rgb, 255.0f * fade, month + 4, **(void ***)((u8 *)(u32)handle + 8), 1, 0, 0, 0.0f, 1.0f, 1.0f);
+                sdkSpriteDrawNow(i * 0x53 + 0x4B, 69.0f, 0.0f, rgb, 255.0f * fade, month + 4, ((ShdSpritePack *)(u8 *)(u32)handle)->sprites[0], 1, 0, 0, 0.0f, 1.0f, 1.0f);
             }
             alpha = 1.0f - fade;
             t = 64.0f * alpha;
             py = 113.0f + t;
             px = i * 0x53;
-            func_00366380(px + 0x5C, py, 0.0f, 0x50, 0x7F, rgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, fade);
+            sflDataDrawNarrowRoundedFrame(px + 0x5C, py, 0.0f, 0x50, 0x7F, rgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, fade);
             calDrawDateCell(px + 0x6B, py, 0.0f, 0xFF, today + i + 1, 1, 1.0f, fade, 0, 0, (s32)font, 0);
             py = 163.0f - 5.0f * alpha;
             calDrawWeather(px + 0x5D, py, 0.0f, 0xFF, calGetPackedDayEntry(today + i + 1, today) & 0xFFFF, 1, 1.0f, fade * fade, 0, 0, (s32)font, mode);
@@ -2630,18 +2642,18 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         if (frame < 6) {
             t = 1.0f - (f32)frame / 6.0f;
             fade = 1.0f - t;
-            func_00366380(300.0f * fade, 169.0f - 20.0f * fade, 0.0f, 80.0f + 640.0f * t, 0x7F, lineRgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 0.5f - fGpffff813c * t);
+            sflDataDrawNarrowRoundedFrame(300.0f * fade, 169.0f - 20.0f * fade, 0.0f, 80.0f + 640.0f * t, 0x7F, lineRgb, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 0.5f - fGpffff813c * t);
         }
         break;
     }
     case 5: {
         CalendarColor color;
 
-        handle = msgCalendarResource(0);
+        handle = (ShdSpritePack *)msgCalendarResource(0);
         if (handle == NULL) {
             break;
         }
-        if (func_0027bec0(task) == 0) {
+        if (itfMsgWindowCanDraw(window) == 0) {
             break;
         }
         color.value = iGpffffa78c;
@@ -2651,7 +2663,7 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
 
             PrimDrawFlatRectangle((u8 *)&depthColor, (f32 *)&rect, 10.0f, 1);
         }
-        frame = args.count;
+        frame = args.elapsed;
         alpha = (f32)frame / 120.0f;
         phase = frame % 4;
         table = (s32 (**)(s32, void *))(u32)D_00887300;
@@ -2668,12 +2680,12 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
         if (handle == NULL) {
             kAssertFail(D_007482F0, 0x59);
         }
-        sdkSpriteDrawNow(-59.0f, -103.0f, 10.0f, 0xFFFFFF, 0xFF, 2, **(void ***)(handle + 8), 1, 0x80, 0x80, 360.0f * alpha, 1.0f, 1.0f);
+        sdkSpriteDrawNow(-59.0f, -103.0f, 10.0f, 0xFFFFFF, 0xFF, 2, handle->sprites[0], 1, 0x80, 0x80, 360.0f * alpha, 1.0f, 1.0f);
         if (handle == NULL) {
             kAssertFail(D_007482F0, 0x59);
         }
-        sdkSpriteDrawNowUnscaled(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, **(void ***)(handle + 8), 1);
-        func_00366380(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
+        sdkSpriteDrawNowUnscaled(165.0f, 244.0f, 0.0f, 0, 0xCC, 1, handle->sprites[0], 1);
+        sflDataDrawNarrowRoundedFrame(0xB0, 0x10F, 0.0f, 0x1D6, 0x7E, 0, 0xCC, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
         font = msgCalendarResource(1);
         today = (s16)datGetDateIndex();
         for (i = 0; i < 6; i++) {
@@ -2694,19 +2706,19 @@ void msgCalendarDraw(u8 *unusedTask, u8 *arg1)
                 if (handle == NULL) {
                     kAssertFail(D_007482F0, 0x59);
                 }
-                sdkSpriteDrawNowUnscaled(i * 0x53 + 0x4B, 69.0f, 0.0f, phase, 0xFF, month + 4, **(void ***)(handle + 8), 1);
+                sdkSpriteDrawNowUnscaled(i * 0x53 + 0x4B, 69.0f, 0.0f, phase, 0xFF, month + 4, handle->sprites[0], 1);
             }
             px = i * 0x53;
-            func_00366380(px + 0x5C, 0x71, 0.0f, 0x50, 0x7F, phase, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
+            sflDataDrawNarrowRoundedFrame(px + 0x5C, 0x71, 0.0f, 0x50, 0x7F, phase, 0xFF, 1, 0, 0, NULL, 0.0f, 1.0f, 1.0f);
             calDrawDateCell(px + 0x6B, 0x71, 0.0f, 0xFF, today + i + 1, 1, 1.0f, 1.0f, 0, 0, (s32)font, 0);
             calDrawWeather(px + 0x5D, 0xA3, 0.0f, 0xFF, calGetPackedDayEntry(today + i + 1, today) & 0xFFFF, 1, 1.0f, 1.0f, 0, 0, (s32)font, mode);
         }
         break;
     }
     case 6:
-        handle = msgCalendarResource(0);
+        handle = (ShdSpritePack *)msgCalendarResource(0);
         if (handle != NULL) {
-            func_0027bec0(task);
+            itfMsgWindowCanDraw(window);
         }
         break;
     }
@@ -2726,8 +2738,8 @@ static inline u32 msgWinResource(void)
     MsgProcWindowWork *work = &D_00882098;
 
     if (kwlnTaskGetTaskByName((s8 *)D_0063C180) != 0) {
-        if (work->field0 >= 2) {
-            return work->field4;
+        if (work->state >= 2) {
+            return work->resources[0];
         }
     } else if (kwlnTaskGetTaskByName((s8 *)D_0063C180) == 0) {
         memset(work, 0, 12);
@@ -2737,32 +2749,33 @@ static inline u32 msgWinResource(void)
 }
 
 
+/* Dispatch calendar window phases and queue its calendar renderer with the phase state. */
 // FUN_002848C0
-s32 msgWinRunPhaseAux(void *arg0, s32 arg1)
+s32 msgWinRunPhaseAux(void *window, s32 operation)
 {
-    s32 ret;
-    void *p1;
-    void *p2;
-    f32 f;
-    MsgProcWindowEntry *e;
-    s32 t;
-    s32 w1;
-    s32 w2;
+    s32 completed;
+    void *bodyList;
+    void *textList;
+    f32 progress;
+    MsgProcWindowEntry *entry;
+    s32 rowCount;
+    s32 baseline;
+    s32 rowStride;
 
-    itfMesWindowGetFlags((s32)arg0);
-    ret = 0;
-    switch (arg1) {
+    itfMesWindowGetFlags((s32)window);
+    completed = 0;
+    switch (operation) {
     case 0:
-        itfMesWindowClearFlagBits(arg0, 0x100000);
-        itfMesWindowSetFlagBits(arg0, 0x400000);
-        itfMesWindowClearFlagBits(arg0, 0x800000);
+        itfMesWindowClearFlagBits(window, 0x100000);
+        itfMesWindowSetFlagBits(window, 0x400000);
+        itfMesWindowClearFlagBits(window, 0x800000);
         if (D_00882080 == NULL) {
             kAssertFail(D_0063BFC0, 399);
         }
         memset(&D_00882080, 0, 24);
         break;
     case 4:
-        if (msgWinResource() != 0 && func_0027bec0((s32)arg0) != 0) {
+        if (msgWinResource() != 0 && itfMsgWindowCanDraw((s32)window) != 0) {
             if ((D_00882080[0] & 2) == 0) {
                 D_00882080[0] |= 2;
                 D_00882084[0] = 0;
@@ -2770,23 +2783,23 @@ s32 msgWinRunPhaseAux(void *arg0, s32 arg1)
             D_00882084[0]++;
             if ((s16)D_00882084[0] >= 15) {
                 D_00882080[0] &= ~2u;
-                ret = 1;
+                completed = 1;
             }
             if (D_00882080 == NULL) {
                 kAssertFail(D_0063BFC0, 2270);
             }
-            D_00882090[0] = (u32)arg0;
-            D_00882094[0] = (u32)arg1;
+            D_00882090[0] = (u32)window;
+            D_00882094[0] = (u32)operation;
             {
-                u8 *m = PrimAllocQueueNode();
-                *(void **)(m + 8) = (void *)msgCalendarDraw;
-                *(void **)(m + 16) = (void *)D_00882080;
-                PrimAppendNode(D_00796490, m);
+                u8 *node = PrimAllocQueueNode();
+                ((PrimQueueNode *)node)->callback = (void *)msgCalendarDraw;
+                ((PrimQueueNode *)node)->argument.data = (u8 *)D_00882080;
+                PrimAppendNode(D_00796490, node);
             }
         }
         break;
     case 5:
-        if (msgWinResource() != 0 && func_0027bec0((s32)arg0) != 0) {
+        if (msgWinResource() != 0 && itfMsgWindowCanDraw((s32)window) != 0) {
             if ((D_00882080[0] & 2) == 0) {
                 D_00882080[0] |= 2;
                 D_00882084[0] = 0;
@@ -2799,117 +2812,117 @@ s32 msgWinRunPhaseAux(void *arg0, s32 arg1)
             if (D_00882080 == NULL) {
                 kAssertFail(D_0063BFC0, 2270);
             }
-            D_00882090[0] = (u32)arg0;
-            D_00882094[0] = (u32)arg1;
+            D_00882090[0] = (u32)window;
+            D_00882094[0] = (u32)operation;
             {
-                u8 *m = PrimAllocQueueNode();
-                *(void **)(m + 8) = (void *)msgCalendarDraw;
-                *(void **)(m + 16) = (void *)D_00882080;
-                PrimAppendNode(D_00796490, m);
+                u8 *node = PrimAllocQueueNode();
+                ((PrimQueueNode *)node)->callback = (void *)msgCalendarDraw;
+                ((PrimQueueNode *)node)->argument.data = (u8 *)D_00882080;
+                PrimAppendNode(D_00796490, node);
             }
         }
         break;
     case 6:
-        if (func_0027bec0((s32)arg0) != 0) {
-            ret = 1;
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
+            completed = 1;
         }
         break;
     case 8:
-        if ((p1 = (void *)itfMesWindowGetBodyList(arg0)) != NULL) {
-            frFontMoveListToFloat(p1, 400.0f, 170.0f);
-            frFontSetListSlot(p1, 0);
-            frFontSetGlyphAux(p1, 0);
+        if ((bodyList = (void *)itfMesWindowGetBodyList(window)) != NULL) {
+            frFontMoveListToFloat(bodyList, 400.0f, 170.0f);
+            frFontSetListSlot(bodyList, 0);
+            frFontSetGlyphAux(bodyList, 0);
         }
-        if ((p2 = (void *)itfMesWindowGetTextList(arg0)) != NULL) {
-            frFontMoveListToFloat(p2, 202.0f, (f32)281);
-            frFontSetListSlot(p2, 0);
-            frFontReplaceGlyphAux(p2, 0, 0);
-            frFontSetListFlag(p2, 255);
-            frFontSetNodeId(p2, 255);
+        if ((textList = (void *)itfMesWindowGetTextList(window)) != NULL) {
+            frFontMoveListToFloat(textList, 202.0f, (f32)281);
+            frFontSetListSlot(textList, 0);
+            frFontReplaceGlyphAux(textList, 0, 0);
+            frFontSetListFlag(textList, 255);
+            frFontSetNodeId(textList, 255);
         }
-        ret = 1;
+        completed = 1;
         break;
     case 7:
-        f = (f32)D_00882084[0];
-        e = msgWinFindFreeEntry();
-        if (e != NULL) {
-            memset(e, 0, 24);
-            e->field0 |= 1;
-            e->field8 = f;
-            e->fieldC = 0;
-            e->field4 = 4;
+        progress = (f32)D_00882084[0];
+        entry = msgWinFindFreeEntry();
+        if (entry != NULL) {
+            memset(entry, 0, 24);
+            entry->flags |= 1;
+            entry->frameOffset = progress;
+            entry->unk0C = 0;
+            entry->kind = 4;
         }
         break;
     case 9:
-        t = func_0027b6e0(arg0, 0);
-        if (t == 5) {
-            w1 = 0x550;
-            w2 = 0xF0;
+        rowCount = itfMesWindowGetProcedureParam(window, 0);
+        if (rowCount == 5) {
+            baseline = 0x550;
+            rowStride = 0xF0;
         } else {
-            s32 q = (s32)(100.0f / (f32)t);
-            w1 = (q >> 1) * 8 + 0x550;
-            w2 = q << 3;
+            s32 rowStep = (s32)(100.0f / (f32)rowCount);
+            baseline = (rowStep >> 1) * 8 + 0x550;
+            rowStride = rowStep << 3;
         }
-        func_0027b750(arg0, 0, 0x460);
-        func_0027b750(arg0, 1, w1);
-        func_0027b750(arg0, 2, w2);
-        ret = 1;
+        itfMesWindowSetProcedureParam(window, 0, 0x460);
+        itfMesWindowSetProcedureParam(window, 1, baseline);
+        itfMesWindowSetProcedureParam(window, 2, rowStride);
+        completed = 1;
         break;
     case 11:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     case 12:
-        func_0027bec0((s32)arg0);
+        itfMsgWindowCanDraw((s32)window);
         break;
     case 13:
-        func_0027bec0((s32)arg0);
-        ret = 1;
+        itfMsgWindowCanDraw((s32)window);
+        completed = 1;
         break;
     case 16:
-        if (func_0027bec0((s32)arg0) != 0) {
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
             if (msgWinReady() != 0) {
-                s32 c = D_00882088[0];
+                s32 frame = D_00882088[0];
                 if ((D_00882080[0] & 0x20) == 0) {
                     D_00882080[0] |= 0x20;
-                    c = 0;
+                    frame = 0;
                 }
-                c++;
-                if (c >= 5) {
+                frame++;
+                if (frame >= 5) {
                     D_00882080[0] &= ~0x20u;
-                    c = 0;
-                    ret = 1;
+                    frame = 0;
+                    completed = 1;
                 }
-                D_00882088[0] = (s16)c;
+                D_00882088[0] = (s16)frame;
             }
         }
         break;
     case 17:
-        if (func_0027bec0((s32)arg0) != 0) {
-            ret = 0;
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
+            completed = 0;
         }
         break;
     case 18:
-        if (func_0027bec0((s32)arg0) != 0) {
+        if (itfMsgWindowCanDraw((s32)window) != 0) {
             if (msgWinReady() != 0) {
-                s32 c = D_00882088[0];
+                s32 frame = D_00882088[0];
                 if ((D_00882080[0] & 0x80) == 0) {
                     D_00882080[0] |= 0x80;
-                    c = 0;
+                    frame = 0;
                 }
-                c++;
-                if (c >= 10) {
+                frame++;
+                if (frame >= 10) {
                     D_00882080[0] &= ~0x80u;
-                    c = 0;
-                    ret = 1;
+                    frame = 0;
+                    completed = 1;
                 }
-                D_00882088[0] = (s16)c;
+                D_00882088[0] = (s16)frame;
             }
         }
         break;
     default:
         break;
     }
-    return ret;
+    return completed;
 }
 #pragma pop

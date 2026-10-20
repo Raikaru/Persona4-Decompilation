@@ -1,3 +1,4 @@
+#include "btl_target_internal.h"
 #include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
 #include "btl_skill_target_internal.h"
@@ -7,29 +8,12 @@
 #include "btl_skill_internal.h"
 #include "sdk_snd_internal.h"
 #include "btl_cond_internal.h"
-typedef struct BtlPacket BtlPacket;
-typedef signed __int128 s128;
-typedef struct P4Vec4_001EC2B0 {
-    f32 x;
-    f32 y;
-    f32 z;
-    f32 w;
-} P4Vec4_001EC2B0;
-typedef struct P4Vec4Holder_001EC2B0 {
-    P4Vec4_001EC2B0 quat;
-} P4Vec4Holder_001EC2B0;
-typedef struct P4RouteSlerp_001EF110 {
-    P4Vec4_001EC2B0 first;
-    P4Vec4_001EC2B0 second;
-    f32 angle;
-    s32 mode;
-} P4RouteSlerp_001EF110;
 extern void btlCameraLookAtQuat(void *out, const void *first,
-                          const void *second, const void *up);
+                          const void *second, const void *config);
 extern void *D_00609850[];
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
-static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
+static inline u8 *btlTargetOffsetAddress(u32 offset, u8 *base)
 {
     return (u8 *)((u32)offset + (u32)base);
 }
@@ -100,18 +84,19 @@ extern s32 btlAiSetGlobal(void);
 /* measured: third 001ec5e0 probe tests opt_propagation off for FPU-zero placement. */
 /* measured: btlTargetInitSpring MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
+/* Initialize the five-word spring state; zero duration leaves curvature unchanged. */
 // FUN_001EC5E0
-void btlTargetInitSpring(u8 *arg0, f32 arg1)
+void btlTargetInitSpring(u8 *state, f32 duration)
 {
     f32 zero;
 
-    *(f32 *)arg0 = arg1;
-    *(f32 *)(arg0 + 4) = arg1;
+    *(f32 *)state = duration;
+    ((BtlTargetSpring *)state)->remaining = duration;
     zero = 0.0f;
-    *(s32 *)(arg0 + 0xC) = 0;
-    *(s32 *)(arg0 + 0x10) = 0;
-    if (zero != arg1) {
-        *(f32 *)(arg0 + 8) = 1.0f / ((arg1 * arg1) / 4.0f);
+    ((BtlTargetSpring *)state)->slope.bits = 0;
+    ((BtlTargetSpring *)state)->result.bits = 0;
+    if (zero != duration) {
+        ((BtlTargetSpring *)state)->curvature = 1.0f / ((duration * duration) / 4.0f);
     }
 }
 

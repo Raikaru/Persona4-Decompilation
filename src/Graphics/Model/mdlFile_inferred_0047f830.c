@@ -1,3 +1,4 @@
+#include "mdl_file_internal.h"
 #include "btl_action_internal.h"
 #include "sdk_lbox_internal.h"
 #include "model_motion_internal.h"
@@ -76,14 +77,14 @@ u8 *mdlGetSampleScratch(void)
 #pragma opt_loop_invariants on
 /* Runs the four track row kinds against the target list at +0x50: a row with data on both sides is blended with the matching right-hand row, otherwise it is sampled, and its apply callback writes the result to every target. */
 // FUN_0047F850
-void mdlDispatchTrackRows(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
-                   f32 fparg2)
+void mdlDispatchTrackRows(u8 *leftTrack, f32 leftTime, u8 *rightTrack, f32 rightTime,
+                   f32 weight)
 {
     u32 count;
     Code47Targets *targets;
     u32 kind;
 
-    targets = *(Code47Targets **)(arg0 + 0x50);
+    targets = (Code47Targets *)((MdlFileTrackSet *)leftTrack)->targets;
     count = targets->count;
     for (kind = 0; kind < 4; kind++) {
         s32 offset;
@@ -94,16 +95,16 @@ void mdlDispatchTrackRows(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
         if (D_00713220[kind].apply == NULL) {
             continue;
         }
-        left = arg0 + offset;
-        if (*(s32 *)(left + 0xC) == 0) {
+        left = leftTrack + offset;
+        if ((s32)((MdlFileTrack *)left)->keys == 0) {
             continue;
         }
-        right = arg1 + offset;
-        if (*(s32 *)(right + 0xC) != 0) {
+        right = rightTrack + offset;
+        if ((s32)((MdlFileTrack *)right)->keys != 0) {
             void *result;
             u32 target;
 
-            result = D_00713220[kind].blend(left, fparg0, right, fparg1, fparg2);
+            result = D_00713220[kind].blend(left, leftTime, right, rightTime, weight);
             for (target = 0; target < count; target++) {
                 D_00713220[kind].apply(result, targets->items[target]);
             }
@@ -111,11 +112,11 @@ void mdlDispatchTrackRows(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
             void *result;
             u32 target;
 
-            result = D_00713220[kind].sample(left, fparg0, arg0 + 0x40, fparg2);
+            result = D_00713220[kind].sample(left, leftTime, leftTrack + 0x40, weight);
             for (target = 0; target < count; target++) {
                 D_00713220[kind].apply(result, targets->items[target]);
             }
         }
     }
 }
-
+#pragma pop

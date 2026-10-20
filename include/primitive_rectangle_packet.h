@@ -26,7 +26,7 @@ typedef char PrimitiveRectangleWordsSize[sizeof(PrimitiveRectangleWords) == 16 ?
 typedef char PrimitiveRectanglePacketSize[sizeof(PrimitiveRectanglePacket) == 28 ? 1 : -1];
 
 /* Inputs are four color bytes and four aligned signed/unsigned rectangle words. */
-void PrimQueueRectangle(const PrimitiveRectangleColor *color, const PrimitiveRectangleWords *rectangle, f32 depth,
-                  s32 saveState, void *queue);
-void PrimExecuteRectangle(void *unused, u8 *work);
+void PrimQueueRectangle(const PrimitiveRectangleColor *colors, const PrimitiveRectangleWords *positions, f32 depth,
+                  s32 preserveState, void *queue);
+void PrimExecuteRectangle(void *unused, u8 *rectangleData);
 #endif

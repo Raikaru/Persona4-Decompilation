@@ -5,16 +5,17 @@
 #include "list_item_internal.h"
 #include "sdk_task_registration.h"
 #include "type.h"
+#include "fr_font_objects.h"
 #include "rw/plcore/barenderstate.h"
 #include "primitive_point_buffer.h"
 #include "scene_event_internal.h"
-extern s32 iGpffffb4bc;
-extern s32 iGpffffa730;
-extern s32 frFontCountRuns(u8 *arg0);
+extern s32 iGpffffb4bc; /* deferred layout pending */
+extern s32 iGpffffa730; /* decoded audio/deferred-layout duration */
+extern s32 frFontCountRuns(u8 *node);
 
 extern u8 D_0063B5A0[];
 extern u8 D_0063B5C0[];
-extern s32 MT_SceneManager_TaskUpdate(u8 *task);
+extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
 extern f32 fGpffff82d4;
 extern f32 fGpffff83d0;
 extern f32 fGpffff842c;
@@ -22,11 +23,11 @@ extern char D_005DC824[];
 extern char D_0063B5D8[];
 extern char D_005DC7D0[];
 extern char D_0063B580[];
-extern void qsort(u32 *arg0, s32 arg1, s32 arg2,
-                           s32 (*arg3)(u8 **arg0, u8 **arg1));
-extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
-extern void *memcpy(void *arg0, const void *arg1, u32 arg2);
-extern void memset(void *arg0, void *arg1, s32 arg2);
+extern void qsort(u32 *value, s32 otherValue, s32 thirdValue,
+                           s32 (*fourthValue)(u8 **value, u8 **otherValue));
+extern u8 *(*jtbl_008873E8[])(s32 value, s32 otherValue);
+extern void *memcpy(void *value, const void *otherValue, u32 thirdValue);
+extern void memset(void *value, void *otherValue, s32 thirdValue);
 extern u8 D_0088152F[];
 typedef struct { s32 value[19]; } Code1_00267800ShapeTable;
 extern Code1_00267800ShapeTable D_00638FD0;
@@ -46,10 +47,10 @@ static inline f32 mtSceneMulF32(f32 left, f32 right)
 {
     return left * right;
 }
-extern void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2,
-                          s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          s32 arg4, s32 arg5,
-                          f32 fparg3, f32 fparg4, f32 fparg5);
+extern void PrimDrawContour(f32 x, f32 y, f32 depth,
+                          s32 rgb, s32 alpha, s32 unusedMode, s32 shape,
+                          s32 originX, s32 originY,
+                          f32 rotation, f32 scaleX, f32 scaleY);
 extern char iGpffffa6c4;
 extern u8 D_00881530[];
 extern u8 D_0063BA30[];
@@ -67,7 +68,7 @@ static inline u8 *mtSceneBytePairAt(u8 *base, u32 index)
 
 extern u8 D_00637420[];
 
-extern s32 datEntryGetFlags(s16 arg0);
+extern s32 datEntryGetFlags(s16 itemId);
 
 
 
@@ -77,33 +78,33 @@ extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern u8 D_00638F90[];
 extern char D_00637348[];
-extern void frFontSetStateBits(u32 param_1, int param_2);
-extern void datSetFlag(s32 arg0, s32 arg1);
+extern void frFontSetStateBits(u32 bits, int enable);
+extern void datSetFlag(s32 flagId, s32 enabled);
 extern s32 cmmCommunityGetCurrentId(void);
-extern void cmmCommunitySetReversed(s32 arg0);
-extern void cmmCommunityClearReversed(s32 arg0);
-extern s32 cmmCommunityAddScaledPoints(s32 arg0, u32 arg1);
-extern void calDrawWeather(s32 arg0, s32 arg1, f32 fparg0, u8 arg2,
-                           s32 arg3, s32 arg4, f32 fparg1, f32 fparg2,
-                           s32 arg5, s32 arg6, s32 arg7,
-                           s32 arg_sp0);
+extern void cmmCommunitySetReversed(s32 communityId);
+extern void cmmCommunityClearReversed(s32 communityId);
+extern s32 cmmCommunityAddScaledPoints(s32 communityId, u32 points);
+extern void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity,
+                           s32 weather, s32 highlight, f32 scaleX, f32 scaleY,
+                           s32 clipLeft, s32 clipWidth, s32 font,
+                           s32 forcedHighlight);
 extern u32 frFontGetMode(void);
 extern void frFontLayoutText(u8 *text, u8 *context);
-extern u32 datGetItemNameId(s16 id);
+extern u32 datGetItemNameId(s16 itemId);
 extern s32 sprintf(char *dst, const char *fmt, ...);
 extern char D_0063BA50[];
 extern char D_0063BA80[];
-extern s32 func_0045ae10(s32 arg0, s32 arg1, s32 arg2);
-extern s32 sdkSndStartChannel(s16 arg0, const char *arg1);
+extern s32 sdkSndStartIndexedSource(s32 sourceAux, s32 channelIndex, s32 cueId);
+extern s32 sdkSndStartChannel(s16 channelIndex, const char *path);
 extern s32 D_008815B0[];
-extern void frFontUpdateTextWork(u8 *arg0);
-extern void frFontLayoutSlotText(s32 arg0, u8 *arg1);
+extern void frFontUpdateTextWork(u8 *context);
+extern void frFontLayoutSlotText(s32 index, u8 *context);
 extern u8 iGpffffa734;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 0026e350-0026f860 */
 
 extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
-extern s32 mtSceneUnitDepthCompare(u8 **arg0, u8 **arg1);
+extern s32 mtSceneUnitDepthCompare(u8 **left, u8 **right);
 extern f32 D_007612C4;
 /* Three trail-segment layouts (arg4 0/1/2). The 0xC0-byte point tables are
  * struct copies; each loop's i = 0 precedes the invariant scale products,
@@ -161,43 +162,43 @@ s32 frFontGetPendingFlag(void)
 
 // Intent: Map a data entry's flag bits to a glyph class index from 0 to 14 (default 13) [inferred]
 // FUN_0026E360
-s32 frFontDataEntryClass(s64 arg0) {
-    s32 temp_2 = datEntryGetFlags((s16) arg0);
+s32 frFontDataEntryClass(s64 entryId) {
+    s32 flags = datEntryGetFlags((s16) entryId);
 
-    if (temp_2 & 1) {
+    if (flags & 1) {
         return 0;
     }
-    if (temp_2 & 2) {
+    if (flags & 2) {
         return 1;
     }
-    if (temp_2 & 4) {
+    if (flags & 4) {
         return 2;
     }
-    if (temp_2 & 8) {
+    if (flags & 8) {
         return 3;
     }
-    if (temp_2 & 0x10) {
+    if (flags & 0x10) {
         return 4;
     }
-    if (temp_2 & 0x20) {
+    if (flags & 0x20) {
         return 5;
     }
-    if (temp_2 & 0x40) {
+    if (flags & 0x40) {
         return 6;
     }
-    if (temp_2 & 0x4000) {
+    if (flags & 0x4000) {
         return 9;
     }
-    if (temp_2 & 0x8000) {
+    if (flags & 0x8000) {
         return 0xB;
     }
-    if (temp_2 & 0x10000) {
+    if (flags & 0x10000) {
         return 0xD;
     }
-    if (temp_2 & 0x20000) {
+    if (flags & 0x20000) {
         return 0xE;
     }
-    if (temp_2 & 0x40000) {
+    if (flags & 0x40000) {
         return 0xC;
     }
     return 0xD;
@@ -207,35 +208,37 @@ s32 frFontDataEntryClass(s64 arg0) {
 /* measured: func_0026e4c0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_0026E4C0
-s32 func_0026e4c0(s32 arg0, u8 *arg1)
+/* Decode the palette operand in layout mode; return zero to continue parsing. */
+s32 frFontCommandSetPalette(s32 command, u8 *context)
 {
-    s32 temp_3_3;
-    s32 temp_3_5;
-    s32 temp_3_4;
-    s32 var_2;
-    u8 temp_3_2;
-    u8 *temp_3;
+    s32 lowByte;
+    s32 streamAddress;
+    s32 streamOffset;
+    s32 highPart;
+    u8 highByte;
+    u8 *operandBytes;
 
     if (frFontGetMode() != 0) {
         return 0;
     }
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
-    temp_3_3 = (temp_3[0] - 1) & 0xFF;
-    temp_3_2 = temp_3[1];
-    if (temp_3_2 == 0xFF) {
-        var_2 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamAddress + streamOffset);
+    lowByte = (operandBytes[0] - 1) & 0xFF;
+    highByte = operandBytes[1];
+    if (highByte == 0xFF) {
+        highPart = 0;
     } else {
-        var_2 = (temp_3_2 - 1) & 0xFF;
+        highPart = (highByte - 1) & 0xFF;
     }
-    var_2 &= 0xFF;
-    *(s8 *)(arg1 + 0xD) = (s8)(s16)((var_2 << 8) | (u8)temp_3_3);
+    highPart &= 0xFF;
+    ((FrFontContext *)context)->palette = (s8)(s16)((highPart << 8) | (u8)lowByte);
     return 0;
 }
 
 /* measured: closing opt_propagation off probe for func_0026e4c0. */
 // FUN_0026E560
+/* Probe the current mode without stopping script parsing. */
 s32 func_0026e560(void)
 {
     frFontGetMode();
@@ -244,65 +247,68 @@ s32 func_0026e560(void)
 
 /* measured: opt_propagation off forces func_0026e590 field-load order. */
 // FUN_0026E590
-s32 func_0026e590(s32 arg0, u8 *arg1)
+/* Decode the font style operand in layout mode. */
+s32 frFontCommandSetStyle(s32 command, u8 *context)
 {
-    s32 temp_3_3;
-    s32 temp_3_5;
-    s32 temp_3_4;
-    s32 var_2;
-    u8 temp_3_2;
-    u8 *temp_3;
+    s32 lowByte;
+    s32 streamAddress;
+    s32 streamOffset;
+    s32 highPart;
+    u8 highByte;
+    u8 *operandBytes;
 
     if (frFontGetMode() != 0) {
         return 0;
     }
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
-    temp_3_3 = (temp_3[0] - 1) & 0xFF;
-    temp_3_2 = temp_3[1];
-    if (temp_3_2 == 0xFF) {
-        var_2 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamAddress + streamOffset);
+    lowByte = (operandBytes[0] - 1) & 0xFF;
+    highByte = operandBytes[1];
+    if (highByte == 0xFF) {
+        highPart = 0;
     } else {
-        var_2 = (temp_3_2 - 1) & 0xFF;
+        highPart = (highByte - 1) & 0xFF;
     }
-    var_2 &= 0xFF;
-    *(s8 *)(arg1 + 0xC) = (s8)(s16)((var_2 << 8) | (u8)temp_3_3);
+    highPart &= 0xFF;
+    ((FrFontContext *)context)->style = (s8)(s16)((highPart << 8) | (u8)lowByte);
     return 0;
 }
 
 /* measured: closing opt_propagation off for func_0026e590. */
 /* measured: opt_propagation off forces func_0026e630 field-load order. */
 // FUN_0026E630
-s32 func_0026e630(s32 arg0, u8 *arg1)
+/* Decode the intensity operand in layout mode. */
+s32 frFontCommandSetIntensity(s32 command, u8 *context)
 {
-    s32 temp_3_3;
-    s32 temp_3_5;
-    s32 temp_3_4;
-    s32 var_2;
-    u8 temp_3_2;
-    u8 *temp_3;
+    s32 lowByte;
+    s32 streamAddress;
+    s32 streamOffset;
+    s32 highPart;
+    u8 highByte;
+    u8 *operandBytes;
 
     if (frFontGetMode() != 0) {
         return 0;
     }
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
-    temp_3_3 = (temp_3[0] - 1) & 0xFF;
-    temp_3_2 = temp_3[1];
-    if (temp_3_2 == 0xFF) {
-        var_2 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamAddress + streamOffset);
+    lowByte = (operandBytes[0] - 1) & 0xFF;
+    highByte = operandBytes[1];
+    if (highByte == 0xFF) {
+        highPart = 0;
     } else {
-        var_2 = (temp_3_2 - 1) & 0xFF;
+        highPart = (highByte - 1) & 0xFF;
     }
-    var_2 &= 0xFF;
-    *(s8 *)(arg1 + 0xF) = (s8)(s16)((var_2 << 8) | (u8)temp_3_3);
+    highPart &= 0xFF;
+    ((FrFontContext *)context)->intensity = (s8)(s16)((highPart << 8) | (u8)lowByte);
     return 0;
 }
 
 /* measured: closing opt_propagation off for func_0026e630. */
 // FUN_0026E6D0
+/* Probe the current mode without stopping script parsing. */
 s32 func_0026e6d0(void)
 {
     frFontGetMode();
@@ -311,42 +317,45 @@ s32 func_0026e6d0(void)
 
 /* measured: opt_propagation off preserves field-load order for func_0026e700. */
 // FUN_0026E700
-s32 func_0026e700(s32 arg0, u8 *arg1)
+/* Decode the intensity and height operands in layout mode. */
+s32 frFontCommandSetIntensityAndHeight(s32 command, u8 *context)
 {
-    s32 temp_3_3;
-    s32 temp_3_5;
-    s32 temp_3_4;
-    s32 var_2;
-    u8 temp_3_2;
-    u8 *temp_3;
+    /* FrFontContext/FrFontTextRun offsets are proven in fr_font_objects.h;
+     * typed access changes MWCC alias scheduling here (measured MISMATCH). */
+    s32 lowByte;
+    s32 streamAddress;
+    s32 streamOffset;
+    s32 highPart;
+    u8 highByte;
+    u8 *operandBytes;
 
     if (frFontGetMode() != 0) {
         return 0;
     }
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
-    temp_3_3 = (temp_3[0] - 1) & 0xFF;
-    temp_3_2 = temp_3[1];
-    if (temp_3_2 == 0xFF) {
-        var_2 = 0;
+    streamOffset = *(s32 *)(context + 0x18);
+    streamAddress = *(s32 *)(context + 0x10);
+    operandBytes = (u8 *)(streamAddress + streamOffset);
+    lowByte = (operandBytes[0] - 1) & 0xFF;
+    highByte = operandBytes[1];
+    if (highByte == 0xFF) {
+        highPart = 0;
     } else {
-        var_2 = (temp_3_2 - 1) & 0xFF;
+        highPart = (highByte - 1) & 0xFF;
     }
-    var_2 &= 0xFF;
-    *(s8 *)(arg1 + 0xF) = (s8)(s16)((var_2 << 8) | (u8)temp_3_3);
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
-    temp_3_3 = (temp_3[2] - 1) & 0xFF;
-    temp_3_2 = temp_3[3];
-    if (temp_3_2 == 0xFF) {
-        var_2 = 0;
+    highPart &= 0xFF;
+    *(s8 *)(context + 0xF) = (s8)(s16)((highPart << 8) | (u8)lowByte);
+    streamOffset = *(s32 *)(context + 0x18);
+    streamAddress = *(s32 *)(context + 0x10);
+    operandBytes = (u8 *)(streamOffset + streamAddress);
+    lowByte = (operandBytes[2] - 1) & 0xFF;
+    highByte = operandBytes[3];
+    if (highByte == 0xFF) {
+        highPart = 0;
     } else {
-        var_2 = (temp_3_2 - 1) & 0xFF;
+        highPart = (highByte - 1) & 0xFF;
     }
-    var_2 &= 0xFF;
-    *(s16 *)(arg1 + 0x1E) = (s16)((var_2 << 8) | (u8)temp_3_3);
+    highPart &= 0xFF;
+    *(s16 *)(context + 0x1E) = (s16)((highPart << 8) | (u8)lowByte);
     return 0;
 }
 
@@ -356,41 +365,42 @@ s32 func_0026e700(s32 arg0, u8 *arg1)
 #pragma opt_common_subs off
 /* measured: opt_propagation off preserves field-load order for func_0026e7f0. */
 // FUN_0026E7F0
-s32 func_0026e7f0(s32 arg0, u8 *arg1)
+/* Decode and store position in horizontal sixteenths and vertical eighths. */
+s32 frFontCommandSetPosition(s32 command, u8 *context)
 {
-    s32 temp_3_3;
-    s32 temp_3_5;
-    s32 temp_3_4;
-    s32 var_2;
-    s32 temp_3_2;
-    u8 *temp_3;
-    s32 temp_4;
-    s32 temp_5;
+    s32 lowByte;
+    s32 streamAddress;
+    s32 streamOffset;
+    s32 highPart;
+    s32 highByte;
+    u8 *operandBytes;
+    s32 firstOperand;
+    s32 secondOperand;
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
-    temp_3_3 = (temp_3[0] - 1) & 0xFF;
-    temp_3_2 = temp_3[1];
-    if ((u8)temp_3_2 == 0xFF) {
-        var_2 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamAddress + streamOffset);
+    lowByte = (operandBytes[0] - 1) & 0xFF;
+    highByte = operandBytes[1];
+    if ((u8)highByte == 0xFF) {
+        highPart = 0;
     } else {
-        var_2 = (temp_3_2 - 1) & 0xFF;
+        highPart = (highByte - 1) & 0xFF;
     }
-    var_2 &= 0xFF;
-    temp_4 = (s32)(s16)((var_2 << 8) | (u8)temp_3_3);
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
-    temp_3_3 = (temp_3[2] - 1) & 0xFF;
-    temp_3_2 = temp_3[3];
-    if ((u8)temp_3_2 == 0xFF) {
-        var_2 = 0;
+    highPart &= 0xFF;
+    firstOperand = (s32)(s16)((highPart << 8) | (u8)lowByte);
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamOffset + streamAddress);
+    lowByte = (operandBytes[2] - 1) & 0xFF;
+    highByte = operandBytes[3];
+    if ((u8)highByte == 0xFF) {
+        highPart = 0;
     } else {
-        var_2 = (temp_3_2 - 1) & 0xFF;
+        highPart = (highByte - 1) & 0xFF;
     }
-    var_2 &= 0xFF;
-    temp_5 = (s32)(s16)((var_2 << 8) | (u8)temp_3_3);
+    highPart &= 0xFF;
+    secondOperand = (s32)(s16)((highPart << 8) | (u8)lowByte);
     if (frFontGetMode() == 0) {
         goto success;
     }
@@ -398,8 +408,8 @@ s32 func_0026e7f0(s32 arg0, u8 *arg1)
         return 0;
     }
 success:
-    *(s32 *)arg1 = temp_4 << 4;
-    *(s32 *)(arg1 + 4) = temp_5 << 3;
+    ((FrFontContext *)context)->x = firstOperand << 4;
+    ((FrFontContext *)context)->y = secondOperand << 3;
     return 0;
 }
 
@@ -408,7 +418,8 @@ success:
 #pragma opt_common_subs on
 /* measured: closing opt_propagation off for func_0026e7f0. */
 // FUN_0026E910
-s32 func_0026e910(void)
+/* Mark script termination and stop parsing. */
+s32 frFontCommandEnd(void)
 {
     frFontSetStateBits(1, 1);
     return 1;
@@ -416,42 +427,43 @@ s32 func_0026e910(void)
 
 /* measured: opt_propagation off preserves decode and field-store order for func_0026e940. */
 // FUN_0026E940
-s32 func_0026e940(s32 arg0, u8 *arg1)
+/* Store a nonnegative wait duration and set state bit 0x20. */
+s32 frFontCommandSetWait(s32 command, u8 *context)
 {
-    s32 temp_3_3;
-    s32 temp_3_5;
-    s32 temp_3_4;
-    s32 var_2;
-    u8 temp_3_2;
-    u8 *temp_3;
-    s32 temp_4;
-    s32 temp_6;
-    u8 *temp_7;
+    s32 lowByte;
+    s32 streamAddress;
+    s32 streamOffset;
+    s32 highPart;
+    u8 highByte;
+    u8 *operandBytes;
+    s32 firstOperand;
+    s32 duration;
+    u8 *durationAddress;
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
-    temp_3_3 = (temp_3[0] - 1) & 0xFF;
-    temp_3_2 = temp_3[1];
-    if (temp_3_2 == 0xFF) {
-        var_2 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamAddress + streamOffset);
+    lowByte = (operandBytes[0] - 1) & 0xFF;
+    highByte = operandBytes[1];
+    if (highByte == 0xFF) {
+        highPart = 0;
     } else {
-        var_2 = (temp_3_2 - 1) & 0xFF;
+        highPart = (highByte - 1) & 0xFF;
     }
-    var_2 &= 0xFF;
-    temp_4 = (s32)(s16)((var_2 << 8) | (u8)temp_3_3);
+    highPart &= 0xFF;
+    firstOperand = (s32)(s16)((highPart << 8) | (u8)lowByte);
     if (frFontGetMode() != 0) {
         return 0;
     }
-    if (*(s32 *)(*(u8 **)(arg1 + 0x14) + 0x34) != 0) {
-        *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x38) = 1;
+    if (((FrFontTextRun *)((FrFontContext *)context)->list)->unk34 != 0) {
+        ((FrFontTextRun *)((FrFontContext *)context)->list)->unk38 = 1;
     }
-    *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x30) = arg0;
-    *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x3C) = (s32)(s16)temp_4;
-    temp_7 = *(u8 **)(arg1 + 0x14) + 0x3C;
-    temp_6 = *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x3C);
-    if (temp_6 < 0) {
-        *(s32 *)temp_7 = 0;
+    ((FrFontTextRun *)((FrFontContext *)context)->list)->command = command;
+    ((FrFontTextRun *)((FrFontContext *)context)->list)->duration = (s32)(s16)firstOperand;
+    durationAddress = (u8 *)&((FrFontTextRun *)((FrFontContext *)context)->list)->duration;
+    duration = ((FrFontTextRun *)((FrFontContext *)context)->list)->duration;
+    if (duration < 0) {
+        *(s32 *)durationAddress = 0;
     }
     frFontSetStateBits(0x20, 1);
     return 0;
@@ -461,51 +473,53 @@ s32 func_0026e940(s32 arg0, u8 *arg1)
 /* measured: opt_propagation off preserves decode and state-store order for frFontBeginDeferredLayout. */
 // Intent: Start a deferred layout when data flag 0x3B is set: store the operand, set the pending flag and state bit 0x10 [inferred]
 // FUN_0026EA50
-s32 frFontBeginDeferredLayout(s32 arg0, u8 *arg1)
+s32 frFontBeginDeferredLayout(s32 command, u8 *context)
 {
-    s32 temp_3_3;
-    s32 temp_3_5;
-    s32 temp_3_4;
-    s32 var_2;
-    u8 temp_3_2;
-    u8 *temp_3;
-    s32 temp_4;
-    s32 temp_6;
-    s32 temp_7;
+    /* FrFontContext/FrFontTextRun offsets are proven in fr_font_objects.h;
+     * typed access changes MWCC alias scheduling here (measured MISMATCH). */
+    s32 lowByte;
+    s32 streamAddress;
+    s32 streamOffset;
+    s32 highPart;
+    u8 highByte;
+    u8 *operandBytes;
+    s32 firstOperand;
+    s32 runCount;
+    s32 scaledRunCount;
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
-    temp_3_3 = (temp_3[0] - 1) & 0xFF;
-    temp_3_2 = temp_3[1];
-    if (temp_3_2 == 0xFF) {
-        var_2 = 0;
+    streamOffset = *(s32 *)(context + 0x18);
+    streamAddress = *(s32 *)(context + 0x10);
+    operandBytes = (u8 *)(streamAddress + streamOffset);
+    lowByte = (operandBytes[0] - 1) & 0xFF;
+    highByte = operandBytes[1];
+    if (highByte == 0xFF) {
+        highPart = 0;
     } else {
-        var_2 = (temp_3_2 - 1) & 0xFF;
+        highPart = (highByte - 1) & 0xFF;
     }
-    var_2 &= 0xFF;
-    temp_4 = (s32)(s16)((var_2 << 8) | (u8)temp_3_3);
+    highPart &= 0xFF;
+    firstOperand = (s32)(s16)((highPart << 8) | (u8)lowByte);
     if (frFontGetMode() != 0) {
         return 0;
     }
     if (datGetFlag(0x3B) == 0) {
         return 0;
     }
-    if (*(s32 *)(*(u8 **)(arg1 + 0x14) + 0x34) != 0) {
-        *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x38) = 1;
+    if (*(s32 *)(*(u8 **)(context + 0x14) + 0x34) != 0) {
+        *(s32 *)(*(u8 **)(context + 0x14) + 0x38) = 1;
     }
-    *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x30) = arg0;
+    *(s32 *)(*(u8 **)(context + 0x14) + 0x30) = command;
     if (iGpffffa730 != 0) {
         goto direct_store;
     }
-    temp_6 = frFontCountRuns(*(u8 **)(arg1 + 0x14));
-    temp_7 = temp_6 << 4;
-    temp_6 = temp_7 - temp_6;
-    temp_7 = temp_6 << 2;
-    *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x3C) = temp_7;
+    runCount = frFontCountRuns(*(u8 **)(context + 0x14));
+    scaledRunCount = runCount << 4;
+    runCount = scaledRunCount - runCount;
+    scaledRunCount = runCount << 2;
+    *(s32 *)(*(u8 **)(context + 0x14) + 0x3C) = scaledRunCount;
     goto after_store;
 direct_store:
-    *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x3C) = (s32)(s16)temp_4;
+    *(s32 *)(*(u8 **)(context + 0x14) + 0x3C) = (s32)(s16)firstOperand;
 after_store:
     iGpffffa730 = -1;
     iGpffffb4bc = 1;
@@ -515,7 +529,8 @@ after_store:
 
 /* measured: closing opt_propagation off for frFontBeginDeferredLayout. */
 // FUN_0026EBA0
-s32 func_0026eba0(void)
+/* Set both termination state bits and stop parsing. */
+s32 frFontCommandEndAndSignal(void)
 {
     frFontSetStateBits(1, 1);
     frFontSetStateBits(2, 1);
@@ -527,87 +542,94 @@ s32 func_0026eba0(void)
 /* measured: func_0026ebe0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 // FUN_0026EBE0
-s32 func_0026ebe0(s32 arg0, u8 *arg1)
+/* Copy encoded text through the next newline and advance the stream. */
+s32 frFontCommandCopyLine(s32 command, u8 *context)
 {
-    s32 temp_3;
-    s32 var_16;
-    s32 temp_3_5;
-    s32 temp_3_2;
-    s32 temp_3_4;
-    s32 temp_3_6;
-    u8 *temp_3_3;
+    /* FrFontContext/FrFontTextRun offsets are proven in fr_font_objects.h;
+     * typed access changes MWCC alias scheduling here (measured MISMATCH). */
+    s32 byteIndex;
+    s32 byteCount;
+    s32 terminator;
+    s32 byte;
+    s32 streamOffset;
+    s32 commandMask;
+    u8 *streamBytes;
 
     if (frFontGetMode() != 0) {
         return 0;
     }
-    var_16 = 0;
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3_3 = (u8 *)(temp_3_5 + temp_3_4);
+    byteCount = 0;
+    streamOffset = *(s32 *)(context + 0x18);
+    terminator = *(s32 *)(context + 0x10);
+    streamBytes = (u8 *)(terminator + streamOffset);
     goto scan_loop;
 decode:
-    if ((temp_3_2 & 0xF0) == (temp_3_6 = 0xF0)) {
-        var_16 += (((temp_3_2 & 0xF) - 1) * 2) + 1;
+    if ((byte & 0xF0) == (commandMask = 0xF0)) {
+        byteCount += (((byte & 0xF) - 1) * 2) + 1;
         goto scan_loop;
     }
-    if ((u32)temp_3_2 < 0x80U) {
+    if ((u32)byte < 0x80U) {
         goto scan_loop;
     }
-    var_16 += 1;
+    byteCount += 1;
     goto scan_loop;
 scan_loop:
-    temp_3 = var_16;
-    var_16 += 1;
-    temp_3_2 = *(s8 *)(temp_3_3 + temp_3);
-    temp_3_5 = 0xA;
-    if (temp_3_2 != temp_3_5) {
+    byteIndex = byteCount;
+    byteCount += 1;
+    byte = *(s8 *)(streamBytes + byteIndex);
+    terminator = 0xA;
+    if (byte != terminator) {
         goto decode;
     }
     memset(&D_00881530, 0, 0x80);
     memcpy(&D_00881530,
-                  (void *)(*(s32 *)(arg1 + 0x10) + *(s32 *)(arg1 + 0x18)),
-                  var_16);
-    *((u8 *)((s32)&D_0088152F + var_16)) = 0;
+                  (void *)(*(s32 *)(context + 0x10) + *(s32 *)(context + 0x18)),
+                  byteCount);
+    /* The terminator uses the linker symbol one byte before the text buffer. */
+    *((u8 *)((s32)&D_0088152F + byteCount)) = 0;
     frFontSetStateBits(4, 1);
-    *(s32 *)(arg1 + 0x18) = *(s32 *)(arg1 + 0x18) + var_16;
+    *(s32 *)(context + 0x18) = *(s32 *)(context + 0x18) + byteCount;
     return 0;
 }
 
 /* measured: closes the opt_loop_invariants and opt_propagation probes at the file baseline. */
 /* measured: opt_propagation off preserves decode and state-store order for func_0026ed00. */
 // FUN_0026ED00
-s32 func_0026ed00(s32 arg0, u8 *arg1)
+/* Store a wait duration, using 35 unless data flag 0x3A permits the operand. */
+s32 frFontCommandSetConditionalWait(s32 command, u8 *context)
 {
-    s32 temp_3_3;
-    s32 temp_3_5;
-    s32 temp_3_4;
-    s32 var_2;
-    u8 temp_3_2;
-    u8 *temp_3;
+    /* FrFontContext/FrFontTextRun offsets are proven in fr_font_objects.h;
+     * typed access changes MWCC alias scheduling here (measured MISMATCH). */
+    s32 lowByte;
+    s32 streamAddress;
+    s32 streamOffset;
+    s32 highPart;
+    u8 highByte;
+    u8 *operandBytes;
 
     if (frFontGetMode() != 0) {
         return 0;
     }
-    if (*(s32 *)(*(u8 **)(arg1 + 0x14) + 0x34) != 0) {
-        *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x38) = 1;
+    if (*(s32 *)(*(u8 **)(context + 0x14) + 0x34) != 0) {
+        *(s32 *)(*(u8 **)(context + 0x14) + 0x38) = 1;
     }
-    *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x30) = arg0;
+    *(s32 *)(*(u8 **)(context + 0x14) + 0x30) = command;
     if (datGetFlag(0x3A) == 0) {
-        *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x3C) = 0x23;
+        *(s32 *)(*(u8 **)(context + 0x14) + 0x3C) = 0x23;
     } else {
-        temp_3_4 = *(s32 *)(arg1 + 0x18);
-        temp_3_5 = *(s32 *)(arg1 + 0x10);
-        temp_3 = (u8 *)(temp_3_5 + temp_3_4);
-        temp_3_3 = (temp_3[0] - 1) & 0xFF;
-        temp_3_2 = temp_3[1];
-        if (temp_3_2 == 0xFF) {
-            var_2 = 0;
+        streamOffset = *(s32 *)(context + 0x18);
+        streamAddress = *(s32 *)(context + 0x10);
+        operandBytes = (u8 *)(streamAddress + streamOffset);
+        lowByte = (operandBytes[0] - 1) & 0xFF;
+        highByte = operandBytes[1];
+        if (highByte == 0xFF) {
+            highPart = 0;
         } else {
-            var_2 = (temp_3_2 - 1) & 0xFF;
+            highPart = (highByte - 1) & 0xFF;
         }
-        var_2 &= 0xFF;
-        *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x3C) =
-            (s32)(s16)((var_2 << 8) | (u8)temp_3_3);
+        highPart &= 0xFF;
+        *(s32 *)(*(u8 **)(context + 0x14) + 0x3C) =
+            (s32)(s16)((highPart << 8) | (u8)lowByte);
     }
     return 0;
 }
@@ -615,42 +637,43 @@ s32 func_0026ed00(s32 arg0, u8 *arg1)
 /* measured: closing opt_propagation off for func_0026ed00. */
 /* measured: opt_propagation off preserves decode and state-store order for func_0026ee00. */
 // FUN_0026EE00
-s32 func_0026ee00(s32 arg0, u8 *arg1)
+/* Store a nonnegative decoded duration in layout mode. */
+s32 frFontCommandSetDuration(s32 command, u8 *context)
 {
-    s32 temp_3_3;
-    s32 temp_3_5;
-    s32 temp_3_4;
-    s32 var_2;
-    u8 temp_3_2;
-    u8 *temp_3;
-    s32 temp_4;
-    s32 temp_6;
-    u8 *temp_7;
+    s32 lowByte;
+    s32 streamAddress;
+    s32 streamOffset;
+    s32 highPart;
+    u8 highByte;
+    u8 *operandBytes;
+    s32 firstOperand;
+    s32 duration;
+    u8 *durationAddress;
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
-    temp_3_3 = (temp_3[0] - 1) & 0xFF;
-    temp_3_2 = temp_3[1];
-    if (temp_3_2 == 0xFF) {
-        var_2 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamAddress + streamOffset);
+    lowByte = (operandBytes[0] - 1) & 0xFF;
+    highByte = operandBytes[1];
+    if (highByte == 0xFF) {
+        highPart = 0;
     } else {
-        var_2 = (temp_3_2 - 1) & 0xFF;
+        highPart = (highByte - 1) & 0xFF;
     }
-    var_2 &= 0xFF;
-    temp_4 = (s32)(s16)((var_2 << 8) | (u8)temp_3_3);
+    highPart &= 0xFF;
+    firstOperand = (s32)(s16)((highPart << 8) | (u8)lowByte);
     if (frFontGetMode() != 0) {
         return 0;
     }
-    if (*(s32 *)(*(u8 **)(arg1 + 0x14) + 0x34) != 0) {
-        *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x38) = 1;
+    if (((FrFontTextRun *)((FrFontContext *)context)->list)->unk34 != 0) {
+        ((FrFontTextRun *)((FrFontContext *)context)->list)->unk38 = 1;
     }
-    *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x30) = arg0;
-    *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x3C) = (s32)(s16)temp_4;
-    temp_7 = *(u8 **)(arg1 + 0x14) + 0x3C;
-    temp_6 = *(s32 *)(*(u8 **)(arg1 + 0x14) + 0x3C);
-    if (temp_6 < 0) {
-        *(s32 *)temp_7 = 0;
+    ((FrFontTextRun *)((FrFontContext *)context)->list)->command = command;
+    ((FrFontTextRun *)((FrFontContext *)context)->list)->duration = (s32)(s16)firstOperand;
+    durationAddress = (u8 *)&((FrFontTextRun *)((FrFontContext *)context)->list)->duration;
+    duration = ((FrFontTextRun *)((FrFontContext *)context)->list)->duration;
+    if (duration < 0) {
+        *(s32 *)durationAddress = 0;
     }
     return 0;
 }
@@ -658,13 +681,13 @@ s32 func_0026ee00(s32 arg0, u8 *arg1)
 /* measured: closing opt_propagation off for func_0026ee00. */
 // Intent: Reset the pending-layout flag and set the default values at +0xF and +0x1E [inferred]
 // FUN_0026EF00
-s32 frFontResetPendingState(s32 arg0, u8 *arg1)
+s32 frFontResetPendingState(s32 command, u8 *context)
 {
     if (frFontGetMode() != 0) {
         return 0;
     }
-    *(s8 *)(arg1 + 0xF) = 0x14;
-    *(s16 *)(arg1 + 0x1E) = 0x20;
+    ((FrFontContext *)context)->intensity = 0x14;
+    ((FrFontContext *)context)->height = 0x20;
     iGpffffb4bc = 0;
     return 0;
 }
@@ -674,71 +697,72 @@ s32 frFontResetPendingState(s32 arg0, u8 *arg1)
 #pragma opt_common_subs off
 /* measured: opt_propagation off reconstructs the retail field-load and byte-code sequence for func_0026ef60. */
 // FUN_0026EF60
-s32 func_0026ef60(s32 arg0, u8 *arg1)
+/* Set a data flag using the decoded table selector and relative index. */
+s32 frFontSetDataFlagTable(s32 command, u8 *context)
 {
-    s32 temp_17;
-    s32 temp_q1;
-    s32 temp_q2;
-    s32 temp_18;
-    s32 sp30[5];
-    u8 *var_4;
-    u8 *var_5;
-    s32 temp_2;
-    s32 temp_3_3;
-    s32 temp_3_5;
-    s32 temp_3_4;
-    s32 temp_4;
-    s32 var_2;
-    s32 var_2_2;
-    s32 var_3;
+    s32 tableIndex;
+    s32 signedIndex;
+    s32 signedOffset;
+    s32 flagOffset;
+    s32 flagBases[5];
+    u8 *sourceBytes;
+    u8 *destinationBytes;
+    s32 copiedWord;
+    s32 lowByte;
+    s32 streamAddress;
+    s32 streamOffset;
+    s32 firstOperand;
+    s32 highPart;
+    s32 secondHighPart;
+    s32 wordsRemaining;
 
-    s32 temp_index;
-    s32 temp_3_2;
-    s32 temp_3_6;
-    u8 *temp_3;
+    s32 packedIndex;
+    s32 highByte;
+    s32 secondHighByte;
+    u8 *operandBytes;
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
-    temp_3_3 = (s32)((temp_3[0] - 1) & 0xFF);
-    temp_3_2 = temp_3[1];
-    if ((u8)temp_3_2 == 0xFF) {
-        var_2 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamAddress + streamOffset);
+    lowByte = (s32)((operandBytes[0] - 1) & 0xFF);
+    highByte = operandBytes[1];
+    if ((u8)highByte == 0xFF) {
+        highPart = 0;
     } else {
-        var_2 = (temp_3_2 - 1) & 0xFF;
+        highPart = (highByte - 1) & 0xFF;
     }
-    temp_index = (((var_2 & 0xFF) << 8) |
-                  (temp_3_3 & 0xFF));
-    temp_q1 = (s64)(s16)temp_index;
-    temp_17 = temp_q1;
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
-    temp_4 = (s32)((temp_3[2] - 1) & 0xFF);
-    temp_3_6 = temp_3[3];
-    if ((u8)temp_3_6 == 0xFF) {
-        var_2_2 = 0;
+    packedIndex = (((highPart & 0xFF) << 8) |
+                  (lowByte & 0xFF));
+    signedIndex = (s64)(s16)packedIndex;
+    tableIndex = signedIndex;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamOffset + streamAddress);
+    firstOperand = (s32)((operandBytes[2] - 1) & 0xFF);
+    secondHighByte = operandBytes[3];
+    if ((u8)secondHighByte == 0xFF) {
+        secondHighPart = 0;
     } else {
-        var_2_2 = (temp_3_6 - 1) & 0xFF;
+        secondHighPart = (secondHighByte - 1) & 0xFF;
     }
-    temp_q2 = (s64)(s16)((((var_2_2 & 0xFF) << 8) |
-                          (temp_4 & 0xFF)));
-    temp_18 = temp_q2;
+    signedOffset = (s64)(s16)((((secondHighPart & 0xFF) << 8) |
+                          (firstOperand & 0xFF)));
+    flagOffset = signedOffset;
 
     if (frFontGetMode() != 0) {
         return 0;
     }
-    var_4 = (u8 *)&D_0063BA30[0];
-    var_5 = (u8 *)&sp30[0];
-    var_3 = 5;
+    sourceBytes = (u8 *)&D_0063BA30[0];
+    destinationBytes = (u8 *)&flagBases[0];
+    wordsRemaining = 5;
     do {
-        temp_2 = *(s32 *)var_4;
-        var_4 += 4;
-        var_3 -= 1;
-        *(s32 *)var_5 = temp_2;
-        var_5 += 4;
-    } while (var_3 > 0);
-    datSetFlag(temp_18 + sp30[temp_17], 1);
+        copiedWord = *(s32 *)sourceBytes;
+        sourceBytes += 4;
+        wordsRemaining -= 1;
+        *(s32 *)destinationBytes = copiedWord;
+        destinationBytes += 4;
+    } while (wordsRemaining > 0);
+    datSetFlag(flagOffset + flagBases[tableIndex], 1);
     return 0;
 }
 
@@ -748,71 +772,71 @@ s32 func_0026ef60(s32 arg0, u8 *arg1)
 /* measured: opt_propagation off reconstructs the retail field-load and byte-code sequence for frFontClearDataFlagTable. */
 // Intent: Clear a data flag at the base plus the table entry picked by the first operand [inferred]
 // FUN_0026F0A0
-s32 frFontClearDataFlagTable(s32 arg0, u8 *arg1)
+s32 frFontClearDataFlagTable(s32 command, u8 *context)
 {
-    s32 temp_17;
-    s32 temp_q1;
-    s32 temp_q2;
-    s32 temp_18;
-    s32 sp30[5];
-    u8 *var_4;
-    u8 *var_5;
-    s32 temp_2;
-    s32 temp_3_3;
-    s32 temp_3_5;
-    s32 temp_3_4;
-    s32 temp_4;
-    s32 var_2;
-    s32 var_2_2;
-    s32 var_3;
+    s32 tableIndex;
+    s32 signedIndex;
+    s32 signedOffset;
+    s32 flagOffset;
+    s32 flagBases[5];
+    u8 *sourceBytes;
+    u8 *destinationBytes;
+    s32 copiedWord;
+    s32 lowByte;
+    s32 streamAddress;
+    s32 streamOffset;
+    s32 firstOperand;
+    s32 highPart;
+    s32 secondHighPart;
+    s32 wordsRemaining;
 
-    s32 temp_index;
-    s32 temp_3_2;
-    s32 temp_3_6;
-    u8 *temp_3;
+    s32 packedIndex;
+    s32 highByte;
+    s32 secondHighByte;
+    u8 *operandBytes;
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
-    temp_3_3 = (s32)((temp_3[0] - 1) & 0xFF);
-    temp_3_2 = temp_3[1];
-    if ((u8)temp_3_2 == 0xFF) {
-        var_2 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamAddress + streamOffset);
+    lowByte = (s32)((operandBytes[0] - 1) & 0xFF);
+    highByte = operandBytes[1];
+    if ((u8)highByte == 0xFF) {
+        highPart = 0;
     } else {
-        var_2 = (temp_3_2 - 1) & 0xFF;
+        highPart = (highByte - 1) & 0xFF;
     }
-    temp_index = (((var_2 & 0xFF) << 8) |
-                  (temp_3_3 & 0xFF));
-    temp_q1 = (s64)(s16)temp_index;
-    temp_17 = temp_q1;
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
-    temp_4 = (s32)((temp_3[2] - 1) & 0xFF);
-    temp_3_6 = temp_3[3];
-    if ((u8)temp_3_6 == 0xFF) {
-        var_2_2 = 0;
+    packedIndex = (((highPart & 0xFF) << 8) |
+                  (lowByte & 0xFF));
+    signedIndex = (s64)(s16)packedIndex;
+    tableIndex = signedIndex;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamOffset + streamAddress);
+    firstOperand = (s32)((operandBytes[2] - 1) & 0xFF);
+    secondHighByte = operandBytes[3];
+    if ((u8)secondHighByte == 0xFF) {
+        secondHighPart = 0;
     } else {
-        var_2_2 = (temp_3_6 - 1) & 0xFF;
+        secondHighPart = (secondHighByte - 1) & 0xFF;
     }
-    temp_q2 = (s64)(s16)((((var_2_2 & 0xFF) << 8) |
-                          (temp_4 & 0xFF)));
-    temp_18 = temp_q2;
+    signedOffset = (s64)(s16)((((secondHighPart & 0xFF) << 8) |
+                          (firstOperand & 0xFF)));
+    flagOffset = signedOffset;
 
     if (frFontGetMode() != 0) {
         return 0;
     }
-    var_4 = (u8 *)&D_0063BA30[0];
-    var_5 = (u8 *)&sp30[0];
-    var_3 = 5;
+    sourceBytes = (u8 *)&D_0063BA30[0];
+    destinationBytes = (u8 *)&flagBases[0];
+    wordsRemaining = 5;
     do {
-        temp_2 = *(s32 *)var_4;
-        var_4 += 4;
-        var_3 -= 1;
-        *(s32 *)var_5 = temp_2;
-        var_5 += 4;
-    } while (var_3 > 0);
-    datSetFlag(temp_18 + sp30[temp_17], 0);
+        copiedWord = *(s32 *)sourceBytes;
+        sourceBytes += 4;
+        wordsRemaining -= 1;
+        *(s32 *)destinationBytes = copiedWord;
+        destinationBytes += 4;
+    } while (wordsRemaining > 0);
+    datSetFlag(flagOffset + flagBases[tableIndex], 0);
     return 0;
 }
 
@@ -824,37 +848,37 @@ s32 frFontClearDataFlagTable(s32 arg0, u8 *arg1)
 #pragma opt_common_subs on
 // Intent: When the slot for the decoded index is bound, update the text work and lay out that slot [inferred]
 // FUN_0026F1E0
-s32 frFontLayoutSlotIfBound(s32 arg0, u32 arg1, s32 arg2)
+s32 frFontLayoutSlotIfBound(s32 command, u32 contextAddress, s32 unused)
 {
-    s32 temp_16;
-    s32 temp_4;
-    s32 temp_3_4;
-    s32 temp_3_5;
-    s32 var_2;
-    u8 temp_3_2;
-    u8 *temp_3;
-    u8 *self;
+    s32 slotIndex;
+    s32 lowByte;
+    s32 streamOffset;
+    s32 streamAddress;
+    s32 highPart;
+    u8 highByte;
+    u8 *operandBytes;
+    u8 *context;
 
-    self = (u8 *)arg1;
-    temp_3_4 = *(s32 *)(self + 0x18);
-    temp_3_5 = *(s32 *)(self + 0x10);
-    temp_3 = mtSceneBytePairAt((u8 *)temp_3_5, (u32)temp_3_4);
-    temp_4 = (temp_3[0] - 1) & 0xFF;
-    temp_3_2 = temp_3[1];
-    if (temp_3_2 == 0xFF) {
-        var_2 = 0;
+    context = (u8 *)contextAddress;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = mtSceneBytePairAt((u8 *)streamAddress, (u32)streamOffset);
+    lowByte = (operandBytes[0] - 1) & 0xFF;
+    highByte = operandBytes[1];
+    if (highByte == 0xFF) {
+        highPart = 0;
     } else {
-        var_2 = (temp_3_2 - 1) & 0xFF;
+        highPart = (highByte - 1) & 0xFF;
     }
-    var_2 &= 0xFF;
-    temp_16 = (u16)(s16)((var_2 << 8) | (u8)temp_4);
-    temp_16 &= 0xFFFF;
+    highPart &= 0xFF;
+    slotIndex = (u16)(s16)((highPart << 8) | (u8)lowByte);
+    slotIndex &= 0xFFFF;
     if (frFontGetMode() != 0) {
         return 0;
     }
-    if (D_008815B0[temp_16 & 0xFFFF] != 0) {
-        frFontUpdateTextWork(self);
-        frFontLayoutSlotText(temp_16 & 0xFF, self);
+    if (D_008815B0[slotIndex & 0xFFFF] != 0) {
+        frFontUpdateTextWork(context);
+        frFontLayoutSlotText(slotIndex & 0xFF, context);
     }
     return 0;
 }
@@ -870,81 +894,81 @@ s32 frFontLayoutSlotIfBound(s32 arg0, u32 arg1, s32 arg2)
 #pragma opt_common_subs off
 /* measured: frFontLayoutSlotCommand MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-s32 frFontLayoutSlotCommand(s32 arg0, u8 *arg1)
+s32 frFontLayoutSlotCommand(s32 command, u8 *context)
 {
     s32 first;
     s32 second;
     s64 third;
     s32 *slot;
-    u8 previous_character;
-    s32 stream_offset;
-    s32 stream_base;
+    u8 previousPalette;
+    s32 streamOffset;
+    s32 streamAddress;
     u8 *stream;
     s32 low;
-    s32 high_byte;
-    s32 high_first;
-    s32 high_second;
-    s32 high_third;
-    s32 force_character;
-    s32 character_code;
+    s32 highByte;
+    s32 firstHighPart;
+    s32 secondHighPart;
+    s32 thirdHighPart;
+    s32 forcePalette;
+    s32 characterCode;
     s8 glyph[3] __attribute__((aligned(8)));
 
-    stream_offset = *(s32 *)(arg1 + 0x18);
-    stream_base = *(s32 *)(arg1 + 0x10);
-    stream = mtSceneBytePairAt((u8 *)stream_base, (u32)stream_offset);
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    stream = mtSceneBytePairAt((u8 *)streamAddress, (u32)streamOffset);
     low = (stream[0] - 1) & 0xFF;
-    high_byte = stream[1];
-    if (high_byte == 0xFF) {
-        high_first = 0;
+    highByte = stream[1];
+    if (highByte == 0xFF) {
+        firstHighPart = 0;
     } else {
-        high_first = (high_byte - 1) & 0xFF;
+        firstHighPart = (highByte - 1) & 0xFF;
     }
-    first = (u16)(s16)(((high_first & 0xFF) << 8) | (low & 0xFF));
+    first = (u16)(s16)(((firstHighPart & 0xFF) << 8) | (low & 0xFF));
 
-    stream_offset = *(s32 *)(arg1 + 0x18);
-    stream_base = *(s32 *)(arg1 + 0x10);
-    stream = (u8 *)((u32)stream_offset + (u32)stream_base);
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    stream = (u8 *)((u32)streamOffset + (u32)streamAddress);
     low = (stream[2] - 1) & 0xFF;
-    high_byte = stream[3];
-    if (high_byte == 0xFF) {
-        high_second = 0;
+    highByte = stream[3];
+    if (highByte == 0xFF) {
+        secondHighPart = 0;
     } else {
-        high_second = (high_byte - 1) & 0xFF;
+        secondHighPart = (highByte - 1) & 0xFF;
     }
-    second = (u16)(s16)(((high_second & 0xFF) << 8) | (low & 0xFF));
+    second = (u16)(s16)(((secondHighPart & 0xFF) << 8) | (low & 0xFF));
 
-    stream_offset = *(s32 *)(arg1 + 0x18);
-    stream_base = *(s32 *)(arg1 + 0x10);
-    stream = (u8 *)((u32)stream_offset + (u32)stream_base);
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    stream = (u8 *)((u32)streamOffset + (u32)streamAddress);
     low = (stream[4] - 1) & 0xFF;
-    high_byte = stream[5];
-    if (high_byte == 0xFF) {
-        high_third = 0;
+    highByte = stream[5];
+    if (highByte == 0xFF) {
+        thirdHighPart = 0;
     } else {
-        high_third = (high_byte - 1) & 0xFF;
+        thirdHighPart = (highByte - 1) & 0xFF;
     }
-    third = (u16)(s16)(((high_third & 0xFF) << 8) | (low & 0xFF));
+    third = (u16)(s16)(((thirdHighPart & 0xFF) << 8) | (low & 0xFF));
 
     if (frFontGetMode() != 0) {
         return 0;
     }
     slot = &D_008815B0[(u16)third];
     if (*slot != 0) {
-        previous_character = arg1[0xD];
+        previousPalette = context[0xD];
         /* Retail compares a zero-extended halfword with signed -1. */
         if ((first & 0xFFFF) != -1) {
-            arg1[0xD] = first;
+            context[0xD] = first;
         }
-        character_code = second & 0xFFFF;
-        if (character_code != 0xFFFF) {
+        characterCode = second & 0xFFFF;
+        if (characterCode != 0xFFFF) {
             glyph[0] = -0x7D;
-            glyph[1] = character_code + 0xC7;
+            glyph[1] = characterCode + 0xC7;
             glyph[2] = 0;
-            frFontUpdateTextWork(arg1);
-            frFontLayoutText((u8 *)glyph, arg1);
-            frFontUpdateTextWork(arg1);
-            frFontLayoutSlotText((u8)third, arg1);
-            arg1[0xD] = previous_character;
+            frFontUpdateTextWork(context);
+            frFontLayoutText((u8 *)glyph, context);
+            frFontUpdateTextWork(context);
+            frFontLayoutSlotText((u8)third, context);
+            context[0xD] = previousPalette;
         } else {
             third = *(s32 *)*slot;
             switch (frFontDataEntryClass(third)) {
@@ -957,23 +981,23 @@ s32 frFontLayoutSlotCommand(s32 arg0, u8 *arg1)
             case 6:
             case 9:
             case 11:
-                force_character = 1;
+                forcePalette = 1;
                 break;
             default:
-                force_character = 0;
+                forcePalette = 0;
                 break;
             }
-            if (force_character != 0) {
-                arg1[0xD] = 4;
+            if (forcePalette != 0) {
+                context[0xD] = 4;
             }
             glyph[0] = -0x7D;
             glyph[1] = frFontDataEntryClass(third) + 0xC7;
             glyph[2] = 0;
-            frFontUpdateTextWork(arg1);
-            frFontLayoutText((u8 *)glyph, arg1);
-            frFontUpdateTextWork(arg1);
-            frFontLayoutText((u8 *)datGetItemNameId((s16)third), arg1);
-            arg1[0xD] = previous_character;
+            frFontUpdateTextWork(context);
+            frFontLayoutText((u8 *)glyph, context);
+            frFontUpdateTextWork(context);
+            frFontLayoutText((u8 *)datGetItemNameId((s16)third), context);
+            context[0xD] = previousPalette;
         }
     }
     return 0;
@@ -984,7 +1008,8 @@ s32 frFontLayoutSlotCommand(s32 arg0, u8 *arg1)
 /* measured: func_0026f5a0 MATCH -> MISMATCH without this pragma. */
 #pragma optimization_level 0
 // FUN_0026F5A0
-s32 func_0026f5a0(void)
+/* Probe whether script execution is in mode two; always continue. */
+s32 frFontCommandCheckControlMode(void)
 {
     if (frFontGetMode() != 2) {
         return 0;
@@ -1002,92 +1027,92 @@ s32 func_0026f5a0(void)
 #pragma opt_common_subs off
 // Intent: Run a community command in mode 3: set or clear the reversed flag, or add scaled points, for the current community [inferred]
 // FUN_0026F5E0
-s32 frFontRunCommunityCommand(s32 arg0, u8 *arg1)
+s32 frFontRunCommunityCommand(s32 command, u8 *context)
 {
     s32 first;
     s32 second;
     s32 third;
     s32 fourth;
-    s32 sp20[5];
-    s32 temp_3_4;
-    s32 temp_3_5;
-    s32 temp_3_3;
-    s32 temp_3_2;
-    s32 var_2_1;
-    s32 var_2_2;
-    s32 var_2_3;
-    s32 var_2_4;
-    s32 temp_2;
+    s32 flagBases[5];
+    s32 streamOffset;
+    s32 streamAddress;
+    s32 lowByte;
+    s32 highByte;
+    s32 firstHighPart;
+    s32 secondHighPart;
+    s32 thirdHighPart;
+    s32 fourthHighPart;
+    s32 copiedWord;
     s32 *src;
     s32 *dst;
     s32 i;
-    u8 *temp_3;
+    u8 *operandBytes;
 
     if (frFontGetMode() != 3) {
         return 0;
     }
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
-    temp_3_3 = (s32)((temp_3[0] - 1) & 0xFF);
-    temp_3_2 = temp_3[1];
-    if ((u8)temp_3_2 == 0xFF) {
-        var_2_1 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamAddress + streamOffset);
+    lowByte = (s32)((operandBytes[0] - 1) & 0xFF);
+    highByte = operandBytes[1];
+    if ((u8)highByte == 0xFF) {
+        firstHighPart = 0;
     } else {
-        var_2_1 = (temp_3_2 - 1) & 0xFF;
+        firstHighPart = (highByte - 1) & 0xFF;
     }
-    first = (s64)(s16)(((var_2_1 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+    first = (s64)(s16)(((firstHighPart & 0xFF) << 8) | (lowByte & 0xFF));
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
-    temp_3_3 = (s32)((temp_3[2] - 1) & 0xFF);
-    temp_3_2 = temp_3[3];
-    if ((u8)temp_3_2 == 0xFF) {
-        var_2_2 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamOffset + streamAddress);
+    lowByte = (s32)((operandBytes[2] - 1) & 0xFF);
+    highByte = operandBytes[3];
+    if ((u8)highByte == 0xFF) {
+        secondHighPart = 0;
     } else {
-        var_2_2 = (temp_3_2 - 1) & 0xFF;
+        secondHighPart = (highByte - 1) & 0xFF;
     }
-    second = (s64)(s16)(((var_2_2 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+    second = (s64)(s16)(((secondHighPart & 0xFF) << 8) | (lowByte & 0xFF));
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
-    temp_3_3 = (s32)((temp_3[4] - 1) & 0xFF);
-    temp_3_2 = temp_3[5];
-    if ((u8)temp_3_2 == 0xFF) {
-        var_2_3 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamOffset + streamAddress);
+    lowByte = (s32)((operandBytes[4] - 1) & 0xFF);
+    highByte = operandBytes[5];
+    if ((u8)highByte == 0xFF) {
+        thirdHighPart = 0;
     } else {
-        var_2_3 = (temp_3_2 - 1) & 0xFF;
+        thirdHighPart = (highByte - 1) & 0xFF;
     }
-    third = (s64)(s16)(((var_2_3 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+    third = (s64)(s16)(((thirdHighPart & 0xFF) << 8) | (lowByte & 0xFF));
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
-    temp_3_3 = (s32)((temp_3[6] - 1) & 0xFF);
-    temp_3_2 = temp_3[7];
-    if ((u8)temp_3_2 == 0xFF) {
-        var_2_4 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamOffset + streamAddress);
+    lowByte = (s32)((operandBytes[6] - 1) & 0xFF);
+    highByte = operandBytes[7];
+    if ((u8)highByte == 0xFF) {
+        fourthHighPart = 0;
     } else {
-        var_2_4 = (temp_3_2 - 1) & 0xFF;
+        fourthHighPart = (highByte - 1) & 0xFF;
     }
-    fourth = (s64)(s16)(((var_2_4 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+    fourth = (s64)(s16)(((fourthHighPart & 0xFF) << 8) | (lowByte & 0xFF));
 
     switch (first) {
     case 0:
         src = (s32 *)&D_0063BA30[0];
-        dst = &sp20[0];
+        dst = &flagBases[0];
         i = 5;
         do {
-            temp_2 = *src;
+            copiedWord = *src;
             src += 1;
             i -= 1;
-            *dst = temp_2;
+            *dst = copiedWord;
             dst += 1;
         } while (i > 0);
-        datSetFlag(third + sp20[second], fourth);
+        datSetFlag(third + flagBases[second], fourth);
         break;
     case 1:
         if (fourth != 0) {
@@ -1122,72 +1147,72 @@ s32 frFontRunCommunityCommand(s32 arg0, u8 *arg1)
 #pragma opt_common_subs off
 /* measured: frFontRunAudioCommand MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
-s32 frFontRunAudioCommand(s32 arg0, u8 *arg1)
+s32 frFontRunAudioCommand(s32 command, u8 *context)
 {
     s32 first;
     s32 second;
     s32 third;
     s32 fourth;
-    s8 sp50[0x40];
-    s32 temp_3_4;
-    s32 temp_3_5;
-    s32 temp_3_3;
-    s32 temp_3_2;
-    s32 var_2_1;
-    s32 var_2_2;
-    s32 var_2_3;
-    s32 var_2_4;
+    s8 soundPath[0x40];
+    s32 streamOffset;
+    s32 streamAddress;
+    s32 lowByte;
+    s32 highByte;
+    s32 firstHighPart;
+    s32 secondHighPart;
+    s32 thirdHighPart;
+    s32 fourthHighPart;
     s32 action;
     s32 channel;
-    u8 *temp_3;
+    u8 *operandBytes;
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_5 + temp_3_4);
-    temp_3_3 = (s32)((temp_3[0] - 1) & 0xFF);
-    temp_3_2 = temp_3[1];
-    if ((u8)temp_3_2 == 0xFF) {
-        var_2_1 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamAddress + streamOffset);
+    lowByte = (s32)((operandBytes[0] - 1) & 0xFF);
+    highByte = operandBytes[1];
+    if ((u8)highByte == 0xFF) {
+        firstHighPart = 0;
     } else {
-        var_2_1 = (temp_3_2 - 1) & 0xFF;
+        firstHighPart = (highByte - 1) & 0xFF;
     }
-    first = (s64)(s16)(((var_2_1 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+    first = (s64)(s16)(((firstHighPart & 0xFF) << 8) | (lowByte & 0xFF));
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
-    temp_3_3 = (s32)((temp_3[2] - 1) & 0xFF);
-    temp_3_2 = temp_3[3];
-    if ((u8)temp_3_2 == 0xFF) {
-        var_2_2 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamOffset + streamAddress);
+    lowByte = (s32)((operandBytes[2] - 1) & 0xFF);
+    highByte = operandBytes[3];
+    if ((u8)highByte == 0xFF) {
+        secondHighPart = 0;
     } else {
-        var_2_2 = (temp_3_2 - 1) & 0xFF;
+        secondHighPart = (highByte - 1) & 0xFF;
     }
-    second = (s64)(s16)(((var_2_2 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+    second = (s64)(s16)(((secondHighPart & 0xFF) << 8) | (lowByte & 0xFF));
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
-    temp_3_3 = (s32)((temp_3[4] - 1) & 0xFF);
-    temp_3_2 = temp_3[5];
-    if ((u8)temp_3_2 == 0xFF) {
-        var_2_3 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamOffset + streamAddress);
+    lowByte = (s32)((operandBytes[4] - 1) & 0xFF);
+    highByte = operandBytes[5];
+    if ((u8)highByte == 0xFF) {
+        thirdHighPart = 0;
     } else {
-        var_2_3 = (temp_3_2 - 1) & 0xFF;
+        thirdHighPart = (highByte - 1) & 0xFF;
     }
-    third = (s64)(s16)(((var_2_3 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+    third = (s64)(s16)(((thirdHighPart & 0xFF) << 8) | (lowByte & 0xFF));
 
-    temp_3_4 = *(s32 *)(arg1 + 0x18);
-    temp_3_5 = *(s32 *)(arg1 + 0x10);
-    temp_3 = (u8 *)(temp_3_4 + temp_3_5);
-    temp_3_3 = (s32)((temp_3[6] - 1) & 0xFF);
-    temp_3_2 = temp_3[7];
-    if ((u8)temp_3_2 == 0xFF) {
-        var_2_4 = 0;
+    streamOffset = ((FrFontContext *)context)->position;
+    streamAddress = ((FrFontContext *)context)->stream;
+    operandBytes = (u8 *)(streamOffset + streamAddress);
+    lowByte = (s32)((operandBytes[6] - 1) & 0xFF);
+    highByte = operandBytes[7];
+    if ((u8)highByte == 0xFF) {
+        fourthHighPart = 0;
     } else {
-        var_2_4 = (temp_3_2 - 1) & 0xFF;
+        fourthHighPart = (highByte - 1) & 0xFF;
     }
-    fourth = (s64)(s16)(((var_2_4 & 0xFF) << 8) | (temp_3_3 & 0xFF));
+    fourth = (s64)(s16)(((fourthHighPart & 0xFF) << 8) | (lowByte & 0xFF));
 
     iGpffffa730 = -1;
     if (frFontGetMode() == 0) {
@@ -1217,32 +1242,33 @@ s32 frFontRunAudioCommand(s32 arg0, u8 *arg1)
 
 L0:
     if ((second >= 0) && (second < 0x191)) {
-        sprintf((char *)sp50, D_0063BA50, second, third, second, third, fourth);
+        sprintf((char *)soundPath, D_0063BA50, second, third, second, third, fourth);
     } else if ((second >= 0x191) && (second < 0x1F5)) {
-        sprintf((char *)sp50, D_0063BA80, second, third / 0x14, second, third, fourth);
+        sprintf((char *)soundPath, D_0063BA80, second, third / 0x14, second, third, fourth);
     }
-    sdkSndStartChannel(1, (const char *)sp50);
+    sdkSndStartChannel(1, (const char *)soundPath);
     goto Lend;
 
 L1:
     if (fourth != 0) {
-        func_0045ae10(action, channel, fourth);
+        sdkSndStartIndexedSource(action, channel, fourth);
     }
     goto Lend;
 
 L2:
-    func_0045ae10(third, 1, fourth);
+    sdkSndStartIndexedSource(third, 1, fourth);
     goto Lend;
 
 L3:
-    func_0045ae10(third, 1, fourth);
+    sdkSndStartIndexedSource(third, 1, fourth);
     goto Lend;
 
 L4:
-    func_0045ae10(third, 1, fourth);
+    sdkSndStartIndexedSource(third, 1, fourth);
     goto Lend;
 
 Lend:
     return 0;
 }
+#pragma pop
 

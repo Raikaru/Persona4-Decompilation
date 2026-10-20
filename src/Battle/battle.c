@@ -3,13 +3,14 @@
 #include "include_asm.h"
 #include "type.h"
 #include "scr_internal.h"
+#include "btl_effect_internal.h"
 
 static u64 iGpffffa090 = 1;
 
 
 static u16 iGpffffa098 = 0x100;
 
-extern void btlPacketStepSide(u32 layer);
+extern void btlPacketStepSide(u32 side);
 extern void btlMainDrawSkyOverlay(void);
 extern void btlMainUpdate(void);
 extern void btlActionListUpdate(void);
@@ -20,27 +21,22 @@ extern void btlUnitUpdateAll(void);
 extern void btlSoundStepMessagePhase(void);
 extern void func_001f9be0(void);
 extern void btlSoundAdvanceSlotQueue(void);
-extern void func_001eb8d0(void);
+extern void btlTargetUpdateDamagePhaseInput(void);
 extern void btlDestroyTask(void);
 extern s32 kwlnGetCamera(void);
-extern s32 func_003e8120(s32 arg0);
+extern s32 func_003e8120(s32 camera);
 extern void btlUnitUpdateAllLookAtTargets(void);
 extern void btlUnitQueueAllModelsForDraw(void);
 extern void btlEffectUpdateFadeNodes(void);
 extern void btlCameraDrawDebug(void);
-extern void PrimAppendNode(void *arg0, void *arg1);
-extern void func_003e8110(s32 arg0);
+extern void PrimAppendNode(void *list, void *node);
+extern void func_003e8110(s32 camera);
 extern u8 D_007940C0[];
 extern u8 D_00794120[];
 
-extern u32 func_001fc270(void);
+extern u32 mdlEffectReturnSuccess(void);
 
-typedef struct Battle Battle;
-struct Battle
-{
-    u8 _pad00[0xc];
-    u32 flags;
-};
+typedef BtlBattleState Battle;
 
 typedef struct BtlBattleFlagPacket BtlBattleFlagPacket;
 struct BtlBattleFlagPacket
@@ -49,21 +45,14 @@ struct BtlBattleFlagPacket
 };
 extern Battle* iGpffffb3ac;
 
-typedef struct BtlPacket BtlPacket;
-struct BtlPacket
-{
-    u8 _pad00[0x6c];
-    u32 (*updateFunc)(void* work);
-    u8 _pad70[8];
-    void* workData;
-};
 
-extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
+extern BtlPacket* btlPacketAlloc(u32 packetType, u32 workSize);
 extern u32 btlSetFlagsPacketUpdate(void* work);
 extern u32 btlClearFlagsPacketUpdate(void* work);
 
 
 
+/* Allocate a nonzero battle UID, wrapping before the reserved upper range. */
 // FUN_00192560
 u64 btlGetUID(void)
 {
@@ -79,6 +68,7 @@ u64 btlGetUID(void)
 
 
 
+/* Find an unused character resource slot in the rotating 0x100..0x1FF range. */
 // FUN_001925B0
 u16 btlFindFreeCharResId(void)
 {
@@ -95,6 +85,7 @@ u16 btlFindFreeCharResId(void)
 
 
 
+/* Advance battle systems between packet layers while the battle-active flag is set. */
 // FUN_00192610
 s32 btlUpdateTask(u8 *unusedTask)
 {
@@ -110,12 +101,13 @@ s32 btlUpdateTask(u8 *unusedTask)
         func_001f9be0();
         btlSoundAdvanceSlotQueue();
         btlPacketStepSide(1);
-        func_001eb8d0();
+        btlTargetUpdateDamagePhaseInput();
     } else {
         btlDestroyTask();
     }
     return 0;
 }
+/* Draw the battle scene and enqueue the render-state and sky primitive callbacks. */
 // FUN_001926C0
 s32 btlUpdateDraw3DTask(u8 *unusedTask)
 {
@@ -125,12 +117,12 @@ s32 btlUpdateDraw3DTask(u8 *unusedTask)
         btlUnitQueueAllModelsForDraw();
         btlEffectUpdateFadeNodes();
         btlCameraDrawDebug();
-        *(s32 *)((u8 *)iGpffffb3ac + 0xE18) = 0;
-        *(s32 *)((u8 *)iGpffffb3ac + 0xE1C) = 0;
-        PrimAppendNode(D_007940C0, (u8 *)iGpffffb3ac + 0xE18);
-        *(s32 *)((u8 *)iGpffffb3ac + 0xE48) = 0;
-        *(s32 *)((u8 *)iGpffffb3ac + 0xE4C) = 0;
-        PrimAppendNode(D_00794120, (u8 *)iGpffffb3ac + 0xE48);
+        iGpffffb3ac->renderStateNode.unk00 = 0;
+        iGpffffb3ac->renderStateNode.unk04 = 0;
+        PrimAppendNode(D_007940C0, &iGpffffb3ac->renderStateNode);
+        iGpffffb3ac->skyNode.unk00 = 0;
+        iGpffffb3ac->skyNode.unk04 = 0;
+        PrimAppendNode(D_00794120, &iGpffffb3ac->skyNode);
         func_003e8110(kwlnGetCamera());
     }
     return 0;
@@ -153,7 +145,7 @@ u32 btlScriptHasCmdTimer(void)
 {
     if (scrGetCmdTimer() > 0)
     {
-        return func_001fc270() != 0;
+        return mdlEffectReturnSuccess() != 0;
     }
 
     return 0;
@@ -161,6 +153,7 @@ u32 btlScriptHasCmdTimer(void)
 
 
 
+/* Apply a queued battle-flag mask and complete the packet. */
 // FUN_00193750
 u32 btlSetFlagsPacketUpdate(void* work)
 {
@@ -174,6 +167,7 @@ u32 btlSetFlagsPacketUpdate(void* work)
 
 
 
+/* Create a one-shot packet that sets battle runtime flags. */
 // FUN_00193770
 BtlPacket* btlCreateSetFlagsPacket(u32 flags)
 {
@@ -190,6 +184,7 @@ BtlPacket* btlCreateSetFlagsPacket(u32 flags)
 /* measured: removing this pragma takes func_001937c0 nd 0 -> nd 13. */
 #pragma optimization_level 1
 
+/* Clear a queued battle-flag mask and complete the packet. */
 // FUN_001937C0
 u32 btlClearFlagsPacketUpdate(void* work)
 {
@@ -206,6 +201,7 @@ u32 btlClearFlagsPacketUpdate(void* work)
 
 
 
+/* Create a one-shot packet that clears battle runtime flags. */
 // FUN_001937F0
 BtlPacket* btlCreateRemoveFlagsPacket(u32 flags)
 {

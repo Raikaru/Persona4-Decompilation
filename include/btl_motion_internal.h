@@ -16,24 +16,24 @@ s64 btlUnitGetMotionId(u8 *unit, u16 motion);
 /* Animation-table and boss-override selectors use their low unsigned halfword. */
 f32 btlUnitGetMotionDistance(u8 *unit, u8 *target, u16 motion);
 
-u32 btlUnitPlayMotionPacketUpdate(void *work);
-u32 btlUnitMotionRequestPacketUpdate(void *work);
-u32 btlUnitMotionSpeedPacketUpdate(void *work);
+u32 btlUnitPlayMotionPacketUpdate(void *workData);
+u32 btlUnitMotionRequestPacketUpdate(void *workData);
+u32 btlUnitMotionSpeedPacketUpdate(void *workData);
 
 /* Opening-motion selection and its boss-state predicate consume signed
  * halfword identifiers, not 64-bit action/animation values. */
-s32 btlUnitOpeningMotionMode(s32 unused, u8 *unit, s16 skill, s32 paired);
-s32 btlUnitSlotIsOpen(u8 *action, s16 motion);
+s32 btlUnitOpeningMotionMode(s32 unused, u8 *unit, s16 skill, s32 openingMode);
+s32 btlUnitSlotIsOpen(u8 *action, s16 slotIndex);
 
 /* Boss motion overrides use both the unit and motion selector. A missing
  * override is -1; the timing helpers consume the returned signed halfword. */
-s32 btlFormationLookupSlot(u8 *unit, u16 motion);
+s32 btlFormationLookupSlot(u8 *unit, u16 slotIndex);
 /* The timing queries and distance helper share that selector domain. */
 s16 btlUnitMotionFrames(u8 *unit, u16 motion, f32 rate);
 s16 btlUnitMotionFollowFrames(u8 *unit, u16 motion, f32 rate);
 s16 btlUnitGetMotionTableFrames(u8 *unit, u16 motion);
-f32 btlUnitGetActionAnchorHeight(u8 *unit, u8 *target, u16 motion);
+f32 btlUnitGetActionAnchorHeight(u8 *source, u8 *unit, u16 actionKind);
 s16 btlUnitMotionModelFrames(u8 *unit, u16 motion, f32 rate);
-s16 btlUnitMotionHitFrames(u8 *unit, u16 motion, f32 rate, s64 hit);
+s16 btlUnitMotionHitFrames(u8 *unit, u16 motion, f32 rate, s64 hitOrdinal);
 
 #endif

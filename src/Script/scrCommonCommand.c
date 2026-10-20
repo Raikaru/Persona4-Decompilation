@@ -6,34 +6,34 @@ typedef struct KwlnTask KwlnTask;
 extern s32 scrGetParamInt(s32 paramIdx);
 extern u32 scrGetCmdTimer(void);
 
-void func_001029a0(s32 arg0, void *arg1, s32 arg2, s32 arg3);
+void sequenceRequest(s32 sequenceId, void *parameters, s32 parameterSize, s32 delay);
 /* Source unit: src/Kosaka/k_command/k_command_00299400.c (1 function markers) */
 #include "Kosaka/k_command_internal.h"
 #include "include_asm.h"
 
-extern u32 kwlnTaskIsLinked(KwlnTask* task);
+extern u32 kwlnTaskIsLinked(KwlnTask* target);
 extern void scrSetReturnInt(s32 retVal);
 extern u32 kwlnTaskGetTimer(KwlnTask* task);
 
 extern void kAssertFail(const char* file, u32 line);
 extern void func_00440b68(const char* fmt, ...);
-extern void datSetFlag(s32 flag, s32 value);
+extern void datSetFlag(s32 flagId, s32 enabled);
 extern u32 RpRandom(void);
 extern float scrGetParamFloat(s32 paramIdx);
-extern void scrSetReturnFloat(float value);
+extern void scrSetReturnFloat(float retVal);
 extern float sqrtf(float x);
 extern char* scrGetParamString(s32 paramIdx);
-extern void func_00122640(s32 arg0, s32 arg1);
-extern void func_00122520(s32 arg0, s32 arg1);
+extern void fadeBeginReturnTransition(s32 mode, s32 duration);
+extern void fadeBeginTransition(s32 mode, s32 duration);
 extern s32 fadeStatus(void);
-extern s32 func_00102980(void);
-extern s32 scrGetLabelAddr(s32 index);
-extern void scrSetCurrentLabel(s32 addr);
-extern void datEntryDrawGatedByFlag39(s16 a, s16 b, s16 c, s16 d);
+extern s32 kwlnGetCurrentWorkValue(void);
+extern s32 scrGetLabelAddr(s32 lblIdx);
+extern void scrSetCurrentLabel(s32 labelAddress);
+extern void datEntryDrawGatedByFlag39(s16 port, s16 sequence, s16 duration, s16 flags);
 extern void datStopPadRumble(void);
-extern s32 func_001064f0(s32 index);
+extern s32 datGetScriptValue(s32 index);
 extern void* scrGetContext(void);
-extern void* scrStartProcedureWork(s32 priority, void* scrHeader, void* entries, void* proc, void* labels, void* instr, void* msg, void* strings, s32 prcdIdx);
+extern void* scrStartProcedureWork(s32 priority, void* header, void* entries, void* procedures, void* labels, void* instructions, void* messages, void* strings, s32 procedureIndex);
 
 extern char D_0063CFB0[];
 extern char D_0063CFC8[];
@@ -127,6 +127,7 @@ u32 scrCmdTimerActive(void)
 }
 
 // FUN_00298FC0
+/* Complete immediately for nonpositive waits; otherwise yield until the command timer reaches parameter zero. */
 u32 scrCommand_WAIT()
 {
     s32 cmdTimer;
@@ -169,7 +170,7 @@ u32 scrKillTask(void)
     task = scrGetParamInt(0);
     if (task != 0)
     {
-        func_00122640(0, task);
+        fadeBeginReturnTransition(0, task);
     }
     return 1;
 }
@@ -185,7 +186,7 @@ u32 scrSetTaskParam(void)
     p1 = scrGetParamInt(1);
     if (p1 != 0)
     {
-        func_00122520(p0, p1);
+        fadeBeginTransition(p0, p1);
     }
     return 1;
 }
@@ -200,10 +201,10 @@ u32 scrIsFading(void)
 // Sends the value of parameter 0 as a two-entry parameter pair through the sound/command channel [inferred].
 // FUN_00299170
 s32 scrSendParamPair(void) {
-    s16 sp1C[2]; /* measured: 2-element form required for retail slot at 0x1c */
+    s16 parameters[2]; /* measured: 2-element form required for retail slot at 0x1c */
 
-    sp1C[0] = scrGetParamInt(0);
-    func_001029a0(0x1D, sp1C, 2, 0xA);
+    parameters[0] = scrGetParamInt(0);
+    sequenceRequest(0x1D, parameters, 2, 0xA);
     return 1;
 }
 
@@ -214,7 +215,7 @@ s32 scrSendParamPair(void) {
 // FUN_002991C0
 u32 scrIsIdle(void)
 {
-    return ~func_00102980() == 0;
+    return ~kwlnGetCurrentWorkValue() == 0;
 }
 
 // Case dispatch: parameter 0 selects a case (0..6) and parameter caseIdx + 1 names its label; a negative index or label returns without jumping.
@@ -286,7 +287,7 @@ u32 scrRumbleOrDrawEntry(void)
 // FUN_002993C0
 u32 scrQueryTableValue(void)
 {
-    scrSetReturnInt(func_001064f0(scrGetParamInt(0)));
+    scrSetReturnInt(datGetScriptValue(scrGetParamInt(0)));
     return 1;
 }
 
@@ -294,7 +295,7 @@ u32 scrQueryTableValue(void)
 // FUN_00299400
 u32 scrSetTableValue()
 {
-    func_00106550(scrGetParamInt(0), scrGetParamInt(1));
+    datSetScriptValue(scrGetParamInt(0), scrGetParamInt(1));
 
     return true;
 }
@@ -341,6 +342,7 @@ u32 scrStartProcedureTask(void)
 }
 
 // FUN_002995C0
+/* Wait until the task handle in parameter zero is no longer linked to the scheduler. */
 u32 scrCommand_SCR_KILL_SYNC()
 {
     KwlnTask* task;
@@ -353,6 +355,7 @@ u32 scrCommand_SCR_KILL_SYNC()
 
 
 // FUN_00299600
+/* Return whether the task handle in parameter zero is still linked to the scheduler. */
 u32 scrCommand_SCR_EXISTS()
 {
     KwlnTask* task;
@@ -374,6 +377,7 @@ u32 scrCommand_SCR_EXISTS()
 
 
 // FUN_00299660
+/* Return a linked task's timer, or zero when the handle is no longer linked. */
 u32 scrCommand_SCR_GET_TIMER()
 {
     KwlnTask* task;

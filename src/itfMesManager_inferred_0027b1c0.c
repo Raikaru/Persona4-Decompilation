@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "itf_mes_objects.h"
 #include "message_frame_internal.h"
 #include "message_handle.h"
 #include "message_procedure_api.h"
@@ -19,27 +20,27 @@ extern u16 D_008817E8[];
 extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
-extern void itfMesWindowStepState(u8 *arg0);
-extern void itfMesWindowAdvanceRow(u8 *arg0);
-extern void itfMesWindowCommitSelection(u8 *arg0);
-extern void itfMesWindowStepTransition(u8 *arg0);
-extern void itfMesWindowQueueCallback(s32 arg0);
-extern s32 func_0027bd40(s32 arg0);
-extern s32 func_0027bda0(s32 arg0);
-extern s32 func_0027be00(s32 arg0);
+extern void itfMesWindowStepState(u8 *window);
+extern void itfMesWindowAdvanceRow(u8 *window);
+extern void itfMesWindowCommitSelection(u8 *window);
+extern void itfMesWindowStepTransition(u8 *window);
+extern void itfMesWindowQueueCallback(s32 taskAddress);
+extern s32 func_0027bd40(s32 handle);
+extern s32 func_0027bda0(s32 handle);
+extern s32 func_0027be00(s32 handle);
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027b1c0-0027b500 */
 
-extern void itfMesWindowStepState(u8 *arg0);
-extern void itfMesWindowAdvanceRow(u8 *arg0);
-extern void itfMesWindowCommitSelection(u8 *arg0);
-extern void itfMesWindowQueueCallback(s32 arg0);
-extern s32 func_0027b910(s32 arg0);
-extern s32 func_0027bd40(s32 arg0);
-extern s32 func_0027bda0(s32 arg0);
-extern s32 func_0027be00(s32 arg0);
+extern void itfMesWindowStepState(u8 *window);
+extern void itfMesWindowAdvanceRow(u8 *window);
+extern void itfMesWindowCommitSelection(u8 *window);
+extern void itfMesWindowQueueCallback(s32 taskAddress);
+extern s32 func_0027b910(s32 handle);
+extern s32 func_0027bd40(s32 handle);
+extern s32 func_0027bda0(s32 handle);
+extern s32 func_0027be00(s32 handle);
 /* measured: opt_propagation off probe for 002703d0 register setup. */
 /* measured: closes opt_propagation off probe for 002703d0. */
 /* measured: opt_rebuildconditionals off reproduces 002704f0 retail conditional-register schedule. */
@@ -53,7 +54,7 @@ extern s32 func_0027be00(s32 arg0);
 /* measured: opt_loop_invariants hoists mask/count/const-1 into preheader */
 /* measured: itfMesWindowFindPressedEntry MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
-s32 itfMesWindowFindPressedEntry(s16 *arg0)
+s32 itfMesWindowFindPressedEntry(s16 *selection)
 {
     s32 i = 0;
     u16 mask;
@@ -62,36 +63,36 @@ s32 itfMesWindowFindPressedEntry(s16 *arg0)
     s16 *p;
 
     mask = D_008C024E[0];
-    count = *(s16 *)((u8 *)arg0 + 0x16);
+    count = ((ItfMesSelection *)(u8 *)selection)->bindingCount;
     for (; i < count; i++) {
-        p = (s16 *)((u8 *)arg0 + i * 4 + 0x18);
+        p = (s16 *)((u8 *)selection + i * 4 + 0x18);
         bit = *p;
         if ((1 << bit) & mask) {
-            return *(s16 *)((u8 *)p + 2);
+            return ((ItfMesInputBinding *)(u8 *)p)->entry;
         }
     }
     return -1;
 }
 
 /* measured: opt_loop_invariants off */
-// Intent: Advances a window's transition state (waits on ops 0x10, 0x11, 0x12) [inferred]
+// Intent: Advances a selection's transition state (waits on ops 0x10, 0x11, 0x12) [inferred]
 // FUN_0027B230
-void itfMesWindowStepTransition(u8 *arg0)
+void itfMesWindowStepTransition(u8 *window)
 {
     s16 *state;
     u8 *node;
     s32 value;
 
-    state = (s16 *)(arg0 + 0x34);
+    state = (s16 *)(window + 0x34);
     node = D_008817EC[0];
     goto node_check;
 node_body:
-    if (*(u8 **)(node + 0xC) == arg0)
+    if (((ItfMesManagerEntry *)node)->object.bytes == window)
     {
-        value = *(s32 *)(node + 8);
+        value = ((ItfMesManagerEntry *)node)->handle.value;
         goto node_done;
     }
-    node = *(u8 **)(node + 4);
+    node = ((ItfMesManagerEntry *)node)->next.bytes;
 node_check:
     if (node != NULL)
         goto node_body;
@@ -117,28 +118,28 @@ node_done:
 
 // Intent: Updates a window's three lists: draws them and advances the window's list state [inferred]
 // FUN_0027B310
-void itfMesWindowUpdateLists(u8 *arg0)
+void itfMesWindowUpdateLists(u8 *window)
 {
-    extern s32 frFontDrawListDefault(s32 arg0);
-    extern s32 frFontDrawListMode(s32 arg0, s32 arg1);
+    extern s32 frFontDrawListDefault(s32 list);
+    extern s32 frFontDrawListMode(s32 list, s32 mode);
     extern void itfMesWindowMarkRedraw(void);
-    extern s32 func_0027b910(s32 arg0);
+    extern s32 func_0027b910(s32 handle);
     s32 flags;
     u32 mask;
     s32 value;
     u8 *node;
 
-    flags = *(s32 *)arg0;
+    flags = ((ItfMesWindow *)window)->flags.value;
     D_008817E8[0] &= 0xFFFD;
     itfMesWindowMarkRedraw();
     node = D_008817EC[0];
     goto node_check;
 node_body:
-    if (*(u8 **)(node + 0xC) == arg0) {
-        value = *(s32 *)(node + 8);
+    if (((ItfMesManagerEntry *)node)->object.bytes == window) {
+        value = ((ItfMesManagerEntry *)node)->handle.value;
         goto node_done;
     }
-    node = *(u8 **)(node + 4);
+    node = ((ItfMesManagerEntry *)node)->next.bytes;
 node_check:
     if (node != NULL)
         goto node_body;
@@ -149,7 +150,7 @@ node_done:
     {
         s32 first;
 
-        first = *(s32 *)(arg0 + 0x14);
+        first = ((ItfMesWindow *)window)->label.list.value;
         if ((mask = flags & 0x20000) == 0 &&
             (u32)(flags & 7) >= 3U &&
             (flags & 0x10000) == 0 &&
@@ -160,26 +161,26 @@ node_done:
     {
         s32 second;
 
-        second = *(s32 *)(arg0 + 0x20);
+        second = ((ItfMesWindow *)window)->row.list.value;
         if (mask == 0 &&
             (u32)(flags & 7) >= 3U &&
             frFontDrawListDefault(second) > 0) {
             s32 current;
 
-            current = *(s32 *)arg0;
+            current = ((ItfMesWindow *)window)->flags.value;
             if ((current & 7) != 4) {
                 current &= ~7;
-                *(s32 *)arg0 = current;
+                ((ItfMesWindow *)window)->flags.value = current;
                 current |= 4;
-                *(s32 *)arg0 = current;
-                *(s32 *)(arg0 + 0x30) = 0;
+                ((ItfMesWindow *)window)->flags.value = current;
+                ((ItfMesWindow *)window)->row.elapsed.value = 0;
             }
         }
     }
     {
         s32 third;
 
-        third = *(s32 *)(arg0 + 0x40);
+        third = ((ItfMesWindow *)window)->selection.list.value;
         if ((flags & 0x40000) == 0) {
             mask = flags & 0x38;
             if (mask >= 0x18U &&
@@ -188,16 +189,16 @@ node_done:
                 u8 *state;
                 s32 current;
 
-                state = arg0 + 0x3C;
-                if (*(s16 *)(arg0 + 0x4A) == -1) {
-                    *(s16 *)(state + 0xE) = 0;
-                    *(s16 *)(state + 0x10) = 0;
+                state = window + 0x3C;
+                if (((ItfMesWindow *)window)->selection.cursor == -1) {
+                    ((ItfMesSelection *)state)->cursor = 0;
+                    ((ItfMesSelection *)state)->selected = 0;
                 }
-                current = *(s32 *)arg0;
+                current = ((ItfMesWindow *)window)->flags.value;
                 current &= ~0x38;
-                *(s32 *)arg0 = current;
+                ((ItfMesWindow *)window)->flags.value = current;
                 current |= 0x20;
-                *(s32 *)arg0 = current;
+                ((ItfMesWindow *)window)->flags.value = current;
             }
         }
     }
@@ -205,12 +206,12 @@ node_done:
 
 // Intent: Marks the window for redraw when it is visible and in an active state [inferred]
 // FUN_0027B4C0
-void itfMesWindowMarkRedraw(s32 *arg0)
+void itfMesWindowMarkRedraw(s32 *window)
 {
-    s32 temp;
+    s32 windowObject;
 
-    temp = *arg0;
-    if (!(temp & 0x80000) && ((u32)(temp & 0x300) >= 0x100U)) {
+    windowObject = *window;
+    if (!(windowObject & 0x80000) && ((u32)(windowObject & 0x300) >= 0x100U)) {
         D_008817E8[0] |= 2;
     }
 }
@@ -219,21 +220,21 @@ void itfMesWindowMarkRedraw(s32 *arg0)
 // FUN_0027B500
 s32 itfMesWindowTaskUpdate(u8 *sdkTaskBytes)
 {
-    s32 arg0 = (s32)sdkTaskBytes;
+    s32 window = (s32)sdkTaskBytes;
     u8 *node;
-    u8 *temp;
+    u8 *windowObject;
 
     node = D_008817EC[0];
     while (node != NULL)
     {
-        temp = *(u8 **)(node + 0xC);
-        itfMesWindowStepState(temp);
-        itfMesWindowAdvanceRow(temp);
-        itfMesWindowCommitSelection(temp);
-        itfMesWindowStepTransition(temp);
-        node = *(u8 **)(node + 4);
+        windowObject = ((ItfMesManagerEntry *)node)->object.bytes;
+        itfMesWindowStepState(windowObject);
+        itfMesWindowAdvanceRow(windowObject);
+        itfMesWindowCommitSelection(windowObject);
+        itfMesWindowStepTransition(windowObject);
+        node = ((ItfMesManagerEntry *)node)->next.bytes;
     }
-    itfMesWindowQueueCallback(arg0);
+    itfMesWindowQueueCallback(window);
     return 0;
 }
 

@@ -2,6 +2,7 @@
 
 #include "sdk_lbox_internal.h"
 #include "model_motion_internal.h"
+#include "mdl_file_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "model_callbacks_internal.h"
@@ -12,7 +13,7 @@
  * static inline helper, whose parameter order is the reverse of the
  * expression order, flips the operands and matches (nd 2 -> 0). The object
  * size is unchanged, so the helper is inlined rather than called. */
-static inline s32 viewAddReverse(s32 base, s32 offset)
+static inline s32 mdlTrackAddKeyOffset(s32 base, s32 offset)
 {
     return offset + base;
 }
@@ -21,19 +22,20 @@ extern f32 fGpffffbb4c;
 extern f32 fGpffffbb48;
 extern f32 fGpffffbb50;
 extern f32 fGpffffbb54;
-static inline f32 code1_0047_mul(f32 left, f32 right)
+static inline f32 mdlTrackMultiply(f32 left, f32 right)
 {
     return left * right;
 }
 
-static inline f32 code1_0047_madd(f32 left, f32 right, f32 addend)
+static inline f32 mdlTrackMultiplyAdd(f32 left, f32 right, f32 addend)
 {
     return 0.0f + addend + left * right;
 }
 
-/* Binary search over a track's key times: returns the index of the last key whose time is at or before fparg0. */
+/* Binary search over a track's key times: returns the index of the last key whose time is at or before sampleTime. */
+/* Key payload stride is supplied by the track; only the leading time float is common to every key format. */
 // FUN_0047EF10
-static s32 mdlFindTrackKeyIndex(u8 *arg0, f32 fparg0)
+static s32 mdlFindTrackKeyIndex(u8 *track, f32 sampleTime)
 {
     s32 mid;
     s32 hi;
@@ -42,12 +44,12 @@ static s32 mdlFindTrackKeyIndex(u8 *arg0, f32 fparg0)
     u8 *base;
 
     lo = 0;
-    hi = *(s32 *)arg0 - 1;
-    stride = *(s32 *)(arg0 + 8);
-    base = *(u8 **)(arg0 + 0xC);
+    hi = ((MdlFileTrack *)track)->count - 1;
+    stride = ((MdlFileTrack *)track)->stride;
+    base = ((MdlFileTrack *)track)->keys;
     do {
         mid = (lo + hi + 1) >> 1;
-        if (fparg0 < *(f32 *)(base + (stride * mid))) {
+        if (sampleTime < *(f32 *)(base + (stride * mid))) {
             mid = mid - 1;
             hi = mid;
         } else {
@@ -63,26 +65,26 @@ static s32 mdlFindTrackKeyIndex(u8 *arg0, f32 fparg0)
  * 0x20 frame and exact stack snapshots across the second call; the staged
  * inline madd helper closes the final blend. Object 340B/window 352B,
  * normalized_diff 0 with three retail zero-tail words. */
-/* Samples two scalar tracks at fparg0 and fparg1 and blends the two values by fparg2. Returns &fGpffffbb50 with the result. */
+/* Samples two scalar tracks at sampleTime and otherTime and blends the two values by blendFactor. Returns &fGpffffbb50 with the result. */
 // FUN_0047F040
-void *mdlBlendTrackSamples(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
-                   f32 fparg2)
+void *mdlBlendTrackSamples(u8 *track, f32 sampleTime, u8 *other, f32 otherTime,
+                   f32 blendFactor)
 {
     s32 index;
     u8 *base;
-    typedef struct Code47Pair {
+    typedef struct MdlScalarSample {
         f32 time;
         f32 value;
-    } Code47Pair;
-    Code47Pair first;
-    Code47Pair second;
+    } MdlScalarSample;
+    MdlScalarSample first;
+    MdlScalarSample second;
     f32 difference;
 
-    base = *(u8 **)(arg0 + 0xC);
-    index = mdlFindTrackKeyIndex(arg0, fparg0);
-    if ((u32)index >= (u32)(*(s32 *)arg0 - 1)) {
+    base = ((MdlFileTrack *)track)->keys;
+    index = mdlFindTrackKeyIndex(track, sampleTime);
+    if ((u32)index >= (u32)(((MdlFileTrack *)track)->count - 1)) {
         index *= 8;
-        fGpffffbb4c = *(f32 *)(viewAddReverse((s32)base, index) + 4);
+        fGpffffbb4c = ((MdlFileScalarKey *)mdlTrackAddKeyOffset((s32)base, index))->value;
     } else {
         u8 *point;
         f32 x0;
@@ -93,23 +95,23 @@ void *mdlBlendTrackSamples(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
 
         index *= 8;
         point = base + index;
-        x0 = *(f32 *)(point + 0);
-        y0 = *(f32 *)(point + 4);
-        ratio = fparg0 - x0;
-        x1 = *(f32 *)(point + 8);
+        x0 = ((MdlFileScalarKey *)point)[0].time;
+        y0 = ((MdlFileScalarKey *)point)[0].value;
+        ratio = sampleTime - x0;
+        x1 = ((MdlFileScalarKey *)point)[1].time;
         ratio = ratio / (x1 - x0);
-        y1 = *(f32 *)(point + 0xC);
+        y1 = ((MdlFileScalarKey *)point)[1].value;
         fGpffffbb4c = 0.0f + y0 +
-            code1_0047_mul(y1 - y0, ratio);
+            mdlTrackMultiply(y1 - y0, ratio);
     }
-    fGpffffbb48 = fparg0;
-    first = *(Code47Pair *)&fGpffffbb48;
+    fGpffffbb48 = sampleTime;
+    first = *(MdlScalarSample *)&fGpffffbb48;
 
-    base = *(u8 **)(arg1 + 0xC);
-    index = mdlFindTrackKeyIndex(arg1, fparg1);
-    if ((u32)index >= (u32)(*(s32 *)arg1 - 1)) {
+    base = ((MdlFileTrack *)other)->keys;
+    index = mdlFindTrackKeyIndex(other, otherTime);
+    if ((u32)index >= (u32)(((MdlFileTrack *)other)->count - 1)) {
         index *= 8;
-        fGpffffbb4c = *(f32 *)(viewAddReverse((s32)base, index) + 4);
+        fGpffffbb4c = ((MdlFileScalarKey *)mdlTrackAddKeyOffset((s32)base, index))->value;
     } else {
         u8 *point;
         f32 x0;
@@ -120,20 +122,20 @@ void *mdlBlendTrackSamples(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
 
         index *= 8;
         point = base + index;
-        x0 = *(f32 *)(point + 0);
-        y0 = *(f32 *)(point + 4);
-        ratio = fparg1 - x0;
-        x1 = *(f32 *)(point + 8);
+        x0 = ((MdlFileScalarKey *)point)[0].time;
+        y0 = ((MdlFileScalarKey *)point)[0].value;
+        ratio = otherTime - x0;
+        x1 = ((MdlFileScalarKey *)point)[1].time;
         ratio = ratio / (x1 - x0);
-        y1 = *(f32 *)(point + 0xC);
+        y1 = ((MdlFileScalarKey *)point)[1].value;
         fGpffffbb4c = 0.0f + y0 +
-            code1_0047_mul(y1 - y0, ratio);
+            mdlTrackMultiply(y1 - y0, ratio);
     }
-    fGpffffbb48 = fparg1;
-    second = *(Code47Pair *)&fGpffffbb48;
+    fGpffffbb48 = otherTime;
+    second = *(MdlScalarSample *)&fGpffffbb48;
 
     difference = second.value - first.value;
-    fGpffffbb54 = code1_0047_madd(difference, fparg2, first.value);
+    fGpffffbb54 = mdlTrackMultiplyAdd(difference, blendFactor, first.value);
     return &fGpffffbb50;
 }
 
@@ -144,9 +146,9 @@ void *mdlBlendTrackSamples(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1,
  * Splitting the final difference/addend before the inline madd helper preserves
  * both evaluation order and FMA operand order. The object is 276B in a 288B
  * retail window with only three retail zero-tail words. */
-/* Samples the scalar track arg0 at fparg0 and moves the value toward (1 - byte 3 of arg1 / 255) by fparg1. Returns the sample pair in fGpffffbb48. */
+/* Samples the scalar track track at sampleTime and moves the value toward (1 - byte 3 of other / 255) by otherTime. Returns the sample pair in fGpffffbb48. */
 // FUN_0047F1A0
-void *mdlBlendTrackWithAlpha(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
+void *mdlBlendTrackWithAlpha(u8 *track, f32 sampleTime, u8 *other, f32 otherTime)
 {
     s32 index;
     u8 *base;
@@ -154,11 +156,11 @@ void *mdlBlendTrackWithAlpha(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
     f32 difference;
     f32 addend;
 
-    base = *(u8 **)(arg0 + 0xC);
-    index = mdlFindTrackKeyIndex(arg0, fparg0);
-    if ((u32)index >= (u32)(*(s32 *)arg0 - 1)) {
+    base = ((MdlFileTrack *)track)->keys;
+    index = mdlFindTrackKeyIndex(track, sampleTime);
+    if ((u32)index >= (u32)(((MdlFileTrack *)track)->count - 1)) {
         index *= 8;
-        fGpffffbb4c = *(f32 *)(viewAddReverse((s32)base, index) + 4);
+        fGpffffbb4c = ((MdlFileScalarKey *)mdlTrackAddKeyOffset((s32)base, index))->value;
     } else {
         u8 *point;
         f32 x0;
@@ -169,22 +171,22 @@ void *mdlBlendTrackWithAlpha(u8 *arg0, f32 fparg0, u8 *arg1, f32 fparg1)
 
         index *= 8;
         point = base + index;
-        x0 = *(f32 *)(point + 0);
-        y0 = *(f32 *)(point + 4);
-        ratio = fparg0 - x0;
-        x1 = *(f32 *)(point + 8);
+        x0 = ((MdlFileScalarKey *)point)[0].time;
+        y0 = ((MdlFileScalarKey *)point)[0].value;
+        ratio = sampleTime - x0;
+        x1 = ((MdlFileScalarKey *)point)[1].time;
         ratio = ratio / (x1 - x0);
-        y1 = *(f32 *)(point + 0xC);
+        y1 = ((MdlFileScalarKey *)point)[1].value;
         fGpffffbb4c = 0.0f + y0 +
-            code1_0047_mul(y1 - y0, ratio);
+            mdlTrackMultiply(y1 - y0, ratio);
     }
-    fGpffffbb48 = fparg0;
+    fGpffffbb48 = sampleTime;
     out = (s32)&fGpffffbb48;
     difference = (1.0f -
-        ((f32)(u32)*(u8 *)(arg1 + 3)) / 255.0f);
-    addend = *(f32 *)(out + 4);
+        ((f32)(u32)other[3]) / 255.0f);
+    addend = ((MdlFileScalarKey *)out)->value;
     difference -= addend;
-    *(f32 *)(out + 4) = code1_0047_madd(
-        difference, fparg1, addend);
+    ((MdlFileScalarKey *)out)->value = mdlTrackMultiplyAdd(
+        difference, otherTime, addend);
     return (f32 *)out;
 }

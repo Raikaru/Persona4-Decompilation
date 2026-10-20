@@ -1,3 +1,4 @@
+#include "mdl_effect_drawable_internal.h"
 #include "btl_action_internal.h"
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -22,7 +23,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern u8 *mdlEffectCreateGridForRecord(u8 *arg0);
+extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
 extern void PrimAppendNode();
 extern void ObjectParticleUpdateRecords();
@@ -60,8 +61,8 @@ extern f32 D_008872F8[];
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
-extern u16 *GeometryCreateTableGridMultiPart(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                          void *arg4, s32 arg5);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern u8 D_0071401C[];
@@ -79,10 +80,10 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004af520-004af580 */
 
-extern s32 mdlEffectProjectBillboardQuad(u8 *arg0, u8 *arg1);
-extern void func_004a8250(u8 *arg0, u8 *arg1);
-extern void func_004a8440(u8 *arg0, u8 *arg1);
-extern void func_004a86c0(u8 *arg0, u8 *arg1);
+extern s32 mdlEffectProjectBillboardQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildRectQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildOffsetQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildDirectRectQuad(u8 *parameters, u8 *vertices);
 /* measured: restores the file's O2 loop-invariant baseline. */
 /* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma push
@@ -102,30 +103,34 @@ extern void func_004a86c0(u8 *arg0, u8 *arg1);
 #pragma pop
 // Clears the node at +0x64 of the record at +0x58 and appends it to the table that TnGetOffset1C selects from the inner kind at +0x54.
 // FUN_004AF520
-void ObjectParticleAppendNode(u8 *arg0) {
-    u8 *temp;
+void ObjectParticleAppendNode(u8 *instance) {
+    u8 *emitter;
     u8 *inner;
-    temp = *(u8 **)(arg0 + 0x58);
-    if (temp != NULL) {
-        inner = *(u8 **)(temp + 0x20);
-        *(s32 *)(arg0 + 0x64) = 0;
-        *(s32 *)(arg0 + 0x68) = 0;
-        PrimAppendNode(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x64);
+    emitter = ((ObjectParticleInstance *)instance)->list;
+    if (emitter != NULL) {
+        inner = ((MdlEffectEmitter *)emitter)->parameters;
+        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
+        *(s32 *)(instance + 0x64) = 0;
+        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
+        *(s32 *)(instance + 0x68) = 0;
+        PrimAppendNode(TnGetOffset1C(((EffTrackPathParameters *)inner)->unk54), instance + 0x64);
     }
 }
 
 // Runs ObjectParticleUpdateRecords, then clears and appends the node at +0x64 of the record at +0x58, as ObjectParticleAppendNode does.
 // FUN_004AF580
-void ObjectParticleUpdateAndAppendNode(u8 *arg0) {
-    u8 *temp;
+void ObjectParticleUpdateAndAppendNode(u8 *instance) {
+    u8 *emitter;
     u8 *inner;
     ObjectParticleUpdateRecords();
-    temp = *(u8 **)(arg0 + 0x58);
-    if (temp != NULL) {
-        inner = *(u8 **)(temp + 0x20);
-        *(s32 *)(arg0 + 0x64) = 0;
-        *(s32 *)(arg0 + 0x68) = 0;
-        PrimAppendNode(TnGetOffset1C(*(u16 *)(inner + 0x54)), arg0 + 0x64);
+    emitter = ((ObjectParticleInstance *)instance)->list;
+    if (emitter != NULL) {
+        inner = ((MdlEffectEmitter *)emitter)->parameters;
+        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
+        *(s32 *)(instance + 0x64) = 0;
+        /* Only zeroing is established for these embedded queue-link words; the shared owner keeps the node prefix opaque. */
+        *(s32 *)(instance + 0x68) = 0;
+        PrimAppendNode(TnGetOffset1C(((EffTrackPathParameters *)inner)->unk54), instance + 0x64);
     }
 }
 

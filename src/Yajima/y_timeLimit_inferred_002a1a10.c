@@ -3,6 +3,8 @@
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
+#include "name_entry_internal.h"
+#include "kwln_task_internal.h"
 
 extern void (*jtbl_008873EC[])(void *);
 extern u16 *D_00764658;
@@ -22,28 +24,22 @@ extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
 extern f32 fGpffff8204;
-extern u8 yTimeTrackClear(s32 arg0);
-extern u32 func_002a27c0(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                         s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
-extern void yTimeTrackAdvance(u8 *arg0);
-extern s32 yTimeTrackIsNotDone(u8 *arg0);
-extern s32 yTimeTrackIsIdle(u8 *arg0);
+extern u8 yTimeTrackClear(s32 track);
+extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
+                         s32, f32 farg0, s32, s32, s32);
+extern void yTimeTrackAdvance(u8 *track);
+extern s32 yTimeTrackIsNotDone(u8 *track);
+extern s32 yTimeTrackIsIdle(u8 *track);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
 extern u8 nmMesWindowOpenCurrent(u8 *message);
-extern void nmMesWindowShowCurrentRecord(s32 arg0);
-extern void nmMesWindowSetCurrentParam(s32 arg0);
-extern void nmMesWindowSetCurrentFlag(s32 arg0);
+extern void nmMesWindowShowCurrentRecord(s32 recordIndex);
+extern void nmMesWindowSetCurrentParam(s32 recordIndex);
+extern void nmMesWindowSetCurrentFlag(s32 cursor);
 extern s32 nmMesWindowCurrentAnim(void);
 extern void nmMesWindowResetCurrent(void);
 extern s32 nmMesWindowCurrentOpenState(void);
-typedef struct P4_002aabf0_Work {
-    f32 values[4];
-    s32 pad80;
-    s32 sp84;
-    s32 sp88;
-    u8 colors[4];
-} P4_002aabf0_Work;
+
 extern s32 nmMesWindowLatchAnimAux(void);
 extern void nmMesWindowStepCurrentRelease(void);
 extern s32 iGpffffb52c;
@@ -54,21 +50,9 @@ extern u16 D_008C024E[];
 extern u16 D_008C027A[];
 extern s8 iGpffffb54c;
 
-typedef struct P4_002aa450_Pair {
-    s64 bits;
-    f32 value;
-} P4_002aa450_Pair;
-typedef struct P4_002aa450_Work {
-    u8 matrix[0x40];
-    P4_002aa450_Pair pair4;
-    P4_002aa450_Pair pair3;
-    P4_002aa450_Pair pair2;
-    P4_002aa450_Pair pair1;
-    P4_002aa450_Pair pair0;
-} P4_002aa450_Work;
-static inline f32 p4_002aa450_mul(f32 left, f32 right) {
-    return left * right;
-}
+
+
+
 struct RwMatrixTag;
 extern void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s32 centerX, s16 centerY,
@@ -99,13 +83,14 @@ extern u8 iGpffffa7e8;
 #pragma push
 #pragma pop
 // FUN_002A1A10
-s32 func_002a1a10(u8 *arg0) {
-    s32 temp_3;
-    u8 *temp_16;
+/* Run the name confirmation message; return -1 while open, then return the latched answer. */
+s32 yTimeNameConfirm(u8 *task) {
+    s32 messageStep;
+    NameEntryWork *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    temp_3 = *(s32 *)(temp_16 + 0x10);
-    switch (temp_3) {
+    work = (NameEntryWork *)((KwlnTask *)task)->work;
+    messageStep = work->messageStep;
+    switch (messageStep) {
     case 0:
         iGpffffb52c = 0;
         nmMesWindowResetCurrent();
@@ -113,7 +98,7 @@ s32 func_002a1a10(u8 *arg0) {
         nmMesWindowShowCurrentRecord(1);
         nmMesWindowSetCurrentParam(0);
         nmMesWindowSetCurrentFlag(0);
-        *(s32 *)(temp_16 + 0x10) = 1;
+        work->messageStep = 1;
         goto done;
     case 1:
         if (nmMesWindowCurrentOpenState() != 0) {
@@ -122,12 +107,12 @@ s32 func_002a1a10(u8 *arg0) {
                 iGpffffb52c = nmMesWindowCurrentAnim();
             }
         } else {
-            *(s32 *)(temp_16 + 0x10) = 2;
+            work->messageStep = 2;
         }
         goto done;
     case 2:
         nmMesWindowResetCurrent();
-        *(s32 *)(temp_16 + 0x10) = 0;
+        work->messageStep = 0;
         return iGpffffb52c;
     default:
         goto done;
@@ -142,20 +127,21 @@ done:
 #pragma opt_common_subs off
 /* measured: disabling propagation preserves the retail call-site materialization. */
 // FUN_002A1B20
-s32 func_002a1b20(u8 *arg0) {
-    u8 *temp_16;
+/* Start and advance the background reveal tween; report completion to the draw-state dispatcher. */
+s32 yTimeNameRevealBackground(u8 *task) {
+    NameEntryWork *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(temp_16 + 8) == 0) {
-        yTimeTrackClear((s32)(temp_16 + 0x178));
-        func_002a27c0((s32)(temp_16 + 0x178), 0, 0, 0, 0, fGpffff8204, 0, 10, 20);
-        *(s32 *)(temp_16 + 8) = 1;
+    work = (NameEntryWork *)((KwlnTask *)task)->work;
+    if (work->transitionStarted == 0) {
+        yTimeTrackClear((s32)((u8 *)&work->background));
+        yTimeTrackAppendKey((s32)((u8 *)&work->background), 0, 0, 0, 0, fGpffff8204, 0, 10, 20);
+        work->transitionStarted = 1;
     }
-    yTimeTrackAdvance(temp_16 + 0x178);
-    if (yTimeTrackIsNotDone(temp_16 + 0x178) != 0) {
+    yTimeTrackAdvance((u8 *)&work->background);
+    if (yTimeTrackIsNotDone((u8 *)&work->background) != 0) {
         goto fail;
     }
-    *(s32 *)(temp_16 + 8) = 0;
+    work->transitionStarted = 0;
     return 1;
 fail:
     return 0;
@@ -168,27 +154,28 @@ fail:
 /* measured: func_002a1bd0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_002A1BD0
-s32 func_002a1bd0(u8 *arg0) {
-    u8 *temp_16;
+/* Slide the keyboard row origin from Y=249 to Y=219 over ten frames. */
+s32 yTimeNameRevealOrigin(u8 *task) {
+    NameEntryWork *work;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(temp_16 + 8) == 0) {
-        yTimeTrackClear((s32)(temp_16 + 0x210));
+    work = (NameEntryWork *)((KwlnTask *)task)->work;
+    if (work->transitionStarted == 0) {
+        yTimeTrackClear((s32)((u8 *)&work->rowOrigin));
         {
             s32 target;
             s32 value;
 
-            target = (s32)(temp_16 + 0x210);
+            target = (s32)((u8 *)&work->rowOrigin);
             value = 18;
-            func_002a27c0(target, value, 249, value, 219, fGpffff8204, 0, 0, 10);
+            yTimeTrackAppendKey(target, value, 249, value, 219, fGpffff8204, 0, 0, 10);
         }
-        *(s32 *)(temp_16 + 8) = 1;
+        work->transitionStarted = 1;
     }
-    yTimeTrackAdvance(temp_16 + 0x210);
-    if (yTimeTrackIsNotDone(temp_16 + 0x210) != 0) {
+    yTimeTrackAdvance((u8 *)&work->rowOrigin);
+    if (yTimeTrackIsNotDone((u8 *)&work->rowOrigin) != 0) {
         goto fail;
     }
-    *(s32 *)(temp_16 + 8) = 0;
+    work->transitionStarted = 0;
     return 1;
 fail:
     return 0;
@@ -200,59 +187,60 @@ fail:
 /* measured: opt_common_subs off preserves retail per-use index arithmetic. */
 /* measured: opt_propagation off preserves retail's global counter loads. */
 // FUN_002A1C80
-s32 func_002a1c80(u8 *arg0) {
-    s32 var_17;
-    s32 var_17_2;
-    s32 var_18;
-    s32 var_17_3;
-    u8 *temp_16;
-    u8 *temp_18;
-    u8 *temp_18_2;
-    u8 *temp_19;
+/* Stagger the four keyboard columns by row, advance their fades, and finish when all six rows settle. */
+s32 yTimeNameRevealRows(u8 *task) {
+    s32 columnIndex;
+    s32 cellIndex;
+    s32 finishedRows;
+    s32 rowIndex;
+    NameEntryWork *work;
+    u8 *newCellTween;
+    u8 *cellTween;
+    u8 *rowTween;
 
-    temp_16 = *(u8 **)(arg0 + 0x38);
-    if (*(s32 *)(temp_16 + 8) == 0) {
+    work = (NameEntryWork *)((KwlnTask *)task)->work;
+    if (work->transitionStarted == 0) {
         iGpffffb530 = 0;
-        *(s32 *)(temp_16 + 8) = 1;
+        work->transitionStarted = 1;
     }
-    if ((iGpffffb530 < 6) && ((*(s32 *)(temp_16 + 0x18) % 6) == 0)) {
-        var_17 = 0;
-        while (var_17 < 4) {
-            temp_18 = temp_16 + ((iGpffffb530 + (var_17 * 6)) * 0x98) + 0x340;
-            yTimeTrackClear((s32)temp_18);
-            func_002a27c0((s32)temp_18, 0, 0, 0, 0, fGpffff8204, 0, 0, 6);
-            var_17++;
+    if ((iGpffffb530 < 6) && ((work->frame % 6) == 0)) {
+        columnIndex = 0;
+        while (columnIndex < 4) {
+            newCellTween = (u8 *)&work->cells[iGpffffb530 + (columnIndex * 6)];
+            yTimeTrackClear((s32)newCellTween);
+            yTimeTrackAppendKey((s32)newCellTween, 0, 0, 0, 0, fGpffff8204, 0, 0, 6);
+            columnIndex++;
         }
-        func_002a27c0((s32)(temp_16 + (iGpffffb530 * 0x98) + 0x1180),
+        yTimeTrackAppendKey((s32)((u8 *)&work->rows[iGpffffb530]),
                       0, -2, 0, 0, fGpffff8204, 0, 0, 12);
         iGpffffb530++;
     }
-    var_17_2 = 0;
-    while (var_17_2 < 24) {
-        temp_18_2 = temp_16 + (var_17_2 * 0x98) + 0x340;
-        if (yTimeTrackIsIdle(temp_18_2) == 0) {
-            yTimeTrackAdvance(temp_18_2);
+    cellIndex = 0;
+    while (cellIndex < 24) {
+        cellTween = (u8 *)&work->cells[cellIndex];
+        if (yTimeTrackIsIdle(cellTween) == 0) {
+            yTimeTrackAdvance(cellTween);
         }
-        var_17_2++;
+        cellIndex++;
     }
-    var_18 = 0;
-    var_17_3 = 0;
-    while (var_17_3 < 6) {
-        if (yTimeTrackIsIdle(temp_16 + (var_17_3 * 0x98) + 0x1180) == 0) {
-            temp_19 = temp_16 + (var_17_3 * 0x98) + 0x1180;
-            yTimeTrackAdvance(temp_19);
-            if (yTimeTrackIsNotDone(temp_19) == 0) {
-                var_18++;
+    finishedRows = 0;
+    rowIndex = 0;
+    while (rowIndex < 6) {
+        if (yTimeTrackIsIdle((u8 *)&work->rows[rowIndex]) == 0) {
+            rowTween = (u8 *)&work->rows[rowIndex];
+            yTimeTrackAdvance(rowTween);
+            if (yTimeTrackIsNotDone(rowTween) == 0) {
+                finishedRows++;
             }
         }
-        var_17_3++;
+        rowIndex++;
     }
-    if (var_18 == 6) {
-        *(s32 *)(temp_16 + 8) = 0;
-        *(s32 *)(temp_16 + 0x18) = 0;
+    if (finishedRows == 6) {
+        work->transitionStarted = 0;
+        work->frame = 0;
         return 1;
     }
-    *(s32 *)(temp_16 + 0x18) += 1;
+    work->frame += 1;
     return 0;
 }
 

@@ -2,29 +2,46 @@
 
 #include "include_asm.h"
 #include "type.h"
+#include "datUnit_internal.h"
+
+/* The fusion scan advances by 14 bytes and reads these base-table members. */
+typedef struct FclFusionBaseEntry {
+    u16 flags;
+    u8 arcana;
+    u8 level;
+    u8 pad04[6];
+    u16 inheritance;
+    u8 pad0c[2];
+} FclFusionBaseEntry;
+typedef struct FclFusionGate {
+    s32 flag;
+    s16 persona;
+    s16 flags;
+} FclFusionGate;
+
 extern s32 fclCombineRecipeMatchMask(u16 *, u16 *, s32, s16 *);
 extern s32 datPersonaAddSkill(u8 *, u16);
 extern s32 datPersonaFindSkillSlot(u8 *, u16);
 extern s32 fclFusePair(u16 *output, u16 first, u16 second);
 extern s32 fclFuseTriple();
 extern u32 RpRandom();
-extern s16 yListSlotIndexOf(s8 arg0, s16 arg1);
-extern u8 *yListSlotEntry(s8 arg0, s16 arg1);
+extern s16 yListSlotIndexOf(s8 list, s16 id);
+extern u8 *yListSlotEntry(s8 list, s16 index);
 extern void memcpy(void *dst, void *src, u32 size);
 extern void kAssertFail(void *file, s32 line);
 extern void *memset(void *dst, s32 value, u32 size);
-extern void datPersonaInitRecord(u8 *arg0, u16 arg1);
+extern void datPersonaInitRecord(u8 *persona, u16 personaId);
 extern u8 *iGpffffb3d4;
 extern char D_00642F30[];
-extern s32 fclFuseRecipeLookup(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3);
-extern u8 fclFuseTripleArcana(u8 *arg0, u8 *arg1, u8 *arg2);
-extern s32 fclFuseLowestCandidateAtLeast(u32 arg0, s32 arg1, u16 *arg2);
-extern s32 datGetFlag(s32 id);
+extern s32 fclFuseRecipeLookup(u16 *output, s32 recipeKind, u16 *ingredients, s32 ingredientCount);
+extern u8 fclFuseTripleArcana(u8 *firstPersona, u8 *secondPersona, u8 *thirdPersona);
+extern s32 fclFuseLowestCandidateAtLeast(u32 arcana, s32 minimumLevel, u16 *excluded);
+extern s32 datGetFlag(s32 bit);
 extern u8 D_006420A0[];
 extern u8 D_00642F00[];
 extern u8 D_00642F04[];
 extern s8 func_002ac350(void);
-extern s32 fclFuseLowestCandidateAtMost(u32 arg0, s32 arg1, u16 *arg2);
+extern s32 fclFuseLowestCandidateAtMost(u32 arcana, s32 maximumLevel, u16 *excluded);
 extern u8 D_00642147[];
 extern u8 D_00642387[];
 
@@ -46,7 +63,7 @@ static inline u8 fclTriangleUpperArcana(s32 first, s32 second)
 #pragma opt_common_subs off
 #pragma opt_propagation off
 // FUN_00311EA0
-u8 fclFuseTripleArcana(u8 *arg0, u8 *arg1, u8 *arg2)
+u8 fclFuseTripleArcana(u8 *firstPersona, u8 *secondPersona, u8 *thirdPersona)
 {
     s8 pairs[3][2];
     u8 *personas[4];
@@ -82,9 +99,9 @@ u8 fclFuseTripleArcana(u8 *arg0, u8 *arg1, u8 *arg2)
             remaining--;
         } while (remaining != 0);
     }
-    personas[0] = arg0;
-    personas[1] = arg1;
-    personas[2] = arg2;
+    personas[0] = firstPersona;
+    personas[1] = secondPersona;
+    personas[2] = thirdPersona;
     source = iGpffffa8d0;
     destination = (s8 *)&pairs;
     copies = 3;
@@ -97,7 +114,7 @@ u8 fclFuseTripleArcana(u8 *arg0, u8 *arg1, u8 *arg2)
         destination[1] = secondByte;
         destination += 2;
     } while (copies > 0);
-    if (arg0 == NULL || arg1 == NULL || arg2 == NULL)
+    if (firstPersona == NULL || secondPersona == NULL || thirdPersona == NULL)
         kAssertFail(D_00642F30, 0x156);
     pairIndex = 0;
     base = iGpffffb3d4;
@@ -105,13 +122,13 @@ u8 fclFuseTripleArcana(u8 *arg0, u8 *arg1, u8 *arg2)
         pair = pairs[pairIndex];
         rightSlot = &personas[pair[1]];
         right = *rightSlot;
-        rightLevel = right[4];
+        rightLevel = ((DatPersonaRecord *)right)->level;
         leftSlot = &personas[pair[0]];
         left = *leftSlot;
-        leftLevel = left[4];
+        leftLevel = ((DatPersonaRecord *)left)->level;
         if (leftLevel < rightLevel ||
             (leftLevel == rightLevel &&
-             *((u8 *)((u32)base + *(u16 *)(left + 2) * 14) + 2) > *((u8 *)((u32)base + *(u16 *)(right + 2) * 14) + 2))) {
+             *((u8 *)((u32)base + ((DatPersonaRecord *)left)->id * 14) + 2) > *((u8 *)((u32)base + ((DatPersonaRecord *)right)->id * 14) + 2))) {
             pair = pairs[pairIndex];
             leftSlot = &personas[pair[0]];
             personas[3] = left;
@@ -122,9 +139,9 @@ u8 fclFuseTripleArcana(u8 *arg0, u8 *arg1, u8 *arg2)
         pairIndex++;
     }
     base = iGpffffb3d4 + 2;
-    firstArcana = base[*(u16 *)(personas[0] + 2) * 14];
-    secondArcana = base[*(u16 *)(personas[1] + 2) * 14];
-    thirdArcana = base[*(u16 *)(personas[2] + 2) * 14];
+    firstArcana = base[((DatPersonaRecord *)personas[0])->id * 14];
+    secondArcana = base[((DatPersonaRecord *)personas[1])->id * 14];
+    thirdArcana = base[((DatPersonaRecord *)personas[2])->id * 14];
     if (firstArcana == 0 || secondArcana == 0 || thirdArcana == 0)
         kAssertFail(D_00642F30, 0x167);
     secondKey = secondArcana;
@@ -145,8 +162,10 @@ u8 fclFuseTripleArcana(u8 *arg0, u8 *arg1, u8 *arg2)
 /* Measured: 640/640 bytes and all 16 relocations match retail.
  * Ordinary s32 counters produce the quadword spill; persona/skill inputs
  * use the same halfword contracts as their providers and other callers. */
+/* Search the selected 0x20-byte recipe rows, enforce flag gates, and copy up to four bonus skills.
+ * Recipe table aliases and halfword skill cursors retain their external byte layout. */
 // FUN_00312220
-s32 fclFuseRecipeLookup(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3) {
+s32 fclFuseRecipeLookup(u16 *output, s32 recipeKind, u16 *ingredients, s32 ingredientCount) {
     s32 count;
     s16 matched;
     s32 row;
@@ -161,31 +180,31 @@ s32 fclFuseRecipeLookup(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3) {
     u8 *flag;
     s16 bits;
     u16 *skill;
-    if (arg0 == NULL || arg2 == NULL || arg1 >= 5)
+    if (output == NULL || ingredients == NULL || recipeKind >= 5)
         kAssertFail(D_00642F30, 0x17B);
-    entry = *(u16 **)(D_00642F00 + arg1 * 8);
-    count = *(s32 *)(D_00642F04 + arg1 * 8);
+    entry = *(u16 **)(D_00642F00 + recipeKind * 8);
+    count = *(s32 *)(D_00642F04 + recipeKind * 8);
     row = 0;
-    threshold = (s16)(arg1 + 2);
+    threshold = (s16)(recipeKind + 2);
     while (row < count) {
         matched = 0;
-        result = fclCombineRecipeMatchMask(entry, arg2, arg3, &matched);
+        result = fclCombineRecipeMatchMask(entry, ingredients, ingredientCount, &matched);
         result = matched >= threshold ? result : 0;
         if (result != 0) {
             key = *entry;
             allowed = 1;
             for (flagIndex = 0; flagIndex < 0x17U; flagIndex++) {
                 flag = D_006420A0 + flagIndex * 8;
-                if (key == *(s16 *)(flag + 4)) {
-                    bits = *(s16 *)(flag + 6);
+                if (key == ((FclFusionGate *)flag)->persona) {
+                    bits = ((FclFusionGate *)flag)->flags;
                     if (bits & 1) {
-                        if (datGetFlag(*(s32 *)flag) == 0) {
+                        if (datGetFlag(((FclFusionGate *)flag)->flag) == 0) {
                             gate = 0;
                             goto flag_done;
                         }
                     } else if (bits & 2) {
                         allowed = 0;
-                        if (datGetFlag(*(s32 *)flag) == 1) {
+                        if (datGetFlag(((FclFusionGate *)flag)->flag) == 1) {
                             gate = 1;
                             goto flag_done;
                         }
@@ -195,13 +214,13 @@ s32 fclFuseRecipeLookup(u16 *arg0, s32 arg1, u16 *arg2, s32 arg3) {
             gate = allowed;
 flag_done:
             if (gate) {
-                datPersonaInitRecord((u8 *)arg0, *entry);
+                datPersonaInitRecord((u8 *)output, *entry);
                 for (skillIndex = 0; skillIndex < 4; skillIndex++) {
                     skill = (u16 *)((u8 *)&entry[skillIndex] + 24);
-                    if (*skill != 0 && datPersonaFindSkillSlot((u8 *)arg0, *skill) == -1 &&
-                        datPersonaAddSkill((u8 *)arg0, *skill) == 0) break;
+                    if (*skill != 0 && datPersonaFindSkillSlot((u8 *)output, *skill) == -1 &&
+                        datPersonaAddSkill((u8 *)output, *skill) == 0) break;
                 }
-                return iGpffffb3d4[arg0[1] * 14 + 2];
+                return iGpffffb3d4[output[1] * 14 + 2];
             }
         }
         entry += 16;
@@ -283,61 +302,63 @@ s32 fclFusePair(u16 *output, u16 first, u16 second)
     return 1;
 }
 
+/* Fuse three roster personas using their arcana and average base level plus five. */
 // FUN_003127E0
-s32 fclFuseTriple(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
-    u16 sp78[3];
-    u8 sp60[0x18];
-    s32 t;
-    u16 ret;
-    u8 *p;
+s32 fclFuseTriple(u16 *output, u8 *firstPersona, u8 *secondPersona, u8 *thirdPersona) {
+    u16 ingredients[3];
+    u8 excluded[0x18];
+    s32 arcana;
+    u16 personaId;
+    u8 *levels;
 
-    sp78[0] = *(u16 *)(arg1 + 2);
-    sp78[1] = *(u16 *)(arg2 + 2);
-    sp78[2] = *(u16 *)(arg3 + 2);
-    if (arg0 == NULL || arg1 == NULL || arg2 == NULL || arg3 == NULL) {
+    ingredients[0] = ((DatPersonaRecord *)firstPersona)->id;
+    ingredients[1] = ((DatPersonaRecord *)secondPersona)->id;
+    ingredients[2] = ((DatPersonaRecord *)thirdPersona)->id;
+    if (output == NULL || firstPersona == NULL || secondPersona == NULL || thirdPersona == NULL) {
         kAssertFail(D_00642F30, 0x1CC);
     }
-    if (fclFuseRecipeLookup(arg0, 1, sp78, 3) & 0xFF) {
+    if (fclFuseRecipeLookup(output, 1, ingredients, 3) & 0xFF) {
         return 2;
     }
-    t = fclFuseTripleArcana(arg1, arg2, arg3) & 0xFF;
-    if (t == 0) {
-        memset(arg0, 0, 0x30);
+    arcana = fclFuseTripleArcana(firstPersona, secondPersona, thirdPersona) & 0xFF;
+    if (arcana == 0) {
+        memset(output, 0, 0x30);
         return 0;
     }
-    memset(sp60, 0, 0x18);
-    *(u16 *)&sp60[0] = *(u16 *)(arg1 + 2);
-    *(u16 *)&sp60[2] = *(u16 *)(arg2 + 2);
-    *(u16 *)&sp60[4] = *(u16 *)(arg3 + 2);
-    p = iGpffffb3d4 + 3;
-    ret = fclFuseLowestCandidateAtLeast(t, (((s32)p[*(u16 *)(arg1 + 2) * 0xE] + (s32)p[*(u16 *)(arg2 + 2) * 0xE] + (s32)p[*(u16 *)(arg3 + 2) * 0xE]) / 3 + 5) & 0xFF, (u16 *)sp60) & 0xFFFF;
-    if (ret == 0) {
+    memset(excluded, 0, 0x18);
+    *(u16 *)&excluded[0] = ((DatPersonaRecord *)firstPersona)->id;
+    *(u16 *)&excluded[2] = ((DatPersonaRecord *)secondPersona)->id;
+    *(u16 *)&excluded[4] = ((DatPersonaRecord *)thirdPersona)->id;
+    levels = iGpffffb3d4 + 3;
+    personaId = fclFuseLowestCandidateAtLeast(arcana, (((s32)levels[((DatPersonaRecord *)firstPersona)->id * 0xE] + (s32)levels[((DatPersonaRecord *)secondPersona)->id * 0xE] + (s32)levels[((DatPersonaRecord *)thirdPersona)->id * 0xE]) / 3 + 5) & 0xFF, (u16 *)excluded) & 0xFFFF;
+    if (personaId == 0) {
         return 0;
     }
-    datPersonaInitRecord((u8 *)arg0, ret);
+    datPersonaInitRecord((u8 *)output, personaId);
     return 1;
 }
 
+/* Copy the non-special partner when exactly one input is in the four-entry special list. */
 // FUN_003129B0
-s32 fclFuseSpecialPartner(u8 *arg0, s32 arg1, s32 arg2) {
-    s16 tbl[4];
+s32 fclFuseSpecialPartner(u8 *output, s32 first, s32 second) {
+    s16 specialPartners[4];
     s16 i;
     s16 j;
-    s32 a1;
-    s32 a2;
+    s32 firstId;
+    s32 secondId;
 
-    tbl[0] = 0xD;
-    tbl[1] = 0x35;
-    tbl[2] = 0x49;
-    tbl[3] = 0x66;
+    specialPartners[0] = 0xD;
+    specialPartners[1] = 0x35;
+    specialPartners[2] = 0x49;
+    specialPartners[3] = 0x66;
     i = 0;
-    a1 = arg1 & 0xFFFF;
-    a2 = arg2 & 0xFFFF;
+    firstId = first & 0xFFFF;
+    secondId = second & 0xFFFF;
     while (i < 4) {
-        if (a1 == tbl[i]) {
+        if (firstId == specialPartners[i]) {
             j = 0;
             while (j < 4) {
-                if (a2 == tbl[j]) {
+                if (secondId == specialPartners[j]) {
                     return 0;
                 }
                 j++;
@@ -347,12 +368,12 @@ s32 fclFuseSpecialPartner(u8 *arg0, s32 arg1, s32 arg2) {
     }
     j = 0;
     while (j < 4) {
-        if (a1 == tbl[j]) {
-            memcpy(arg0, yListSlotEntry(0, yListSlotIndexOf(0, (s16)arg2)), 0x30);
+        if (firstId == specialPartners[j]) {
+            memcpy(output, yListSlotEntry(0, yListSlotIndexOf(0, (s16)second)), 0x30);
             return 1;
         }
-        if (a2 == tbl[j]) {
-            memcpy(arg0, yListSlotEntry(0, yListSlotIndexOf(0, (s16)arg1)), 0x30);
+        if (secondId == specialPartners[j]) {
+            memcpy(output, yListSlotEntry(0, yListSlotIndexOf(0, (s16)first)), 0x30);
             return 1;
         }
         j++;
@@ -361,34 +382,34 @@ s32 fclFuseSpecialPartner(u8 *arg0, s32 arg1, s32 arg2) {
 }
 
 // FUN_00312B60
-s32 fclFusePairByte(s32 arg0, s32 arg1, s32 arg2) {
-    return fclFusePair((u16 *)arg0, arg1 & 0xFFFF, arg2 & 0xFFFF) & 0xFF;
+s32 fclFusePairByte(s32 output, s32 first, s32 second) {
+    return fclFusePair((u16 *)output, first & 0xFFFF, second & 0xFFFF) & 0xFF;
 }
 
 // FUN_00312B90
-s32 fclFuseTripleByte(u16 *arg0, u8 *arg1, u8 *arg2, u8 *arg3) {
-    return fclFuseTriple(arg0, arg1, arg2, arg3) & 0xFF;
+s32 fclFuseTripleByte(u16 *output, u8 *first, u8 *second, u8 *third) {
+    return fclFuseTriple(output, first, second, third) & 0xFF;
 }
 
 // Fcl rare chance roll: returns 1 with a 1/64 chance for kind 2 and 1/32 for kind 3, else 0.
 // FUN_00312BC0
 #pragma opt_rebuildconditionals off
-/* measured: without this, mwcc b210 booleanizes `if (v < 0x40) return 1; return 0;`
+/* measured: without this, mwcc b210 booleanizes `if (roll < 0x40) return 1; return 0;`
    into slti $v0 + unconditional branch (return value = condition); retail keeps
    beqz $at -> shared return-0 + addiu $v0,1. Both branch orientations and the
    if/else forms tried (nd 24); with the pragma the switch body matches exactly. */
-s32 fclRollRareChance(s8 arg0) {
-    s32 v;
-    switch (arg0) {
+s32 fclRollRareChance(s8 kind) {
+    s32 roll;
+    switch (kind) {
     case 2:
-        v = (s32)(RpRandom() & 0x3F) << 6;
-        if (v < 0x40) {
+        roll = (s32)(RpRandom() & 0x3F) << 6;
+        if (roll < 0x40) {
             return 1;
         }
         break;
     case 3:
-        v = (s32)(RpRandom() & 0x1F) << 5;
-        if (v < 0x20) {
+        roll = (s32)(RpRandom() & 0x1F) << 5;
+        if (roll < 0x20) {
             return 1;
         }
         break;
@@ -405,13 +426,13 @@ typedef struct {
 } FclSkillPickTier;
 
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-extern u32 datPersonaCountSkills(void *arg0);
+extern u32 datPersonaCountSkills(void *persona);
 extern u8 *yListAllocIndexTable(void);
-extern void fclListAddUnique(u8 *arg0, s16 arg1);
-extern void fclListRemoveId(u8 *arg0, s16 arg1);
-extern void fclFreeWorkBlock(u8 *arg0);
-extern void func_00440b68(const void *arg0);
-extern void chkmemAllocSiteTag(const void *arg0, s32 arg1);
+extern void fclListAddUnique(u8 *list, s16 itemId);
+extern void fclListRemoveId(u8 *list, s16 itemId);
+extern void fclFreeWorkBlock(u8 *work);
+extern void func_00440b68(const void *message);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 *iGpffffb3b4;
@@ -420,6 +441,7 @@ extern s16 D_00641C40[][19];
 extern s8 D_00641E60[];
 extern char D_00642F50[];
 
+/* Select the highest pool-size tier whose minimum has been reached. */
 static inline s32 fclSkillPickCount(s16 count)
 {
     s32 step;
@@ -432,20 +454,21 @@ static inline s32 fclSkillPickCount(s16 count)
     return 0;
 }
 
-static inline s32 fclSkillWeight(u16 *arg0, s32 id)
+/* Scale the persona inheritance-table weight by the skill's signed rate. */
+static inline s32 fclSkillWeight(u16 *persona, s32 id)
 {
     s32 arcana;
     s32 base;
     s8 rate;
 
-    if (arg0 == NULL) {
+    if (persona == NULL) {
         kAssertFail(D_00642F30, 0x327);
     }
     arcana = (s8)iGpffffb3b4[id * 2];
     if (arcana == -1) {
         arcana = 0x12;
     }
-    base = D_00641C40[*(u16 *)(iGpffffb3d4 + arg0[1] * 0xE + 0xA)][arcana];
+    base = D_00641C40[((FclFusionBaseEntry *)(iGpffffb3d4 + persona[1] * 0xE))->inheritance][arcana];
     rate = D_00641E60[id];
     if (rate == 0) {
         return 0;
@@ -463,10 +486,12 @@ static inline s32 fclSkillWeight(u16 *arg0, s32 id)
    measured: without `opt_loop_invariants on` the body grows to 1164 bytes
    (250 differing words); retail hoists the deck-count sign extension and the
    tier-table base out of their loops. */
+/* The pool count at +0x60 is read as both s16 and its low byte; retain those
+   storage views to preserve the narrowing described above. */
 #pragma push
 #pragma opt_loop_invariants on
 // FUN_00312C60
-s8 fclFuseRollPersona(u16 *arg0, u8 *arg1, s32 arg2)
+s8 fclFuseRollPersona(u16 *persona, u8 *deck, s32 deckCount)
 {
     u8 *pool;
     s32 *weights;
@@ -487,22 +512,22 @@ s8 fclFuseRollPersona(u16 *arg0, u8 *arg1, s32 arg2)
     s16 pick;
 
     taken = 0;
-    if (arg0 == NULL) {
+    if (persona == NULL) {
         kAssertFail(D_00642F30, 0x3AF);
     }
     pool = yListAllocIndexTable();
-    for (i = 0; i < (s8)arg2; i++) {
+    for (i = 0; i < (s8)deckCount; i++) {
         j = 0;
-        row = arg1 + i * 0x30;
+        row = deck + i * 0x30;
         for (; j < 8; j++) {
             cell = (u16 *)(row + j * 2 + 0xC);
-            if (*cell != 0 && datPersonaFindSkillSlot((u8 *)arg0, *cell) == -1) {
+            if (*cell != 0 && datPersonaFindSkillSlot((u8 *)persona, *cell) == -1) {
                 fclListAddUnique(pool, (s16)*cell);
             }
         }
     }
     remaining = fclSkillPickCount(*(s16 *)(pool + 0x60));
-    freeSlots = 8 - datPersonaCountSkills(arg0);
+    freeSlots = 8 - datPersonaCountSkills(persona);
     if (freeSlots == 0) {
         func_00440b68(D_00642F50);
         fclFreeWorkBlock(pool);
@@ -517,7 +542,7 @@ s8 fclFuseRollPersona(u16 *arg0, u8 *arg1, s32 arg2)
         total = 0;
         for (k = 0; k < *(s16 *)(pool + 0x60); k++) {
             id = ((s16 *)pool)[k];
-            weights[k] = fclSkillWeight(arg0, id);
+            weights[k] = fclSkillWeight(persona, id);
             total += weights[k];
         }
         if (total == 0) {
@@ -530,12 +555,12 @@ s8 fclFuseRollPersona(u16 *arg0, u8 *arg1, s32 arg2)
             running += weights[pick];
             if (roll < running) {
                 for (scan = 0; scan < 8; scan++) {
-                    if (arg0[scan + 6] == 0) {
+                    if (persona[scan + 6] == 0) {
                         taken |= (s8)(1 << scan);
                         break;
                     }
                 }
-                datPersonaAddSkill((u8 *)arg0, ((s16 *)pool)[pick]);
+                datPersonaAddSkill((u8 *)persona, ((s16 *)pool)[pick]);
                 fclListRemoveId(pool, ((s16 *)pool)[pick]);
                 remaining--;
                 break;
@@ -548,7 +573,7 @@ s8 fclFuseRollPersona(u16 *arg0, u8 *arg1, s32 arg2)
 }
 #pragma pop
 
-/* measured: retail sq's arg0&0xFF into spA0 (0xA0) and lq's it back in the
+/* measured: retail sq's requested arcana & 0xFF into the arcana snapshot (0xA0) and lq's it back in the
    0xC0 i-loop, comparing via raw bne (lq $2,0xA0 / bne $2,$3). The old
    "u_long128 aliased scalar read-back" probe (720B window, nd528, "no legal
    C data-size spelling") was WRONG about the type: `typedef signed __int128
@@ -565,268 +590,274 @@ s8 fclFuseRollPersona(u16 *arg0, u8 *arg1, s32 arg2)
    type-spelling floor -- the residual is ordinary register-allocation/
    control-flow shape, the same category as any other near-miss. Worth
    another attempt with fresh eyes on the bottom-loop layout specifically. */
+/* Select the lowest eligible level at or above the threshold, with the original highest-level fallback.
+ * Byte-offset base-table accesses preserve measured alias/load ordering; entries are 14 bytes.
+ * The inherited XOR-zero assignments and 128-bit snapshot are retained matching-required source shapes. */
 // FUN_003130E0
-s32 fclFuseLowestCandidateAtLeast(u32 arg0, s32 arg1, u16 *arg2) {
+s32 fclFuseLowestCandidateAtLeast(u32 arcana, s32 minimumLevel, u16 *excluded) {
     typedef signed __int128 s128;
     extern u8 *DAT_007644c4;
     u16 *input;
-    s128 spA0;
-    s16 temp_3_2;
-    s32 temp_16;
-    s32 temp_21;
-    s32 temp_23;
-    s32 temp_3_3;
-    s32 temp_3_4;
-    s32 temp_4_3;
-    s32 temp_4_4;
-    s32 var_20;
-    s32 var_19;
-    s32 var_18;
-    s32 var_22;
-    s32 var_2;
-    s32 var_2_2;
-    s32 var_3;
-    s32 var_3_2;
-    u16 temp_3;
-    u32 var_17;
-    u8 temp_5;
-    u8 *temp_4;
-    u8 *temp_4_2;
+    s128 requestedArcana;
+    s16 gateFlags;
+    s32 candidateId;
+    s32 candidateOffset;
+    s32 levelThreshold;
+    s32 highestId;
+    s32 fallbackId;
+    s32 tableAddress;
+    s32 selectedId;
+    s32 candidateIndex;
+    s32 selected;
+    s32 highest;
+    s32 defaultAllowed;
+    s32 candidateAllowed;
+    s32 isExcluded;
+    s32 gatePassed;
+    s32 excludedIndex;
+    u16 candidateFlags;
+    u32 gateIndex;
+    u8 candidateLevel;
+    u8 *candidate;
+    u8 *gateEntry;
 
-    var_19 = 0;
-    var_18 = 0;
-    var_20 = 0;
-    input = arg2;
-    spA0 = arg0 & 0xFF;
-    temp_23 = arg1 & 0xFF;
-    for (; (var_20 & 0xFFFF) < 0xC0;
-         var_20 = (var_20 + 1) & 0xFFFF) {
-        temp_16 = var_20 & 0xFFFF;
-        temp_4 = iGpffffb3d4;
-        temp_21 = (u16)var_20 * 0xE;
-        temp_4 += temp_21;
-        if ((s64)spA0 == *(u8 *)(temp_4 + 2)) {
-            temp_3 = *(u16 *)temp_4;
-            if (temp_3 & 1) {
-                var_2 = 0;
-            } else if (temp_3 & 2) {
-                var_2 = 0;
+    selected = 0;
+    highest = 0;
+    candidateIndex = 0;
+    input = excluded;
+    requestedArcana = arcana & 0xFF;
+    levelThreshold = minimumLevel & 0xFF;
+    for (; (candidateIndex & 0xFFFF) < 0xC0;
+         candidateIndex = (candidateIndex + 1) & 0xFFFF) {
+        candidateId = candidateIndex & 0xFFFF;
+        candidate = iGpffffb3d4;
+        candidateOffset = (u16)candidateIndex * 0xE;
+        candidate += candidateOffset;
+        if ((s64)requestedArcana == ((FclFusionBaseEntry *)candidate)->arcana) {
+            candidateFlags = ((FclFusionBaseEntry *)candidate)->flags;
+            if (candidateFlags & 1) {
+                candidateAllowed = 0;
+            } else if (candidateFlags & 2) {
+                candidateAllowed = 0;
             } else {
-                var_2 = 1;
+                candidateAllowed = 1;
             }
-            if (var_2 != 0) {
-                var_22 = 1;
-                for (var_17 = 0; var_17 < 0x17U; var_17++) {
-                    temp_4_2 = D_006420A0 + (var_17 * 8);
-                    if (temp_16 != *(s16 *)(temp_4_2 + 4)) {
+            if (candidateAllowed != 0) {
+                defaultAllowed = 1;
+                for (gateIndex = 0; gateIndex < 0x17U; gateIndex++) {
+                    gateEntry = D_006420A0 + (gateIndex * 8);
+                    if (candidateId != ((FclFusionGate *)gateEntry)->persona) {
                         continue;
                     }
-                    temp_3_2 = *(s16 *)(temp_4_2 + 6);
-                    if (temp_3_2 & 1) {
-                        if (datGetFlag(*(s32 *)temp_4_2) != 0) {
+                    gateFlags = ((FclFusionGate *)gateEntry)->flags;
+                    if (gateFlags & 1) {
+                        if (datGetFlag(((FclFusionGate *)gateEntry)->flag) != 0) {
                             continue;
                         }
-                        var_3 = 0;
+                        gatePassed = 0;
                         goto block_16;
-                    } else if (temp_3_2 & 2) {
-                        var_22 = 0;
-                        if (datGetFlag(*(s32 *)temp_4_2) != 1) {
+                    } else if (gateFlags & 2) {
+                        defaultAllowed = 0;
+                        if (datGetFlag(((FclFusionGate *)gateEntry)->flag) != 1) {
                             continue;
                         }
-                        var_3 = 1;
+                        gatePassed = 1;
                         goto block_16;
                     }
                 }
-                var_3 = var_22;
+                gatePassed = defaultAllowed;
 block_16:
-                if (var_3 != 0) {
-                    temp_3_3 = var_18 & 0xFFFF;
-                    if ((temp_3_3 == 0) ||
-                        ((temp_4_3 = (s32)iGpffffb3d4,
-                          (s32)*(u8 *)(temp_4_3 + (temp_3_3 * 0xE) + 3) <
-                          (s32)*(u8 *)(temp_4_3 + temp_21 + 3)) != 0)) {
-                        temp_16 = temp_16 ^ 0;
-                        var_18 = (u32)(u16)var_20;
+                if (gatePassed != 0) {
+                    highestId = highest & 0xFFFF;
+                    if ((highestId == 0) ||
+                        ((tableAddress = (s32)iGpffffb3d4,
+                          (s32)*(u8 *)(tableAddress + (highestId * 0xE) + 3) <
+                          (s32)*(u8 *)(tableAddress + candidateOffset + 3)) != 0)) {
+                        candidateId = candidateId ^ 0;
+                        highest = (u32)(u16)candidateIndex;
                     }
-                    temp_5 = *(u8 *)(iGpffffb3d4 + temp_21 + 3);
-                    if ((s32)temp_5 >= temp_23) {
-                        var_3_2 = 0;
+                    candidateLevel = *(u8 *)(iGpffffb3d4 + candidateOffset + 3);
+                    if ((s32)candidateLevel >= levelThreshold) {
+                        excludedIndex = 0;
                         goto loop_28_cond;
 loop_28_body:
-                        if (temp_16 == input[var_3_2]) {
-                            var_2_2 = 1;
+                        if (candidateId == input[excludedIndex]) {
+                            isExcluded = 1;
                             goto loop_28_done;
                         }
-                        var_3_2 += 1;
+                        excludedIndex += 1;
 loop_28_cond:
-                        if (var_3_2 < 0xC) {
+                        if (excludedIndex < 0xC) {
                             goto loop_28_body;
                         }
-                        var_2_2 = 0;
+                        isExcluded = 0;
 loop_28_done:
-                        if ((var_2_2 == 0) &&
-                            ((temp_4_4 = var_19 & 0xFFFF,
-                              (temp_4_4 == 0)) ||
-                             ((temp_4_3 = (s32)DAT_007644c4,
-                               (s32)temp_5 <
-                               (s32)*(u8 *)(temp_4_3 + (temp_4_4 * 0xE) + 3)) != 0))) {
-                            temp_16 = temp_16 ^ 0;
-                            var_19 = (u32)(u16)var_20;
+                        if ((isExcluded == 0) &&
+                            ((selectedId = selected & 0xFFFF,
+                              (selectedId == 0)) ||
+                             ((tableAddress = (s32)DAT_007644c4,
+                               (s32)candidateLevel <
+                               (s32)*(u8 *)(tableAddress + (selectedId * 0xE) + 3)) != 0))) {
+                            candidateId = candidateId ^ 0;
+                            selected = (u32)(u16)candidateIndex;
                         }
                     }
                 }
             }
         }
     }
-    if (!(var_18 & 0xFFFF)) {
+    if (!(highest & 0xFFFF)) {
         return 0;
     }
-    if (!(var_19 & 0xFFFF)) {
-        temp_4_3 = (s32)iGpffffb3d4;
-        temp_3_4 = var_18 & 0xFFFF;
-        temp_4 = (u8 *)(temp_3_4 * 0xE);
-        temp_4 += temp_4_3;
-        if ((s32)*(u8 *)(temp_4 + 3) < temp_23) {
-            var_19 = temp_3_4;
+    if (!(selected & 0xFFFF)) {
+        tableAddress = (s32)iGpffffb3d4;
+        fallbackId = highest & 0xFFFF;
+        candidate = (u8 *)(fallbackId * 0xE);
+        candidate += tableAddress;
+        if ((s32)((FclFusionBaseEntry *)candidate)->level < levelThreshold) {
+            selected = fallbackId;
         }
     }
-    return var_19;
+    return selected;
 }
 
 /* measured: identical 128-bit-slot pattern to fclFuseLowestCandidateAtLeast (retail sq's
-   arg0&0xFF into spA0 at 0xA0 and lq's it back in the 0xC0 i-loop, raw bne
+   arcana&0xFF into the arcana snapshot at 0xA0 and lq's it back in the 0xC0 i-loop, raw bne
    compare; 736B retail window). The corrected technique from docs/matching.md's
    "128-bit lq/sq aggregate copy" entry closes this target: local
    `typedef signed __int128 s128;`, a narrowing (s64) reload compare, and
    source-shaped continue/masked-u16 updates produce an exact MATCH
    (724B object, relocation-normalized diff 0). */
+/* Select the highest eligible level at or below the threshold, excluding the twelve supplied IDs.
+ * Byte-offset base-table accesses preserve measured alias/load ordering; entries are 14 bytes.
+ * The inherited XOR-zero assignments and 128-bit snapshot are retained matching-required source shapes. */
 // FUN_003133B0
-s32 fclFuseLowestCandidateAtMost(u32 arg0, s32 arg1, u16 *arg2) {
+s32 fclFuseLowestCandidateAtMost(u32 arcana, s32 maximumLevel, u16 *excluded) {
     typedef signed __int128 s128;
     extern u8 *DAT_007644c4;
     u16 *input;
-    s128 spA0;
-    s16 temp_3_2;
-    s32 temp_16;
-    s32 temp_21;
-    s32 temp_23;
-    s32 temp_3_3;
-    s32 temp_3_4;
-    s32 temp_4_3;
-    s32 temp_4_4;
-    s32 var_20;
-    s32 var_19;
-    s32 var_18;
-    s32 var_22;
-    s32 var_2;
-    s32 var_2_2;
-    s32 var_3;
-    s32 var_3_2;
-    u16 temp_3;
-    u32 var_17;
-    u8 temp_5;
-    u8 *temp_4;
-    u8 *temp_4_2;
+    s128 requestedArcana;
+    s16 gateFlags;
+    s32 candidateId;
+    s32 candidateOffset;
+    s32 levelThreshold;
+    s32 highestId;
+    s32 fallbackId;
+    s32 tableAddress;
+    s32 selectedId;
+    s32 candidateIndex;
+    s32 selected;
+    s32 highest;
+    s32 defaultAllowed;
+    s32 candidateAllowed;
+    s32 isExcluded;
+    s32 gatePassed;
+    s32 excludedIndex;
+    u16 candidateFlags;
+    u32 gateIndex;
+    u8 candidateLevel;
+    u8 *candidate;
+    u8 *gateEntry;
 
-    var_19 = 0;
-    var_18 = 0;
-    var_20 = 0;
-    input = arg2;
-    spA0 = arg0 & 0xFF;
-    temp_23 = arg1 & 0xFF;
-    for (; (var_20 & 0xFFFF) < 0xC0;
-         var_20 = (var_20 + 1) & 0xFFFF) {
-        temp_16 = var_20 & 0xFFFF;
-        temp_4 = iGpffffb3d4;
-        temp_21 = (u16)var_20 * 0xE;
-        temp_4 += temp_21;
-        if ((s64)spA0 == *(u8 *)(temp_4 + 2)) {
-            temp_3 = *(u16 *)temp_4;
-            if (temp_3 & 1) {
-                var_2 = 0;
-            } else if (temp_3 & 2) {
-                var_2 = 0;
+    selected = 0;
+    highest = 0;
+    candidateIndex = 0;
+    input = excluded;
+    requestedArcana = arcana & 0xFF;
+    levelThreshold = maximumLevel & 0xFF;
+    for (; (candidateIndex & 0xFFFF) < 0xC0;
+         candidateIndex = (candidateIndex + 1) & 0xFFFF) {
+        candidateId = candidateIndex & 0xFFFF;
+        candidate = iGpffffb3d4;
+        candidateOffset = (u16)candidateIndex * 0xE;
+        candidate += candidateOffset;
+        if ((s64)requestedArcana == ((FclFusionBaseEntry *)candidate)->arcana) {
+            candidateFlags = ((FclFusionBaseEntry *)candidate)->flags;
+            if (candidateFlags & 1) {
+                candidateAllowed = 0;
+            } else if (candidateFlags & 2) {
+                candidateAllowed = 0;
             } else {
-                var_2 = 1;
+                candidateAllowed = 1;
             }
-            if (var_2 != 0) {
-                var_22 = 1;
-                for (var_17 = 0; var_17 < 0x17U; var_17++) {
-                    temp_4_2 = D_006420A0 + (var_17 * 8);
-                    if (temp_16 != *(s16 *)(temp_4_2 + 4)) {
+            if (candidateAllowed != 0) {
+                defaultAllowed = 1;
+                for (gateIndex = 0; gateIndex < 0x17U; gateIndex++) {
+                    gateEntry = D_006420A0 + (gateIndex * 8);
+                    if (candidateId != ((FclFusionGate *)gateEntry)->persona) {
                         continue;
                     }
-                    temp_3_2 = *(s16 *)(temp_4_2 + 6);
-                    if (temp_3_2 & 1) {
-                        if (datGetFlag(*(s32 *)temp_4_2) != 0) {
+                    gateFlags = ((FclFusionGate *)gateEntry)->flags;
+                    if (gateFlags & 1) {
+                        if (datGetFlag(((FclFusionGate *)gateEntry)->flag) != 0) {
                             continue;
                         }
-                        var_3 = 0;
+                        gatePassed = 0;
                         goto block_16;
-                    } else if (temp_3_2 & 2) {
-                        var_22 = 0;
-                        if (datGetFlag(*(s32 *)temp_4_2) != 1) {
+                    } else if (gateFlags & 2) {
+                        defaultAllowed = 0;
+                        if (datGetFlag(((FclFusionGate *)gateEntry)->flag) != 1) {
                             continue;
                         }
-                        var_3 = 1;
+                        gatePassed = 1;
                         goto block_16;
                     }
                 }
-                var_3 = var_22;
+                gatePassed = defaultAllowed;
 block_16:
-                if (var_3 != 0) {
-                    temp_3_3 = var_18 & 0xFFFF;
-                    if ((temp_3_3 == 0) ||
-                        ((temp_4_3 = (s32)iGpffffb3d4,
-                          (s32)*(u8 *)(temp_4_3 + (temp_3_3 * 0xE) + 3) <
-                          (s32)*(u8 *)(temp_4_3 + temp_21 + 3)) != 0)) {
-                        temp_16 = temp_16 ^ 0;
-                        var_18 = (u32)(u16)var_20;
+                if (gatePassed != 0) {
+                    highestId = highest & 0xFFFF;
+                    if ((highestId == 0) ||
+                        ((tableAddress = (s32)iGpffffb3d4,
+                          (s32)*(u8 *)(tableAddress + (highestId * 0xE) + 3) <
+                          (s32)*(u8 *)(tableAddress + candidateOffset + 3)) != 0)) {
+                        candidateId = candidateId ^ 0;
+                        highest = (u32)(u16)candidateIndex;
                     }
-                    temp_5 = *(u8 *)(iGpffffb3d4 + temp_21 + 3);
-                    if ((s32)temp_5 > temp_23) {
+                    candidateLevel = *(u8 *)(iGpffffb3d4 + candidateOffset + 3);
+                    if ((s32)candidateLevel > levelThreshold) {
                         continue;
                     }
-                    var_3_2 = 0;
+                    excludedIndex = 0;
                     goto loop_28_cond;
 loop_28_body:
-                    if (temp_16 == input[var_3_2]) {
-                        var_2_2 = 1;
+                    if (candidateId == input[excludedIndex]) {
+                        isExcluded = 1;
                         goto loop_28_done;
                     }
-                    var_3_2 += 1;
+                    excludedIndex += 1;
 loop_28_cond:
-                    if (var_3_2 < 0xC) {
+                    if (excludedIndex < 0xC) {
                         goto loop_28_body;
                     }
-                    var_2_2 = 0;
+                    isExcluded = 0;
 loop_28_done:
-                    if ((var_2_2 == 0) &&
-                        ((temp_4_4 = var_19 & 0xFFFF,
-                          (temp_4_4 == 0)) ||
-                         ((temp_4_3 = (s32)DAT_007644c4,
-                           (s32)*(u8 *)(temp_4_3 +
-                                        (temp_4_4 * 0xE) + 3) <
-                           (s32)temp_5)))) {
-                        temp_16 = temp_16 ^ 0;
-                        var_19 = (u32)(u16)var_20;
+                    if ((isExcluded == 0) &&
+                        ((selectedId = selected & 0xFFFF,
+                          (selectedId == 0)) ||
+                         ((tableAddress = (s32)DAT_007644c4,
+                           (s32)*(u8 *)(tableAddress +
+                                        (selectedId * 0xE) + 3) <
+                           (s32)candidateLevel)))) {
+                        candidateId = candidateId ^ 0;
+                        selected = (u32)(u16)candidateIndex;
                     }
                 }
             }
         }
     }
-    if (var_18 == 0) {
+    if (highest == 0) {
         kAssertFail(D_00642F30, 0x43A);
     }
-    if (!(var_19 & 0xFFFF)) {
-        temp_4_3 = (s32)DAT_007644c4;
-        temp_3_4 = var_18 & 0xFFFF;
-        temp_4 = (u8 *)(temp_3_4 * 0xE);
-        temp_4 += temp_4_3;
-        if ((s32)*(u8 *)(temp_4 + 3) < temp_23) {
-            var_19 = temp_3_4;
+    if (!(selected & 0xFFFF)) {
+        tableAddress = (s32)DAT_007644c4;
+        fallbackId = highest & 0xFFFF;
+        candidate = (u8 *)(fallbackId * 0xE);
+        candidate += tableAddress;
+        if ((s32)((FclFusionBaseEntry *)candidate)->level < levelThreshold) {
+            selected = fallbackId;
         }
     }
-    return var_19;
+    return selected;
 }
 

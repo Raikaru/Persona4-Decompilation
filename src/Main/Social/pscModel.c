@@ -1,25 +1,11 @@
 /* Original translation unit pscModel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "include_asm.h"
 #include "type.h"
+#include "psc_model_internal.h"
 
 extern f32 D_00761480;
 extern f32 D_00761484;
 
-typedef struct
-{
-    f32 x;
-    f32 y;
-    f32 z;
-} PscVec;
-
-typedef struct
-{
-    /* 0x00 */ PscVec dir;
-    /* 0x0C */ u8 c[4];
-    /* 0x10 */ PscVec unused;
-    /* 0x1C */ f32 f1c;
-    /* 0x20 */ f32 f20;
-} PscLight;
 
 extern void* kwlnGetCamera(void);
 extern void kAssertFail(u8 *file, s32 line);
@@ -27,36 +13,6 @@ extern u8 D_0064E480[];
 extern u16 D_00884690[];
 extern void* func_003e89c0(void);
 extern void func_003e8970(void* viewport, void* cameraData);
-typedef struct
-{
-    u32 flags;          /* 0x00 */
-    s32 mode;           /* 0x04 */
-    u8 pad08[0x38];     /* 0x08 */
-    u8 color[4];        /* 0x40 */
-    u8 pad44[0x04];     /* 0x44 */
-    s32 unk48;          /* 0x48 */
-    u8 unk4C[0x90];     /* 0x4C draw vertices */
-    void *unkDC;        /* 0xDC */
-    PscLight e0[4];     /* 0xE0 */
-    union
-    {
-        struct
-        {
-            s32 unk170;     /* 0x170 */
-            s32 unk174;     /* 0x174 */
-            PscLight b0[4]; /* 0x178 */
-            PscLight b1[4]; /* 0x208 */
-            PscLight b2[4]; /* 0x298 */
-            PscLight b3[4]; /* 0x328 */
-            PscLight b4[4]; /* 0x3B8 */
-            PscLight b5[4]; /* 0x448 */
-            PscLight b6[4]; /* 0x4D8 */
-            PscLight b7[4]; /* 0x568 */
-            PscLight b8[4]; /* 0x5F8 */
-        } m01;
-        PscLight w170[4];   /* 0x170 mode 2/3 work, overlaps unk170..b0 */
-    } u;
-} PscModel;
 
 extern void *func_003e0f80(void);
 extern void func_003e0f40(void *matrix);
@@ -68,13 +24,13 @@ extern void func_00410520(u32 primitive, void *indices, u32 count);
 extern void func_004104d0(void);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern u16 D_0064E470[];
-extern s32 pscResGetArcanaRaster(s32 arg0, s32 arg1);
-extern s32 pscResGetPersonaRaster(s32 arg0);
-extern s32 func_0036be00(void);
+extern s32 pscResGetArcanaRaster(s32 group, s32 cardIndex);
+extern s32 pscResGetPersonaRaster(s32 personaId);
+extern s32 pscResGetBaseRaster(void);
 extern s32 pscResGetMiscCardW00Raster(void);
 extern s32 pscResGetMiscCardW01Raster(void);
-extern s32 pscResGetMiscCardW00Texture(s32 arg0);
-extern s32 pscResGetMiscCardW00SubTexture(s32 arg0);
+extern s32 pscResGetMiscCardW00Texture(s32 textureIndex);
+extern s32 pscResGetMiscCardW00SubTexture(s32 textureIndex);
 extern void pscPanelDrawGrid(void *work, void *vertices);
 
 /* Floor: 759 differing words, 1099 emitted instructions against retail's
@@ -109,16 +65,16 @@ extern void pscPanelDrawGrid(void *work, void *vertices);
 void pscModelDraw(PscModel *model)
 {
     typedef struct { u8 r, g, b, a; } PscColorCopy;
-    u8 tmp[4];
-    void *mtx;
-    PscModel *m0;
-    PscModel *m1;
-    PscModel *m2;
-    void (**fn)(u32 state, u32 value);
-    void (**fn2)(u32 state, u32 value);
-    void (**tbl)(u32 state, u32 value);
-    PscLight *e0work;
-    PscModel *m3;
+    u8 tint[4];
+    void *matrix;
+    PscModel *modeZeroModel;
+    PscModel *modeOneModel;
+    PscModel *modeTwoModel;
+    void (**renderStateSet)(u32 state, u32 value);
+    void (**gridRenderStateSet)(u32 state, u32 value);
+    void (**renderStateTable)(u32 state, u32 value);
+    PscLight *lightQuad;
+    PscModel *modeThreeModel;
     u32 alpha;
     f32 alphaf;
     f32 f;
@@ -128,183 +84,183 @@ void pscModelDraw(PscModel *model)
     }
     switch (model->mode) {
     case 1:
-        m1 = model;
-        e0work = model->e0;
+        modeOneModel = model;
+        lightQuad = model->e0;
         break;
     case 0:
-        m0 = model;
-        e0work = model->e0;
+        modeZeroModel = model;
+        lightQuad = model->e0;
         break;
     case 2:
-        m2 = model;
-        e0work = model->e0;
+        modeTwoModel = model;
+        lightQuad = model->e0;
         break;
     case 3:
-        m3 = model;
-        e0work = model->e0;
+        modeThreeModel = model;
+        lightQuad = model->e0;
         break;
     }
-    mtx = func_003e0f80();
-    pscBuildModelMatrix(mtx, model);
+    matrix = func_003e0f80();
+    pscBuildModelMatrix(matrix, model);
     if (model->flags & 4) {
-        pscPanelWriteVertexColors(e0work, model->color);
+        pscPanelWriteVertexColors(lightQuad, model->color);
         switch (model->mode) {
         case 0:
-            pscPanelWriteVertexColors(m0->u.m01.b0, model->color);
-            pscPanelWriteVertexColors(m0->u.m01.b1, model->color);
-            *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
+            pscPanelWriteVertexColors(modeZeroModel->u.m01.b0, model->color);
+            pscPanelWriteVertexColors(modeZeroModel->u.m01.b1, model->color);
+            *(PscColorCopy *)tint = *(PscColorCopy *)model->color;
             alpha = model->color[3];
             alphaf = (f32)alpha;
             f = (30.0f * alphaf) / 100.0f;
-            tmp[3] = (u8)f;
-            pscPanelWriteVertexColors(m0->u.m01.b2, tmp);
-            pscPanelWriteVertexColors(m0->u.m01.b3, tmp);
-            *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
-            f = 255.0f * m0->u.m01.b8[0].dir.y;
-            tmp[3] = (u8)f;
-            pscPanelWriteVertexColors(m0->u.m01.b4, tmp);
-            if (m0->u.m01.unk170 & 1) {
-            *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
-            tmp[0] = 0;
-            tmp[1] = 0;
-            tmp[2] = 0;
-            pscPanelWriteVertexColors(m0->u.m01.b5, tmp);
+            tint[3] = (u8)f;
+            pscPanelWriteVertexColors(modeZeroModel->u.m01.b2, tint);
+            pscPanelWriteVertexColors(modeZeroModel->u.m01.b3, tint);
+            *(PscColorCopy *)tint = *(PscColorCopy *)model->color;
+            f = 255.0f * modeZeroModel->u.m01.b8[0].dir.y;
+            tint[3] = (u8)f;
+            pscPanelWriteVertexColors(modeZeroModel->u.m01.b4, tint);
+            if (modeZeroModel->u.m01.unk170 & 1) {
+            *(PscColorCopy *)tint = *(PscColorCopy *)model->color;
+            tint[0] = 0;
+            tint[1] = 0;
+            tint[2] = 0;
+            pscPanelWriteVertexColors(modeZeroModel->u.m01.b5, tint);
             } else {
-            pscPanelWriteVertexColors(m0->u.m01.b5, model->color);
+            pscPanelWriteVertexColors(modeZeroModel->u.m01.b5, model->color);
             }
-            if (m0->u.m01.unk170 & 1) {
-            *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
-            tmp[3] = 0;
-            pscPanelWriteVertexColors(m0->u.m01.b6, tmp);
+            if (modeZeroModel->u.m01.unk170 & 1) {
+            *(PscColorCopy *)tint = *(PscColorCopy *)model->color;
+            tint[3] = 0;
+            pscPanelWriteVertexColors(modeZeroModel->u.m01.b6, tint);
             } else {
-            *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
-            f = 255.0f * m0->u.m01.b8[0].dir.x;
-            tmp[3] = (u8)f;
-            pscPanelWriteVertexColors(m0->u.m01.b6, tmp);
+            *(PscColorCopy *)tint = *(PscColorCopy *)model->color;
+            f = 255.0f * modeZeroModel->u.m01.b8[0].dir.x;
+            tint[3] = (u8)f;
+            pscPanelWriteVertexColors(modeZeroModel->u.m01.b6, tint);
             }
             break;
         case 1:
-            pscPanelWriteVertexColors(m1->u.m01.b1, model->color);
-            pscPanelWriteVertexColors(m1->u.m01.b0, model->color);
-            *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
-            tmp[0] = 0;
-            tmp[1] = 0;
-            tmp[2] = 0;
-            alpha = tmp[3];
+            pscPanelWriteVertexColors(modeOneModel->u.m01.b1, model->color);
+            pscPanelWriteVertexColors(modeOneModel->u.m01.b0, model->color);
+            *(PscColorCopy *)tint = *(PscColorCopy *)model->color;
+            tint[0] = 0;
+            tint[1] = 0;
+            tint[2] = 0;
+            alpha = tint[3];
             alphaf = (f32)alpha;
-            f = m1->u.m01.b3[0].dir.y * (alphaf * m1->u.m01.b3[0].dir.x);
-            tmp[3] = (u8)f;
-            pscPanelWriteVertexColors(m1->u.m01.b2, tmp);
+            f = modeOneModel->u.m01.b3[0].dir.y * (alphaf * modeOneModel->u.m01.b3[0].dir.x);
+            tint[3] = (u8)f;
+            pscPanelWriteVertexColors(modeOneModel->u.m01.b2, tint);
             break;
         case 2:
-            pscPanelWriteVertexColors(m2->u.w170, model->color);
+            pscPanelWriteVertexColors(modeTwoModel->u.w170, model->color);
             break;
         case 3:
-            pscPanelWriteVertexColors(m3->u.w170, model->color);
+            pscPanelWriteVertexColors(modeThreeModel->u.w170, model->color);
             break;
         }
         model->flags &= ~4;
     }
     switch (model->mode) {
     case 0:
-        *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
-        f = ((255.0f * m0->u.m01.b8[0].dir.y * (f32)(u32)model->color[3]) / 255.0f);
-        tmp[3] = (u8)f;
-        pscPanelWriteVertexColors(m0->u.m01.b4, tmp);
-        *(PscColorCopy *)tmp = *(PscColorCopy *)model->color;
-        if (m0->u.m01.unk170 & 1) {
-        tmp[3] = 0;
+        *(PscColorCopy *)tint = *(PscColorCopy *)model->color;
+        f = ((255.0f * modeZeroModel->u.m01.b8[0].dir.y * (f32)(u32)model->color[3]) / 255.0f);
+        tint[3] = (u8)f;
+        pscPanelWriteVertexColors(modeZeroModel->u.m01.b4, tint);
+        *(PscColorCopy *)tint = *(PscColorCopy *)model->color;
+        if (modeZeroModel->u.m01.unk170 & 1) {
+        tint[3] = 0;
         } else {
-        f = ((255.0f * m0->u.m01.b8[0].dir.x * (f32)(u32)model->color[3]) / 255.0f);
-        tmp[3] = (u8)f;
+        f = ((255.0f * modeZeroModel->u.m01.b8[0].dir.x * (f32)(u32)model->color[3]) / 255.0f);
+        tint[3] = (u8)f;
         }
-        pscPanelWriteVertexColors(m0->u.m01.b6, tmp);
+        pscPanelWriteVertexColors(modeZeroModel->u.m01.b6, tint);
         break;
     }
-    tbl = (void (**)(u32, u32))D_00887300;
-    (*tbl)(9, 2);
-    (*tbl)(0x14, 2);
-    (*tbl)(6, 0);
+    renderStateTable = (void (**)(u32, u32))D_00887300;
+    (*renderStateTable)(9, 2);
+    (*renderStateTable)(0x14, 2);
+    (*renderStateTable)(6, 0);
     switch (model->mode) {
     case 1:
-        fn = (void (**)(u32, u32))D_00887300;
-        (*fn)(8, 1);
+        renderStateSet = (void (**)(u32, u32))D_00887300;
+        (*renderStateSet)(8, 1);
         RpSkyRenderStateSet(3, 0x317F3);
-        (*fn)(1, pscResGetArcanaRaster(model->u.m01.unk170, model->u.m01.unk174));
+        (*renderStateSet)(1, pscResGetArcanaRaster(model->u.m01.unk170, model->u.m01.unk174));
         RpSkyRenderStateSet(2, 0x44);
-        func_00410420(model->u.m01.b0, 4, mtx, 3);
+        func_00410420(model->u.m01.b0, 4, matrix, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         break;
     case 0:
-        m0 = model;
-        fn = (void (**)(u32, u32))D_00887300;
-        (*fn)(8, 1);
+        modeZeroModel = model;
+        renderStateSet = (void (**)(u32, u32))D_00887300;
+        (*renderStateSet)(8, 1);
         RpSkyRenderStateSet(3, 0x317F3);
-        (*fn)(3, 1);
-        (*fn)(4, 1);
-        (*fn)(1, pscResGetMiscCardW00Texture(0));
+        (*renderStateSet)(3, 1);
+        (*renderStateSet)(4, 1);
+        (*renderStateSet)(1, pscResGetMiscCardW00Texture(0));
         RpSkyRenderStateSet(2, 0x44);
-        func_00410420(m0->u.m01.b0, 4, mtx, 3);
+        func_00410420(modeZeroModel->u.m01.b0, 4, matrix, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x48);
-        (*fn)(1, pscResGetMiscCardW00Texture(4));
-        func_00410420(m0->u.m01.b4, 4, mtx, 3);
+        (*renderStateSet)(1, pscResGetMiscCardW00Texture(4));
+        func_00410420(modeZeroModel->u.m01.b4, 4, matrix, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x48);
-        (*fn)(1, pscResGetMiscCardW00Texture(3));
-        func_00410420(m0->u.m01.b3, 4, mtx, 3);
+        (*renderStateSet)(1, pscResGetMiscCardW00Texture(3));
+        func_00410420(modeZeroModel->u.m01.b3, 4, matrix, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x48);
-        (*fn)(1, pscResGetMiscCardW00Texture(2));
-        func_00410420(m0->u.m01.b2, 4, mtx, 3);
-        func_00410520(3, D_0064E470, 6);
-        func_004104d0();
-        RpSkyRenderStateSet(2, 0x44);
-        (*fn)(1, pscResGetPersonaRaster((*(u16 *)&model->u.m01.unk174)));
-        func_00410420(m0->u.m01.b5, 4, mtx, 3);
-        func_00410520(3, D_0064E470, 6);
-        func_004104d0();
-        RpSkyRenderStateSet(2, 0x48);
-        (*fn)(1, pscResGetPersonaRaster((*(u16 *)&model->u.m01.unk174)));
-        func_00410420(m0->u.m01.b6, 4, mtx, 3);
+        (*renderStateSet)(1, pscResGetMiscCardW00Texture(2));
+        func_00410420(modeZeroModel->u.m01.b2, 4, matrix, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         RpSkyRenderStateSet(2, 0x44);
-        (*fn)(1, pscResGetMiscCardW00Texture(1));
-        func_00410420(m0->u.m01.b1, 4, mtx, 3);
+        (*renderStateSet)(1, pscResGetPersonaRaster((*(u16 *)&model->u.m01.unk174)));
+        func_00410420(modeZeroModel->u.m01.b5, 4, matrix, 3);
+        func_00410520(3, D_0064E470, 6);
+        func_004104d0();
+        RpSkyRenderStateSet(2, 0x48);
+        (*renderStateSet)(1, pscResGetPersonaRaster((*(u16 *)&model->u.m01.unk174)));
+        func_00410420(modeZeroModel->u.m01.b6, 4, matrix, 3);
+        func_00410520(3, D_0064E470, 6);
+        func_004104d0();
+        RpSkyRenderStateSet(2, 0x44);
+        (*renderStateSet)(1, pscResGetMiscCardW00Texture(1));
+        func_00410420(modeZeroModel->u.m01.b1, 4, matrix, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         if (model->flags & 2) {
         RpSkyRenderStateSet(2, 0x48);
-        (*fn)(3, 3);
-        (*fn)(4, 3);
-        (*fn)(1, pscResGetMiscCardW00Texture(5));
-        func_00410420(m0->u.m01.b7, 4, mtx, 3);
+        (*renderStateSet)(3, 3);
+        (*renderStateSet)(4, 3);
+        (*renderStateSet)(1, pscResGetMiscCardW00Texture(5));
+        func_00410420(modeZeroModel->u.m01.b7, 4, matrix, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         }
         break;
     case 2:
-        fn = (void (**)(u32, u32))D_00887300;
-        (*fn)(8, 1);
+        renderStateSet = (void (**)(u32, u32))D_00887300;
+        (*renderStateSet)(8, 1);
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x317F3);
-        (*fn)(1, pscResGetMiscCardW00Raster());
-        func_00410420(model->u.w170, 4, mtx, 3);
+        (*renderStateSet)(1, pscResGetMiscCardW00Raster());
+        func_00410420(model->u.w170, 4, matrix, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         break;
     case 3:
-        fn = (void (**)(u32, u32))D_00887300;
-        (*fn)(8, 1);
+        renderStateSet = (void (**)(u32, u32))D_00887300;
+        (*renderStateSet)(8, 1);
         RpSkyRenderStateSet(2, 0x44);
         RpSkyRenderStateSet(3, 0x317F3);
-        (*fn)(1, pscResGetMiscCardW01Raster());
-        func_00410420(model->u.w170, 4, mtx, 3);
+        (*renderStateSet)(1, pscResGetMiscCardW01Raster());
+        func_00410420(model->u.w170, 4, matrix, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         break;
@@ -315,59 +271,59 @@ void pscModelDraw(PscModel *model)
             switch (model->mode) {
             case 1:
                 RpSkyRenderStateSet(2, 0x6A);
-                (*tbl)(1, pscResGetMiscCardW00Texture(1));
-                func_00410420(m0->u.m01.b1, 4, mtx, 3);
+                (*renderStateTable)(1, pscResGetMiscCardW00Texture(1));
+                func_00410420(modeZeroModel->u.m01.b1, 4, matrix, 3);
                 func_00410520(3, D_0064E470, 6);
                 func_004104d0();
                 break;
             }
             RpSkyRenderStateSet(2, 0x58);
-            fn = (void (**)(u32, u32))D_00887300;
-            (*fn)(4, 3);
-            (*fn)(1, pscResGetMiscCardW00Texture(6));
-            func_00410420(model->unk4C, 4, mtx, 3);
+            renderStateSet = (void (**)(u32, u32))D_00887300;
+            (*renderStateSet)(4, 3);
+            (*renderStateSet)(1, pscResGetMiscCardW00Texture(6));
+            func_00410420(model->unk4C, 4, matrix, 3);
             func_00410520(3, D_0064E470, 6);
             func_004104d0();
-            (*fn)(4, 1);
+            (*renderStateSet)(4, 1);
             break;
         }
     }
     switch (model->mode) {
     case 1:
-        fn = (void (**)(u32, u32))D_00887300;
-        (*fn)(6, 0);
-        (*fn)(8, 1);
+        renderStateSet = (void (**)(u32, u32))D_00887300;
+        (*renderStateSet)(6, 0);
+        (*renderStateSet)(8, 1);
         RpSkyRenderStateSet(3, 0x717FB);
         RpSkyRenderStateSet(2, 0x44);
-        (*fn)(1, pscResGetMiscCardW00SubTexture(1));
-        func_00410420(model->u.m01.b2, 4, mtx, 3);
+        (*renderStateSet)(1, pscResGetMiscCardW00SubTexture(1));
+        func_00410420(model->u.m01.b2, 4, matrix, 3);
         func_00410520(3, D_0064E470, 6);
         func_004104d0();
         break;
     }
-    alpha = func_0036be00();
-    fn = (void (**)(u32, u32))D_00887300;
-    (*fn)(1, alpha);
+    alpha = pscResGetBaseRaster();
+    renderStateSet = (void (**)(u32, u32))D_00887300;
+    (*renderStateSet)(1, alpha);
     RpSkyRenderStateSet(2, 0x44);
-    (*fn)(6, 0);
-    (*fn)(8, 1);
-    func_00410420(e0work, 4, mtx, 3);
+    (*renderStateSet)(6, 0);
+    (*renderStateSet)(8, 1);
+    func_00410420(lightQuad, 4, matrix, 3);
     func_00410520(3, D_0064E470, 6);
     func_004104d0();
     if (model->flags & 8) {
         if (~*(u32 *)model->unkDC & 1) {
-            fn2 = (void (**)(u32, u32))D_00887300;
-            (*fn2)(6, 0);
-            (*fn2)(8, 1);
+            gridRenderStateSet = (void (**)(u32, u32))D_00887300;
+            (*gridRenderStateSet)(6, 0);
+            (*gridRenderStateSet)(8, 1);
             RpSkyRenderStateSet(2, 0x6A);
             switch (model->mode) {
             case 0:
-                (*tbl)(1, pscResGetMiscCardW00Texture(1));
-                func_00410420(model->u.m01.b1, 4, mtx, 3);
+                (*renderStateTable)(1, pscResGetMiscCardW00Texture(1));
+                func_00410420(model->u.m01.b1, 4, matrix, 3);
                 break;
             case 1:
-                (*tbl)(1, pscResGetMiscCardW00SubTexture(0));
-                func_00410420(model->u.m01.b1, 4, mtx, 3);
+                (*renderStateTable)(1, pscResGetMiscCardW00SubTexture(0));
+                func_00410420(model->u.m01.b1, 4, matrix, 3);
                 break;
             case 2:
                 RpSkyRenderStateSet(3, 0x71801);
@@ -385,9 +341,9 @@ void pscModelDraw(PscModel *model)
             RpSkyRenderStateSet(3, 0x71801);
             RpSkyRenderStateSet(2, 0x48);
         }
-        pscPanelDrawGrid(model->unkDC, mtx);
+        pscPanelDrawGrid(model->unkDC, matrix);
     }
-    func_003e0f40(mtx);
+    func_003e0f40(matrix);
 }
 
 
@@ -426,55 +382,58 @@ f32 pscModelPanelScale(const f32* value, f32 scale)
 }
 
 // FUN_0036A820
-void func_0036a820(u8 *arg0, s16 arg1)
+/* Select the persona card for a mode-zero panel; other panel modes are rejected. */
+void pscModelSetPersonaCard(u8 *model, s16 personaId)
 {
-    if (*(s32 *)(arg0 + 4) != 0) {
+    if (((PscModel *)model)->mode != 0) {
         kAssertFail(D_0064E480, 0x524);
     }
-    *(u16 *)(arg0 + 0x174) = arg1;
+    *(u16 *)&((PscModel *)model)->u.m01.unk174 = personaId;
 }
 
 // FUN_0036A880
-void func_0036a880(u8 *arg0, s32 arg1, s32 arg2)
+/* Select the arcana group and card index for a mode-one panel. */
+void pscModelSetArcanaCard(u8 *model, s32 group, s32 index)
 {
-    if (*(s32 *)(arg0 + 4) != 1) {
+    if (((PscModel *)model)->mode != 1) {
         kAssertFail(D_0064E480, 0x52F);
     }
-    *(s32 *)(arg0 + 0x170) = arg1;
-    *(s32 *)(arg0 + 0x174) = arg2;
+    ((PscModel *)model)->u.m01.unk170 = group;
+    ((PscModel *)model)->u.m01.unk174 = index;
 }
 
 // FUN_0036A8F0
-void func_0036a8f0(void* work, u32 value)
+/* Store the parent-frame address consumed when the tile builder transforms the model position. */
+void pscModelSetParentFrame(void* work, u32 value)
 {
-    *(u32*)((u8*)work + 0x38) = value;
+    *(u32 *)&((PscModel *)work)->frame = value;
 }
 
 // Intent: fill a PscLight[4] quad with default corner positions, white colour and fixed fade values (the e0 block of PscModel). [inferred]
 // FUN_0036A900
 void pscLightInitQuad(PscLight *dst)
 {
-    PscVec v0;
-    PscVec v1;
-    PscVec v2;
-    PscVec v3;
+    PscVec rightUpper;
+    PscVec rightLower;
+    PscVec leftLower;
+    PscVec leftUpper;
 
-    v0.x = 3.0f;
-    v0.y = D_00761480;
-    v0.z = 0.0f;
-    dst[0].dir = v0;
-    v1.x = 3.0f;
-    v1.y = D_00761484;
-    v1.z = 0.0f;
-    dst[1].dir = v1;
-    v2.x = -3.0f;
-    v2.y = D_00761484;
-    v2.z = 0.0f;
-    dst[2].dir = v2;
-    v3.x = -3.0f;
-    v3.y = D_00761480;
-    v3.z = 0.0f;
-    dst[3].dir = v3;
+    rightUpper.x = 3.0f;
+    rightUpper.y = D_00761480;
+    rightUpper.z = 0.0f;
+    dst[0].dir = rightUpper;
+    rightLower.x = 3.0f;
+    rightLower.y = D_00761484;
+    rightLower.z = 0.0f;
+    dst[1].dir = rightLower;
+    leftLower.x = -3.0f;
+    leftLower.y = D_00761484;
+    leftLower.z = 0.0f;
+    dst[2].dir = leftLower;
+    leftUpper.x = -3.0f;
+    leftUpper.y = D_00761480;
+    leftUpper.z = 0.0f;
+    dst[3].dir = leftUpper;
     dst[0].c[0] = 255;
     dst[0].c[1] = 255;
     dst[0].c[2] = 255;

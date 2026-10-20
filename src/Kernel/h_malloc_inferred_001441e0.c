@@ -1,3 +1,6 @@
+#include "field_scene_internal.h"
+#include "resrc_manager_internal.h"
+#include "kwln_task_internal.h"
 #include "model_callbacks_internal.h"
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -104,18 +107,18 @@ extern f32 fGpffff8110;
 
 
 
-extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern void MT_Scene_DestroyRes(u16 resTypeId);
-extern void resrcMngDestroy(u8 *arg0);
-extern u8 *resrcMngGetListHead(u8 *arg0, s32 arg1);
+extern void resrcMngDestroy(u8 *resManager);
+extern u8 *resrcMngGetListHead(u8 *resManager, s32 resType);
 extern void NpcTable_ReleaseSceneTable(void);
 extern void NpcTable_ReleaseSecondaryTable(void);
 extern void FldHbnFreeEntryTable(void);
 extern void func_003e1a70(void);
 extern void kwlnTaskDumpAll(void);
-extern void FldResource_OpenPrimaryFile(s32 arg0, s32 arg1);
-extern void FldResource_QueueFieldResources(s32 arg0, s32 arg1);
-extern s32 FldResource_StepPartLoad(s32 arg0, s32 arg1);
+extern void FldResource_OpenPrimaryFile(s32 majorId, s32 minorId);
+extern void FldResource_QueueFieldResources(s32 majorId, s32 minorId);
+extern s32 FldResource_StepPartLoad(s32 majorId, s32 minorId);
 extern s32 MT_SceneManager_Create(void);
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
@@ -132,14 +135,14 @@ extern u8 D_005EF858[];
 extern u8 D_007EF9B0[];
 extern u8 D_007E8020[];
 
-extern s32 FldMap_IsInBandA(s32 arg0, s32 arg1);
-extern s32 FldMap_IsInBandB(s32 arg0, s32 arg1);
+extern s32 FldMap_IsInBandA(s32 fieldId, s32 roomId);
+extern s32 FldMap_IsInBandB(s32 fieldId, s32 roomId);
 extern void func_00440b68();
-extern s32 FldFilterCreate(s32 arg0);
+extern s32 FldFilterCreate(s32 parent);
 extern s32 resrcMngCreate(void);
-extern s32 MT_Scene_CreateResLightChar(s32 arg0);
+extern s32 MT_Scene_CreateResLightChar(s32 resId);
 extern void SceneDraw_InitResList4(void);
-extern s32 MT_Scene_CreateResLightNpc(s32 arg0);
+extern s32 MT_Scene_CreateResLightNpc(s32 resId);
 extern void SceneDraw_InitResList5(void);
 extern u8 D_005EF7D0[];
 extern u8 D_005EF800[];
@@ -160,9 +163,9 @@ extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern void fieldSceneUnload(void);
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
+                          u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                          u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
@@ -195,7 +198,7 @@ extern s32 D_007642F0;
 
 
 
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
+extern u8 *MT_Scene_GetResListHead(s32 resourceType);
 
 
 
@@ -215,12 +218,12 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 iGpffff9da8;
 extern u8 D_005EF7B0[];
-extern s32 calendarTaskUpdate(u8 *arg0);
-extern void calendarTaskDestroy(u8 *arg0);
-extern void strcpy(void *arg0, const char *arg1);
-extern void sprintf(void *arg0, const char *arg1, ...);
-extern void strcat(void *arg0, const void *arg1);
-extern s32 H_Cdvd_FileExists(void *arg0);
+extern s32 calendarTaskUpdate(u8 *task);
+extern void calendarTaskDestroy(u8 *task);
+extern void strcpy(void *, const char *);
+extern void sprintf(void *, const char *, ...);
+extern void strcat(void *, const void *);
+extern s32 H_Cdvd_FileExists(void *path);
 extern u8 D_005EF7C0[];
 extern u8 iGpffff9db8;
 extern u8 iGpffff9dc0;
@@ -266,7 +269,7 @@ extern u8 D_005EF6A0[];
 extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
 extern f32 D_008872F8[];
-extern void radarDrawNumber(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
+extern void radarDrawNumber(s64 work, f32 depth, s32 value, u8 *context, s32 option);
 
 /* Source unit: src/promoted/code1_0014.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001441e0-00145080 */
@@ -295,10 +298,12 @@ extern void radarDrawNumber(s64 work, f32 fparg0, s32 arg1, u8 *arg2, s32 arg3);
 #pragma opt_lifetimes on
 // Intent: Calendar task update: kind 0 fills a 7-row day table from the date queries; kind 1 draws the rows and skips while input bit 0x800 is held [inferred]
 // FUN_001441E0
-s32 calendarTaskUpdate(u8 *arg0) {
+/* The two arrays are proven by the local union. Array subscripts change four
+ * normalized bytes under b210, so keep the measured index-before-base loads. */
+s32 calendarTaskUpdate(u8 *task) {
     extern s16 datGetDateIndex(void);
-    extern s64 calGetDayTableValue(s32 arg0, u32 arg1);
-    extern s32 calGetPackedDayEntry(s32 arg0, s32 arg1);
+    extern s64 calGetDayTableValue(s32 day, u32 phase);
+    extern s32 calGetPackedDayEntry(s32 day, s32 referenceDay);
     extern u16 D_008C024E[];
     extern char iGpffff9ce4;
     extern char iGpffff9ce8;
@@ -338,7 +343,7 @@ s32 calendarTaskUpdate(u8 *arg0) {
     s32 t3;
     s32 v0;
     s32 v1;
-    st = *(State441e0 **)(arg0 + 0x38);
+    st = (State441e0 *)((struct KwlnTask *)task)->work;
     kind = st->fields.kind;
     switch (kind) {
     case 0:
@@ -531,23 +536,23 @@ s32 calendarTaskUpdate(u8 *arg0) {
 #pragma pop
 // Intent: Free the calendar work block through the free callback [inferred]
 // FUN_00144AC0
-void calendarTaskDestroy(u8 *arg0)
+void calendarTaskDestroy(u8 *task)
 {
-    jtbl_008873EC[0](*(u8 **)(arg0 + 0x38));
+    jtbl_008873EC[0](((struct KwlnTask *)task)->work);
 }
 
 // Intent: Allocate a calendar work block and create its task with the update and destroy callbacks [inferred]
 // FUN_00144AF0
 s32 calendarTaskCreate(void)
 {
-    s32 temp_2;
+    s32 work;
 
     chkmemAllocSiteTag(&iGpffff9da8, 0xFE);
-    temp_2 = (s32)D_008873F4[0](1, 0x20, 0x40000);
-    if (temp_2 == 0) {
+    work = (s32)D_008873F4[0](1, 0x20, 0x40000);
+    if (work == 0) {
         return 0;
     }
-    return (s32)kwlnTaskCreate((const void *)(&D_005EF7B0), 0x100, 0, 0, calendarTaskUpdate, calendarTaskDestroy, (u8 *)((void *)(u32)temp_2));
+    return (s32)kwlnTaskCreate((const void *)(&D_005EF7B0), 0x100, 0, 0, calendarTaskUpdate, calendarTaskDestroy, (u8 *)((void *)(u32)work));
 }
 
 /* Return zero for a missing path; otherwise retain retail's short-circuited
@@ -556,24 +561,24 @@ s32 calendarTaskCreate(void)
    measured: object 264B/window 272B; exact instructions and 8B zero tail. */
 // Intent: Return 1 when the room file for the field and room exists on disc, 0 otherwise [inferred]
 // FUN_00144B80
-s32 fieldRoomFileExists(s32 arg0, s32 arg1)
+s32 fieldRoomFileExists(s32 fieldId, s32 roomId)
 {
     char path[128];
     char part[128];
     s32 result;
 
     strcpy(path, (char *)D_005EF7C0);
-    sprintf(part, (char *)&iGpffff9db8, arg0);
+    sprintf(part, (char *)&iGpffff9db8, fieldId);
     strcat(path, part);
-    sprintf(part, (char *)&iGpffff9dc0, arg1);
+    sprintf(part, (char *)&iGpffff9dc0, roomId);
     strcat(path, part);
     strcat(path, &iGpffff9dc8);
     if (H_Cdvd_FileExists(path) == 0) {
         return 0;
     }
     result = 1;
-    if (FldMap_IsInBandA((u16)arg0, (u16)arg1) == 1 ||
-        FldMap_IsInBandB(arg0 & 0xFFFF, arg1 & 0xFFFF) == 1) {
+    if (FldMap_IsInBandA((u16)fieldId, (u16)roomId) == 1 ||
+        FldMap_IsInBandB(fieldId & 0xFFFF, roomId & 0xFFFF) == 1) {
         result = 1;
     }
     return result;
@@ -581,39 +586,39 @@ s32 fieldRoomFileExists(s32 arg0, s32 arg1)
 
 /* Loads field `arg0`, room `arg1`: same-room reloads only reset the resource lists; a new room rebuilds the scene. */
 // FUN_00144C90
-void fieldSceneLoad(s32 arg0, s32 arg1) {
-    u8 *temp_3;
-    u8 *temp_3_2;
-    u8 *temp_3_3;
-    u8 *var_16;
+void fieldSceneLoad(s32 fieldId, s32 roomId) {
+    u8 *stateValue;
+    u8 *loadState;
+    u8 *stateAddress;
+    u8 *resource;
 
-    *(s32 *)(iGpffff9db0 + 0xC) = 0;
-    temp_3 = iGpffff9db0;
-    if ((*(s32 *)(temp_3 + 0) == arg0) &&
-        (*(s32 *)(temp_3 + 4) == arg1) &&
-        (FldMap_IsInBandA(arg0 & 0xFFFF, arg1 & 0xFFFF) == 0)) {
-        func_00440b68(&D_005EF7D0, arg0, arg1);
-        temp_3_2 = iGpffff9db0;
-        *(s32 *)(temp_3_2 + 0xC) = *(s32 *)(temp_3_2 + 0xC) | 1;
-        var_16 = MT_Scene_GetResListHead(0xA);
+    ((FieldSceneState *)iGpffff9db0)->flags = 0;
+    stateValue = iGpffff9db0;
+    if ((((FieldSceneState *)stateValue)->field.value == fieldId) &&
+        (((FieldSceneState *)stateValue)->room.value == roomId) &&
+        (FldMap_IsInBandA(fieldId & 0xFFFF, roomId & 0xFFFF) == 0)) {
+        func_00440b68(&D_005EF7D0, fieldId, roomId);
+        loadState = iGpffff9db0;
+        ((FieldSceneState *)loadState)->flags = ((FieldSceneState *)loadState)->flags | 1;
+        resource = MT_Scene_GetResListHead(0xA);
         goto loop_5_test;
 loop_5_body:
-        mdlDispatchAnimIfPresent((u8*)*(s32 *)(var_16 + 0x144), 0, 0, 0, 1);
-        *(s32 *)(var_16 + 0x28) = *(s32 *)(var_16 + 0x28) | 2;
-        var_16 = *(u8 **)(var_16 + 0x138);
+        mdlDispatchAnimIfPresent((u8*)((ResrcRecord *)resource)->slotHandle[1], 0, 0, 0, 1);
+        ((ResrcRecord *)resource)->unk28 = ((ResrcRecord *)resource)->unk28 | 2;
+        resource = (u8 *)((ResrcRecord *)resource)->next;
 loop_5_test:
-        if (var_16 != NULL) {
+        if (resource != NULL) {
             goto loop_5_body;
         }
         return;
     }
     fieldSceneUnload();
-    *(s32 *)(iGpffff9db0 + 0x90) = 0;
-    *(s32 *)(iGpffff9db0 + 0) = arg0;
-    *(s32 *)(iGpffff9db0 + 4) = arg1;
-    *(s16 *)(iGpffff9db0 + 0x10) = 0;
-    temp_3_3 = iGpffff9db0;
-    *(s16 *)(temp_3_3 + 0x12) = *(s32 *)(temp_3_3 + 4);
+    ((FieldSceneState *)iGpffff9db0)->loadState = 0;
+    ((FieldSceneState *)iGpffff9db0)->field.value = fieldId;
+    ((FieldSceneState *)iGpffff9db0)->room.value = roomId;
+    ((FieldSceneState *)iGpffff9db0)->primaryRoom = 0;
+    stateAddress = iGpffff9db0;
+    ((FieldSceneState *)stateAddress)->secondaryRoom = ((FieldSceneState *)stateAddress)->room.value;
     *(s32 *)(iGpffff9db0 + 0x20) = FldFilterCreate(0);
     *(s32 *)(iGpffff9db0 + 8) = resrcMngCreate();
     MT_Scene_CreateResLightChar(0);
@@ -625,97 +630,99 @@ loop_5_test:
 
 // Intent: Request a room change: when the scene is loaded and the room differs, record it, set state bit 2, the timer and open the primary file; otherwise mark the resource lists dirty [inferred]
 // FUN_00144E10
-void fieldSceneRequestRoom(s64 arg0) {
-    s32 temp_5;
+void fieldSceneRequestRoom(s64 roomId) {
+    s32 sceneFlags;
     u8 *flags;
-    u8 *temp_2;
-    u8 *temp_7;
-    u8 *var_4;
+    u8 *scene;
+    u8 *sceneState;
+    u8 *resource;
 
-    temp_7 = iGpffff9db0;
-    flags = temp_7 + 0xC;
-    temp_5 = *(s32 *)flags;
-    if (temp_5 & 1) {
-        if (*(s16 *)(temp_7 + 0x10) != ((s64)(arg0 << 0x30) >> 0x30)) {
-            *(s32 *)flags = temp_5 | 2;
-            *(s16 *)(iGpffff9db0 + 0x10) = arg0;
-            *(s32 *)(iGpffff9db0 + 0x94) = 0x1E;
-            temp_2 = iGpffff9db0;
-            FldResource_OpenPrimaryFile(*(u16 *)temp_2, *(u16 *)(temp_2 + 4));
+    sceneState = iGpffff9db0;
+    flags = sceneState + 0xC;
+    sceneFlags = *(s32 *)flags;
+    if (sceneFlags & 1) {
+        if (((FieldSceneState *)sceneState)->primaryRoom != ((s64)(roomId << 0x30) >> 0x30)) {
+            *(s32 *)flags = sceneFlags | 2;
+            ((FieldSceneState *)iGpffff9db0)->primaryRoom = roomId;
+            ((FieldSceneState *)iGpffff9db0)->timer = 0x1E;
+            scene = iGpffff9db0;
+            FldResource_OpenPrimaryFile(((FieldSceneState *)scene)->field.half[0], ((FieldSceneState *)scene)->room.half[0]);
             return;
         }
-        var_4 = MT_Scene_GetResListHead(3);
-        while (var_4 != NULL) {
-            *(s32 *)(var_4 + 0x28) |= 2;
-            var_4 = *(u8 **)(var_4 + 0x138);
+        resource = MT_Scene_GetResListHead(3);
+        while (resource != NULL) {
+            ((ResrcRecord *)resource)->unk28 |= 2;
+            resource = (u8 *)((ResrcRecord *)resource)->next;
         }
         return;
     }
-    *(s16 *)(temp_7 + 0x10) = arg0;
+    ((FieldSceneState *)sceneState)->primaryRoom = roomId;
 }
 
 // Intent: Request the secondary room slot (field +0x12): when the scene is loaded and the room differs, record it, set state bit 4 and open the primary file [inferred]
 // FUN_00144ED0
-void fieldSceneRequestSecondaryRoom(s64 arg0) {
-    s32 temp_6;
+void fieldSceneRequestSecondaryRoom(s64 roomId) {
+    s32 sceneFlags;
     u8 *flags;
-    u8 *temp_2;
-    u8 *temp_4;
-    u8 *temp_5;
+    u8 *scene;
+    u8 *sceneTask;
+    u8 *sceneState;
 
-    temp_5 = iGpffff9db0;
-    flags = temp_5 + 0xC;
-    temp_6 = *(s32 *)flags;
-    if (temp_6 & 1) {
-        if (*(s16 *)(temp_5 + 0x12) != ((s64)(arg0 << 0x30) >> 0x30)) {
-            * (s32 *)flags = temp_6 | 4;
-            *(s16 *)(iGpffff9db0 + 0x12) = arg0;
-            temp_2 = iGpffff9db0;
-            FldResource_OpenPrimaryFile(*(u16 *)temp_2, *(u16 *)(temp_2 + 4));
-            temp_4 = iGpffff9db0;
-            if ((*(s32 *)(temp_4 + 0xC) & 2) == 0) {
-                *(s32 *)(temp_4 + 0x94) = 0x28;
+    sceneState = iGpffff9db0;
+    flags = sceneState + 0xC;
+    sceneFlags = *(s32 *)flags;
+    if (sceneFlags & 1) {
+        if (((FieldSceneState *)sceneState)->secondaryRoom != ((s64)(roomId << 0x30) >> 0x30)) {
+            * (s32 *)flags = sceneFlags | 4;
+            ((FieldSceneState *)iGpffff9db0)->secondaryRoom = roomId;
+            scene = iGpffff9db0;
+            FldResource_OpenPrimaryFile(((FieldSceneState *)scene)->field.half[0], ((FieldSceneState *)scene)->room.half[0]);
+            sceneTask = iGpffff9db0;
+            if ((((FieldSceneState *)sceneTask)->flags & 2) == 0) {
+                ((FieldSceneState *)sceneTask)->timer = 0x28;
             }
         }
     } else {
-        *(s16 *)(temp_5 + 0x12) = arg0;
+        ((FieldSceneState *)sceneState)->secondaryRoom = roomId;
     }
 }
 
+/* Advance scene resource loading; return 1 once no request or pending load remains.
+ * Local byte aliases preserve the provider ABI; scalar fields use FieldSceneState. */
 // FUN_00144F60
 s32 fieldSceneLoadStep(void)
 {
-    s32 temp_3;
-    s32 temp_3_2;
-    u8 *temp_2;
-    u8 *temp_2_2;
-    u8 *temp_3_3;
-    u8 *temp_5;
+    s32 stateValue;
+    s32 loadState;
+    u8 *scene;
+    u8 *resourceScene;
+    u8 *stateAddress;
+    u8 *sceneState;
 
-    temp_5 = iGpffff9db0;
-    if (*(s32 *)(temp_5 + 8) == 0) {
+    sceneState = iGpffff9db0;
+    if (*(s32 *)(sceneState + 8) == 0) {
         return 1;
     }
-    temp_3 = *(s32 *)(temp_5 + 0xC);
-    if ((temp_3 & 1) && !(temp_3 & 6)) {
+    stateValue = ((FieldSceneState *)sceneState)->flags;
+    if ((stateValue & 1) && !(stateValue & 6)) {
         return 1;
     }
-    temp_3_3 = temp_5 + 0x90;
-    temp_3_2 = *(s32 *)temp_3_3;
-    switch (temp_3_2) {
+    stateAddress = sceneState + 0x90;
+    loadState = *(s32 *)stateAddress;
+    switch (loadState) {
     case 0:
-        *(s32 *)temp_3_3 = temp_3_2 + 1;
+        *(s32 *)stateAddress = loadState + 1;
         return 0;
     case 1:
-        temp_2 = iGpffff9db0;
-        FldResource_OpenPrimaryFile(*(u16 *)(temp_2 + 0), *(u16 *)(temp_2 + 4));
-        temp_2_2 = iGpffff9db0;
-        FldResource_QueueFieldResources(*(u16 *)(temp_2_2 + 0), *(u16 *)(temp_2_2 + 4));
-        temp_3_3 = iGpffff9db0;
-        *(s32 *)(temp_3_3 + 0x90) = *(s32 *)(temp_3_3 + 0x90) + 1;
+        scene = iGpffff9db0;
+        FldResource_OpenPrimaryFile(((FieldSceneState *)scene)->field.half[0], ((FieldSceneState *)scene)->room.half[0]);
+        resourceScene = iGpffff9db0;
+        FldResource_QueueFieldResources(((FieldSceneState *)resourceScene)->field.half[0], ((FieldSceneState *)resourceScene)->room.half[0]);
+        stateAddress = iGpffff9db0;
+        ((FieldSceneState *)stateAddress)->loadState = ((FieldSceneState *)stateAddress)->loadState + 1;
         return 0;
     default:
-        if (FldResource_StepPartLoad((s32)temp_3_3, (s32)temp_5) == 0) {
+        if (FldResource_StepPartLoad((s32)stateAddress, (s32)sceneState) == 0) {
             return 0;
         }
         if (*(s32 *)(iGpffff9db0 + 0x1C) == 0) {
@@ -725,25 +732,27 @@ s32 fieldSceneLoadStep(void)
     }
 }
 
+/* Destroy scene/filter and room tasks, then all resource lists and scene tables.
+ * Task-array byte cursors preserve traversal order; ResrcRecord supplies link layout. */
 // FUN_00145080
 void fieldSceneUnload(void) {
-    u8 *temp_17;
-    s32 var_16;
-    s32 temp_18;
-    u8 *temp_18_3;
-    s32 var_16_2;
-    s32 var_16_3;
-    u8 *temp_2;
-    u8 *temp_4;
-    u8 *temp_4_2;
-    u8 *temp_4_3;
-    u8 *var_2;
+    u8 *resourceManager;
+    s32 primaryIndex;
+    s32 taskOffset;
+    u8 *nextResource;
+    s32 secondaryIndex;
+    s32 listIndex;
+    u8 *scene;
+    u8 *sceneTask;
+    u8 *primaryTask;
+    u8 *secondaryTask;
+    u8 *resource;
 
-    temp_2 = iGpffff9db0;
-    temp_17 = *(u8 **)(temp_2 + 8);
-    temp_4 = *(u8 **)(temp_2 + 0x1C);
-    if (temp_4 != NULL) {
-        kwlnTaskDestroyWithHierarchy((s32)temp_4);
+    scene = iGpffff9db0;
+    resourceManager = *(u8 **)(scene + 8);
+    sceneTask = *(u8 **)(scene + 0x1C);
+    if (sceneTask != NULL) {
+        kwlnTaskDestroyWithHierarchy((s32)sceneTask);
         *(u8 **)(iGpffff9db0 + 0x1C) = NULL;
     }
     if (*(u8 **)(iGpffff9db0 + 0x20) != NULL) {
@@ -751,68 +760,68 @@ void fieldSceneUnload(void) {
         kwlnTaskDestroyWithHierarchy(*(s32 *)(iGpffff9db0 + 0x20));
         *(u8 **)(iGpffff9db0 + 0x20) = NULL;
     }
-    var_16 = 0;
+    primaryIndex = 0;
     goto loop_8_test;
 loop_8:
-    temp_2 = iGpffff9db0;
-    temp_18 = var_16 * 4;
-    temp_2 += temp_18;
-    temp_4_2 = *(u8 **)(temp_2 + 0x68);
-    if (temp_4_2 != NULL) {
-        kwlnTaskDestroyWithHierarchy((s32)temp_4_2);
-        *(s32 *)(iGpffff9db0 + temp_18 + 0x68) = 0;
+    scene = iGpffff9db0;
+    taskOffset = primaryIndex * 4;
+    scene += taskOffset;
+    primaryTask = *(u8 **)(scene + 0x68);
+    if (primaryTask != NULL) {
+        kwlnTaskDestroyWithHierarchy((s32)primaryTask);
+        *(s32 *)(iGpffff9db0 + taskOffset + 0x68) = 0;
     }
-    var_16++;
+    primaryIndex++;
 loop_8_test:
-    if (var_16 < 4) {
+    if (primaryIndex < 4) {
         goto loop_8;
     }
-    var_16_2 = 0;
+    secondaryIndex = 0;
     goto loop_13_test;
 loop_13:
-    temp_2 = iGpffff9db0;
-    temp_18 = var_16_2 * 4;
-    temp_2 += temp_18;
-    temp_4_3 = *(u8 **)(temp_2 + 0x78);
-    if (temp_4_3 != NULL) {
-        kwlnTaskDestroyWithHierarchy((s32)temp_4_3);
-        *(s32 *)(iGpffff9db0 + temp_18 + 0x78) = 0;
+    scene = iGpffff9db0;
+    taskOffset = secondaryIndex * 4;
+    scene += taskOffset;
+    secondaryTask = *(u8 **)(scene + 0x78);
+    if (secondaryTask != NULL) {
+        kwlnTaskDestroyWithHierarchy((s32)secondaryTask);
+        *(s32 *)(iGpffff9db0 + taskOffset + 0x78) = 0;
     }
-    var_16_2++;
+    secondaryIndex++;
 loop_13_test:
-    if (var_16_2 < 4) {
+    if (secondaryIndex < 4) {
         goto loop_13;
     }
-    if (temp_17 != 0) {
-        var_16_3 = 0;
+    if (resourceManager != 0) {
+        listIndex = 0;
         goto loop_20_test;
 loop_20_body:
-        var_2 = resrcMngGetListHead(temp_17, var_16_3 & 0xFF);
+        resource = resrcMngGetListHead(resourceManager, listIndex & 0xFF);
         goto loop_18_test;
 loop_18_body:
-        temp_18_3 = *(u8 **)(var_2 + 0x138);
-        MT_Scene_DestroyRes(*(u16 *)(var_2 + 0));
-        var_2 = temp_18_3;
+        nextResource = (u8 *)((ResrcRecord *)resource)->next;
+        MT_Scene_DestroyRes(((ResrcRecord *)resource)->resTypeId);
+        resource = nextResource;
 loop_18_test:
-        if (var_2 != NULL) {
+        if (resource != NULL) {
             goto loop_18_body;
         }
-        var_16_3++;
+        listIndex++;
 loop_20_test:
-        if (var_16_3 < 0x16) {
+        if (listIndex < 0x16) {
             goto loop_20_body;
         }
-        resrcMngDestroy(temp_17);
+        resrcMngDestroy(resourceManager);
         *(s32 *)(iGpffff9db0 + 8) = 0;
     }
     NpcTable_ReleaseSceneTable();
     NpcTable_ReleaseSecondaryTable();
     FldHbnFreeEntryTable();
-    *(s32 *)(iGpffff9db0 + 0) = -1;
-    *(s32 *)(iGpffff9db0 + 4) = -1;
-    *(s16 *)(iGpffff9db0 + 0x10) = 0;
-    *(s16 *)(iGpffff9db0 + 0x12) = 0;
-    *(s32 *)(iGpffff9db0 + 0x14) = 0;
+    ((FieldSceneState *)iGpffff9db0)->field.value = -1;
+    ((FieldSceneState *)iGpffff9db0)->room.value = -1;
+    ((FieldSceneState *)iGpffff9db0)->primaryRoom = 0;
+    ((FieldSceneState *)iGpffff9db0)->secondaryRoom = 0;
+    ((FieldSceneState *)iGpffff9db0)->unk14 = 0;
     func_003e1a70();
 }
 

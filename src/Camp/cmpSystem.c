@@ -17,195 +17,246 @@ extern u8 D_0064E240[];
 extern char D_0064E270[];
 
 s8 nmMesWindowAcquire(void *);
-s32 func_003544f0(void);
+s32 datCommunityDefaultSetting(void);
 void memset(void *, s32, s32);
 void *resourceFindByName(char *);
 s32 sdkSpriteNewNode(void *, u8);
 void kAssertFail(char *, s32);
 s32 cmpSystemSetMode(u8 *, u32);
 
+/* Layout established by the initializer's 0x708-byte clear and the 0x30/0x14/0xA strides.
+ * Integer coordinate stores retain their exact bit representation. */
+typedef union { f32 value; s32 bits; } CmpSystemCoordinate;
+typedef struct {
+    CmpSystemCoordinate startX, startY, targetX, targetY, x, y;
+    u8 startAlpha, targetAlpha, alpha, unk1B;
+    u16 startWidth, targetWidth, width, startHeight, targetHeight, height;
+    s32 startFrame, endFrame;
+} CmpSystemMotion;
+typedef struct {
+    f32 x, y;
+    u8 alpha;
+    u8 pad09[3];
+    s32 startFrame, endFrame;
+} CmpSystemLayoutRow;
+typedef struct {
+    s16 target, current, unk04, filled, unk08;
+} CmpSystemGraphBar;
+typedef struct {
+    u8 alpha;
+    u8 pad01[3];
+    s32 originX, originY;
+    u8 pad0C[8];
+    s32 phase;
+    union { s32 signedValue; u32 value; } mode;
+    s32 visible;
+    s16 frame, graphFrame, graphFrame2;
+    u8 pad26[2];
+    s16 selection[3], previousSelection[3];
+    s16 footerMode;
+    u8 pad36[2];
+    s32 unk38;
+    u8 messageWindow;
+    u8 pad3D[3];
+    f32 graphX;
+    s32 graphY;
+    CmpSystemMotion motion[29];
+    CmpSystemMotion tabMotion;
+    CmpSystemGraphBar graph[11];
+    u8 pad656[2];
+    s32 sprites[42];
+    s32 footerTexture;
+    u8 pad704[4];
+} CmpSystemWork;
+typedef char CmpSystemWorkSize[sizeof(CmpSystemWork) == 0x708 ? 1 : -1];
+
 // FUN_0035F5B0
+/* Initialize the 0x708-byte system menu, its 29 motion records, sprites and message window. */
 /* measured: removing this regresses func_0035f5b0 from nd 0 to nd 118
    (loop-invariant hoisting of the D_0064D6B0 base and the store-constant
    3 is required for the retail layout). */
 #pragma opt_loop_invariants on
-void cmpSystemMenuInit(u8 *arg0)
+void cmpSystemMenuInit(u8 *work)
 {
-    void *spr2;
-    void *spr1;
-    void *spr3;
-    void *spr4;
+    void *itemResource;
+    void *menuResource;
+    void *footerResource;
+    void *extraResource;
     s32 *slot;
-    s16 i4;
-    s16 i1;
-    s16 i3;
-    s16 i2;
-    s16 i5;
-    u8 byte;
+    s16 spriteIndex;
+    s16 selectionIndex;
+    s16 tabIndex;
+    s16 motionIndex;
+    s16 barIndex;
+    u8 spriteId;
     u8 *p;
     u8 *src;
 
-    memset(arg0, 0, 0x708);
-    *(s32 *)(arg0 + 4) = 0;
-    *(s32 *)(arg0 + 8) = 0;
-    *(u8 *)arg0 = 0xFF;
-    *(s32 *)(arg0 + 0x18) = -1;
-    *(s32 *)(arg0 + 0x14) = 0;
-    for (i1 = 0; i1 < 3; i1++) {
-        *(s16 *)(arg0 + i1 * 2 + 0x28) = 0;
+    memset(work, 0, 0x708);
+    ((CmpSystemWork *)work)->originX = 0;
+    ((CmpSystemWork *)work)->originY = 0;
+    ((CmpSystemWork *)work)->alpha = 0xFF;
+    ((CmpSystemWork *)work)->mode.signedValue = -1;
+    ((CmpSystemWork *)work)->phase = 0;
+    for (selectionIndex = 0; selectionIndex < 3; selectionIndex++) {
+        ((CmpSystemWork *)work)->selection[selectionIndex] = 0;
     }
-    *(f32 *)(arg0 + 0x40) = 0x12F;
-    *(s32 *)(arg0 + 0x44) = 0x43050000;
-    for (i2 = 0; i2 < 0x1D; i2++) {
-        src = &D_0064D6B0[i2 * 0x14];
-        p = arg0 + i2 * 0x30;
-        *(f32 *)(p + 0x58) = *(f32 *)(src + 0);
-        *(f32 *)(p + 0x5C) = *(f32 *)(src + 4);
-        *(u8 *)(p + 0x62) = *(u8 *)(src + 8);
+    ((CmpSystemWork *)work)->graphX = 0x12F;
+    ((CmpSystemWork *)work)->graphY = 0x43050000;
+    for (motionIndex = 0; motionIndex < 0x1D; motionIndex++) {
+        src = &D_0064D6B0[motionIndex * 0x14];
+        p = work + motionIndex * 0x30;
+        ((CmpSystemWork *)p)->motion[0].x.value = ((CmpSystemLayoutRow *)src)->x;
+        ((CmpSystemWork *)p)->motion[0].y.value = ((CmpSystemLayoutRow *)src)->y;
+        ((CmpSystemWork *)p)->motion[0].alpha = ((CmpSystemLayoutRow *)src)->alpha;
     }
-    for (i3 = 0; i3 <= 0; i3++) {
-        p = arg0 + (s32)(s64)i3 * 0x30;
-        *(s32 *)(p + 0x5C8) = 0;
-        *(s32 *)(p + 0x5B8) = 0;
-        *(s32 *)(p + 0x5C4) = 0;
-        *(s32 *)(p + 0x5BC) = 0;
-        *(u8 *)(p + 0x5D1) = 0;
-        *(u8 *)(p + 0x5D0) = 0;
-        *(s32 *)(p + 0x5E0) = 0;
-        *(s32 *)(p + 0x5E4) = 3;
+    for (tabIndex = 0; tabIndex <= 0; tabIndex++) {
+        p = work + (s32)(s64)tabIndex * 0x30;
+        ((CmpSystemWork *)p)->tabMotion.x.bits = 0;
+        ((CmpSystemWork *)p)->tabMotion.startX.bits = 0;
+        ((CmpSystemWork *)p)->tabMotion.targetY.bits = 0;
+        ((CmpSystemWork *)p)->tabMotion.startY.bits = 0;
+        ((CmpSystemWork *)p)->tabMotion.targetAlpha = 0;
+        ((CmpSystemWork *)p)->tabMotion.startAlpha = 0;
+        ((CmpSystemWork *)p)->tabMotion.startFrame = 0;
+        ((CmpSystemWork *)p)->tabMotion.endFrame = 3;
     }
-    spr2 = resourceFindByName(D_005E5830);
-    if (spr2 == NULL) {
+    itemResource = resourceFindByName(D_005E5830);
+    if (itemResource == NULL) {
         kAssertFail(D_0064E270, 0x15B);
     }
-    spr1 = resourceFindByName(D_005E5850);
-    if (spr1 == NULL) {
+    menuResource = resourceFindByName(D_005E5850);
+    if (menuResource == NULL) {
         kAssertFail(D_0064E270, 0x15D);
     }
-    *(s32 *)(arg0 + 0x700) = (s32)(spr3 = resourceFindByName(D_005E57F0));
-    if (spr3 == NULL) {
+    ((CmpSystemWork *)work)->footerTexture = (s32)(footerResource = resourceFindByName(D_005E57F0));
+    if (footerResource == NULL) {
         kAssertFail(D_0064E270, 0x15F);
     }
-    spr4 = resourceFindByName(D_005E5810);
-    if (spr4 == NULL) {
+    extraResource = resourceFindByName(D_005E5810);
+    if (extraResource == NULL) {
         kAssertFail(D_0064E270, 0x161);
     }
-    for (i4 = 0; i4 < 0x2A; i4++) {
-        if (i4 < 0x25) {
-            slot = (s32 *)(arg0 + i4 * 4 + 0x658);
-            byte = D_0064E240[i4];
-            *slot = sdkSpriteNewNode(spr1, byte);
-        } else if (i4 < 0x28) {
-            slot = (s32 *)(arg0 + i4 * 4 + 0x658);
-            byte = D_0064E240[i4];
-            *slot = sdkSpriteNewNode(spr2, byte);
-        } else if (i4 < 0x29) {
-            slot = (s32 *)(arg0 + i4 * 4 + 0x658);
-            byte = D_0064E240[i4];
-            *slot = sdkSpriteNewNode(spr3, byte);
+    for (spriteIndex = 0; spriteIndex < 0x2A; spriteIndex++) {
+        if (spriteIndex < 0x25) {
+            slot = &((CmpSystemWork *)work)->sprites[spriteIndex];
+            spriteId = D_0064E240[spriteIndex];
+            *slot = sdkSpriteNewNode(menuResource, spriteId);
+        } else if (spriteIndex < 0x28) {
+            slot = &((CmpSystemWork *)work)->sprites[spriteIndex];
+            spriteId = D_0064E240[spriteIndex];
+            *slot = sdkSpriteNewNode(itemResource, spriteId);
+        } else if (spriteIndex < 0x29) {
+            slot = &((CmpSystemWork *)work)->sprites[spriteIndex];
+            spriteId = D_0064E240[spriteIndex];
+            *slot = sdkSpriteNewNode(footerResource, spriteId);
         } else {
-            slot = (s32 *)(arg0 + i4 * 4 + 0x658);
-            byte = D_0064E240[i4];
-            *slot = sdkSpriteNewNode(spr4, byte);
+            slot = &((CmpSystemWork *)work)->sprites[spriteIndex];
+            spriteId = D_0064E240[spriteIndex];
+            *slot = sdkSpriteNewNode(extraResource, spriteId);
         }
         if (*slot == 0) {
             kAssertFail(D_0064E270, 0x171);
         }
     }
-    *(u8 *)(arg0 + 0x3C) = nmMesWindowAcquire(&D_0064A790[0]);
-    for (i5 = 0; i5 < 0xB; i5++) {
-        p = arg0 + (s32)(s64)i5 * 0xA;
-        *(s16 *)(p + 0x5E8) = 1;
-        *(s16 *)(p + 0x5EE) = 1;
+    ((CmpSystemWork *)work)->messageWindow = nmMesWindowAcquire(&D_0064A790[0]);
+    for (barIndex = 0; barIndex < 0xB; barIndex++) {
+        p = work + (s32)(s64)barIndex * 0xA;
+        ((CmpSystemWork *)p)->graph[0].target = 1;
+        ((CmpSystemWork *)p)->graph[0].filled = 1;
     }
-    *(s16 *)(arg0 + 0x22) = 0;
-    *(s16 *)(arg0 + 0x24) = 0;
-    *(s32 *)(arg0 + 0x38) = func_003544f0();
-    cmpSystemSetMode(arg0, 0);
+    ((CmpSystemWork *)work)->graphFrame = 0;
+    ((CmpSystemWork *)work)->graphFrame2 = 0;
+    ((CmpSystemWork *)work)->unk38 = datCommunityDefaultSetting();
+    cmpSystemSetMode(work, 0);
 }
 /* measured: see the annotation above the matching `on` pragma (func_0035f5b0). */
 #pragma opt_loop_invariants off
 
+/* Save the previous selection before changing one of the three cursor slots. */
 // FUN_0035FA00
-s32 cmpSystemSetSelection(s32 arg0, s32 arg1, s16 arg2)
+s32 cmpSystemSetSelection(s32 work, s32 mode, s16 selection)
 {
-    u8 *temp_3;
-    s32 var_4;
+    u8 *selectionBase;
+    s32 selectionOffset;
 
-    var_4 = arg1 * 2;
-    temp_3 = (u8 *)(var_4 + arg0);
-    *(s16 *)(temp_3 + 0x2E) = *(s16 *)(temp_3 + 0x28);
-    *(s16 *)(temp_3 + 0x28) = arg2;
+    selectionOffset = mode * 2;
+    selectionBase = (u8 *)(selectionOffset + work);
+    ((CmpSystemWork *)selectionBase)->previousSelection[0] = ((CmpSystemWork *)selectionBase)->selection[0];
+    ((CmpSystemWork *)selectionBase)->selection[0] = selection;
     return 1;
 }
 
+/* Snapshot all current row positions and load the chosen system-menu transition table.
+ * Raw work-relative accesses retain MWCC alias scheduling: the proven CmpSystemWork
+ * rewrite changed 362 instruction bytes in this function (same 544-byte size). */
 // FUN_0035FA20
-s32 cmpSystemSetMode(u8 *arg0, u32 arg1)
+s32 cmpSystemSetMode(u8 *work, u32 mode)
 {
-    u8 *var_16;
-    s32 var_4;
-    s32 var_5;
-    u8 *temp_3;
-    u8 *temp_4;
+    u8 *layoutTable;
+    s32 rowIndex;
+    s32 targetIndex;
+    u8 *rowBase;
+    u8 *layoutRow;
 
-    var_16 = NULL;
-    if (*(u32 *)(arg0 + 0x18) == arg1) {
+    layoutTable = NULL;
+    if (*(u32 *)(work + 0x18) == mode) {
         return 0;
     }
-    for (var_4 = 0; var_4 < 0x1D; var_4++) {
-        temp_3 = arg0 + var_4 * 0x30;
-        *(f32 *)(temp_3 + 0x48) = *(f32 *)(temp_3 + 0x58);
-        *(f32 *)(temp_3 + 0x4C) = *(f32 *)(temp_3 + 0x5C);
-        *(u8 *)(temp_3 + 0x60) = *(u8 *)(temp_3 + 0x62);
+    for (rowIndex = 0; rowIndex < 0x1D; rowIndex++) {
+        rowBase = work + rowIndex * 0x30;
+        *(f32 *)(rowBase + 0x48) = *(f32 *)(rowBase + 0x58);
+        *(f32 *)(rowBase + 0x4C) = *(f32 *)(rowBase + 0x5C);
+        *(u8 *)(rowBase + 0x60) = *(u8 *)(rowBase + 0x62);
     }
-    switch (arg1) {
+    switch (mode) {
     case 0:
-        var_16 = &D_0064D460[0];
-        *(s32 *)(arg0 + 0x1C) = 3;
-        *(s16 *)(arg0 + 0x34) = 0;
+        layoutTable = &D_0064D460[0];
+        *(s32 *)(work + 0x1C) = 3;
+        *(s16 *)(work + 0x34) = 0;
         break;
     case 1:
-        var_16 = &D_0064D6B0[0];
-        *(s32 *)(arg0 + 0x1C) = 3;
-        *(s16 *)(arg0 + 0x34) = 0;
+        layoutTable = &D_0064D6B0[0];
+        *(s32 *)(work + 0x1C) = 3;
+        *(s16 *)(work + 0x34) = 0;
         break;
     case 2:
-        var_16 = &D_0064D900[0];
-        *(s32 *)(arg0 + 0x1C) = 3;
-        *(s16 *)(arg0 + 0x34) = 0;
+        layoutTable = &D_0064D900[0];
+        *(s32 *)(work + 0x1C) = 3;
+        *(s16 *)(work + 0x34) = 0;
         break;
     case 3:
-        var_16 = &D_0064DB50[0];
-        *(s32 *)(arg0 + 0x1C) = 0xC;
-        *(s16 *)(arg0 + 0x34) = 0xF;
-        memset(arg0 + 0x5E8, 0, 0x6E);
+        layoutTable = &D_0064DB50[0];
+        *(s32 *)(work + 0x1C) = 0xC;
+        *(s16 *)(work + 0x34) = 0xF;
+        memset(work + 0x5E8, 0, 0x6E);
         break;
     case 4:
-        var_16 = &D_0064DDA0[0];
-        *(s32 *)(arg0 + 0x1C) = 0xC;
-        *(s16 *)(arg0 + 0x34) = 0xF;
+        layoutTable = &D_0064DDA0[0];
+        *(s32 *)(work + 0x1C) = 0xC;
+        *(s16 *)(work + 0x34) = 0xF;
         break;
     case 5:
-        var_16 = &D_0064DFF0[0];
-        *(s32 *)(arg0 + 0x1C) = 0xC;
-        *(s16 *)(arg0 + 0x34) = 0xF;
+        layoutTable = &D_0064DFF0[0];
+        *(s32 *)(work + 0x1C) = 0xC;
+        *(s16 *)(work + 0x34) = 0xF;
         break;
     default:
         kAssertFail(D_0064E270, 0x1CF);
         break;
     }
-    if (var_16 != NULL) {
-        for (var_5 = 0; var_5 < 0x1D; var_5++) {
-            temp_4 = var_16 + var_5 * 0x14;
-            temp_3 = arg0 + var_5 * 0x30;
-            *(f32 *)(temp_3 + 0x50) = *(f32 *)(temp_4 + 0);
-            *(f32 *)(temp_3 + 0x54) = *(f32 *)(temp_4 + 4);
-            *(u8 *)(temp_3 + 0x61) = *(u8 *)(temp_4 + 8);
-            *(s32 *)(temp_3 + 0x70) = *(s32 *)(temp_4 + 0xC);
-            *(s32 *)(temp_3 + 0x74) = *(s32 *)(temp_4 + 0x10);
+    if (layoutTable != NULL) {
+        for (targetIndex = 0; targetIndex < 0x1D; targetIndex++) {
+            layoutRow = layoutTable + targetIndex * 0x14;
+            rowBase = work + targetIndex * 0x30;
+            *(f32 *)(rowBase + 0x50) = *(f32 *)(layoutRow + 0);
+            *(f32 *)(rowBase + 0x54) = *(f32 *)(layoutRow + 4);
+            *(u8 *)(rowBase + 0x61) = *(u8 *)(layoutRow + 8);
+            *(s32 *)(rowBase + 0x70) = *(s32 *)(layoutRow + 0xC);
+            *(s32 *)(rowBase + 0x74) = *(s32 *)(layoutRow + 0x10);
         }
-        *(u32 *)(arg0 + 0x18) = arg1;
-        *(s16 *)(arg0 + 0x20) = 0;
+        *(u32 *)(work + 0x18) = mode;
+        *(s16 *)(work + 0x20) = 0;
     }
     return 1;
 }

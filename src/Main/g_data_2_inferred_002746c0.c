@@ -11,8 +11,8 @@ extern s32 D_008815B0[];
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 // FUN_002746C0
-void func_002746c0(s32 arg0, s32 arg1)
+void datSetIndexedWord(s32 index, s32 value)
 {
-    D_008815B0[arg0] = arg1;
+    D_008815B0[index] = value;
 }
 #pragma pop

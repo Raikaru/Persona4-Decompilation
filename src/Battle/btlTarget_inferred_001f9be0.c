@@ -1,3 +1,4 @@
+#include "btl_voice_internal.h"
 #include "datCalc_unit_internal.h"
 #include "list_item_internal.h"
 #include "btl_camera_palette_internal.h"
@@ -13,20 +14,8 @@
 #include "btl_target_state_packet_internal.h"
 #include "g_data_internal.h"
 /* Force the offset operand into the first addu slot. */
-static inline u32 addOffsetFirst(u32 offset, u32 base) {
-    return offset + base;
-}
 
 /* Force the base operand into the first addu slot. */
-static inline u32 addBaseFirst(u32 base, u32 offset) {
-    return base + offset;
-}
-static inline s32 promoteS16(s16 value) {
-    return value;
-}
-static inline u32 addOffsetAfterBase(u32 base, u32 offset) {
-    return offset + base;
-}
 
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
@@ -95,16 +84,16 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f9be0-001f9ce0 */
 
-extern s32 btlActionHasNoTargetClass(u32 arg0);
-extern s32 btlSoundRollStatusCure(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
-extern s32 btlSoundPickStatusTalkVoiceB(u8 *arg0);
+extern s32 btlActionHasNoTargetClass(u32 action);
+extern s32 btlSoundRollStatusCure(u8 *action);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *action);
+extern s32 btlSoundPickStatusTalkVoiceB(u8 *action);
 extern void btlSoundAdvanceSlotQueue(void);
-extern s32 btlSoundPickPartnerCallVoice(u8 *arg0, s32 arg1);
-extern s32 btlSoundPickPartnerReplyVoice(u8 *arg0, s32 arg1);
-extern s32 btlSoundPickPartnerAssistVoice(u8 *arg0, s32 arg1);
-extern s32 btlSoundPickRandomPartnerVoice(u8 *arg0);
-extern s32 btlVoiceIdPacketUpdate(u8 *arg0);
+extern s32 btlSoundPickPartnerCallVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickPartnerReplyVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickPartnerAssistVoice(u8 *action, s32 variant);
+extern s32 btlSoundPickRandomPartnerVoice(u8 *action);
+extern s32 btlVoiceIdPacketUpdate(u8 *context);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push
@@ -149,25 +138,27 @@ void func_001f9be0(void)
 {
 }
 
+/* Clear both voice playback slots and restore their default bank selectors. */
 // FUN_001F9BF0
 void btlVoiceResetPlaybackState(void) {
     memset(iGpffffb3ac + 0xB2C, 0, 0x14);
-    *(s16 *)(iGpffffb3ac + 0xB30) = 3;
-    *(s16 *)(iGpffffb3ac + 0xB3A) = 0;
+    ((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->bank = 3;
+    ((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->idBank = 0;
 }
 
+/* Free either owned voice buffer and clear its playback-enable bit. */
 // FUN_001F9C40
 void btlVoiceFreePlaybackBuffers(void)
 {
-    if (*(s32 *)(iGpffffb3ac + 0xB34) != 0) {
-        jtbl_008873EC[0](*(void **)(iGpffffb3ac + 0xB34));
-        *(s32 *)(iGpffffb3ac + 0xB34) = 0;
-        *(u16 *)(iGpffffb3ac + 0xB2E) &= 0xFFFE;
+    if (((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->buffer != 0) {
+        jtbl_008873EC[0](((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->buffer);
+        ((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->buffer = 0;
+        ((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->flags &= 0xFFFE;
     }
-    if (*(s32 *)(iGpffffb3ac + 0xB3C) != 0) {
-        jtbl_008873EC[0](*(void **)(iGpffffb3ac + 0xB3C));
-        *(s32 *)(iGpffffb3ac + 0xB3C) = 0;
-        *(u16 *)(iGpffffb3ac + 0xB38) &= 0xFFFE;
+    if (((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->idBuffer != 0) {
+        jtbl_008873EC[0](((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->idBuffer);
+        ((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->idBuffer = 0;
+        ((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->idFlags &= 0xFFFE;
     }
 }
 

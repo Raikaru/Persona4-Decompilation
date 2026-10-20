@@ -2,6 +2,23 @@
 #include "include_asm.h"
 #include "type.h"
 
+/* On-disk TMX0 header, followed by palettes and pixel data at +0x40. */
+typedef struct TmxHeader {
+    u8 version;
+    u8 unk01;
+    u8 pad02[2];
+    s32 fileSize;
+    u8 magic[4];
+    u8 pad0C[4];
+    u8 paletteCount;
+    u8 paletteFormat;
+    u16 width;
+    u16 height;
+    u8 pixelFormat;
+    u8 pad17[0x29];
+} TmxHeader;
+typedef char TmxHeaderSizeCheck[sizeof(TmxHeader) == 0x40 ? 1 : -1];
+
 /* TMX conversion helpers are private to the loader. The following
  * file loader and upload routine both reference sdkUttmx.c in retail. */
 #include "rw_types_internal.h"
@@ -40,13 +57,13 @@ extern void memcpy(u8 *dst, void *src, s32 size);
 extern u8 *(*jtbl_008873E8[])(s32 size, s32 align);
 extern void (*jtbl_008873EC[])(void *);
 extern u8 D_00712688[];
-extern void func_003ec2a0(s32 arg0);
-extern void func_003ec2e0(s32 arg0);
-extern u32 func_003ec3d0(s32 arg0, s32 arg1);
-extern s32 func_003ec590(u16 arg0, u16 arg1, s32 arg2, s32 arg3);
-extern u32 func_003ec6a0(s32 arg0, s32 arg1, s32 arg2);
+extern void func_003ec2a0(s32);
+extern void func_003ec2e0(s32);
+extern u32 func_003ec3d0(s32, s32);
+extern s32 func_003ec590(u16, u16, s32, s32);
+extern u32 func_003ec6a0(s32, s32, s32);
 extern void kAssertFail(u8 *file, s32 line);
-extern void tmxDmaCopy(u32 arg0, u32 arg1, u32 arg2);
+extern void tmxDmaCopy(u32 destination, u32 source, u32 byteCount);
 
 #pragma push
 /* W318 measured: opt_loop_invariants on changes 00463570 nd67->0,
@@ -54,6 +71,7 @@ extern void tmxDmaCopy(u32 arg0, u32 arg1, u32 arg2);
 #pragma opt_loop_invariants on
 
 
+/* Expand PS2 0..128 alpha to 0..255 while copying RGBA pixels. */
 // FUN_00463570
 static void tmxConvertRgba32(RwImage* image, const u8* source)
 {
@@ -103,6 +121,7 @@ static void tmxConvertRgba32(RwImage* image, const u8* source)
 #pragma opt_loop_invariants on
 
 
+/* Expand RGB triples into opaque four-byte pixels, respecting image stride. */
 // FUN_00463620
 static void tmxConvertRgb24(RwImage* image, const u8* source)
 {
@@ -141,6 +160,7 @@ static void tmxConvertRgb24(RwImage* image, const u8* source)
 #pragma opt_loop_invariants on
 
 
+/* Expand packed five-bit RGB channels into opaque four-byte pixels. */
 // FUN_004636A0
 static void tmxConvertRgb555(RwImage* image, const u8* source)
 {
@@ -185,6 +205,7 @@ static void tmxConvertRgb555(RwImage* image, const u8* source)
  * stays at source position (width is loop-used) and the hoisted sra lands
  * after the y init - nd 0. */
 
+/* Unpack low then high four-bit palette indices into the image rows. */
 // FUN_00463740
 #pragma opt_loop_invariants on
 static void tmxUnpackNibbles(RwImage* image, const u8* source)
@@ -225,6 +246,7 @@ static void tmxUnpackNibbles(RwImage* image, const u8* source)
 #pragma opt_loop_invariants on
 
 
+/* Copy the indexed palette and expand its PS2 alpha range. */
 // FUN_004637C0
 static void tmxConvertPalette(RwImage* image, const u8* source)
 {
@@ -260,6 +282,7 @@ static void tmxConvertPalette(RwImage* image, const u8* source)
 
 
 
+/* Undo the eight-entry palette block exchange used by eight-bit TMX data. */
 // FUN_00463870
 static void tmxSwizzlePalette8(RwImage* image, s32 bitDepth)
 {
@@ -351,7 +374,7 @@ RwImage *tmxDecodeStream(u8 *stream)
     if (depth >= 16) {
         depth = 32;
     }
-    image = func_003ea2c0(*(u16 *)(stream + 0x12), *(u16 *)(stream + 0x14), depth);
+    image = func_003ea2c0(((TmxHeader *)stream)->width, ((TmxHeader *)stream)->height, depth);
     func_003ea3e0(image);
     paletteCount = stream[0x10];
     if (paletteCount != 0) {
@@ -445,27 +468,30 @@ RwImage *tmxDecodeStream(u8 *stream)
 #pragma pop
 #pragma pop
 
+/* Read the TMX header and payload, decode it, and release temporary storage. */
+/* TmxHeader layout is proven; retain byte-offset header loads because
+ * typed members changed the measured matching instruction allocation. */
 // FUN_00463D60
 RwImage *tmxLoadFile(const char *name)
 {
-    u8 hdr[0x40];
-    RwStream *fh;
-    RwImage *ret;
-    u8 *buf;
+    u8 header[0x40];
+    RwStream *stream;
+    RwImage *image;
+    u8 *buffer;
 
-    ret = 0;
-    fh = func_003e2f60(rwSTREAMFILENAME, rwSTREAMREAD, name);
-    if (fh != NULL) {
-        func_003e2910(fh, hdr, 0x40);
+    image = 0;
+    stream = func_003e2f60(rwSTREAMFILENAME, rwSTREAMREAD, name);
+    if (stream != NULL) {
+        func_003e2910(stream, header, 0x40);
         chkmemAllocSiteTag(D_00712688, 0x3BE);
-        buf = jtbl_008873E8[0](*(s32 *)(hdr + 4), 0x40000);
-        func_003e2910(fh, buf + 0x40, *(s32 *)(hdr + 4) - 0x40);
-        memcpy(buf, hdr, 0x40);
-        ret = tmxDecodeStream(buf);
-        jtbl_008873EC[0](buf);
-        func_003e2e40(fh, NULL);
+        buffer = jtbl_008873E8[0](*(s32 *)(header + 4), 0x40000);
+        func_003e2910(stream, buffer + 0x40, *(s32 *)(header + 4) - 0x40);
+        memcpy(buffer, header, 0x40);
+        image = tmxDecodeStream(buffer);
+        jtbl_008873EC[0](buffer);
+        func_003e2e40(stream, NULL);
     }
-    return ret;
+    return image;
 }
 /* Registered as the TMX image-write callback. Retail opens the named
  * stream for reading, discards that result, and returns the input image. */
@@ -486,9 +512,9 @@ RwImage *tmxImageWriteCallback(RwImage *image, const char *name)
 // FUN_00463EA0
 #pragma push
 #pragma opt_loop_invariants on
-void tmxDmaCopy(u32 destination, u32 source, u32 byte_count)
+void tmxDmaCopy(u32 destination, u32 source, u32 byteCount)
 {
-    extern void func_00421a60(s32 arg0);
+    extern void func_00421a60(s32);
     extern void _rwDMAOpenVIFPktInline(void);
     u32 dst;
     u32 src;
@@ -496,7 +522,7 @@ void tmxDmaCopy(u32 destination, u32 source, u32 byte_count)
 
     dst = destination;
     src = source;
-    qwc = byte_count >> 4;
+    qwc = byteCount >> 4;
     func_00421a60(0);
     _rwDMAOpenVIFPktInline();
 
@@ -619,62 +645,65 @@ void tmxDmaCopy(u32 destination, u32 source, u32 byte_count)
    separate pointer-pinned dimensions, comma sequencing, and both switch-case
    declaration orders; all either retained these rows or worsened coloring.
    Committed at nd 10. */
+/* Create a raster from TMX pixels and palette, using DMA when requested. */
+/* TmxHeader layout is proven; retain byte-offset dimension loads because
+ * typed members changed the measured matching instruction allocation. */
 // FUN_00464100
-s32 tmxUploadStream(u8 *arg0, s32 arg1)
+s32 tmxUploadStream(u8 *stream, s32 useDma)
 {
-  u8 *data_ptr;
-  s32 texel_scale;
-  s32 copy_mode;
-  u32 texture_buffer;
-  u8 palette_present;
-  s32 source_addr;
-  s32 texture_handle;
-  u32 *palette_handle_ptr;
-  u32 resource_value;
-  s32 bits_per_pixel;
-  u8 format_code;
-  int palette_format;
+  u8 *paletteData;
+  s32 paletteEntries;
+  s32 copyMode;
+  u32 textureBuffer;
+  u8 paletteCount;
+  s32 sourceAddressOrBits;
+  s32 textureHandle;
+  u32 *paletteHandle;
+  u32 resourceValue;
+  s32 bitsPerPixel;
+  u8 format;
+  int paletteFormat;
   unsigned int width;
   u16 height;
-  texture_handle = (source_addr = 0);
-  if (arg0 == ((void *) 0))
+  textureHandle = (sourceAddressOrBits = 0);
+  if (stream == ((void *) 0))
   {
     kAssertFail(D_00712688, 0x453);
   }
-  if ((*((u8 *) (arg0 + 0))) != 2)
+  if ((*((u8 *) (stream + 0))) != 2)
   {
     kAssertFail(D_00712688, 0x457);
   }
-  if ((*((u8 *) (arg0 + 1))) != 0)
+  if ((*((u8 *) (stream + 1))) != 0)
   {
     kAssertFail(D_00712688, 0x458);
   }
-  if (((((*((u8 *) (arg0 + 8))) != 0x54) || ((*((u8 *) (arg0 + 9))) != 0x4D)) || ((*((u8 *) (arg0 + 0xA))) != 0x58)) && ((*((u8 *) (arg0 + 0xB))) != 0x30))
+  if (((((*((u8 *) (stream + 8))) != 0x54) || ((*((u8 *) (stream + 9))) != 0x4D)) || ((*((u8 *) (stream + 0xA))) != 0x58)) && ((*((u8 *) (stream + 0xB))) != 0x30))
   {
     kAssertFail(D_00712688, 0x459);
   }
-  format_code = *((u8 *) (arg0 + 0x16));
-  switch (format_code)
+  format = *((u8 *) (stream + 0x16));
+  switch (format)
   {
     case 0:
-      bits_per_pixel = 0x20;
+      bitsPerPixel = 0x20;
       break;
 
     case 1:
-      bits_per_pixel = 0x18;
+      bitsPerPixel = 0x18;
       break;
 
     case 10:
 
     case 2:
-      bits_per_pixel = 0x10;
+      bitsPerPixel = 0x10;
       break;
 
     case 27:
 
     case 19:
-      bits_per_pixel = 8;
-      texture_handle = 0x2000;
+      bitsPerPixel = 8;
+      textureHandle = 0x2000;
       break;
 
     case 36:
@@ -682,125 +711,125 @@ s32 tmxUploadStream(u8 *arg0, s32 arg1)
     case 44:
 
     case 20:
-      bits_per_pixel = 4;
-      texture_handle = 0x4000;
+      bitsPerPixel = 4;
+      textureHandle = 0x4000;
       break;
 
     default:
-      bits_per_pixel = 0;
+      bitsPerPixel = 0;
       break;
 
   }
 
-  palette_present = *((u8 *) (arg0 + 0x10));
-  if (palette_present != 0)
+  paletteCount = *((u8 *) (stream + 0x10));
+  if (paletteCount != 0)
   {
-    palette_format = 0xFFFFFFFFu;
-    palette_format = (*((u8 *) (arg0 + 0x11))) & (((0xFFFF & 0xFFFFFFFFu) & palette_format) & 0xFFFFFFFFu);
-    switch (palette_format)
+    paletteFormat = 0xFFFFFFFFu;
+    paletteFormat = (*((u8 *) (stream + 0x11))) & (((0xFFFF & 0xFFFFFFFFu) & paletteFormat) & 0xFFFFFFFFu);
+    switch (paletteFormat)
     {
       case 0:
-        source_addr = 0x20;
+        sourceAddressOrBits = 0x20;
         break;
 
       case 2:
 
       case 10:
-        source_addr = 0x10;
+        sourceAddressOrBits = 0x10;
         break;
 
       default:
-        source_addr = 0;
+        sourceAddressOrBits = 0;
         break;
 
     }
 
   }
-  data_ptr = arg0 + 0x40;
-  texel_scale = 1 << bits_per_pixel;
-  source_addr = (s32) (data_ptr + ((source_addr * (palette_present * texel_scale)) >> 3));
-  width = *((u16 *) (arg0 + 0x12));
-  height = *((u16 *) (arg0 + 0x14));
-  resource_value = texture_handle | 0x504;
-  texture_handle = func_003ec590(width, height, bits_per_pixel, resource_value);
-  if (texture_handle == 0)
+  paletteData = stream + 0x40;
+  paletteEntries = 1 << bitsPerPixel;
+  sourceAddressOrBits = (s32) (paletteData + ((sourceAddressOrBits * (paletteCount * paletteEntries)) >> 3));
+  width = *((u16 *) (stream + 0x12));
+  height = *((u16 *) (stream + 0x14));
+  resourceValue = textureHandle | 0x504;
+  textureHandle = func_003ec590(width, height, bitsPerPixel, resourceValue);
+  if (textureHandle == 0)
   {
     kAssertFail(D_00712688, 0x48D);
   }
-  texture_buffer = func_003ec6a0(texture_handle, 0, 1);
-  copy_mode = arg1;
-  if (texture_buffer == 0)
+  textureBuffer = func_003ec6a0(textureHandle, 0, 1);
+  copyMode = useDma;
+  if (textureBuffer == 0)
   {
     kAssertFail(D_00712688, 0x48F);
   }
-  switch (bits_per_pixel)
+  switch (bitsPerPixel)
   {
     case 32:
 
     case 24:
-      if (arg1 != 0)
+      if (useDma != 0)
     {
-      tmxDmaCopy(texture_buffer, (u32) source_addr, (((*((u16 *) (arg0 + 0x12))) & 0xFFFFFFFFu) * (*((u16 *) (arg0 + 0x14)))) * 4);
+      tmxDmaCopy(textureBuffer, (u32) sourceAddressOrBits, (((*((u16 *) (stream + 0x12))) & 0xFFFFFFFFu) * (*((u16 *) (stream + 0x14)))) * 4);
     }
     else
     {
-      memcpy((u8 *) texture_buffer, (void *) source_addr, ((*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14)))) * 4);
+      memcpy((u8 *) textureBuffer, (void *) sourceAddressOrBits, ((*((u16 *) (stream + 0x12))) * (*((u16 *) (stream + 0x14)))) * 4);
     }
       break;
 
     case 16:
-      if (copy_mode)
+      if (copyMode)
     {
-      tmxDmaCopy(texture_buffer, (u32) source_addr, ((*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14)))) * 2);
+      tmxDmaCopy(textureBuffer, (u32) sourceAddressOrBits, ((*((u16 *) (stream + 0x12))) * (*((u16 *) (stream + 0x14)))) * 2);
     }
     else
     {
-      memcpy((u8 *) texture_buffer, (void *) source_addr, ((*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14)))) * 2);
+      memcpy((u8 *) textureBuffer, (void *) sourceAddressOrBits, ((*((u16 *) (stream + 0x12))) * (*((u16 *) (stream + 0x14)))) * 2);
     }
       break;
 
     case 8:
-      if (arg1 != 0)
+      if (useDma != 0)
     {
-      tmxDmaCopy(texture_buffer, (u32) source_addr, (*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14))));
+      tmxDmaCopy(textureBuffer, (u32) sourceAddressOrBits, (*((u16 *) (stream + 0x12))) * (*((u16 *) (stream + 0x14))));
     }
     else
     {
-      memcpy((u8 *) texture_buffer, (void *) source_addr, (*((u16 *) (arg0 + 0x12))) * (*((u16 *) (arg0 + 0x14))));
+      memcpy((u8 *) textureBuffer, (void *) sourceAddressOrBits, (*((u16 *) (stream + 0x12))) * (*((u16 *) (stream + 0x14))));
     }
       break;
 
     case 4:
-      if (arg1 != 0)
+      if (useDma != 0)
     {
-      tmxDmaCopy(texture_buffer, (u32) source_addr, ((*((u16 *) (arg0 + 0x12))) >> 1) * (*((u16 *) (arg0 + 0x14))));
+      tmxDmaCopy(textureBuffer, (u32) sourceAddressOrBits, ((*((u16 *) (stream + 0x12))) >> 1) * (*((u16 *) (stream + 0x14))));
     }
     else
     {
-      memcpy((u8 *) texture_buffer, (void *) source_addr, ((*((u16 *) (arg0 + 0x12))) >> 1) * (*((u16 *) (arg0 + 0x14))));
+      memcpy((u8 *) textureBuffer, (void *) sourceAddressOrBits, ((*((u16 *) (stream + 0x12))) >> 1) * (*((u16 *) (stream + 0x14))));
     }
       break;
 
   }
 
-  func_003ec2a0(texture_handle);
-  if (*((u8 *) (arg0 + 0x10)))
+  func_003ec2a0(textureHandle);
+  if (*((u8 *) (stream + 0x10)))
   {
-    resource_value = func_003ec3d0(texture_handle, 1);
-    if (resource_value == 0)
+    resourceValue = func_003ec3d0(textureHandle, 1);
+    if (resourceValue == 0)
     {
       kAssertFail(D_00712688, 0x4C2);
     }
-    if (arg1 != 0)
+    if (useDma != 0)
     {
-      palette_handle_ptr = &resource_value;
-      tmxDmaCopy(*palette_handle_ptr, (u32) data_ptr, texel_scale * 4);
+      paletteHandle = &resourceValue;
+      tmxDmaCopy(*paletteHandle, (u32) paletteData, paletteEntries * 4);
     }
     else
     {
-      memcpy((u8 *) resource_value, data_ptr, texel_scale * 4);
+      memcpy((u8 *) resourceValue, paletteData, paletteEntries * 4);
     }
-    func_003ec2e0(texture_handle);
+    func_003ec2e0(textureHandle);
   }
-  return texture_handle;
+  return textureHandle;
 }
