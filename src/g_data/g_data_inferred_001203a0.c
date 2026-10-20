@@ -21,6 +21,10 @@ typedef struct {
 } PanelRgba;
 
 void drawNumberSprites(Vec2f position, f32 depth, PanelRgba color, u32 number, s32 sprites);
+/* Draw the entry's unit name, current HP/SP and depletion masks at origin.
+ * Entry style selects the text/digit palette; showMaximum adds maximum values
+ * and shifts the gauges right, while fullName selects the complete name.
+ * Only the low opacity byte is used; kind 3 raises the name by five pixels. */
 // FUN_001203A0
 /* measured: b210 -O2 emits all 1856 retail bytes. Lifetime splitting
    separates the depth and HP row values. Coordinate accumulation and
@@ -204,8 +208,10 @@ void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 sh
 }
 #pragma pop
 
+/* Draw an unsigned decimal number right-to-left, starting at position.
+ * Sprite records 9 through 18 supply digits with sixteen-pixel spacing;
+ * zero still draws one digit, and RGBA opacity becomes sprite alpha subtraction. */
 // FUN_00120AE0
-/* Draw decimal digits right-to-left with inverted sprite alpha and sixteen-pixel spacing. */
 void drawNumberSprites(Vec2f position, f32 depth, PanelRgba color, u32 number, s32 sprites)
 {
     s32 alpha;
