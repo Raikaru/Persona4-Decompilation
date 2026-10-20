@@ -1,4 +1,5 @@
 /* Whole-file translation unit (functions contiguous in retail). */
+#include "member_access.h"
 #include "type.h"
 #include "sdk_task_registration.h"
 #include "kwln_task_internal.h"
@@ -99,19 +100,19 @@ s32 K_Test_Update(u8 *task)
 
 /* Release the optional model handle before freeing the test work. */
 // FUN_0018E730
-/* The 0x1c-byte TestWork has its model handle at offset 4. A typed rewrite
- * changed five instruction bytes; retain the byte view and final work-slot reload. */
+/* measured: access-site, typed-local, and indexed task-work loads differ in five bytes.
+ * Only the initial task-slot load needs MEMBER; the model and final reload are typed. */
 void K_Test_Destroy(u8 *task)
 {
     u8 *work;
     s32 modelHandle;
 
-    work = *(u8 **)(task + 0x38);
-    modelHandle = *(s32 *)(work + 4);
+    work = MEMBER(u8 *, task, KwlnTask, work);
+    modelHandle = ((TestWork *)work)->modelHandle;
     if (modelHandle != 0) {
         mdlDestroyModelObject(modelHandle);
     }
-    jtbl_008873EC[0](*(void **)(task + 0x38));
+    jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
 
 /* Start the scene-cycling test under the supplied parent task. */

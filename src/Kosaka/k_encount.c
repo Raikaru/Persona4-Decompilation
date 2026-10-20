@@ -172,8 +172,7 @@ s32 Encount_IsEncounterActive(s16 id) {
 }
 /* measured: closes the hoisting scope after Encount_IsEncounterActive. */
 #pragma opt_loop_invariants off
-/* measured: typing the remaining normal-rate array reads loses MATCH; retain the byte-address form while the
- * weighted entries and category fields stay typed. */
+/* Typed table aliases retain the two normal-rate load address orders under b210. */
 // FUN_00161630
 /* Choose a category, then draw an encounter from its weighted entries.
  * The three categories occupy entries [0,20), [20,25), and [25,30).
@@ -204,6 +203,7 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
     u8 *tables;
     u8 *table;
     u8 *entries;
+    EncWeightedTable *weighted;
 
     selected = 0xFFFF;
     multiplier = 1.0f;
@@ -222,7 +222,8 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
         multiplier = 0.0f;
     }
     tableOffset = tableId * 0xF8;
-    total = *(u8 *)(iGpffffb418 + tableOffset + alternate);
+    weighted = (EncWeightedTable *)(iGpffffb418 + tableOffset);
+    total = weighted->normalRates[alternate];
     if (datGetFlag(0x1410) == 0) {
         s32 available = (s32)(u16)level;
         if (available > 0) {
@@ -239,7 +240,8 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
     draw = (s32)(RpRandom() % (u32)total);
     tables = iGpffffb418;
     table = tables + tableOffset;
-    normalRate = *(u8 *)(table + alternate);
+    weighted = (EncWeightedTable *)table;
+    normalRate = weighted->normalRates[alternate];
     if (draw < normalRate) {
         kind = 1;
         first = 0;

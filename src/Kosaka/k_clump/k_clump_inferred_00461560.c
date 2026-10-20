@@ -233,8 +233,7 @@ typedef struct MovieNativeWork {
     u32 field21c;
 } MovieNativeWork;
 /* Draw the first material bucket groups with their blend modes, frustum culling, and alpha overrides. */
-/* measured: typing the remaining bucket-flag and vertex-alpha tests individually loses MATCH; list links,
- * atomics, callbacks, and other fields stay typed. */
+/* measured: typed bucket and per-iteration entry aliases preserve MATCH where access-site tests did not. */
 // FUN_00461560
 void movieNativeDrawPass1(u8 *bucket)
 {
@@ -250,10 +249,12 @@ void movieNativeDrawPass1(u8 *bucket)
     u8 *node;
     u8 *nodeB;
     u8 *nodeC;
+    OtPrimitiveNode *drawBucket = (OtPrimitiveNode *)bucket;
+    KClumpDrawEntry *drawEntry;
 
     record = (u8 *)((OtPrimitiveNode *)bucket)->primitive;
     if (record != NULL) {
-        if ((*(u16 *)(bucket + 0x1A) & 2) == 0) {
+        if ((drawBucket->reserved1A & 2) == 0) {
             {
                 WindowRenderStateSet *table =
                     (WindowRenderStateSet *)(u32)D_00887300;
@@ -266,9 +267,10 @@ void movieNativeDrawPass1(u8 *bucket)
         node = (u8 *)((KClumpDrawBuckets *)record)->heads[2];
         goto loop_00461560_first_test;
 loop_00461560_first_body:
+        drawEntry = (KClumpDrawEntry *)node;
         if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
                           func_003bfae0((s32)((KClumpDrawEntry *)node)->atomic)) != 0) {
-            if (*(s32 *)(node + 4) == 1) {
+            if (drawEntry->disableVertexAlpha == 1) {
                 D_00887304[0]((RwRenderState)(0xE), (void *)(&savedVertexAlpha));
                 D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
@@ -288,6 +290,7 @@ loop_00461560_first_test:
         nodeB = (u8 *)((KClumpDrawBuckets *)record)->heads[5];
         goto loop_00461560_second_test;
 loop_00461560_second_body:
+        drawEntry = (KClumpDrawEntry *)nodeB;
         hasSentinel = 0;
         handle = (s32)((struct RpAtomic *)((u8 *)((KClumpDrawEntry *)nodeB)->atomic))->geometry;
         if (handle != 0) {
@@ -295,7 +298,7 @@ loop_00461560_second_body:
             if (((KClumpDrawEntry *)nodeB)->unk14 >= 1.0f && hasSentinel != 0 &&
                 RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
                               func_003bfae0((s32)((KClumpDrawEntry *)nodeB)->atomic)) != 0) {
-                if (*(s32 *)(nodeB + 4) == 1) {
+                if (drawEntry->disableVertexAlpha == 1) {
                     D_00887304[0]((RwRenderState)(0xE), (void *)(&savedVertexAlpha));
                     D_00887300[0]((RwRenderState)(0xE), (void *)(0));
                 }
@@ -313,7 +316,7 @@ loop_00461560_second_test:
         if (nodeB != NULL) {
             goto loop_00461560_second_body;
         }
-        if ((*(u16 *)(bucket + 0x1A) & 2) == 0) {
+        if ((drawBucket->reserved1A & 2) == 0) {
             {
                 WindowRenderStateSet *table =
                     (WindowRenderStateSet *)(u32)D_00887300;
@@ -326,9 +329,10 @@ loop_00461560_second_test:
         nodeC = (u8 *)((KClumpDrawBuckets *)record)->heads[6];
         goto loop_00461560_third_test;
 loop_00461560_third_body:
+        drawEntry = (KClumpDrawEntry *)nodeC;
         if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
                           func_003bfae0((s32)((KClumpDrawEntry *)nodeC)->atomic)) != 0) {
-            if (*(s32 *)(nodeC + 4) == 1) {
+            if (drawEntry->disableVertexAlpha == 1) {
                 D_00887304[0]((RwRenderState)(0xE), (void *)(&savedVertexAlpha));
                 D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
@@ -358,9 +362,10 @@ loop_00461560_third_test:
         nodeD = (u8 *)((KClumpDrawBuckets *)record)->heads[7];
         goto loop_00461560_fourth_test;
 loop_00461560_fourth_body:
+        drawEntry = (KClumpDrawEntry *)nodeD;
         if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
                           func_003bfae0((s32)((KClumpDrawEntry *)nodeD)->atomic)) != 0) {
-            if (*(s32 *)(nodeD + 4) == 1) {
+            if (drawEntry->disableVertexAlpha == 1) {
                 D_00887304[0]((RwRenderState)(0xE), (void *)(&savedVertexAlpha));
                 D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
@@ -383,7 +388,7 @@ loop_00461560_fourth_test:
 /* measured: movieNativeDrawPass2 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 /* Draw the middle bucket group, excluding clumps with sentinel frames. */
-/* measured: typing the remaining vertex-alpha test loses MATCH; retain this pre-callback byte alias. */
+/* measured: a per-iteration entry alias preserves the pre-callback alpha test and whole-file MATCH. */
 // FUN_00461A40
 void movieNativeDrawPass2(u8 *bucket)
 {
@@ -394,6 +399,7 @@ void movieNativeDrawPass2(u8 *bucket)
     u8 *object;
     u8 *node;
     WindowRenderStateSet *table;
+    KClumpDrawEntry *drawEntry;
 
     record = (u8 *)((OtPrimitiveNode *)bucket)->primitive;
     if (record != NULL) {
@@ -407,6 +413,7 @@ void movieNativeDrawPass2(u8 *bucket)
         node = (u8 *)((KClumpDrawBuckets *)record)->heads[8];
         goto loop_00461A40_test;
 loop_00461A40_body:
+        drawEntry = (KClumpDrawEntry *)node;
         hasSentinel = 0;
         handle = (s32)((struct RpAtomic *)((u8 *)((KClumpDrawEntry *)node)->atomic))->geometry;
         if (handle != 0) {
@@ -414,7 +421,7 @@ loop_00461A40_body:
             if ((hasSentinel != 1) &&
                 (RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
                                func_003bfae0((s32)((KClumpDrawEntry *)node)->atomic)) != 0)) {
-                if (*(s32 *)(node + 4) == 1) {
+                if (drawEntry->disableVertexAlpha == 1) {
                     D_00887304[0]((RwRenderState)(0xE), (void *)(&savedVertexAlpha));
                     D_00887300[0]((RwRenderState)(0xE), (void *)(0));
                 }
@@ -437,8 +444,7 @@ loop_00461A40_test:
 
 // measured: closes opt_propagation around movieNativeDrawPass2.
 /* Draw the remaining material groups with their blend modes and sentinel checks. */
-/* measured: typing the remaining bucket-flag and vertex-alpha tests individually loses MATCH; preserve their
- * byte-alias access shape. */
+/* measured: typed bucket and per-iteration entry aliases preserve MATCH where access-site tests did not. */
 // FUN_00461BE0
 void movieNativeDrawPass3(u8 *bucket)
 {
@@ -456,10 +462,12 @@ void movieNativeDrawPass3(u8 *bucket)
     u8 *nodeB;
     u8 *nodeC;
     u8 *nodeD;
+    OtPrimitiveNode *drawBucket = (OtPrimitiveNode *)bucket;
+    KClumpDrawEntry *drawEntry;
 
     record = (u8 *)((OtPrimitiveNode *)bucket)->primitive;
     if (record != NULL) {
-        if ((*(u16 *)(bucket + 0x1A) & 2) == 0) {
+        if ((drawBucket->reserved1A & 2) == 0) {
             {
                 WindowRenderStateSet *table =
                     (WindowRenderStateSet *)(u32)D_00887300;
@@ -472,9 +480,10 @@ void movieNativeDrawPass3(u8 *bucket)
         node = (u8 *)((KClumpDrawBuckets *)record)->heads[3];
         goto loop_00461BE0_first_test;
 loop_00461BE0_first_body:
+        drawEntry = (KClumpDrawEntry *)node;
         if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
                           func_003bfae0((s32)((KClumpDrawEntry *)node)->atomic)) != 0) {
-            if (*(s32 *)(node + 4) == 1) {
+            if (drawEntry->disableVertexAlpha == 1) {
                 D_00887304[0]((RwRenderState)(0xE), (void *)(&savedVertexAlpha));
                 D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
@@ -496,9 +505,10 @@ loop_00461BE0_first_test:
         nodeB = (u8 *)((KClumpDrawBuckets *)record)->heads[4];
         goto loop_00461BE0_second_test;
 loop_00461BE0_second_body:
+        drawEntry = (KClumpDrawEntry *)nodeB;
         if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
                           func_003bfae0((s32)((KClumpDrawEntry *)nodeB)->atomic)) != 0) {
-            if (*(s32 *)(nodeB + 4) == 1) {
+            if (drawEntry->disableVertexAlpha == 1) {
                 D_00887304[0]((RwRenderState)(0xE), (void *)(&savedVertexAlpha));
                 D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
@@ -528,6 +538,7 @@ loop_00461BE0_second_test:
         nodeC = (u8 *)((KClumpDrawBuckets *)record)->heads[5];
         goto loop_00461BE0_third_test;
 loop_00461BE0_third_body:
+        drawEntry = (KClumpDrawEntry *)nodeC;
         hasSentinel = 0;
         handle = (s32)((struct RpAtomic *)((u8 *)((KClumpDrawEntry *)nodeC)->atomic))->geometry;
         if (handle != 0) {
@@ -535,7 +546,7 @@ loop_00461BE0_third_body:
             if (hasSentinel == 0 &&
                 RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
                               func_003bfae0((s32)((KClumpDrawEntry *)nodeC)->atomic)) != 0) {
-                if (*(s32 *)(nodeC + 4) == 1) {
+                if (drawEntry->disableVertexAlpha == 1) {
                     D_00887304[0]((RwRenderState)(0xE), (void *)(&savedVertexAlpha));
                     D_00887300[0]((RwRenderState)(0xE), (void *)(0));
                 }
@@ -558,9 +569,10 @@ loop_00461BE0_third_test:
         nodeD = (u8 *)((KClumpDrawBuckets *)record)->heads[10];
         goto loop_00461BE0_fourth_test;
 loop_00461BE0_fourth_body:
+        drawEntry = (KClumpDrawEntry *)nodeD;
         if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
                           func_003bfae0((s32)((KClumpDrawEntry *)nodeD)->atomic)) != 0) {
-            if (*(s32 *)(nodeD + 4) == 1) {
+            if (drawEntry->disableVertexAlpha == 1) {
                 D_00887304[0]((RwRenderState)(0xE), (void *)(&savedVertexAlpha));
                 D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }
@@ -582,9 +594,10 @@ loop_00461BE0_fourth_test:
         nodeE = (u8 *)((KClumpDrawBuckets *)record)->heads[9];
         goto loop_00461BE0_fifth_test;
 loop_00461BE0_fifth_body:
+        drawEntry = (KClumpDrawEntry *)nodeE;
         if (RwCameraFrustumTestSphere(*(s32 *)D_008872E0,
                           func_003bfae0((s32)((KClumpDrawEntry *)nodeE)->atomic)) != 0) {
-            if (*(s32 *)(nodeE + 4) == 1) {
+            if (drawEntry->disableVertexAlpha == 1) {
                 D_00887304[0]((RwRenderState)(0xE), (void *)(&savedVertexAlpha));
                 D_00887300[0]((RwRenderState)(0xE), (void *)(0));
             }

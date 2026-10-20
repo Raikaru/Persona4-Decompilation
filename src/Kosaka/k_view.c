@@ -55,6 +55,7 @@ extern void sdkLboxRecalcLayout(KwlnTask* task);
 
 
 
+/* Convert vertical FOV degrees to the camera view window using the global aspect ratio. */
 // FUN_004577D0
 void K_View_SetFov(RwCamera* camera, f32 fov)
 {
@@ -85,6 +86,7 @@ f32 K_View_GetFov(RwCamera* camera)
 
 
 
+/* Replace the callback of an existing list-box entry; missing IDs leave the list unchanged. */
 // FUN_00470A90
 void sdkLboxSetCallback(KwlnTask* task, u32 id, KWindowEntryCallback callback)
 {
@@ -99,6 +101,7 @@ void sdkLboxSetCallback(KwlnTask* task, u32 id, KWindowEntryCallback callback)
 
 
 
+/* Select text-entry mode, optionally replace its text, and recompute the list-box layout. */
 // FUN_00470AD0
 void sdkLboxSetText(KwlnTask* task, u32 id, const char* text)
 {
@@ -115,6 +118,7 @@ void sdkLboxSetText(KwlnTask* task, u32 id, const char* text)
         sdkLboxRecalcLayout(task);
     }
 }
+/* Configure an existing integer entry's value, bounds, and flags, then recalculate its layout. */
 // FUN_00470B40
 void sdkLboxSetIntRange(KwlnTask* task, u32 id, s32 value, s32 minValue,
                    s32 maxValue, s32 flags)
@@ -132,6 +136,7 @@ void sdkLboxSetIntRange(KwlnTask* task, u32 id, s32 value, s32 minValue,
         sdkLboxRecalcLayout(task);
     }
 }
+/* Return the existing entry's integer storage address, or NULL when the ID is absent. */
 // FUN_00470BD0
 s32* sdkLboxGetValuePtr(KwlnTask* task, u32 id)
 {
