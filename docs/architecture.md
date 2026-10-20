@@ -1114,23 +1114,24 @@ Some files are empty (`src/mdlManager.c`, `src/Battle/btlOrder.c`,
 
 ## 13. Open gaps
 
-These systems are traced only at their edges. Their internals are still
-`func_XXXXXXXX` with raw offsets, so this document cannot explain them well.
-They are the best targets for naming and typing work.
+Every matched first-party function is named, typed and documented in source
+(`tools/recovery_quality.py` scores all 6,860 on each axis). The systems below
+are named in code but traced only at their edges in this document: their
+control flow and data contracts are not yet explained here.
 
 | System | Where | What is missing |
 |---|---|---|
-| Battle frame subsystems | `src/Battle/btlMain_inferred_001b5ec0.c`, `src/promoted/code1_001b.c`, `code1_0019.c`, `code1_001e.c`, `code1_001f.c` | The btlMain state handlers are named (section 8). The other updates called by `btlUpdateTask` are not traced in this document, and the btlAction state bodies are not reviewed. |
-| Return from battle | `code1_0019.c`, `src/cldScheduler.c` | No traced code requests field or dungeon after sequence 6. The scheduler script or the battle's caller presumably resumes, but this is not traced. |
-| Field state and units | `src/Kosaka/Field/k_field.c`, `src/promoted/k_fldUnit.c`, `k_fldEvent.c`, `k_fldNpcTable.c`, `src/Kosaka/Field/k_fldAI.c` | The field root, load, step and unit entry points are named (section 7). The touch-a-shadow path to battle is not traced, and most field unit and AI internals are unnamed. |
-| Events | `src/Event/evtMain.c`, `evtModel.c`, `evtMessage.c`, `src/promoted/code1_0028.c` | The event task and its message and scene entry points are named. The event player object and most command handlers are unnamed. The EVENT sequence's start callback is a stub. |
-| Calendar and social links | `src/calendar.c`, `src/cldDayChange.c`, `src/cmmCommunity.c`, `src/cmmScript.c`, `src/cmmRankUp.c`, `src/cmmMisc.c` | The social link record and the rank-up context are typed (section 10). The day loop's scheduler helpers and most of `cmmScript.c` are unnamed. |
-| Persona data | `src/Main/Battle/Data/datPersona.c`, `src/shdPersona.c`, `src/shdSkill.c` | The persona roster record and skill table row are typed, but most persona and skill accessors are unnamed. |
-| Messages and fonts | `src/itfMesManager.c`, `src/itfMsgProcedure_Window.c`, `src/frFont*.c` | Unnamed. |
-| Rendering core | `src/Graphics/Model/mdlManager.c`, `src/sdkOt.c`, the bucket flush `sdkOtFlushBuckets` (was `func_004623a0`) | The ordering-table append and queue functions are named. The bucket semantics and the meaning of the fixed bucket callbacks are not traced. |
-| Effects | `src/Graphics/Effect/*` | Apart from `effBlurFilter*`, `effMisc*`, three `effAfter*` helpers and the object particle instance type, the effect families are unnamed. The effect pack loader is not traced. |
-| Facilities | `src/Event/Fcl/y_fclCombine*.c`, `y_fclShop*.c` | The bank, object and combine work blocks are typed (section 9). Most of the screen functions are unnamed. |
-| Battle shuffle and results | `src/Battle/btlShuffle*.c`, `btlResult*.c` | The shuffle draw types and view flags are typed. Most functions are unnamed. |
-| Promoted buckets | `src/promoted/code1_*.c` | 63 files. 1,627 functions are still `INCLUDE_ASM`, and roughly half of the C bodies still carry `func_` names. |
-| Main loop services | `func_003e5510`, `func_00466580`, `func_0045b7c0` | The other frame services are named (section 2). These three are not traced. |
-| Heap bootstrap | `func_00100230`, `func_0043ece8` | The heap layout is not traced. `func_0043ece8` is still `INCLUDE_ASM`. |
+| Battle frame subsystems | `src/Battle/btlMain_inferred_001b5ec0.c`, `src/Battle/btlAction_inferred_*.c` | The btlMain state handlers are described (section 8). The other updates called by `btlUpdateTask` and the btlAction state bodies are not reviewed here. |
+| Return from battle | `src/cldScheduler.c` | No traced code requests field or dungeon after sequence 6. The scheduler script or the battle's caller presumably resumes, but this is not traced. |
+| Field state and units | `src/Kosaka/Field/k_field.c`, `k_fldUnit.c`, `k_fldEvent.c`, `k_fldNpcTable.c`, `k_fldAI.c` | The field root, load, step and unit entry points are described (section 7). The touch-a-shadow path to battle and the unit/AI internals are not traced here. |
+| Events | `src/Event/evtMain.c`, `evtModel.c`, `evtMessage.c` | The event task and its message and scene entry points are described. The event player object and the command handlers are not. The EVENT sequence's start callback is a stub. |
+| Calendar and social links | `src/calendar.c`, `src/cldDayChange.c`, `src/cmmCommunity.c`, `src/cmmScript.c`, `src/cmmRankUp.c`, `src/cmmMisc.c` | The social link record and the rank-up context are described (section 10). The day loop's scheduler helpers and the `cmmScript.c` commands are not. |
+| Persona data | `src/Main/Battle/Data/datPersona.c`, `src/shdPersona.c`, `src/shdSkill.c` | The persona roster record and skill table row are described; the persona and skill accessors are not. |
+| Messages and fonts | `src/itfMesManager.c`, `src/itfMsgProcedure_Window.c`, `src/frFont*.c` | Not described here. |
+| Rendering core | `src/Graphics/Model/mdlManager.c`, `src/sdkOt.c`, `sdkOtFlushBuckets` | The ordering-table append and queue functions are described. The bucket semantics and the fixed bucket callbacks are not traced. |
+| Effects | `src/Graphics/Effect/*`, `src/Graphics/Model/mdlEffect*.c` | Only `effBlurFilter*`, `effMisc*`, the `effAfter*` trail and the object particle instance are described. The effect pack loader is not traced. |
+| Facilities | `src/Event/Fcl/y_fclCombine*.c`, `y_fclShop*.c` | The bank, object and combine work blocks are described (section 9); the screen state machines are not. |
+| Battle shuffle and results | `src/Battle/btlShuffle*.c`, `btlResult*.c` | The shuffle draw types and view flags are described; the sequence flow is not. |
+| Promoted buckets | `src/promoted/code1_*.c` | 63 files, almost all third-party (RenderWare, CRI) or Sony SDK code: 1,630 of their functions are still `INCLUDE_ASM`. Only 14 matched functions there are first-party. |
+| Main loop services | `func_003e5510`, `hsfdSuspendWorker`, `sdkSndUpdateDecodeSlots` | The other frame services are described (section 2). These three are not traced. |
+| Heap bootstrap | `kwlnProbeHeapBudget`, `func_0043ece8` | The heap layout is not traced. `func_0043ece8` is still `INCLUDE_ASM`. |
