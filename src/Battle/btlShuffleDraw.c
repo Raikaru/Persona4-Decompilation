@@ -9,6 +9,7 @@
 #include "btl_shuffle_motion_internal.h"
 #include "sdktask.h"
 #include "rw_texture_internal.h"
+#include "rw_camera_internal.h"
 extern s32 btlShuffleDrawFlagA(u8 *task);
 extern void datTextSlotRelease();
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -128,7 +129,7 @@ extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, s32 endFrame, f32 curve
 extern s64 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s16 day);
 extern char iGpffffa9d0;
-extern s32 iGpffffa9c8;
+extern u8 *iGpffffa9c8[2];
 extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
 extern void func_00440b68();
 extern void btlShuffleCalcRotateVector(u8 *state, f32 frameOffset, u8 *output);
@@ -320,8 +321,8 @@ void btlShuffleDrawLoadSprites(u8 *context) {
 
     directoryIndex = !(calGetDayWindowFlags((s16)datGetDateIndex()) & 1);
     func_00440b68(&iGpffffa9d0, D_0064EA20, 0xB5);
-    /* Keep the scalar GP declaration and its adjacent day-window slot as separate relocation-based storage. */
-    archive = (s32)(H_Cdvd_AcquireDirectory(*(u8 **)((u8 *)&iGpffffa9c8 + directoryIndex * 4), 1));
+    /* The two day-window directory pointers share the original GP-relative table base. */
+    archive = (s32)(H_Cdvd_AcquireDirectory(iGpffffa9c8[directoryIndex], 1));
     ((BtlShuffleContext *)context)->archive = archive;
     if (archive == 0) {
         kAssertFail(D_0064EA20, 0xB6);
@@ -691,7 +692,7 @@ void btlShuffleDrawCards(u8 *context) {
     texture = btlShuffleDrawFlagD(card);
     m = func_003e0f80();
     /* RwCamera frame link stays an EE address word at the existing matrix-helper ABI boundary. */
-    camera = *(s32 *)((u8 *)kwlnGetCamera() + 4);
+    camera = (s32)((RwCamera *)(u8 *)kwlnGetCamera())->object.object.parent;
     inv = 2.0f / (rotation.x * rotation.x + rotation.y * rotation.y + rotation.z * rotation.z +
                   rotation.w * rotation.w);
     t2 = rotation.x * inv;
@@ -1636,7 +1637,7 @@ void btlShuffleDrawTrail(u8 *work, s32 cardIndex, s32 mode, f32 length, u8 *rgba
                 f32 offsetY;
                 u8 alpha;
                 /* Only the frame link is consumed; keep SDK camera storage opaque here. */
-                func_003e9700(*(struct RwFrame **)((u8 *)kwlnGetCamera() + 4));
+                func_003e9700((struct RwFrame *)((RwCamera *)(u8 *)kwlnGetCamera())->object.object.parent);
                 front_s4 = first;
                 back_s4 = second;
                 alpha = (u8)opacity;
@@ -1737,7 +1738,7 @@ void btlShuffleDrawCardSprites(u8 *context, s32 cardIndex, const BtlShuffleVec3 
 
     datw = D_008872F8_abs[0];
     /* The SDK camera remains opaque here; 0x80 is its verified near-plane scalar. */
-    scale = 1.0f / *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
+    scale = 1.0f / ((RwCamera *)(u8 *)kwlnGetCamera())->nearPlane;
     if (position != 0) {
         positionCopy = *(BtlShuffleVec3 *)position;
     } else {

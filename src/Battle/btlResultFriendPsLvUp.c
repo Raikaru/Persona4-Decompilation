@@ -1,9 +1,17 @@
 #include "include_asm.h"
+#include "member_access.h"
 /* Original translation unit btlResultFriendPsLvUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 #include "datPersona_internal.h"
 #include "btl_result_ui_internal.h"
 
+/* Level-up previews have a 0x88-byte stride; the first byte gates the skill list. */
+typedef struct BtlResultPersonaPreview {
+    u8 levels;
+    u8 pad01;
+    u16 skills[32];
+    u8 pad42[0x46];
+} BtlResultPersonaPreview;
 void kAssertFail(void *file, s32 line);
 
 extern u32 kwlnTaskGetWork(void *task);
@@ -40,8 +48,8 @@ extern u8 D_00629720[];
 
 
 
-// FUN_002238F0
 /* Map supported party IDs to the base voice-cue group, asserting on an unsupported party ID. */
+// FUN_002238F0
 s32 btlResultFriendPsCheck(s64 partyId)
 {
     s64 kind;
@@ -89,8 +97,8 @@ static inline u32 friendResultAddress(u32 offset, u32 base)
    the same way, giving retail's $s3/$s2 for r/base. */
 // FUN_002239A0
 /* Apply friend-persona experience, expose learned-skill flags, and sequence the persona level-up
- * windows. Measured: typed summary index/state/window reloads change MATCH; raw preview rows retain
- * their canonical 0x88-byte byte-buffer layout. */
+ * windows. The summary alias preserves callback-visible state/window reloads; previews retain their
+ * canonical 0x88-byte stride and the measured skill read uses MEMBER. */
 s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
 {
     s32 taskAddress = (s32)sdkTaskBytes;
@@ -108,49 +116,51 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
     u32 skillId;
     s32 menuIds[11];
     f32 origin[2];
+    BtlResultSummaryWork *summary;
 
     work = (u8 *)kwlnTaskGetWork(sdkTaskBytes);
-    parentWork = *(u8 * *)(work + 60);
-    *(s32 *)(work + 8) = 0;
-    *(s32 *)(work + 12) = 0;
+    summary = (BtlResultSummaryWork *)work;
+    parentWork = summary->parentWork;
+    *(s32 *)&summary->drawNode[0] = 0;
+    *(s32 *)&summary->drawNode[4] = 0;
     PrimAppendNode(D_00795F20, work + 8);
-    state = *(u32 *)(work + 4);
+    state = *(u32 *)&summary->state;
     switch (state) {
     case 0:
-        *(s32 *)((u32)work + 56) = 0;
+        ((BtlResultSummaryWork *)(u32)work)->partyIndex = 0;
         value = (s32)kwlnTaskGetTaskByName((s8 *)D_005E4810);
-        *(s32 *)((u32)work + 68) = value;
+        *(s32 *)&((BtlResultSummaryWork *)(u32)work)->personaWindow = value;
         if (value == 0) {
             value = (s32)shdPersonaTaskCreate(0, 15, 4, 5, 0);
-            *(s32 *)(work + 68) = value;
+            *(s32 *)&summary->personaWindow = value;
             if (value == 0) {
                 kAssertFail(D_00629720, 116);
             }
             origin[0] = 0.0f;
             origin[1] = 19.0f;
-            shdPersonaSetOrigin(*(u8 * *)(work + 68), origin);
-            shdPersonaStartSlideIn(*(u8 * *)(work + 68));
+            shdPersonaSetOrigin(summary->personaWindow, origin);
+            shdPersonaStartSlideIn(summary->personaWindow);
         }
-        shdPersonaSetPersonaId(*(u8 * *)(work + 68), 174);
-        *(u32 *)(work + 4) = 2;
+        shdPersonaSetPersonaId(summary->personaWindow, 174);
+        *(u32 *)&summary->state = 2;
         /* fallthrough */
     case 1:
         awards = parentWork + 96;
-        while ((index = *(s32 *)(work + 56)) < 4) {
+        while ((index = summary->partyIndex) < 4) {
             id = ((BtlXpAwards *)awards)->partyIds[index];
             if (id != 0) {
                 persona = (u8 *)datPersonaGetRecord(id);
-                value = ((BtlXpAwards *)awards)->partyExp[*(s32 *)(work + 56)];
+                value = ((BtlXpAwards *)awards)->partyExp[summary->partyIndex];
                 *(u32 *)&((DatPersonaRecord *)persona)->exp = *(u32 *)&((DatPersonaRecord *)persona)->exp + (u32)value;
-                index = *(s32 *)(work + 56);
-                if ((s32)*(u8 *)(awards + index * 136 + 0x6B4) > 0) {
+                index = summary->partyIndex;
+                if ((s32)((BtlResultPersonaPreview *)((BtlXpAwards *)awards)->partyPreviews[index])->levels > 0) {
                     break;
                 }
             }
-            *(s32 *)(work + 56) = *(s32 *)(work + 56) + 1;
+            summary->partyIndex = summary->partyIndex + 1;
         }
         if (index != 4) {
-            for (skillIndex = 0; skillIndex < 32 && (skillId = *(u16 *)(awards + *(s32 *)(work + 56) * 136 + skillIndex * 2 + 0x6B6)) != 0; skillIndex++) {
+            for (skillIndex = 0; skillIndex < 32 && (skillId = MEMBER(u16, awards + summary->partyIndex * 136 + skillIndex * 2, BtlXpAwards, partyPreviews[0][2])) != 0; skillIndex++) {
                 switch (skillId) {
                 case 0x112:
                     if (datGetFlag(0x1012) != 0) {
@@ -166,7 +176,7 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
                     break;
                 }
             }
-            shdPersonaSetDisplayState(*(u8 * *)(work + 68), *(u16 *)(friendResultAddress((u32)*(s32 *)(work + 56) * 2, (u32)awards) + 0x69A), (u32)persona, 0);
+            shdPersonaSetDisplayState(summary->personaWindow, ((BtlXpAwards *)friendResultAddress((u32)summary->partyIndex * 2, (u32)awards))->partyIds[0], (u32)persona, 0);
             menuIds[0] = 27;
             menuIds[1] = 25;
             menuIds[2] = 6;
@@ -181,50 +191,50 @@ s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
             {
                 s32 a;
                 s32 b;
-                parentWork = *(u8 * *)(work + 60);
+                parentWork = summary->parentWork;
                 a = (s32)H_Cdvd_GetArchiveEntry((u8 *)((BtlResultWork *)parentWork)->file, 0, 0);
-                parentWork = *(u8 * *)(work + 60);
+                parentWork = summary->parentWork;
                 b = (s32)H_Cdvd_GetArchiveEntry((u8 *)((BtlResultWork *)parentWork)->file, 1, 0);
-                *(u8 **)(work + 72) = shdPersonaLevelUpCreate(taskAddress, *(s32 *)(work + 68), awards + *(s32 *)(work + 56) * 136 + 0x6B4, a, b, menuIds);
+                summary->levelUpTask = shdPersonaLevelUpCreate(taskAddress, *(s32 *)&summary->personaWindow, awards + summary->partyIndex * 136 + 0x6B4, a, b, menuIds);
             }
-            if (*(s16 *)(friendResultAddress((u32)*(s32 *)(work + 56) * 2, (u32)awards) + 0x69A) == 5) {
+            if (*(s16 *)&((BtlXpAwards *)friendResultAddress((u32)summary->partyIndex * 2, (u32)awards))->partyIds[0] == 5) {
                 s16 t = (s16)(datCalcRandomBelow(3) + 468);
                 btlSoundStopBank3();
                 btlVoicePlayIdCue((u16)t, 3);
             } else {
-                s32 stmp = btlResultFriendPsCheck(*(s16 *)(friendResultAddress((u32)*(s32 *)(work + 56) * 2, (u32)awards) + 0x69A)) + 125;
+                s32 stmp = btlResultFriendPsCheck(*(s16 *)&((BtlXpAwards *)friendResultAddress((u32)summary->partyIndex * 2, (u32)awards))->partyIds[0]) + 125;
                 s16 u = (s16)(stmp + datCalcRandomBelow(3));
                 btlVoiceFadeOut();
                 btlSoundPlayIndexed((u16)u);
             }
             *(u16 *)work = *(u16 *)work | 2;
-            *(u32 *)(work + 4) = 2;
+            *(u32 *)&summary->state = 2;
         } else {
             *(u16 *)work = *(u16 *)work & 0xFFFE;
-            *(u32 *)(work + 4) = 7;
+            *(u32 *)&summary->state = 7;
             nmMesWindowResetCurrent();
         }
         break;
     case 2:
-        *(u32 *)(work + 4) = 3;
+        *(u32 *)&summary->state = 3;
         /* fallthrough */
     case 3:
-        if (shdPersonaLevelUpIsDone(*(u8 **)(work + 72)) == 0) {
+        if (shdPersonaLevelUpIsDone(summary->levelUpTask) == 0) {
             break;
         }
         shdPersonaDestroyTask(((BtlResultSummaryWork *)work)->levelUpTask);
-        *(u32 *)(work + 4) = 4;
-        *(u16 *)(work + 64) = 0;
+        *(u32 *)&summary->state = 4;
+        summary->waitFrame = 0;
         /* fallthrough */
     case 4:
-        if ((++*(u16 *)(work + 64) >= 45) || ((D_008C024E[0] & 0x50) != 0) || (((D_008C024C[0] & 0x10) != 0) && (*(u16 *)(work + 64) >= 4))) {
-            *(u32 *)(work + 4) = 1;
-            *(s32 *)(work + 56) = *(s32 *)(work + 56) + 1;
+        if ((++summary->waitFrame >= 45) || ((D_008C024E[0] & 0x50) != 0) || (((D_008C024C[0] & 0x10) != 0) && (summary->waitFrame >= 4))) {
+            *(u32 *)&summary->state = 1;
+            summary->partyIndex = summary->partyIndex + 1;
         }
         break;
     case 5:
         if (btlShuffleOverlayIdle() != 0) {
-            *(u32 *)(work + 4) = 6;
+            *(u32 *)&summary->state = 6;
             /* fallthrough */
         case 6:
             *(u16 *)work = *(u16 *)work & 0xFFFD;

@@ -55,10 +55,10 @@ extern u8* kwlnTaskGetWork(u32 task);
 void PrimAppendNode(void* list, void* node);
 s32 resourceFindByName(u32 name);
 extern u32 D_00795F20[];
-extern s32 iGpffffa5C0;
+extern u32 iGpffffa5C0[2];
 
-// FUN_00221AB0
 /* Choose a living party member for a level-up voice cue, or use the protagonist fallback cue group. */
+// FUN_00221AB0
 void btlResultHeroLvUpInit(void)
 {
     s16 list[4];
@@ -135,13 +135,13 @@ void btlResultHeroLvUpInit(void)
     }
 }
 
+/* Sequence the hero level and unlock messages, then delay before completion. The archive handle is
+ * read from the shared result parent. */
 // FUN_00221CF0
 // SOLVED by tools/permute.py; this previously carried an nd-4 note calling the
 // residual the $v0-vs-$at compare-temp floor. The permuter cracked it from the
 // preserved body.
 #pragma tailcall off
-/* Sequence the hero level and unlock messages, then delay before completion. The raw archive handle is
- * read from the shared result parent. */
 s32 btlResultHeroLvUpStep(BtlResultHeroWork* work)
 {
     BtlResultHeroWork* result = work;
@@ -201,9 +201,9 @@ s32 btlResultHeroLvUpStep(BtlResultHeroWork* work)
 }
 #pragma tailcall on
 
+/* Drive the hero result task, wipe, persona descriptor and message lifecycle until teardown. Parent
+ * archive/flags and the two sprite names retain their established external storage. */
 // FUN_00221F40
-/* Drive the hero result task, wipe, persona descriptor and message lifecycle until teardown. Raw
- * parent archive/flags and adjacent sprite symbols retain their established external storage. */
 s32 btlResultHeroLvUpRun(u8* task)
 {
     BtlResultHeroWork* work = (BtlResultHeroWork*)kwlnTaskGetWork((u32)task);
@@ -226,7 +226,7 @@ s32 btlResultHeroLvUpRun(u8* task)
         for (i = 0; i < 2; i++) {
             s32* slot = &work->slots50[i];
 
-            *slot = resourceFindByName(*(u32*)((u8*)&iGpffffa5C0 + i * 4));
+            *slot = resourceFindByName(iGpffffa5C0[i]);
             if (*slot == 0) {
                 kAssertFail(D_00629660, 0x52);
             }

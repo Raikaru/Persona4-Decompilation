@@ -57,8 +57,8 @@ extern f32 D_00761590;
    defensive `= 1.0f` initialiser this recovery used to carry produced two
    extra instructions (`lui`/`mtc1` of 1.0f into $f20) at the top and cost
    the whole match. */
+/* Update the eight-segment target cursor and its HP gauge. The dedicated cursor alias preserves the byte-base allocation. */
 // FUN_0020BFF0
-/* Update the eight-segment target cursor and its HP gauge.Measured: only the annotated individual accesses still lose MATCH when typed. */
 void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
     CursorColor color;
@@ -72,6 +72,7 @@ void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
     s32 count;
     s32 i;
 
+    BtlPanelCursor *typedCursor = (BtlPanelCursor *)cursor;
     work = (u8 *)kwlnTaskGetWork((void *)task);
     control = work + 0x710;
     switch (((BtlPanelCursor *)cursor)->state) {
@@ -81,7 +82,7 @@ void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
         ((BtlPanelCursor *)cursor)->shape.segmentCount = 0;
         ((BtlPanelCursor *)cursor)->animation.ring.segmentAngle = 0;
         ((BtlPanelCursor *)cursor)->animation.ring.spriteAngle = 0;
-        *(u16 *)(cursor + 2) = 4; /* measured: access-site field substitution loses MATCH. */
+        typedCursor->state = 4;
         ((BtlPanelCursor *)cursor)->flags |= 1;
         ((BtlPanelCursor *)cursor)->flags |= 0x10;
         break;
@@ -92,7 +93,7 @@ void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
             ((BtlPanelCursor *)cursor)->shape.segmentCount = 0;
             ((BtlPanelCursor *)cursor)->animation.ring.segmentAngle = 0;
             ((BtlPanelCursor *)cursor)->animation.ring.spriteAngle = 0;
-            *(u16 *)(cursor + 2) = 4; /* measured: access-site field substitution loses MATCH. */
+            typedCursor->state = 4;
             ((BtlPanelCursor *)cursor)->flags |= 1;
             ((BtlPanelCursor *)cursor)->flags |= 0x10;
         } else {
@@ -105,15 +106,15 @@ void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
             length *= alpha;
             delta[0] *= length;
             delta[1] *= length;
-            position[0] = *(f32 *)(cursor + 8) + delta[0]; /* measured: access-site field substitution loses MATCH. */
-            position[1] = *(f32 *)(cursor + 0xC) + delta[1]; /* measured: access-site field substitution loses MATCH. */
-            if (++*(u16 *)(cursor + 4) == 4) { /* measured: access-site field substitution loses MATCH. */
+            position[0] = typedCursor->position.x + delta[0];
+            position[1] = typedCursor->position.y + delta[1];
+            if (++typedCursor->frame == 4) {
                 btlUnitGaugeClear(panel, 0);
-                *(u16 *)(cursor + 4) = 0; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->frame = 0;
                 ((BtlPanelCursor *)cursor)->shape.segmentCount = 0;
                 ((BtlPanelCursor *)cursor)->animation.ring.segmentAngle = 0;
                 ((BtlPanelCursor *)cursor)->animation.ring.spriteAngle = 0;
-                *(u16 *)(cursor + 2) = 4; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->state = 4;
                 ((BtlPanelCursor *)cursor)->flags |= 1;
                 ((BtlPanelCursor *)cursor)->flags |= 0x10;
             }
@@ -122,8 +123,8 @@ void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
     case 3:
         t = (f32)(u32)((BtlPanelCursor *)cursor)->frame / 8.0f;
         alpha = 1.0f - t;
-        if (++*(u16 *)(cursor + 4) == 8) { /* measured: access-site field substitution loses MATCH. */
-            *(u16 *)(cursor + 2) = 0; /* measured: access-site field substitution loses MATCH. */
+        if (++typedCursor->frame == 8) {
+            typedCursor->state = 0;
             ((BtlPanelCursor *)cursor)->flags = 0;
         }
         break;
@@ -133,14 +134,14 @@ void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
             ++((BtlPanelCursor *)cursor)->frame;
             if (((BtlPanelCursor *)cursor)->frame < 2) {
             } else if (((BtlPanelCursor *)cursor)->frame == 2) {
-                *(u16 *)(cursor + 0x10) |= 4; /* measured: access-site field substitution loses MATCH. */
-                *(u16 *)(cursor + 0x10) |= 2; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->flags |= 4;
+                typedCursor->flags |= 2;
             } else if (((BtlPanelCursor *)cursor)->frame < 11) {
                 t = (f32)(((BtlPanelCursor *)cursor)->frame - 2) / 9.0f;
                 ((BtlPanelCursor *)cursor)->shape.segmentCount = (s32)(8.0f * t);
             } else if (((BtlPanelCursor *)cursor)->frame >= 11) {
                 ((BtlPanelCursor *)cursor)->shape.segmentCount = 8;
-                *(u16 *)(cursor + 0x10) &= 0xFFEF; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->flags &= 0xFFEF;
             }
         }
         ((BtlPanelCursor *)cursor)->position = *(Vec2f *)position;
@@ -156,16 +157,16 @@ void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
         color.a = (u8)(150.0f * alpha);
         for (i = 0; i < count; i++) {
             drawCursorSegment(work, color, position[0], position[1], i,
-                              (f32)*(s16 *)(cursor + 0x18), 0.0f); /* measured: access-site field substitution loses MATCH. */
+                              (f32)typedCursor->animation.ring.segmentAngle, 0.0f);
         }
         btlUiSetRenderMode(0);
     }
-    if (*(u16 *)(cursor + 0x10) & 1) { /* measured: access-site field substitution loses MATCH. */
+    if (typedCursor->flags & 1) {
         point.x = 22.0f + position[0];
         point.y = position[1];
         shdDrawRotatingQuad(point, 0.0f, 255, 22.0f, iGpffff83d4[1] * alpha, 1);
     }
-    if (*(u16 *)(cursor + 0x10) & 2) { /* measured: access-site field substitution loses MATCH. */
+    if (typedCursor->flags & 2) {
         t = btlGaugeHpRatio(panel);
         btlGaugeDrawUnit(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
     }
@@ -179,8 +180,8 @@ void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
    defensive `= 1.0f` initialiser this recovery used to carry produced two
    extra instructions (`lui`/`mtc1` of 1.0f into $f20) at the top and cost
    the whole match. */
+/* Update the seven-segment target cursor with its rotating sprite and HP gauge. The dedicated cursor alias preserves the byte-base allocation. */
 // FUN_0020C680
-/* Update the seven-segment target cursor with its rotating sprite and HP gauge.Measured: only the annotated individual accesses still lose MATCH when typed. */
 void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
     CursorColor color;
@@ -194,6 +195,7 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
     s32 count;
     s32 i;
 
+    BtlPanelCursor *typedCursor = (BtlPanelCursor *)cursor;
     work = (u8 *)kwlnTaskGetWork((void *)task);
     control = work + 0x710;
     switch (((BtlPanelCursor *)cursor)->state) {
@@ -203,7 +205,7 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
         ((BtlPanelCursor *)cursor)->shape.segmentCount = 0;
         ((BtlPanelCursor *)cursor)->animation.ring.segmentAngle = 0;
         ((BtlPanelCursor *)cursor)->animation.ring.spriteAngle = 0;
-        *(u16 *)(cursor + 2) = 4; /* measured: access-site field substitution loses MATCH. */
+        typedCursor->state = 4;
         ((BtlPanelCursor *)cursor)->flags |= 1;
         ((BtlPanelCursor *)cursor)->flags |= 0x10;
         break;
@@ -214,7 +216,7 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
             ((BtlPanelCursor *)cursor)->shape.segmentCount = 0;
             ((BtlPanelCursor *)cursor)->animation.ring.segmentAngle = 0;
             ((BtlPanelCursor *)cursor)->animation.ring.spriteAngle = 0;
-            *(u16 *)(cursor + 2) = 4; /* measured: access-site field substitution loses MATCH. */
+            typedCursor->state = 4;
             ((BtlPanelCursor *)cursor)->flags |= 1;
             ((BtlPanelCursor *)cursor)->flags |= 0x10;
         } else {
@@ -227,15 +229,15 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
             length *= alpha;
             delta[0] *= length;
             delta[1] *= length;
-            position[0] = *(f32 *)(cursor + 8) + delta[0]; /* measured: access-site field substitution loses MATCH. */
-            position[1] = *(f32 *)(cursor + 0xC) + delta[1]; /* measured: access-site field substitution loses MATCH. */
-            if (++*(u16 *)(cursor + 4) == 4) { /* measured: access-site field substitution loses MATCH. */
+            position[0] = typedCursor->position.x + delta[0];
+            position[1] = typedCursor->position.y + delta[1];
+            if (++typedCursor->frame == 4) {
                 btlUnitGaugeClear(panel, 0);
-                *(u16 *)(cursor + 4) = 0; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->frame = 0;
                 ((BtlPanelCursor *)cursor)->shape.segmentCount = 0;
                 ((BtlPanelCursor *)cursor)->animation.ring.segmentAngle = 0;
                 ((BtlPanelCursor *)cursor)->animation.ring.spriteAngle = 0;
-                *(u16 *)(cursor + 2) = 4; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->state = 4;
                 ((BtlPanelCursor *)cursor)->flags |= 1;
                 ((BtlPanelCursor *)cursor)->flags |= 0x10;
             }
@@ -244,8 +246,8 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
     case 3:
         t = (f32)(u32)((BtlPanelCursor *)cursor)->frame / 8.0f;
         alpha = 1.0f - t;
-        if (++*(u16 *)(cursor + 4) == 8) { /* measured: access-site field substitution loses MATCH. */
-            *(u16 *)(cursor + 2) = 0; /* measured: access-site field substitution loses MATCH. */
+        if (++typedCursor->frame == 8) {
+            typedCursor->state = 0;
             ((BtlPanelCursor *)cursor)->flags = 0;
         }
         break;
@@ -255,15 +257,15 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
             ++((BtlPanelCursor *)cursor)->frame;
             if (((BtlPanelCursor *)cursor)->frame < 2) {
             } else if (((BtlPanelCursor *)cursor)->frame == 2) {
-                *(u16 *)(cursor + 0x10) |= 4; /* measured: access-site field substitution loses MATCH. */
-                *(u16 *)(cursor + 0x10) |= 2; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->flags |= 4;
+                typedCursor->flags |= 2;
             } else if (((BtlPanelCursor *)cursor)->frame < 11) {
                 t = (f32)(((BtlPanelCursor *)cursor)->frame - 2) / 9.0f;
                 ((BtlPanelCursor *)cursor)->shape.segmentCount = (s32)(7.0f * t);
                 ((BtlPanelCursor *)cursor)->animation.ring.spriteAngle = (s16)(360.0f * ((0.0f + alpha) - 2.0f * t + t * t));
             } else if (((BtlPanelCursor *)cursor)->frame >= 11) {
                 ((BtlPanelCursor *)cursor)->shape.segmentCount = 7;
-                *(u16 *)(cursor + 0x10) &= 0xFFEF; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->flags &= 0xFFEF;
             }
         }
         ((BtlPanelCursor *)cursor)->position = *(Vec2f *)position;
@@ -278,7 +280,7 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
         color.g = 148;
         color.b = 50;
         color.a = (u8)(204.0f * alpha);
-        btlUiSetTileOffset(work, 56, 53, (f32)*(s16 *)(cursor + 0x1A)); /* measured: access-site field substitution loses MATCH. */
+        btlUiSetTileOffset(work, 56, 53, (f32)typedCursor->animation.ring.spriteAngle);
         btlUiDrawSpriteFaded(work, 10, 4, position[0] - 56.0f, position[1] - 53.0f,
                       color.r, color.g, color.b, color.a);
         btlUiSetTileOffset(work, 0, 0, 0.0f);
@@ -288,16 +290,16 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
         color.a = (u8)(150.0f * alpha);
         for (i = 0; i < count; i++) {
             drawCursorSegment(work, color, position[0], position[1], i,
-                              (f32)*(s16 *)(cursor + 0x18), 0.0f); /* measured: access-site field substitution loses MATCH. */
+                              (f32)typedCursor->animation.ring.segmentAngle, 0.0f);
         }
         btlUiSetRenderMode(0);
     }
-    if (*(u16 *)(cursor + 0x10) & 1) { /* measured: access-site field substitution loses MATCH. */
+    if (typedCursor->flags & 1) {
         point.x = 22.0f + position[0];
         point.y = position[1];
         shdDrawRotatingQuad(point, 0.0f, 255, 22.0f, iGpffff83d4[1] * alpha, 1);
     }
-    if (*(u16 *)(cursor + 0x10) & 2) { /* measured: access-site field substitution loses MATCH. */
+    if (typedCursor->flags & 2) {
         t = btlGaugeHpRatio(panel);
         btlGaugeDrawUnit(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
     }
@@ -311,8 +313,8 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
    the narrow declaration added a dsll32/dsra32 pair here.  The other call
    sites pass a constant distance, where the conversion folds away, which
    is why they matched with the wrong width. */
+/* Update the expanding cross target cursor and its HP gauge. The dedicated cursor alias preserves the byte-base allocation. */
 // FUN_0020CE60
-/* Update the expanding cross target cursor and its HP gauge.Measured: only the annotated individual accesses still lose MATCH when typed. */
 void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
     CursorColor color;
@@ -326,6 +328,7 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
     s32 i;
     u32 packed;
 
+    BtlPanelCursor *typedCursor = (BtlPanelCursor *)cursor;
     work = (u8 *)kwlnTaskGetWork((void *)task);
     control = work + 0x710;
     switch (((BtlPanelCursor *)cursor)->state) {
@@ -334,7 +337,7 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
         ((BtlPanelCursor *)cursor)->frame = 0;
         ((BtlPanelCursor *)cursor)->animation.scale = 1.5f;
         ((BtlPanelCursor *)cursor)->shape.distance = 10.0f;
-        *(u16 *)(cursor + 2) = 4; /* measured: access-site field substitution loses MATCH. */
+        typedCursor->state = 4;
         ((BtlPanelCursor *)cursor)->flags |= 1;
         ((BtlPanelCursor *)cursor)->flags |= 0x10;
         break;
@@ -344,7 +347,7 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
             ((BtlPanelCursor *)cursor)->frame = 0;
             ((BtlPanelCursor *)cursor)->animation.scale = 1.5f;
             ((BtlPanelCursor *)cursor)->shape.distance = 10.0f;
-            *(u16 *)(cursor + 2) = 4; /* measured: access-site field substitution loses MATCH. */
+            typedCursor->state = 4;
             ((BtlPanelCursor *)cursor)->flags |= 1;
             ((BtlPanelCursor *)cursor)->flags |= 0x10;
         } else {
@@ -357,14 +360,14 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
             length *= alpha;
             delta[0] *= length;
             delta[1] *= length;
-            position[0] = *(f32 *)(cursor + 8) + delta[0]; /* measured: access-site field substitution loses MATCH. */
-            position[1] = *(f32 *)(cursor + 0xC) + delta[1]; /* measured: access-site field substitution loses MATCH. */
-            if (++*(u16 *)(cursor + 4) == 4) { /* measured: access-site field substitution loses MATCH. */
+            position[0] = typedCursor->position.x + delta[0];
+            position[1] = typedCursor->position.y + delta[1];
+            if (++typedCursor->frame == 4) {
                 btlUnitGaugeClear(panel, 0);
-                *(u16 *)(cursor + 4) = 0; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->frame = 0;
                 ((BtlPanelCursor *)cursor)->animation.scale = 1.5f;
                 ((BtlPanelCursor *)cursor)->shape.distance = 10.0f;
-                *(u16 *)(cursor + 2) = 4; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->state = 4;
                 ((BtlPanelCursor *)cursor)->flags |= 1;
                 ((BtlPanelCursor *)cursor)->flags |= 0x10;
             }
@@ -373,8 +376,8 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
     case 3:
         t = (f32)(u32)((BtlPanelCursor *)cursor)->frame / 8.0f;
         alpha = 1.0f - t;
-        if (++*(u16 *)(cursor + 4) == 8) { /* measured: access-site field substitution loses MATCH. */
-            *(u16 *)(cursor + 2) = 0; /* measured: access-site field substitution loses MATCH. */
+        if (++typedCursor->frame == 8) {
+            typedCursor->state = 0;
             ((BtlPanelCursor *)cursor)->flags = 0;
         }
         break;
@@ -384,8 +387,8 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
             ++((BtlPanelCursor *)cursor)->frame;
             if (((BtlPanelCursor *)cursor)->frame < 2) {
             } else if (((BtlPanelCursor *)cursor)->frame == 2) {
-                *(u16 *)(cursor + 0x10) |= 4; /* measured: access-site field substitution loses MATCH. */
-                *(u16 *)(cursor + 0x10) |= 2; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->flags |= 4;
+                typedCursor->flags |= 2;
             } else if (((BtlPanelCursor *)cursor)->frame < 6) {
                 t = (f32)(((BtlPanelCursor *)cursor)->frame - 2) / 4.0f;
                 t = alpha - t;
@@ -393,18 +396,18 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
             } else if (((BtlPanelCursor *)cursor)->frame >= 6) {
                 ((BtlPanelCursor *)cursor)->shape.distance = 0.0f;
             }
-            if (*(u16 *)(cursor + 4) < 2) { /* measured: access-site field substitution loses MATCH. */
-            } else if (*(u16 *)(cursor + 4) == 2) { /* measured: access-site field substitution loses MATCH. */
-                *(u16 *)(cursor + 0x10) |= 8; /* measured: access-site field substitution loses MATCH. */
-            } else if (*(u16 *)(cursor + 4) < 4) { /* measured: access-site field substitution loses MATCH. */
-                t = (f32)(*(u16 *)(cursor + 4) - 2) / 4.0f; /* measured: access-site field substitution loses MATCH. */
+            if (typedCursor->frame < 2) {
+            } else if (typedCursor->frame == 2) {
+                typedCursor->flags |= 8;
+            } else if (typedCursor->frame < 4) {
+                t = (f32)(typedCursor->frame - 2) / 4.0f;
                 length = 1.5f;
                 ((BtlPanelCursor *)cursor)->animation.scale = (0.0f + length) - 0.5f * t;
-            } else if (*(u16 *)(cursor + 4) >= 4) { /* measured: access-site field substitution loses MATCH. */
+            } else if (typedCursor->frame >= 4) {
                 ((BtlPanelCursor *)cursor)->animation.scale = 1.0f;
             }
-            if (*(u16 *)(cursor + 4) >= 6) { /* measured: access-site field substitution loses MATCH. */
-                *(u16 *)(cursor + 0x10) &= 0xFFEF; /* measured: access-site field substitution loses MATCH. */
+            if (typedCursor->frame >= 6) {
+                typedCursor->flags &= 0xFFEF;
             }
         }
         ((BtlPanelCursor *)cursor)->position = *(Vec2f *)position;
@@ -422,23 +425,23 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
         }
         btlUiSetRenderMode(0);
     }
-    if (*(u16 *)(cursor + 0x10) & 1) { /* measured: access-site field substitution loses MATCH. */
+    if (typedCursor->flags & 1) {
         point.x = position[0];
         point.y = position[1];
         shdDrawRotatingQuad(point, 0.0f, 255, 22.0f, iGpffff83d4[1] * alpha, 1);
     }
-    if (*(u16 *)(cursor + 0x10) & 8) { /* measured: access-site field substitution loses MATCH. */
+    if (typedCursor->flags & 8) {
         point.x = position[0];
         point.y = position[1];
         btlUiSetRenderMode(2);
         packed = 0xFF620000 | (u8)(255.0f * alpha);
         t = ((BtlPanelCursor *)cursor)->animation.scale;
         shdDrawRotatedRect(point, 0.0f, packed, 5.0f * t, 77.0f * t, fGpffff837c, 1);
-        t = *(f32 *)(cursor + 0x18); /* measured: access-site field substitution loses MATCH. */
+        t = typedCursor->animation.scale;
         shdDrawRotatedRect(point, 0.0f, packed, 5.0f * t, 77.0f * t, D_00761590, 1);
         btlUiSetRenderMode(0);
     }
-    if (*(u16 *)(cursor + 0x10) & 2) { /* measured: access-site field substitution loses MATCH. */
+    if (typedCursor->flags & 2) {
         t = btlGaugeHpRatio(panel);
         btlGaugeDrawUnit(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
     }
@@ -450,7 +453,7 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
 #pragma push
 #pragma opt_lifetimes on
 // FUN_0020D6A0
-/* Update the green four-segment/ring target cursor and its HP gauge.Measured: only the annotated individual accesses still lose MATCH when typed. */
+/* Update the green four-segment/ring target cursor and its HP gauge. The dedicated cursor alias preserves the byte-base allocation. */
 void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
     extern void btlUiSetScale(u8 *work, f32 x, f32 y);
@@ -471,6 +474,7 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
     s32 i;
     u16 cnt;
 
+    BtlPanelCursor *typedCursor = (BtlPanelCursor *)cursor;
     work = (u8 *)kwlnTaskGetWork((void *)task);
     control = work + 0x710;
     switch (((BtlPanelCursor *)cursor)->state) {
@@ -479,7 +483,7 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
         ((BtlPanelCursor *)cursor)->frame = 0;
         ((BtlPanelCursor *)cursor)->animation.scale = 1.5f;
         ((BtlPanelCursor *)cursor)->shape.distance = 10.0f;
-        *(u16 *)(cursor + 2) = 4; /* measured: access-site field substitution loses MATCH. */
+        typedCursor->state = 4;
         ((BtlPanelCursor *)cursor)->flags |= 1;
         ((BtlPanelCursor *)cursor)->flags |= 0x10;
         break;
@@ -489,7 +493,7 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
             ((BtlPanelCursor *)cursor)->frame = 0;
             ((BtlPanelCursor *)cursor)->animation.scale = 1.5f;
             ((BtlPanelCursor *)cursor)->shape.distance = 10.0f;
-            *(u16 *)(cursor + 2) = 4; /* measured: access-site field substitution loses MATCH. */
+            typedCursor->state = 4;
             ((BtlPanelCursor *)cursor)->flags |= 1;
             ((BtlPanelCursor *)cursor)->flags |= 0x10;
         } else {
@@ -502,14 +506,14 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
             length *= alpha;
             delta[0] *= length;
             delta[1] *= length;
-            position[0] = *(f32 *)(cursor + 8) + delta[0]; /* measured: access-site field substitution loses MATCH. */
-            position[1] = *(f32 *)(cursor + 0xC) + delta[1]; /* measured: access-site field substitution loses MATCH. */
-            if (++*(u16 *)(cursor + 4) == 4) { /* measured: access-site field substitution loses MATCH. */
+            position[0] = typedCursor->position.x + delta[0];
+            position[1] = typedCursor->position.y + delta[1];
+            if (++typedCursor->frame == 4) {
                 btlUnitGaugeClear(panel, 0);
-                *(u16 *)(cursor + 4) = 0; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->frame = 0;
                 ((BtlPanelCursor *)cursor)->animation.scale = 1.5f;
                 ((BtlPanelCursor *)cursor)->shape.distance = 10.0f;
-                *(u16 *)(cursor + 2) = 4; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->state = 4;
                 ((BtlPanelCursor *)cursor)->flags |= 1;
                 ((BtlPanelCursor *)cursor)->flags |= 0x10;
             }
@@ -518,8 +522,8 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
     case 3:
         t = (f32)(u32)((BtlPanelCursor *)cursor)->frame / 8.0f;
         alpha = 1.0f - t;
-        if (++*(u16 *)(cursor + 4) == 8) { /* measured: access-site field substitution loses MATCH. */
-            *(u16 *)(cursor + 2) = 0; /* measured: access-site field substitution loses MATCH. */
+        if (++typedCursor->frame == 8) {
+            typedCursor->state = 0;
             ((BtlPanelCursor *)cursor)->flags = 0;
         }
         break;
@@ -530,8 +534,8 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
             cnt = ((BtlPanelCursor *)cursor)->frame;
             if (cnt < 3) {
             } else if (cnt == 3) {
-                *(u16 *)(cursor + 0x10) |= 4; /* measured: access-site field substitution loses MATCH. */
-                *(u16 *)(cursor + 0x10) |= 2; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->flags |= 4;
+                typedCursor->flags |= 2;
             } else if (cnt < 5) {
                 t = (f32)(cnt - 3) / 2.0f;
                 t = alpha - t;
@@ -539,10 +543,10 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
             } else if (cnt >= 5) {
                 ((BtlPanelCursor *)cursor)->shape.distanceBits = 0;
             }
-            cnt = *(u16 *)(cursor + 4); /* measured: access-site field substitution loses MATCH. */
+            cnt = typedCursor->frame;
             if (cnt < 2) {
             } else if (cnt == 2) {
-                *(u16 *)(cursor + 0x10) |= 8; /* measured: access-site field substitution loses MATCH. */
+                typedCursor->flags |= 8;
             } else if (cnt < 4) {
                 t = (f32)(cnt - 2) / 3.0f;
                 length = 1.5f;
@@ -550,8 +554,8 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
             } else if (cnt >= 4) {
                 ((BtlPanelCursor *)cursor)->animation.scale = 1.0f;
             }
-            if (*(u16 *)(cursor + 4) >= 5) { /* measured: access-site field substitution loses MATCH. */
-                *(u16 *)(cursor + 0x10) &= ~0x10; /* measured: access-site field substitution loses MATCH. */
+            if (typedCursor->frame >= 5) {
+                typedCursor->flags &= ~0x10;
             }
         }
         ((BtlPanelCursor *)cursor)->position = *(Vec2f *)position;
@@ -570,12 +574,12 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
         }
         btlUiSetRenderMode(0);
     }
-    if (*(u16 *)(cursor + 0x10) & 1) { /* measured: access-site field substitution loses MATCH. */
+    if (typedCursor->flags & 1) {
         point.x = position[0];
         point.y = position[1];
         shdDrawRotatingQuad(point, 0.0f, 255, 22.0f, fGpffff84a4 * alpha, 1);
     }
-    if (*(u16 *)(cursor + 0x10) & 8) { /* measured: access-site field substitution loses MATCH. */
+    if (typedCursor->flags & 8) {
         /* Snapshot all four direction components before publishing
          * them to the bounded ring-coordinate workspace. */
         dir = *(const CursorDirections *)D_00626C20;
@@ -603,7 +607,7 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
         btlUiSetScale(work, 1.0f, 1.0f);
         btlUiSetRenderMode(0);
     }
-    if (*(u16 *)(cursor + 0x10) & 2) { /* measured: access-site field substitution loses MATCH. */
+    if (typedCursor->flags & 2) {
         t = btlGaugeHpRatio(panel);
         btlGaugeDrawUnit(task, panel, position[0] - 9.0f, position[1] + 5.0f, 255, t);
     }
