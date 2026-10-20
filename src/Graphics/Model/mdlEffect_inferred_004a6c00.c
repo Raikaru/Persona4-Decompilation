@@ -88,7 +88,7 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
    allocation exact. */
 /* measured: restores the file's O2 loop-invariant baseline. */
 /* measured: testing loop-invariant hoisting for the retail preheader. */
-/* measured: mdlEffectCreateGridForRecord MATCH -> MISMATCH without this pragma. */
+/* measured: removal, named-integer for, and do/while probes mismatch (11-word removal residual from the -1 preheader). */
 #pragma opt_loop_invariants on
 // Creates a grid-backed object from the 0x40-byte record at parameters, copied to +0x18: allocates the 0x5C object, builds a multi-part grid geometry at +0x58, and sets 0x34 sixteen-byte slots of its table to -1.
 // FUN_004A6C00
