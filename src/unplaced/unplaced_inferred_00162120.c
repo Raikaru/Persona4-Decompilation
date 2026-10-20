@@ -1,5 +1,9 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00162120-00162680 */
 
+/* Unit optimizer settings; slot-loop invariant exceptions remain scoped below. */
+#pragma opt_loop_invariants off
+#pragma opt_propagation on
+
 #include "mt_scene_internal.h"
 #include "field_event_internal.h"
 #include "field_frame_internal.h"
@@ -62,9 +66,6 @@ typedef struct {
 } FldPartyModelObject;
 
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 // FUN_00162120
 /* Clear field actor/cache tables and reset their counters; mark both stored indices absent. */
 void FldStateTablesClear(void)
@@ -82,11 +83,7 @@ void FldStateTablesClear(void)
     memset(D_007E8060, 0, 0x40);
     memset(D_007E8020, 0, 0x40);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation off
 /* Release one cached party model after marking its five attached slots for removal. */
 // FUN_00162200
 /* Cache interior aliases retain their own symbols; attachment flags have stride 0xC. */
@@ -112,7 +109,8 @@ loop_test:
         if (attachmentIndex < 5) {
             goto loop_body;
         }
-        slotOffset = savedSlot * 8;
+        /* measured: unsigned byte-offset arithmetic keeps the post-loop slot address recomputation at baseline. */
+        slotOffset = (u32)savedSlot * 8;
         modelSlot = (s32 *)((u8 *)D_007F16F4 + slotOffset);
         mdlDestroyModelObject(*modelSlot);
         *modelSlot = 0;
@@ -120,13 +118,11 @@ loop_test:
         ((FldPartyCacheIdentity *)((u8 *)D_007F16F2 + slotOffset))->id = 0;
     }
 }
-#pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Reset the four party actor slots and invalidate their cached model identities. */
 // FUN_001622D0
+/* measured: baseline indexed, cached-base, signed/unsigned constants and pointer loops differ; best nd 29 bytes. */
 #pragma opt_loop_invariants on
 void FldSlotTablesReset(void) {
     s32 i = 0;
@@ -144,12 +140,11 @@ void FldSlotTablesReset(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Return the first of four party actor slots without a unit, or NULL. */
 // FUN_00162330
 /* measured: direct global address expression preserves retail base/stride
    register assignment while loop invariants hoist the stride (nd 0). */
+/* measured: baseline direct, cached-base, unsigned-stride and pointer loops differ; best nd 19 bytes. */
 #pragma opt_loop_invariants on
 u8 *FldSlotFindFree(void) {
     u8 *result = NULL;
@@ -169,12 +164,11 @@ u8 *FldSlotFindFree(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 /* Return the first of fifteen object actor slots without a unit, or NULL. */
 // FUN_00162390
 /* measured: direct global address expression preserves retail base/stride
    register assignment while loop invariants hoist the stride (nd 0). */
+/* measured: baseline direct, cached-base, unsigned-stride and pointer loops differ; best nd 19 bytes. */
 #pragma opt_loop_invariants on
 u8 *FldObjFindFree(void) {
     u8 *result = NULL;
@@ -195,8 +189,6 @@ u8 *FldObjFindFree(void) {
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 1
 /* Test the current location against the day-event table and calendar phase, excluding March 20. */
 // FUN_001623F0
@@ -245,8 +237,6 @@ done:
 #pragma pop
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Test the explicit field/room list used to choose party model resources. */
 // FUN_00162510
@@ -339,8 +329,6 @@ static inline u8 *fldPartyModelCached(s32 slot, u16 type, u16 id)
 }
 
 #pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Choose the party member model for this field/calendar context, reusing or replacing its cache slot. */
 // FUN_00162680

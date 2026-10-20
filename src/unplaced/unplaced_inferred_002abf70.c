@@ -1,5 +1,10 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002abf70-002ac2a0 */
 
+/* Unit optimizer settings shared by the neighboring functions. */
+#pragma opt_common_subs on
+#pragma opt_propagation on
+#pragma opt_loop_invariants off
+
 #include "include_asm.h"
 #include "member_access.h"
 #include "sdk_task_registration.h"
@@ -41,10 +46,7 @@ extern void fclCombineApplyPackedResult(void);
 extern s32 fclDebugModelCreate(u8 *);
 extern s32 kwlnTaskIsLinked(s32 );
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation on
 #pragma no_branch_likely off
-#pragma opt_loop_invariants off
 // Intent: Seq task update: advance the sequence work each step [inferred]
 // FUN_002ABF70
 s32 seqYajiTaskUpdate(u8 *task) {
@@ -142,10 +144,7 @@ s32 seqYajiTaskUpdate(u8 *task) {
 #pragma pop
 
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation on
 #pragma no_branch_likely off
-#pragma opt_loop_invariants off
 // Intent: Seq task destroy: dispatch the seq task's teardown handler [inferred]
 // FUN_002AC270
 void seqYajiTaskDestroy(u8 *task) {
@@ -154,10 +153,7 @@ void seqYajiTaskDestroy(u8 *task) {
 #pragma pop
 
 #pragma push
-#pragma opt_common_subs on
-#pragma opt_propagation on
 #pragma no_branch_likely off
-#pragma opt_loop_invariants off
 // Intent: Create the seq task and initialise its work block [inferred]
 // FUN_002AC2A0
 void seqYajiTaskCreate(void) {

@@ -1,5 +1,8 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 003136b0-003142f0 */
 
+/* Unit optimizer settings shared by the neighboring functions. */
+#pragma opt_loop_invariants off
+
 #include "include_asm.h"
 #include "member_access.h"
 #include "type.h"
@@ -74,8 +77,6 @@ static inline s8 cmmFindDateEntry(u8 month, u8 day)
     }
 }
 
-#pragma push
-#pragma opt_loop_invariants off
 /* Apply the item and community/flag prerequisites for the specially gated fusion results. */
 // FUN_003136B0
 s32 fclCombineMaterialAvailable(u16 persona)
@@ -116,10 +117,7 @@ s32 fclCombineMaterialAvailable(u16 persona)
 done:
     return result;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants on
 /* Populate the result and material list slots, marking materials already present in the roster. */
 // FUN_00313800
 void fclCombineMaterialListBuild(s8 materialCount)
@@ -157,10 +155,7 @@ void fclCombineMaterialListBuild(s8 materialCount)
         }
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 /* Require every material in the selected list slot to be present in the Persona roster. */
 // FUN_003139D0
 s32 fclCombineMaterialsHeld(s8 materialCount, s8 slot)
@@ -188,19 +183,13 @@ loop_test:
 done:
     return result;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // FUN_00313A80
 s32 fclCombineSlotOwned(s8 materialCount, s8 slot)
 {
     return datPersonaFindRosterRecordById(((FclMaterialRecipe *)((u8 **)D_00642EF0)[materialCount * 2])[slot].result) != 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 /* Find the result id in the selected six-row recipe table, falling back to row zero. */
 // FUN_00313AE0
 s8 fclCombineItemSlot(s8 materialCount, u16 persona)
@@ -219,11 +208,11 @@ s8 fclCombineItemSlot(s8 materialCount, u16 persona)
     }
     return 0;
 }
-#pragma pop
 
+/* Resolve date-selection entries for today and tomorrow, then clear the pending selection. */
 #pragma push
 #pragma opt_loop_invariants on
-/* Resolve date-selection entries for today and tomorrow, then clear the pending selection. */
+/* measured: cached and typed date-table bases do not match; baseline retains 101 differing words. */
 // FUN_00313B50
 void cmmDateSelectionRefresh(u8 *task)
 {
@@ -255,12 +244,11 @@ void cmmDateSelectionRefresh(u8 *task)
  * branch reuses that parameter as its signed-halfword loop index. */
 
 
-#pragma push
-#pragma opt_loop_invariants off
 /* Select the highest-priority enabled date option while retaining mandatory priority-100 options. */
-// FUN_00313D20
 #pragma push
 #pragma opt_loop_invariants on
+/* measured: cached selection/count pointers and typed option access do not match; baseline retains 133 differing words. */
+// FUN_00313D20
 void cmmDateSelectionSelect(u8 *task, u8 month, s32 day, s8 mode)
 {
     extern s64 calGetDayEntryForMonthDay(s32 month, s32 day);
@@ -327,8 +315,6 @@ void cmmDateSelectionSelect(u8 *task, u8 month, s32 day, s8 mode)
 }
 #pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 /* Subtract the current level threshold from the next level threshold. */
 // FUN_00313FB0
 s32 datPersonaExpToNextLevel(u8 *persona)
@@ -338,7 +324,6 @@ s32 datPersonaExpToNextLevel(u8 *persona)
     temp = datPersonaGetExpForLevel(persona, (persona[4] + 1) & 0xFFFF);
     return temp - datPersonaGetExpForLevel(persona, persona[4]);
 }
-#pragma pop
 
 /* measured: corrected all six callee declarations from the verified definitions. */
 extern void shdPersonaSetDisplayState(u8 *, s32 , u32 , s8 );
@@ -346,8 +331,6 @@ extern s32 shdPersonaIsTransitioning(u8 *);
 extern void shdPersonaStartSlideIn(u8 *);
 extern void shdPersonaBeginClose(u8 *);
 extern u8 shdPersonaGetAlpha(u8 *);
-#pragma push
-#pragma opt_loop_invariants off
 /* Drive the child Persona display through opening, reconfiguration and closing transitions. */
 // FUN_00314010
 s32 fclDrawTaskStep(u8 *ownerTask) {
@@ -444,13 +427,9 @@ block_33:
         return 0;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // FUN_003142F0
 void fclDrawTaskDestroy(u8 *task)
 {
     jtbl_008873EC[0](((struct KwlnTask *)task)->work);
 }
-#pragma pop

@@ -1,5 +1,8 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00285cc0-002866c0 */
 
+/* Unit optimizer settings shared by the neighboring functions. */
+#pragma opt_loop_invariants off
+
 #include "field_transition_internal.h"
 #include "member_access.h"
 #include "evt_movie_internal.h"
@@ -94,8 +97,6 @@ typedef struct EvtCondition {
     u8 pad07;
 } EvtCondition;
 extern u8 *MT_Scene_GetResListHead(s32 );
-#pragma push
-#pragma opt_loop_invariants off
 // Requests the field room for the event's room record (and the secondary room when set), loading it when the room file exists [inferred].
 // FUN_00285CC0
 s32 evtRequestFieldRoom(u8 *source) {
@@ -128,10 +129,7 @@ s32 evtRequestFieldRoom(u8 *source) {
     func_00440b68(D_0063C310, fieldId, roomId);
     return 1;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Event task step: runs the event's state machine (stream, file and room loads) for the current state [inferred].
 // FUN_00285DD0
 s32 evtStepEventTask(u8 *sdkTaskBytes) {
@@ -281,10 +279,7 @@ func_00285dd0_loop_check:
     }
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Event task destroy callback: releases the event, passing flag bit 31 to evtDestroy.
 // FUN_00286240
 void evtTaskDestroy(u8 *task) {
@@ -297,10 +292,7 @@ void evtTaskDestroy(u8 *task) {
         evtDestroy((s32)p, 0);
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Event start: creates the event task for owner and returns its id;  != 0 sets flag bit 31.
 // FUN_002862A0
 s32 evtStart(s32 owner, s32 loadField) {
@@ -320,19 +312,13 @@ s32 evtStart(s32 owner, s32 loadField) {
     }
     return task;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Event task lookup: returns the id of the event player task named "evtEditLoad" (D_0063C368).
 // FUN_00286350
 s32 evtFindTask(void) {
     return kwlnTaskGetTaskByName(D_0063C368);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Sets the load-request bit (loadFlags 0x1, +0x770); evtStepEventTask state 14 clears it.
 // FUN_00286380
 void evtRequestLoad(s32 task)
@@ -342,19 +328,13 @@ void evtRequestLoad(s32 task)
     p = (u8 *)kwlnTaskGetWork((void *)task);
     ((EvtEventWork *)p)->loadFlags = ((EvtEventWork *)p)->loadFlags | 0x1;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Returns 1 when the loader is idle (loadFlags bit 0x2, +0x770), else 0 [inferred].
 // FUN_002863B0
 s32 evtLoaderIsIdle(s32 task) {
     return (((EvtEventWork *)kwlnTaskGetWork((void *)task))->loadFlags & 2) != 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Event id: stores the three id words (+0x78C..+0x794) that label the event.
 // FUN_002863E0
 void evtSetId(u32 task, s32 firstId, s32 secondId, s32 thirdId) {
@@ -365,10 +345,7 @@ void evtSetId(u32 task, s32 firstId, s32 secondId, s32 thirdId) {
     ((EvtEventWork *)(u8 *)work)->eventId[1] = secondId;
     ((EvtEventWork *)(u8 *)work)->eventId[2] = thirdId;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Event condition: evaluates the supplied block; kind 0 always passes, kind 1 compares a result slot.
 // FUN_00286430
 s32 evtCheckCondition(u8 *key) {
@@ -429,10 +406,7 @@ s32 evtCheckCondition(u8 *key) {
 fail:
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Applies an event block to the event's state table, clearing and refilling the working copy [inferred].
 // FUN_002865E0
 void evtApplyEventBlock(EvtLoaderBlock *work) {
@@ -478,10 +452,7 @@ void evtApplyEventBlock(EvtLoaderBlock *work) {
         ((EvtEventWork *)(u8 *)work)->initialized = 1;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Appends a node to the event's node list (head and tail pointers at +0x68/+0x6C) [inferred].
 // FUN_002866C0
 void evtAppendNodeToList(u8 *owner, u8 *child) {
@@ -532,4 +503,3 @@ block_24:
 done:
     ((EvtNode *)owner)->childCount = ((EvtNode *)owner)->childCount + 1;
 }
-#pragma pop

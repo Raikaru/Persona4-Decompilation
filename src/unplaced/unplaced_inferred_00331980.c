@@ -66,9 +66,10 @@ s32 fclScriptSetFlagOnButton(void) {
     return r;
 }
 
+/* Choose shop dialogue from first-visit, community-gift and date-gated records, then wait for the message or material-talk task. */
 #pragma push
 #pragma opt_loop_invariants on
-/* Choose shop dialogue from first-visit, community-gift and date-gated records, then wait for the message or material-talk task. */
+/* measured: cached table base and pointer-first scans do not match; baseline retains 133 differing words. */
 // FUN_00331A20
 s32 weaponShopTalkUpdate(u8 *task)
 {

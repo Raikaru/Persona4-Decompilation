@@ -146,10 +146,12 @@ void fclBustupObjStartTween(u8 *task, f32 start, f32 end, u8 easing, s32 duratio
 }
 
 /* Start position, alpha, tween and reveal-scale transitions from the object's current values to its stored targets. */
+#pragma push
+#pragma opt_propagation off
+/* measured: reordered duration loads, byte-member access and separate reveal-duration lifetime do not match; baseline retains 2 differing words. */
 // FUN_0033D550
 /* measured: opt_propagation off preserves the per-call field loads and the
    argument materialisation order for fclSpriteStartRevealScale. */
-#pragma opt_propagation off
 void fclBustupStartSlide(u8 *task)
 {
     /* measured: remaining object/task byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
@@ -187,9 +189,8 @@ void fclBustupStartSlide(u8 *task)
     sprite = fclObjSprite(task);
     fclSpriteStartRevealScale(sprite, startValue, endValue, startValue, endValue, 0, duration, 0);
 }
+#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 /*
  * measured: 924/928 bytes, eight resolved relocations, four zero alignment bytes.
  * The point-anchor dependency rebuilds both passes without retaining x + 4.
@@ -256,10 +257,7 @@ f32 fclBustupDrawRotatingBand(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 al
     }
     return result;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 /* Load the selected fusion event room, run its event task, then reload the combine room and wait for the fade. */
 // FUN_0033D9D0
  s32 fclCombineEventTaskUpdate(u8 *task)
@@ -339,13 +337,9 @@ f32 fclBustupDrawRotatingBand(F2_0033 pos, s16 angleStep, f32 angleOffset, u8 al
          return 0;
      }
  }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
 // FUN_0033DC60
 void fclCombineEventTaskDestroy(u8 *task)
 {
     jtbl_008873EC[0](((struct KwlnTask *)task)->work);
 }
-#pragma pop
