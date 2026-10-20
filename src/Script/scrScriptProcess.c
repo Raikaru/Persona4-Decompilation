@@ -5,6 +5,8 @@
 #include "sdk_task_registration.h"
 #include "kwln_task_internal.h"
 #include "member_access.h"
+#include "byte_address_internal.h"
+#include "sdk_pad_mask_column.h"
 
 #include "include_asm.h"
 #include "sdk_dbprt.h"
@@ -48,8 +50,13 @@ typedef struct ScrTaskData
     s32 unk_210;      // 0x210
     ScrScriptWork* unk_214; // 0x214
     s32 unk_218;      // 0x218
-    f32 unk_21C;      // 0x21C
-    f32 unk_220;      // 0x220
+    union {
+        struct {
+            f32 unk_21C;
+            f32 unk_220;
+        };
+        s64 coordinates __attribute__((aligned(4)));
+    } __attribute__((packed));
     s32 unk_224;      // 0x224
 } ScrTaskData;
 typedef unsigned int ScrE040U128 __attribute__((mode(TI)));
@@ -95,7 +102,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32); // Allocator slot.
 extern void (*jtbl_008873EC[])(void *);
 extern u16 D_008C024E[];
 extern u16 D_008C0252[];
-extern u16 D_008C0256[];
+extern SdkPadMaskColumn D_008C0256[];
 
 void chkmemAllocSiteTag(char* file, s32 line);
 void kAssertFail(char* file, s32 line);
@@ -128,10 +135,6 @@ s32 sdkFilerPollResult(u8* task, s8* resultPath);
 void strcpy(void*, void*);
 s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
 void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
-static inline u8 *scrAddOff(u32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
 
 
 
@@ -782,26 +785,26 @@ s32 scrLoadScriptStep(u8 *sdkTask)
             break;
         case 2:
             /* Linker interior alias of SdkPadRecord.directionPressed; distinct address forms retain retail reloads. */
-            if (*(u16 *)&D_008C0256[0] & 0x1000) {
+            if (D_008C0256[0].mask & 0x1000) {
                 coordinate = task->unk_220;
                 if (coordinate >= 2.0f) {
                     task->unk_220 = coordinate - 1.0f;
                 }
             }
-            if (*(u16 *)((u8 *)D_008C0256 + 0) & 0x4000) {
+            if (((SdkPadMaskColumn *)((u8 *)D_008C0256 + 0))->mask & 0x4000) {
                 coordinate = task->unk_220;
                 if (coordinate < 30.0f) {
                     coordinate += 1.0f;
                     task->unk_220 = coordinate;
                 }
             }
-            if (*(u16 *)((u32)&D_008C0256[0]) & 0x8000) {
+            if (((SdkPadMaskColumn *)((u32)&D_008C0256[0]))->mask & 0x8000) {
                 coordinate = task->unk_21C;
                 if (coordinate >= 2.0f) {
                     task->unk_21C = coordinate - 1.0f;
                 }
             }
-            if (*(u16 *)((s32)&D_008C0256[0]) & 0x2000) {
+            if (((SdkPadMaskColumn *)((s32)&D_008C0256[0]))->mask & 0x2000) {
                 coordinate = task->unk_21C;
                 if (coordinate < 45.0f) {
                     coordinate += 1.0f;
@@ -854,7 +857,7 @@ s32 scrLoadScriptStep(u8 *sdkTask)
             }
             procedureRecord = scrFindContentEntry((u8 *)task->unk_224, task->unk_218);
             /* Packed record: transport the adjacent floats at 0x21C/0x220 as one unaligned 64-bit argument. */
-            H_Dbprt_FmtAt(*(s64 *)((u8 *)task + 0x21C), &iGpffffa7d8, task->unk_218, procedureRecord);
+            H_Dbprt_FmtAt(task->coordinates, &iGpffffa7d8, task->unk_218, procedureRecord);
             pixelX = 12.0f * task->unk_21C;
             pixelY = 12.0f * task->unk_220;
             color = scrPreviewColorValue(iGpffffa7cc);
@@ -911,7 +914,7 @@ s32 scrStartScriptTask(u8 *sdkTask)
     switch (task->unk_0C) {
     case 0:
         sprintf(task->text, &D_007638D0, D_0063E5F0,
-                      scrAddOff(strlen(D_0063E5F0), (u8 *)task) + 0x10);
+                      byteAddressAdd(strlen(D_0063E5F0), (u8 *)task) + MEMBER_OFFSET(ScrTaskData, text));
         n = strlen(task->text) - 1;
         while (n > 0) {
             if (task->text[n] == 0x2F) {
