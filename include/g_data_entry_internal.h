@@ -16,7 +16,13 @@ typedef struct GDataEntry {
     u16 middleBandValue;
     u16 lastBandValue;
     u8 unk14[0x10];
-    u32 grantedSkill;
+    union {
+        u32 grantedSkill;
+        struct {
+            u16 effect; /* Item-effect readers use the low half of grantedSkill. */
+            u16 unk26;
+        };
+    };
     u16 value;
     u16 accessoryPercent;
     u16 element;
