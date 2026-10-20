@@ -21,7 +21,10 @@ struct E8Node {
 };
 
 extern E8Pool *D_00763D1C;
-extern s32 (*D_008BE290[])(u32);
+/* RenderWare allocation hook slot: the first of the four checked-memory callbacks. */
+typedef s32 (*ChkmemAllocHook)(u32);
+
+extern ChkmemAllocHook D_008BE290[];
 extern void (*D_008BE294[])(u8 *);
 extern s32 (*D_008BE298[])(void *, u32);
 extern s32 (*D_008BE29C[])(s32, s32);
@@ -30,8 +33,9 @@ void chkmemFree(u8 *);
 s32 chkmemReallocate(void *, u32);
 s32 chkmemAllocZeroed(s32, s32);
 s32 chkmemGetCurrentTaskOwner(void);
+/* Install checked memory hooks for RenderWare and tag allocations with the current task. */
 // FUN_0044F510
-s32 (**func_0044f510(void))(u32) {
+ChkmemAllocHook *chkmemInitRenderWareMemoryFunctions(void) {
     D_00763D1C->fn_30 = chkmemGetCurrentTaskOwner;
     D_008BE290[0] = chkmemAllocate;
     D_008BE294[0] = chkmemFree;

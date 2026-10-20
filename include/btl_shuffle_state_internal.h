@@ -74,7 +74,8 @@ typedef struct BtlShuffleSequence {
     u16 frames;
     u16 choice;
     u8 pad6[2];
-    s32 count;
+    /* Count-transition drawing consumes this shared word as two halfwords. */
+    union { s32 count; struct { u16 low, high; } countHalves; };
     s32 selectedCard;
 } BtlShuffleSequence;
 
@@ -111,7 +112,11 @@ typedef struct BtlShuffleAnimation {
 
 typedef struct BtlShuffleFade {
     u16 frame;
-    union { u8 color[4]; u16 words[2]; } payload;
+    union {
+        u8 color[4];
+        u16 words[2];
+        struct { u16 pulse, flags; } reveal;
+    } payload;
 } BtlShuffleFade;
 
 typedef struct BtlShuffleGlow {

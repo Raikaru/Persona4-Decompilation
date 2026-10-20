@@ -106,9 +106,11 @@ typedef struct BtlHpRatioWork {
 } BtlHpRatioWork;
 
 /* btlUiAdjustTileOffset indexes resource segments at a 0x80-byte stride.
- * Only the original and adjusted tile-offset words are interpreted here. */
+ * Attachment translation reads the XY words before the tile-offset words. */
 typedef struct SdkSpriteSegment {
-    u8 pad00[0x54];
+    u8 pad00[0x44];
+    s32 offsetX, offsetY;
+    u8 pad4C[8];
     s32 originalTileOffset;
     u8 pad58[4];
     s32 tileOffset;
