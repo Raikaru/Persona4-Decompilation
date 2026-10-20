@@ -3,6 +3,7 @@
 #include "include_asm.h"
 #include "member_access.h"
 #include "type.h"
+#include "operand_order_internal.h"
 #include "kwln_task_internal.h"
 #include "shdPersona_internal.h"
 #include "datPersona_internal.h"
@@ -51,11 +52,6 @@ extern u32 D_00642F00[];
 extern u8 *yListSlotWork(s8 );
 extern void yListSlotAppend(s8 , s32 , s8 );
 extern u8 *yListSlotEntry();
-static inline s32 func_0031_ne(s32 value, s32 target)
-{
-    return value != target;
-}
-
 extern s32 datGetFlag(s32 );
 extern s32 datItemCount(s16 itemId);
 extern u16 cmmCommunityRecordValue(u16 );
@@ -64,7 +60,8 @@ extern u8 fclCalendarMonth(void);
 extern s32 fclCalendarDay(void);
 extern void fclCalGetNextDate(s32 *month, s32 *day);
 extern void cmmDateSelectionSelect(u8 *, u8 month, s32 day, s8 mode);
-static inline s8 findDateEntry(u8 month, u8 day)
+/* Search dates starting at index one, returning minus one at the sentinel. */
+static inline s8 cmmFindDateEntry(u8 month, u8 day)
 {
     s8 index = 0;
     u8 *entry;
@@ -216,7 +213,7 @@ s8 fclCombineItemSlot(s8 materialCount, u16 persona)
     id = persona;
     table = (u8 **)((u8 *)D_00642F00 + materialCount * 8);
     for (; i < 6; i++) {
-        if (!func_0031_ne(((FclMaterialRecipe *)table[-4])[i].result, id)) {
+        if (!operandOrderNotEqual(((FclMaterialRecipe *)table[-4])[i].result, id)) {
             return i;
         }
     }
@@ -239,12 +236,12 @@ void cmmDateSelectionRefresh(u8 *task)
     work = ((struct KwlnTask *)task)->work;
     current_day = fclCalendarDay();
     current_month = fclCalendarMonth();
-    ((DateSelectionWork *)work)->slots[0] = findDateEntry(current_month, current_day);
+    ((DateSelectionWork *)work)->slots[0] = cmmFindDateEntry(current_month, current_day);
     cmmDateSelectionSelect(task, fclCalendarMonth(), fclCalendarDay(), 0);
     month = fclCalendarMonth();
     day = (u8)fclCalendarDay() + 1;
     fclCalGetNextDate(&month, &day);
-    ((DateSelectionWork *)work)->slots[1] = findDateEntry((u8)month, (u8)day);
+    ((DateSelectionWork *)work)->slots[1] = cmmFindDateEntry((u8)month, (u8)day);
     cmmDateSelectionSelect(task, (u8)month, (u8)day, 1);
     ((DateSelectionWork *)work)->nextMonth = month;
     ((DateSelectionWork *)work)->nextDay = day;

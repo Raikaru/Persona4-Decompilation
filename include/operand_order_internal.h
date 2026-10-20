@@ -94,4 +94,48 @@ static inline f32 operandOrderProductAddend(f32 delta, f32 factor, f32 addend)
     return addend + delta * factor;
 }
 
+/* Convert a single-precision product to an unsigned word. */
+/* measured: expanding sparkle spans changes the multiply/conversion sequence and FPR allocation. */
+static inline u32 operandOrderUnsignedProduct(f32 left, f32 right)
+{
+    return (u32)(left * right);
+}
+
+/* Multiply signed word operands in argument order. */
+/* measured: plain selection-column multiplication reverses the mult source operands. */
+static inline s32 operandOrderMultiplyWord(s32 left, s32 right)
+{
+    return left * right;
+}
+
+/* Compute a signed remainder before the caller converts its result. */
+/* measured: expanding atlas-column remainders changes correction-path allocation and conversion scheduling. */
+static inline s32 operandOrderRemainder(s32 value, s32 divisor)
+{
+    return value % divisor;
+}
+
+/* Accumulate a weighted single-precision contribution through its destination. */
+/* measured: expanding portrait projections changes madda.s/madd.s scheduling and accumulator FPR allocation. */
+static inline void operandOrderAccumulateProduct(f32 *total, f32 weight, f32 projection)
+{
+    *total += weight * projection;
+}
+
+/* Compare signed words before the caller tests the predicate. */
+/* measured: expanding the fusion-material comparison changes the comparison/branch instruction bytes. */
+static inline s32 operandOrderNotEqual(s32 value, s32 target)
+{
+    return value != target;
+}
+
+/* Round a displacement product to single precision before its caller adds an anchor. */
+/* measured: a direct return fuses the score baseline into adda.s/madd.s; this assignment retains mul.s/add.s. */
+static inline f32 operandOrderRoundedProduct(f32 phase, f32 scale)
+{
+    f32 product;
+    product = scale * phase;
+    return product;
+}
+
 #endif

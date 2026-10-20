@@ -3,6 +3,7 @@
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "byte_address_internal.h"
 #include "fr_font_internal.h"
 #include "datUnit_internal.h"
 
@@ -91,11 +92,6 @@ extern u16 datEntryGetMiddleBandValue(s16 );
 extern u16 datEntryGetLastBandValue(s16 );
 extern s32 datIdBand(s16 );
 extern s8 D_005E47F0[];
-static inline s32 datAddSkillByteOffset(s32 offset, s32 base)
-{
-    return offset + base;
-}
-
 u32 datGetClearedWord(void);
 
 #pragma push
@@ -524,7 +520,8 @@ typedef struct {
     u8 b[4];
 } StatColor;
 
-static inline void func_00112830_number(Vec2f pos, f32 depth, u16 value,
+/* Draw a stat value as right-to-left decimal digit sprites. */
+static inline void datDrawStatNumber(Vec2f pos, f32 depth, u16 value,
                                         StatColor color, s32 tex)
 {
     f32 x;
@@ -542,7 +539,8 @@ static inline void func_00112830_number(Vec2f pos, f32 depth, u16 value,
     } while (value > 0);
 }
 
-static inline void func_00112830_arrow(Vec2f pos, f32 depth, StatColor color,
+/* Draw an up or down arrow when the stat value changes. */
+static inline void datDrawStatChangeArrow(Vec2f pos, f32 depth, StatColor color,
                                        u16 value, u16 prev, s32 tex)
 {
     s32 glyph;
@@ -579,35 +577,35 @@ void datEntryDrawStatValue(Vec2f pos, f32 depth, u8 alpha, u8 *entry, s32 tex)
     switch (datIdBand(((DatItemEntry *)entry)->itemId)) {
     case 0:
         value = datEntryGetPrimaryValue(((DatItemEntry *)entry)->itemId);
-        func_00112830_number(pos, depth, value, color, tex);
+        datDrawStatNumber(pos, depth, value, color, tex);
         pos.x += 52.0f;
         if (((DatItemEntry *)entry)->comparisonId != -1) {
-            func_00112830_arrow(pos, depth, color,
+            datDrawStatChangeArrow(pos, depth, color,
                                 datEntryGetPrimaryValue(((DatItemEntry *)entry)->comparisonId), value, tex);
         }
         pos.x += 42.0f;
         value = datEntryGetSecondaryValue(((DatItemEntry *)entry)->itemId);
-        func_00112830_number(pos, depth, value, color, tex);
+        datDrawStatNumber(pos, depth, value, color, tex);
         pos.x += 52.0f;
         if (itemEntry->comparisonId != -1) {
-            func_00112830_arrow(pos, depth, color,
+            datDrawStatChangeArrow(pos, depth, color,
                                 datEntryGetSecondaryValue(itemEntry->comparisonId), value, tex);
         }
         break;
     case 1:
         value = datEntryGetMiddleBandValue(((DatItemEntry *)entry)->itemId);
-        func_00112830_number(pos, depth, value, color, tex);
+        datDrawStatNumber(pos, depth, value, color, tex);
         pos.x += 52.0f;
         if (((DatItemEntry *)entry)->comparisonId != -1) {
-            func_00112830_arrow(pos, depth, color,
+            datDrawStatChangeArrow(pos, depth, color,
                                 datEntryGetMiddleBandValue(((DatItemEntry *)entry)->comparisonId), value, tex);
         }
         pos.x += 42.0f;
         value = datEntryGetLastBandValue(((DatItemEntry *)entry)->itemId);
-        func_00112830_number(pos, depth, value, color, tex);
+        datDrawStatNumber(pos, depth, value, color, tex);
         pos.x += 52.0f;
         if (itemEntry->comparisonId != -1) {
-            func_00112830_arrow(pos, depth, color,
+            datDrawStatChangeArrow(pos, depth, color,
                                 datEntryGetLastBandValue(itemEntry->comparisonId), value, tex);
         }
         break;
@@ -626,6 +624,7 @@ void datEntryDrawStatValue(Vec2f pos, f32 depth, u8 alpha, u8 *entry, s32 tex)
 
 typedef struct { u8 r, g, b, a; } FontGlyphColor;
 
+/* Draw the leading label glyph and return its inverse opacity. */
 static inline s32 fontDrawLeadingGlyph(const Vec2f *position, f32 depth, u8 opacity, s32 texture,
     const FontGlyphColor *color, u32 *blue, u32 *green)
 {
@@ -802,7 +801,7 @@ s32 datPersonaFillSkillCostRow(s32 unitId, struct DatPersonaRecord *persona, s32
     ((DatSkillCostRow *)row)->skillId = 0;
     ((DatSkillCostRow *)row)->costA = 0;
     ((DatSkillCostRow *)row)->costB = 0;
-    skillId = ((DatPersonaRecord *)(datAddSkillByteOffset(skillIndex * 2, (s32)persona)))->skills[0];
+    skillId = ((DatPersonaRecord *)((s32)byteAddressAdd(skillIndex * 2, (u8 *)((s32)persona))))->skills[0];
     if (skillId != 0) {
         costRow->skillId = skillId;
         if (unitId != 0) {

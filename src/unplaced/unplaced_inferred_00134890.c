@@ -3,6 +3,8 @@
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "datPersona_internal.h"
@@ -10,15 +12,6 @@
 extern s32 nLineIsIdle(void);
 extern u32 datEntryGetFlags(s16);
 extern void (*D_00887300[])(u32 state, u32 value);
-/* Keep the unsigned integer address addition order used by the matching indexed loads. */
-static inline u8 *radarOffsetAddress(s32 offset, u8 *base) {
-    return (u8 *)((u32)offset + (u32)base);
-}
-
-static inline f32 radarAddCoordinates(f32 left, f32 right) {
-    return left + right;
-}
-
 extern void sdkSpriteFreeNode(void *node);
 extern void datClampUnitHpSp(s16);
 extern void radarBeginSlideOut(u8 *);
@@ -230,7 +223,7 @@ void radarBeginSlideIn(u8 *work) {
     ((RadarTransferWork *)work)->unk13E8.signedByte = 0;
     ((RadarTransferWork *)work)->unk1400 = 0xc2480000;
     ((RadarTransferWork *)work)->unk1418.byte = 0xff;
-    ((RadarTransferWork *)work)->slideUnitId = ((RadarTransferWork *)(radarOffsetAddress(((RadarTransferWork *)work)->unk30 * 2, work)))->unitIds[0];
+    ((RadarTransferWork *)work)->slideUnitId = ((RadarTransferWork *)(byteAddressAdd(((RadarTransferWork *)work)->unk30 * 2, work)))->unitIds[0];
     ((RadarTransferWork *)work)->unk20 = 0;
 }
 #pragma pop
@@ -256,7 +249,7 @@ void radarBeginSlideOut(u8 *work) {
     ((RadarTransferWork *)work)->unk13E8.signedByte = 0;
     ((RadarTransferWork *)work)->unk1400 = 0x42480000;
     ((RadarTransferWork *)work)->unk1418.byte = 0xff;
-    ((RadarTransferWork *)work)->slideUnitId = ((RadarTransferWork *)(radarOffsetAddress(((RadarTransferWork *)work)->unk30 * 2, work)))->unitIds[0];
+    ((RadarTransferWork *)work)->slideUnitId = ((RadarTransferWork *)(byteAddressAdd(((RadarTransferWork *)work)->unk30 * 2, work)))->unitIds[0];
     ((RadarTransferWork *)work)->unk20 = 0;
 }
 #pragma pop
@@ -416,7 +409,7 @@ void radarDrawPaletteSet(u8 *work, s64 position, s64 mode, u8 alpha)
                       36.0f + ((f32 *)&position)[0], 24.0f + drawY,
                       D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], alpha);
         sprite = ((RadarTransferWork *)work)->unk1500;
-        drawY = radarAddCoordinates(9.0f, drawY);
+        drawY = operandOrderAddFloat(9.0f, drawY);
         sdkSpriteDrawAt((void *)sprite,
                       419.0f + ((f32 *)&position)[0], drawY,
                       D_0064B2E0[0], D_0064B2E0[1], D_0064B2E0[2], alpha);
@@ -553,7 +546,7 @@ void radarDrawHeaderFrame(u8 *work, PackedVec2f position, u8 alpha, u16 flags)
     red = D_0064B2E8[0];
     green = D_0064B2E8[1];
     blue = D_0064B2E8[2];
-    topY = radarAddCoordinates(position.xy.y, 26.0f);
+    topY = operandOrderAddFloat(position.xy.y, 26.0f);
     position.xy.y = topY;
     drawFlags = (u16)flags;
     if (drawFlags & 2) {

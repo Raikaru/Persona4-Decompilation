@@ -2,6 +2,8 @@
 
 #include "include_asm.h"
 #include "type.h"
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
 #include "btl_shuffle_state_internal.h"
 extern void btlShuffleCalcResetPose(u8 *output);
 extern void btlShuffleDrawInitCard(u8 *context, s32 cardIndex, s32 output, f32 *endFrame, f32 *controlPoints, f32 *origin,
@@ -12,15 +14,6 @@ extern f32 fGpffff80d8;
 extern f32 fGpffff83e4;
 extern f32 fGpffff837c;
 extern void btlShuffleDrawSetTiming(u8 *context, s32 cardIndex, s32 delay, s32 duration, f32 *start);
-static inline f32 btlShuffleAddPoseDepth(f32 a, f32 b) {
-    return a + b;
-}
-
-static inline u8 *btlShuffleAddCardOffset(u32 offset, u8 *base)
-{
-    return (u8 *)(offset + (u32)base);
-}
-
 void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, f32 angle, u8 *output);
 
 #pragma push
@@ -48,7 +41,7 @@ void btlShuffleInitSingleAxisPose(u8 *context, s32 cardIndex, f32 *output) {
     work.eyeX = work.originX;
     work.eyeY = work.originY;
     originZ = work.originZ;
-    work.eyeZ = btlShuffleAddPoseDepth(originZ, 200.0f);
+    work.eyeZ = operandOrderAddFloat(originZ, 200.0f);
     work.axisX = 0.0f;
     work.axisY = cosf(fGpffff80d8);
     work.axisZ = -sinf(fGpffff80d8);
@@ -369,7 +362,7 @@ void btlShuffleInitAlternatingPose(u8 *context, s32 cardIndex, f32 *output) {
     work.eyeX = work.originX;
     work.eyeY = work.originY;
     originZ = work.originZ;
-    work.eyeZ = btlShuffleAddPoseDepth(originZ, 200.0f);
+    work.eyeZ = operandOrderAddFloat(originZ, 200.0f);
     parity = cardIndex & 1;
     if ((cardIndex < 0) && (parity != 0)) {
         parity -= 2;
@@ -706,7 +699,7 @@ void btlShuffleInitThreeAxisPose(u8 *context, s32 cardIndex, f32 *output) {
     work.originY = work.originY - 25.0f;
     work.eyeX = work.originX;
     work.eyeY = work.originY;
-    work.eyeZ = btlShuffleAddPoseDepth(work.originZ, 200.0f);
+    work.eyeZ = operandOrderAddFloat(work.originZ, 200.0f);
     phase = cardIndex % 3;
     switch (phase) {
     case 0:
@@ -756,7 +749,7 @@ void btlShuffleCalcSetBezierTiming(u8 *context, s32 cardIndex, s32 output, s32 e
 
     xOffset = 150.0f;
     yOffset = 100.0f;
-    points.base = ((BtlShuffleContext *)btlShuffleAddCardOffset(cardIndex * 0xE8, context))->cards[0].position;
+    points.base = ((BtlShuffleContext *)byteAddressAdd(cardIndex * 0xE8, context))->cards[0].position;
     btlShuffleInitThreeAxisPose(context, 0, &points.output.x);
     remainder = cardIndex % 3;
     switch (remainder) {
