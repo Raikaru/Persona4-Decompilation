@@ -103,7 +103,7 @@ typedef struct BtlPanelGaugeState {
     f32 extent;
 } BtlPanelGaugeState;
 
-#pragma push
+/* Unit settings: propagation and conditional rebuilding, without loop-invariant hoisting. */
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
@@ -173,12 +173,7 @@ flags_done:
         }
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 // Intent: swap the row state between two selection rows and copy the position. [inferred]
 // FUN_0020E1D0
 void btlSelectionSwapRowState(u8 *from, u8 *to) {
@@ -194,12 +189,7 @@ void btlSelectionSwapRowState(u8 *from, u8 *to) {
     ((BtlSelectionRow *)to)->flags |= 1;
     ((BtlSelectionRow *)to)->position = ((BtlSelectionRow *)from)->position;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 // Intent: queue a new entry at the head of the selection entry list. [inferred]
 // FUN_0020E250
 void btlSelectionPushEntry(u8 *task, s32 unitHandle, s32 *entryData, f32 *position, u16 flags)
@@ -255,23 +245,13 @@ void btlSelectionPushEntry(u8 *task, s32 unitHandle, s32 *entryData, f32 *positi
         *(u8 **)list = newEntry;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 // Intent: flush the selection entry list. [inferred]
 // FUN_0020E3F0
 void btlSelectionFlushEntries() {
     btlEntryListFlush((u8 *)kwlnTaskGetWork() + 0x75C);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 // Intent: draw an integer value as sprite glyphs, optionally right-aligned. [inferred]
 // FUN_0020E420
 void btlSelectionDrawValue(u8 *drawWork, f32 x, f32 y, s32 value, s32 rightAligned, u32 packedColor)
@@ -314,12 +294,7 @@ void btlSelectionDrawValue(u8 *drawWork, f32 x, f32 y, s32 value, s32 rightAlign
         }
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 // Intent: map a linear progress value through an optional sine or cosine ease. [inferred]
 // FUN_0020E5C0
 f32 btlSelectionEaseCurve(s32 frame, s32 start, s32 end, s32 curve)
@@ -347,12 +322,7 @@ f32 btlSelectionEaseCurve(s32 frame, s32 start, s32 end, s32 curve)
 done:
     return progress;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 /*
  * measured: 964/976 bytes, three resolved calls, twelve zero alignment bytes.
  * The zero-duration ramp follows 0020E5C0 and the adjacent 0020F4D0 spelling;
@@ -406,12 +376,7 @@ void btlTransitionStepSlide(u8 *task, u8 *transition, u8 *panel,
         }
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 /*
  * measured: 1192/1200 bytes, eight resolved calls, eight zero alignment bytes.
  * Keep the alternating fade/y stages: expression propagation otherwise fuses
@@ -474,12 +439,7 @@ void btlTransitionStepStretch(u8 *task, u8 *transition, u8 *panel, u8 *output)
         ((BtlTransitionOutput *)output)->ready = 1;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 // Intent: step the expansion transition frame and draw its panel elements. [inferred]
 // FUN_0020EF10
 /* Retail-exact: 1460 bytes, 7 call relocations, 12 zero alignment bytes. */
@@ -546,12 +506,7 @@ void btlTransitionStepExpand(u8 *task, u8 *transition, u8 *panel, u8 *output)
         ((BtlTransitionOutput *)output)->ready = 1;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation off
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 // Intent: step the pulse transition frame and draw its ring. [inferred]
 // FUN_0020F4D0
 void btlTransitionStepPulse(u8 *task, u8 *transition, f32 x, f32 y)
@@ -600,15 +555,10 @@ void btlTransitionStepPulse(u8 *task, u8 *transition, f32 x, f32 y)
         btlUiSetTileOffset(drawWork, 0, 0, 0.0f);
     }
 }
-#pragma pop
 
 extern f32 fGpffff8210;
 f32 btlUiSpriteWidth(u8 *work, s32 slot, s32 segment);
 f32 btlUiSpriteHeight(u8 *work, s32 slot, s32 segment);
-#pragma push
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 // Intent: draw one indexed panel sprite at its corner with its colour and visible state. [inferred]
 // FUN_0020F730
 void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
@@ -692,12 +642,7 @@ void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
         }
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 // Intent: draw the panel gauge ring and fill for the given extent. [inferred]
 // FUN_0020FA70
 /* Retail-exact: 1156 bytes, 24 relocations, 12 zero alignment bytes. */
@@ -761,12 +706,7 @@ void btlPanelDrawGauge(u8 *work, u8 *state)
     btlUiSetScale(work, 1.0f, 1.0f);
     btlUiSetFactorXY(work, 1.0f, 1.0f);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_rebuildconditionals on
-#pragma opt_loop_invariants off
 /* Advance the transition frame before its timed drawing phases. The corner
  * opacity is narrowed to one byte before packing the vertex color. */
 // Intent: step the multi-phase transition frame and draw its bands and glyphs. [inferred]
@@ -977,4 +917,3 @@ void btlTransitionDrawFrame(u8 *glyphs, u8 *transition)
         D_00887310[0](3, vertices, 6);
     }
 }
-#pragma pop
