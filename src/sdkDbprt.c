@@ -1,4 +1,5 @@
 /* Original translation unit sdkDbprt.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "operand_order_internal.h"
 #include "type.h"
 #include "include_asm.h"
 #include "sdk_dbprt.h"
@@ -133,10 +134,7 @@ void H_Dbprt_Flush()
 #pragma opt_loop_invariants on
 /* The glyph atlas has sixteen columns. Keep this conversion signed so
  * its remainder operation also describes negative input values. */
-static inline s32 debugGlyphColumn(s32 value)
-{
-    return value % 16;
-}
+
 
 /* Draws non-space characters from the 53 by 40 debug grid and restores fog state. */
 // FUN_0044F720
@@ -236,7 +234,7 @@ void sdkDbprtDrawGrid(void)
                     vertices[2].position[1] = bottomY;
                     vertices[3].position[0] = rightX;
                     vertices[3].position[1] = bottomY;
-                    tileColumn = debugGlyphColumn((s32)glyphIndex);
+                    tileColumn = operandOrderRemainder((s32)glyphIndex, 16);
                     leftU = 0.0625f * (f32)tileColumn;
                     textureCoordinates[0] = leftU;
                     topV = 0.0625f * (f32)(s32)((u32)glyphIndex >> 4);
@@ -344,7 +342,7 @@ void sdkDbprtDrawQueuedText(void) {
                     vertices[2].position[1] = bottomY;
                     vertices[3].position[0] = rightX;
                     vertices[3].position[1] = bottomY;
-                    atlasColumn = debugGlyphColumn((s32)(glyph & 0xFF));
+                    atlasColumn = operandOrderRemainder(((s32)(glyph & 0xFF)), 16);
                     leftU = 0.0625f * (f32)atlasColumn;
                     textureCoordinates[0] = leftU;
                     topV = 0.0625f * (f32)(s32)((u32)glyph >> 4);
@@ -402,7 +400,7 @@ void sdkDbprtDrawQueuedText(void) {
                     vertices[2].position[1] = bottomY;
                     vertices[3].position[0] = rightX;
                     vertices[3].position[1] = bottomY;
-                    atlasColumn = debugGlyphColumn((s32)(glyph & 0xFF));
+                    atlasColumn = operandOrderRemainder(((s32)(glyph & 0xFF)), 16);
                     leftU = 0.0625f * (f32)atlasColumn;
                     textureCoordinates[0] = leftU;
                     topV = 0.0625f * (f32)(s32)((u32)glyph >> 4);

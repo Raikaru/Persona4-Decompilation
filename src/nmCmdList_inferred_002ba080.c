@@ -92,10 +92,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002ba080-002baa50 */
 
 extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
-static inline s32 fclDigitIsZero(const s16 *value)
-{
-    return *value == 0;
-}
+
 /* measured: opt_rebuildconditionals off probe for min/max */
 /* measured: close opt_rebuildconditionals after min/max */
 /* measured: opt_loop_invariants on adds retail's second divide hazard nop. */
@@ -151,7 +148,7 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
     bounds = fclMakeBoundsPacket(22.0f, 17.0f);
     origin = fclMakeVec2(position.x + 284.0f, position.y + 6.0f);
     value = number;
-    if ((value == -1) || fclDigitIsZero(&value)) {
+    if ((value == -1) || (value == 0)) {
         ones = 10;
         tens = 10;
     } else {
@@ -295,7 +292,7 @@ void nmMesWindowSetNumber(u8 *task, s16 row, s32 number, FclVec2 position,
     bounds = fclMakeBoundsPacket(22.0f, 17.0f);
     origin = fclMakeVec2(position.x + 284.0f, position.y + 6.0f);
     value = (s16)number;
-    if ((value == -1) || fclDigitIsZero(&value)) {
+    if ((value == -1) || (value == 0)) {
         ones = 10;
         tens = 10;
     } else {

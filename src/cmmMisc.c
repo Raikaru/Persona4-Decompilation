@@ -1,4 +1,6 @@
 /* Original translation unit cmmMisc.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+#include "byte_address_internal.h"
+#include "operand_order_internal.h"
 #include "list_item_internal.h"
 #include "include_asm.h"
 #include "type.h"
@@ -101,16 +103,14 @@ extern u8 *D_008814D0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 
+/* measured: current layouts allow plain record sums; only rank-threshold/read-column addresses
+ * retain byteAddressAdd, and the date counter retains operandOrderAdd. Older probe notes below are historical. */
 /* gp - 0x4C2C = 0x007644C4: runtime-loaded 14-byte record table. */
 static u8 *iGpffffb3d4;
 
-static inline s32 cmmMiscAddOff(s32 offset, s32 base) {
-    return offset + base;
-}
 
-static inline s32 cmmMiscOr(s32 left, s32 right) {
-    return left | right;
-}
+
+
 
 
 // Loads the cmm.bin event file (retail path string at D_006359E0) and fills D_00881480[0..0x1B] with its 28 chunks. Called once from the kwln table init.
@@ -179,7 +179,7 @@ u8 *cmmTextRecord(u32 textId) {
 u8 *cmmRankNameRecord(s16 value) {
     s32 base = D_0088149C[0];
     s32 mul = (s16)value * 24;
-    return (u8 *)(cmmMiscAddOff(mul, base) + 8);
+    return (u8 *)((mul + base) + 8);
 }
 #pragma opt_propagation on
 // Detail record: 20-byte record from chunk 8 (D_008814A0) for detail index value.
@@ -193,7 +193,7 @@ u8 *cmmRankNameRecord(s16 value) {
 u8 *cmmDetailRecord(s16 value) {
     s32 base = D_008814A0[0];
     s32 mul = (s16)value * 20;
-    return (u8 *)(cmmMiscAddOff(mul, base) + 8);
+    return (u8 *)((mul + base) + 8);
 }
 #pragma opt_propagation on
 // Aux table: returns the chunk 9 table header (D_008814A4) with no record stride. Callers pass it as the message to nmMesWindowInstallHandle.
@@ -216,7 +216,7 @@ s32 cmmRankStringAt(s16 value, s16 option) {
     return base + value * 0x41 + (option - 1) * 0xD;
 }
 
-/* MATCHED (wave 14): lever-3 static inline helper `cmmMiscAddOff(offset, base)`
+/* Historical MATCHED (wave 14): static inline helper `cmmMiscAddOff(offset, base)`
    carrying the addu operand order through its parameters fixed the two
    transposed `addu` residuals (nd 4 -> 0). The `index` local + first helper
    call fixed the first addu; the second call `cmmMiscAddOff(option*2, mid)`
@@ -236,9 +236,9 @@ s32 cmmRankThreshold(s16 value, s16 option) {
         kAssertFailMsg(D_006359D0, 0xC9, &D_007636F8, option);
     }
     index = value * 8;
-    mid = cmmMiscAddOff(index, base);
+    mid = ((s32)byteAddressAdd(index, (u8 *)base));
     /* Serialized halfwords retain the measured two-stage address-add order described above. */
-    return ((s16 *)cmmMiscAddOff(option * 2, mid))[-1];
+    return ((s16 *)((s32)byteAddressAdd((option * 2), (u8 *)mid)))[-1];
 }
 // Label record: 64-byte label record from chunk 12 (D_008814B0) for id value. cmmPersonaDetailShow copies it as a display string.
 // FUN_00246B10
@@ -802,7 +802,7 @@ s32 cmmFindCommunityOfCategory(s32 value)
             kAssertFail(D_006359D0, 0x4C);
         }
         offset = (i & 0xFFFF) * 100;
-        if (((CmmKindRecord *)(cmmMiscAddOff(offset, (s32)base) + 8))->flags & 4) {
+        if (((CmmKindRecord *)((offset + (s32)base) + 8))->flags & 4) {
             if (target == (u16)cmmCommunityCategory(i & 0xFFFF) &&
                 cmmCommunityHasRecord((u16)i) != 0) {
                 return (u16)i;
@@ -1651,14 +1651,10 @@ selected_record:
         kAssertFail(D_006359D0, 0x4A0);
     }
     if (selected == NULL) return 0;
-    return ((CmmDateColumn *)(cmmMiscAddOff(column * 16, (s32)selected) + 4))->value;
+    return ((CmmDateColumn *)(((s32)byteAddressAdd((column * 16), (u8 *)(s32)selected)) + 4))->value;
 }
-/* Unsigned address addition preserves the retail operand order without
-   changing the signed counter-delta arithmetic. */
-static inline u32 cmmMiscAddAddress(u32 offset, u32 base)
-{
-    return offset + base;
-}
+/* Unsigned address sums stay separate from signed counter deltas; measured plain sums now match. */
+
 
 // Date table apply column: selects the record for date (special record when flag 0xA61 allows it), then applies the column's two counter deltas clamped at 99 through datItemSetCount; asserts column is 0 or 1.
 // FUN_002494C0
@@ -1688,20 +1684,20 @@ selected_record:
     if (column != 0 && column != 1) kAssertFail(D_006359D0, 0x4AB);
     if (selected == NULL) kAssertFail(D_006359D0, 0x4AC);
     offset = column * 16;
-    key = (u16 *)(cmmMiscAddOff(offset, (s32)selected) + 4);
+    key = (u16 *)((offset + (s32)selected) + 4);
     id = *key;
     if (id != 0) {
         value = datItemCount((s16)id) & 0xFF;
-        value = cmmMiscAddOff(value, ((CmmDateColumn *)(cmmMiscAddAddress((u32)offset, (u32)selected) + 4))->deltaFirst);
+        value = (value + (((CmmDateColumn *)(((u32)offset + (u32)selected) + 4))->deltaFirst));
         if (value > 99) value = 99;
         datItemSetCount((s32)*(s16 *)key, value & 0xFF);
     }
-    key = (u16 *)(cmmMiscAddAddress((u32)offset, (u32)selected) + 8);
+    key = (u16 *)(((u32)offset + (u32)selected) + 8);
     id = *key;
     if (id != 0) {
         offset = (u32)column << 4;
         value = datItemCount((s16)id) & 0xFF;
-        value = cmmMiscAddOff(value, ((CmmDateColumn *)(cmmMiscAddOff(offset, (s32)selected) + 4))->deltaSecond);
+        value = (value + (((CmmDateColumn *)((offset + (s32)selected) + 4))->deltaSecond));
         if (value > 99) value = 99;
         datItemSetCount((s32)*(s16 *)key, value & 0xFF);
     }
@@ -1724,7 +1720,7 @@ selected_record:
    `option + func_001064f0(0x57)`, seeding `n = option` at the top, seeding it just
    before the add, and opt_common_subs off (5). Nine spellings.
    Parameter-save order floor. */
-static inline s32 cmmAddCountFirst(s32 count, s32 delta) { return count + delta; }
+
 
 /* nd 6 -> 4. The `+` here is a commutative operand-order row: retail emits
    addu $s0,$v0,$s0 (call result first) and b210 emits addu $s0,$s0,$v0. Writing it
@@ -1759,7 +1755,7 @@ s32 cmmDateTableAddCount(s32 value, s32 option)
     if (!(datItemCount((s16)(value + 0x4EA)) & 0xFF)) {
         kAssertFail(D_006359D0, 0x4CC);
     }
-    n = cmmAddCountFirst(datGetScriptValue(0x57), option);
+    n = operandOrderAdd(datGetScriptValue(0x57), option);
     if (n >= 4) {
         n = 0;
         datSetFlag(value + 0x9AF, 1);

@@ -1933,7 +1933,7 @@ void itfMesWindowSetLabel(u8 *window, u8 *text)
     ((ItfMesLabel *)base)->index = 0xFFFF;
 }
 
-static inline s32 itfMesAddOffset(s32 off, s32 base) { return off + base; }
+
 
 /* measured: func_00279e90 now matches exactly (object 316B, retail window
    320B, normalized_diff 0). The existing saved halfword/local and index-first
@@ -1973,7 +1973,7 @@ void itfMesWindowSetSelectionText(u8 *window, u8 *record)
             s32 off;
             u32 p7;
             off = (masked & 0x7FFF) << 2;
-            p7 = ((ItfMesWindow *)(itfMesAddOffset(off, (s32)window)))->slots[0].bits;
+            p7 = ((ItfMesWindow *)((off + (s32)window)))->slots[0].bits;
             ((ItfMesLabel *)base)->list.value = (s32)frFontBuildTextSimple(0, 0, 0, 0, 0, 0xFF, p7, 0);
         } else {
             s32 ep;
@@ -2038,6 +2038,7 @@ u8 *itfMesBuildGlyphRun(u32 *texts, s32 count, u32 hiddenMask, s32 x, s32 y, s32
 
 /* Detach one node before the release helper can consume its linked chain.
    Keep the successor locally: release may retain the node while glyphs fade. */
+/* Detach the current text-run node, release it and advance the owning link. */
 static inline void itfMesReleaseListNode(u8 **link)
 {
     u8 *node = *link;

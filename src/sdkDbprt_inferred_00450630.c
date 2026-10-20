@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_rectangle_packet.h"
@@ -188,14 +189,8 @@ typedef struct Code45Im2DVertex {
     f32 normal[3];
     f32 pad2;
 } Code45Im2DVertex;
-static inline s32 overlayAtlasColumn(s32 value)
-{
-    return value % 16;
-}
-static inline s32 fontAtlasColumn(s32 value)
-{
-    return value % 16;
-}
+
+
 #pragma push
 /* measured: func_00450630 MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
@@ -308,7 +303,7 @@ void sdkDbprtDrawOverlay(void)
             vertices[3].position[0] = vertices[1].position[0];
             vertices[3].position[1] = vertices[2].position[1];
 
-            atlasColumn = overlayAtlasColumn((s32)glyph);
+            atlasColumn = operandOrderRemainder((s32)glyph, 16);
             uvs[0].u = 0.0625f * (f32)atlasColumn;
             uvs[0].v = 0.0625f * (f32)(s32)((u32)glyph >> 4);
             uvs[1].u = 0.046875f + uvs[0].u;
@@ -413,7 +408,7 @@ void sdkDbprtDrawText(PackedColor4 color, PackedVec2f position, f32 depth, void 
         vertices[2].position[1] = bottom;
         vertices[3].position[0] = right;
         vertices[3].position[1] = bottom;
-        atlasColumn = fontAtlasColumn((s32)(u8)character);
+        atlasColumn = operandOrderRemainder(((s32)(u8)character), 16);
         uvs[0].u = 0.0625f * (f32)atlasColumn;
         uvs[0].v = 0.0625f * (f32)(s32)((u32)(u8)character >> 4);
         uvs[1].u = 0.046875f + uvs[0].u;

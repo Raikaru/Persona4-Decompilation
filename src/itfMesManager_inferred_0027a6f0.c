@@ -1,3 +1,4 @@
+#include "byte_address_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "itf_mes_objects.h"
@@ -13,9 +14,7 @@ extern void poolFree(s32 address);
 
 extern s32 D_008815B0[];
 
-static inline u32 add_retail_ptr(u32 offset, u32 base) {
-    return offset + base;
-}
+
 
 extern u16 D_008817E8[];
 extern u8 D_007964C0[];
@@ -111,7 +110,7 @@ node_done:
             if (index < 0 || index >= count)
                 selected = 0;
             else
-                selected = ((ItfMesTextRecord *)((u8 *)add_retail_ptr((u32)(index * 4), (u32)table)))->texts[0].value;
+                selected = ((ItfMesTextRecord *)((u8 *)((u32)byteAddressAdd(((u32)(index * 4)), (u8 *)(u32)table))))->texts[0].value;
             frFontRunCommand(selected, 1, 0);
             ((ItfMesWindow *)window)->flags.value = ((ItfMesWindow *)window)->flags.value & ~0x307;
             ((ItfMesWindow *)window)->flags.value |= 0x203;

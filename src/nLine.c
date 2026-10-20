@@ -1,3 +1,4 @@
+#include "operand_order_internal.h"
 #include "mdl_effect_internal.h"
 #include "nline_vertex_internal.h"
 #include "include_asm.h"
@@ -91,9 +92,9 @@ typedef char NLineTableSize[sizeof(NLineTable) == 0x16A0 ? 1 : -1];
 
 /* measured: inline arithmetic boundaries keep c860's height additions
    separate and its remaining-width calculation before the callbacks. */
-static inline f32 addF(f32 a, f32 b) { return a + b; }
-static inline f32 subF(f32 a, f32 b) { return a - b; }
-static inline f32 mulF(f32 a, f32 b) { return a * b; }
+
+
+
 
 
 extern s32 (*D_00887310[])(s32, void *, s32);
@@ -737,23 +738,23 @@ void nLineDrawEffect(u8 *table, Vec2f position, s32 alpha) {
         q1 = 1.0f / ((MdlEffectCamera *)(u32)kwlnGetCamera())->nearPlane;
         alpha1 = alpha & 0xFF;
         nLineSetLayer(table + 0x890, position.x, y1, z1, q1, 255, 255, 129, alpha1);
-        nLineSetLayer(table + 0x8D0, position.x, addF(y1, 448.0f), z1, q1, 255, 255, 129, alpha1);
+        nLineSetLayer(table + 0x8D0, position.x, operandOrderAddFloat(y1, 448.0f), z1, q1, 255, 255, 129, alpha1);
         x1 = position.x + width1;
-        nLineSetLayer(table + 0x910, x1, addF(y1, 448.0f), z1, q1, 255, 255, 129, alpha1);
+        nLineSetLayer(table + 0x910, x1, operandOrderAddFloat(y1, 448.0f), z1, q1, 255, 255, 129, alpha1);
         nLineSetLayer(table + 0x950, x1, y1, z1, q1, 255, 255, 129, alpha1);
         break;
     case 2:
         extent2 = ((NLineTable *)table)->records[19].x.value;
-        width2 = subF(640.0f - extent2, position.x);
+        width2 = operandOrderSubtract((640.0f - extent2), (position.x));
         y2 = position.y;
         x2 = extent2 + position.x;
         z2 = D_008872F8[0] - D_0088467C[0];
         q2 = 1.0f / ((MdlEffectCamera *)(u32)kwlnGetCamera())->nearPlane;
         alpha2 = alpha & 0xFF;
         nLineSetLayer(table + 0x890, x2, y2, z2, q2, 255, 255, 129, alpha2);
-        nLineSetLayer(table + 0x8D0, x2, addF(y2, 448.0f), z2, q2, 255, 255, 129, alpha2);
+        nLineSetLayer(table + 0x8D0, x2, operandOrderAddFloat(y2, 448.0f), z2, q2, 255, 255, 129, alpha2);
         right2 = x2 + width2;
-        nLineSetLayer(table + 0x910, right2, addF(y2, 448.0f), z2, q2, 255, 255, 129, alpha2);
+        nLineSetLayer(table + 0x910, right2, operandOrderAddFloat(y2, 448.0f), z2, q2, 255, 255, 129, alpha2);
         nLineSetLayer(table + 0x950, right2, y2, z2, q2, 255, 255, 129, alpha2);
         break;
     case 3:
@@ -774,9 +775,9 @@ void nLineDrawEffect(u8 *table, Vec2f position, s32 alpha) {
         q3 = 1.0f / ((MdlEffectCamera *)(u32)kwlnGetCamera())->nearPlane;
         alpha3 = alpha & 0xFF;
         nLineSetLayer(table + 0x890, x3, y3, z3, q3, 255, 255, 129, alpha3);
-        nLineSetLayer(table + 0x8D0, x3, addF(y3, 448.0f), z3, q3, 255, 255, 129, alpha3);
+        nLineSetLayer(table + 0x8D0, x3, operandOrderAddFloat(y3, 448.0f), z3, q3, 255, 255, 129, alpha3);
         right3 = x3 + (width3 - position.x);
-        nLineSetLayer(table + 0x910, right3, addF(y3, 448.0f), z3, q3, 255, 255, 129, alpha3);
+        nLineSetLayer(table + 0x910, right3, operandOrderAddFloat(y3, 448.0f), z3, q3, 255, 255, 129, alpha3);
         nLineSetLayer(table + 0x950, right3, y3, z3, q3, 255, 255, 129, alpha3);
         break;
     case 4: break;
@@ -1126,11 +1127,11 @@ void nLineDrawWaveStrip(u8 *table, s32 entering) {
     alphaByte = (u8)alphaWord;
     nLineSetLayer(table + 0x690, x, y, depth, reciprocal,
                   0xFF, 0xE9, 0x2C, alphaByte);
-    nLineSetLayer(table + 0x6D0, x, addF(y, 448.0f), depth, reciprocal,
+    nLineSetLayer(table + 0x6D0, x, operandOrderAddFloat(y, 448.0f), depth, reciprocal,
                   0xFF, 0xE9, 0x2C, alphaByte);
-    nLineSetLayer(table + 0x710, addF(x, width), addF(y, 448.0f),
+    nLineSetLayer(table + 0x710, (x + width), operandOrderAddFloat(y, 448.0f),
                   depth, reciprocal, 0xFF, 0xE9, 0x2C, alphaByte);
-    nLineSetLayer(table + 0x750, addF(x, width), y, depth, reciprocal,
+    nLineSetLayer(table + 0x750, (x + width), y, depth, reciprocal,
                   0xFF, 0xE9, 0x2C, alphaByte);
 }
 /* measured: reconstructed d890 body matches retail byte-for-byte (720-byte window). */
@@ -1168,9 +1169,9 @@ void nLineDrawScaledFrame(NLineTable *table, f32 durationScale, s32 entering) {
     if (entering == 0) {
         amount = 1.0f - amount;
     }
-    width = mulF(640.0f, amount);
+    width = operandOrderMultiply(640.0f, amount);
     insetX = (640.0f - width) / 2.0f;
-    height = mulF(480.0f, amount);
+    height = operandOrderMultiply(480.0f, amount);
     insetY = (448.0f - height) / 2.0f;
     table->batch.triangleEnabled = 0;
     top = insetY + table->batch.origin.y;
@@ -1178,9 +1179,9 @@ void nLineDrawScaledFrame(NLineTable *table, f32 durationScale, s32 entering) {
     depth = D_008872F8[0] - D_0088467C[0];
     reciprocal = 1.0f / ((MdlEffectCamera *)(u32)kwlnGetCamera())->nearPlane;
     nLineSetLayer(table->batch.frameVertices, left, top, depth, reciprocal, 255, 233, 44, 255);
-    bottom = addF(top, height);
+    bottom = operandOrderAddFloat(top, height);
     nLineSetLayer(table->batch.frameVertices + 0x40, left, bottom, depth, reciprocal, 255, 233, 44, 255);
-    right = addF(left, width);
+    right = operandOrderAddFloat(left, width);
     nLineSetLayer(table->batch.frameVertices + 0x80, right, bottom, depth, reciprocal, 255, 233, 44, 255);
     nLineSetLayer(table->batch.frameVertices + 0xC0, right, top, depth, reciprocal, 255, 233, 44, 255);
     table->batch.vertexCount = nLineBuildDecoration((u8 *)table, insetX + table->batch.origin.x, insetY + table->batch.origin.y, width, height);
@@ -1190,7 +1191,9 @@ void nLineDrawScaledFrame(NLineTable *table, f32 durationScale, s32 entering) {
  * from alpha conversion. The body uses common-subexpression elimination;
  * the helper preserves the retail multiply and floating-point register use. */
 #pragma opt_common_subs off
-static inline void nLineHeight(f32 *height, const f32 *amount)
+/* Set the eased band height from the referenced animation amount. */
+/* measured: plain multiplication changes band-height/alpha FPR allocation and shortens the owning function. */
+static inline void nLineScaleBandHeight(f32 *height, const f32 *amount)
 {
     *height = 171.0f * *amount;
 }
@@ -1226,23 +1229,23 @@ void nLineDrawBand(u8 *table, s32 entering) {
     if (entering == 0) {
         amount = 1.0f - amount;
     }
-    nLineHeight(&height, &amount);
+    nLineScaleBandHeight(&height, &amount);
     alpha = ((NLineTable *)table)->batch.alpha;
     alphaFloat = (f32)(u32)alpha;
     scaledAlpha = alphaFloat * amount;
     alphaWord = (u8)scaledAlpha;
     ((NLineTable *)table)->batch.triangleEnabled = 0;
     elapsed = iGpffff8220 - (171.0f * amount) / 2.0f;
-    y = addF(elapsed, ((NLineTable *)table)->batch.origin.y);
+    y = (elapsed + (((NLineTable *)table)->batch.origin.y));
     x = 77.0f + ((NLineTable *)table)->batch.origin.x;
     projection.depth = D_008872F8[0] - D_0088467C[0];
     projection.reciprocal = 1.0f / ((MdlEffectCamera *)(u32)kwlnGetCamera())->nearPlane;
     alphaByte = (u8)alphaWord;
     nLineSetLayer(table + 0x690, x, y, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, alphaByte);
-    height = addF(y, height);
+    height = operandOrderAddFloat(y, height);
     nLineSetLayer(table + 0x6D0, x, height, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, alphaByte);
-    nLineSetLayer(table + 0x710, addF(x, 580.0f), height, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, alphaByte);
-    nLineSetLayer(table + 0x750, addF(x, 580.0f), y, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, alphaByte);
+    nLineSetLayer(table + 0x710, operandOrderAddFloat(x, 580.0f), height, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, alphaByte);
+    nLineSetLayer(table + 0x750, operandOrderAddFloat(x, 580.0f), y, projection.depth, projection.reciprocal, 0xFF, 0xE9, 0x2C, alphaByte);
 }
 #pragma opt_propagation on
 
@@ -1268,9 +1271,9 @@ void nLineDrawFrameAt(u8 *table, f32 offsetX, f32 offsetY, f32 amount)
     scale = 1.0f / ((MdlEffectCamera *)(u32)kwlnGetCamera())->nearPlane;
     alphaByte = (u8)alpha;
     nLineSetLayer(table + 0x690, x, y, z, scale, 0xFA, 0xE3, 0x27, alphaByte);
-    nLineSetLayer(table + 0x6D0, x, addF(y, 480.0f), z, scale, 0xFA, 0xE3, 0x27, alphaByte);
-    nLineSetLayer(table + 0x710, addF(x, 640.0f), addF(y, 480.0f), z, scale, 0xFA, 0xE3, 0x27, alphaByte);
-    nLineSetLayer(table + 0x750, addF(x, 640.0f), y, z, scale, 0xFA, 0xE3, 0x27, alphaByte);
+    nLineSetLayer(table + 0x6D0, x, operandOrderAddFloat(y, 480.0f), z, scale, 0xFA, 0xE3, 0x27, alphaByte);
+    nLineSetLayer(table + 0x710, operandOrderAddFloat(x, 640.0f), operandOrderAddFloat(y, 480.0f), z, scale, 0xFA, 0xE3, 0x27, alphaByte);
+    nLineSetLayer(table + 0x750, operandOrderAddFloat(x, 640.0f), y, z, scale, 0xFA, 0xE3, 0x27, alphaByte);
     ((NLineTable *)table)->batch.vertexCount = nLineBuildDecoration(table, offsetX, offsetY, 640.0f, 448.0f);
     nLineDrawLayers(table, offsetX, offsetY, amount);
 }
@@ -1312,28 +1315,25 @@ s16 nLineRollStyle(u8 *table, s32 setIndex) {
    recomputation, separately from the current distance/color lookup. */
 #pragma push
 #pragma opt_common_subs off
+/* Load the preceding strip distance and add the fixed decoration margin. */
+/* measured: plain lookup removes a previous-entry recomputation and shortens nLineBuildDecoration by four bytes. */
 static inline void nLineLoadPreviousMargin(f32 *out, const NLineDecorationStyle *style, const s32 *index)
 {
     *out = 30.0f + style->offsets[*index - 1];
 }
 #pragma pop
 
-/* measured: the referenced input preserves extent-plus-coordinate
-   operand order when the destination reuses that coordinate. */
-#pragma push
-#pragma opt_common_subs off
-#pragma opt_propagation off
-static inline f32 nLineTranslatedCoordinate(f32 extent, const f32 *source)
-{
-    return extent + *source;
-}
-#pragma pop
+/* measured: shared operandOrderAddLoaded retains extent-plus-coordinate
+   add.s order when the destination reuses that coordinate. */
+
 
 /* measured: the value index and output distance retain the current
    style-base-plus-index address used by both record fields. */
 #pragma push
 #pragma opt_common_subs off
-static inline void nLineCurrentDistance(f32 *out, const NLineDecorationStyle *style, s32 index)
+/* Read the current decoration strip distance into its output coordinate. */
+/* measured: plain lookup reverses the current-distance addu sources in nLineBuildDecoration. */
+static inline void nLineLoadCurrentDistance(f32 *out, const NLineDecorationStyle *style, s32 index)
 {
     *out = style->offsets[index];
 }
@@ -1375,7 +1375,7 @@ s32 nLineBuildDecoration(u8 *table, f32 x, f32 y, f32 width, f32 height) {
         start.x = 640.0f + x;
         start.y = y;
         x = start.x;
-        y = nLineTranslatedCoordinate(448.0f, &y);
+        y = operandOrderAddLoaded(&y, 448.0f);
         direction.x = 1;
         direction.y = 0;
     } else if (!(x <= 0.0f)) {
@@ -1386,7 +1386,7 @@ s32 nLineBuildDecoration(u8 *table, f32 x, f32 y, f32 width, f32 height) {
     } else if (!(y <= 0.0f)) {
         start.x = x;
         start.y = y;
-        x = nLineTranslatedCoordinate(640.0f, &x);
+        x = operandOrderAddLoaded(&x, 640.0f);
         direction.x = 0;
         direction.y = -1;
     } else if (y < 0.0f) {
@@ -1424,7 +1424,7 @@ s32 nLineBuildDecoration(u8 *table, f32 x, f32 y, f32 width, f32 height) {
             while (stripIndex < count) {
                 f32 distance;
                 u8 *color;
-                nLineCurrentDistance(&distance, style, stripIndex);
+                nLineLoadCurrentDistance(&distance, style, stripIndex);
                 shiftX = (f32)direction.x * distance;
                 shiftY = (f32)direction.y * distance;
                 color = D_00749AC0 + style->colors[stripIndex] * 4;
@@ -1492,7 +1492,7 @@ s32 nLineBuildDecoration(u8 *table, f32 x, f32 y, f32 width, f32 height) {
             Vec2f bottomRight;
             u8 *color;
             u8 alpha;
-            nLineCurrentDistance(&distance, style, i);
+            nLineLoadCurrentDistance(&distance, style, i);
             color = D_00749AC0 + style->colors[i] * 4;
             alpha = (u8)((color[3] * ((NLineTable *)table)->batch.alpha) / 255);
             topLeft.y = start.y - distance;
