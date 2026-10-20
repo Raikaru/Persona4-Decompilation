@@ -120,25 +120,6 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern void mdlEffectDestroyModel(s32 input);
 extern void func_00182b40(void);
 extern void FldNoiseEmitPlain();
-/* measured: loop-invariant hoisting keeps the retail stride/base preheader for
-   the 0x750 slot scan. */
-#pragma opt_loop_invariants on
-/* measured: close loop-invariant hoisting around the slot scan. */
-#pragma opt_loop_invariants off
-/* measured probe: opt_propagation off tests caching the repeated render callback base. */
-#pragma opt_propagation off
-/* measured probe: restore opt_propagation after func_00182b40. */
-#pragma opt_propagation on
-#pragma push
-#pragma opt_loop_invariants on
-#pragma pop
-#pragma opt_propagation off
-/* measured: closing the single-function callback-base bracket. */
-#pragma opt_propagation on
-#pragma push
-#pragma opt_lifetimes on
-#pragma opt_loop_invariants on
-#pragma pop
 /* measured probe: O1 test for target byte-copy register allocation. */
 #pragma optimization_level 1
 /* measured probe: restore optimization level after target O1 test. */
@@ -218,31 +199,6 @@ extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 extern u32 datEntryGetFlags(s16 itemId);
 extern s32 fclFirstSetBitIndex(s32 flags);
 extern void (*D_00887300[])(s32 input, s32 data);
-/* measured: a typed vtable base local with propagation disabled reproduces the
-   retail single D_00887300 address hoist and saved-register frame. */
-#pragma opt_propagation off
-/* measured: restores opt_propagation after func_002b5120. */
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_loop_invariants off
-/* Preserve the signed-halfword zero test without merging it with the
-   preceding sentinel comparison. */
-#pragma push
-#pragma opt_common_subs off
-#pragma pop
-#pragma push
-#pragma opt_dead_assignments off
-#pragma pop
-#pragma push
-#pragma opt_propagation off
-#pragma opt_common_subs on
-#pragma opt_common_subs on
-#pragma pop
-#pragma opt_common_subs off
-#pragma opt_common_subs on
-#pragma push
-#pragma opt_propagation off
-#pragma pop
 /* Evaluates the entry flags through func_002be1e0. */
 // FUN_002BE1B0
 s32 datEntryEvaluateFlags(s16 item)
@@ -736,6 +692,7 @@ void mdlEffectEvalSubPose(int instance, float *output)
 // Sets each entry's frame to data modulo the entry's frame count (+0x0C of the entry's block) and marks it active (+0x08 = 1). The loop is built with opt_loop_invariants on, as measured.
 // FUN_00482730
 /* measured: opt_loop_invariants on is required for mdlEffectWrapTrackFrames (MATCH nd0). */
+/* measured: baseline and an explicit active local both leave the 1 inside the loop (19 differing words); retain hoisting. */
 #pragma opt_loop_invariants on
 void mdlEffectWrapTrackFrames(int instance, u32 frame)
 {
@@ -751,15 +708,11 @@ void mdlEffectWrapTrackFrames(int instance, u32 frame)
   }
   return;
 }
-
-
 /* measured: opt_loop_invariants off closes the mdlEffectWrapTrackFrames bracket. */
 #pragma opt_loop_invariants off
 
-#pragma opt_loop_invariants on
-#pragma opt_propagation off
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
+
+
 // Builds a matrix with GeometryMatrixBuild and passes it, with the pointer at +0xC of input, to func_003e9cb0.
 // FUN_00484350
 void mdlEffectApplyGeometryMatrix(u8 *instance)
@@ -865,6 +818,7 @@ void mdlEffectReleaseSecondarySource(u8 *instance)
  * retail leaves the copied quadword in v0 through return. Preserve that
  * live-out; the current C callers discard it. The four hardware vf0 stores
  * produce (0,0,0,1), not a zero quadword. */
+/* measured: typed/byte source locals fold the global address (14 differing words); memcpy adds a call, so retain propagation off. */
 #pragma push
 #pragma opt_propagation off
 u_long128 mdlEffectInitParticleState(u8 *instance)
@@ -888,23 +842,11 @@ u_long128 mdlEffectInitParticleState(u8 *instance)
     state->word68 = 0x80;
     return quad;
 }
+#pragma pop
 
 
 extern void mdlEffectCommitTreeFrame(u8 *effect);
 extern void mdlEffectFlushTreeFrame(u8 *effect);
-#pragma push
-#pragma opt_propagation off
-#pragma pop
-#pragma push
-#pragma opt_lifetimes on
-#pragma opt_propagation off
-#pragma pop
-#pragma push
-#pragma opt_propagation off
-#pragma pop
-#pragma push
-#pragma opt_propagation off
-#pragma pop
 /* Runs the two child-effect processing passes on the supplied object. */
 // FUN_00485AE0
 void mdlEffectAdvanceAndDrawChildren(s32 instance)
@@ -942,19 +884,6 @@ u8 *mdlEffectFindNodeById(u8 *root, s32 identifier)
 
 
 
-#pragma pop
-#pragma push
-#pragma opt_lifetimes on
-#pragma opt_propagation off
-#pragma pop
-#pragma push
-#pragma opt_propagation off
-#pragma pop
-#pragma push
-#pragma opt_propagation off
-#pragma pop
-#pragma opt_propagation off
-#pragma opt_propagation on
     #pragma optimization_level 1
     #pragma optimization_level 2
 #pragma optimization_level 1
@@ -983,8 +912,6 @@ void mdlEffectSetUnitWeight(void)
 
 
 
-#pragma opt_propagation off
-#pragma opt_propagation on
     #pragma optimization_level 1
     #pragma optimization_level 2
 #pragma optimization_level 1
@@ -1573,21 +1500,6 @@ void mdlEffectCatmullRomVU(float progress, u8 (*points)[16])
 
 
 
-#pragma push
-#pragma opt_common_subs off
-#pragma opt_propagation off
-#pragma pop
-#pragma opt_propagation off
-#pragma opt_propagation on
-#pragma push
-#pragma opt_lifetimes on
-#pragma opt_propagation off
-#pragma opt_loop_invariants on
-#pragma pop
-#pragma push
-#pragma opt_propagation off
-#pragma opt_loop_invariants on
-#pragma pop
 /* Scale applier for emitter kind 1 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048C440
 void EffWaveApplyScale(u8 *emitter, f32 scale) {
@@ -1613,10 +1525,6 @@ void EffWaveApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-#pragma push
-#pragma opt_propagation off
-#pragma opt_loop_invariants on
-#pragma pop
 /* Scale applier for emitter kind 2 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048CD60
 void EffMotionApplyScale(u8 *emitter, f32 scale) {
@@ -1641,10 +1549,6 @@ void EffMotionApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_propagation off
-#pragma pop
 /* Scale applier for emitter kind 3 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_0048D820
 void EffEmitterKind3ApplyScale(u8 *emitter, f32 scale) {
@@ -1670,10 +1574,6 @@ void EffEmitterKind3ApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_propagation off
-#pragma pop
 /* Scale applier for emitter kind 4 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_0048E270
 void EffEmitterKind4ApplyScale(u8 *emitter, f32 scale) {
@@ -1697,10 +1597,6 @@ void EffEmitterKind4ApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-#pragma push
-#pragma opt_propagation off
-#pragma opt_loop_invariants on
-#pragma pop
 /* Scale applier for emitter kind 5 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048EBC0
 void EffConeApplyScale(u8 *emitter, f32 scale) {
@@ -1725,10 +1621,6 @@ void EffConeApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-#pragma push
-#pragma opt_propagation off
-#pragma opt_loop_invariants on
-#pragma pop
 /* Scale applier for emitter kind 6 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_0048F560
 void EffConeAngleApplyScale(u8 *emitter, f32 scale) {
@@ -1785,10 +1677,6 @@ void EffBezierApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-#pragma push
-#pragma opt_propagation off
-#pragma opt_loop_invariants on
-#pragma pop
 /* Scale applier for emitter kind 8 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_00490BB0
 void EffEmitterKind8ApplyScale(u8 *emitter, f32 scale) {
@@ -1813,11 +1701,6 @@ void EffEmitterKind8ApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_lifetimes on
-#pragma opt_propagation off
-#pragma pop
 /* Scale applier for emitter kind 9 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_00491660
 void EffEmitterKind9ApplyScale(u8 *emitter, f32 scale) {
@@ -1842,10 +1725,6 @@ void EffEmitterKind9ApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_propagation off
-#pragma pop
 /* Scale applier for emitter kind 10 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. Each stored float is multiplied by fparg0 through plain single-precision multiplication. */
 // FUN_00492080
 void EffEmitterKind10ApplyScale(u8 *emitter, f32 scale) {
@@ -1869,10 +1748,6 @@ void EffEmitterKind10ApplyScale(u8 *emitter, f32 scale) {
 }
 
 
-#pragma push
-#pragma opt_propagation off
-#pragma opt_loop_invariants on
-#pragma pop
 /* Scale applier for emitter kind 11 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00492A80
 void EffSwayParticleApplyScale(u8 *emitter, f32 scale) {
@@ -1914,7 +1789,7 @@ void mdlEffectResetEmitterTicks(u8 *instance)
 }
 
 
-/* measured: probing opt_loop_invariants for the preheader -1 and loop branch. */
+/* measured: pointer/index loops and an explicit inactive local leave -1 unhoisted (best 11 differing words); retain hoisting. */
 #pragma opt_loop_invariants on
 /* On the first tick, marks samples inactive; dispatches the kind update and advances the tick counter. */
 // FUN_00492D10
@@ -1942,6 +1817,8 @@ void mdlEffectAdvanceEmitter(void *object) {
     D_00713D50[*(u16 *)emitter * 4](emitter);
     (tickDestination = (EffTrackPath *)(emitter))->ticks.signedValue = (tickSource = (EffTrackPath *)(emitter))->ticks.signedValue + 1;
 }
+/* measured: restore the unit's loop-invariant baseline immediately after the emitter, not after the quad accessors. */
+#pragma opt_loop_invariants off
 
 
 // Loads the 128-bit quad at +0x20 of the object at value into *data and returns it.
@@ -1954,9 +1831,9 @@ u_long128 mdlEffectLoadQuadA(int instance, u32 *quadData)
 }
 
 
-/* measured: opt_propagation off preserves mdlEffectStoreQuadA's 128-bit load/store ordering (MATCH nd0). */
-#pragma opt_propagation off
 
+/* measured: typed, MEMBER and byte-pointer destinations all reverse the two loads (2 differing words); retain propagation off. */
+#pragma opt_propagation off
 // Stores the 128-bit quad at *data into +0x20 of the object at value and returns it.
 // FUN_00492DD0
 u_long128 mdlEffectStoreQuadA(int instance, u32 *quadData)
@@ -1969,9 +1846,8 @@ u_long128 mdlEffectStoreQuadA(int instance, u32 *quadData)
   *dst = value;
   return value;
 }
-
-/* measured: opt_propagation on closes the mdlEffectStoreQuadA bracket. */
 #pragma opt_propagation on
+
 
 
 // Loads the 128-bit quad at +0x30 of the object at value into *data and returns it.
@@ -1983,9 +1859,9 @@ u_long128 mdlEffectLoadQuadB(int instance, u32 *quadData)
 }
 
 
-/* measured: opt_propagation off preserves mdlEffectStoreQuadB's 128-bit load/store ordering (MATCH nd0). */
-#pragma opt_propagation off
 
+/* measured: typed, MEMBER and byte-pointer destinations all reverse the two loads (2 differing words); retain propagation off. */
+#pragma opt_propagation off
 // Stores the 128-bit quad at *data into +0x30 of the object at value and returns it.
 // FUN_00492E10
 u_long128 mdlEffectStoreQuadB(int instance, u32 *quadData)
@@ -1998,13 +1874,10 @@ u_long128 mdlEffectStoreQuadB(int instance, u32 *quadData)
   *dst = value;
   return value;
 }
-/* measured: opt_propagation on closes the mdlEffectStoreQuadB bracket. */
 #pragma opt_propagation on
 
 
 
-/* measured: closes opt_loop_invariants at its prior file baseline. */
-#pragma opt_loop_invariants off
 /* Applies a scale to an emitter record: dispatches on the emitter kind (u16 at +0) through the scale table D_00713D54. */
 // FUN_00492E30
 void EffEmitterApplyScale(u16 *emitter, f32 scale) {
@@ -2013,16 +1886,6 @@ void EffEmitterApplyScale(u16 *emitter, f32 scale) {
 
 
 extern void mdlEffectDestroyMultipartGeometry(u8 *source);
-#pragma opt_loop_invariants on
-#pragma opt_loop_invariants off
-#pragma opt_propagation off
-#pragma opt_common_subs off
-#pragma opt_common_subs on
-#pragma opt_propagation on
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_pulloutconstants off
-#pragma pop
 /* Releases both owned geometry blocks and frees the containing object. */
 // FUN_00494680
 void mdlEffectDestroyGeometryPair(void *instance)
@@ -2085,17 +1948,6 @@ s32 mdlEffectSlotIsFree(u8 *instance, u16 slotIndex)
 
 
 
-#pragma opt_propagation off
-#pragma opt_common_subs off
-#pragma opt_common_subs on
-#pragma opt_propagation on
-#pragma push
-#pragma opt_loop_invariants on
-#pragma opt_pulloutconstants off
-#pragma pop
-#pragma push
-#pragma opt_loop_invariants on
-#pragma pop
 // Copies the camera origin, then locks the geometry under the sub-objects at +0x10 and +0x14.
 // FUN_00494F90
 void mdlEffectCopyOriginAndLockGeometry(u8 *instance) {
@@ -2228,9 +2080,6 @@ void ThunderSetScale(u8 *instance, f32 scale) {
 }
 
 
-#pragma push
-#pragma opt_loop_invariants on
-#pragma pop
 /* Sets the child material color, temporarily replacing alpha 255 with 254. */
 // FUN_00498D20
 void mdlEffectSetThunderMaterialColor(u8 *instance) {
@@ -2458,11 +2307,6 @@ void FlashQuadSetVec3(u8 *destination, f32 *source) {
 }
 
 
-#pragma opt_loop_invariants on
-#pragma opt_loop_invariants off
-#pragma opt_loop_invariants on
-/* measured: restores the file's O2 loop-invariant baseline. */
-#pragma opt_loop_invariants off
 /* Calls kind slot +0x08 with the object, then frees it through the allocator free table. The kind index is at +0x38. */
 // FUN_004A58B0
 void WindInstanceDestroy(u8 *instance)
@@ -2709,9 +2553,6 @@ void mdlEffectInstanceSetScale(u8 *instance, f32 scale) {
 }
 
 
-#pragma opt_loop_invariants on
-/* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
-#pragma opt_loop_invariants off
 // Resolves the source's relative pointer A and creates the grid object from that record.
 // FUN_004A6D90
 void *mdlEffectCreateGridForObject(void *source) {
@@ -2721,8 +2562,6 @@ void *mdlEffectCreateGridForObject(void *source) {
 }
 
 
-#pragma opt_loop_invariants on
-#pragma opt_loop_invariants off
 // Releases the grid geometry at +0x58 through func_004841c0 and frees the object: the destroy counterpart of mdlEffectCreateGridForRecord, which allocates the object with that geometry at +0x58.
 // FUN_004A6DC0
 void mdlEffectDestroyGridObject(u8 *instance)
@@ -3149,11 +2988,8 @@ void mdlEffectSetWord5(u32 *instance, u32 value)
 #pragma push
 #pragma optimization_level 3
 #pragma schedule off
-#pragma opt_loop_invariants off
 #pragma opt_rotateloops off
 #pragma tailcall off
-#pragma opt_common_subs off
-#pragma opt_propagation off
 /* measured: restore the enclosing options; owner verification is 92/92 MATCH. */
 #pragma pop
 /* Replaces the shared frame translation and clears its active flag. */
@@ -3188,14 +3024,6 @@ void mdlEffectStepSequenceCallback(s32 *instance) {
 }
 
 
-#pragma opt_loop_invariants on
-#pragma opt_loop_invariants off
-#pragma opt_loop_invariants on
-#pragma opt_loop_invariants off
-#pragma opt_loop_invariants on
-#pragma opt_loop_invariants off
-#pragma opt_loop_invariants on
-#pragma opt_loop_invariants off
 /* Chooses a starting frame and independently jittered quad center, then computes its square bounds. */
 // FUN_004A8A50
 void mdlEffectInitRandomQuad(u8 *parameters, u8 *entry)
@@ -3240,9 +3068,6 @@ void mdlEffectCacheDisplayRaster(void)
 }
 
 
-#pragma push
-#pragma opt_propagation off
-#pragma pop
 // Resets a drawable: when its entry count at +0x9C is nonzero, runs func_00485fe0 on each entry of the list at +0x98 (count at +0x28); then zeroes the model layer time at +0xA0 and clears the counter at +0x2C.
 // FUN_004ADAB0
 void EffModelDrawableReset(u8 *instance)
@@ -3269,22 +3094,8 @@ void EffModelDrawableReset(u8 *instance)
 #pragma push
 #pragma optimization_level 3
 #pragma schedule off
-#pragma opt_loop_invariants off
 #pragma opt_rotateloops off
 #pragma tailcall off
-#pragma opt_common_subs off
-#pragma opt_propagation off
-#pragma pop
-#pragma opt_loop_invariants on
-#pragma opt_loop_invariants off
-#pragma opt_loop_invariants on
-#pragma opt_loop_invariants off
-#pragma opt_loop_invariants on
-#pragma opt_loop_invariants off
-#pragma opt_loop_invariants on
-#pragma opt_loop_invariants off
-#pragma push
-#pragma opt_propagation off
 #pragma pop
 /* Draws diagnostic model matrices or processes child effects while the drawable duration allows it. */
 // FUN_004ADE80
@@ -3738,9 +3549,6 @@ void mdlEffectIncrementHelperAge(u8 *instance)
 }
 
 
-#pragma push
-#pragma opt_loop_invariants on
-#pragma pop
 /* Increments the helper age and invokes its processing pass. */
 // FUN_004B2740
 void mdlEffectAdvanceHelper(u8 *instance)
@@ -3756,17 +3564,8 @@ void mdlEffectStoreWord(u32 *instance, u32 value)
 {
   *instance = value;
 }
-#pragma push
-#pragma opt_loop_invariants on
-#pragma pop
 
 
-#pragma opt_propagation off
-#pragma opt_propagation on
-#pragma push
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma pop
 /* Detaches and releases camera frame/raster resources, then unlocks and releases the texture raster. */
 // FUN_004B2E00
 void mdlEffectReleaseCameraTexture(u8 *object) {
