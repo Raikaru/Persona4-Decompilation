@@ -3,6 +3,8 @@
 #include "sdktask.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
+#include "radar_menu_internal.h"
+#include "sdk_list_state.h"
 
 void chkmemAllocSiteTag(void *file, s32 line);
 void kAssertFail(void *, s32);
@@ -91,7 +93,7 @@ typedef struct {
     u8 pad0E[2];
     s32 activeMenus;
     s32 closingDone;
-    u8 title[0x2A4];
+    TitleSlotMenu title;
     u8 item[0x1BE8];
     u8 skill[0x1338];
     u8 equipment[0x1598];
@@ -119,9 +121,10 @@ typedef struct {
 
 /* Dispatch the active camp submenu and synchronize its transition/draw mask. */
 // FUN_0012C510
-/* Raw work-relative accesses retain retail alias scheduling; typed field access changed 1150 instruction bytes. The proven layout is documented above. */
+/* measured: earlier access-site typing changed 1150 instruction bytes; current typed-local/member forms retain MATCH. */
 s32 cmpMainTaskStep(u8 *unusedTask) {
     u8 *work;
+    CmpMainWork *menu;
     u32 state;
     s32 result;
     s32 itemChanged;
@@ -136,56 +139,57 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
     u8 inputState[0x30];
 
     work = iGpffffb1ec;
-    *(s32 *)(work + 0x970C) = 0;
-    *(s32 *)(work + 0x9710) = 0;
-    PrimAppendNode((u8 *)D_00793E80 + *(u16 *)(work + 0x973C) * 0x30, work + 0x970C);
-    state = *(u32 *)work;
+    menu = (CmpMainWork *)work;
+    menu->nodeNext = 0;
+    menu->nodeTail = 0;
+    PrimAppendNode((u8 *)D_00793E80 + menu->tableIndex * 0x30, work + 0x970C);
+    state = menu->state.value;
     switch (state) {
     case 0:
-        *(s32 *)(work + 0x1C) = 0;
-        *(s32 *)(work + 0x20) = 0;
-        *(u8 *)(work + 0x18) = 0xFF;
-        *(s32 *)(work + 0x28) = 0;
-        *(s32 *)work = 1;
+        *(s32 *)&menu->title.x = 0;
+        *(s32 *)&menu->title.y = 0;
+        menu->title.alpha = 0xFF;
+        menu->title.selection = 0;
+        menu->state.signedValue = 1;
         sdkSndStartStream(0, 2, 0, 3);
         break;
     case 1:
-        *(s32 *)(work + 0x10) = 1;
-        *(s32 *)work = 2;
+        menu->activeMenus = 1;
+        menu->state.signedValue = 2;
         titleSlotTableInit(work + 0x18);
         nLineSelectSet(1);
         break;
     case 2:
-        *(s32 *)(work + 0x10) = 1;
-        if ((titleSlotsSettled(work + 0x18) != 0) && (*(s32 *)(work + 0x10) == 1)) {
+        menu->activeMenus = 1;
+        if ((titleSlotsSettled(work + 0x18) != 0) && (menu->activeMenus == 1)) {
             if (D_008C024E[0] & 0x40) {
-                *(s32 *)(work + 4) = 0;
-                *(s32 *)work = 3;
-                commandOffset = *(s32 *)(work + 0x28) * 4;
+                menu->detailState = 0;
+                menu->state.signedValue = 3;
+                commandOffset = menu->title.selection * 4;
                 commandAddress = commandOffset + (u32)work;
-                switch (*(u32 *)(commandAddress + 0x34)) {
+                switch (((CmpMainWork *)commandAddress)->title.commandIds[0]) {
                 case 1:
-                    *(s32 *)(work + 8) = 4;
+                    menu->nextState = 4;
                     break;
                 case 0:
-                    *(s32 *)(work + 8) = 5;
+                    menu->nextState = 5;
                     datGridEffectCreate(0, iGpffff9cb0, 0x14, 8, 1, 2, 0xC7, 0xB1);
                     break;
                 case 2:
-                    *(s32 *)(work + 8) = 6;
+                    menu->nextState = 6;
                     break;
                 case 3:
-                    *(s32 *)(work + 8) = 7;
+                    menu->nextState = 7;
                     break;
                 case 4:
-                    *(s32 *)(work + 8) = 8;
+                    menu->nextState = 8;
                     break;
                 case 5:
-                    *(s32 *)(work + 8) = 9;
+                    menu->nextState = 9;
                     datGridEffectCreate(0, iGpffff9cb4, 0x14, 8, 1, 2, 0xC7, 0xB1);
                     break;
                 case 6:
-                    *(s32 *)(work + 8) = 0xA;
+                    menu->nextState = 0xA;
                     break;
                 default:
                     kAssertFail(D_005E5890, 0xFD);
@@ -196,34 +200,34 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
                 sdkSndStartStream(0, 2, 0, 3);
             } else if ((D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x10)) {
                 titleSlotSetMode(work + 0x18, 3);
-                *(s32 *)work = 3;
-                *(s32 *)(work + 8) = 0xD;
-                *(s32 *)(work + 0x14) = 0;
+                menu->state.signedValue = 3;
+                menu->nextState = 0xD;
+                menu->closingDone = 0;
                 nLineSelectSet(2);
                 sdkSndStartStream(0, 2, 0, 4);
             } else {
-                sdkListStateConfigure(&inputState, *(s32 *)(work + 0x50), *(s32 *)(work + 0x50),
-                              *(s32 *)(work + 0x28), 0);
+                sdkListStateConfigure(&inputState, menu->title.slotCount, menu->title.slotCount,
+                              menu->title.selection, 0);
                 sdkListStateSetSecondaryMasks(&inputState, 0x4000, 0x1000, 0, 0);
                 if (sdkListStateHandleInput(&inputState) != 0) {
-                    titleSelectSlot(work + 0x18, *(s32 *)((u8 *)&inputState + 0x24));
+                    titleSelectSlot(work + 0x18, ((SdkListState *)&inputState)->cursor);
                 }
             }
         }
         break;
     case 13:
-        if ((titleSlotFramesElapsed(work + 0x18) != 0) && (*(s32 *)(work + 0x14) != 0)) {
+        if ((titleSlotFramesElapsed(work + 0x18) != 0) && (menu->closingDone != 0)) {
             return -1;
         }
         break;
     case 3:
-        result = *(s32 *)(work + 8);
+        result = menu->nextState;
         if ((result < 4) || (result > 0xD)) {
             kAssertFail(D_005E5890, 0x133);
         }
         if (titleSlotFramesElapsed(work + 0x18) != 0) {
             titleFreeSpriteNodes(work + 0x18);
-            *(s32 *)work = *(s32 *)(work + 8);
+            menu->state.signedValue = menu->nextState;
         }
         break;
     case 4:
@@ -231,15 +235,15 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
         switch (result) {
         case 0:
             if (itemChanged != 0) {
-                *(s32 *)(work + 0x10) = 2;
+                menu->activeMenus = 2;
             }
             break;
         case 1:
-            *(s32 *)(work + 4) = 0;
-            *(s32 *)work = 1;
+            menu->detailState = 0;
+            menu->state.signedValue = 1;
             break;
         case 2:
-            *(s32 *)(work + 0x10) = 0;
+            menu->activeMenus = 0;
             return -1;
         }
         break;
@@ -248,15 +252,15 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
         switch (result) {
         case 0:
             if (recipientChanged != 0) {
-                *(s32 *)(work + 0x10) = 4;
+                menu->activeMenus = 4;
             }
             break;
         case 1:
-            *(s32 *)(work + 4) = 0;
-            *(s32 *)work = 1;
+            menu->detailState = 0;
+            menu->state.signedValue = 1;
             break;
         case 2:
-            *(s32 *)(work + 0x10) = 0;
+            menu->activeMenus = 0;
             return -1;
         }
         break;
@@ -265,15 +269,15 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
         switch (result) {
         case 0:
             if (equipmentChanged != 0) {
-                *(s32 *)(work + 0x10) = 0x10;
+                menu->activeMenus = 0x10;
             }
             break;
         case 1:
-            *(s32 *)(work + 4) = 0;
-            *(s32 *)work = 1;
+            menu->detailState = 0;
+            menu->state.signedValue = 1;
             break;
         case 2:
-            *(s32 *)(work + 0x10) = 0;
+            menu->activeMenus = 0;
             return -1;
         }
         break;
@@ -282,15 +286,15 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
         switch (result) {
         case 0:
             if (personaChanged != 0) {
-                *(s32 *)(work + 0x10) = 0x20;
+                menu->activeMenus = 0x20;
             }
             break;
         case 1:
-            *(s32 *)(work + 4) = 0;
-            *(s32 *)work = 1;
+            menu->detailState = 0;
+            menu->state.signedValue = 1;
             break;
         case 2:
-            *(s32 *)(work + 0x10) = 0;
+            menu->activeMenus = 0;
             return -1;
         }
         break;
@@ -299,15 +303,15 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
         switch (result) {
         case 0:
             if (otherChanged != 0) {
-                *(s32 *)(work + 0x10) = 0x40;
+                menu->activeMenus = 0x40;
             }
             break;
         case 1:
-            *(s32 *)(work + 4) = 0;
-            *(s32 *)work = 1;
+            menu->detailState = 0;
+            menu->state.signedValue = 1;
             break;
         case 2:
-            *(s32 *)(work + 0x10) = 0;
+            menu->activeMenus = 0;
             return -1;
         }
         break;
@@ -316,15 +320,15 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
         switch (result) {
         case 0:
             if (systemChanged != 0) {
-                *(s32 *)(work + 0x10) = 0x80;
+                menu->activeMenus = 0x80;
             }
             break;
         case 1:
-            *(s32 *)(work + 4) = 0;
-            *(s32 *)work = 1;
+            menu->detailState = 0;
+            menu->state.signedValue = 1;
             break;
         case 2:
-            *(s32 *)(work + 0x10) = 0;
+            menu->activeMenus = 0;
             return -1;
         }
         break;
@@ -333,15 +337,15 @@ s32 cmpMainTaskStep(u8 *unusedTask) {
         switch (result) {
         case 0:
             if (communityChanged != 0) {
-                *(s32 *)(work + 0x10) = 8;
+                menu->activeMenus = 8;
             }
             break;
         case 1:
-            *(s32 *)(work + 4) = 0;
-            *(s32 *)work = 1;
+            menu->detailState = 0;
+            menu->state.signedValue = 1;
             break;
         case 2:
-            *(s32 *)(work + 0x10) = 0;
+            menu->activeMenus = 0;
             return -1;
         }
         break;
@@ -412,8 +416,9 @@ void cmpMainTaskDestroy(u8 *task) {
 
 /* Update enabled submenu animations with render state 0xE temporarily disabled. */
 // FUN_0012CD90
-/* Raw work-relative accesses retain retail alias scheduling; typed field access changed 493 instruction bytes. The proven layout is documented above. */
+/* measured: earlier access-site typing changed 493 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpMainUpdateMenus(void) {
+    CmpMainWork *menu;
     void (**renderStateSetters)(s32, s32);
     s32 savedRenderState;
     s32 result;
@@ -421,60 +426,61 @@ void cmpMainUpdateMenus(void) {
 
     result = 1;
     work = iGpffffb1ec;
+    menu = (CmpMainWork *)work;
     if (work != NULL) {
         D_00887304[0](0xE, &savedRenderState);
         renderStateSetters = D_00887300;
         renderStateSetters[0](0xE, 0);
-        if (*(s32 *)(work + 0x10) & 1) {
+        if (menu->activeMenus & 1) {
             result = titleSlotUpdateAndDraw(work + 0x18);
             if (result != 0) {
-                *(s32 *)(work + 0x10) &= ~1;
+                menu->activeMenus &= ~1;
             }
         }
-        if (*(s32 *)(work + 0x10) & 2) {
+        if (menu->activeMenus & 2) {
             result = radarStepSlotAnimA(work + 0x2BC);
             if (result != 0) {
-                *(s32 *)(work + 0x10) &= ~2;
+                menu->activeMenus &= ~2;
             }
         }
-        if (*(s32 *)(work + 0x10) & 4) {
+        if (menu->activeMenus & 4) {
             result = cmpSkillMenuUpdate(work + 0x1EA4);
             if (result != 0) {
-                *(s32 *)(work + 0x10) &= ~4;
+                menu->activeMenus &= ~4;
             }
         }
-        if (*(s32 *)(work + 0x10) & 8) {
+        if (menu->activeMenus & 8) {
             result = datCommunityPanelUpdate(work + 0x4774);
             if (result != 0) {
-                *(s32 *)(work + 0x10) &= ~8;
+                menu->activeMenus &= ~8;
             }
         }
-        if (*(s32 *)(work + 0x10) & 0x10) {
+        if (menu->activeMenus & 0x10) {
             result = cmpEquipMenuUpdate(work + 0x31DC);
             if (result != 0) {
-                *(s32 *)(work + 0x10) &= ~0x10;
+                menu->activeMenus &= ~0x10;
             }
         }
-        if (*(s32 *)(work + 0x10) & 0x20) {
+        if (menu->activeMenus & 0x20) {
             result = cmpPersonaMenuUpdate(work + 0x5A8C);
             if (result != 0) {
-                *(s32 *)(work + 0x10) &= ~0x20;
+                menu->activeMenus &= ~0x20;
             }
         }
-        if (*(s32 *)(work + 0x10) & 0x40) {
+        if (menu->activeMenus & 0x40) {
             result = radarUpdateFrame(work + 0x7750);
             if (result != 0) {
-                *(s32 *)(work + 0x10) &= ~0x40;
+                menu->activeMenus &= ~0x40;
             }
         }
-        if (*(s32 *)(work + 0x10) & 0x80) {
+        if (menu->activeMenus & 0x80) {
             result = datCommunityMenuUpdate(work + 0x9000);
             if (result != 0) {
-                *(s32 *)(work + 0x10) &= ~0x80;
+                menu->activeMenus &= ~0x80;
             }
         }
-        if ((*(s32 *)work == 0xD) && (result != 0)) {
-            *(s32 *)(work + 0x14) = 1;
+        if ((menu->state.signedValue == 0xD) && (result != 0)) {
+            menu->closingDone = 1;
         }
         renderStateSetters[0](0xE, savedRenderState);
     }
@@ -525,17 +531,19 @@ s32 cmpAssetLoaderStep(u8 *);
 
 /* Load the camp directory, request six sprites, then wait until every sprite is ready. */
 // FUN_0012D190
-/* Raw work-relative accesses retain retail alias scheduling; typed field access changed 219 instruction bytes. The proven layout is documented above. */
+/* measured: earlier access-site typing changed 219 instruction bytes; current typed-local/member forms retain MATCH. */
 s32 cmpAssetLoaderStep(u8 *task) {
     s32 requestIndex;
     s32 readyIndex;
     s32 result;
     u8 *work;
+    CmpAssetLoaderWork *menu;
     u8 *slotBase;
     u8 *spriteSlot;
 
-    work = *(u8 **)(task + 0x38);
-    switch (*(u16 *)work) {
+    work = ((SdkTask *)task)->work;
+    menu = (CmpAssetLoaderWork *)work;
+    switch (menu->state) {
     case 0:
         goto state0;
     case 1:
@@ -548,37 +556,37 @@ s32 cmpAssetLoaderStep(u8 *task) {
 
 state0:
     func_00440b68(&iGpffff9cc0, D_005E5890, 0x2F8);
-    *(u8 **)(work + 0x34) = H_Cdvd_AcquireDirectory(D_005E58A0, 1);
-    if (*(u8 **)(work + 0x34) == NULL) {
+    menu->directory = H_Cdvd_AcquireDirectory(D_005E58A0, 1);
+    if (menu->directory == NULL) {
         kAssertFail(D_005E5890, 0x2F9);
     }
-    *(u16 *)work += 1;
+    menu->state += 1;
 
 state1:
-    if (H_Cdvd_IsFileLoaded(*(u8 **)(work + 0x34)) != 0) {
+    if (H_Cdvd_IsFileLoaded(menu->directory) != 0) {
         for (requestIndex = 0; requestIndex < 6; requestIndex++) {
             slotBase = work + requestIndex * 4;
             spriteSlot = slotBase + 0x1C;
-            *(s32 *)spriteSlot = sdkSpriteCreateFromName(*(u32 *)(slotBase + 4));
+            *(s32 *)spriteSlot = sdkSpriteCreateFromName(((CmpAssetLoaderWork *)(slotBase))->resourceNames[0]);
             if (*(s32 *)spriteSlot == 0) {
                 kAssertFail(D_005E5890, 0x30C);
             }
         }
-        *(u16 *)work += 1;
+        menu->state += 1;
     } else {
         goto fail;
     }
 
 state2:
     for (readyIndex = 0; readyIndex < 6; readyIndex++) {
-        if (hMaestroDecodeIsReady(*(s32 *)(work + readyIndex * 4 + 0x1C)) != 0) {
+        if (hMaestroDecodeIsReady(((CmpAssetLoaderWork *)(work + readyIndex * 4))->sprites[0]) != 0) {
         } else {
             result = 0;
             goto done;
         }
     }
-    H_Cdvd_Destroy(*(u8 **)(work + 0x34));
-    *(u8 **)(work + 0x34) = NULL;
+    H_Cdvd_Destroy(menu->directory);
+    menu->directory = NULL;
     result = -1;
     goto done;
 
@@ -593,6 +601,7 @@ done:
 s32 cmpAssetLoaderTaskCreate(void) {
     s32 task;
     u8 *work;
+    CmpAssetLoaderWork *menu;
 
     chkmemAllocSiteTag(D_005E5890, 0x32C);
     work = (u8 *)D_008873F4[0](1, 0x38, 0x40000);

@@ -99,6 +99,14 @@ typedef struct {
 } CmpPersonaWork;
 typedef char CmpPersonaWorkSize[sizeof(CmpPersonaWork) == 0x1CC4 ? 1 : -1];
 
+/* Twenty-eight-byte transition records supply position, size, opacity and timing. */
+typedef struct {
+    f32 x, y, width, height;
+    u8 alpha;
+    u8 pad11[3];
+    s32 startFrame, endFrame;
+} CmpPersonaLayoutRow;
+
 /* measured: b210 -O2 with loop-invariant optimization. Independent initialization
    counters and per-resource sprite slots retain the retail loop scopes. The
    command-list boundary forwards a native message pointer to itfMesManager. */
@@ -106,8 +114,9 @@ typedef char CmpPersonaWorkSize[sizeof(CmpPersonaWork) == 0x1CC4 ? 1 : -1];
 // FUN_001356D0
 #pragma push
 #pragma opt_loop_invariants on
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpPersonaWork rewrite changed 74 instruction bytes and was reverted. */
+/* measured: earlier CmpPersonaWork typing changed 74 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpPersonaMenuInit(u8* work) {
+ CmpPersonaWork *menu = (CmpPersonaWork *)work;
  extern void cmpPersonaBuildRosterList(u8* work);
  extern s16 datBuildMemberIdList(s16* ids);
  extern void* memset(void* dst, s32 value, u32 size);
@@ -132,17 +141,17 @@ void cmpPersonaMenuInit(u8* work) {
  u8* src;
 
  memset(work, 0, 0x1CC4);
- *(s32*)(work + 4) = 0;
- *(s32*)(work + 8) = 0;
- *(u8*)work = 0xFF;
- *(s32*)(work + 0x18) = -1;
- *(s16*)(work + 0x20) = 0;
- *(s32*)(work + 0x14) = 0;
+ *(s32 *)&menu->x = 0;
+ *(s32 *)&menu->y = 0;
+ menu->alpha = 0xFF;
+ menu->mode = -1;
+ menu->timer = 0;
+ menu->phase = 0;
  {
   s16 i;
   for (i = 0; i < 4; i++) {
-   *(s16*)(work + i * 2 + 0x50) = 0;
-   *(s16*)(work + i * 2 + 0x58) = 0;
+   ((CmpPersonaWork *)(work + i * 2))->selected[0] = 0;
+   ((CmpPersonaWork *)(work + i * 2))->previous[0] = 0;
   }
  }
  {
@@ -150,47 +159,47 @@ void cmpPersonaMenuInit(u8* work) {
   for (i = 0; i < 28; i++) {
    src = D_005EA2E0 + i * 0x1C;
    p = work + i * 0x30;
-   *(f32*)(p + 0x1064) = *(f32*)(src + 0);
-   *(f32*)(p + 0x1068) = *(f32*)(src + 4);
-   *(u16*)(p + 0x1074) = (u16)*(f32*)(src + 8);
-   *(u16*)(p + 0x107A) = (u16)*(f32*)(src + 0xC);
-   *(u8*)(p + 0x106E) = *(u8*)(src + 0x10);
+   ((CmpPersonaWork *)(p))->motion[0].x = ((CmpPersonaLayoutRow *)(src))->x;
+   ((CmpPersonaWork *)(p))->motion[0].y = ((CmpPersonaLayoutRow *)(src))->y;
+   ((CmpPersonaWork *)(p))->motion[0].scaleX = (u16)((CmpPersonaLayoutRow *)(src))->width;
+   ((CmpPersonaWork *)(p))->motion[0].scaleY = (u16)((CmpPersonaLayoutRow *)(src))->height;
+   ((CmpPersonaWork *)(p))->motion[0].alpha = ((CmpPersonaLayoutRow *)(src))->alpha;
   }
  }
  {
   s16 i;
   for (i = 0; i < 120; i++) {
    p = work + i * 0x14;
-   *(s32*)(p + 0x68) = i % 10;
-   *(s32*)(p + 0x70) = 10;
-   *(s32*)(p + 0x6C) = i / 10;
-   *(s32*)(p + 0x74) = 12;
+   ((CmpPersonaWork *)(p))->primaryGrid[0].column = i % 10;
+   ((CmpPersonaWork *)(p))->primaryGrid[0].columns = 10;
+   ((CmpPersonaWork *)(p))->primaryGrid[0].row = i / 10;
+   ((CmpPersonaWork *)(p))->primaryGrid[0].rows = 12;
   }
  }
  {
   s16 i;
   for (i = 0; i < 84; i++) {
    p = work + i * 0x14;
-   *(s32*)(p + 0x9C8) = i % 7;
-   *(s32*)(p + 0x9D0) = 7;
-   *(s32*)(p + 0x9CC) = i / 7;
-   *(s32*)(p + 0x9D4) = 12;
+   ((CmpPersonaWork *)(p))->secondaryGrid[0].column = i % 7;
+   ((CmpPersonaWork *)(p))->secondaryGrid[0].columns = 7;
+   ((CmpPersonaWork *)(p))->secondaryGrid[0].row = i / 7;
+   ((CmpPersonaWork *)(p))->secondaryGrid[0].rows = 12;
   }
  }
  {
   s16 i;
   for (i = 0; i < 36; i++) {
-   *(s32*)(work + i * 0x30 + 0x15A4) = 0;
-   *(s32*)(work + i * 0x30 + 0x1594) = 0;
-   *(s32*)(work + i * 0x30 + 0x15A0) = (s32)0xC2C80000;
-   *(s32*)(work + i * 0x30 + 0x1598) = (s32)0xC2C80000;
-   *(s8*)(work + i * 0x30 + 0x15AD) = 0x7F;
-   *(s8*)(work + i * 0x30 + 0x15AC) = 0x7F;
-   *(s32*)(work + i * 0x30 + 0x15BC) = 0;
-   *(s32*)(work + i * 0x30 + 0x15C0) = 10;
+   *(s32 *)&((CmpPersonaWork *)(work + i * 0x30))->backgroundCells[0].x = 0;
+   *(s32 *)&((CmpPersonaWork *)(work + i * 0x30))->backgroundCells[0].sourceX = 0;
+   *(s32 *)&((CmpPersonaWork *)(work + i * 0x30))->backgroundCells[0].targetY = (s32)0xC2C80000;
+   *(s32 *)&((CmpPersonaWork *)(work + i * 0x30))->backgroundCells[0].sourceY = (s32)0xC2C80000;
+   *(s8 *)&((CmpPersonaWork *)(work + i * 0x30))->backgroundCells[0].targetAlpha = 0x7F;
+   *(s8 *)&((CmpPersonaWork *)(work + i * 0x30))->backgroundCells[0].sourceAlpha = 0x7F;
+   ((CmpPersonaWork *)(work + i * 0x30))->backgroundCells[0].mode = 0;
+   ((CmpPersonaWork *)(work + i * 0x30))->backgroundCells[0].duration = 10;
   }
  }
- *(s16*)(work + 0x34) = datBuildMemberIdList((s16*)(work + 0x24));
+ menu->partyCount = datBuildMemberIdList((s16*)(work + 0x24));
  resource0 = resourceFindByName((char*)D_005E5830);
  if (resource0 == 0) {
   kAssertFail(&D_005EB580[0], 0x199);
@@ -199,7 +208,7 @@ void cmpPersonaMenuInit(u8* work) {
  if (resource1 == 0) {
   kAssertFail(&D_005EB580[0], 0x19B);
  }
- *(u8**)(work + 0x1CB0) = resource2 = resourceFindByName((char*)D_005E57F0);
+ *(u8* *)&menu->footer.texture = resource2 = resourceFindByName((char*)D_005E57F0);
  if (resource2 == 0) {
   kAssertFail(&D_005EB580[0], 0x19D);
  }
@@ -208,13 +217,13 @@ void cmpPersonaMenuInit(u8* work) {
   for (i = 0; i < 23; i++) {
    if (i < 6) {
     slot = (s32*)(work + i * 4 + 0x1C54);
-    *slot = (s32)sdkSpriteNewNode((u32)resource0, *(u8*)(D_005E9FB0 + i));
+    *slot = (s32)sdkSpriteNewNode((u32)resource0, D_005E9FB0[i]);
    } else if (i < 9) {
     slot = (s32*)(work + i * 4 + 0x1C54);
-    *slot = (s32)sdkSpriteNewNode((u32)resource2, *(u8*)(D_005E9FB0 + i));
+    *slot = (s32)sdkSpriteNewNode((u32)resource2, D_005E9FB0[i]);
    } else {
     slot = (s32*)(work + i * 4 + 0x1C54);
-    *slot = (s32)sdkSpriteNewNode((u32)resource1, *(u8*)(D_005E9FB0 + i));
+    *slot = (s32)sdkSpriteNewNode((u32)resource1, D_005E9FB0[i]);
    }
    if (*slot == 0) {
     kAssertFail(&D_005EB580[0], 0x1AB);
@@ -223,9 +232,9 @@ void cmpPersonaMenuInit(u8* work) {
  }
  nmMesWindowOpenCurrent(D_0064A790);
  cmpPersonaBuildRosterList(work);
- *(s32*)(work + 0x1CB8) = (s32)datScreenWipeTaskCreate(0, 1);
- *(s32*)(work + 0x1CB4) = (s32)shdPersonaTaskCreate(0, 0xC7, 0, 8, 3);
- shdPersonaSetPersonaId(*(u8**)(work + 0x1CB4), 0xB0);
+ *(s32 *)&menu->model = (s32)datScreenWipeTaskCreate(0, 1);
+ *(s32 *)&menu->portrait = (s32)shdPersonaTaskCreate(0, 0xC7, 0, 8, 3);
+ shdPersonaSetPersonaId(*(u8* *)&menu->portrait, 0xB0);
  cmpPersonaSetMode(work, 0);
 }
 
@@ -248,14 +257,15 @@ void cmpPersonaBuildRosterList(u8* work) {
 
 // Advances the menu state from 0 to 1 and reports done; always returns 1 [inferred].
 // FUN_00135CB0
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpPersonaWork rewrite changed 35 instruction bytes and was reverted. */
+/* measured: earlier CmpPersonaWork typing changed 35 instruction bytes; current typed-local/member forms retain MATCH. */
 s32 cmpPersonaStateStep(u8 *work) {
-    s32 v = *(s32 *)(work + 0x14);
+    CmpPersonaWork *menu = (CmpPersonaWork *)work;
+    s32 v = menu->phase;
 
     switch (v) {
     case 0:
         v += 1;
-        *(s32 *)(work + 0x14) = v;
+        menu->phase = v;
         return 1;
     default:
         return 1;
@@ -570,20 +580,21 @@ s32 cmpPersonaSetSelection(s16* work, s32 slotIndex, s32 selection) {
 
 /* Advance portrait/background transitions and both grid groups; clear the pulse flag at frame 25. */
 // FUN_00136FC0
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpPersonaWork rewrite changed 206 instruction bytes and was reverted. */
+/* measured: earlier CmpPersonaWork typing changed 206 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpPersonaMenuStepAnimations(u8* work) {
+    CmpPersonaWork *menu = (CmpPersonaWork *)work;
     s16 pulseFrame;
     s32 i;
 
-    pulseFrame = *(s16*)(work + 0x22);
+    pulseFrame = menu->pulseTimer;
     if (pulseFrame < 0x64) {
-        *(s16*)(work + 0x22) = pulseFrame + 1;
+        menu->pulseTimer = pulseFrame + 1;
     }
-    if (*(s16*)(work + 0x22) == 0x19) {
-        *(s32*)(work + 0x1C) &= ~0x1000;
+    if (menu->pulseTimer == 0x19) {
+        menu->visible &= ~0x1000;
     }
     for (i = 0; i < 0x24; i++) {
-        radarAnimateValue(work + i * 0x30 + 0x1594, *(s16*)(work + 0x22), 0);
+        radarAnimateValue(work + i * 0x30 + 0x1594, menu->pulseTimer, 0);
     }
     for (i = 0; i < 0x78; i++) {
         datCommunityEntryStep(work + i * 0x14 + 0x64);
@@ -641,8 +652,9 @@ void cmpPersonaScatterGridCells(u8* work) {
 #pragma opt_common_subs off
 /* Snapshot current row poses and apply the persona-menu layout, footer and visibility flags. */
 // FUN_001371A0
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpPersonaWork rewrite changed 579 instruction bytes and was reverted. */
+/* measured: earlier CmpPersonaWork typing changed 579 instruction bytes; current typed-local/member forms retain MATCH. */
 s32 cmpPersonaSetMode(u8* work, s32 mode) {
+    CmpPersonaWork *menu = (CmpPersonaWork *)work;
     s32 i;
     s32 j;
     u8* table;
@@ -650,69 +662,69 @@ s32 cmpPersonaSetMode(u8* work, s32 mode) {
     u8* dst;
     f32 value;
     table = 0;
-    if (*(s32*)(work + 0x18) == mode) {
+    if (menu->mode == mode) {
         return 0;
     }
     for (i = 0; i < 0x1C; i++) {
         dst = work + i * 0x30;
-        *(f32*)(dst + 0x1054) = *(f32*)(dst + 0x1064);
-        *(f32*)(dst + 0x1058) = *(f32*)(dst + 0x1068);
-        *(u16*)(dst + 0x1070) = *(u16*)(dst + 0x1074);
-        *(u16*)(dst + 0x1076) = *(u16*)(dst + 0x107A);
-        *(u8*)(dst + 0x106C) = *(u8*)(dst + 0x106E);
+        ((CmpPersonaWork *)(dst))->motion[0].sourceX = ((CmpPersonaWork *)(dst))->motion[0].x;
+        ((CmpPersonaWork *)(dst))->motion[0].sourceY = ((CmpPersonaWork *)(dst))->motion[0].y;
+        ((CmpPersonaWork *)(dst))->motion[0].sourceScaleX = ((CmpPersonaWork *)(dst))->motion[0].scaleX;
+        ((CmpPersonaWork *)(dst))->motion[0].sourceScaleY = ((CmpPersonaWork *)(dst))->motion[0].scaleY;
+        ((CmpPersonaWork *)(dst))->motion[0].sourceAlpha = ((CmpPersonaWork *)(dst))->motion[0].alpha;
     }
     switch (mode) {
     case 0:
         table = D_005E9FD0;
-        *(s32*)(work + 0x1C) = 0x243;
-        *(s16*)(work + 0x60) = 0;
+        menu->visible = 0x243;
+        menu->footerMode = 0;
         break;
     case 1:
         table = D_005EA2E0;
         break;
     case 2:
         table = D_005EA5F0;
-        *(s32*)(work + 0x1C) = 0xA43;
-        *(s16*)(work + 0x60) = 0;
+        menu->visible = 0xA43;
+        menu->footerMode = 0;
         break;
     case 3:
         table = D_005EA900;
-        *(s32*)(work + 0x1C) = 0xFE7;
-        *(s16*)(work + 0x60) = 8;
+        menu->visible = 0xFE7;
+        menu->footerMode = 8;
         break;
     case 4:
     case 5:
         table = D_005EAC10;
-        *(s32*)(work + 0x1C) = 0x5A5;
-        *(s16*)(work + 0x60) = 8;
+        menu->visible = 0x5A5;
+        menu->footerMode = 8;
         break;
     case 6:
         table = D_005EAF20;
-        *(s32*)(work + 0x1C) = 0x48D;
-        *(s16*)(work + 0x60) = -1;
-        shdPersonaLevelUpRoute(*(u8**)(work + 0x1CB4));
+        menu->visible = 0x48D;
+        menu->footerMode = -1;
+        shdPersonaLevelUpRoute(*(u8* *)&menu->portrait);
         break;
     case 7:
         table = D_005EAF20;
-        *(s32*)(work + 0x1C) = 9;
+        menu->visible = 9;
         break;
     case 8:
         table = D_005EB230;
-        *(s32*)(work + 0x1C) = 0xA13;
-        *(s16*)(work + 0x60) = 0xE;
-        shdPersonaLevelUpRoute(*(u8**)(work + 0x1CB4));
+        menu->visible = 0xA13;
+        menu->footerMode = 0xE;
+        shdPersonaLevelUpRoute(*(u8* *)&menu->portrait);
         break;
     case 10:
-        *(s32*)(work + 0x1C) = 8;
-        *(s16*)(work + 0x60) = -1;
+        menu->visible = 8;
+        menu->footerMode = -1;
         break;
     case 11:
-        *(s32*)(work + 0x1C) = 0x5A5;
-        *(s16*)(work + 0x60) = 8;
+        menu->visible = 0x5A5;
+        menu->footerMode = 8;
         break;
     case 12:
-        *(s32*)(work + 0x1C) = 0x5A5;
-        *(s16*)(work + 0x60) = 8;
+        menu->visible = 0x5A5;
+        menu->footerMode = 8;
         break;
     default:
         kAssertFail(D_005EB580, 0x3BA);
@@ -726,18 +738,18 @@ s32 cmpPersonaSetMode(u8* work, s32 mode) {
         for (j = 0; j < 0x1C; j++) {
             src = table + j * 0x1C;
             dst = work + j * 0x30;
-            *(f32*)(dst + 0x105C) = *(f32*)(src + 0);
-            *(f32*)(dst + 0x1060) = *(f32*)(src + 4);
-            value = *(f32*)(src + 8);
-            *(u16*)(dst + 0x1072) = (u16)value;
-            value = *(f32*)(src + 0xC);
-            *(u16*)(dst + 0x1078) = (u16)value;
-            *(u8*)(dst + 0x106D) = *(u8*)(src + 0x10);
-            *(s32*)(dst + 0x107C) = *(s32*)(src + 0x14);
-            *(s32*)(dst + 0x1080) = *(s32*)(src + 0x18);
+            ((CmpPersonaWork *)(dst))->motion[0].targetX = ((CmpPersonaLayoutRow *)(src))->x;
+            ((CmpPersonaWork *)(dst))->motion[0].targetY = ((CmpPersonaLayoutRow *)(src))->y;
+            value = ((CmpPersonaLayoutRow *)(src))->width;
+            ((CmpPersonaWork *)(dst))->motion[0].targetScaleX = (u16)value;
+            value = ((CmpPersonaLayoutRow *)(src))->height;
+            ((CmpPersonaWork *)(dst))->motion[0].targetScaleY = (u16)value;
+            ((CmpPersonaWork *)(dst))->motion[0].targetAlpha = ((CmpPersonaLayoutRow *)(src))->alpha;
+            ((CmpPersonaWork *)(dst))->motion[0].mode = ((CmpPersonaLayoutRow *)(src))->startFrame;
+            ((CmpPersonaWork *)(dst))->motion[0].duration = ((CmpPersonaLayoutRow *)(src))->endFrame;
         }
-    *(s16*)(work + 0x20) = 0;
-    *(s32*)(work + 0x18) = mode;
+    menu->timer = 0;
+    menu->mode = mode;
     }
     return 1;
 }
@@ -885,8 +897,9 @@ void cmpPersonaSetRosterCursorMotion(u8* work) {
 
 /* Free menu sprites, destroy the portrait and wipe tasks, and reset the message window. */
 // FUN_001377E0
-/* Raw work-relative accesses retain MWCC alias scheduling; the CmpPersonaWork rewrite changed 75 instruction bytes and was reverted. */
+/* measured: earlier CmpPersonaWork typing changed 75 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpPersonaMenuRelease(u8* work) {
+    CmpPersonaWork *menu = (CmpPersonaWork *)work;
     u8* base = work;
     s32 i;
     s32* p;
@@ -897,16 +910,16 @@ void cmpPersonaMenuRelease(u8* work) {
             *p = 0;
         }
     }
-    if (*(s32*)(base + 0x1CB4) != 0) {
-        kwlnTaskDestroyWithHierarchy(*(s32*)(base + 0x1CB4));
-        *(s32*)(base + 0x1CB4) = 0;
+    if (*(s32 *)&menu->portrait != 0) {
+        kwlnTaskDestroyWithHierarchy(*(s32 *)&menu->portrait);
+        *(s32 *)&menu->portrait = 0;
     }
-    if (*(s32*)(base + 0x1CB8) != 0) {
-        kwlnTaskDestroyWithHierarchy(*(s32*)(base + 0x1CB8));
-        *(s32*)(base + 0x1CB8) = 0;
+    if (*(s32 *)&menu->model != 0) {
+        kwlnTaskDestroyWithHierarchy(*(s32 *)&menu->model);
+        *(s32 *)&menu->model = 0;
     }
     nmMesWindowResetCurrent();
-    *(s32*)(base + 0x1C) = 0;
+    menu->visible = 0;
 }
 
 /* The menu initializer and transition copier establish this 0x30-byte

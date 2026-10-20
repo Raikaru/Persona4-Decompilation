@@ -91,13 +91,15 @@ typedef struct RadarMenu {
 
 /* Separate eleven-slot title selector; it is not a RadarMenu. */
 typedef struct TitleSlotMenu {
-    u8 pad0[0xC];
+    u8 alpha;
+    u8 pad1[3];
+    f32 x, y;
     s16 frame;
     u8 padE[2];
     s32 selection;
     s32 previousSelection;
     s32 mode;
-    u8 pad1C[0x1C];
+    u32 commandIds[7];                  /* 0x1C */
     s32 slotCount;                      /* 0x38 */
     s32 sprites[21];                    /* 0x3C */
     u8 pad90[4];

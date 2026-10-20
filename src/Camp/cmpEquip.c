@@ -3,6 +3,7 @@
 /* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
 #include "type.h"
 
+
 void radarAnimateValue(void *, s32, s32);
 void cmpEquipStepTabAnimations(u8 *);
 void cmpEquipMenuDraw(u8 *);
@@ -238,12 +239,13 @@ void cmpEquipBuildItemList(s16 *workArea) {
 // FUN_001318C0
 /* Access-site typing is measured independently below; retain the original byte-pointer local. */
 s32 cmpEquipStateStep(u8 *workArea) {
-    s32 v = ((CmpEquipWork *)(workArea))->phase;
+    CmpEquipWork *menu = (CmpEquipWork *)workArea;
+    s32 v = menu->phase;
 
     switch (v) {
     case 0:
         v += 1;
-        *(s32 *)(workArea + 0x14) = v; /* measured: this access-site member rewrite changes instruction bytes. */
+        menu->phase = v;
         return 1;
     case 1:
         return 1;
@@ -254,26 +256,27 @@ s32 cmpEquipStateStep(u8 *workArea) {
 
 /* Advance row and tab animations, draw the equipment menu, and report whether all rows are transparent. */
 // FUN_00131910
-/* Historical whole-layout rewrite changed 179 instruction bytes; access-site probes now keep matching fields. */
+/* Historical whole-layout rewrite changed 179 instruction bytes; typed root-local and indexed-field forms now keep MATCH. */
 s32 cmpEquipMenuUpdate(u8 *workArea) {
+    CmpEquipWork *menu = (CmpEquipWork *)workArea;
     s32 i;
     s32 rv;
     u8 *p;
 
     rv = 1;
-    if (((CmpEquipWork *)(workArea))->frame < 0x64) {
-        *(s16 *)(workArea + 0x20) = ((CmpEquipWork *)(workArea))->frame + 1; /* measured: this access-site member rewrite changes instruction bytes. */
+    if (menu->frame < 0x64) {
+        menu->frame = menu->frame + 1;
     }
     for (i = 0; i < 0x29; i++) {
         p = workArea + i * 0x30;
-        radarAnimateValue(p + 0xC80, *(s16 *)(workArea + 0x20), 0); /* measured: this access-site member rewrite changes instruction bytes. */
+        radarAnimateValue(p + 0xC80, menu->frame, 0);
         if (((CmpEquipWork *)(p))->motion[0].alpha != 0) {
             rv = 0;
         }
     }
-    ((CmpEquipWork *)(workArea))->angle = ((CmpEquipWork *)(workArea))->angle + 1;
-    if (((CmpEquipWork *)(workArea))->angle >= 0x168) {
-        *(s16 *)(workArea + 0x22) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+    menu->angle = menu->angle + 1;
+    if (menu->angle >= 0x168) {
+        menu->angle = 0;
     }
     cmpEquipStepTabAnimations(workArea);
     cmpEquipMenuDraw(workArea);
@@ -291,10 +294,11 @@ s32 cmpEquipMenuUpdate(u8 *workArea) {
 #pragma push
 #pragma opt_lifetimes on
 #pragma opt_dead_assignments on
-/* Historical whole-layout rewrite changed 8450 instruction bytes; access-site probes now keep matching fields. */
+/* Historical whole-layout rewrite changed 8450 instruction bytes; typed root-local and indexed-field forms now keep MATCH. */
 void cmpEquipMenuDraw(u8 *workArea)
 
 {
+    CmpEquipWork *menu = (CmpEquipWork *)workArea;
     typedef struct { f32 x, y; } Vec2f;
     typedef union { Vec2f xy; s64 packed; } PackedVec2f;
     PackedVec2f drawPosition;
@@ -356,24 +360,24 @@ void cmpEquipMenuDraw(u8 *workArea)
 
   work = (u8 *)workArea;
   partyIds = (s16 *)(work + 0x38);
-  actor.id = partyIds[((CmpEquipWork *)(work))->selection[0]];
+  actor.id = partyIds[menu->selection[0]];
   sdkRenderStateSetDefault();
-  originX = ((CmpEquipWork *)(work))->x;
-  originY = ((CmpEquipWork *)(work))->y;
+  originX = menu->x;
+  originY = menu->y;
   opacityScale = (f32)*work / 255.0f;
-  if (((CmpEquipWork *)(work))->background != 0) {
+  if (menu->background != 0) {
     drawPosition.xy.x = originX;
     drawPosition.xy.y = originY;
     alphaValue = opacityScale * 255.0f;
     alpha = (u8)alphaValue;
-    nLineDrawSet(drawPosition.xy,alpha,((CmpEquipWork *)(work))->background,0.0f);
+    nLineDrawSet(drawPosition.xy,alpha,menu->background,0.0f);
   }
-  if ((((CmpEquipWork *)(work))->visible & 0x1000) != 0) {
+  if ((menu->visible & 0x1000) != 0) {
     spriteOrPalette = (u8 *)(u32)((CmpEquipWork *)(work))->sprites[47];
     ((SdkSpriteSample *)spriteOrPalette)->pivotX = 0x3d;
     ((SdkSpriteSample *)spriteOrPalette)->pivotY = 0x3f;
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[31].x + (f32)0x212;
-    drawPosition.xy.y = (originY + ((CmpEquipWork *)(work))->motion[31].y) - 3.0f;
+    drawPosition.xy.x = originX + menu->motion[31].x + (f32)0x212;
+    drawPosition.xy.y = (originY + menu->motion[31].y) - 3.0f;
     alphaValue = (f32)((CmpEquipWork *)work)->motion[31].alpha;
     alphaValue *= opacityScale;
     alpha = (u8)alphaValue;
@@ -381,64 +385,64 @@ void cmpEquipMenuDraw(u8 *workArea)
     scaleY = (f32)((CmpEquipWork *)(work))->motion[31].height;
     sdkSpriteDrawSized(spriteOrPalette,drawPosition.xy.x,drawPosition.xy.y,0.0f,0xff,0xff,0x81,alpha,(u16)scaleX,(u16)scaleY,0x3d,
                   (f32)(s32)((CmpEquipWork *)(work))->angle,0x3f);
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[32].x + (f32)0x226;
-    drawPosition.xy.y = (originY + ((CmpEquipWork *)(work))->motion[32].y) - 22.0f;
+    drawPosition.xy.x = originX + menu->motion[32].x + (f32)0x226;
+    drawPosition.xy.y = (originY + menu->motion[32].y) - 22.0f;
     alphaValue = (f32)((CmpEquipWork *)work)->motion[32].alpha;
     alphaValue *= opacityScale;
     alpha = (u8)alphaValue;
     scaleX = (f32)((CmpEquipWork *)(work))->motion[32].width;
     scaleY = (f32)((CmpEquipWork *)(work))->motion[32].height;
     sdkSpriteDrawSized(spriteOrPalette,drawPosition.xy.x,drawPosition.xy.y,0.0f,0xfb,0xa2,0,alpha,(u16)scaleX,(u16)scaleY,0x3d,
-                  (f32)(s32)*(s16 *)(work + 0x22),0x3f); /* measured: this access-site member rewrite changes instruction bytes. */
+                  (f32)(s32)menu->angle,0x3f);
   }
-  if ((*(u32 *)(work + 0x1c) & 0x400) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+  if ((menu->visible & 0x400) != 0) {
     sprite = (u8 *)(u32)((CmpEquipWork *)(work))->sprites[51];
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[0].x + 20.0f;
-    drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[0].y + 358.0f;
+    drawPosition.xy.x = originX + menu->motion[0].x + 20.0f;
+    drawPosition.xy.y = originY + menu->motion[0].y + 358.0f;
     alphaValue = (f32)((CmpEquipWork *)work)->motion[0].alpha;
     alphaValue *= opacityScale;
     alpha = (u8)alphaValue;
     sdkSpriteDrawAt(sprite,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
-  if ((*(u32 *)(work + 0x1c) & 0x800) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+  if ((menu->visible & 0x800) != 0) {
     sprite = (u8 *)(u32)((CmpEquipWork *)(work))->sprites[51];
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[1].x + (f32)0x1D1;
-    drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[1].y + 20.0f;
+    drawPosition.xy.x = originX + menu->motion[1].x + (f32)0x1D1;
+    drawPosition.xy.y = originY + menu->motion[1].y + 20.0f;
     alphaValue = (f32)((CmpEquipWork *)work)->motion[1].alpha;
     alphaValue *= opacityScale;
     alpha = (u8)alphaValue;
     sdkSpriteDrawAt(sprite,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
-  if ((*(u32 *)(work + 0x1c) & 0x80) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+  if ((menu->visible & 0x80) != 0) {
     sprite = (u8 *)(u32)((CmpEquipWork *)(work))->sprites[41];
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[33].x + 20.0f;
-    drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[33].y + (f32)0x195;
+    drawPosition.xy.x = originX + menu->motion[33].x + 20.0f;
+    drawPosition.xy.y = originY + menu->motion[33].y + (f32)0x195;
     alphaValue = (f32)((CmpEquipWork *)work)->motion[33].alpha;
     alphaValue *= opacityScale;
     alpha = (u8)alphaValue;
     sdkSpriteDrawAt(sprite,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
-  if ((*(u32 *)(work + 0x1c) & 0x100) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+  if ((menu->visible & 0x100) != 0) {
     sprite = (u8 *)(u32)((CmpEquipWork *)(work))->sprites[42];
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[34].x + 146.0f;
-    drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[34].y + (f32)0x195;
+    drawPosition.xy.x = originX + menu->motion[34].x + 146.0f;
+    drawPosition.xy.y = originY + menu->motion[34].y + (f32)0x195;
     alphaValue = (f32)((CmpEquipWork *)work)->motion[34].alpha;
     alphaValue *= opacityScale;
     alpha = (u8)alphaValue;
     sdkSpriteDrawAt(sprite,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
-  if ((*(u32 *)(work + 0x1c) & 0x200) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+  if ((menu->visible & 0x200) != 0) {
     sprite = (u8 *)(u32)((CmpEquipWork *)(work))->sprites[41];
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[35].x + 20.0f;
-    drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[35].y + (f32)0x195;
+    drawPosition.xy.x = originX + menu->motion[35].x + 20.0f;
+    drawPosition.xy.y = originY + menu->motion[35].y + (f32)0x195;
     alphaValue = (f32)((CmpEquipWork *)work)->motion[35].alpha;
     alphaValue *= opacityScale;
     alpha = (u8)alphaValue;
     sdkSpriteDrawAt(sprite,drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,alpha);
   }
-  if ((*(u32 *)(work + 0x1c) & 4) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+  if ((menu->visible & 4) != 0) {
     rowValueIndex = 0;
-    while (rowValue = (s16)rowValueIndex, rowValue < ((CmpEquipWork *)(work))->partyCount) {
+    while (rowValue = (s16)rowValueIndex, rowValue < menu->partyCount) {
       drawPosition.xy.x = originX + ((CmpEquipWork *)(work + (s16)rowValueIndex * 0x30))->motion[21].x + 35.0f;
       {
       drawPosition.xy.y = 20.0f + (33.0f * (f32)rowValueIndex + (0.0f + (originY + ((CmpEquipWork *)(work + (s16)rowValueIndex * 0x30))->motion[21].y)));
@@ -448,7 +452,7 @@ void cmpEquipMenuDraw(u8 *workArea)
     alphaValue *= opacityScale;
       opacity.value = (u8)alphaValue;
       packedColor = opacity.value | 0xffffff00;
-      if (*(s16 *)(work + 0x28) == (s16)rowValueIndex) { /* measured: this access-site member rewrite changes instruction bytes. */
+      if (menu->selection[0] == (s16)rowValueIndex) {
         actorPalette = D_0064B2E8;
         labelStyle = 8;
       }
@@ -469,12 +473,12 @@ void cmpEquipMenuDraw(u8 *workArea)
       rowValueIndex = (s32)(s16)(rowValueIndex + 1);
     }
   }
-  if ((*(u32 *)(work + 0x1c) & 0x10) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+  if ((menu->visible & 0x10) != 0) {
     s16 rowCounter;
     u8 *spriteOrPalette;
     for (rowCounter = 0; rowCounter < 3; ++rowCounter) {
       rowSelected = 0;
-      if ((*(u32 *)(work + 0x1c) & 0x20) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+      if ((menu->visible & 0x20) != 0) {
         drawPosition.xy.x = originX + ((CmpEquipWork *)(work + rowCounter * 0x30))->motion[16].x + 253.0f;
         drawPosition.xy.y = originY + ((CmpEquipWork *)(work + rowCounter * 0x30))->motion[16].y + 190.0f +
                    (f32)(rowCounter * 0x3f);
@@ -483,7 +487,7 @@ void cmpEquipMenuDraw(u8 *workArea)
         alpha = (u8)alphaValue;
         {
           s64 selectedMode;
-          if (((CmpEquipWork *)(work))->selection[1] == rowCounter) {
+          if (menu->selection[1] == rowCounter) {
             selectedMode = 1;
             rowSelected = selectedMode;
           } else {
@@ -558,7 +562,7 @@ void cmpEquipMenuDraw(u8 *workArea)
     alphaValue *= opacityScale;
       descriptorAlpha = (u8)alphaValue;
       datEntryReset((u8 *)&descriptor);
-      if ((*(u32 *)(work + 0x1c) & 0x20) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+      if ((menu->visible & 0x20) != 0) {
         if (rowSelected) {
           descriptor.style = 3;
         } else {
@@ -577,11 +581,11 @@ void cmpEquipMenuDraw(u8 *workArea)
       datEntryDrawRow(drawPosition.xy, 0.0f, descriptorAlpha, (u8 *)&descriptor);
     }
   }
-  if ((*(u32 *)(work + 0x1c) & 8) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+  if ((menu->visible & 8) != 0) {
     f32 pairY, pairScaleX, pairScaleY;
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[29].x + 35.0f;
+    drawPosition.xy.x = originX + menu->motion[29].x + 35.0f;
     {
-      drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[29].y + 20.0f;
+      drawPosition.xy.y = originY + menu->motion[29].y + 20.0f;
     alphaValue = (f32)((CmpEquipWork *)work)->motion[29].alpha;
     alphaValue *= opacityScale;
     alpha = (u8)alphaValue;
@@ -596,57 +600,57 @@ void cmpEquipMenuDraw(u8 *workArea)
     sdkSpriteDrawSized(drawSprite,drawPosition.xy.x + 202.0f,pairY,0.0f,palette->r,palette->g,
                   palette->b,alpha,(u16)pairScaleX,(u16)pairScaleY,0,0.0f,0);
     }
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[30].x + 35.0f;
-    drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[30].y + 20.0f;
+    drawPosition.xy.x = originX + menu->motion[30].x + 35.0f;
+    drawPosition.xy.y = originY + menu->motion[30].y + 20.0f;
     alphaValue = (f32)((CmpEquipWork *)work)->motion[30].alpha;
     alphaValue *= opacityScale;
     alpha = (u8)alphaValue;
     packedColor = (alpha) - 0x100;
     {
       /* EE addresses are 32-bit; accumulate the signed index as an unsigned address. */
-      u32 partyAddress = *(s16 *)(work + 0x28) * 2; /* measured: this access-site member rewrite changes instruction bytes. */
+      u32 partyAddress = menu->selection[0] * 2;
       partyAddress += (u32)work;
       labelText = (char *)datPersonaNamePart1(((CmpEquipWork *)(partyAddress))->partyIds[0]);
     }
     frFontExDrawText(drawPosition.xy.x + 105.0f,drawPosition.xy.y,0.0f,packedColor,7,1,labelText,8,0);
   }
-  if ((*(u32 *)(work + 0x1c) & 2) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+  if ((menu->visible & 2) != 0) {
     u8 headerAlpha, layoutAlpha;
     palette = (CmpEquipColor *)D_0064B2F4;
     alphaValue = (f32)((CmpEquipWork *)work)->motion[20].alpha;
     alphaValue *= opacityScale;
     headerAlpha = (u8)alphaValue;
     drawSprite = (u8 *)(u32)((CmpEquipWork *)(work))->sprites[44];
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[20].x + 18.0f;
-    drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[20].y + 51.0f;
+    drawPosition.xy.x = originX + menu->motion[20].x + 18.0f;
+    drawPosition.xy.y = originY + menu->motion[20].y + 51.0f;
     sdkSpriteDrawAt(drawSprite,drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,
                   palette->b,headerAlpha);
     drawSprite = (u8 *)(u32)((CmpEquipWork *)(work))->sprites[45];
-    drawPosition.xy.x = originX + *(f32 *)(work + 0x1050) + 186.0f; /* measured: this access-site member rewrite changes instruction bytes. */
-    drawPosition.xy.y = originY + *(f32 *)(work + 0x1054) + 51.0f; /* measured: this access-site member rewrite changes instruction bytes. */
+    drawPosition.xy.x = originX + menu->motion[20].x + 186.0f;
+    drawPosition.xy.y = originY + menu->motion[20].y + 51.0f;
     sdkSpriteDrawAt(drawSprite,drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,
                   palette->b,headerAlpha);
     drawSprite = (u8 *)(u32)((CmpEquipWork *)(work))->sprites[46];
-    drawPosition.xy.x = originX + *(f32 *)(work + 0x1050) + (f32)0x25F; /* measured: this access-site member rewrite changes instruction bytes. */
-    drawPosition.xy.y = originY + *(f32 *)(work + 0x1054) + 90.0f; /* measured: this access-site member rewrite changes instruction bytes. */
+    drawPosition.xy.x = originX + menu->motion[20].x + (f32)0x25F;
+    drawPosition.xy.y = originY + menu->motion[20].y + 90.0f;
     sdkSpriteDrawAt(drawSprite,drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,
                   palette->b,headerAlpha);
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[40].x + 18.0f;
-    drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[40].y + 60.0f;
+    drawPosition.xy.x = originX + menu->motion[40].x + 18.0f;
+    drawPosition.xy.y = originY + menu->motion[40].y + 60.0f;
     alphaValue = (f32)((CmpEquipWork *)work)->motion[40].alpha;
     alphaValue *= opacityScale;
     alpha = (u8)alphaValue;
     packedColor = (alpha) | 0xffffff00;
-    labelText = (char *)datPersonaNamePart1(((CmpEquipWork *)(work))->labelId);
+    labelText = (char *)datPersonaNamePart1(menu->labelId);
     frFontExDrawText(drawPosition.xy.x + 88.0f,drawPosition.xy.y,0.0f,packedColor,7,1,labelText,8,0);
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[39].x + 18.0f;
-    drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[39].y + 60.0f;
+    drawPosition.xy.x = originX + menu->motion[39].x + 18.0f;
+    drawPosition.xy.y = originY + menu->motion[39].y + 60.0f;
     alphaValue = (f32)((CmpEquipWork *)work)->motion[39].alpha;
     alphaValue *= opacityScale;
     alpha = (u8)alphaValue;
     packedColor = (alpha) | 0xffffff00;
     {
-      u32 partyAddress = *(s16 *)(work + 0x28) * 2; /* measured: this access-site member rewrite changes instruction bytes. */
+      u32 partyAddress = menu->selection[0] * 2;
       partyAddress += (u32)work;
       labelText = (char *)datPersonaNamePart1(((CmpEquipWork *)(partyAddress))->partyIds[0]);
     }
@@ -655,56 +659,56 @@ void cmpEquipMenuDraw(u8 *workArea)
     alphaValue = (f32)((CmpEquipWork *)work)->motion[38].alpha;
     alphaValue *= opacityScale;
     layoutAlpha = (u8)alphaValue;
-    rowValue = ((CmpEquipWork *)(work))->selection[1];
+    rowValue = menu->selection[1];
     switch (rowValue) {
     case 0: {
-      drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[38].x + 48.0f;
-      drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[38].y + 96.0f;
+      drawPosition.xy.x = originX + menu->motion[38].x + 48.0f;
+      drawPosition.xy.y = originY + menu->motion[38].y + 96.0f;
       sdkSpriteDrawAt((void *)(u32)((CmpEquipWork *)(work))->sprites[26],drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
                     palette->g,palette->b,layoutAlpha);
-      drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + (f32)0x171; /* measured: this access-site member rewrite changes instruction bytes. */
-      drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 66.0f; /* measured: this access-site member rewrite changes instruction bytes. */
+      drawPosition.xy.x = originX + menu->motion[38].x + (f32)0x171;
+      drawPosition.xy.y = originY + menu->motion[38].y + 66.0f;
       sdkSpriteDrawAt((void *)(u32)((CmpEquipWork *)(work))->sprites[19],drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
-      drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 460.0f; /* measured: this access-site member rewrite changes instruction bytes. */
-      drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 66.0f; /* measured: this access-site member rewrite changes instruction bytes. */
+      drawPosition.xy.x = originX + menu->motion[38].x + 460.0f;
+      drawPosition.xy.y = originY + menu->motion[38].y + 66.0f;
       sdkSpriteDrawAt((void *)(u32)((CmpEquipWork *)(work))->sprites[20],drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
 
       break;
     }
     case 1: {
-      drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[38].x + 33.0f;
-      drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[38].y + 96.0f;
+      drawPosition.xy.x = originX + menu->motion[38].x + 33.0f;
+      drawPosition.xy.y = originY + menu->motion[38].y + 96.0f;
       sdkSpriteDrawAt((void *)(u32)((CmpEquipWork *)(work))->sprites[27],drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
                     palette->g,palette->b,layoutAlpha);
-      drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 71.0f; /* measured: this access-site member rewrite changes instruction bytes. */
-      drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 103.0f; /* measured: this access-site member rewrite changes instruction bytes. */
+      drawPosition.xy.x = originX + menu->motion[38].x + 71.0f;
+      drawPosition.xy.y = originY + menu->motion[38].y + 103.0f;
       sdkSpriteDrawAt((void *)(u32)((CmpEquipWork *)(work))->sprites[28],drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
                     palette->g,palette->b,layoutAlpha);
-      drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + (f32)0x171; /* measured: this access-site member rewrite changes instruction bytes. */
-      drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 66.0f; /* measured: this access-site member rewrite changes instruction bytes. */
+      drawPosition.xy.x = originX + menu->motion[38].x + (f32)0x171;
+      drawPosition.xy.y = originY + menu->motion[38].y + 66.0f;
       sdkSpriteDrawAt((void *)(u32)((CmpEquipWork *)(work))->sprites[21],drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
-      drawPosition.xy.x = originX + *(f32 *)(work + 0x13b0) + 460.0f; /* measured: this access-site member rewrite changes instruction bytes. */
-      drawPosition.xy.y = originY + *(f32 *)(work + 0x13b4) + 66.0f; /* measured: this access-site member rewrite changes instruction bytes. */
+      drawPosition.xy.x = originX + menu->motion[38].x + 460.0f;
+      drawPosition.xy.y = originY + menu->motion[38].y + 66.0f;
       sdkSpriteDrawAt((void *)(u32)((CmpEquipWork *)(work))->sprites[22],drawPosition.xy.x,drawPosition.xy.y,0xff,0xff,0xff,layoutAlpha);
 
       break;
     }
     case 2: {
-      drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[38].x + 34.0f;
-      drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[38].y + 91.0f;
+      drawPosition.xy.x = originX + menu->motion[38].x + 34.0f;
+      drawPosition.xy.y = originY + menu->motion[38].y + 91.0f;
       sdkSpriteDrawAt((void *)(u32)((CmpEquipWork *)(work))->sprites[29],drawPosition.xy.x,drawPosition.xy.y,(u8)palette->r,
                     palette->g,palette->b,layoutAlpha);
 
       break;
     }
     }
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[19].x + 122.0f;
-    drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[19].y + 94.0f;
+    drawPosition.xy.x = originX + menu->motion[19].x + 122.0f;
+    drawPosition.xy.y = originY + menu->motion[19].y + 94.0f;
     alphaValue = (f32)((CmpEquipWork *)work)->motion[19].alpha;
     alphaValue *= opacityScale;
     descriptorAlpha = (u8)alphaValue;
     datEntryReset((u8 *)&descriptor);
-    selectedItemId = datGetEquippedItemByUnit(actor.id,*(s16 *)(work + 0x2a)); /* measured: this access-site member rewrite changes instruction bytes. */
+    selectedItemId = datGetEquippedItemByUnit(actor.id,menu->selection[1]);
     descriptor.itemId = selectedItemId;
     descriptor.quantity = 0xffff;
     descriptor.unk08 = 0xffffffff;
@@ -714,21 +718,21 @@ void cmpEquipMenuDraw(u8 *workArea)
     descriptor.style = 4;
     descriptor.unk18 = 3;
     datEntryDrawRow(drawPosition.xy, 0.0f, descriptorAlpha, (u8 *)&descriptor);
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[37].x + 122.0f;
-    drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[37].y + 94.0f;
+    drawPosition.xy.x = originX + menu->motion[37].x + 122.0f;
+    drawPosition.xy.y = originY + menu->motion[37].y + 94.0f;
     alphaValue = (f32)((CmpEquipWork *)work)->motion[37].alpha;
     alphaValue *= opacityScale;
     descriptorAlpha = (u8)alphaValue;
-    descriptor.itemId = ((CmpEquipWork *)(work))->pendingItem;
+    descriptor.itemId = menu->pendingItem;
     datEntryDrawRow(drawPosition.xy, 0.0f, descriptorAlpha, (u8 *)&descriptor);
   }
-  if ((*(u32 *)(work + 0x1c) & 0x2000) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+  if ((menu->visible & 0x2000) != 0) {
     u8 scrollbarAlpha;
     f32 rawAlpha;
     f32 baseX;
-    baseX = ((CmpEquipWork *)(work))->tabMotion[1].x + (originX + ((CmpEquipWork *)(work))->motion[8].x);
-    scrollbarY = ((CmpEquipWork *)(work))->tabMotion[1].y + (originY + ((CmpEquipWork *)(work))->motion[8].y);
-    rawAlpha = (f32)((CmpEquipWork *)work)->motion[8].alpha;
+    baseX = menu->tabMotion[1].x + (originX + menu->motion[8].x);
+    scrollbarY = menu->tabMotion[1].y + (originY + menu->motion[8].y);
+    rawAlpha = (f32)menu->motion[8].alpha;
     rawAlpha *= opacityScale;
     scrollbarAlpha = (u8)rawAlpha;
     drawPosition.xy.x = ((f32)0x25E + baseX);
@@ -739,24 +743,24 @@ void cmpEquipMenuDraw(u8 *workArea)
     sdkSpriteDrawAt((void *)(u32)((CmpEquipWork *)(work))->sprites[24],((f32)0x25E + baseX),drawPosition.xy.y,0xff,0xff,0xff,scrollbarAlpha);
     drawPosition.xy.x = ((f32)0x25E + baseX);
     drawPosition.xy.y = scrollbarY + 136.0f;
-    if (0 < ((CmpEquipWork *)(work))->itemCount - 5) {
+    if (0 < menu->itemCount - 5) {
       drawPosition.xy.y = drawPosition.xy.y +
-                 (f32)(((((CmpEquipWork *)(work))->selection[2] * 0x42 + (s32)((CmpEquipWork *)(work))->selection[2]) * 2) /
-                        (((CmpEquipWork *)(work))->itemCount - 5));
+                 (f32)(((menu->selection[2] * 0x42 + (s32)menu->selection[2]) * 2) /
+                        (menu->itemCount - 5));
     }
     palette = (CmpEquipColor *)D_0064B2E8;
     sdkSpriteDrawAt((void *)(u32)((CmpEquipWork *)(work))->sprites[25],drawPosition.xy.x,drawPosition.xy.y,palette->r,palette->g,palette->b
                   ,scrollbarAlpha);
   }
-  if ((*(u32 *)(work + 0x1c) & 1) != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+  if ((menu->visible & 1) != 0) {
     u8 panelAlpha;
-    if (((CmpEquipWork *)(work))->itemCount == 0) {
+    if (menu->itemCount == 0) {
       kAssertFail(D_005E9FA0,0x507);
     }
-    panelAlpha = ((CmpEquipWork *)work)->tabMotion[0].alpha;
+    panelAlpha = menu->tabMotion[0].alpha;
     if (0 < (s32)panelAlpha) {
-      drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->tabMotion[0].x;
-      drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->tabMotion[0].y;
+      drawPosition.xy.x = originX + menu->tabMotion[0].x;
+      drawPosition.xy.y = originY + menu->tabMotion[0].y;
       radarDrawPaletteSet(work, drawPosition.packed, 0, panelAlpha);
     }
     {
@@ -764,7 +768,7 @@ void cmpEquipMenuDraw(u8 *workArea)
     s32 lookupIndex;
     u8 rowAlpha;
     for (rowValueIndex = 0; (s16)rowValueIndex < 5; rowValueIndex = (s16)(rowValueIndex + 1)) {
-      if ((s32)((s32)(s16)rowValueIndex + (s32)((CmpEquipWork *)(work))->selection[2]) < (s32)*(s16 *)(work + 0xc46)) { /* measured: this access-site member rewrite changes instruction bytes. */
+      if ((s32)((s32)(s16)rowValueIndex + (s32)((CmpEquipWork *)(work))->selection[2]) < (s32)menu->itemCount) {
         rowIndex = (s16)rowValueIndex;
         drawPosition.xy.x = originX + ((CmpEquipWork *)(work + rowIndex * 0x30))->motion[3].x + 122.0f;
         drawPosition.xy.y = ((CmpEquipWork *)(work + rowIndex * 0x30))->motion[3].y + (originY + (f32)(rowIndex * 0x22)) +
@@ -772,11 +776,11 @@ void cmpEquipMenuDraw(u8 *workArea)
         alphaValue = (f32)((CmpEquipWork *)(work + rowIndex * 0x30))->motion[3].alpha;
         alphaValue *= opacityScale;
         rowAlpha = (u8)alphaValue;
-        lookupIndex = (s32)((s16 *)work)[0x16] + (s32)rowIndex;
+        lookupIndex = (s32)menu->selection[2] + (s32)rowIndex;
         rowValue = ((CmpEquipWork *)(work + lookupIndex * 4))->items[0].id;
         quantity = ((CmpEquipWork *)(work + lookupIndex * 4))->items[0].quantity;
         datEntryReset((u8 *)&descriptor);
-        if (((CmpEquipWork *)(work))->selection[3] == rowIndex) {
+        if (menu->selection[3] == rowIndex) {
           descriptor.style = 3;
           radarDrawPaletteSet(work, drawPosition.packed, 1, rowAlpha);
         }
@@ -797,24 +801,24 @@ void cmpEquipMenuDraw(u8 *workArea)
     }
     }
   }
-  if (((*(u32 *)(work + 0x1c) & 0x40) != 0) && (0 < ((CmpEquipWork *)(work))->itemCount)) { /* measured: this access-site member rewrite changes instruction bytes. */
+  if (((menu->visible & 0x40) != 0) && (0 < menu->itemCount)) {
     borderMode = 0;
     datEntryReset((u8 *)&descriptor);
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->tabMotion[2].x + 124.0f;
-    drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->tabMotion[2].y + 147.0f;
+    drawPosition.xy.x = originX + menu->tabMotion[2].x + 124.0f;
+    drawPosition.xy.y = originY + menu->tabMotion[2].y + 147.0f;
     descriptor.unk08 = 0xffffffff;
     descriptor.unk14 = 0;
     descriptor.unk0C = 0;
     descriptor.unk10 = 0;
-    if (((CmpEquipWork *)(work))->tabMotion[2].targetY < 0.0f) {
+    if (menu->tabMotion[2].targetY < 0.0f) {
       borderMode = 1;
     }
-    else if (!(((CmpEquipWork *)(work))->tabMotion[2].targetY <= 0.0f)) {
+    else if (!(menu->tabMotion[2].targetY <= 0.0f)) {
       borderMode = 2;
     }
-    radarDrawHeaderFrame(workArea, drawPosition, ((CmpEquipWork *)work)->tabMotion[2].alpha, borderMode);
-    drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[9].x + 124.0f;
-    drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[9].y + 147.0f;
+    radarDrawHeaderFrame(workArea, drawPosition, menu->tabMotion[2].alpha, borderMode);
+    drawPosition.xy.x = originX + menu->motion[9].x + 124.0f;
+    drawPosition.xy.y = originY + menu->motion[9].y + 147.0f;
     {
       u32 entryAddress = ((s32)((CmpEquipWork *)(work))->selection[2] + (s32)((CmpEquipWork *)(work))->selection[3]) * 4;
       entryAddress += (u32)work;
@@ -832,12 +836,12 @@ void cmpEquipMenuDraw(u8 *workArea)
     alphaValue *= opacityScale;
     radarDrawItemCard(workArea, drawPosition.packed, (u8)alphaValue, (u8 *)&descriptor);
   }
-  drawPosition.xy.x = originX + ((CmpEquipWork *)(work))->motion[36].x + 640.0f;
-  drawPosition.xy.y = originY + ((CmpEquipWork *)(work))->motion[36].y + 400.0f;
+  drawPosition.xy.x = originX + menu->motion[36].x + 640.0f;
+  drawPosition.xy.y = originY + menu->motion[36].y + 400.0f;
   alphaValue = (f32)((CmpEquipWork *)work)->motion[36].alpha;
   alphaValue *= opacityScale;
   alpha = (u8)alphaValue;
-  sdkSpriteDrawFooter(drawPosition.xy, 0.0f, (u8)(alpha), ((CmpEquipWork *)(work))->footerMode, ((CmpEquipWork *)(work))->footerTexture);
+  sdkSpriteDrawFooter(drawPosition.xy, 0.0f, (u8)(alpha), menu->footerMode, menu->footerTexture);
   return;
 }
 #pragma opt_dead_assignments on
@@ -860,17 +864,18 @@ s32 cmpEquipSetSelection(u8 *workArea, s32 slotIndex, s16 selection) {
 
 /* Advance the three tab transitions with a frame counter capped at 100. */
 // FUN_001344D0
-/* Historical whole-layout rewrite changed 102 instruction bytes; access-site probes now keep matching fields. */
+/* Historical whole-layout rewrite changed 102 instruction bytes; typed root-local and indexed-field forms now keep MATCH. */
 void cmpEquipStepTabAnimations(u8 *workArea) {
+    CmpEquipWork *menu = (CmpEquipWork *)workArea;
     s32 i;
     s16 v;
 
-    v = ((CmpEquipWork *)(workArea))->tabFrame;
+    v = menu->tabFrame;
     if (v < 0x64) {
-        *(s16 *)(workArea + 0x24) = v + 1; /* measured: this access-site member rewrite changes instruction bytes. */
+        menu->tabFrame = v + 1;
     }
     for (i = 0; i < 3; i++) {
-        radarAnimateValue(workArea + i * 0x30 + 0x1430, *(s16 *)(workArea + 0x24), 0); /* measured: this access-site member rewrite changes instruction bytes. */
+        radarAnimateValue(workArea + i * 0x30 + 0x1430, menu->tabFrame, 0);
     }
 }
 
@@ -879,9 +884,10 @@ void cmpEquipStepTabAnimations(u8 *workArea) {
 #pragma opt_common_subs off
 /* Snapshot current row poses and apply the selected equipment-menu layout and visibility mask. */
 // FUN_00134560
-/* Historical whole-layout rewrite changed 614 instruction bytes; access-site probes now keep matching fields. */
+/* Historical whole-layout rewrite changed 614 instruction bytes; typed root-local and indexed-field forms now keep MATCH. */
 s32 cmpEquipSetMode(u8 *workArea, s32 mode)
 {
+    CmpEquipWork *menu = (CmpEquipWork *)workArea;
     s32 i;
     s32 j;
     u8 *table;
@@ -970,8 +976,8 @@ s32 cmpEquipSetMode(u8 *workArea, s32 mode)
             ((CmpEquipWork *)(dst))->motion[0].endFrame = ((CmpEquipLayoutRow *)src)->endFrame;
         }
     }
-    *(s32 *)(workArea + 0x18) = mode; /* measured: this access-site member rewrite changes instruction bytes. */
-    ((CmpEquipWork *)(workArea))->frame = 0;
+    menu->mode = mode;
+    menu->frame = 0;
     return 1;
 }
 #pragma opt_loop_invariants off

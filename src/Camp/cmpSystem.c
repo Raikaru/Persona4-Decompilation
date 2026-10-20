@@ -188,11 +188,12 @@ s32 cmpSystemSetSelection(s32 work, s32 mode, s16 selection)
 }
 
 /* Snapshot all current row positions and load the chosen system-menu transition table.
- * Raw work-relative accesses retain MWCC alias scheduling: the proven CmpSystemWork
- * rewrite changed 362 instruction bytes in this function (same 544-byte size). */
+ * measured: access-site-only CmpSystemWork typing
+ * changed 362 instruction bytes; a typed root local retains all 544 retail bytes. */
 // FUN_0035FA20
 s32 cmpSystemSetMode(u8 *work, u32 mode)
 {
+    CmpSystemWork *menu = (CmpSystemWork *)work;
     u8 *layoutTable;
     s32 rowIndex;
     s32 targetIndex;
@@ -200,46 +201,46 @@ s32 cmpSystemSetMode(u8 *work, u32 mode)
     u8 *layoutRow;
 
     layoutTable = NULL;
-    if (*(u32 *)(work + 0x18) == mode) {
+    if (menu->mode.value == mode) {
         return 0;
     }
     for (rowIndex = 0; rowIndex < 0x1D; rowIndex++) {
         rowBase = work + rowIndex * 0x30;
-        *(f32 *)(rowBase + 0x48) = *(f32 *)(rowBase + 0x58);
-        *(f32 *)(rowBase + 0x4C) = *(f32 *)(rowBase + 0x5C);
-        *(u8 *)(rowBase + 0x60) = *(u8 *)(rowBase + 0x62);
+        ((CmpSystemWork *)(rowBase))->motion[0].startX.value = ((CmpSystemWork *)(rowBase))->motion[0].x.value;
+        ((CmpSystemWork *)(rowBase))->motion[0].startY.value = ((CmpSystemWork *)(rowBase))->motion[0].y.value;
+        ((CmpSystemWork *)(rowBase))->motion[0].startAlpha = ((CmpSystemWork *)(rowBase))->motion[0].alpha;
     }
     switch (mode) {
     case 0:
         layoutTable = &D_0064D460[0];
-        *(s32 *)(work + 0x1C) = 3;
-        *(s16 *)(work + 0x34) = 0;
+        menu->visible = 3;
+        menu->footerMode = 0;
         break;
     case 1:
         layoutTable = &D_0064D6B0[0];
-        *(s32 *)(work + 0x1C) = 3;
-        *(s16 *)(work + 0x34) = 0;
+        menu->visible = 3;
+        menu->footerMode = 0;
         break;
     case 2:
         layoutTable = &D_0064D900[0];
-        *(s32 *)(work + 0x1C) = 3;
-        *(s16 *)(work + 0x34) = 0;
+        menu->visible = 3;
+        menu->footerMode = 0;
         break;
     case 3:
         layoutTable = &D_0064DB50[0];
-        *(s32 *)(work + 0x1C) = 0xC;
-        *(s16 *)(work + 0x34) = 0xF;
+        menu->visible = 0xC;
+        menu->footerMode = 0xF;
         memset(work + 0x5E8, 0, 0x6E);
         break;
     case 4:
         layoutTable = &D_0064DDA0[0];
-        *(s32 *)(work + 0x1C) = 0xC;
-        *(s16 *)(work + 0x34) = 0xF;
+        menu->visible = 0xC;
+        menu->footerMode = 0xF;
         break;
     case 5:
         layoutTable = &D_0064DFF0[0];
-        *(s32 *)(work + 0x1C) = 0xC;
-        *(s16 *)(work + 0x34) = 0xF;
+        menu->visible = 0xC;
+        menu->footerMode = 0xF;
         break;
     default:
         kAssertFail(D_0064E270, 0x1CF);
@@ -249,14 +250,14 @@ s32 cmpSystemSetMode(u8 *work, u32 mode)
         for (targetIndex = 0; targetIndex < 0x1D; targetIndex++) {
             layoutRow = layoutTable + targetIndex * 0x14;
             rowBase = work + targetIndex * 0x30;
-            *(f32 *)(rowBase + 0x50) = *(f32 *)(layoutRow + 0);
-            *(f32 *)(rowBase + 0x54) = *(f32 *)(layoutRow + 4);
-            *(u8 *)(rowBase + 0x61) = *(u8 *)(layoutRow + 8);
-            *(s32 *)(rowBase + 0x70) = *(s32 *)(layoutRow + 0xC);
-            *(s32 *)(rowBase + 0x74) = *(s32 *)(layoutRow + 0x10);
+            ((CmpSystemWork *)(rowBase))->motion[0].targetX.value = ((CmpSystemLayoutRow *)(layoutRow))->x;
+            ((CmpSystemWork *)(rowBase))->motion[0].targetY.value = ((CmpSystemLayoutRow *)(layoutRow))->y;
+            ((CmpSystemWork *)(rowBase))->motion[0].targetAlpha = ((CmpSystemLayoutRow *)(layoutRow))->alpha;
+            ((CmpSystemWork *)(rowBase))->motion[0].startFrame = ((CmpSystemLayoutRow *)(layoutRow))->startFrame;
+            ((CmpSystemWork *)(rowBase))->motion[0].endFrame = ((CmpSystemLayoutRow *)(layoutRow))->endFrame;
         }
-        *(u32 *)(work + 0x18) = mode;
-        *(s16 *)(work + 0x20) = 0;
+        menu->mode.value = mode;
+        menu->frame = 0;
     }
     return 1;
 }
