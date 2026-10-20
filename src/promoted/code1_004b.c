@@ -7,6 +7,7 @@
 #include "effect_update_internal.h"
 #include "effect_vu0_internal.h"
 #include "rw_raster_internal.h"
+#include "rw_camera_internal.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern s32 kwlnGetCamera(void);
@@ -131,6 +132,23 @@ typedef struct EffScreenSpriteRGBA {
     u8 alpha;
 } EffScreenSpriteRGBA;
 
+/* Same 0x40-byte work allocation constructed by effCrossfade.c. */
+typedef struct CrossfadeWork {
+    u8 state;
+    u8 pad01;
+    u16 frameLimit;
+    u16 frame;
+    u8 pad06[2];
+    s32 raster;
+    u8 *camera;
+    s32 nodeNext;
+    s32 nodePrevious;
+    void *advance;
+    u8 pad1C[4];
+    struct CrossfadeWork *owner;
+    u8 pad24[0x1C];
+} CrossfadeWork;
+
 #pragma push
 #pragma opt_loop_invariants on
 #pragma pop
@@ -139,9 +157,9 @@ typedef struct EffScreenSpriteRGBA {
 /* Capture the display raster into the crossfade camera's 512x256 target.
  * Returns zero if camera begin-update fails, otherwise submits an opaque
  * triangle strip with UVs scaled from the 640x448 display and returns one. */
-/* Camera accesses retain byte offsets: the proven CrossfadeWork.camera at +0xC
- * (effCrossfade.c) and SDK farPlane at +0x84 caused MWCC to cache the camera
- * member address, add an instruction, and swap saved registers when typed. */
+/* Historical all-access-site typing cached the camera member address and changed registers.
+ * measured: the first camera load and farPlane access match directly; the two
+ * later camera loads match through the separate work pointer. */
 // FUN_004B2780
 #pragma opt_propagation off
 s32 effCrossfadeCaptureDisplay(u8 *object) {
@@ -153,8 +171,9 @@ s32 effCrossfadeCaptureDisplay(u8 *object) {
     BtlShuffleRenderStateSet *renderState;
     u8 *textureRaster;
     u8 *displayRaster;
+    CrossfadeWork *work = (CrossfadeWork *)object;
 
-    if (func_003e8120(*(u8 **)(object + 0xC)) == 0) {
+    if (func_003e8120(((CrossfadeWork *)object)->camera) == 0) {
         return 0;
     }
     displayRaster = RpSkyGetDisplayBufferRaster();
@@ -174,7 +193,7 @@ s32 effCrossfadeCaptureDisplay(u8 *object) {
     renderState[0](rwRENDERSTATETEXTUREADDRESSU, (void *)3);
     renderState[0](rwRENDERSTATETEXTUREADDRESSV, (void *)3);
     screenDepth = *(f32 *)D_008872FC_abs;
-    reciprocalFarPlane = 1.0f / *(f32 *)(*(u8 **)(object + 0xC) + 0x84);
+    reciprocalFarPlane = 1.0f / ((RwCamera *)(work->camera))->farPlane;
     vertices[0].u.els.scrVertex.x = 0.0f;
     vertices[0].u.els.scrVertex.y = 0.0f;
     vertices[0].u.els.scrVertex.z = screenDepth;
@@ -217,7 +236,7 @@ s32 effCrossfadeCaptureDisplay(u8 *object) {
     vertices[3].u.els.v = textureHeight;
     D_00887310_abs[0](rwPRIMTYPETRISTRIP, vertices, 4);
     renderState[0](rwRENDERSTATETEXTURERASTER, (void *)0);
-    func_003e8110(*(u8 **)(object + 0xC));
+    func_003e8110(work->camera);
     return 1;
 }
 #pragma opt_propagation on
