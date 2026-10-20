@@ -18,9 +18,9 @@ static inline s32 *fldMapEditorEntryAtOffset(s32 offset, s32 *base)
     return (s32 *)((s32)base + offset);
 }
 
-extern void func_003ef3a0(s32 arg0);
+extern void func_003ef3a0(s32);
 extern void (*jtbl_008873EC[])(void *arg0);
-extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);

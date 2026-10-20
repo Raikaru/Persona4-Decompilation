@@ -72,13 +72,13 @@ extern void sdkSpriteFreeNode(void *node);
 extern void kAssertFail(void *msg, s32 id);
 extern s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern s32 filerTakeCompletedRequest(s32, s32 *, s32);
-extern s32 smapLoadStep(u8 *arg0);
-extern s32 smapUpdateOverlay(u8 *arg0);
-extern void smapDestroyOverlay(u8 *arg0);
-extern void smapResetVisibility(u8 *arg0);
-extern void FldFrameTask_GetPosition(u8 *arg0, u8 *arg1);
-extern s32 FldFrameTask_GetTileX(u8 *arg0);
-extern s32 FldFrameTask_GetTileZ(u8 *arg0);
+extern s32 smapLoadStep(u8 *task);
+extern s32 smapUpdateOverlay(u8 *task);
+extern void smapDestroyOverlay(u8 *task);
+extern void smapResetVisibility(u8 *task);
+extern void FldFrameTask_GetPosition(u8 *destination, u8 *task);
+extern s32 FldFrameTask_GetTileX(u8 *task);
+extern s32 FldFrameTask_GetTileZ(u8 *task);
 
 /* Field-object slots advance by 0x168; k_fldUnit stores their placement position at +0x150. */
 typedef struct SMapTarget {
@@ -165,7 +165,7 @@ extern s32 fclPackRgba(u8, u8, u8, u8);
 extern void fclAnchorOffset(f32 *, s64, f32, f32, f32, f32);
 extern u8 *MT_Scene_GetFrameState(void);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern void smapDrawQuad(u8 *arg0, YVec2f arg1, f32 fparg0, f32 fparg1, f32 fparg2, u8 arg2, f32 fparg3, s32 arg3, s8 arg4, s32 arg5);
+extern void smapDrawQuad(u8 *task, YVec2f position, f32 fparg0, f32 fparg1, f32 fparg2, u8 origin, f32 fparg3, s32 color, s8 orientation, s32 layer);
 extern u8 D_00794DB0[];
 extern u8 D_00794CF0[];
 extern u8 D_0076465C;   /* gp-relative, -0x4A94 */

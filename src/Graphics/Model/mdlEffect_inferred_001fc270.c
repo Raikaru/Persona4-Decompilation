@@ -92,11 +92,11 @@ extern u8 D_00624FA0[];
 
 
 
-extern s32 btlSoundPickStatusTalkVoiceA(u8 *arg0);
+extern s32 btlSoundPickStatusTalkVoiceA(u8 *action);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001fc270-001fc270 */
 
-extern s32 func_001f0ff0(u32 arg0);
+extern s32 func_001f0ff0(u32);
 /* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
 /* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push

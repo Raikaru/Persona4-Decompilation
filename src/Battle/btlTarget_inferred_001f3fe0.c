@@ -73,13 +73,13 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f3fe0-001f41e0 */
 
-extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
-extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
-extern s32 btlActionAnyTargetClearsDeathStatus(u8 *arg0);
-extern s32 btlActionTargetsHaveDamageResult(u8 *arg0, s32 arg1);
-extern s32 btlActionHasNoTargetClass(u32 arg0);
-extern s32 btlTargetGroupStateMatches(u8 *arg0);
-extern s32 btlActionIsPendingBit(s32 arg0);
+extern s32 btlActionAnyTargetHitRowStatus(u8 *action);
+extern s32 btlActionSameGenusTargetsHaveDelta(u8 *action);
+extern s32 btlActionAnyTargetClearsDeathStatus(u8 *action);
+extern s32 btlActionTargetsHaveDamageResult(u8 *action, s32 mode);
+extern s32 btlActionHasNoTargetClass(u32 action);
+extern s32 btlTargetGroupStateMatches(u8 *context);
+extern s32 btlActionIsPendingBit(s32 context);
 #pragma push
 #pragma pop
 /* measured: invariant mask materialisation needs opt_loop_invariants on to

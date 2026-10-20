@@ -16,8 +16,8 @@ typedef struct EvtSceneLightDefaults {
     u8 **resources;
 } EvtSceneLightDefaults;
 
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern s32 MT_Scene_GetTotalResInList(s32 arg0);
+extern u8 *MT_Scene_GetResListHead(s32 resourceType);
+extern s32 MT_Scene_GetTotalResInList(s32 resType);
 extern void SceneDraw_SetCustomLight(u16 resTypeId, u32 customLight);
 extern void *SceneDraw_GetList5FirstColor(void);
 extern void *SceneDraw_GetList5SecondColor(void);
@@ -25,7 +25,7 @@ extern void *SceneDraw_GetList5Matrix(void);
 extern SceneLightMatrix *RwMatrixRotate(SceneLightMatrix *matrix, const SceneLightAxis *axis, f32 angle, s32 combine);
 extern u8 D_005EFA10[];
 extern u8 D_005EFA20[];
-extern void evtUpdateSceneLight(u8 *arg0, u8 *arg1, u8 *arg2);
+extern void evtUpdateSceneLight(u8 *workBytes, u8 *resource, u8 *defaults);
 #pragma push
 #pragma opt_loop_invariants off
 #pragma opt_propagation off

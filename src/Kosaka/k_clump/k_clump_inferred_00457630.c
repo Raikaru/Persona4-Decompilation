@@ -33,9 +33,9 @@ typedef struct Code45CurrentEntities {
 extern Code45CurrentEntities D_008872E0;
 extern void (*D_00887300[])();
 extern s32 (*D_00887310[])(s32, void *, s32);
-extern void RwMatrixUpdate(void *arg0);
-extern void RwV3dNormalize(f32 *arg0, f32 *arg1);
-extern void func_003e9680(void *arg0);
+extern void RwMatrixUpdate(void *);
+extern void RwV3dNormalize(f32 *, f32 *);
+extern void func_003e9680(void *);
 extern s64 D_00711858[];
 extern f32 D_00711860[];
 static inline f32 add_f32(f32 a, f32 b) {

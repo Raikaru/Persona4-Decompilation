@@ -14,8 +14,8 @@ typedef struct Resrc
 #define SCENEDRAW_RESRC_FLAG_VISIBLE 0x00000002
 
 extern Resrc* MT_Scene_GetRes(u16 resTypeId);
-extern u8* MT_Scene_GetResListHead(s32 arg0);
-extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 arg3);
+extern u8* MT_Scene_GetResListHead(s32 resourceType);
+extern void RwMatrixRotate(void *, void *, s32, f32);
 extern f32 fGpffff809c;
 extern f32 fGpffff838c;
 

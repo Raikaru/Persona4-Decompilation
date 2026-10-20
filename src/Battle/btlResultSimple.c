@@ -7,11 +7,11 @@
 
 void btlShuffleStartOverlay(void);
 extern u16 *kwlnTaskGetWork();
-void radarAnimateValue(void *arg0, s32 arg1, s32 arg2);
+void radarAnimateValue(void *work, s32 frame, s32 mode);
 s32 btlMainGetPhase(void);
-void shdScriptCategoryTaskCreate(void *arg0, s32 arg1, s32 arg2);
+void shdScriptCategoryTaskCreate(void *parentTask, s32 categoryIndex, s32 increment);
 s32 shdScriptIsCategoryTaskActive(void);
-u8 *sdkSpriteNewNode(u32 arg0, u32 arg1);
+u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
 u32 RpRandom(void);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
@@ -32,7 +32,7 @@ extern char D_00629628[];
 extern char D_006290F0[];
 extern char D_00629610[];
 extern s64 datGetDateIndex(void);
-extern s32 calGetDayWindowFlags(s32 arg0);
+extern s32 calGetDayWindowFlags(s32 day);
 void func_00440b68(void *msg, const void *file, s32 line);
 extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
 void kAssertFail(const void *file, s32 line);
@@ -40,13 +40,13 @@ s32 resourceFindByName(u32 param);
 s32 H_Cdvd_IsFileLoaded(u8 *ptr);
 u8 *H_Cdvd_GetArchiveEntry(u8 *param, s32 a, s32 *b);
 s32 hMaestroDecodeIsReady(s32 param);
-void btlResultSimpleDraw(u8 *arg0, u8 *work);
+void btlResultSimpleDraw(u8 *unusedTask, u8 *work);
 void btlResultSimpleTaskDestroy(u8 *task);
-void sdkSpriteDrawAt(void *arg0, f32 arg1, f32 arg2, u8 arg3, u8 arg4, u8 arg5, u8 arg6);
+void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
 extern s32 sprintf(void *dst, const void *fmt, ...);
 void PrimAppendNode(void *param, void *work);
 extern u32 D_00795F20[];
-s32 btlResultSimpleStepPhase(u8 *arg0);
+s32 btlResultSimpleStepPhase(u8 *task);
 s32 btlShuffleOverlayIdle(void);
 static inline u32 addBase(u32 base, u32 index) { return base + index; }
 extern char iGpffffa5b8;
@@ -132,7 +132,7 @@ extern u8 nmMesWindowOpenCurrent(u8 *message);
 void nmMesWindowShowCurrentRecord(s32 param);
 void nmMesWindowResetCurrent(void);
 s32 datMemberNoticeTryBegin(s32 param);
-extern s32 btlResultSimpleUpdate(u8 *arg0);
+extern s32 btlResultSimpleUpdate(u8 *task);
 
 
 

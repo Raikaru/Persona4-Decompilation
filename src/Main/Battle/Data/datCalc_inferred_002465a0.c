@@ -7,7 +7,7 @@ extern void chkmemAllocSiteTag(void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00635990[];
 extern u8 D_006359A0[];
-extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern s32 kwlnTaskGetTaskByName(void *path);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_006359B0[];

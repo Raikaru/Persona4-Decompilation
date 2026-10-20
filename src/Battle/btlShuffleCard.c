@@ -25,7 +25,7 @@ extern void sflResSetSecondaryVector(u8 *card, void *value);
 extern void sflResSetPrimaryVector(u8 *card, void *value);
 extern void sflResSetVector(u8 *card, void *value);
 extern void pscPanelSetColor(u8 *card, void *value);
-extern void pscModelScreenPos(void *card, const f32 *value, f32 fparg2, void *arg3);
+extern void pscModelScreenPos(void *card, const f32 *value, f32 fparg2, void *viewport);
 extern f32 pscModelPanelScale(const f32 *value, f32 scale);
 extern void pscModelSetParentFrame(u8 *card, s32 value);
 extern void pscModelCopyVector(u8 *card, s32 value);

@@ -107,7 +107,7 @@ extern f32 fGpffff8110;
 
 
 
-extern u8 *resrcMngFindResById(u8 *arg0, u16 arg1);
+extern u8 *resrcMngFindResById(u8 *manager, u16 resourceId);
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
 extern u8 D_005EF8D0[];
@@ -118,29 +118,29 @@ extern u8 D_005EF950[];
 extern u8 D_005EF970[];
 extern u8 D_005EF820[];
 extern u8 D_005EF870[];
-extern void kAssertFail(const void *arg0, s32 arg1);
+extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005EF840[];
 extern u8 D_005EF858[];
 extern u8 D_007EF9B0[];
-extern void func_003c38b0(void *arg0, void *arg1);
-extern void func_003e8110(void *arg0);
-extern void func_003e8120(void *arg0);
-extern void func_003e9cb0(s32 arg0, void *arg1, s32 arg2);
+extern void func_003c38b0(void *, void *);
+extern void func_003e8110(void *camera);
+extern void func_003e8120(void *camera);
+extern void func_003e9cb0(s32 frame, void *transform, s32 combine);
 extern s32 kwlnGetCamera(void);
 extern u8 *K_Clump_GetLightA(void);
 extern u8 *K_Clump_GetLightB(void);
 extern u8 *K_Clump_GetLightC(void);
 extern u8 *K_Clump_GetWorld(void);
-extern void func_003cbe80(void *arg0, void *arg1);
+extern void func_003cbe80(void *, void *);
 extern u8 *resrcMngGetColorValue(void);
 extern u8 D_007E8020[];
 extern void *mdlGetMatrix(void *model);
-extern f32 RwV3dLength(f32 *arg0);
-extern u8 *func_003e9700(s32 arg0);
+extern f32 RwV3dLength(f32 *);
+extern u8 *func_003e9700(s32);
 
 extern u8 D_005EF7D0[];
 extern u8 D_005EF800[];
-extern s32 func_003cbf30(s32 arg0, void *arg1);
+extern s32 func_003cbf30(s32, void *);
 extern u8 *resrcMngGetColorTarget(void);
 extern u8 *resrcMngGetTransform(void);
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
@@ -159,9 +159,9 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *arg0, f32 fparg0, f32 fparg1, f32 fparg2,
-                          u8 arg1, u8 arg2, u8 arg3, u8 arg4, u16 arg5,
-                          u16 arg6, s16 arg7, f32 fparg3, s16 arg_sp0);
+extern void sdkSpriteDrawSized(u8 *sprite, f32 fparg0, f32 fparg1, f32 fparg2,
+                          u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                          u16 scaleY, s16 pivotX, f32 fparg3, s16 arg_sp0);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
@@ -171,7 +171,7 @@ extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
 extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 extern s32 resrcMngRenderTask(u8 *task);
-extern void FldShadow_SpawnCasterTask(u8 *arg0);
+extern void FldShadow_SpawnCasterTask(u8 *parentTask);
 
 
 
@@ -191,21 +191,21 @@ extern s32 D_007642F0;
 
 
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(void *arg0, u8 *arg1);
+extern void PrimAppendNode(void *list, u8 *node);
 
 
-extern u8 *MT_Scene_GetResListHead(s32 arg0);
-extern void resrcMngSetDrawEnabled(s32 arg0, s32 arg1);
+extern u8 *MT_Scene_GetResListHead(s32 resourceType);
+extern void resrcMngSetDrawEnabled(s32 enabled, s32 includeFieldModels);
 extern void MT_Scene_ScaleResColors(u32 *resource, const f32 *color);
 extern void kwlnSetColorRgba(u8 red, u8 green, u8 blue, u8 alpha);
 extern s8 *kwlnGetColorBytes(void);
-extern void FldFilterSetPrimary(s32 arg0, s32 arg1);
+extern void FldFilterSetPrimary(s32 task, s32 value);
 
-extern void FldFilterSetSecondary(s32 arg0, s32 arg1);
+extern void FldFilterSetSecondary(s32 task, s32 value);
 
-extern void FldFilterSetTertiary(s32 arg0, s32 arg1);
+extern void FldFilterSetTertiary(s32 task, s32 value);
 
-extern void FldFilterSetIntensity(s32 arg0, s32 arg1);
+extern void FldFilterSetIntensity(s32 task, s32 value);
 extern s32 iGpffff9dd0;
 extern s32 iGpffffb1f8;
 extern s32 iGpffffb1fc;
@@ -213,7 +213,7 @@ extern u8 D_005EFAA0[];
 extern u8 D_007E80A0[];
 extern u8 D_007E8C00[];
 extern u16 D_007D24B0[];
-extern void memset(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *, s32, s32);
 extern u8 D_005EFC18[];
 extern u8 D_005EFC28[];
 extern u8 iGpffff9de0;
@@ -715,16 +715,16 @@ s32 resrcMngCompareDistanceArrB(const void *left, const void *right) {
 /* Queue the resource-kind-specific draw passes and sorted translucent resources. Keep resource-member byte accesses: the typed rewrite retained member addresses across callbacks and exceeded the retail window; scene_resource_internal.h records the proven layout. */
 s32 resrcMngRenderTask(u8 *unusedTask) {
     /* Retail returns zero at 001495E8, 00148318. */
-    extern void FldResource_QueueDrawCallbacks(u8 *arg0, u8 *arg1);
-    extern void FldResource_QueueDrawCallbacksPrimary(u8 *arg0, u8 *arg1);
-    extern void FldResource_QueueDrawCallbacksSecondary(u8 *arg0, u8 *arg1);
-    extern void mdlEffectAdvanceAndFlushWithTable(void *arg0, void *arg1);
-    extern s32 hMaestroListSetHasEntries(u8 *arg0);
+    extern void FldResource_QueueDrawCallbacks(u8 *list, u8 *resource);
+    extern void FldResource_QueueDrawCallbacksPrimary(u8 *list, u8 *resource);
+    extern void FldResource_QueueDrawCallbacksSecondary(u8 *list, u8 *resource);
+    extern void mdlEffectAdvanceAndFlushWithTable(void *table, void *effect);
+    extern s32 hMaestroListSetHasEntries(u8 *listSet);
     extern u32 K_Clump_StateFlagIsSet(const u32 *state);
     extern void mdlQueueModelForDraw(void *queue, u8 *model);
     extern void *mdlGetColor(void *model);
-    extern s32 mdlComputeIndexedAttachMatrix(void *arg0, s32 arg1, void *arg2);
-    extern void mdlEffectFlushWithTable(void *arg0, void *arg1);
+    extern s32 mdlComputeIndexedAttachMatrix(void *model, s32 index, void *destination);
+    extern void mdlEffectFlushWithTable(void *table, void *effect);
     extern void qsort(void *base, size_t count, size_t size,
                       s32 (*compare)(const void *, const void *));
     extern s32 FldMap_IsCurrentInEitherBand(void);
@@ -1334,7 +1334,7 @@ void resrcMngSetEnvIntensity(s32 value)
 void resrcMngResetRenderSlots(void)
 {
     extern f32 fGpffff8198;
-    extern void RwMatrixRotate(void *arg0, void *arg1, s32 arg2, f32 fparg0);
+    extern void RwMatrixRotate(void *, void *, s32, f32 fparg0);
     s32 axisWords[3];
     f32 primaryValue;
     u8 *primaryResource;

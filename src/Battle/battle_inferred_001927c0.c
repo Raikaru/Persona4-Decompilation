@@ -28,14 +28,14 @@ typedef struct P4_95730_Bytes4 {
 } P4_95730_Bytes4;
 typedef struct DatUnit DatUnit;
 
-extern void datSetFlag(s32 arg0, s32 arg1);
-extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
+extern void datSetFlag(s32 flagId, s32 enabled);
+extern void RpSkyRenderStateSet(s32, s32);
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void mdlEffectEmitMaskedTagPair(void);
-extern void effMiscDrawScreenColor(void *arg0, s32 arg1);
+extern void effMiscDrawScreenColor(void *colors, s32 enabled);
 extern void mdlEffectEmitTagPair(void);
 extern f32 fGpffff8474;
-extern void func_003c22f0(void *arg0);
+extern void func_003c22f0(void *);
 extern u8 D_005F6CA0[];
 extern f32 D_005F6C10[];
 extern u8 *iGpffffb3ac;
@@ -43,14 +43,14 @@ extern u8 *iGpffffb3b8;
 extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3cc;
 
-extern s64 scrGetParamInt(s32 arg0);
-extern u8 *datUnitGetRecord(s16 arg0);
+extern s64 scrGetParamInt(s32 paramIdx);
+extern u8 *datUnitGetRecord(s16 unitId);
 
 extern u8 *iGpffff9db0;
 extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
-extern s32 datGetPartyId(s32 arg0);
+extern s32 datGetPartyId(s32 idx);
 extern void sequenceRequest(s32 id, void *data, s32 size, s32 flag);
 extern u8 *iGpffffb3e0;
 extern s32 iGpffffb430;
@@ -66,23 +66,23 @@ extern u8 D_005F65B0[];
 extern u8 D_005F65C0[];
 
 extern void memcpy(void *dst, void *src, s32 size);
-extern s32 btlUiCreateTask(s32 arg0);
-extern s32 datGetFlag(s32 arg0);
-extern void btlMainSetPhase(s32 arg0);
+extern s32 btlUiCreateTask(s32 parentTask);
+extern s32 datGetFlag(s32 bit);
+extern void btlMainSetPhase(s32 phase);
 extern s32 btlUpdateTask(u8 *task);
 extern s32 btlUpdateDraw3DTask(u8 *task);
 extern s32 btlUpdateDraw2DTask(u8 *task);
-extern s32 datCalcIsDead(u8 *arg0, s32 arg1);
+extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
 extern s32 btlUnitReactToDeath(void);
 extern s32 iGpffffb3b0;
 extern s32 iGpffffb284;
 extern s32 iGpffffb280;
 extern s32 scrGetCmdTimer(void);
 extern u8 *scrGetContext(void);
-extern void datCalcIsDeadById(s16 arg0);
-extern void datSetUnitHp(s16 arg0, s16 arg1);
-extern void datCalcClearBadStatusById(s16 arg0, s32 arg1);
-extern void KMisc_CreateScrShutdown(s32 arg0);
+extern void datCalcIsDeadById(s16 unitId);
+extern void datSetUnitHp(s16 unitId, s16 hp);
+extern void datCalcClearBadStatusById(s16 unitId, s32 mask);
+extern void KMisc_CreateScrShutdown(s32 scrTask);
 extern void sdlSchedulerEnable(void);
 extern u8 iGpffffa0a0;
 extern u8 D_005F6BE0[];
@@ -112,17 +112,17 @@ extern void btlEffectInitializeNodeSystem(void);
 extern void btlActionResetQueueState(void);
 extern void btlMainReset(void);
 extern void btlSoundResetPlaybackState(void);
-extern s32 itfMesWindowInstall(u8 *arg0);
+extern s32 itfMesWindowInstall(u8 *record);
 
-extern void memset(void *arg0, s32 arg1, s32 arg2);
-extern u8 *kwlnTaskGetTaskByName(void *arg0);
-extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
+extern void memset(void *, s32, s32);
+extern u8 *kwlnTaskGetTaskByName(void *name);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 
 /* Retail computes the unit record address as index-times-stride plus base;
    MWCCPS2 emits a commutative addu in the order the operands reach it, so the
    order has to come from an inline's parameter list. */
 
-extern s32 scrStartProcedureChecked(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
+extern s32 scrStartProcedureChecked(s32 priority, s32 source, s32 size, s32 procedureIndex);
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -134,22 +134,22 @@ extern f32 DAT_0076112c;
 
 
 extern s32 iGpffffb444;
-extern s32 datCalcIsStandardUnit(s32 arg0, s32 arg1);
+extern s32 datCalcIsStandardUnit(s32 unitFlags, s32 itemId);
 
-extern u8 *kwlnTaskGetTaskByName(void *arg0);
-extern void kwlnTaskDestroyWithHierarchy(s32 arg0);
+extern u8 *kwlnTaskGetTaskByName(void *name);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern s32 btlRelease(void);
 extern void btlPacketFlushAll(void);
 extern void btlUnitFreeRemovedUnits(void);
-extern void datUnitFree(s32 arg0);
+extern void datUnitFree(s32 allocation);
 extern void (*jtbl_008873EC[])(void *arg0);
-extern void chkmemAllocSiteTag(void *arg0, s32 arg1);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 extern u8 D_005F6C00[];
 extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void hFadeTaskStart(s16 arg0);
+extern void hFadeTaskStart(s16 fadeVariant);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];

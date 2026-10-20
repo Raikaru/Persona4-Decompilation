@@ -2,7 +2,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 extern s32 datScriptTargetIsNotEnemy(void);
-extern f32 datScriptCalcFloat(s32 arg0, s32 arg1);
+extern f32 datScriptCalcFloat(s32 term, s32 parameter);
 #include "datScript_internal.h"
 
 extern void *(*D_008873F4[])(size_t, size_t, u32);

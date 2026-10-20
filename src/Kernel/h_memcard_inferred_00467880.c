@@ -238,7 +238,7 @@ void filerDrawDirectory(u8 *directory)
 {
     extern u32 func_003e8110(u32 camera);
     extern u32 func_003e8120(u32 camera);
-    extern void PrimDrawFlatRectangle(u8 *arg0, f32 *arg1, f32 farg0, s32 arg2);
+    extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 farg0, s32 preserveState);
     extern char iGpffffb01c;
     extern u8 D_00712A20[];
     extern u8 D_00712A30[];

@@ -59,8 +59,8 @@ static inline s32 func_001a_fix_var(s32 value)
 
 
 void btlActionFinishPresentation(BtlAction *action);
-BtlPacket *btlFormationCreateSlotPacket(u16 arg0, u16 arg1);
-s64 btlPacketEnqueue(u8 *arg0, u32 arg1);
+BtlPacket *btlFormationCreateSlotPacket(u16 groupMask, u16 flags);
+s64 btlPacketEnqueue(u8 *context, u32 value);
 
 extern u8 *D_0076449C; /* active battle context */
 extern u8 *iGpffffb3ac; /* active battle context */
@@ -73,14 +73,14 @@ static inline u8 *actionLookAtUnit(u8 *unit, u8 *target, s32 flags)
 {
     return (u8 *)btlUnitCreateLookAtUnitPacket((BtlUnit *)unit, (BtlUnit *)target, (u16)flags);
 }
-u8 *btlUnitCreateMotionRequestPacket(u8 *arg0, u16 arg1);
+u8 *btlUnitCreateMotionRequestPacket(u8 *unit, u16 value);
 extern f32 fGpffff811c;
-BtlPacket *btlMainCreateColorSetPacket(s32 arg0);
+BtlPacket *btlMainCreateColorSetPacket(s32 arg);
 BtlPacket *btlEffectCreateReleasePacket(u16 mode);
 u8 *btlPacketCreateFinishEffect(void);
 u32 datCalcIsDead(s32 unit, s32 hpDelta);
-s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4,
-                  s32 (*arg5)(u8 *arg0, s64 arg1));
+s32 btlEffectFindUnitMatchingCallback(u8 *action, s32 conditionValue, s32 sideMask, s32 statusMask, s32 filterFlags,
+                  s32 (*predicate)(u8 *arg0, s64 arg1));
 
 extern f32 D_0076144C;
 

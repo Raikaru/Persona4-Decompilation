@@ -66,7 +66,7 @@ typedef void (*BattleSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
 extern void btlSelectionDrawSlideIn(u8 *work, u8 *state, f32 x, f32 y,
                          BattleSelectionDraw drawSelection);
 
-extern void btlSelectionDrawList(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
+extern void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 farg0, f32 farg1,
                           BattleSelectionDraw callback);
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);
@@ -96,12 +96,12 @@ extern void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
 extern void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
                           u8 opacity, s32 highlighted, s32 showDetail);
 extern void btlCameraSetState(s32 state, BtlAction *action, u32 flags);
-extern void btlCameraSetupActionGeometry(u8 *arg1, u8 *arg2, f32 *arg3, f32 arg0, u16 arg4);
-extern u8 *btlActionFindByUnit(s32 arg0);
-extern s32 datCalcIsDead(s32 arg0, s32 arg1);
-extern void btlUnitGetAnchorPose(void *arg0, void *arg1, void *arg2, void *arg3);
-extern void btlUnitSetPos(void *arg0, void *arg1);
-extern void btlUnitSetRot(void *arg0, void *arg1);
+extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
+extern u8 *btlActionFindByUnit(s32 unit);
+extern s32 datCalcIsDead(s32 unit, s32 hpDelta);
+extern void btlUnitGetAnchorPose(void *unit, void *outPosition, void *outRotation, void *outTarget);
+extern void btlUnitSetPos(void *unit, void *pos);
+extern void btlUnitSetRot(void *unit, void *rot);
 extern u8 *iGpffffb3ac;
 
 extern s32 D_00881444_abs[];

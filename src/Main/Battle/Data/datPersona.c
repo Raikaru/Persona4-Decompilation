@@ -27,7 +27,7 @@ extern u8 D_00796E50[];
 
 extern void kAssertFail(const void *file, u32 line);
 extern void *memset(void *dest, s32 value, s32 size);
-extern s32 datCalcSkillSlotValue(s32 arg0, u16 arg1);
+extern s32 datCalcSkillSlotValue(s32 unusedUnit, u16 packedValue);
 extern char D_005E4318[];
 extern s16 D_00797F88[];
 extern s16 D_00797F8C[];
@@ -50,11 +50,11 @@ static inline s32 datPersonaOrFlag(s32 flags, s32 mask)
 }
 
 extern void memcpy(void *dst, void *src, u32 size);
-extern u8 *datPersonaResolveRecord(u8 *arg0);
+extern u8 *datPersonaResolveRecord(u8 *record);
 
 extern s32 datPersonaSetLeadSlot(); /* old-style: target call preserves s64 argument */
 
-extern u32 datCalcRandomBelow(u32 arg0);
+extern u32 datCalcRandomBelow(u32 limit);
 
 extern f32 fGpffff8218; /* gp -0x7DF8 */
 extern f32 fGpffff821c; /* gp -0x7DF4 */
@@ -439,7 +439,7 @@ s8 datPersonaGetStatBonusB(DatPersonaRecord *persona, s32 statIndex)
     return persona->statBonusB[(u16)statIndex];
 }
 
-extern u16 datCalcCountIdSlotsWithValue(u16 arg0, u16 arg1);
+extern u16 datCalcCountIdSlotsWithValue(u16 characterId, u16 property);
 extern s16 D_00797578[];
 extern u8 D_00796D90[];
 extern u8 *iGpffffb1b0;

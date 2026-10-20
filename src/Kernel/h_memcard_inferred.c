@@ -80,11 +80,11 @@ extern u16 D_008C0276[];
 extern char iGpffffb020[3];
 extern char iGpffffb024[2];
 extern char iGpffffb028[6];
-extern u8 *sdkFilerSelectorCreate(u8 *arg0, s64 arg1);
-extern void sdkListStateConfigure(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern void sdkListStateSetPrimaryMasks(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 sdkListStateHandleInput(u8 *arg0);
-extern s32 sdkFilerSelectorPoll(u8 *arg0, s8 *arg1);
+extern u8 *sdkFilerSelectorCreate(u8 *parent, s64 positionBits);
+extern void sdkListStateConfigure(u8 *state, s32 value, s32 itemCount, s32 cursor, s32 scroll);
+extern void sdkListStateSetPrimaryMasks(u8 *state, s32 value, s32 itemCount, s32 cursor, s32 scroll);
+extern s32 sdkListStateHandleInput(u8 *state);
+extern s32 sdkFilerSelectorPoll(u8 *task, s8 *output);
 extern s32 strcmp(const char *a, const char *b);
 extern s32 uGpffffb230;
 extern s32 D_00724BC8;
@@ -220,7 +220,7 @@ typedef struct FilerDirent {
 
 
 extern void sdkFilerScanDirectory(u8 *work);
-extern void filerDrawDirectory(u8 *arg0);
+extern void filerDrawDirectory(u8 *directory);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 00467bd0-00467bd0 */
 

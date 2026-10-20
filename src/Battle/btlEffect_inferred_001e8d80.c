@@ -22,7 +22,7 @@ extern s32 datCalcGetHp();
 extern s32 datCalcSkillElement(u8 *unit, u16 skill);
 extern s32 datCalcThresholdTrigger(u8 *unit, s32 skill);
 extern s32 datCalcDefaultSkillId(u8 *unit);
-extern s32 datCalcGetElementAffinity(u8 *arg0, s32 arg1);
+extern s32 datCalcGetElementAffinity(u8 *unit, s32 elementIndex);
 extern u8 *scrGetAiState();
 
 extern u8 *iGpffffb3ac; /* active battle state */
@@ -31,7 +31,7 @@ extern u8 iGpffffa9b0;
 extern s32 *gEncountTbl;
 extern s32 D_00724504;
 extern s32 btlAICommandSelectCandidates();
-extern u32 datCalcRandomBelow(u32 arg0);
+extern u32 datCalcRandomBelow(u32 limit);
 extern u8 *btlEffectFindUnitByKey();
 extern s32 btlAICommandCollectSkillCandidates();
 extern s32 btlSideSelectUnits();
@@ -49,11 +49,11 @@ extern f32 fGpffff8060;
 extern f32 D_00761438;
 
 
-extern u32 datCalcRandomBelow(u32 arg0);
+extern u32 datCalcRandomBelow(u32 limit);
 
 
 
-extern void btlAICommandSetActionCode(u8 *arg0, u8 *arg1, u16 arg2);
+extern void btlAICommandSetActionCode(u8 *action, u8 *work, u16 actionCode);
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
 extern f32 D_00881400[];
@@ -73,9 +73,9 @@ extern f32 D_00881414[];
 extern f32 D_00881418[];
 extern f32 fGpffffb454;
 extern u8 D_00609E40[];
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-extern s32 datCalcGetHp(s32 arg0);
-extern s32 datCalcIsDead(s32 arg0, s32 arg1);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
+extern s32 datCalcGetHp(s32 unit);
+extern s32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
@@ -407,11 +407,11 @@ s32 btlEffectScriptPickLowestHpSkillEligibleUnit(void) {
 // FUN_001E9770
 /* Pick least HP within the script's minimum HP, maximum percentage and status mask. */
 s32 btlEffectScriptPickLowestHpInRangeUnit(void) {
-    extern s32 scrGetParamInt(s32 arg0);
-    extern void scrSetReturnInt(s32 arg0);
-    extern s32 datCalcIsDead(s32 arg0, s32 arg1);
-    extern s32 datCalcGetHp(s32 arg0);
-    extern s32 datCalcMaxHp(s32 arg0);
+    extern s32 scrGetParamInt(s32 paramIdx);
+    extern void scrSetReturnInt(s32 retVal);
+    extern s32 datCalcIsDead(s32 unit, s32 hpDelta);
+    extern s32 datCalcGetHp(s32 unit);
+    extern s32 datCalcMaxHp(s32 unit);
     u32 storedHp;
     u32 maximumHp;
     s32 maximumPercent;
@@ -483,18 +483,18 @@ loop_test:
 /* AI script command 0x20fa (p4flow AI.json AI_FUNCTION_00FA). */
 // FUN_001E9950
 s32 btlEffectScriptChooseBestSkill(void) {
-    extern s32 scrGetParamInt(s32 arg0);
-    extern void scrSetReturnInt(s32 arg0);
-    extern s32 datCalcElementBit(s16 arg0);
-    extern s32 datCalcSkillElement(u8 *arg0, s32 arg1);
+    extern s32 scrGetParamInt(s32 paramIdx);
+    extern void scrSetReturnInt(s32 retVal);
+    extern s32 datCalcElementBit(s16 element);
+    extern s32 datCalcSkillElement(u8 *unit, s32 skillId);
     extern u16 btlSkillClassifyTargets(u8 *action, u8 *targets, s32 skill, u32 reverseGroups);
-    extern s32 datCalcUsesWeaponProperties(s32 arg0);
-    extern u32 datCalcSkillCost(u8 *arg0, s32 arg1);
-    extern u16 datCalcThresholdKind(u8 *arg0, s32 arg1);
-    extern s32 btlAICommandNomalCheck(u8 *arg0, s32 arg1, s32 arg2);
+    extern s32 datCalcUsesWeaponProperties(s32 skillId);
+    extern u32 datCalcSkillCost(u8 *unit, s32 skillId);
+    extern u16 datCalcThresholdKind(u8 *unusedUnit, s32 skillId);
+    extern s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled);
     extern s32 datCalcSkillAmount(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
-    extern u8 *btlActionFindById(s32 arg0);
-    extern s32 btlAICommandPickAiTarget(u8 *arg0, u32 arg1);
+    extern u8 *btlActionFindById(s32 id);
+    extern s32 btlAICommandPickAiTarget(u8 *action, u32 value);
     u8 *work;
     u8 *unit;
     s32 bestSkill;
@@ -669,10 +669,10 @@ outer_test:
 // FUN_001E9F20
 /* Pick the living genus-1 target with matching status bits and greatest HP. */
 s32 btlEffectScriptPickHighestHpBadStatusUnit(void) {
-    extern s32 scrGetParamInt(s32 arg0);
-    extern s32 datCalcGetHp(s32 arg0);
-    extern s32 datCalcIsDead(s32 arg0, s32 arg1);
-    extern void scrSetReturnInt(s32 arg0);
+    extern s32 scrGetParamInt(s32 paramIdx);
+    extern s32 datCalcGetHp(s32 unit);
+    extern s32 datCalcIsDead(s32 unit, s32 hpDelta);
+    extern void scrSetReturnInt(s32 retVal);
     u16 flags;
     u32 value;
     u8 *current;
@@ -712,10 +712,10 @@ s32 btlEffectScriptPickHighestHpBadStatusUnit(void) {
 // FUN_001EA050
 /* Pick the living genus-1 target with matching status bits and least HP. */
 s32 btlEffectScriptPickLowestHpBadStatusUnit(void) {
-    extern s32 scrGetParamInt(s32 arg0);
-    extern s32 datCalcGetHp(s32 arg0);
-    extern s32 datCalcIsDead(s32 arg0, s32 arg1);
-    extern void scrSetReturnInt(s32 arg0);
+    extern s32 scrGetParamInt(s32 paramIdx);
+    extern s32 datCalcGetHp(s32 unit);
+    extern s32 datCalcIsDead(s32 unit, s32 hpDelta);
+    extern void scrSetReturnInt(s32 retVal);
     u16 flags;
     u32 value;
     u8 *current;

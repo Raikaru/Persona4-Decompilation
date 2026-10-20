@@ -10,11 +10,11 @@ extern u8 D_006359A0[];
 extern u8 D_006359B0[];
 extern u8 D_006359C0[];
 extern s64 datGetDateIndex(void);
-extern s32 cmmNextUnlistedDate(s32 arg0);
-extern s32 calGetWeekdayOfDay(s32 arg0);
-extern s32 calHasDayEntry(s32 arg0);
+extern s32 cmmNextUnlistedDate(s32 startDate);
+extern s32 calGetWeekdayOfDay(s32 dateIndex);
+extern s32 calHasDayEntry(s32 day);
 extern s32 cmmCommunityGetTableHead(void);
-extern s32 cmmDateNotListed(s32 arg0);
+extern s32 cmmDateNotListed(s32 value);
 
 extern f32 D_00761260;
 extern f32 fGpffff811c;

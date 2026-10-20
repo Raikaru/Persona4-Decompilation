@@ -71,8 +71,8 @@ typedef struct FldCameraRotation {
 
 
 extern s32 iGpffff9ef8;
-extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
-extern void K_View_SetFov(void *arg0, f32 arg1);
+extern void func_003e9cb0(void *frame, void *transform, s32 combine);
+extern void K_View_SetFov(void *camera, f32 fov);
 extern void FldCameraAdvanceCurve();
 extern s32 iGpffff9f08;
 
@@ -114,12 +114,12 @@ extern void (*D_00887300[])(u32, u32);
 extern void chkmemAllocSiteTag(const void *msg, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 *kwlnGetCamera();
-extern void func_003e9d50(u8 *arg0, void *arg1, f32 arg2, s32 arg3);
-extern void K_ClumpLookAtBasis(u8 *arg0, void *arg1, void *arg2, s32 arg3);
-extern void RwMatrixTranslate(void *arg0, void *arg1, s32 arg2);
-extern void func_003e0e20(void *arg0, void *arg1, s32 arg2);
+extern void func_003e9d50(u8 *, void *, f32, s32);
+extern void K_ClumpLookAtBasis(u8 *object, void *position, void *target, s32 referenceUp);
+extern void RwMatrixTranslate(void *, void *, s32);
+extern void func_003e0e20(void *, void *, s32);
 extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
-extern u8 *func_003e9700(s32 arg0);
+extern u8 *func_003e9700(s32);
 extern f32 D_007F1730[];
 
 extern u8 D_005F16C8[];
@@ -132,16 +132,16 @@ extern u8 D_005F16E0[];
 extern char D_005F16B0[];
 extern u8 D_007948D0[];
 extern void *func_003e9320(void);
-extern void func_003e9df0(void *arg0);
+extern void func_003e9df0(void *);
 extern s32 func_003e0f80(void);
 extern s32 FldCameraTaskUpdate(u8 *task);
-extern s32 KDraw_CreateGroupTask(s32 arg0, s32 arg1, void *arg2);
-extern s32 KDraw_CreateSphereTask(s32 arg0, void *arg1);
-extern s32 KDraw_CreateCylinderTask(s32 arg0, void *arg1);
-extern void KDraw_SetSphereColor(void *arg0, void *arg1);
+extern s32 KDraw_CreateGroupTask(s32 parent, s32 curve, void *drawList);
+extern s32 KDraw_CreateSphereTask(s32 parent, void *drawList);
+extern s32 KDraw_CreateCylinderTask(s32 parent, void *drawList);
+extern void KDraw_SetSphereColor(void *task, void *color);
 extern f32 fabsf(f32 x);
-extern f32 KDraw_MatrixYawDeg(u8 *arg0);
-extern f32 K_View_GetFov(u8 *arg0);
+extern f32 KDraw_MatrixYawDeg(u8 *matrix);
+extern f32 K_View_GetFov(u8 *camera);
 extern u8 *iGpffffb2c8;
 extern u8 *iGpffffb2cc;
 extern u8 D_007E7B20[];
@@ -153,10 +153,10 @@ extern u8 D_005F1610[];
 extern u8 D_007F00D8[];
 extern u8 D_007E9328[];
 extern s32 iGpffff9f00;
-extern void func_003e99a0(void *arg0);
-extern void func_003e9390(void *arg0);
-extern void func_003e9830(s32 arg0, s32 arg1);
-extern void func_003e0f40(s32 arg0);
+extern void func_003e99a0(void *);
+extern void func_003e9390(void *);
+extern void func_003e9830(s32, s32);
+extern void func_003e0f40(s32);
 extern char D_005F11E8[];
 extern char D_005F1200[];
 extern s32 iGpffff9f08;
@@ -164,19 +164,19 @@ extern u8 *iGpffff9db0;
 extern s32 datGetFlag();
 extern s32 FldStepIndex();
 extern s32 FldDayEventActive();
-extern s32 FldRoomIsListed(u16 arg0, u16 arg1);
+extern s32 FldRoomIsListed(u16 field, u16 room);
 extern s32 D_005F1350[];
-extern void mdlSetColor(void *arg0, void *arg1);
-extern void mdlAttachSlotModelFromResource(void *arg0, u16 arg1, u32 arg2, u16 arg3,
-                           void *arg4, u32 arg5);
+extern void mdlSetColor(void *model, void *color);
+extern void mdlAttachSlotModelFromResource(void *model, u16 slotIndex, u32 type, u16 id,
+                           void *resource, u32 flags);
 extern u8 iGpffff9f10;
 extern u8 D_005F13A0[];
 
 
 
 
-extern s32 FldFrame_RaycastFieldWorlds(RwV3d *arg0, RwV3d *arg1, f32 fparg0,
-                         u16 arg2);
+extern s32 FldFrame_RaycastFieldWorlds(RwV3d *origin, RwV3d *vector, f32 fparg0,
+                         u16 fieldId);
 
 
 typedef struct FldCameraAngleScratch
@@ -204,11 +204,11 @@ typedef struct FldCameraRotationScratch
     u8 pad8c[4];
     RwV3d initialPosition;
 } FldCameraRotationScratch;
-extern f32 sinf(f32 arg0);
+extern f32 sinf(f32);
 extern f32 iGpffff8094;
 
-extern s32 RwEngineGetMatrixTolerances(RwV3d *arg0);
-extern void RwMatrixOptimize(u8 *arg0, RwV3d *arg1);
+extern s32 RwEngineGetMatrixTolerances(RwV3d *);
+extern void RwMatrixOptimize(u8 *, RwV3d *);
 
 
 typedef signed __int128 s128;
@@ -236,10 +236,10 @@ static inline f32 code1_0016_cvt(s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0016; members 0016b8a0-0016ffd0 */
 
-extern s32 FldEnemyLoadTable(u8 *arg0);
-extern void FldPartyModelRelease(s32 arg0);
+extern s32 FldEnemyLoadTable(u8 *file);
+extern void FldPartyModelRelease(s32 slot);
 extern s32 FldDayEventActive(void);
-extern s32 FldRoomIsListed(u16 arg0, u16 arg1);
+extern s32 FldRoomIsListed(u16 field, u16 room);
 typedef struct FldRaySelectionResource
 {
     u32 flags;
@@ -266,7 +266,7 @@ extern u8 D_008C025D[];
 extern u8 D_008C025E[];
 extern u8 D_008C025F[];
 extern f32 fGpffff8300;
-extern f32 func_0044b920(f32 arg0);
+extern f32 func_0044b920(f32 value);
 extern f32 sqrtf(f32 x);
 /* Build a 7-by-8 grid of 80-by-64 quads, snapshotting depth before any stores.
    measured: natural vertex assignment order, invariant hoisting and disabled
@@ -1913,7 +1913,7 @@ s32 FldFrame_GetStatus(u8 *task)
 void FldCameraAdvanceCurve(u8 *task, s32 mode)
 {
     extern s32 func_003bb330(u8 *task);
-    extern void func_003bb3a0(u8 *task, s32 mode, void *arg2);
+    extern void func_003bb3a0(u8 *task, s32 mode, void *);
     extern void func_003bb5b0(u8 *curve, s32 mode, f32 time, void *copyDestination, void *aux);
     extern f32 RwV3dLength(void *task);
     extern void kAssertFail(const void *task, s32 mode);

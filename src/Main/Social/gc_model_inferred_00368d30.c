@@ -26,9 +26,9 @@ typedef struct PersonaWork PersonaWork;
 
 
 extern f32 iGpffff84a4;
-extern void sdkSpriteDrawOnceTinted(s32 parent, s32 arg0, s32 arg1, f32 x, f32 y,
-                          u8 arg2, u8 arg3, u8 arg4, u8 arg5,
-                          f32 z, s32 arg6);
+extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
+                          u8 alphaSubtract, u8 red, u8 green, u8 blue,
+                          f32 z, s32 setStates);
 extern char D_005E5810[];
 extern char D_005E57F0[];
 extern char D_005E5850[];
@@ -36,13 +36,13 @@ extern char D_005E5830[];
 extern char D_0064E460[];
 extern char D_0064E280[];
 
-extern f32 cosf(f32 arg0);
+extern f32 cosf(f32);
 static inline f32 p4_00362f00_add(f32 left, f32 right)
 {
     return left + right;
 }
 extern void sflDataInitPanel(void);
-extern void pscLightInitQuad(u8 *arg0);
+extern void pscLightInitQuad(u8 *dst);
 extern f32 fGpffff8390;
 extern f32 fGpffff8394;
 extern u16 D_008C024E[];
@@ -70,7 +70,7 @@ typedef struct {
 typedef void (*P4RenderState66C70)(s32 state, s32 value);
 extern RwV3d *func_003e4320(RwV3d *dst, const RwV3d *src,
                            const struct RwMatrixTag *matrix);
-extern f32 sinf(f32 arg0);
+extern f32 sinf(f32);
 extern s32 D_0064E440[];
 extern f32 D_008872F8[];
 extern P4RenderState66C70 D_00887300[];
@@ -80,7 +80,7 @@ extern f32 fGpffff8198;
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0036; members 00368d30-00368e80 */
 
-extern void pscModelBuildTileVertices(u8 *arg0, u8 *arg1);
+extern void pscModelBuildTileVertices(u8 *mesh, u8 *model);
 /* 780/784 bytes; nine resolved relocations; four zero alignment bytes.
  * Keep the angle and shared scale local to each primitive call. */
 #pragma push
@@ -160,7 +160,7 @@ void pscModelStepAnimation(u8 *model)
 {
     extern f32 D_007612D0;
     extern f32 fGpffff838c;
-    extern void pscModelBuildTileVertices(u8 *model, u8 *arg1);
+    extern void pscModelBuildTileVertices(u8 *mesh, u8 *model);
     u8 *base;
     s32 mode;
     f32 elapsedCycles;

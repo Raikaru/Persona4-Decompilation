@@ -24,13 +24,13 @@ extern void func_00410520(u32 primitive, void *indices, u32 count);
 extern void func_004104d0(void);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern u16 D_0064E470[];
-extern s32 pscResGetArcanaRaster(s32 arg0, s32 arg1);
-extern s32 pscResGetPersonaRaster(s32 arg0);
+extern s32 pscResGetArcanaRaster(s32 group, s32 cardIndex);
+extern s32 pscResGetPersonaRaster(s32 personaId);
 extern s32 pscResGetBaseRaster(void);
 extern s32 pscResGetMiscCardW00Raster(void);
 extern s32 pscResGetMiscCardW01Raster(void);
-extern s32 pscResGetMiscCardW00Texture(s32 arg0);
-extern s32 pscResGetMiscCardW00SubTexture(s32 arg0);
+extern s32 pscResGetMiscCardW00Texture(s32 textureIndex);
+extern s32 pscResGetMiscCardW00SubTexture(s32 textureIndex);
 extern void pscPanelDrawGrid(void *work, void *vertices);
 
 /* Floor: 759 differing words, 1099 emitted instructions against retail's

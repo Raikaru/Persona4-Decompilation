@@ -91,12 +91,12 @@ extern WindowRenderStateSet D_00887300[];
 extern s32 (*D_00887304[])(RwRenderState state, void *value);
 extern u8 D_008872E0[];
 extern s32 iGpffffaf60;
-extern void func_003c21e0(s32 arg0, s32 (*callback)(u8 *, s32 *), s32 *result);
-extern u8 *func_003bfae0(s32 arg0);
-extern s32 RwCameraFrustumTestSphere(s32 arg0, u8 *arg1);
-extern void movieNativeDrawPass1(u8 *arg0);
-extern void movieNativeDrawPass2(u8 *arg0);
-extern void movieNativeDrawPass3(u8 *arg0);
+extern void func_003c21e0(s32, s32 (*callback)(u8 *, s32 *), s32 *result);
+extern u8 *func_003bfae0(s32);
+extern s32 RwCameraFrustumTestSphere(s32, u8 *);
+extern void movieNativeDrawPass1(u8 *bucket);
+extern void movieNativeDrawPass2(u8 *bucket);
+extern void movieNativeDrawPass3(u8 *bucket);
 
 extern u32 iGpffffbb14;
 extern u32 iGpffffbb10;

@@ -34,7 +34,7 @@ extern f32 D_00922CBC[];
 extern s32 D_00922CC0[];
 
 extern u8 *D_0076449C;
-extern void btlTargetInitSpring(u8 *arg0, f32 fp);
+extern void btlTargetInitSpring(u8 *state, f32 fp);
 extern u8 D_005F7180[];
 extern u8 D_005F7184[];
 extern u8 D_005F7000[];

@@ -22,19 +22,19 @@ typedef struct DatCalcUnitState
 
 
 extern u32 RpRandom(void);
-extern void kAssertFail(void *arg0, s32 arg1);
+extern void kAssertFail(void *file, s32 line);
 extern u8 D_00635938[];
 
 extern u32 RpRandom(void);
 
-extern void memset(void *arg0, s32 arg1, s32 arg2);
+extern void memset(void *, s32, s32);
 
 
-extern u32 datGetLevelTableFirstValue(s16 arg0);
-extern s32 datCalcHasSkill(DatUnit *arg0, s32 arg1);
+extern u32 datGetLevelTableFirstValue(s16 unitId);
+extern s32 datCalcHasSkill(DatUnit *unit, s32 skillId);
 
 extern s32 datScriptTargetIsNotEnemy(void);
-extern f32 datScriptCalcFloat(u32 arg0, s32 arg1);
+extern f32 datScriptCalcFloat(u32 term, s32 parameter);
 extern f32 D_00761260;
 extern f32 fGpffff811c;
 static inline f32 mul_f32_ordered(f32 left, f32 right)
@@ -53,7 +53,7 @@ extern u8 *iGpffffb3b8;
 /* gp - 0x4C40 = 0x007690f0 - 0x4c40 = 0x007644b0 */
 extern u8 *iGpffffb3c0;
 
-extern u8 *datEntryAt(s16 arg0);
+extern u8 *datEntryAt(s16 itemId);
 
 /* Old-style declaration: the retail call site at datCalcIsFlaggedPersonaSkill passes arg0 raw (no 64-bit extension). */
 u16 datCalcUnderlyingSkillId();
@@ -64,60 +64,60 @@ extern u16 datCalcMaxSpById(s16 character);
 extern void datSetUnitSp(s16 character, s16 value);
 extern void datCalcClearBadStatusById(s16 character, u32 mask);
 
-extern u8 *datPersonaGetSkillsByPcId(u16 arg0);
+extern u8 *datPersonaGetSkillsByPcId(u16 pcId);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-extern s32 datPersonaGetLevel(s32 arg0);
+extern s32 datPersonaGetLevel(s32 persona);
 extern u32 datGetMoney(void);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-extern u8 *datUnitGetRecord(s32 arg0);
-extern u8 datCalcGetBattleStat(DatUnit *arg0, s32 arg1);
+extern u8 *datUnitGetRecord(s32 unitId);
+extern u8 datCalcGetBattleStat(DatUnit *unit, s32 statIndex);
 /* Defined below in this file; used before its definition. */
-extern u16 datCalcEnemyMoney(u8 *arg0);
-extern s16 datGetEquippedItemByUnit(s16 arg0, s16 arg1);
-extern u16 datItemValue(s16 arg0);
-extern u16 datItemElement(s16 arg0);
-extern u32 datItemGrantedSkill(s16 arg0);
+extern u16 datCalcEnemyMoney(u8 *unit);
+extern s16 datGetEquippedItemByUnit(s16 unitId, s16 slotIndex);
+extern u16 datItemValue(s16 itemId);
+extern u16 datItemElement(s16 itemId);
+extern u32 datItemGrantedSkill(s16 itemId);
 
-extern s32 datCalcGetAffinity(u8 *arg0, s32 arg1);
-extern s32 datCalcGetElementAffinity(u8 *arg0, s32 arg1);
-extern s32 datCalcInflictStatus(s32 arg0, DatUnit *arg1, DatUnit *arg2, s32 arg3);
-extern s32 datCalcSkillAmount(s32 arg0, u8 *arg1, u8 *arg2, s32 arg3, s32 arg4, s32 arg5, s32 arg6, s32 arg7);
-extern u32 datCalcStatusEffectResult(s32 arg0, DatUnit *arg1, DatUnit *arg2, s32 arg3, s32 arg4, s32 arg5);
-extern u32 datGetFlag(s32 arg0);
-extern s32 datPersonaGetStatById(s32 arg0, s32 arg1);
-extern s64 datCalcAddBuffLevel(DatUnit *arg0, s32 arg1, s64 arg2);
+extern s32 datCalcGetAffinity(u8 *unit, s32 elementIndex);
+extern s32 datCalcGetElementAffinity(u8 *unit, s32 elementIndex);
+extern s32 datCalcInflictStatus(s32, DatUnit *, DatUnit *, s32);
+extern s32 datCalcSkillAmount(s32, u8 *, u8 *, s32, s32, s32, s32, s32);
+extern u32 datCalcStatusEffectResult(s32 skillId, DatUnit *source, DatUnit *target, s32 channel, s32 unusedOutcome, s32 options);
+extern u32 datGetFlag(s32 bit);
+extern s32 datPersonaGetStatById(s32, s32);
+extern s64 datCalcAddBuffLevel(DatUnit *unit, s32 buffIndex, s64 delta);
 /* datCalcSkillAllowedForMode passes a 5th arg (arg4) that datCalcSkillAppliesToTarget ignores. */
-extern s32 datCalcSkillAppliesToTarget(u8 *arg0, u8 *arg1, s32 arg2, s32 arg3, s32 arg4);
-extern s32 datScriptRunCalc(u32 arg0, u16 *arg1, u16 *arg2, u16 arg3, s32 arg4);
-extern u16 cmmCommunityForArcana(s64 arg0);
-extern u16 cmmCommunityRecordValue(s32 arg0);
+extern s32 datCalcSkillAppliesToTarget(u8 *, u8 *, s32, s32, s32);
+extern s32 datScriptRunCalc(u32 calculationKind, u16 *sourceUnit, u16 *targetUnit, u16 commandId, s32 parameter);
+extern u16 cmmCommunityForArcana(s64 arcanaValue);
+extern u16 cmmCommunityRecordValue(s32 communityId);
 
 extern u8 *iGpffffb3b4;
 
 extern u8 *iGpffffb408;
 extern f32 iGpffff8110;
 
-extern s32 datPersonaLeadBoosted(s32 arg0);
+extern s32 datPersonaLeadBoosted(s32 partyId);
 
 extern u8 *iGpffffb3c4;
 extern u8 *iGpffffb448;
 extern u8 *iGpffffb44c;
 extern u8 *iGpffffb3cc;
 
-extern void datCalcSetBuffLevel(DatUnit *arg0, u8 arg1, s32 arg2);
-extern void datCalcSetSecondaryBuffLevel(DatUnit *arg0, u8 arg1, s8 arg2);
+extern void datCalcSetBuffLevel(DatUnit *unit, u8 buffIndex, s32 level);
+extern void datCalcSetSecondaryBuffLevel(DatUnit *unit, u8 buffIndex, s8 level);
 
-extern u8 datCalcGetUnitStat(DatUnit *arg0, s32 arg1);
-extern u8 datPersonaGetTotalStatById(u16 arg0, s32 arg1);
-extern s32 datEntryGetMiddleBandValue(s16 arg0);
-extern s32 datEntryGetLastBandValue(s16 arg0);
-extern u32 datCalcSkillCost(DatUnit *arg0, s32 arg1);
-extern s32 datCalcSkillElement(DatUnit *arg0, u16 arg1);
-extern s8 datCalcGetBuffLevel(DatUnit *arg0, s32 arg1);
-extern u16 datEntryGetPrimaryValue(s16 arg0);
-extern u16 datEntryGetSecondaryValue(s16 arg0);
-extern u8 datEntryGetPropertyByte(s16 arg0);
-extern u16 datGetLevelTableSecondValue(s16 arg0);
+extern u8 datCalcGetUnitStat(DatUnit *unit, s32 statIndex);
+extern u8 datPersonaGetTotalStatById(u16 partyId, s32 statIndex);
+extern s32 datEntryGetMiddleBandValue(s16 itemId);
+extern s32 datEntryGetLastBandValue(s16 itemId);
+extern u32 datCalcSkillCost(DatUnit *unit, s32 skillId);
+extern s32 datCalcSkillElement(DatUnit *unit, u16 skillId);
+extern s8 datCalcGetBuffLevel(DatUnit *unit, s32 buffIndex);
+extern u16 datEntryGetPrimaryValue(s16 itemId);
+extern u16 datEntryGetSecondaryValue(s16 itemId);
+extern u8 datEntryGetPropertyByte(s16 itemId);
+extern u16 datGetLevelTableSecondValue(s16 unitId);
 
 static inline u32 PTDatCalcOffsetAdd(u32 offset, u32 base) { return offset + base; }
 
@@ -2836,8 +2836,8 @@ s32 datCalcSkillSlotValue(s32 unusedUnit, u16 packedValue)
 }
 /* Base persona resistance and unit-type query. */
 extern u8 *iGpffffb3c8;
-extern u32 datPersonaGetSkillSlot(u16 arg0, s32 arg1);
-extern s32 datCalcIsGuarding(u16 *arg0);
+extern u32 datPersonaGetSkillSlot(u16 partyId, s32 slotIndex);
+extern s32 datCalcIsGuarding(u16 *unitFlags);
 
 #pragma push
 #pragma opt_loop_invariants on

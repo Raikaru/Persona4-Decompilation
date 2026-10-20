@@ -20,7 +20,7 @@ typedef struct BtlAction BtlAction;
 
 
 
-extern u32 datGetItemNameId(s16 arg0);
+extern u32 datGetItemNameId(s16 itemId);
 
 
 
@@ -30,12 +30,12 @@ extern f32 fGpffff83b0;
 extern u8 *D_0076449C;
 extern s32 iGpffffb448;
 extern s32 D_0062656C[];
-extern void btlPanelStartEntry(s32 arg0, s32 arg1);
+extern void btlPanelStartEntry(s32 task, s32 text);
 extern void btlPanelMarkEntryStarted(s32 task);
 
 
 
-extern s32 btlPacketStepSpriteFrameLookup(u8 *arg0);
+extern s32 btlPacketStepSpriteFrameLookup(u8 *work);
 
 
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -53,7 +53,7 @@ typedef void (*BattleSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
 extern void btlSelectionDrawSlideIn(u8 *work, u8 *state, f32 x, f32 y,
                          BattleSelectionDraw drawSelection);
 
-extern void btlSelectionDrawList(u8 *arg0, u8 *arg1, f32 farg0, f32 farg1,
+extern void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 farg0, f32 farg1,
                           BattleSelectionDraw callback);
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                          u8 opacity, s32 highlighted, s32 show_detail);

@@ -42,7 +42,7 @@ extern u8 D_008E4800[];
 extern u8 D_008E4B50[];
 extern u8 D_008E4D30[];
 extern void func_0043a978(void);
-extern void func_004316a8(s32 arg0);
+extern void func_004316a8(s32);
 extern s32 func_00431928(void *a, u8 *b);
 extern s32 iGpffffba98;
 extern s32 iGpffffba9c;

@@ -79,7 +79,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002bab80-002bafc0 */
 
-extern void fclFadeRectSetRenderStates(s32 arg0, u8 *arg1);
+extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 /* measured: opt_rebuildconditionals off probe for min/max */
 /* measured: close opt_rebuildconditionals after min/max */
 /* measured: opt_loop_invariants on adds retail's second divide hazard nop. */
@@ -121,8 +121,8 @@ s64 nmMesWindowAcquire(void *message)
     s32 index;
     s64 result;
     extern s32 itfMesWindowInstall(s32 message);
-    extern s32 nmMesWindowApplyStyle(s32 *message, s32 arg1);
-    extern void chkmemAllocSiteTag(const void *message, s32 arg1);
+    extern s32 nmMesWindowApplyStyle(s32 *message, s32 style);
+    extern void chkmemAllocSiteTag(const void *message, s32 line);
 
     freeSlot = nmMesWindowFindFreeSlot();
     if (freeSlot == -1) {

@@ -51,20 +51,20 @@ extern u16 D_0076455A;
 extern f32 D_007613E0;
 extern f32 D_007613E4;
 extern f32 D_008872FC_abs[];
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern u8 *iGpffffb3c4;
 extern u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
 
-extern s32 btlActionRunTargetCallback(s32 arg0, u16 arg1, s32 arg2, s32 arg3, s32 arg4);
+extern s32 btlActionRunTargetCallback(s32 context, u16 argument, s32 option, s32 extra, s32 argumentMode);
 extern void btlSoundCancelPlayback();
 extern void btlActionStepMessagePhase();
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
 
 
-extern s32 btlSideAverageBattleStat(s32 arg0, s32 arg1, s32 arg2);
+extern s32 btlSideAverageBattleStat(s32 sideMask, s32 stat, s32 excludedStatus);
 
 extern u32 datCalcRandomBelow();
 extern u8 D_0060AB08[];
@@ -105,16 +105,16 @@ extern u8 D_00624FA0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f42a0-001f5ed0 */
 
-extern s32 btlActionAnyTargetHitRowStatus(u8 *arg0);
-extern s32 btlActionSameGenusTargetsHaveDelta(u8 *arg0);
-extern s32 btlActionAnyTargetClearsDeathStatus(u8 *arg0);
-extern s32 btlActionTargetsHaveDamageResult(u8 *arg0, s32 arg1);
-extern s32 btlActionHasNoTargetClass(u32 arg0);
-extern s32 btlTargetGroupStateMatches(u8 *arg0);
-extern s32 btlSoundRequestPlayback(s16 arg0, s32 arg1);
+extern s32 btlActionAnyTargetHitRowStatus(u8 *action);
+extern s32 btlActionSameGenusTargetsHaveDelta(u8 *action);
+extern s32 btlActionAnyTargetClearsDeathStatus(u8 *action);
+extern s32 btlActionTargetsHaveDamageResult(u8 *action, s32 mode);
+extern s32 btlActionHasNoTargetClass(u32 action);
+extern s32 btlTargetGroupStateMatches(u8 *context);
+extern s32 btlSoundRequestPlayback(s16 channel, s32 playbackId);
 extern void btlSoundCancelPlayback(void);
 extern u32 datCalcIsLowHp(s32 unit);
-extern u8 *btlActionFindByUnit(s32 arg0);
+extern u8 *btlActionFindByUnit(s32 unit);
 #pragma push
 #pragma pop
 /* measured: invariant mask materialisation needs opt_loop_invariants on to

@@ -152,7 +152,7 @@ s32 shdDrawTextBlock(f32 x, f32 y, s32 unusedColor, s32 color, s32 entryIndex,
 // 220-224 peephole group, 244-247 schedule group). No pair wins; floor stands.
 // `python3 -E -s tools/pragma_sweep.py src/shdWindow.c shdDrawEntryRow --pairs`.
 extern s8 frFontExGlyphHeight(char font);
-extern void K_SineRingDraw(f32 farg0, f32 farg1, f32 farg2, s32 arg0);
+extern void K_SineRingDraw(f32 farg0, f32 farg1, f32 farg2, s32 packedColor);
 // MATCH.  The last six words were the emission slot of `mtc1 $zero, $f12`
 // at the two func_00366670 calls: retail materialises that first float
 // argument before the packed-colour shift/mask pair, this file did it after.

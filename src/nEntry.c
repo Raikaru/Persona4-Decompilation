@@ -10,16 +10,16 @@ extern void *memset(void *dst, s32 value, s32 size);
 extern u8 D_0063E8E0[];
 extern u8 D_0063E918[];
 extern void yTimeLimitReset(void);
-extern void hsndQueueSound(s32 arg0, s32 arg1);
+extern void hsndQueueSound(s32 id, s32 unused);
 extern s32 sdkSpriteRequestLoad(u8 *name);
 extern s32 hMaestroDecodeIsReady(s32 handle);
 extern s32 kwlnTaskGetState(s32 handle);
-extern s32 yTimeLimitTaskUpdate(u8 *arg0);
-extern void yTimeLimitTaskDestroy(u8 *arg0);
+extern s32 yTimeLimitTaskUpdate(u8 *task);
+extern void yTimeLimitTaskDestroy(u8 *task);
 extern u8 D_0063E900[];
 extern u8 D_0063E8F0[];
 extern s32 D_00764630;
-extern s32 timeLimitEntryUpdate(u8 *arg0);
+extern s32 timeLimitEntryUpdate(u8 *task);
 
 /* timeLimitTaskCreate allocates and clears 0x18 bytes. The entry task owns
  * the sprite request and waits for the child display task before exiting. */

@@ -66,13 +66,13 @@ extern u8 D_005F6BE0[];
 extern u8 D_007F17B0[];
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                          f32 *outTop, f32 *outBottom, u32 options);
-extern void btlUnitGetGridSphereCenter(void *arg0, void *arg1);
-extern u32 datCalcChkBadStatus(s32 arg0, u32 arg1);
-extern s32 btlUnitGetEntryPosition(u8 *arg0, f32 *arg1, s32 arg2);
+extern void btlUnitGetGridSphereCenter(void *unit, void *dst);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
+extern s32 btlUnitGetEntryPosition(u8 *, f32 *, s32);
 extern u8 *btlActionGetActiveOrQueueFront(void);
-extern void btlTargetBlendVectors(void *arg0, void *arg1, void *arg2);
-extern void btlUnitGetSphereWorldCenter(u8 *arg0, f32 *arg1);
-extern void btlUnitGetSphereCenterTowardTarget(void *arg0, void *arg1, void *arg2);
+extern void btlTargetBlendVectors(void *rotation, void *first, void *second);
+extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
+extern void btlUnitGetSphereCenterTowardTarget(void *unit, void *target, void *outPosition);
 extern void RtQuatTransformVectors(void *out, const void *in, s32 count,
                           const void *quat);
 extern P4_95730_Vec3 D_0060A0D0;
@@ -107,7 +107,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 arg0, s32 arg1);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 extern void (*jtbl_008873EC[])(void *arg0);

@@ -24,9 +24,9 @@ extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
 extern f32 fGpffff8204;
-extern u32 yTimeTrackAppendKey(s32 arg0, s32 arg1, s32 arg2, s32 arg3,
-                         s32 arg4, f32 farg0, s32 arg5, s32 arg6, s32 arg7);
-extern void yTimeLimitDrawButton(u8 *arg0, s32 arg1);
+extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
+                         s32, f32 farg0, s32, s32, s32);
+extern void yTimeLimitDrawButton(u8 *task, s32 selection);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
 

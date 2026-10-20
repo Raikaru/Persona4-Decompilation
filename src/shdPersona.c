@@ -128,10 +128,10 @@ u16 datPersonaGetRecordId(u16 character);
 
 typedef unsigned int ShdByte __attribute__((mode(QI)));
 
-void shdPersonaDispCtlSetHandle(u8 *arg0, s32 arg1);
+void shdPersonaDispCtlSetHandle(u8 *task, s32 inputHandle);
 void shdPersonaDispCtlSetPosition();
 void sdkSpriteDrawOnceTinted(s32, s32, s32, f32, f32, u8, u8, u8, u8, f32, s32);
-void shdPersonaDispCtlSetOffsets(u8 *arg0, Vec2f *arg1, Vec2f *arg2);
+void shdPersonaDispCtlSetOffsets(u8 *task, Vec2f *inputStart, Vec2f *inputTarget);
 void shdPersonaSetupChannels();
 void shdPersonaBeginOpen();
 void shdPersonaDispCtlSetColor(s32, s32);
@@ -146,7 +146,7 @@ extern char iGpffff9c0c;
 extern char iGpffff9c08;
 
 u8 *datPersonaGetRow(u16 personaId);
-u8 *resourceFindByName(char *arg0);
+u8 *resourceFindByName(char *name);
 void shdPersonaDrawNamePlate(s64, f32, u8, u8 *, s32 *);
 void shdPersonaDrawExpRow(s64, f32, u8, u8 *, s32 *);
 void shdPersonaDrawFramePair(s64, f32, u8, u8 *, s32 *);
@@ -213,8 +213,8 @@ void shdPersonaEndSelection(u8 *, s32);
 void shdPersonaSetDisplayState(u8 *, s32, u32, s8);
 void shdPersonaDrawQuadStrips(f32, s32, s32, f32, f32, s32, s32, s32);
 u32 shdPersonaDispCtlIsLoaded(u8 *);
-f32 sinf(f32 arg0);
-f32 cosf(f32 arg0);
+f32 sinf(f32);
+f32 cosf(f32);
 extern f32 D_007613EC;
 extern f32 D_00761184;
 s32 filerTakeCompletedRequest();
@@ -258,15 +258,15 @@ s32 shdPersonaCalcExpRemaining(DatPersonaRecord *persona, s32 extraLevels)
 
 
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-s8 datPersonaGetLevel(DatPersonaRecord *arg0);
+s8 datPersonaGetLevel(DatPersonaRecord *persona);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-s8 datPersonaGetStat(DatPersonaRecord *arg0, s32 arg1);
+s8 datPersonaGetStat(DatPersonaRecord *persona, s32 statIndex);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-s8 datPersonaGetBuffedStat(DatPersonaRecord *arg0, s32 arg1);
+s8 datPersonaGetBuffedStat(DatPersonaRecord *persona, s32 statIndex);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-s8 datPersonaGetTotalStat(DatPersonaRecord *arg0, s32 arg1);
+s8 datPersonaGetTotalStat(DatPersonaRecord *persona, s32 statIndex);
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-s32 datPersonaRunSkillSlot(u8 *arg0, u16 arg1);
+s32 datPersonaRunSkillSlot(u8 *persona, u16 slotIndex);
 extern u16 D_007465D0[];
 // Intent: Fill a persona status block with level, EXP to next level, five stats (base, buffed or total by mode) and seven skill slots [inferred]
 // FUN_00115940
@@ -491,7 +491,7 @@ void shdPersonaDrawDetailPanel(Vec2f basePosition, f32 depth, u8 alpha, s16 *des
     }
 }
 #pragma pop
-u32 datPersonaNamePart1(s16 arg0);
+u32 datPersonaNamePart1(s16 unitId);
 // Intent: Draw a persona name plate: panel sprite 0x59 and the persona name text from the id lookup [inferred]
 // FUN_00116190
 void shdPersonaDrawNamePlate(s64 packedPosition, f32 depth, u8 opacity, u8 *status, s32 *sprites)
@@ -1009,7 +1009,7 @@ void shdPersonaSetPersonaId(u8 *task, s32 personaId)
 
 
 void shdPersonaDrawPanels(u8 *, u8 *);
-void datRecordResetAll(u8 *arg0);
+void datRecordResetAll(u8 *record);
 extern char D_005E5810[];
 extern char D_005E5830[];
 extern char D_005E5850[];
@@ -1139,9 +1139,9 @@ extern u8 D_005E4D90[];
 extern s16 D_005E4D58[];
 u32 RpRandom(void);
 void PrimDrawPoints(u8 *, u8 *, f32, s32, s32, s32);
-void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg2, u8 arg3, u8 arg4, u8 arg5,
-                   u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 fparg0, f32 fparg1, f32 fparg2,
+                   u8 red, u8 green, u8 blue, u8 alpha,
+                   u16 scaleX, u16 scaleY, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
 /* Measured: 3632B, matching retail. Keep complete draw-position, triangle
    and radial-table objects, promoted timer snapshots and distinct interpolation
    lifetimes. Rotation precedes panel scale in the declaration group. The
@@ -1408,9 +1408,9 @@ void shdPersonaDrawEffect(u8 *panel)
 #pragma pop
 
 
-void sdkSpriteDrawOnceScaled(s32 arg0, s32 arg1, f32 fparg0, f32 fparg1, f32 fparg2,
-                   u8 arg2, u8 arg3, u8 arg4, u8 arg5,
-                   u16 arg6, u16 arg7, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 fparg0, f32 fparg1, f32 fparg2,
+                   u8 red, u8 green, u8 blue, u8 alpha,
+                   u16 scaleX, u16 scaleY, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
 /* Complete views of one eight-byte incoming panel coordinate value. */
 typedef union PersonaPanelPosition {
     f32 coordinates[2];
@@ -1995,7 +1995,7 @@ void ShdSkill_DrawSelectionFrame(Vec2f, f32, u8, u16);
 void shdPersonaDrawBackdrop(u8 *);
 void shdPersonaDrawAcquisition(u8 *);
 void shdPersonaDrawEffect(u8 *);
-void sdkSpriteDrawFooter(Vec2f unused, f32 fparg0, u8 arg1, s32 arg2, s32 arg3);
+void sdkSpriteDrawFooter(Vec2f unused, f32 fparg0, u8 alpha, s32 style, s32 packAddress);
 
 /* Update task counters, callbacks and independently animated Persona panels.
  * Flags are read again after callbacks because they can change draw visibility.
@@ -3901,9 +3901,9 @@ s32 shdPersonaGetChildTask(u8 *task)
 
 
 
-s32 kwlnTaskGetTaskByName(void *arg0);
-s32 H_Cdvd_IsFileLoaded(s32 arg0);
-s32 H_Cdvd_AcquireDirectory(u8 *arg0, s32 arg1);
+s32 kwlnTaskGetTaskByName(void *name);
+s32 H_Cdvd_IsFileLoaded(s32 cdvd);
+s32 H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
 s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern char D_005E4E60[];
 extern char D_005E4E90[];
@@ -4331,7 +4331,7 @@ s32 shdPersonaDispCtlCreate(s32 stream, s32 inputDirectory, char *taskName)
 
 
 
-s32 shdPersonaDispCtlUpdate(u8 *arg0);
+s32 shdPersonaDispCtlUpdate(u8 *task);
 // Intent: Reconfigure a display-control task by destroying its child and creating a new one [inferred]
 /* measured: remaining byte-offset accesses retain MATCH; their named-field forms change codegen. */
 // FUN_0011E0C0
@@ -4505,7 +4505,7 @@ s32 shdPersonaDispCtlGetLoadedValue(u8 *task)
 
 
 u32 RpRandom(void);
-u16 *datPersonaGetSkills(DatPersonaRecord *arg0);
+u16 *datPersonaGetSkills(DatPersonaRecord *persona);
 extern u16 *iGpffffb3ec;
 /* measured: the explicit `bltz`/negative conversion path for
    `func_003b7060() & 0x1000` is required for retail's COP1 sequence. */
@@ -5104,15 +5104,15 @@ extern u8 nmMesWindowOpenCurrent(u8 *message);
 void nmMesWindowStepCurrent(s32);
 s32 nmMesWindowResetCurrent(void);
 s32 nmMesWindowCurrentOpenState(void);
-u32 nmMesWindowCloseCurrent(s32 arg0);
+u32 nmMesWindowCloseCurrent(s32 release);
 s32 nmMesWindowCurrentAnimFlag(void);
-u16 shdPersonaGetSelectedSkillId(u8 *arg0);
-void ShdSkill_PopPoolEntry(u8 *arg0);
-u16 datPersonaRecordId(u32 arg0);
+u16 shdPersonaGetSelectedSkillId(u8 *panel);
+void ShdSkill_PopPoolEntry(u8 *pool);
+u16 datPersonaRecordId(u32 recordAddress);
 s16 ShdSkill_FindSlot(u8 *, s32);
 extern u16 D_008C024E[];
 extern u16 D_008C024C[];
-void shdPersonaBeginSelection(u8 *arg0);
+void shdPersonaBeginSelection(u8 *task);
 /* The replacement and highlight states share the pending halfword. Promote
  * it to a word before refreshing the parent work for the highlight lookup.
  * Each state assigns pendingSkill before reading it.

@@ -35,11 +35,11 @@ extern u8 *iGpffffb3b8;
 extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3cc;
 
-extern s64 scrGetParamInt(s32 arg0);
-extern u8 *datUnitGetRecord(s16 arg0);
-extern void datCalcSetUnitClass(u8 *arg0, s16 arg1);
-extern s32 datCalcUnitClass(u8 *arg0);
-extern void scrSetReturnInt(s32 arg0);
+extern s64 scrGetParamInt(s32 paramIdx);
+extern u8 *datUnitGetRecord(s16 unitId);
+extern void datCalcSetUnitClass(u8 *unit, s16 tactic);
+extern s32 datCalcUnitClass(u8 *unit);
+extern void scrSetReturnInt(s32 retVal);
 
 extern u8 *iGpffff9db0;
 extern u8 *D_0076449C;

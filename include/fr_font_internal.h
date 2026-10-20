@@ -13,7 +13,7 @@ s32 frFontExLayoutText(int font, f32 x, f32 y, f32 scale, s32 color, s8 mode,
 int frFontExCreateText(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
                   const char *str, int flags, int *width_out);
 int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
-                  const char *str, int flags, int arg8);
+                  const char *str, int flags, int unused);
 int frFontExDrawTextWithCharWidth(f32 x, f32 y, f32 scale, int color, s8 chr, int id,
                   const char *str, int flags, int charWidth);
 int frFontExDrawTextOutA(f32 x, f32 y, f32 scale, int color, s8 chr, int id,

@@ -4,9 +4,9 @@
 /* Original translation unit mt_sceneIcon.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
-extern s32 H_Cdvd_LookupRequest(s32 arg0, void *arg1);
-extern u8 *mdlEffectCreateFromResource(s32 arg0);
-extern void MT_Scene_SpawnIconTask(s32 arg0);
+extern s32 H_Cdvd_LookupRequest(s32 pathAddress, void *slot);
+extern u8 *mdlEffectCreateFromResource(s32 resource);
+extern void MT_Scene_SpawnIconTask(s32 effectHandle);
 extern s32 D_0063B4F0[];
 
 /* Allocated by mtSceneIconSpawnTask (0x10 bytes); resource index and request
@@ -33,7 +33,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 *MT_Scene_GetRes();
 extern void mdlEffectStart(s32 a);
 /* measured: returns 0 / -1 in $v0; the task dispatcher discards it, so the callback site casts. */
-extern s32 mtSceneIconTaskUpdate(u8 *arg0);
+extern s32 mtSceneIconTaskUpdate(u8 *unusedTask);
 extern u8 D_0063B558[];
 extern u8 D_0063B568[];
 extern void func_00440b68(u8 *fmt, u8 *file, s32 line);
