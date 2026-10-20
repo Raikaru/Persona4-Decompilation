@@ -77,12 +77,8 @@ extern f32 fGpffff8110;
 
 /* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
 /* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
-#pragma push
-#pragma pop
 /* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
 /* measured: restore optimization_level 2 after func_001d5990. */
-#pragma push
-#pragma pop
 /* Map one supported status bit to its formation slot; unsupported values return -1. */
 // FUN_001D72E0
 s32 btlEffectFlagToSlotIndex(s32 flag)

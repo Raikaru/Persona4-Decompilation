@@ -129,6 +129,7 @@ extern void datSetFlag(s32 flagId, s32 enabled);
    propagation-off code preserves the retail argument evaluation order. */
 // FUN_00380EA0
 #pragma push
+/* measured: baseline nd1336; typed pointer reuse, typed parameter cache, scoped locals, inverted if/else did not match (best nd1336); retain opt_propagation off. */
 #pragma opt_propagation off
 s32 btlShuffleResultOpen(u8 *work)
 {

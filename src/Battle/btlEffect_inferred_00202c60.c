@@ -316,13 +316,9 @@ extern u16 D_008C024E[];
    lui/addiu vtable materialization across these callback calls. */
 /* measured: close the vtable propagation probe and restore default state. */
 /* Keep the opacity base ahead of byte promotion, matching retail order. */
-#pragma push
-#pragma pop
 /* Measured: 676/688 bytes, seven resolved relocations and twelve zero alignment bytes.
  * Snapshot inputs before providers; reload the skill fields and final output
  * metadata at their retail callback boundaries. */
-#pragma push
-#pragma pop
 /* measured: opt_rebuildconditionals off tested for callback completion. */
 /* measured: restore conditional rebuilding after callback completion. */
 // Intent: initialise a selection block with its callbacks and owner. [inferred]
@@ -407,6 +403,7 @@ void btlSelectionSetOwner(u8 *selection, void *callback)
 
 #pragma push
 /* measured: btlSelectionReadInput MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd68; scoped locals, inverted if/else did not match (best nd68); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 // Intent: read the selection input and return the action code (1 to 4) or 0. [inferred]
 // FUN_00202E70
@@ -766,11 +763,9 @@ u16 btlPanelGetState(void) {
     return ((BtlPanelWork *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork())->panel)->state;
 }
 
-/* measured: opt_propagation off probe for 00203810 evaluation order. */
-/* measured: func_00203810 MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation off
-// FUN_00203810
 /* Return whether the current panel list node is the embedded command-selection node. */
+/* measured: baseline propagation matches the unchanged selection test. */
+// FUN_00203810
 s32 btlPanelIsCommandSelectionActive(void)
 {
     u8 *taskWork;
@@ -784,9 +779,6 @@ s32 btlPanelIsCommandSelectionActive(void)
     return (s32)(currentAddress == (s32)selectionAddress);
 }
 
-/* measured: close opt_propagation after func_00203810 probe. */
-/* measured: btlPanelDrawCircle, btlPanelDrawOutlineFill MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation on
 // Intent: report whether the panel task is ready (state below 2). [inferred]
 // FUN_00203850
 s32 btlPanelIsReady(void)
@@ -832,6 +824,7 @@ void btlPanelReset(s32 task) {
  * phases. Each fill edge writes a pair of adjacent 64-byte vertices. */
 #pragma push
 /* measured: btlPanelDrawOutlineFill MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd2750; scoped locals did not match (best nd2750); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 // Intent: draw a 19-point curved panel outline and its fill quad with the given scale and colour. [inferred]
 // FUN_00203930
@@ -1154,6 +1147,7 @@ void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 
 // FUN_00204690
 #pragma push
 /* measured: btlPanelDrawCircle MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd693; scoped locals, explicit value caches did not match (best nd693); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color)
 {
@@ -1228,6 +1222,7 @@ void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color
 #pragma pop
 /* measured: opt_propagation off probe for callback cache in func_00204a30. */
 /* measured: btlPanelDrawBackdrop MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd92; object/dispatch locals did not match (best nd92); retain opt_propagation off. */
 #pragma opt_propagation off
 // Intent: set up the sky render state and draw the backdrop disc. [inferred]
 // FUN_00204A30
@@ -1268,6 +1263,7 @@ void btlPanelDrawBackdrop(u8 *glyphs, f32 scaleX, f32 scaleY)
  * Forward byte opacity and reload the render-state callback for every call. */
 #pragma push
 /* measured: btlPanelDrawSpriteGrid MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd306; scoped locals did not match (best nd306); retain opt_propagation off. */
 #pragma opt_propagation off
 // Intent: draw a 3 by 5 grid of sprite frames with the given opacity. [inferred]
 // FUN_00204B80
@@ -1340,6 +1336,7 @@ void btlPanelSetFlag(void)
 // FUN_00204DC0
 #pragma push
 /* measured: btlPanelDrawStrip MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd668; scoped locals did not match (best nd666); retain opt_propagation off. */
 #pragma opt_propagation off
 void btlPanelDrawStrip(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, s32 extend)
 {
@@ -1486,8 +1483,10 @@ void btlPanelDrawStrip(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, 
 // FUN_00205170
 #pragma push
 /* measured: btlPanelDrawSkillEntry MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd736; typed parameter cache, scoped locals, inverted if/else did not match (best nd736); retain opt_common_subs off. */
 #pragma opt_common_subs off
 /* measured: btlPanelDrawSkillEntry MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd736; typed parameter cache, scoped locals, inverted if/else did not match (best nd736); retain opt_propagation off. */
 #pragma opt_propagation off
 /* measured: direct skill indexing changed two compared bytes; preserving the byte base matches. Raw reloads still lose MATCH. */
 void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
@@ -1586,10 +1585,13 @@ void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
  * has byte and packed-word views; reload the signed number after drawing. */
 #pragma push
 /* measured: btlPanelDrawEntry MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd572; scoped locals, inverted if/else did not match (best nd572); retain opt_rebuildconditionals off. */
 #pragma opt_rebuildconditionals off
 /* measured: btlPanelDrawEntry MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd572; scoped locals, inverted if/else did not match (best nd572); retain opt_common_subs off. */
 #pragma opt_common_subs off
 /* measured: btlPanelDrawEntry MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd572; scoped locals, inverted if/else did not match (best nd572); retain opt_propagation off. */
 #pragma opt_propagation off
 // Intent: draw one entry row (icon, name, digit and optional detail label). [inferred]
 // FUN_002055D0
@@ -1682,8 +1684,10 @@ void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
  * Keep the shared decimal divisor and the branch-local byte tones. */
 #pragma push
 /* measured: btlPanelDrawPersonaLevel MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd128; scoped locals, inverted if/else did not match (best nd128); retain opt_common_subs off. */
 #pragma opt_common_subs off
 /* measured: btlPanelDrawPersonaLevel MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd128; scoped locals, inverted if/else did not match (best nd128); retain opt_propagation off. */
 #pragma opt_propagation off
 // Intent: draw a persona row with its lead marker, level digits and name. [inferred]
 // FUN_00205950
@@ -1749,10 +1753,13 @@ void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
  * Keep branch-local tones and the two-channel cache after text coordinates. */
 #pragma push
 /* measured: btlPanelDrawPersonaName MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd269; object/dispatch locals, inverted if/else did not match (best nd98); retain opt_rebuildconditionals off. */
 #pragma opt_rebuildconditionals off
 /* measured: btlPanelDrawPersonaName MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd269; object/dispatch locals, inverted if/else did not match (best nd98); retain opt_common_subs off. */
 #pragma opt_common_subs off
 /* measured: btlPanelDrawPersonaName MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd269; object/dispatch locals, inverted if/else did not match (best nd98); retain opt_propagation off. */
 #pragma opt_propagation off
 // Intent: draw a persona name and its two sprite marks. [inferred]
 // FUN_00205C20
@@ -1798,6 +1805,7 @@ void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
  * Preserve the two narrow tone assignments instead of rebuilding a merge. */
 #pragma push
 /* measured: btlPanelDrawListRow MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd279; scoped locals did not match (best nd279); retain opt_rebuildconditionals off. */
 #pragma opt_rebuildconditionals off
 // Intent: draw one list row with its marker sprites and optional text. [inferred]
 // FUN_00205E00
@@ -2244,6 +2252,7 @@ void btlSelectionRefreshList(u16 *flags, u8 *work)
    See docs/probe_archive/Battle_menu_00207320_20260922.md. */
 #pragma push
 /* measured: btlSelectionHandleInput MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd13; scoped locals, inverted if/else did not match (best nd13); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 // Intent: handle selection input and return the next panel state. [inferred]
 // FUN_00207320
@@ -3949,6 +3958,7 @@ void btlPanelDrawDetail(void)
 
 /* measured: opt_propagation off keeps D_00887300 cached across its callback sequence. */
 /* measured: btlPanelDrawSkyFrame MATCH -> MISMATCH without this pragma. */
+/* measured: baseline nd131; typed parameter cache did not match (best nd131); retain opt_propagation off. */
 #pragma opt_propagation off
 // Intent: set the sky render states and draw the sky frame when the panel is active. [inferred]
 // FUN_0020B5B0

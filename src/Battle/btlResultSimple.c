@@ -152,6 +152,7 @@ extern s32 btlResultSimpleUpdate(u8 *task);
  * Grouped values are unsigned; the plain retail format is signed "%d".
  * Scoped loop invariants retain the digit-loop constants and allocation. */
 // FUN_0021ED10
+/* measured: baseline nd58; scoped locals, inverted if/else did not match (best nd58); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 /* Draw a signed decimal or grouped unsigned number using digit sprites, updating the supplied pen
  * position. The measured digit lookup names the sprite array through MEMBER. */
@@ -234,6 +235,7 @@ void btlResultSimpleDrawLabel(u8 *work, f32 *position, f32 unusedDepth, s32 colo
  * resource-bank loads preserve the real constructor contract; scoped loop
  * invariants retain the retail table bases and register allocation. */
 // FUN_0021EF70
+/* measured: baseline nd110; object/dispatch locals, inverted if/else did not match (best nd110); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 /* Initialize twenty animation rows, create forty-two sprites, and seed five particle timers and two
  * pulses. Measured: direct particle traversal changes MATCH; retain its shifted cursor while typing
@@ -661,6 +663,7 @@ void btlResultSimpleInitAnimRecords(u8 *work)
  */
 // FUN_0021FEA0
 #pragma push
+/* measured: baseline nd1593; pointer iteration, inverted if/else did not match (best nd1593); retain opt_loop_invariants on. */
 #pragma opt_loop_invariants on
 /* Draw the animated result headings, reward values, particles and conditional banners. Measured: a dedicated
  * work alias preserves coordinate and opacity reloads; only the indexed level-digit lookup needs
