@@ -6,6 +6,12 @@
 #include "fr_font_internal.h"
 #include "dat_panel_internal.h"
 #include "kwln_task_internal.h"
+
+/* Unit settings: loop invariants off; propagation, common subexpressions and condition rebuilding on. */
+#pragma opt_loop_invariants off
+#pragma opt_propagation on
+#pragma opt_common_subs on
+#pragma opt_rebuildconditionals on
 typedef struct {
     f32 x;
     f32 y;
@@ -30,48 +36,25 @@ extern u8 *datPersonaDisplayName(s16 unitId);
 extern u8 D_005E4F70[];
 
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Return whether the stage field at +8 of the work block is 8; the meaning of stage 8 is not established [inferred]
 // FUN_0011FCF0
 s32 datBlockStageIsEight(u8 *task) {
     return ((DatPanelEntry*)((KwlnTask*)task)->work)->kind == 8;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Destroy a task and its hierarchy through the kwln task destroy call; same body as shdPersonaDestroyTask [inferred]
 // FUN_0011FD10
 void kwlnTaskDestroyHierarchyAlt(s32 task) {
     kwlnTaskDestroyWithHierarchy((KwlnTask *)task);
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Reset a panel's cursor: index at +4 to -1 and the count at +6 to 0 [inferred]
 // FUN_0011FD30
 void datPanelResetCursor(u8 *entry) {
     ((DatPanelEntry*)entry)->item = -1;
     ((DatPanelEntry*)entry)->style = 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Draw a panel row by its kind: kind 0 draws the comparison icon, kinds 1 and 2 the status panel, kind 3 the status panel in variant 1 [inferred]
 // FUN_0011FD50
 void datPanelDrawByKind(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 fullName)
@@ -94,13 +77,7 @@ void datPanelDrawByKind(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 ful
         return;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
-#pragma opt_common_subs on
-#pragma opt_rebuildconditionals on
 // Intent: Draw a comparison icon for an entry: sprite 4 when equal to the reference value of its band (always for band 3), 1 when higher, 2 when lower, 3 when no reference applies [inferred]
 // FUN_0011FDF0
 void datPanelDrawCompareIcon(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 unusedKind)
@@ -191,4 +168,3 @@ void datPanelDrawCompareIcon(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s3
         return;
     }
 }
-#pragma pop
