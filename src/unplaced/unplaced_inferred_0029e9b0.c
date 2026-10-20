@@ -1,5 +1,8 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0029e9b0-0029fbb0 */
 
+/* Unit optimizer settings shared by the neighboring functions. */
+#pragma opt_propagation on
+
 #include "include_asm.h"
 #include "member_access.h"
 #include "sdk_task_registration.h"
@@ -64,7 +67,6 @@ extern s32 yTimeTrackCurrentKey(u8 *, f32 *);
 extern void sdkSpriteDrawNowUnscaled(f32 , f32 , f32 , s32 , u8 , s32 , void * , s32 );
 extern s32 sdkSpriteDrawNow(f32 , f32 , f32 , s32 , u8 , s32 , void * , s32 , s16 , s16 , f32 , f32 , f32 );
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Accept and discard a variadic script argument list; no arguments are consumed. */
 // FUN_0029E9B0
@@ -77,7 +79,6 @@ void scrDiscardArgs(void *context, ...)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 // Draws sprite  once at (, ): allocates a node from the sprite table,
 // sets alpha from  (0xFF minus it), scales by /, centres it on the
@@ -121,7 +122,6 @@ void mtMiscDrawSpriteAt(s32 image, f32 x, f32 y, f32 scaleX, f32 scaleY,
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Queue the input-row mode transition: mode selects the starting and ending Y positions. */
 // FUN_0029EBF0
@@ -153,10 +153,10 @@ void yTimeLimitStartRowTransition(u8 *task, s32 mode)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
-#pragma opt_loop_invariants on
 /* Move the character-grid cursor, skipping invalid cells and wrapping only for newly pressed directions. */
+#pragma opt_loop_invariants on
+/* measured: typed work-field access increased the residual; baseline retains 112 differing words. */
 // FUN_0029ECB0
 void yTimeLimitMoveGridCursor(u8 *task)
 {
@@ -241,7 +241,6 @@ void yTimeLimitMoveGridCursor(u8 *task)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Copy a two-byte character into the current name slot and advance, switching rows after slot seven. */
 // FUN_0029EF90
@@ -274,7 +273,6 @@ void yTimeLimitRecordInput(u8 *task, u8 *character)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Update name-entry actions and six button states, including insertion, deletion, cursor movement and confirmation. */
 // FUN_0029F070
@@ -507,7 +505,6 @@ void yTimeLimitUpdateInput(u8 *task)
 #pragma pop
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Pulse the selected character after 90 idle frames; reset the pulse when input leaves the grid. */
 // FUN_0029F790
@@ -624,7 +621,6 @@ typedef struct NameButtonPlacement {
 } NameButtonPlacement;
 
 #pragma push
-#pragma opt_propagation on
 #pragma optimization_level 2
 /* Animate one of six name-entry buttons and draw its background, foreground and short selection flash. */
 // FUN_0029FBB0

@@ -1,5 +1,8 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0028b650-0028bef0 */
 
+/* Unit optimizer settings shared by the neighboring functions. */
+#pragma opt_loop_invariants off
+
 #include "field_transition_internal.h"
 #include "member_access.h"
 #include "include_asm.h"
@@ -29,8 +32,6 @@ extern u8 D_00748340[];
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 *MT_Scene_GetResListHead(s32 );
 extern void evtMemAccount(s32 , s32 );
-#pragma push
-#pragma opt_loop_invariants off
 // Event task-handle check: nonzero when the current event's +0x768 task handle is set.
 // FUN_0028B650
 s32 evtHasTaskHandle(void) {
@@ -41,10 +42,7 @@ s32 evtHasTaskHandle(void) {
     }
     return (s32)((EvtEventWork *)evtGetEventTaskWork((u8 *)kwlnTaskGetWork((void *)h)))->noiseTask != 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Event handle table: frees every handle in the table at +0x7A4 and clears it.
 // FUN_0028B6B0
 /* measured: the table local at the loop-body head reproduces retail's
@@ -80,10 +78,7 @@ void evtClearHandles(u8 *work)
     MEMBER(s32, work, EvtEventWork, handles.address) = 0;
     ((EvtHandleTable *)(work + 0x7A0))->count = 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Loads the event's tables: allocates the working area, copies the table entries and records their memory [inferred].
 // FUN_0028B7B0
 void evtLoadEventTables(u8 *work) {
@@ -356,10 +351,7 @@ func_0028b7b0_copy_valid_done:
         }
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Sets the exclusive resource for kind 0 or 1 and stores the kind on the event [inferred].
 /* Store the exclusive kind in the event work after selecting its scene resource. */
 // FUN_0028BE70
@@ -379,10 +371,7 @@ void evtSetKindExclusiveRes(u8 *work, s32 kind)
         ((EvtEventWork *)(work))->exclusiveKind = kind;
     }
 }
-#pragma pop
 
-#pragma push
-#pragma opt_loop_invariants off
 // Decodes a node's key: low 12 bits of the node word become , bits 12 to 15 become , and the table entry for the node type is returned [inferred].
 // FUN_0028BEF0
 s32 evtDecodeNodeKey(s32 workAddress, u8 *key, s32 *resourceId, s32 *variant) {
@@ -412,4 +401,3 @@ block_6:
         return 1;
     }
 }
-#pragma pop

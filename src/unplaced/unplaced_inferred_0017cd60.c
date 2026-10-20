@@ -1,5 +1,9 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0017cd60-0017d240 */
 
+/* Unit optimizer settings shared by player-icon and map-tile functions. */
+#pragma opt_loop_invariants off
+#pragma opt_propagation on
+
 #include "mt_scene_internal.h"
 #include "field_frame_internal.h"
 #include "rw_geometry_internal.h"
@@ -90,9 +94,6 @@ typedef struct {
     u16 frame; /* +0x10 */
 } FldPlayerIconWork;
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 /* 764/768 bytes; fourteen resolved relocations; four zero alignment bytes.
  * Preserve unsigned frame updates and the three ordered sprite draws. */
 /* Initialize or draw the three player-icon sprites with a repeating fifteen-frame sine animation. */
@@ -156,21 +157,13 @@ s32 FldPlayerIconUpdate(u8 *task)
 done:
     return 0;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // FUN_0017D060
 /* The player-icon task owns no separately released resources. */
 void FldPlayerIconDestroy(u8 *task)
 {
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 /* Clear the fixed player-icon work block and register its child task. */
 // FUN_0017D070
 s32 FldPlayerIconTaskCreate(u8 *task)
@@ -178,22 +171,14 @@ s32 FldPlayerIconTaskCreate(u8 *task)
     memset(D_007F1740, 0, 0x20);
     return (s32)kwlnTaskCreateChild((void *)(task), (const void *)(D_005F1950), 0x12, 0, 0, FldPlayerIconUpdate, FldPlayerIconDestroy, (u8 *)(D_007F1740));
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 // FUN_0017D0F0
 /* Enable or disable player-icon drawing in the task work block. */
 void FldPlayerIconSetActive(u8 *task, s32 active)
 {
     ((FldPlayerIconWork *)((SdkTask *)task)->work)->active = active;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 /* X/Y symbols name separate columns of interleaved eight-byte position records. */
 // FUN_0017D100
 /* Project the player model and choose one of three fixed icon positions from its horizontal screen region. */
@@ -221,11 +206,7 @@ void FldPlayerIconUpdatePos(u8 *task)
     ((FldPlayerIconWork *)work)->x.shortValue = ((FldIconPositionColumn *)((u8 *)D_005F1930 + positionOffset))->coordinate;
     ((FldPlayerIconWork *)work)->y.shortValue = ((FldIconPositionColumn *)((u8 *)D_005F1934 + positionOffset))->coordinate;
 }
-#pragma pop
 
-#pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 /* Preserve the distinct interior symbols for the two eight-byte size columns. */
 // FUN_0017D1F0
 /* Read the tile dimensions for its type and queue a quad, including the one-pixel size expansion. */
@@ -240,11 +221,8 @@ void FldSmapTileQueueByType(u8 *queue, u8 *context, s32 tileType, s32 variant,
                   ((FldSmapSizeColumn *)(D_005F1A64 + sizeOffset))->extent + 1, flags,
                   x, y, depth);
 }
-#pragma pop
 
 #pragma push
-#pragma opt_propagation on
-#pragma opt_loop_invariants off
 #pragma optimization_level 1
 /* UV symbols are interior aliases of sixteen-byte tuples; the draw API also receives the first-component pointer. */
 // FUN_0017D240
