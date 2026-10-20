@@ -139,6 +139,8 @@ u8 *mdlMatAnimFindNodeByTable(u8 **list, s32 *table)
     s32 entryCount;
     u8 *nodeTable;
     u8 *node;
+    u32 *leftEntry;
+    u32 *rightEntry;
 
     entryCount = ((MdlMatAnimCollector *)table)->count;
     node = (u8 *)(*list);
@@ -152,7 +154,9 @@ u8 *mdlMatAnimFindNodeByTable(u8 **list, s32 *table)
             while (entryIndex < entryCount) {
                 entryOffset = (entryIndex & 0xFFFF) * 4;
                 /* measured: dividing the byte cursor for word indexing emits 184B against the 160B window; keep its native byte stride. */
-                if (*(u32 *)(*(u8 **)nodeTable + entryOffset) == *(u32 *)(*(u8 **)table + entryOffset)) {
+                leftEntry = (u32 *)(*(u8 **)nodeTable + entryOffset);
+                rightEntry = (u32 *)(*(u8 **)table + entryOffset);
+                if (*leftEntry == *rightEntry) {
                     entryIndex += 1;
                 } else {
                     break;
@@ -217,15 +221,17 @@ void mdlMatAnimUpdateList(u8 **list, f32 scale1, u8 **referenceList, f32 scale2,
     u32 count;
     u8 *(*init)(u8 *, f32, u8 *, f32);
     void (*apply)(u8 *, u32);
+    MdlMatAnimNode *materialNode;
 
     node = *list;
     while (node != NULL) {
-        /* measured: typed table loads cache the pre-callback value (nd229); raw reloads retain MATCH. */
-        match = mdlMatAnimFindNodeByTable(referenceList, (s32 *)*(u8 **)(node + 0x50));
+        materialNode = (MdlMatAnimNode *)node;
+        /* measured: retain a typed node pointer across the table lookup. */
+        match = mdlMatAnimFindNodeByTable(referenceList, (s32 *)materialNode->table.bytes);
         if (match != NULL) {
             mdlDispatchTrackRows(node, match, scale1, scale2, scale3);
         } else {
-            tbl = *(u8 **)(node + 0x50);
+            tbl = materialNode->table.bytes;
             count = ((MdlMatAnimCollector *)tbl)->count;
             for (i = 0; i < 4; i++) {
                 if (((MdlFrameDispatch *)((u8 *)D_00713220 + i * 0x10))->field_C == 0) continue;
@@ -281,6 +287,8 @@ void mdlMatAnimApplyWithPivot(u8 **list, f32 scale1, f32 scale2)
 
 
 /* Copies each node's packed colour (+0x40) and three surface floats (+0x44..+0x4C) into every entry of its track table. The reads are volatile, per the measured note in the body. */
+/* Removing the inherited qualifier batch changed MATCH nd0 to MISMATCH nd14
+ * at unchanged 152-byte size (W170, P3 donor 00320770); preserve that input. */
 // FUN_0047FFC0
 void mdlMatAnimCopyNodeMaterial(s32 *object)
 {
@@ -316,18 +324,18 @@ void mdlMatAnimCopyNodeMaterial(s32 *object)
 
     for (entryIndex = 0; entryIndex < entryCount; entryIndex = entryIndex + 1) {
       material = ((s32 *)*table)[entryIndex];
-      red = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(node + 0x40);
-      green = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(node + 0x41);
-      blue = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(node + 0x42);
-      alpha = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ u8 *)(node + 0x43);
+      red = ((volatile MdlMatAnimNode *)node)->color[0];
+      green = ((volatile MdlMatAnimNode *)node)->color[1];
+      blue = ((volatile MdlMatAnimNode *)node)->color[2];
+      alpha = ((volatile MdlMatAnimNode *)node)->color[3];
       ((RpMaterial *)material)->color[0] = red;
       ((RpMaterial *)material)->color[1] = green;
       ((RpMaterial *)material)->color[2] = blue;
       ((RpMaterial *)material)->color[3] = alpha;
       material = ((s32 *)*table)[entryIndex];
-      ambient = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ f32 *)(node + 0x44);
-      specular = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ f32 *)(node + 0x48);
-      diffuse = *(volatile /* Removing this function's qualifier batch loses 0x0047ffc0 (MATCH nd0 -> MISMATCH nd14, size 152 -> 152) - measured W170, ported from P3 0x00320770. */ f32 *)(node + 0x4c);
+      ambient = ((volatile MdlMatAnimNode *)node)->surface[0];
+      specular = ((volatile MdlMatAnimNode *)node)->surface[1];
+      diffuse = ((volatile MdlMatAnimNode *)node)->surface[2];
       ((RpMaterial *)material)->surface[0] = ambient;
       ((RpMaterial *)material)->surface[1] = specular;
       ((RpMaterial *)material)->surface[2] = diffuse;
@@ -396,6 +404,9 @@ s32 mdlMatAnimLoadChunk(void *stream, u8 **list, u32 chunkTag, void *clump)
     u8 *entry;
     u8 *mat;
     u8 *tmp;
+    MdlMatAnimNode *materialNode;
+    MdlMatAnimChannel *materialChannel;
+    RpMaterial *material;
     extern u32 func_003e2910(void *a, void *b, u32 c);
     extern void *func_003e2ce0(void *a, u32 b);
     extern u16 mdlMatAnimCountClumpMatches(void *object, u32 nameAddress);
@@ -447,20 +458,22 @@ looptest2:
         if (i < 4U) {
             goto loop2;
         }
-        /* measured: typed next stores change alias scheduling; raw links reduce 872B to 868B. */
-        *(u8 **)(node + 0x54) = NULL;
+        /* measured: retain a typed node pointer for the three link stores. */
+        materialNode = (MdlMatAnimNode *)node;
+        materialNode->next.bytes = NULL;
         entry = (u8 *)mdlRetainU16Ref((s32)table);
         ((MdlMatAnimNode *)node)->table.bytes = entry;
         mat = *(u8 **)entry;
         mat = *(u8 **)mat;
-        *(MatColor *)((MdlMatAnimNode *)node)->color = *(MatColor *)((RpMaterial *)mat)->color;
-        *(MatSurface *)((MdlMatAnimNode *)node)->surface = *(MatSurface *)((RpMaterial *)mat)->surface;
+        material = (RpMaterial *)mat;
+        *(MatColor *)materialNode->color = *(MatColor *)material->color;
+        *(MatSurface *)materialNode->surface = *(MatSurface *)material->surface;
         tmp = *list;
         if (tmp == NULL) {
-            *(u8 **)(node + 0x54) = NULL;
+            materialNode->next.bytes = NULL;
             *list = node;
         } else {
-            *(u8 **)(node + 0x54) = tmp;
+            materialNode->next.bytes = tmp;
             *list = node;
         }
     }
@@ -481,14 +494,15 @@ looptest2:
     }
     {
         u32 dataSize = header.count * header.stride;
-        /* measured: typed payload-pointer accesses grow 864B to 868B; metadata fields match typed. */
-        if (*(u8 **)(channel + 0xC) == NULL) {
+        materialChannel = (MdlMatAnimChannel *)channel;
+        /* measured: retain a typed channel pointer across payload allocation. */
+        if (materialChannel->data.bytes == NULL) {
             ((MdlMatAnimChannel *)channel)->count = header.count;
             ((MdlMatAnimChannel *)channel)->duration.value = header.duration;
             ((MdlMatAnimChannel *)channel)->stride = header.stride;
             chkmemAllocSiteTag(D_00713260, 0x349);
-            *(u8 **)(channel + 0xC) = jtbl_008873E8[0](dataSize, 0x40000);
-            func_003e2910(stream, *(u8 **)(channel + 0xC), dataSize);
+            materialChannel->data.bytes = jtbl_008873E8[0](dataSize, 0x40000);
+            func_003e2910(stream, materialChannel->data.bytes, dataSize);
         } else {
             func_003e2ce0(stream, dataSize);
         }

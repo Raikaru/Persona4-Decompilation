@@ -14,6 +14,7 @@
 #include "scene_resource_internal.h"
 #include "h_cdvd_request_internal.h"
 #include "rw_camera_internal.h"
+#include "member_access.h"
 typedef struct FldTileAttributePair {
     union { s16 directions; u8 directionBytes[2]; };
     s16 attributes;
@@ -2084,10 +2085,11 @@ s32 FldStepTaskUpdate(u8 *task)
     u8 *p;
     u32 n;
     u8 *base;
+    FldStepWork *stepWork;
 
-    /* measured: typed state/flag writes and handle reads emit 764-772B
-     * against the 752B window. Retain those byte aliases; other fields are typed. */
+    /* measured: retain a typed work pointer for handle and flag accesses. */
     work = ((SdkTask *)task)->work;
+    stepWork = (FldStepWork *)work;
     FldStepUpdateBandRes();
     switch (((FldStepWork *)work)->state) {
     case 0:
@@ -2096,7 +2098,7 @@ s32 FldStepTaskUpdate(u8 *task)
         FldStepPreloadBegin();
         *(s32 *)work += 1;
     case 1:
-        if (FldStepCopyLoadedFile(*(u8 **)(work + 0x14)) != 0) {
+        if (FldStepCopyLoadedFile(stepWork->filePointer) != 0) {
             ((FldStepWork *)work)->fileHandle = 0;
             if (((FldStepWork *)work)->modelObject == 0 || mdlPrepareModel(((FldStepWork *)work)->modelObject) != 0) {
                 if (FldStepPreloadCreateTasks() != 0 && FldStepPreloadFinish() != 0) {
@@ -2109,12 +2111,12 @@ s32 FldStepTaskUpdate(u8 *task)
                     *(s32 *)work += 1;
     case 3:
                     base = ((FldStepWork *)work)->entries;
-                    *(s32 *)(work + 0x24) = ((FldStepEntryRecord *)((u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)base))->flags | 0x80000000;
+                    stepWork->flags = ((FldStepEntryRecord *)((u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)base))->flags | 0x80000000;
                     rec = (u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)((FldStepWork *)work)->entries;
                     ((FldStepWork *)work)->rootTask = FldRootCreate(task, ((FldStepEntryRecord *)rec)->fieldId, ((FldStepEntryRecord *)rec)->roomId, ((FldStepWork *)work)->entryHalf[0], 0, 0,
                                                           ((FldStepWork *)work)->flags, ((FldStepEntryRecord *)rec)->unk08, ((FldStepEntryRecord *)rec)->unk09,
                                                           ((FldStepEntryRecord *)rec)->value, -1, -1, -1, -1);
-                    *(s32 *)(work + 0x24) = 0;
+                    stepWork->flags = 0;
                     *(s32 *)work += 1;
                 }
             }
@@ -2141,15 +2143,15 @@ s32 FldStepTaskUpdate(u8 *task)
                 n--;
             } while (n != 0);
         }
-        if (FldStepCopyLoadedFile(*(u8 **)(work + 0x14)) != 0) {
+        if (FldStepCopyLoadedFile(stepWork->filePointer) != 0) {
             ((FldStepWork *)work)->fileHandle = 0;
             base = ((FldStepWork *)work)->entries;
-            *(s32 *)(work + 0x24) |= ((FldStepEntryRecord *)((u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)base))->flags;
+            stepWork->flags |= ((FldStepEntryRecord *)((u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)base))->flags;
             rec = (u8 *)(((FldStepWork *)work)->stepIndex * 0x10) + (s32)((FldStepWork *)work)->entries;
             ((FldStepWork *)work)->rootTask = FldRootCreate(task, ((FldStepEntryRecord *)rec)->fieldId, ((FldStepEntryRecord *)rec)->roomId, ((FldStepWork *)work)->entryHalf[0], 0, 0,
                                                   ((FldStepWork *)work)->flags, ((FldStepEntryRecord *)rec)->unk08, ((FldStepEntryRecord *)rec)->unk09,
                                                   ((FldStepEntryRecord *)rec)->value, -1, -1, -1, -1);
-            *(s32 *)(work + 0x24) = 0;
+            stepWork->flags = 0;
             *(s32 *)work = 4;
         }
         break;
@@ -2177,9 +2179,10 @@ void FldStepTaskDestroy(u8 *task)
     s32 columnIndex;
     u8 *workBlock;
     u8 *scriptData;
+    SdkTask *stepTask = (SdkTask *)task;
 
-    /* measured: typed task work loads remove the final reload (nd10); raw retains MATCH in the 320B window. */
-    workBlock = *(u8 **)(task + 0x38);
+    /* measured: retain the typed task pointer across destruction callbacks. */
+    workBlock = stepTask->work;
     if (FldMap_IsCurrentInEitherBand() == 1) {
         fldStepSaveBoard(((FldStepWork *)workBlock)->stepIndex);
     }
@@ -2215,7 +2218,7 @@ loop_14_test:
         goto loop_14_body;
     }
     ((FieldSceneState *)iGpffff9db0)->field.value = 0;
-    jtbl_008873EC[0](*(u8 **)(task + 0x38));
+    jtbl_008873EC[0](stepTask->work);
 }
 #pragma pop
 
@@ -2256,10 +2259,12 @@ void FldStepAdvance(s32 stepDelta)
     s32 index;
     s32 *entry;
     u8 *first;
+    FldStepWork *stepWork;
 
     root = D_00764334;
     if (root != NULL) {
         state = ((SdkTask *)root)->work;
+        stepWork = (FldStepWork *)state;
         if (stepDelta < 0) {
             ((FldStepWork *)state)->entryValue = 0x3FF;
         } else {
@@ -2269,11 +2274,10 @@ void FldStepAdvance(s32 stepDelta)
         entryOffset = ((FldStepWork *)state)->stepIndex * 0x10;
         base = ((FldStepWork *)state)->entriesAddress;
         first = (u8 *)(base + entryOffset);
-        /* measured: typed roomId loads fold the +2 address adjustment and shrink
-         * this 336B routine to 324B. Keep its two room-halfword cursors byte-based. */
+        /* Preserve the room-halfword cursor while naming its proven member. */
         if (((((FldStepEntryRecord *)first)->fieldId != ((FldStepEntryRecord *)(first + stepByteDelta))->fieldId) ||
-             (*(u16 *)(base + 2 + entryOffset) !=
-              *(u16 *)fldOffsetPointer((u8 *)(base + 2 + entryOffset), stepByteDelta))) &&
+             (*(u16 *)(base + MEMBER_OFFSET(FldStepEntryRecord, roomId) + entryOffset) !=
+              *(u16 *)fldOffsetPointer((u8 *)(base + MEMBER_OFFSET(FldStepEntryRecord, roomId) + entryOffset), stepByteDelta))) &&
             (((((FldStepWork *)state)->flags |= 0x80000000),
               FldMap_IsCurrentInBandA(base, entryOffset, stepByteDelta) == 1) ||
              (FldMap_IsCurrentInBandB() == 1))) {
@@ -2287,8 +2291,8 @@ void FldStepAdvance(s32 stepDelta)
                 index += 1;
             }
         }
-        /* measured: typing this final index update grows 336B to 348B; other step fields stay typed. */
-        *(s32 *)(state + 4) += stepDelta;
+        /* measured: retained typed work preserves the final index update. */
+        stepWork->stepIndex += stepDelta;
         MT_Scene_SetWorkValue(((FldStepWork *)state)->rootPointer, 1);
         *(s32 *)state = 5;
     }
@@ -2996,6 +3000,7 @@ void FldStepRefreshBandResVisibility(void)
     s32 flag;
     s32 cellColumn;
     s32 cellRow;
+    SceneFieldModelResource *modelResource;
 
     entry = MT_Scene_GetResListHead(0xA);
     if (FldMap_IsCurrentInBandA() == 0) {
@@ -3005,11 +3010,12 @@ void FldStepRefreshBandResVisibility(void)
     }
     while (entry != NULL) {
 body:
+            modelResource = (SceneFieldModelResource *)entry;
             cellColumn = (s32)((((RwMatrixTag *)mdlGetMatrix(((SceneFieldModelResource *)entry)->modelAddress))->pos.x +
                              600.0f) /
                             1200.0f);
-            /* measured: later typed model-handle reads change scheduling (nd233+) or exceed the 416B window. */
-            cellRow = (s32)((((RwMatrixTag *)mdlGetMatrix(*(s32 *)(entry + 0x144)))->pos.z +
+            /* measured: retain the typed resource for callback handle reads. */
+            cellRow = (s32)((((RwMatrixTag *)mdlGetMatrix(modelResource->modelAddress))->pos.z +
                              600.0f) /
                             1200.0f);
             flag = 0;
@@ -3019,12 +3025,12 @@ body:
             }
             if (flag == 1) {
                 if (K_Clump_ClumpHasMatUsrData(
-                        mdlGetClump(*(s32 *)(entry + 0x144)),
+                        mdlGetClump(modelResource->modelAddress),
                         D_005F0690) != 0) {
-                    mdlDispatchAnimIfPresent((u8*)*(s32 *)(entry + 0x144), 0, 2, 0, 0);
+                    mdlDispatchAnimIfPresent((u8*)modelResource->modelAddress, 0, 2, 0, 0);
                 }
                 if (K_Clump_ClumpHasMatUsrData(
-                        mdlGetClump(*(s32 *)(entry + 0x144)),
+                        mdlGetClump(modelResource->modelAddress),
                         D_005F06A0) != 0) {
                     ((SceneFieldModelResource *)entry)->unk150 = 0;
                 }
@@ -3151,9 +3157,11 @@ void FldStepUpdateBandRes(void)
     s32 j;
     u8 *work;
     u8 *object;
+    ResrcRecord *player;
 
     fieldResources = MT_Scene_GetResListHead(0xC);
     playerResource = MT_Scene_GetRes(0x400);
+    player = (ResrcRecord *)playerResource;
     modelResources = MT_Scene_GetResListHead(0xA);
     alternateResources = MT_Scene_GetResListHead(0xB);
     tileColumn = 0;
@@ -3161,8 +3169,8 @@ void FldStepUpdateBandRes(void)
     if (FldMap_IsCurrentInEitherBand() != 0) {
         if (playerResource != NULL) {
             tileColumn = FldFrameTask_GetTileX(((ResrcRecord *)playerResource)->handle220);
-            /* measured: typing this second handle read changes scheduling (1780B to 1784B). */
-            tileRow = FldFrameTask_GetTileZ(*(s32 *)(playerResource + 0x220));
+            /* measured: retain the typed player resource for the second read. */
+            tileRow = FldFrameTask_GetTileZ(player->handle220);
             goto clear_test;
 clear_body:
             ((ResrcHeader *)fieldResources)->flags &= ~2U;
@@ -3346,6 +3354,7 @@ void FldStepPreloadBegin(void) {
 // FUN_0015C280
 s32 FldStepPreloadCreateTasks(void) {
     u8 *workBlock;
+    FldStepWork *stepWork;
 
     if (iGpffffb218 == 0) {
         return 1;
@@ -3355,15 +3364,16 @@ s32 FldStepPreloadCreateTasks(void) {
         return 1;
     }
     workBlock = ((SdkTask *)iGpffffb244)->work;
+    stepWork = (FldStepWork *)workBlock;
     if (H_Cdvd_IsFileLoaded(iGpffffb218) == 0) {
         return 0;
     }
-    /* measured: typing either readiness read grows 224B to 236B; the task stores match typed. */
-    if (*(s32 *)(workBlock + 0x40) == 0) {
+    /* measured: retained typed work keeps both readiness loads MATCH. */
+    if (stepWork->preloadTasks[0] == 0) {
         ((FldStepWork *)workBlock)->preloadTasks[0] =
             FldRc_CreateFileLoadTask(iGpffffb244, D_005F06E0, 0x1E, iGpffffb218);
     }
-    if (*(s32 *)(workBlock + 0x44) == 0) {
+    if (stepWork->preloadTasks[1] == 0) {
         ((FldStepWork *)workBlock)->preloadTasks[1] =
             FldRc_CreateFileLoadTask(iGpffffb244, D_005F0700, 0x14, iGpffffb218);
     }
@@ -3437,22 +3447,25 @@ s32 FldStepCopyLoadedFile(u8 *handle) {
     u8 *copyDst;
     u8 *copySrc;
     s32 size;
+    FldStepWork *stepWork;
+    HCdvdRequest *request = (HCdvdRequest *)handle;
     if (iGpffffb244 == NULL) {
         return 1;
     }
     workBlock = ((SdkTask *)iGpffffb244)->work;
+    stepWork = (FldStepWork *)workBlock;
     if (handle == NULL) {
         return 1;
     }
     if (H_Cdvd_IsFileLoaded() != 0) {
         chkmemAllocSiteTag(D_005F05E8, 0xC30);
         size = ((HCdvdRequest *)handle)->signedSize;
-        /* measured: typing the allocated-buffer store grows 216B to 228B; retain only its raw alias. */
-        *(u8 **)(workBlock + 0x2C) =
+        /* measured: retained typed work keeps the allocated buffer store MATCH. */
+        stepWork->scriptData =
             (u8 *)D_008873F4[0](1, size, 0x40000);
-        /* measured: typing either post-allocation size reload grows 216B to 228B. */
-        ((FldStepWork *)workBlock)->scriptSize = *(s32 *)(handle + 0x118);
-        size = *(s32 *)(handle + 0x118);
+        /* measured: retained typed request preserves post-allocation size reads. */
+        ((FldStepWork *)workBlock)->scriptSize = request->signedSize;
+        size = request->signedSize;
         copyDst = ((FldStepWork *)workBlock)->scriptData;
         copySrc = ((HCdvdRequest *)handle)->data;
         memcpy(copyDst, copySrc, size);
