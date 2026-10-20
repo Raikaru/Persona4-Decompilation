@@ -267,6 +267,7 @@ void kwlnTaskRegisterCallback(void *task)
 /* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */
 #pragma push
 /* measured: func_00452760 MATCH -> MISMATCH without this pragma. */
+/* measured: baseline removal differs in 34 bytes; typed pad array indexing; MEMBER pad field initialization also differ. */
 #pragma opt_propagation off
 void sdkPadInit(void)
 {

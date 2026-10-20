@@ -590,6 +590,7 @@ f32 sdkSpriteScaledHeight(u8 *sprite)
 #pragma push
 /* measured: without opt_loop_invariants the loop constants are rematerialised
  * in the vertex loop (617 fnalign edits). */
+/* measured: baseline removal differs in 4977 bytes; reuse named sprite sample alias; reread sample through original parameter also differ. */
 #pragma opt_loop_invariants on
 /* Measured: access-site, local, array, and typed-parameter forms lose Draw MATCH. */
 /* Resolve a sprite record after reading the sample index before its pack table. */

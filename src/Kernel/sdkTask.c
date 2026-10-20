@@ -317,6 +317,7 @@ err:
 /* measured: without opt_loop_invariants the D_008C0240 base address and the
  * 0x80 constant are rematerialized inside the init loop (nd 68); with it they
  * hoist to the preheader and the function matches byte-for-byte. */
+/* measured: baseline removal differs in 44 bytes; typed pad record cursor; pointer-induction pad initialization also differ. */
 #pragma opt_loop_invariants on
 s32 kwlnTaskRunUpdate(KwlnTask* task)
 {
@@ -595,6 +596,7 @@ void kwlnTaskDumpNode(KwlnTask* task, s32 depth)
 /* measured: without opt_loop_invariants the 0x20 constant and the D_008BFF70
  * base address are rematerialized inside the fill loop (nd 65); with it they
  * hoist to the preheader and the function matches byte-for-byte. */
+/* measured: baseline removal differs in 170 bytes; pointer fill loop; named fill byte outside loop also differ. */
 #pragma opt_loop_invariants on
 void kwlnTaskDumpAll(void)
 {
@@ -900,6 +902,7 @@ s32 kwlnTaskGetState(void* task)
 /* measured: without opt_loop_invariants the switch-case constants and the
  * three list heads are rematerialized inside the dispatch loop; with it they
  * hoist to the preheader and the function matches byte-for-byte. */
+/* measured: baseline removal differs in 134 bytes; if-else scheduler list selection; for-loop scheduler list traversal also differ. */
 #pragma opt_loop_invariants on
 KwlnTask* kwlnTaskGetTaskByName(const char* name)
 {
@@ -959,6 +962,7 @@ KwlnTask* kwlnTaskGetTaskByName(const char* name)
 /* measured: without opt_loop_invariants the switch case constants are
  * rematerialized inside the loop (nd 25); with it they hoist to the
  * preheader and the function matches byte-for-byte. */
+/* measured: baseline removal differs in 90 bytes; if-else scheduler list selection; for-loop scheduler list traversal also differ. */
 #pragma opt_loop_invariants on
 s32 kwlnTaskIsLinked(void* target)
 {

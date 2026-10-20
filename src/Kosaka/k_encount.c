@@ -75,6 +75,7 @@ typedef struct EncWeightedTable {
 /* Return encounter-entry flags only when the field and room belong to a supported encounter band. */
 // FUN_00161A70
 /* measured: forces the single-use gp base load ahead of the index chain. */
+/* measured: baseline removal differs in 16 bytes; typed encounter table indexing; name encounter table entry before load also differ. */
 #pragma opt_propagation off
 s32 Encount_GetEntryFlags(s32 field, s32 room, s32 entryIndex) {
     s32 result;
@@ -93,6 +94,7 @@ s32 Encount_GetEntryFlags(s32 field, s32 room, s32 entryIndex) {
 // FUN_00161B10
 /* measured: same recipe as FUN_00161A70 -- the pragma forces the single-use gp
    base load ahead of the index chain. */
+/* measured: baseline removal differs in 16 bytes; typed encounter table indexing; name encounter table entry before load also differ. */
 #pragma opt_propagation off
 s32 Encount_GetEntryRate(s32 field, s32 room, s32 entryIndex) {
     s32 result;
@@ -111,6 +113,7 @@ s32 Encount_GetEntryRate(s32 field, s32 room, s32 entryIndex) {
 // FUN_001619B0
 /* measured: same pair of levers as FUN_00161A70 -- the pragma brings the gp base
    load ahead of the index chain, the helper holds the offset-first addu. */
+/* measured: baseline removal differs in 16 bytes; typed encounter table indexing; name encounter table entry before load also differ. */
 #pragma opt_propagation off
 s32 Encount_GetEntryRateOrOverride(s32 field, s32 room, s32 entryIndex) {
     s32 result;
@@ -138,6 +141,7 @@ s32 Encount_GetEntryRateOrOverride(s32 field, s32 room, s32 entryIndex) {
 /* measured: opt_loop_invariants on does that hoisting (and sign-extends the
    s16 id once into $t2); without it the bases are rematerialised per iteration
    (nd 45). `id == *(u16 *)(q + 2)` keeps retail's bne operand order. */
+/* measured: baseline removal differs in 137 bytes; typed active-slot array indexing; cache identifier table base outside loop also differ. */
 #pragma opt_loop_invariants on
 /* Search live encounter slots for an identifier in the tracked identifier table. */
 // FUN_00161BB0
@@ -175,8 +179,6 @@ s32 Encount_IsEncounterActive(s16 id) {
  * Measured b210 -O2: 888/896 bytes, 19 resolved relocations, eight zero bytes.
  * Retained propagation preserves address lifetimes; the unsigned table-index
  * expression keeps the threshold lookup distinct from the cached signed offset. */
-#pragma push
-#pragma opt_propagation off
 s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
 {
     u16 selected;
@@ -280,7 +282,6 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
     return (kind << 16) | selected;
 }
 
-#pragma pop
 // FUN_00161C80
 /* Pick a weighted record (0x1D records of 0xC bytes) from the block of the
    given encounter. A record is skipped when its id is in the D_005F1260 list
@@ -290,6 +291,7 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
 /* measured: opt_loop_invariants on hoists the D_005F1260/D_007E80A0 bases and
    the constants ahead of both loops, as retail does. */
 #pragma push
+/* measured: baseline removal differs in 749 bytes; typed record array indexing; cache active-slot and identifier table bases also differ. */
 #pragma opt_loop_invariants on
 u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode)
 {
