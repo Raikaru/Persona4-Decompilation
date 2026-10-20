@@ -156,6 +156,7 @@ s32 btlEffectScriptCheckSideAndId(void) {
     return 1;
 }
 
+/* Queue both formation moves for the first eligible enemy, falling back to the acting unit. */
 // FUN_001EACA0
 /* measured probe: preserve the retail filter branch chain */
 #pragma push
@@ -259,6 +260,7 @@ s32 btlEffectScriptApplyToSideUnit(void)
     return 1;
 }
 
+/* Set one indexed side-list unit position and update its rounded grid coordinates. */
 // FUN_001EAFB0
 /* measured probe: preserve retail conditional branch shape */
 #pragma push

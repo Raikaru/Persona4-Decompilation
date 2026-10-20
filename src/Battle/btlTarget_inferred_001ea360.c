@@ -1,4 +1,5 @@
 #include "btl_target_internal.h"
+#include "member_access.h"
 #include "g_data_internal.h"
 #include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
@@ -114,8 +115,8 @@ s32 btlEffectScriptSetActionModeWithSlot(void)
 // FUN_001EA420
 s32 btlEffectScriptCheckUnitKindFlag20(void)
 {
-    /* Raw access: The table stride is 0x18, but this table pointer has no established shared flags-record layout. */
-    scrSetReturnInt(((*(u32 *)(D_00724504 + (((BtlSoundEncounterRecord *)((u8 *)(((BtlBattleState *)iGpffffb3ac)->encounterRecord) ))->trackRule * 0x18))) & 0x20) != 0);
+    /* The encounter track rule shares its leading flags with the sound selectors. */
+    scrSetReturnInt((((u32)((BtlSoundTrackRule *)D_00724504)[((BtlSoundEncounterRecord *)((u8 *)(((BtlBattleState *)iGpffffb3ac)->encounterRecord)))->trackRule].flags) & 0x20) != 0);
     return 1;
 }
 
@@ -129,7 +130,7 @@ s32 btlEffectScriptGetStoredValueC34(void) {
 /* AI script command 0x210a (p4flow AI.json AI_FUNCTION_010A). */
 // FUN_001EA4A0
 s32 btlEffectScriptQueueFormationSequence(void) {
-    /* Raw access: measured: typing the retained sequence callback comparison changes the retail instruction sequence. */
+    /* MEMBER preserves the measured sequence-callback load and comparison order. */
     s32 unit;
     s32 action;
 
@@ -143,7 +144,7 @@ set_flag:
 body:
     if ((void *)(((BtlSoundEncounterSequence *)(iGpffffb3ac + 0xB40))->start) == (void *)btlActionRunFormationSequence)
         goto done;
-    if (*(void **)(iGpffffb3ac + 0xB44) == (void *)btlEncounterFinishSetup)
+    if ((void *)((BtlBattleState *)iGpffffb3ac)->encounterSequenceUpdate == (void *)btlEncounterFinishSetup)
         goto done;
     unit = btlUnitFindInSideById(1, 0x10B);
     if (unit == 0)
@@ -180,8 +181,7 @@ s32 btlEffectScriptFinishWithCameraState2C(void)
 // FUN_001EA660
 s32 btlEffectScriptFinishWithCameraMove(void)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+
     struct Vec3 {
         f32 x;
         f32 y;
@@ -204,7 +204,7 @@ s32 btlEffectScriptFinishWithCameraMove(void)
     firstCopy = first;
     secondCopy = second;
     btlPacketEnqueue(btlCameraCreatePoseSequencePacket(
-        *(s32 *)(iGpffffb3ac + 0x170),
+        MEMBER(s32, iGpffffb3ac, BtlBattleState, selectedAction),
         (f32 *)&first,
         (f32 *)&second,
         value,

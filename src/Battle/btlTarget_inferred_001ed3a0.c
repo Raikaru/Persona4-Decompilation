@@ -1,4 +1,5 @@
 #include "btl_target_internal.h"
+
 #include "datCalc_unit_internal.h"
 #include "btl_equipment_count_internal.h"
 #include "btl_skill_target_internal.h"
@@ -136,8 +137,7 @@ typedef struct RouteNode {
 /* Collect reachable radius-qualified neighbors and their planar distances, including start and goal. */
 s32 btlTargetCollectRouteNeighbors(u8 *node, f32 threshold)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+
     f32 linkedDelta[2];
     f32 fixedDelta[2];
     f32 startDelta[2];
@@ -161,8 +161,8 @@ s32 btlTargetCollectRouteNeighbors(u8 *node, f32 threshold)
                 continue;
             if (btlTargetRangeCheck(node, neighbor) != 0)
                 continue;
-            linkedDelta[0] = ((RouteNode *)node)->pos.x - *(f32 *)((u8 *)group + index * 0x130 + 0x10);
-            linkedDelta[1] = ((RouteNode *)node)->pos.z - *(f32 *)((u8 *)group + index * 0x130 + 0x14);
+            linkedDelta[0] = ((RouteNode *)node)->pos.x - ((BtlTargetCorner *)((u8 *)group + index * 0x130 + 8))->midpoint.x;
+            linkedDelta[1] = ((RouteNode *)node)->pos.z - ((BtlTargetCorner *)((u8 *)group + index * 0x130 + 8))->midpoint.z;
             distance = RwV2dLength(linkedDelta);
         ((RouteNode *)node)->distances[(u16)count] = distance;
             ((RouteNode *)node)->neighbors[(u16)count] = (RouteNode *)(neighbor);
@@ -188,7 +188,7 @@ s32 btlTargetCollectRouteNeighbors(u8 *node, f32 threshold)
         startDelta[0] = ((RouteNode *)node)->pos.x - ((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->start.position.x;
         startDelta[1] = ((RouteNode *)node)->pos.z - ((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->start.position.z;
         distance = RwV2dLength(startDelta);
-        *(f32 *)(btlTargetOffsetAddress((u16)count * 4, node) + 0xB0) = distance;
+        ((RouteNode *)btlTargetOffsetAddress((u16)count * 4, node))->distances[0] = distance;
         ((RouteNode *)node)->neighbors[(u16)count] = (RouteNode *)(iGpffffb3ac + 0x7DC);
         count = (u16)(count + 1);
     }
@@ -196,11 +196,11 @@ s32 btlTargetCollectRouteNeighbors(u8 *node, f32 threshold)
         goalDelta[0] = ((RouteNode *)node)->pos.x - ((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->goal.position.x;
         goalDelta[1] = ((RouteNode *)node)->pos.z - ((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->goal.position.z;
         distance = RwV2dLength(goalDelta);
-        *(f32 *)(btlTargetOffsetAddress((u16)count * 4, node) + 0xB0) = distance;
+        ((RouteNode *)btlTargetOffsetAddress((u16)count * 4, node))->distances[0] = distance;
         ((RouteNode *)node)->neighbors[(u16)count] = (RouteNode *)(iGpffffb3ac + 0x90C);
         count = (u16)(count + 1);
     }
-    *(u8 **)(btlTargetOffsetAddress((u16)count * 4, node) + 0x30) = 0;
+    ((RouteNode *)btlTargetOffsetAddress((u16)count * 4, node))->neighbors[0] = 0;
     return count;
 }
 
@@ -215,8 +215,7 @@ s32 btlTargetCollectRouteNeighbors(u8 *node, f32 threshold)
 /* Rebuild obstacle midpoint links and route neighbors for the requested clearance radius. */
 void btlTargetRebuildRadiusLinks(f32 radius)
 {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 RwV2dLength(f32 *vec);
     extern f32 D_0060A120[];
@@ -330,8 +329,8 @@ void btlTargetRebuildRadiusLinks(f32 radius)
             }
             break;
         }
-        *(f32 *)(iGpffffb3ac + i * 0x130 + 0x31C) = (f32)(tx * 25 - 1750);
-        *(f32 *)(iGpffffb3ac + i * 0x130 + 0x320) = (f32)(ty * 25 - 1750);
+        ((BtlTargetCorner *)(iGpffffb3ac + i * 0x130 + 0x31C))->position.x = (f32)(tx * 25 - 1750);
+        ((BtlTargetCorner *)(iGpffffb3ac + i * 0x130 + 0x31C))->position.z = (f32)(ty * 25 - 1750);
     }
     for (group = (u8 *)(((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->obstacles); group != NULL; group = (u8 *)(((BtlTargetObstacle *)group)->next)) {
         for (i = 0; i < 4; i++) {
@@ -364,7 +363,7 @@ void btlTargetRebuildRadiusLinks(f32 radius)
             for (j = 0; j < 4; j++) {
                 u8 *base = iGpffffb3ac;
 
-                delta[0] = *(f32 *)(base + j * 0x130 + 0x31C) - cur[0];
+                delta[0] = ((BtlTargetCorner *)(base + j * 0x130 + 0x31C))->position.x - cur[0];
                 delta[1] = ((BtlTargetNavigation *)(base + 0x318))->boundary[j].position.z - curZ;
                 dist = func_003e41e0(norm, delta);
                 if ((!(norm[0] * D_0060A120[i * 2 + 0] + norm[1] * D_0060A120[i * 2 + 1] <= fGpffff8330) && (dist < bestDist)) && (btlTargetCheckObstacleCrossings((float *)(group + i * 0x130 + 8), (float *)(iGpffffb3ac + j * 0x130 + 0x31C)) == 0)) {
@@ -372,7 +371,7 @@ void btlTargetRebuildRadiusLinks(f32 radius)
                     best = iGpffffb3ac + j * 0x130 + 0x31C;
                     bestDist = dist;
                     bestX = ((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->boundary[j].position.x;
-                    bestZ = *(f32 *)(iGpffffb3ac + j * 0x130 + 0x320);
+                    bestZ = ((BtlTargetCorner *)(iGpffffb3ac + j * 0x130 + 0x31C))->position.z;
                     bestH = 0.0f;
                 }
             }
@@ -402,7 +401,7 @@ void btlTargetRebuildRadiusLinks(f32 radius)
         {
             u8 *base = iGpffffb3ac;
 
-            *(FieldPair *)wpos = *(FieldPair *)(base + i * 0x130 + 0x31C);
+            *(FieldPair *)wpos = ((BtlTargetCorner *)(base + i * 0x130 + 0x31C))->position;
             other = (u8 *)(((BtlTargetNavigation *)(base + 0x318))->obstacles);
         }
         wposZ = wpos[1];
@@ -426,16 +425,16 @@ void btlTargetRebuildRadiusLinks(f32 radius)
                 half = 0.5f * bestDist;
                 bestDir[0] = bestDir[0] * half;
                 bestDir[1] = bestDir[1] * half;
-                *(f32 *)(iGpffffb3ac + i * 0x130 + 0x324) = wpos[0] + bestDir[0];
-                *(f32 *)(iGpffffb3ac + i * 0x130 + 0x328) = wposZ + bestDir[1];
-                *(u8 **)(iGpffffb3ac + i * 0x130 + 0x32C) = best;
-                *(f32 *)(iGpffffb3ac + i * 0x130 + 0x330) = bestDist;
-                *(f32 *)(iGpffffb3ac + i * 0x130 + 0x334) = 500.0f;
+                ((BtlBattleState *)(iGpffffb3ac + i * 0x130))->radiusBoundaryMidpoint.x = wpos[0] + bestDir[0];
+                ((BtlTargetCorner *)(iGpffffb3ac + i * 0x130 + 0x31C))->midpoint.z = wposZ + bestDir[1];
+                ((BtlTargetCorner *)(iGpffffb3ac + i * 0x130 + 0x31C))->link = (BtlTargetPoint *)best;
+                ((BtlTargetCorner *)(iGpffffb3ac + i * 0x130 + 0x31C))->linkDistance = bestDist;
+                ((BtlTargetCorner *)(iGpffffb3ac + i * 0x130 + 0x31C))->clearance = 500.0f;
             } else {
                 ((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->boundary[i].linkDistance = -1.0f;
             }
         } else {
-            *(f32 *)(iGpffffb3ac + i * 0x130 + 0x330) = -1.0f;
+            ((BtlTargetCorner *)(iGpffffb3ac + i * 0x130 + 0x31C))->linkDistance = -1.0f;
         }
     }
     for (group = (u8 *)(((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->obstacles); group != NULL; group = (u8 *)(((BtlTargetObstacle *)group)->next)) {
@@ -445,7 +444,7 @@ void btlTargetRebuildRadiusLinks(f32 radius)
             if (!(((BtlTargetCorner *)corner)->linkDistance <= 0.0f) && !(((BtlTargetCorner *)corner)->clearance < radius)) {
                 btlTargetCollectRouteNeighbors(corner, radius);
             } else {
-                *(s32 *)(corner + 0x30) = 0;
+                ((RouteNode *)corner)->neighbors[0] = 0;
             }
         }
     }
@@ -455,7 +454,7 @@ void btlTargetRebuildRadiusLinks(f32 radius)
         if (!(((BtlTargetCorner *)corner)->linkDistance <= 0.0f)) {
             btlTargetCollectRouteNeighbors(corner, radius);
         } else {
-            *(s32 *)(corner + 0x30) = 0;
+            ((RouteNode *)corner)->neighbors[0] = 0;
         }
     }
     btlTargetCollectRouteNeighbors(iGpffffb3ac + 0x7DC, radius);
@@ -463,8 +462,8 @@ void btlTargetRebuildRadiusLinks(f32 radius)
 }
 
 #pragma pop
+/* Clear obstacle links and initialize the four world boundary corners at plus or minus 1750. */
 // FUN_001EE1C0
-/* Clear the obstacle list and restore the four world boundary corners at +/-1750. */
 void btlTargetResetRadiusState(void) {
     f32 maximum;
     f32 minimum;
@@ -484,8 +483,8 @@ void btlTargetResetRadiusState(void) {
     ((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->boundary[3].position.z = maximum;
 }
 
-// FUN_001EE250
 /* Round the unit sphere to grid bounds and prepend its embedded obstacle to the list. */
+// FUN_001EE250
 void btlTargetAddRadiusNode(u8 *unit, u8 *position)
 {
     extern void btlTargetSetRadiusArea(u8 *unit, s16 position, s16, f32);
@@ -537,31 +536,33 @@ ee250_link_done:
     ((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->obstacles = (BtlTargetObstacle *)(unit + 0x508);
 }
 
+/* Unlink the unit obstacle only while its radius-node flag is set. */
 // FUN_001EE430
 /* Unlink the unit obstacle only when its radius-node flag is set. */
 void btlTargetRemoveRadiusNode(u8 *unit) {
-    /* measured: typed forms of the retained raw accesses changed code generation;
-     * keep byte-pointer aliasing at these sites to preserve the retail sequence. */
+    BtlUnit *radiusUnit = (BtlUnit *)unit;
+
     s32 flags;
     u8 *next;
     u8 *previous;
 
     flags = (s32)(((BtlUnit *)unit)->flags3);
     if (flags & 4) {
-        *(s32 *)(unit + 0x9C) = flags & ~4;
+        radiusUnit->flags3 = flags & ~4;
         next = (u8 *)(((BtlTargetObstacle *)(unit + 0x508))->next);
         if (next != 0) {
             ((BtlTargetObstacle *)next)->previous = (BtlTargetObstacle *)((u8 *)(((BtlTargetObstacle *)(unit + 0x508))->previous));
         }
         previous = (u8 *)(((BtlTargetObstacle *)(unit + 0x508))->previous);
         if (previous != 0) {
-            *(u8 **)(previous + 0x4CC) = *(u8 **)(unit + 0x9D4);
+            ((BtlTargetObstacle *)previous)->next = (BtlTargetObstacle *)(u8 *)radiusUnit->radiusNext;
             return;
         }
-        *(u8 **)(iGpffffb3ac + 0x318) = *(u8 **)(unit + 0x9D4);
+        ((BtlTargetNavigation *)(iGpffffb3ac + 0x318))->obstacles = (BtlTargetObstacle *)(u8 *)radiusUnit->radiusNext;
     }
 }
 
+/* Recompute obstacle bounds only when the sphere changes cell or scaled radius. */
 // FUN_001EE490
 /* Recompute obstacle bounds only when the sphere changes cell or scaled radius. */
 s32 btlTargetRefreshRadiusNode(u8 *unit) {
