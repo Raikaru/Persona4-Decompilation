@@ -15,6 +15,20 @@ typedef struct BtlMotionRate
     s16 unk8;
 } BtlMotionRate;
 
+/* Unit subobject at +0xA10, initialized by btlEncounterInitParams.
+ * Flags 1/2 run ring/pulse; 4/0x10 grow/shrink flash; 0x20/0x80 fade rotation. */
+typedef struct BtlPortraitState {
+    s32 flags;
+    s16 emphasisFrame;
+    s16 slideFrame;
+    s16 ringFrame;
+    s16 pulseFrame;
+    s16 flashFrame;
+    u8 pad0E[2];
+    f32 pulsePhase;
+    f32 angle;
+} BtlPortraitState;
+
 /* Typed prefix of the retail BtlUnit. Offsets through 0xC8 agree with the
    P4 battle TUs; later fields are still reached through raw offsets. */
 typedef struct BtlUnit BtlUnit;
@@ -72,9 +86,13 @@ struct BtlUnit
     u8 pad9FD;
     u16 sceneDrawId;              /* 0x9FE. Scene draw id from MT_Scene_CreateModelCharRes, passed to SceneDraw_SetDirectionalOnly */
     u8 *layerHandle;              /* 0xA00. Model object passed to the mdl layer helpers */
-    u8 unk_a04[0x0A0C - 0x0A04];
+    u8 unk_a04[4];
+    struct BtlEffectNodePool *effectNodePool; /* 0xA08: owned 48-node effect pool */
     BtlUnit *childUnit;           /* 0xA0C. Child unit allocated by btlUnitCreate(2) in btlUnitInitChild */
-    u8 unk_a10[0x0A28 - 0x0A10];
+    union {
+        u8 unk_a10[0x0A28 - 0x0A10];
+        BtlPortraitState portrait; /* HUD animation state, also used for selection bit 0x200 */
+    };
     union {
         f32 ratio;
         s32 bits;               /* Reset to the -1.0f bit pattern by the gauge packet */
@@ -82,7 +100,9 @@ struct BtlUnit
     f32 hpRatio;                /* 0xA2C. Current HP / maximum HP */
     u8 unk_a30[8];
     s16 hpGaugeMarker;          /* 0xA38. Reset to -1 with hpGauge */
-    u8 unk_a3a[0x0A64 - 0x0A3A];
+    u8 unk_a3a[0x0A44 - 0x0A3A];
+    u16 statusPulseFrame;       /* 0xA44. Bad-status icon pulse wraps at 25 */
+    u8 padA46[0x0A64 - 0x0A46];
     DatUnit *datUnit;             /* 0xA64. Passed to datCalc accessors */
     BtlUnit *prevUnit;            /* 0xA68. Previous unit in the battle unit list */
     BtlUnit *nextUnit;            /* 0xA6C. Next unit in the battle unit list */

@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002230e0-002238c0 */
 
 #include "rw_types_internal.h"
+#include "member_access.h"
 #include "btl_skill_target_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
@@ -127,15 +128,15 @@ s32 btlResultOverlayTick(u8 *sdkTaskBytes)
         ((BtlResultOverlayWork *)work)->rosterIndex = 0;
         ((BtlResultOverlayWork *)work)->rosterCount = (u16)datPersonaCountValidMembers();
         ((BtlResultOverlayWork *)work)->personaWindow = shdPersonaTaskCreate(0, 15, 4, 5, 0);
-        if (*(u8 **)(work + 0x4C) == 0) {
+        if (MEMBER(u8 *, work, BtlResultOverlayWork, personaWindow) == 0) {
             kAssertFail(D_006296D0, 0x2F);
         }
-        shdPersonaSetPersonaId(*(u8 **)(work + 0x4C), 0xAE);
+        shdPersonaSetPersonaId(MEMBER(u8 *, work, BtlResultOverlayWork, personaWindow), 0xAE);
         position[0] = 0.0f;
         position[1] = 19.0f;
-        shdPersonaSetOrigin(*(u8 **)(work + 0x4C), position);
-        shdPersonaStartSlideIn(*(u8 **)(work + 0x4C));
-        *(s32 *)(work + 4) = 1;
+        shdPersonaSetOrigin(MEMBER(u8 *, work, BtlResultOverlayWork, personaWindow), position);
+        shdPersonaStartSlideIn(MEMBER(u8 *, work, BtlResultOverlayWork, personaWindow));
+        MEMBER(s32, work, BtlResultOverlayWork, state) = 1;
         /* fall through */
     case 1:
         results += 0x60;
@@ -143,17 +144,17 @@ s32 btlResultOverlayTick(u8 *sdkTaskBytes)
             u32 reward;
 
             persona = (u8 *)datPersonaRosterSlot((s16)index);
-            reward = (u32)((BtlXpAwards *)results)->rosterExp[*(s32 *)(work + 0x3C)];
+            reward = (u32)((BtlXpAwards *)results)->rosterExp[MEMBER(s32, work, BtlResultOverlayWork, rosterIndex)];
             ((DatPersonaRecord *)persona)->exp += reward;
-            index = *(s32 *)(work + 0x3C);
+            index = MEMBER(s32, work, BtlResultOverlayWork, rosterIndex);
             if (((BtlXpAwards *)results)->rosterPreviews[index][0] > 0) {
                 break;
             }
-            *(s32 *)(work + 0x3C) = index + 1;
+            MEMBER(s32, work, BtlResultOverlayWork, rosterIndex) = index + 1;
         }
         /* Constructor and transitions maintain 0 <= index <= count <= 12.
          * Consequently this arm always has a persona produced by the loop. */
-        if (index != *(s32 *)(work + 0x38)) {
+        if (index != MEMBER(s32, work, BtlResultOverlayWork, rosterCount)) {
             s32 recordIndex;
 
             shdPersonaSetDisplayState(((BtlResultOverlayWork *)work)->personaWindow, 1, (u32)persona, 0);
@@ -169,32 +170,32 @@ s32 btlResultOverlayTick(u8 *sdkTaskBytes)
             messages[9] = 20;
             messages[10] = 21;
             payload = H_Cdvd_GetArchiveEntry(
-                (u8 *)((BtlResultWork *)*(u8 **)(work + 0x40))->file, 0, 0);
-            recordIndex = *(s32 *)(work + 0x3C);
+                (u8 *)((BtlResultWork *)MEMBER(u8 *, work, BtlResultOverlayWork, results))->file, 0, 0);
+            recordIndex = MEMBER(s32, work, BtlResultOverlayWork, rosterIndex);
             ((BtlResultOverlayWork *)work)->levelUpTask = shdPersonaLevelUpCreate(
-                (s32)task, *(s32 *)(work + 0x4C),
+                (s32)task, MEMBER(s32, work, BtlResultOverlayWork, personaWindow),
                 results + recordIndex * 0x88 + 0x38,
                 (s32)payload, 0, messages);
             ((BtlResultOverlayWork *)work)->flags |= 2;
-            *(s32 *)(work + 4) = 2;
-        } else if (((BtlResultWork *)*(u8 **)(work + 0x40))->awards.flags & 0x10) {
+            MEMBER(s32, work, BtlResultOverlayWork, state) = 2;
+        } else if (((BtlResultWork *)MEMBER(u8 *, work, BtlResultOverlayWork, results))->awards.flags & 0x10) {
             ((BtlResultOverlayWork *)work)->flags &= 0xFFFE;
-            *(s32 *)(work + 4) = 8;
+            MEMBER(s32, work, BtlResultOverlayWork, state) = 8;
         } else {
             ((BtlResultOverlayWork *)work)->flags &= 0xFFFE;
-            *(s32 *)(work + 4) = 8;
+            MEMBER(s32, work, BtlResultOverlayWork, state) = 8;
             ((BtlResultOverlayWork *)work)->flags |= 4;
         }
         break;
     case 2:
-        *(s32 *)(work + 4) = 3;
+        MEMBER(s32, work, BtlResultOverlayWork, state) = 3;
         /* fall through */
     case 3:
         if (shdPersonaLevelUpIsDone(((BtlResultOverlayWork *)work)->levelUpTask) == 0) {
             break;
         }
-        shdPersonaDestroyTask(*(u8 **)(work + 0x50));
-        *(s32 *)(work + 4) = 4;
+        shdPersonaDestroyTask(MEMBER(u8 *, work, BtlResultOverlayWork, levelUpTask));
+        MEMBER(s32, work, BtlResultOverlayWork, state) = 4;
         ((BtlResultOverlayWork *)work)->waitFrame = 0;
         /* fall through */
     case 4:
@@ -203,26 +204,26 @@ s32 btlResultOverlayTick(u8 *sdkTaskBytes)
                 if ((((SdkPadRecord *)D_008C0240)->buttons & 0x10) == 0) {
                     break;
                 }
-                if (*(u16 *)(work + 0x48) < 4) {
+                if (MEMBER(u16, work, BtlResultOverlayWork, waitFrame) < 4) {
                     break;
                 }
             }
         }
         ((BtlResultOverlayWork *)work)->rosterIndex += 1;
-        *(s32 *)(work + 4) = 1;
+        MEMBER(s32, work, BtlResultOverlayWork, state) = 1;
         break;
     case 5:
         if (datMemberNoticeTryBegin(1) != 0) {
             break;
         }
         ((BtlResultOverlayWork *)work)->flags &= 0xFFFE;
-        *(s32 *)(work + 4) = 8;
+        MEMBER(s32, work, BtlResultOverlayWork, state) = 8;
         break;
     case 6:
         if (btlShuffleOverlayIdle() == 0) {
             break;
         }
-        *(s32 *)(work + 4) = 7;
+        MEMBER(s32, work, BtlResultOverlayWork, state) = 7;
         /* fall through */
     case 7:
         if ((((BtlResultOverlayWork *)work)->flags & 4) == 0) {
@@ -267,7 +268,7 @@ void btlResultOverlayDestroy(u8 *sdkTaskBytes)
         window = (s32)((BtlResultOverlayWork *)work)->personaWindow;
         if (window != 0) {
             shdPersonaFinishPhase((u8 *)window);
-            *(s32 *)(work + 0x4C) = 0;
+            MEMBER(s32, work, BtlResultOverlayWork, personaWindow) = 0;
         }
     }
     (*jtbl_008873EC)(work);

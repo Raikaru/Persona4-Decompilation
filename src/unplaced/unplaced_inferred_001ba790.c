@@ -34,9 +34,10 @@ extern void func_003dcc70(f32 *result, f32 *from, f32 *to);
 #pragma push
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
-// FUN_001BA790
-/* Lerp translation and slerp quaternion rotation, clamping rotation at either endpoint.
+/* Blend translation and slerp the following quaternion independently.
+ * Translation extrapolates, while rotation copies an endpoint outside [0, 1].
  * The sine polynomial and scalar evaluation order mirror the quaternion macros. */
+// FUN_001BA790
 void mdlBlendTranslationRotation(f32 *result, f32 *from, f32 *to, f32 blend)
 {
     struct MdlTransformSlerpCache {

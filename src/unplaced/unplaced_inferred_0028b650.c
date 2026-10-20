@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0028b650-0028bef0 */
 
 #include "field_transition_internal.h"
+#include "member_access.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -63,20 +64,20 @@ void evtClearHandles(u8 *work)
     count = ((EvtHandleTable *)(work + 0x7A0))->count;
     i = 0;
     while (i < count) {
-        table = *(s32 **)(work + 0x7A4);
+        table = ((EvtEventWork *)(work))->handles.words;
         if (table[i] != 0) {
             if (table[i] != 0) {
                 jtbl_008873EC[0]((void *)table[i]);
                 evtMemAccount(0xC, 0);
-                *(s32 *)(*(s32 *)(work + 0x7A4) + i * 4) = 0;
+                ((s32 *)MEMBER(s32, work, EvtEventWork, handles.address))[i] = 0;
             }
         }
         i++;
     }
     tail = ((EvtHandleTable *)(work + 0x7A0))->count * 4;
-    jtbl_008873EC[0]((void *)*(s32 *)(work + 0x7A4));
+    jtbl_008873EC[0]((void *)((EvtEventWork *)(work))->handles.address);
     evtMemAccount(0xC, -tail);
-    *(s32 *)(work + 0x7A4) = 0;
+    MEMBER(s32, work, EvtEventWork, handles.address) = 0;
     ((EvtHandleTable *)(work + 0x7A0))->count = 0;
 }
 #pragma pop
@@ -346,7 +347,7 @@ func_0028b7b0_copy_valid_done:
                             } while (n_one > 0);
                             break;
                         }
-                        *(u8 **)(*(u8 **)(work + 0x7A4) + index * 4) = copy;
+                        ((EvtEventWork *)work)->handles.blocks[index] = copy;
                         array = (u8 *)((ResrcHeader *)array)->next;
                         index++;
                     }
@@ -360,7 +361,7 @@ func_0028b7b0_copy_valid_done:
 #pragma push
 #pragma opt_loop_invariants off
 // Sets the exclusive resource for kind 0 or 1 and stores the kind on the event [inferred].
-/* The scene block's surrounding layout is not established; keep its isolated kind word at +0x524 raw. */
+/* Store the exclusive kind in the event work after selecting its scene resource. */
 // FUN_0028BE70
 void evtSetKindExclusiveRes(u8 *work, s32 kind)
 {
@@ -375,7 +376,7 @@ void evtSetKindExclusiveRes(u8 *work, s32 kind)
         default:
             break;
         }
-        *(s32 *)(work + 0x524) = kind;
+        ((EvtEventWork *)(work))->exclusiveKind = kind;
     }
 }
 #pragma pop
@@ -398,7 +399,7 @@ s32 evtDecodeNodeKey(s32 workAddress, u8 *key, s32 *resourceId, s32 *variant) {
     case 3:
     case 4:
     case 5:
-        baseKey = *(s32 *)((u8 *)(kind * 4) + workAddress + 0x694);
+        baseKey = MEMBER(s32, (u8 *)(kind * 4) + workAddress, EvtEventWork, messageControl.unk694);
         if (baseKey == -1) {
             return 0;
         }

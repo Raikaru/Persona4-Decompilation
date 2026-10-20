@@ -1,6 +1,8 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0034edc0-0034f9d0 */
 
 #include "nline_vertex_internal.h"
+#include "member_access.h"
+#include "rw_camera_internal.h"
 #include "include_asm.h"
 #include "fcl_combine_internal.h"
 #include "sdk_task_registration.h"
@@ -116,19 +118,19 @@ void nLineDrawLayers(u8 *work, f32 originX, f32 originY, f32 amount)
     baseX = originX;
     if (!(amount <= 0.0f)) {
         delta = D_008872F8[0] - D_0088467C[0];
-        /* Camera +0x80 supplies the divisor; no complete camera layout is established here. */
-        invScale = 1.0f / *(f32 *)((u8 *)kwlnGetCamera() + 0x80);
+        /* The camera near plane supplies the projection divisor. */
+        invScale = 1.0f / ((RwCamera *)((u8 *)kwlnGetCamera()))->nearPlane;
         layers = unit + 0x790;
         ((NLineLayerWork *)unit)->layersActive = 1;
         baseY = 448.0f + originY;
         x = baseX - 208.0f;
         /* measured: typing these repeated offsets grows nLineDrawLayers from 576 to 596 bytes. */
-        x += *(f32 *)(unit + 0x99C);
-        nLineSetLayer(layers, x, baseY + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, 0);
+        x += ((NLineLayerWork *)(unit))->offsetX;
+        nLineSetLayer(layers, x, baseY + ((NLineLayerWork *)(unit))->offsetY, delta, invScale, 0xFF, 0xE9, 0x36, 0);
         baseX = 640.0f + (f32)baseX;
         alpha = 51.0f * amount * (f32)alpha;
-        nLineSetLayer(layers + 0x40, baseX + *(f32 *)(unit + 0x99C), baseY + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, (u8)alpha);
-        nLineSetLayer(layers + 0x80, baseX + *(f32 *)(unit + 0x99C), originY + *(f32 *)(unit + 0x9A0), delta, invScale, 0xFF, 0xE9, 0x36, 0);
+        nLineSetLayer(layers + 0x40, baseX + MEMBER(f32, unit, NLineLayerWork, offsetX), baseY + MEMBER(f32, unit, NLineLayerWork, offsetY), delta, invScale, 0xFF, 0xE9, 0x36, (u8)alpha);
+        nLineSetLayer(layers + 0x80, baseX + MEMBER(f32, unit, NLineLayerWork, offsetX), originY + MEMBER(f32, unit, NLineLayerWork, offsetY), delta, invScale, 0xFF, 0xE9, 0x36, 0);
         return;
     }
     ((NLineLayerWork *)unit)->layersActive = 0;
@@ -266,7 +268,7 @@ void datCommunityEntryStep(u8 *communityEntry)
     u32 choice;
 
     /* measured: typing countdown retains its address across RpRandom, growing 336 to 348 bytes. */
-    if (--*(s16 *)(communityEntry + 2) <= 0) {
+    if (--((DatCommunityEntry *)(communityEntry))->countdown <= 0) {
         extent = ((DatCommunityEntry *)communityEntry)->extent;
         random = RpRandom();
         remainder = random % (u32)(extent / 2 + 1);
@@ -288,7 +290,7 @@ void datCommunityEntryStep(u8 *communityEntry)
         } else {
             ((DatCommunityEntry *)communityEntry)->state = -1;
         }
-        *(s16 *)(communityEntry + 2) = (s16)(RpRandom() % 5U + 2);
+        MEMBER(s16, communityEntry, DatCommunityEntry, countdown) = (s16)(RpRandom() % 5U + 2);
     }
 }
 #pragma pop
@@ -308,18 +310,18 @@ f32 cmpGridCellFade(u8 *cell, f32 xFraction, f32 yFraction, f32 amount) {
         kAssertFail(D_0064B310, 0xD2);
     }
     /* measured: typed width/height retain two addresses across assertions (476 versus 464 bytes). */
-    if ((*(s32 *)(cell + 0xC) - 1) <= 0) {
+    if ((((CmpGridCell *)(cell))->width - 1) <= 0) {
         kAssertFail(D_0064B310, 0xD3);
     }
-    if ((*(s32 *)(cell + 0x10) - 1) <= 0) {
+    if ((((CmpGridCell *)(cell))->height - 1) <= 0) {
         kAssertFail(D_0064B310, 0xD4);
     }
     return amount *
            ((f32)(((CmpGridCell *)cell)->x) *
-            ((1.0f - xFraction) / (f32)(*(s32 *)(cell + 0xC) - 1)) +
+            ((1.0f - xFraction) / (f32)(MEMBER(s32, cell, CmpGridCell, width) - 1)) +
             xFraction) *
            ((f32)(((CmpGridCell *)cell)->y) *
-            ((1.0f - yFraction) / (f32)(*(s32 *)(cell + 0x10) - 1)) +
+            ((1.0f - yFraction) / (f32)(MEMBER(s32, cell, CmpGridCell, height) - 1)) +
             yFraction);
 }
 #pragma pop

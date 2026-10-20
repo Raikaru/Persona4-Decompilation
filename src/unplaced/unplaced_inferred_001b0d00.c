@@ -3,6 +3,7 @@
 /* Grouped verified Persona 4 source units. */
 /* The original guards were independently verified before grouping. */
 #include "include_asm.h"
+#include "member_access.h"
 #include "type.h"
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
@@ -49,8 +50,9 @@ static u32 btlOrderRemoveAction(BtlAction** actions, u32 capacity, BtlAction* ac
     return 1;
 }
 
+/* Remove all occurrences from the twelve-slot execution queue.
+ * Return whether at least one queued action was removed. */
 // FUN_001B0DD0
-/* Remove every occurrence of the action from the execution queue. */
 s32 btlOrderRemoveActionAll(u8 *action)
 {
     BtlAction **actions;
@@ -72,24 +74,24 @@ s32 btlOrderRemoveActionAll(u8 *action)
 void btlOrderQueueAction(u8 *action)
 {
     u8 *queuedAction;
-    /* Proven BtlAction/BtlBattleState fields stay raw: typed access loses MATCH. */
+    /* MEMBER retains byte-base aliasing only at the measured action-flag store. */
     u8 *battle;
 
     queuedAction = action;
-    if ((*(u16 *)(queuedAction + 0x18) & 4) != 0) {
+    if ((((BtlAction *)(queuedAction))->flags & 4) != 0) {
         btlOrderRemoveAction((BtlAction **)((u8 *)iGpffffb3ac + 0x2CC), 0xC, (BtlAction *)queuedAction);
-        *(u16 *)(queuedAction + 0x18) &= 0xFFFB;
+        MEMBER(u16, queuedAction, BtlAction, flags) &= 0xFFFB;
         goto done;
     }
     battle = (u8 *)iGpffffb3ac;
-    if ((*(s32 *)(battle + 0xC) & 8) != 0) {
-        /* +0x298 stores the selected action; retain pointer-typed store for MWCC. */
-        *(u8 **)(battle + 0x298) = queuedAction;
+    if ((((BtlBattleState *)(battle))->flags & 8) != 0) {
+        /* The selected-action word stores the pointer as its original integer handle. */
+        ((BtlBattleState *)(battle))->unk298 = (s32)(queuedAction);
         btlActionQueueMoveToBack(queuedAction);
     }
 done:
     battle = (u8 *)iGpffffb3ac;
-    *(u16 *)(battle + 0x290) |= 8;
+    ((BtlBattleState *)(battle))->queueFlags |= 8;
 }
 #pragma pop
 
@@ -100,18 +102,18 @@ done:
 /* Route pending follow-ups through the queue, otherwise select the current action. */
 void btlOrderSetCurrentAction(u8 *action)
 {
-    /* Proven BtlAction/BtlBattleState fields stay raw: typed access loses MATCH. */
+    /* MEMBER retains byte-base aliasing only at the measured action-flag store. */
     u8 *battle;
-    if ((*(u16 *)(action + 0x18) & 4) != 0) {
+    if ((((BtlAction *)(action))->flags & 4) != 0) {
         btlOrderQueueAction(action);
     } else {
         battle = (u8 *)iGpffffb3ac;
-        if ((*(s32 *)(battle + 0xC) & 8) != 0) {
-            /* +0x298 stores the selected action; retain pointer-typed store for MWCC. */
-            *(u8 **)(battle + 0x298) = action;
+        if ((((BtlBattleState *)(battle))->flags & 8) != 0) {
+            /* The selected-action word stores the pointer as its original integer handle. */
+            ((BtlBattleState *)(battle))->unk298 = (s32)(action);
         }
         battle = (u8 *)iGpffffb3ac;
-        *(u16 *)(battle + 0x290) |= 8;
+        ((BtlBattleState *)(battle))->queueFlags |= 8;
     }
 }
 #pragma pop

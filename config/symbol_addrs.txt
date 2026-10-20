@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2572 of 13102 symbols carry a recovered name.
+// 2573 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 kwlnExitRuntime = 0x00100218; // type:func
 kwlnExitThread = 0x00100220; // type:func
@@ -4426,7 +4426,7 @@ titleVisualDrawMaskedModel = 0x002ABB30; // type:func
 func_002abf70 = 0x002ABF70; // type:func
 func_002ac270 = 0x002AC270; // type:func
 func_002ac2a0 = 0x002AC2A0; // type:func
-func_002ac350 = 0x002AC350; // type:func
+yGetAlternateFusionMode = 0x002AC350; // type:func
 func_002ac360 = 0x002AC360; // type:func
 func_002ac3b0 = 0x002AC3B0; // type:func
 func_002ac3c0 = 0x002AC3C0; // type:func

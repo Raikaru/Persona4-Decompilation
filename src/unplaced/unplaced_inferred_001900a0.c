@@ -1,6 +1,8 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 001900a0-00190130 */
 
 #include "btl_skill_target_internal.h"
+#include "member_access.h"
+#include "kwln_task_internal.h"
 #include "rw_geometry_internal.h"
 #include "model_motion_internal.h"
 #include "btl_motion_internal.h"
@@ -34,7 +36,7 @@ void K_MapEdit_Destroy(u8 *task)
     s32 index;
 
     /* Task work is at +0x38; retain the pointer access types for MWCC reloads. */
-    entries = *(s32 **)(task + 0x38);
+    entries = (s32 *)((KwlnTask *)(task))->work;
     index = 0;
     while (index < 9) {
         dictionary = fldMapEditorEntryAtOffset(index * 4, entries)[1];
@@ -43,9 +45,11 @@ void K_MapEdit_Destroy(u8 *task)
         }
         index++;
     }
-    jtbl_008873EC[0](*(void **)(task + 0x38));
+    jtbl_008873EC[0](MEMBER(void *, task, KwlnTask, work));
 }
 
+/* Allocate editor work and register its update/destruction callbacks on a child task.
+ * Allocation failure returns zero without creating the task. */
 // FUN_00190130
 /* Allocate the 0x1CD20-byte map editor and attach it to its parent task. */
 s32 K_MapEdit_Create(s32 parent)

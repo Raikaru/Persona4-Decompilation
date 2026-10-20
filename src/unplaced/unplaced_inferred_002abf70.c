@@ -1,11 +1,14 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002abf70-002ac2a0 */
 
 #include "include_asm.h"
+#include "member_access.h"
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "kwln_task_internal.h"
 #include "sdk_snd_internal.h"
 #include "fr_font_internal.h"
+typedef struct SeqYajiLabel { s32 text; } SeqYajiLabel;
+
 typedef struct SeqYajiWork {
     union { s8 state; u8 stateByte; } phase;
     u8 pad01[0x6B3];
@@ -67,45 +70,44 @@ s32 seqYajiTaskUpdate(u8 *task) {
         x = 100.0f;
         y = 156.0f;
         depth = 1.0f;
-        text = (void *)*(s32 *)(D_0063EEA0 +
-                                   (((SeqYajiWork *)work)->selection * 4));
+        text = (void *)((SeqYajiLabel *)D_0063EEA0)[((SeqYajiWork *)work)->selection].text;
         frFontExDrawText(x, y, depth,
                       -1, 0, 0, text, 0, 0);
         if (D_008C027A[0] & 0x8000) {
-            *(s32 *)(work + 0x6C0) =
-                fclAddClamped(*(s32 *)(work + 0x6C0), 1, 3, 0, 1);
+            MEMBER(s32, work, SeqYajiWork, selection) =
+                fclAddClamped(MEMBER(s32, work, SeqYajiWork, selection), 1, 3, 0, 1);
         } else if (D_008C027A[0] & 0x2000) {
-            *(s32 *)(work + 0x6C0) =
-                fclSubClamped(*(s32 *)(work + 0x6C0), 1, 0, 3, 1);
+            MEMBER(s32, work, SeqYajiWork, selection) =
+                fclSubClamped(MEMBER(s32, work, SeqYajiWork, selection), 1, 0, 3, 1);
         } else if (D_008C024E[0] & 0x40) {
             if (((SeqYajiWork *)work)->childTask != 0) {
-                *(s32 *)(work + 0x6C8) = 0;
+                MEMBER(s32, work, SeqYajiWork, childTask) = 0;
             }
-            selection = *(s32 *)(work + 0x6C0);
+            selection = MEMBER(s32, work, SeqYajiWork, selection);
             switch (selection) {
             case 0:
-                *(s32 *)(work + 0x6C8) = fclShopCreate((s32)task, 0);
+                MEMBER(s32, work, SeqYajiWork, childTask) = fclShopCreate((s32)task, 0);
                 break;
             case 1:
-                *(s32 *)(work + 0x6C8) = shopSystemCreate((s32)task);
+                MEMBER(s32, work, SeqYajiWork, childTask) = shopSystemCreate((s32)task);
                 break;
             case 2:
                 iGpffffb54c = 0;
-                *(s32 *)(work + 0x6C8) = fclCombineTaskCreate(task);
+                MEMBER(s32, work, SeqYajiWork, childTask) = fclCombineTaskCreate(task);
                 break;
             case 3:
-                *(s32 *)(work + 0x6C8) = fclDebugModelCreate(task);
+                MEMBER(s32, work, SeqYajiWork, childTask) = fclDebugModelCreate(task);
                 break;
             }
             ((SeqYajiWork *)work)->phase.state = ((SeqYajiWork *)work)->phase.state + 1;
         } else if (D_008C024E[0] & 0x10) {
             if (((SeqYajiWork *)work)->childTask != 0) {
-                *(s32 *)(work + 0x6C8) = 0;
+                MEMBER(s32, work, SeqYajiWork, childTask) = 0;
             }
-            switch (*(s32 *)(work + 0x6C0)) {
+            switch (MEMBER(s32, work, SeqYajiWork, selection)) {
             case 2:
                 iGpffffb54c = 1;
-                *(s32 *)(work + 0x6C8) = fclCombineTaskCreate(task);
+                MEMBER(s32, work, SeqYajiWork, childTask) = fclCombineTaskCreate(task);
                 break;
             default:
                 break;

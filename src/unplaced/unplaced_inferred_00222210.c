@@ -1,6 +1,7 @@
 /* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00222210-00222d20 */
 
 #include "rw_types_internal.h"
+#include "member_access.h"
 #include "btl_skill_target_internal.h"
 #include "btl_motion_internal.h"
 #include "include_asm.h"
@@ -53,7 +54,7 @@ static inline void logoDrawTitle(u8 *work, LogoVec2 ofs, LogoColor col, LogoVec2
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 // Intent: Draw the logo title sprites at the given alpha. [inferred]
-/* Remaining raw frame reloads/resets avoid the b210 member-address hoisting measured across float conversions. */
+/* MEMBER frame reloads/resets avoid the b210 member-address hoisting measured across float conversions. */
 // FUN_00222210
 void btlLogoDrawTitle(u8 *work, u32 alpha)
 {
@@ -78,14 +79,14 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
 
     if ((((BtlLogoWork *)work)->flags & 8) == 0) {
         redSlide = 1.0f - btlShuffleCalcWave((f32)(u32)((BtlLogoWork *)work)->animationFrame, 0.0f, 6.0f, 1);
-        whiteSlide = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 6.0f, 1);
-        yellowSlide = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 7.0f, 17.0f, 1);
-        titleSlide = 1.0f - btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 13.0f, 25.0f, 1);
-        if (*(u16 *)(work + 0x46) >= 7) {
+        whiteSlide = 1.0f - btlShuffleCalcWave((f32)(u32)MEMBER(u16, work, BtlLogoWork, animationFrame), 0.0f, 6.0f, 1);
+        yellowSlide = 1.0f - btlShuffleCalcWave((f32)(u32)MEMBER(u16, work, BtlLogoWork, animationFrame), 7.0f, 17.0f, 1);
+        titleSlide = 1.0f - btlShuffleCalcWave((f32)(u32)MEMBER(u16, work, BtlLogoWork, animationFrame), 13.0f, 25.0f, 1);
+        if (MEMBER(u16, work, BtlLogoWork, animationFrame) >= 7) {
             if (++((BtlLogoWork *)work)->waveFrame >= 0x28) {
-                *(u16 *)(work + 0x48) = 0;
+                MEMBER(u16, work, BtlLogoWork, waveFrame) = 0;
             }
-            scrollPhase = btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
+            scrollPhase = btlShuffleCalcWave((f32)(u32)MEMBER(u16, work, BtlLogoWork, waveFrame), 0.0f, 40.0f, 0);
         }
     } else {
         redSlide = 0.0f;
@@ -93,9 +94,9 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
         yellowSlide = 0.0f;
         titleSlide = 0.0f;
         if (++((BtlLogoWork *)work)->waveFrame >= 0x28) {
-            *(u16 *)(work + 0x48) = 0;
+            MEMBER(u16, work, BtlLogoWork, waveFrame) = 0;
         }
-        scrollPhase = btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x48), 0.0f, 40.0f, 0);
+        scrollPhase = btlShuffleCalcWave((f32)(u32)MEMBER(u16, work, BtlLogoWork, waveFrame), 0.0f, 40.0f, 0);
     }
     RpSkyRenderStateSet(3, 0x717FB);
     RpSkyRenderStateSet(2, 0x44);
@@ -201,8 +202,8 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
             if (++((BtlLogoWork *)work)->animationFrame >= 54) {
                 ((BtlLogoWork *)work)->flags |= 8;
             }
-            alpha = (u8)(255.0f * btlShuffleCalcWave((f32)(u32)*(u16 *)(work + 0x46), 0.0f, 5.0f, 1));
-            if (*(u16 *)(work + 0x46) == 14) {
+            alpha = (u8)(255.0f * btlShuffleCalcWave((f32)(u32)MEMBER(u16, work, BtlLogoWork, animationFrame), 0.0f, 5.0f, 1));
+            if (MEMBER(u16, work, BtlLogoWork, animationFrame) == 14) {
                 sdkSndStartChannel(2, (const char *)D_00629680);
             }
         } else {
@@ -217,7 +218,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
         datScreenWipeDraw(((BtlLogoWork *)work)->wipe);
         origin.draw.x = 0.0f;
         origin.draw.y = 0.0f;
-        texture = datScreenWipeTexture(*(u8 **)(work + 0x4C));
+        texture = datScreenWipeTexture(MEMBER(u8 *, work, BtlLogoWork, wipe));
         if (texture != 0) {
             if (((BtlLogoWork *)work)->animationFrame >= 24) {
                 u32 overlayAlpha;
@@ -226,8 +227,8 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
                 f32 drawY;
                 s32 color;
                 phase = btlShuffleCalcWave((f32)(u32)((BtlLogoWork *)work)->animationFrame, 27.0f, 54.0f, 2);
-                datScreenWipeGetPositions(*(u8 **)(work + 0x4C), 0, (u8 *)position, 0);
-                datScreenWipeGetScale(*(u8 **)(work + 0x4C), scale);
+                datScreenWipeGetPositions(MEMBER(u8 *, work, BtlLogoWork, wipe), 0, (u8 *)position, 0);
+                datScreenWipeGetScale(MEMBER(u8 *, work, BtlLogoWork, wipe), scale);
                 drawY = position[1];
                 drawX = position[0];
                 opacity = fGpffff838c * (f32)alpha;
