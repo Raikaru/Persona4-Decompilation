@@ -26,6 +26,8 @@ typedef union FldCameraHandleSlot { u8 *pointer; s32 value; void *task; } FldCam
 typedef struct FldCameraMatrixPair { s32 first; s32 second; } FldCameraMatrixPair;
 /* This linker interior alias starts at the button word of each 0x4A-byte pad record. */
 typedef struct FldCameraPadRecord { u16 buttons; u8 pad02[0x48]; } FldCameraPadRecord;
+/* Matrix snapshots are copied as sixteen words, retaining the SDK flag/pad bits. */
+typedef struct FldCameraMatrix { u32 words[16]; } FldCameraMatrix;
 typedef struct FldCameraData {
     s32 state;
     s32 flags;
@@ -60,8 +62,8 @@ typedef struct FldCameraData {
     f32 remainingYaw;
     RwV3d wallNormal;
     s32 slotBuffer;
-    s32 matrix;
-    s32 cachedMatrix;
+    union { s32 matrix; FldCameraMatrix *matrixData; };
+    union { s32 cachedMatrix; FldCameraMatrix *cachedMatrixData; };
     s32 cylinderTask;
     union {
         struct { s32 pathGroup; s32 pathSphere; s32 projectionSphere; };
@@ -569,10 +571,10 @@ s32 FldCameraTaskUpdate(u8 *task)
     /* Whole-aggregate casts below copy matrix/vector snapshots, not unnamed scalar fields. */
   extern s32 kwlnTaskDestroyWithHierarchy(void *);
   typedef struct { f32 x, y, z; } FldTriVec;
-  typedef struct { u32 w[16]; } FldMtx64;
   extern f32 fabsf(f32);
   typedef struct { f32 x, y, z; } FldCopyVec;
   typedef struct { f32 x, y, z; } FldCamVec;
+  typedef union { f32 coordinates[3]; FldCamVec vector; } FldCameraPosition;
   typedef struct {
     u8 prefix[0x28c];
     f32 desiredDistance, minimumDistance, currentDistance;
@@ -673,7 +675,7 @@ s32 FldCameraTaskUpdate(u8 *task)
   f32 forwardWallDistance;
   f32 chaseDistanceLimit;
   u8 *lookAtCamera;
-  f32 *followRecord;
+  FldCopyVec *followRecord;
   f32 targetX0, targetY0, targetZ0;
   f32 deltaX0, deltaZ0;
   f32 horizontalLength0, horizontalZero0, horizontalRadius0;
@@ -753,7 +755,7 @@ s32 FldCameraTaskUpdate(u8 *task)
       frameMatrix = (u8 *)((RwObject *)(kwlnGetCamera()))->parent;
       func_003e0670((u8 *)((FldCameraData *)cameraData)->cachedMatrix,frameMatrix + 0x10);
       frameMatrix = (u8 *)((RwObject *)(kwlnGetCamera()))->parent;
-      *(FldMtx64 *)&((RwFrame *)(frameMatrix))->modelling = *(FldMtx64 *)(((FldCameraData *)cameraData)->cachedMatrix);
+      *(FldCameraMatrix *)&((RwFrame *)frameMatrix)->modelling = *((FldCameraData *)cameraData)->cachedMatrixData;
     }
     switch (((FldCameraData *)cameraData)->state) {
     case 0:
@@ -764,8 +766,8 @@ s32 FldCameraTaskUpdate(u8 *task)
       case 5:
         FldFrameTask_GetPosition((u8 *)&followTargetPosition[0],(u8 *)((ResrcRecord *)(((FldCameraData *)cameraData)->targetResource))->handle220);
         followTarget = *(FldCopyVec *)followTargetPosition;
-        followRecord = (f32 *)FldCameraGetRecord(task);
-        followPosition = *(FldCopyVec *)(followRecord);
+        followRecord = (FldCopyVec *)FldCameraGetRecord(task);
+        followPosition = *followRecord;
         followMoved = 0;
         attachmentMode = ((FldCameraData *)cameraData)->mode;
         if ((attachmentMode == 0) || (attachmentMode == 5)) {
@@ -1143,7 +1145,7 @@ s32 FldCameraTaskUpdate(u8 *task)
         orbitParentMatrix = (u32)func_003e9700((u32)((RwObject *)(followFrame))->parent);
         orbitMoved = 0;
         collisionDistance = ((FldCameraData *)cameraData)->desiredDistance;
-        *(FldMtx64 *)(((FldCameraData *)cameraData)->matrix) = *(FldMtx64 *)&((RwFrame *)followFrame)->modelling;
+        *((FldCameraData *)cameraData)->matrixData = *(FldCameraMatrix *)&((RwFrame *)followFrame)->modelling;
         {
           f32 negativeX, negativeY, negativeZ, followDistance;
           f32 *pushVector;
@@ -1164,7 +1166,7 @@ s32 FldCameraTaskUpdate(u8 *task)
         segment[0] = orbitTarget;
         orbitMatrixOrResult = ((FldCameraData *)cameraData)->matrix;
         segment[1] = *(FldCopyVec *)&((RwMatrixTag *)(orbitMatrixOrResult))->pos;
-        *(FldMtx64 *)(((FldCameraData *)cameraData)->matrix) = *(FldMtx64 *)&((RwFrame *)followFrame)->modelling;
+        *((FldCameraData *)cameraData)->matrixData = *(FldCameraMatrix *)&((RwFrame *)followFrame)->modelling;
         orbitRayResult = FldFrame_RaycastField((const RwV3d *)segment,(RwV3d *)&orbitRayHit[0]);
         if (orbitRayResult == 1) {
           orbitRayHit[0] = orbitRayHit[0] - segment[0].x;
@@ -1422,7 +1424,7 @@ s32 FldCameraTaskUpdate(u8 *task)
         }
         if (orbitMoved == 1) {
           if (collisionDistance < ((FldCameraData *)cameraData)->currentDistance) {
-            *(FldMtx64 *)(((FldCameraData *)cameraData)->matrix) = *(FldMtx64 *)&((RwFrame *)followFrame)->modelling;
+            *((FldCameraData *)cameraData)->matrixData = *(FldCameraMatrix *)&((RwFrame *)followFrame)->modelling;
             {
               f32 negativeX, negativeY, negativeZ;
               f32 *pushVector;
@@ -1461,7 +1463,7 @@ s32 FldCameraTaskUpdate(u8 *task)
             }
             resumeDistance = ((FldCameraData *)cameraData)->desiredDistance;
             if (((FldCameraData *)cameraData)->currentDistance < resumeDistance) {
-              *(FldMtx64 *)(((FldCameraData *)cameraData)->matrix) = *(FldMtx64 *)&((RwFrame *)followFrame)->modelling;
+              *((FldCameraData *)cameraData)->matrixData = *(FldCameraMatrix *)&((RwFrame *)followFrame)->modelling;
               {
                 f32 negativeX, negativeY, negativeZ, followDistance;
                 f32 *pushVector;
@@ -1585,8 +1587,10 @@ s32 FldCameraTaskUpdate(u8 *task)
         ((FldCameraData *)cameraData)->faded = 0;
         goto LAB_0016e0c0;
       case 7:
+        /* measured: direct vector/array/union storage removes two copy instructions (nd1379);
+         * the access-site position union preserves the original snapshot transfer. */
         FldFrameTask_GetPosition((u8 *)&chaseTargetPosition[0],(u8 *)((ResrcRecord *)(((FldCameraData *)cameraData)->targetResource))->handle220);
-        chaseTarget = *(FldCamVec *)(chaseTargetPosition);
+        chaseTarget = ((FldCameraPosition *)chaseTargetPosition)->vector;
         chaseRecord = (f32 *)FldCameraGetRecord(task);
         chasePosition = *(FldCopyVec *)chaseRecord;
         chaseFrameHandle = (s32)kwlnGetCamera();
@@ -1646,7 +1650,7 @@ s32 FldCameraTaskUpdate(u8 *task)
         chaseParentMatrix = (u32)func_003e9700((u32)((RwObject *)(chaseFrameHandle))->parent);
         chaseMoved = 0;
         chaseDistance = ((FldCameraData *)cameraData)->desiredDistance;
-        *(FldMtx64 *)(((FldCameraData *)cameraData)->matrix) = *(FldMtx64 *)&((RwFrame *)chaseFrameHandle)->modelling;
+        *((FldCameraData *)cameraData)->matrixData = *(FldCameraMatrix *)&((RwFrame *)chaseFrameHandle)->modelling;
         func_003e0e20((void *)((FldCameraData *)cameraData)->matrix,(void *)chaseParentMatrix,2);
         /* Retail retains these Y/Z snapshots across camera calls; X is reloaded. */
         chaseTargetY = (chaseTarget.y += ((FldCameraData *)cameraData)->anchor.y);
@@ -1671,7 +1675,7 @@ s32 FldCameraTaskUpdate(u8 *task)
           chaseSegment[1].y = chaseSegment[1].y + scaledY;
           chaseSegment[1].z = chaseSegment[1].z + scaledZ;
         }
-        *(FldMtx64 *)(((FldCameraData *)cameraData)->matrix) = *(FldMtx64 *)&((RwFrame *)chaseFrameHandle)->modelling;
+        *((FldCameraData *)cameraData)->matrixData = *(FldCameraMatrix *)&((RwFrame *)chaseFrameHandle)->modelling;
         chaseRayResult = FldFrame_RaycastField((const RwV3d *)chaseSegment,(RwV3d *)&chaseHit.x);
         if (chaseRayResult == 1) {
           chaseHit.x = chaseHit.x - chaseSegment[0].x;

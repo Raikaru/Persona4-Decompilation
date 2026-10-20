@@ -45,8 +45,11 @@ extern u8 fclFuseTripleArcana(u8 *firstPersona, u8 *secondPersona, u8 *thirdPers
 extern s32 fclFuseLowestCandidateAtLeast(u32 arcana, s32 minimumLevel, u16 *excluded);
 extern s32 datGetFlag(s32 bit);
 extern u8 D_006420A0[];
-extern u8 D_00642F00[];
-extern u8 D_00642F04[];
+/* Recipe pointer/count columns begin at separately linked interior aliases. */
+typedef struct FclFusionRecipeTable { u16 *entries; s32 count; } FclFusionRecipeTable;
+typedef struct FclFusionRecipeCount { s32 count; u8 pad04[4]; } FclFusionRecipeCount;
+extern FclFusionRecipeTable D_00642F00[];
+extern FclFusionRecipeCount D_00642F04[];
 extern s8 yGetAlternateFusionMode(void);
 extern s32 fclFuseLowestCandidateAtMost(u32 arcana, s32 maximumLevel, u16 *excluded);
 extern u8 D_00642147[];
@@ -189,9 +192,8 @@ s32 fclFuseRecipeLookup(u16 *output, s32 recipeKind, u16 *ingredients, s32 ingre
     u16 *skill;
     if (output == NULL || ingredients == NULL || recipeKind >= 5)
         kAssertFail(D_00642F30, 0x17B);
-    /* Interleaved recipe pointers/counts have separately linked +0/+4 aliases. */
-    entry = *(u16 **)(D_00642F00 + recipeKind * 8);
-    count = *(s32 *)(D_00642F04 + recipeKind * 8);
+    entry = D_00642F00[recipeKind].entries;
+    count = D_00642F04[recipeKind].count;
     row = 0;
     threshold = (s16)(recipeKind + 2);
     while (row < count) {

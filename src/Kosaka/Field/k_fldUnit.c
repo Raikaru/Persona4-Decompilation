@@ -21,6 +21,8 @@ typedef struct Model Model;
 typedef struct Resrc Resrc;
 typedef struct RwMatrix RwMatrix;
 
+/* D_007EFB64 begins at the icon-task sub-object within each party slot. */
+typedef struct FieldUnitIconTask { s32 task; } FieldUnitIconTask;
 extern void (*DAT_008873EC[])(void *);
 extern void *(*DAT_008873F4[])(size_t, size_t, u32);
 
@@ -115,7 +117,7 @@ extern u8 D_007F16F0[];
 extern u8 D_007EFA00[];
 extern u8 D_007EFA04[];
 extern u8 D_007EFB60[];
-extern u8 D_007EFB64[];
+extern FieldUnitIconTask D_007EFB64[];
 extern u8 D_007F00D8[];
 extern u8 D_005F1590[];
 extern SdkTaskUpdate D_005F15B0[];
@@ -1611,8 +1613,7 @@ void FldUnit_UpdateSlot(s32 slotIndex)
             FldAI_ChaserEnable(followerTask);
         }
         if (slotIndex == 0) {
-            /* Layout exception: interior icon-task alias; record, scalar-array and typed-alias probes lose MATCH. */
-            *(s32 *)(D_007EFB64 + unitOffset) = FldPlayerIconTaskCreate(0);
+            ((FieldUnitIconTask *)((u8 *)D_007EFB64 + unitOffset))->task = FldPlayerIconTaskCreate(0);
         }
     }
 }

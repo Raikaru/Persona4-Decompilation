@@ -388,6 +388,8 @@ typedef union DistortColor {
 typedef struct DistortVec3 {
     f32 x, y, z;
 } DistortVec3;
+/* UV aliases start at successive float lanes of an interleaved 0x20-byte row. */
+typedef struct DistortUvLane { f32 coordinate; u8 pad04[0x1C]; } DistortUvLane;
 // Draws one sky-quad record: builds the 64-byte vertex quad from the particle's sizes and colour tables, then sets the sky render states through RpSkyRenderStateSet.
 // FUN_004AFE20
 void DistortParticleDrawSky(u8 *particle, u8 *record, void *sourceRecord, void *position, void *colorScale, void *textureSize, s32 drawMode, s32 uvIndex)
@@ -408,14 +410,14 @@ void DistortParticleDrawSky(u8 *particle, u8 *record, void *sourceRecord, void *
     extern f32 fGpffff8084;
     extern f32 fGpffff80f0;
     extern f32 fGpffff81f4;
-    extern f32 D_00714570[];
-    extern f32 D_00714574[];
-    extern f32 D_00714578[];
-    extern f32 D_0071457C[];
-    extern f32 D_00714580[];
-    extern f32 D_00714584[];
-    extern f32 D_00714588[];
-    extern f32 D_0071458C[];
+    extern DistortUvLane D_00714570[];
+    extern DistortUvLane D_00714574[];
+    extern DistortUvLane D_00714578[];
+    extern DistortUvLane D_0071457C[];
+    extern DistortUvLane D_00714580[];
+    extern DistortUvLane D_00714584[];
+    extern DistortUvLane D_00714588[];
+    extern DistortUvLane D_0071458C[];
     DistortColor packed;
     s32 savedTextureState;
     s32 savedBlendState;
@@ -612,16 +614,15 @@ void DistortParticleDrawSky(u8 *particle, u8 *record, void *sourceRecord, void *
         mdlEffectEmitTagPair();
         ((void (**)(u32, u32))setStateTable)[0](1, *(u32 *)instance->texture);
         RpSkyRenderStateSet(2, savedTextureState | 0x10);
-        uv = (uvIndex & 0xFF) << 5;
-        /* Interleaved UV-table linker interior aliases: each label names one lane of a 0x20-byte row. */
-        quad[0].u = *(f32 *)((u8 *)D_00714570 + uv);
-        quad[0].v = *(f32 *)((u8 *)D_00714574 + uv);
-        quad[1].u = *(f32 *)((u8 *)D_00714578 + uv);
-        quad[1].v = *(f32 *)((u8 *)D_0071457C + uv);
-        quad[2].u = *(f32 *)((u8 *)D_00714580 + uv);
-        quad[2].v = *(f32 *)((u8 *)D_00714584 + uv);
-        quad[3].u = *(f32 *)((u8 *)D_00714588 + uv);
-        quad[3].v = *(f32 *)((u8 *)D_0071458C + uv);
+        uv = (uvIndex & 0xFF);
+        quad[0].u = D_00714570[uv].coordinate;
+        quad[0].v = D_00714574[uv].coordinate;
+        quad[1].u = D_00714578[uv].coordinate;
+        quad[1].v = D_0071457C[uv].coordinate;
+        quad[2].u = D_00714580[uv].coordinate;
+        quad[2].v = D_00714584[uv].coordinate;
+        quad[3].u = D_00714588[uv].coordinate;
+        quad[3].v = D_0071458C[uv].coordinate;
         ((s32 (**)(s32, DistortVertex *, s32))primitiveTable)[0](4, quad, 4);
         mdlEffectEmitSlotPacket();
         break;
