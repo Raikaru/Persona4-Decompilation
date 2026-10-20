@@ -7,6 +7,11 @@
 #include "cmm_internal.h"
 #include "datPersona_internal.h"
 
+/* Unit settings: propagation and common subexpressions on; loop invariants off. */
+#pragma opt_propagation on
+#pragma opt_common_subs on
+#pragma opt_loop_invariants off
+
 
 /* cmm.bin chunks have an eight-byte header and fixed-stride records. */
 typedef struct CmmChunkHeader { u32 unk00; u32 count; } CmmChunkHeader;
@@ -175,6 +180,7 @@ u8 *cmmTextRecord(u32 textId) {
    loads the global into $a1 FIRST, then the x24 chain, then `addu $v0,$v0,$a1`. */
 // Rank name record: 24-byte record from chunk 7 (D_0088149C) for rank index value.
 // FUN_00246910
+#pragma push
 /* measured: baseline integer-base and byte-pointer forms both leave nd22; retain propagation off. */
 #pragma opt_propagation off
 u8 *cmmRankNameRecord(s16 value) {
@@ -182,7 +188,6 @@ u8 *cmmRankNameRecord(s16 value) {
     s32 mul = (s16)value * 24;
     return (u8 *)((mul + base) + 8);
 }
-#pragma opt_propagation on
 // Detail record: 20-byte record from chunk 8 (D_008814A0) for detail index value.
 /* MATCHED (wave 14): same recipe as cmmRankNameRecord — `#pragma opt_propagation
    off` (measured: nd 9 -> 1, forces the single-use D_008814A0 load into $a1
@@ -191,13 +196,12 @@ u8 *cmmRankNameRecord(s16 value) {
    reloc-masked word. */
 // FUN_00246940
 /* measured: baseline integer-base and byte-pointer forms both leave nd21; retain propagation off. */
-#pragma opt_propagation off
 u8 *cmmDetailRecord(s16 value) {
     s32 base = D_008814A0[0];
     s32 mul = (s16)value * 20;
     return (u8 *)((mul + base) + 8);
 }
-#pragma opt_propagation on
+#pragma pop
 // Aux table: returns the chunk 9 table header (D_008814A4) with no record stride. Callers pass it as the message to nmMesWindowInstallHandle.
 // FUN_00246970
 s32 cmmAuxTable(void) {
@@ -430,6 +434,7 @@ s32 cmmHasPendingUnlock(void) {
 // Find fresh reverse candidate: like cmmFindReverseCandidate, but the candidate must fail cmmCommunityHasTierBit(id, 1..9) for the scan tier. Returns the first match, or 0.
 /* measured: opt_common_subs off restores retail per-use masks while preserving the shared base pointer. */
 // FUN_00247270
+#pragma push
 /* measured: baseline masks nd98; narrow loop counter nd147; retain per-use mask generation. */
 #pragma opt_common_subs off
 s32 cmmFindFreshReverseCandidate(void) {
@@ -482,8 +487,6 @@ s32 cmmFindFreshReverseCandidate(void) {
     }
     return 0;
 }
-#pragma opt_common_subs on
-/* measured: opt_common_subs on restores the file baseline after func_00247270. */
 
 /* measured: retail re-issues the var_19&0xFFFF mask into $a0 at every call
    site (10+ times) while keeping temp_18 ($s2) for the idx checks; mwcc b210
@@ -494,7 +497,6 @@ s32 cmmFindFreshReverseCandidate(void) {
 /* measured: opt_common_subs off restores retail per-use masks while preserving the shared base pointer. */
 // FUN_002474F0
 /* measured: baseline removal leaves nd98 from per-call mask CSE; prior mixed-mask trials are recorded above. */
-#pragma opt_common_subs off
 s32 cmmFindReverseCandidate(void) {
     s32 kindOffset;
     u32 *table;
@@ -545,8 +547,6 @@ s32 cmmFindReverseCandidate(void) {
     }
     return 0;
 }
-#pragma opt_common_subs on
-/* measured: opt_common_subs on restores the file baseline after func_002474f0. */
 /* MATCHED (measured): lever-2 re-masked loop counter. `#pragma opt_common_subs
    off` (measured) stops mwcc b210 from CSE-ing `i & 0xFFFF` into a saved reg
    so retail's `andi $a0,$i` is re-emitted at each call site; `i` MUST be
@@ -556,7 +556,6 @@ s32 cmmFindReverseCandidate(void) {
 // Top community of arcana: returns the community id whose arcana (cmmCommunityArcana) equals value and whose rank is highest, or 0 when none matches. Event callers pass the class from the Fcl slot table.
 // FUN_00247770
 /* measured: baseline masks nd140; narrow loop counter nd161; retain per-call masks. */
-#pragma opt_common_subs off
 s16 cmmTopCommunityOfArcana(s32 value) {
     s32 i;
     s32 largest;
@@ -578,7 +577,6 @@ s16 cmmTopCommunityOfArcana(s32 value) {
     }
     return result;
 }
-#pragma opt_common_subs on
 /* MATCHED (measured): `#pragma opt_common_subs off` stops mwcc b210 from
    CSE-ing `i & 0xFFFF` into a saved reg so retail's `andi $a0,$i` is
    re-emitted at each call site; declaration order target/i/largest/result
@@ -587,7 +585,6 @@ s16 cmmTopCommunityOfArcana(s32 value) {
 // Top persona of arcana: returns the roster persona whose arcana matches the arcana of community value and whose rank is highest, or 0 when none matches.
 // FUN_00247820
 /* measured: baseline masks nd163; narrow loop counter nd169; retain per-call masks. */
-#pragma opt_common_subs off
 s16 cmmTopPersonaOfArcana(s32 value) {
     s32 target;
     s32 i;
@@ -611,7 +608,7 @@ s16 cmmTopPersonaOfArcana(s32 value) {
     }
     return (s16)result;
 }
-#pragma opt_common_subs on
+#pragma pop
 /* measured: 796 executable bytes match all 20 resolved relocations; the
    800-byte retail window ends with one unreachable alignment word.
    Ordinary s32 target/threshold lifetimes reproduce both sq/lq spills. */
@@ -852,6 +849,7 @@ s32 cmmDateListed(s32 seed) {
    (measured: nd 9 -> 0) matches retail's branch polarity. */
 // Date not listed: returns 1 when the (month, day) pair for the date seed value is absent from the D_00881498 pair list, else 0. Script callers use it as a date-availability gate.
 // FUN_00247F60
+#pragma push
 /* measured: baseline byte cursor and typed date-pair cursor both leave nd30; retain loop hoisting. */
 #pragma opt_loop_invariants on
 s32 cmmDateNotListed(s32 value) {
@@ -882,7 +880,7 @@ done:
     }
     return 1;
 }
-#pragma opt_loop_invariants off
+#pragma pop
 // Next unlisted date: returns the next date seed after value (below 0x16D) whose (month, day) pair is not in the D_00881498 list and whose date is valid. Returns 0 when there is none.
 // FUN_00248040
 s32 cmmNextUnlistedDate(s32 startDate) {
@@ -969,6 +967,7 @@ loop_15:
 // Tick reverse progress: for each community with a record and no flag band 3, adds 1 to its progress counter (+0xA) when its kind record's threshold (+0x12) is set. Sets REVERSED once the counter reaches the threshold. Called from cldScheduler.c.
 /* measured: opt_common_subs off restores retail per-use masks while preserving the two table bases. */
 // FUN_00248240
+#pragma push
 /* measured: baseline removal leaves nd214; prior mixed-mask forms also fail, as recorded above. */
 #pragma opt_common_subs off
 void cmmTickReverseProgress(void) {
@@ -1019,8 +1018,7 @@ block_13:
         communityId += 1;
     }
 }
-#pragma opt_common_subs on
-/* measured: opt_common_subs on restores the file baseline after func_00248240. */
+#pragma pop
 /* measured (wave 14 retest — nd 119 with a fresh draft-based reconstruction,
    no match): loop of cmmCommunityHasRecord/func_00107ac0==0xA/func_00248a60/
    cmmCommunityTestRecordFlags guards, the D_00881494 two-u16 table scan into var_20,
@@ -1272,6 +1270,7 @@ u16 cmmCommunityCategory(s32 communityId) {
 // Reversed at rank: returns 1 when community value has a record, the REVERSED bit in its kind record (chunk 0), and a level byte at or above its rank from cmmCommunityRecordValue; else 0.
 /* measured: opt_common_subs off preserves the raw parameter call and per-use table masks. */
 // FUN_00248A60
+#pragma push
 /* measured: baseline removal leaves nd125; retain separate raw-parameter and per-use masked calls. */
 #pragma opt_common_subs off
 s32 cmmReversedAtRank(s32 communityId) {
@@ -1304,8 +1303,6 @@ s32 cmmReversedAtRank(s32 communityId) {
     }
     return 0;
 }
-#pragma opt_common_subs on
-/* measured: opt_common_subs on restores the file baseline after func_00248a60. */
 /* measured: retail re-issues var_18&0xFFFF into $a0 at every call site
    (3 sites) while keeping temp_21 in $s5 for the bounds checks (6 saved
    regs); mwcc b210 CSEs the mask into a saved register $s0 at loop top and
@@ -1316,7 +1313,6 @@ s32 cmmReversedAtRank(s32 communityId) {
 /* measured: opt_common_subs off restores retail per-use masks while preserving both table bases. */
 // FUN_00248B80
 /* measured: baseline removal leaves nd211; prior cast/mask mixes are recorded above. */
-#pragma opt_common_subs off
 s32 cmmTopReversedCommunity(void) {
     s32 kindOffset;
     s32 rank;
@@ -1369,8 +1365,7 @@ block_10:
     }
     return result & 0xFFFF;
 }
-#pragma opt_common_subs on
-/* measured: opt_common_subs on restores the file baseline after func_00248b80. */
+#pragma pop
 
 /* measured: retail hoists the 0xFFFF0000 mask constant into $v1 before the
    loop and keeps the loop count in $t0; without #pragma opt_loop_invariants
@@ -1378,6 +1373,7 @@ block_10:
    count/var_10/var_9/temp_7 order for the $t0/$t1/$t2 allocation. */
 // Table lookup value: scans the 12-byte entries at D_008814C0 for the key (value high half, option low half, selection at +4) and returns the value at +8, or -1.
 // FUN_00248D00
+#pragma push
 /* measured: baseline masked high-half nd23; direct unsigned shift nd78; retain loop hoisting. */
 #pragma opt_loop_invariants on
 s32 cmmTableLookupValue(s32 keyHigh, s32 keyLow, s32 kind) {
@@ -1399,7 +1395,7 @@ s32 cmmTableLookupValue(s32 keyHigh, s32 keyLow, s32 kind) {
     }
     return -1;
 }
-#pragma opt_loop_invariants off
+#pragma pop
 
 /* measured: widening the declaration of cmmCommunityCounterpart to s64 is correct:
    the callee truncates internally without sign-extending on entry. This lets
@@ -1409,6 +1405,7 @@ s32 cmmTableLookupValue(s32 keyHigh, s32 keyLow, s32 kind) {
 // Resolve counterpart: returns the counterpart of community value when value has no record and its counterpart does; otherwise returns value.
 /* measured: opt_propagation off preserves retail's raw/key lifetimes. */
 // FUN_00248D80
+#pragma push
 /* measured: baseline removal leaves nd99 in raw/key lifetimes; retain propagation off. */
 #pragma opt_propagation off
 s64 cmmResolveCounterpart(s64 value)
@@ -1428,8 +1425,7 @@ s64 cmmResolveCounterpart(s64 value)
     }
     return raw;
 }
-#pragma opt_propagation on
-/* measured: close the scoped propagation probe explicitly. */
+#pragma pop
 
 
 

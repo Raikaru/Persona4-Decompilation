@@ -12,6 +12,9 @@
 #include "btl_effect_internal.h"
 #include "resrc_manager_internal.h"
 #include "datPersona_internal.h"
+
+/* Unit setting: loop invariants off; animation and drawing scopes retain measured hoisting. */
+#pragma opt_loop_invariants off
 extern u8 *PrimAllocQueueNode();
 extern void cmmRankUpRunQueue();
 extern u8 D_007963D0[];
@@ -258,6 +261,7 @@ void cmmRankUpCreate(s32 parentTask, u32 *context) {
 
 // Sets (option1 != 0) or clears flag bit 2 on each active entry of the rank-up table; used to hold and release the entries [inferred].
 // FUN_00251FC0
+#pragma push
 /* measured: baseline and explicit pre-loop mask both leave nd44; retain mask hoisting. */
 #pragma opt_loop_invariants on
 void cmmRankUpSetEntryHold(s32 taskHandle, s32 hold) {
@@ -279,7 +283,7 @@ void cmmRankUpSetEntryHold(s32 taskHandle, s32 hold) {
         entry++;
     }
 }
-#pragma opt_loop_invariants off
+#pragma pop
 /* measured: scope closer for the hoist above - leaving it on changes the
    next functions in this file, so it is turned off immediately after. */
 
@@ -1788,7 +1792,6 @@ void cmmRankUpDrawGradientStrip(f32 translateX, f32 translateY, f32 depth,
                   depth, 16U, 4, saveState, offsetX, offsetY,
                   0.0f, scaleX, scaleY);
 }
-#pragma pop
 
 /* Draw the 16-point rank-up panel with separate upper and lower alpha.
  * The source palette keeps its 80-byte color allocation. Each point's word
@@ -1800,8 +1803,6 @@ void cmmRankUpDrawGradientStrip(f32 translateX, f32 translateY, f32 depth,
 // Second palette gradient strip; same layout as cmmRankUpDrawGradientStrip with its own palette table [inferred].
 // FUN_00256460
 /* measured: baseline removal leaves nd410, matching the first gradient's hoisting dependency. */
-#pragma push
-#pragma opt_loop_invariants on
 void cmmRankUpDrawGradientStripPass2(f32 translateX, f32 translateY, f32 depth,
                    s32 rgbValue, s32 mainAlpha, s32 upperAlpha, s32 lowerAlpha,
                    s32 saveState, s32 offsetX, s32 offsetY,
@@ -2325,24 +2326,12 @@ static inline RankUpPackedColor *cmmRankUpCapturePackedColor(RankUpPackedColor *
     color->bits = *packed;
     return color;
 }
-#pragma pop
-
-#pragma push
-#pragma always_inline on
-#pragma opt_common_subs off
-#pragma opt_propagation off
 /* Copy the palette alpha channel without replacing its other color components. */
 /* measured: plain assignment removes the alpha load/store pair and shortens cmmRankUpRender by eight bytes. */
 static inline void cmmRankUpCopyPaletteAlpha(RankUpColor *output, const RankUpColor *input)
 {
     output->a = input->a;
 }
-#pragma pop
-
-#pragma push
-#pragma always_inline on
-#pragma opt_common_subs off
-#pragma opt_propagation off
 /* Draw a centered sprite using keyframe dimensions, packed color and opacity. */
 static inline void cmmRankUpDrawSpriteState(const RankUpSpriteState *state, RankUpMatrix *matrix,
                                          s32 texture, f32 uv[4][2], f32 opacity)
@@ -2354,12 +2343,6 @@ static inline void cmmRankUpDrawSpriteState(const RankUpSpriteState *state, Rank
                   (s32)((f32)((u32)state->color & 0xFF) * opacity), 0,
                   (s16)(width >> 1), (s16)(height >> 1), matrix, texture, uv);
 }
-#pragma pop
-
-#pragma push
-#pragma always_inline on
-#pragma opt_common_subs off
-#pragma opt_propagation off
 /* Scale only the alpha byte of the packed effect color. */
 /* measured: plain assignment reverses the mul.s sources at cmmRankUpRender offset 5228. */
 static inline void cmmRankUpScaleEffectAlpha(RankUpPackedColor *color, f32 amount)

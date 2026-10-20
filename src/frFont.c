@@ -15,6 +15,11 @@ typedef struct FrFontSlotObject { u32 object; u8 pad04[0x1C]; } FrFontSlotObject
 #include "fr_font_objects.h"
 #include "h_cdvd.h"
 
+/* Unit settings: propagation and conditional rebuilding on; loop invariants off. */
+#pragma opt_propagation on
+#pragma opt_rebuildconditionals on
+#pragma opt_loop_invariants off
+
 extern void frFontSlotLoad(s32 slotId, u8 *header, u8 *fontData);
 
 typedef int (*code)();
@@ -387,7 +392,6 @@ void frFontInitManager(s32 gridCapacity, s32 cacheCapacity)
     D_007645BC = rows * 0x10;
     frFontRasterCreateCache(cacheCapacity);
 }
-#pragma opt_propagation on
 #pragma pop
 
 
@@ -539,6 +543,7 @@ void frFontLoadTables(void)
    the free-slot pointer computed into a saved local BEFORE func_00454bd0 (retail addiu s1 before
    the jal); the table base stays in $a1 for both the par load and the slot address. */
 // FUN_00271A40
+#pragma push
 /* measured: baseline and shared slot-index probes differ (nd 74/182); retain propagation off. */
 #pragma opt_propagation off
 void frFontReleaseSlots(void)
@@ -575,7 +580,7 @@ void frFontReleaseSlots(void)
         MEMBER(u32, slot, FrFontSlot4, object) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
     }
 }
-#pragma opt_propagation on
+#pragma pop
 
 /* Keeps the list if it is still in use, otherwise releases it. */
 // FUN_00271B70
@@ -1383,7 +1388,6 @@ u32 frFontFadeNodes(int list)
     }
     return result;
 }
-#pragma opt_loop_invariants off
 #pragma pop
 
 
@@ -2164,7 +2168,6 @@ text_test:
         }
     }
 }
-#pragma opt_rebuildconditionals on
 #pragma no_branch_likely off
 #pragma pop
 
@@ -2328,7 +2331,6 @@ loop_test_30:
         }
     }
 }
-#pragma opt_rebuildconditionals on
 #pragma no_branch_likely off
 #pragma pop
 /* Applies pending text work: when active, builds the text list from the string buffer, appends it, sets its codes and height, then applies the pending values. */
