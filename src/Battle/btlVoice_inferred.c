@@ -580,7 +580,7 @@ void btlCameraFrameActorTarget(u8 *camera, f32 heightScale, f32 scale, f32 dista
 // FUN_00226C40
 /* 1516/1520 bytes, 48 resolved code relocations and all
  * seven switch targets match retail; four zero tail-alignment bytes. */
-/* measured: btlCameraTickModeState MATCH -> MISMATCH without this pragma. */
+/* measured: baseline leaves 349 differing words; MEMBER child/count reloads retain the larger frame and ordinal caching. */
 #pragma opt_common_subs off
 void btlCameraTickModeState(u8 *camera)
 {
@@ -860,7 +860,7 @@ void btlCameraTickUnitAnim(u8 *camera)
  * Independent target/party ordinals and the materialized subordinate predicate
  * give 1620/1632 bytes, 50 code relocations and zero normalized differences.
  * Each pose pair is two contiguous seven-float poses, without padding. */
-/* measured: btlCameraApplyPartyPose MATCH -> MISMATCH without this pragma. */
+/* measured: baseline leaves 372 differing words; MEMBER child/count reloads do not restore the pose-frame and ordinal lifetimes. */
 #pragma opt_common_subs off
 void btlCameraApplyPartyPose(u8 *camera)
 {
@@ -1810,7 +1810,7 @@ allow_cut:
     btlCameraSetDuration(camera, 1.5f);
 }
 
-/* measured: opt_propagation off preserves btlEncounterStartSequence's initial GP-load/store order (nd 0). */
+/* measured: baseline moves the action copy ahead of the initial store (three words); a MEMBER phase store has the same residual. */
 /* measured: btlEncounterStartSequence MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // Intent: Start the encounter presentation sequence (formation, camera state, packets). [inferred]

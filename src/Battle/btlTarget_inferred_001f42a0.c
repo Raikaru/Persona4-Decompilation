@@ -1081,6 +1081,7 @@ void btlActionCheckStepTrigger(s32 context)
 // FUN_001F5BD0
 #pragma push
 /* measured: btlActionRollGroupRatio MATCH -> MISMATCH without this pragma. */
+/* measured: baseline leaves seven reordered mask/setup words; operand reversal and a u16 mask do not match. */
 #pragma opt_propagation off
 void btlActionRollGroupRatio(s32 context)
 {

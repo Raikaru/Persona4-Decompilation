@@ -342,7 +342,7 @@ void btlUnitInitChild(u8 *unit, u16 characterId) {
     btlUnitInitFromRecord(*(u8 * *)&typedUnit->childUnit, characterId);
 }
 
-/* measured: opt_propagation off reproduces ef90's retail address setup order. */
+/* measured: baseline has four setup words different; typed list indexing and base-first address forms still reorder the GP load. */
 /* measured: func_0019ef90 MATCH -> MISMATCH without this pragma. */
 // FUN_0019EF90
 #pragma opt_propagation off
@@ -459,6 +459,7 @@ s32 btlUnitGetDataRowAlt(u8 *unit)
     return result;
 }
 
+/* measured: baseline leaves 225 differing words; isolated propagation/common-subexpression/rebuild removals also fail. */
 #pragma push
 /* measured: func_0019f1d0 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
@@ -810,7 +811,7 @@ void btlUnitNoop(void) {
     /* Empty retail hook; no side effects. */
 }
 
-/* measured: opt_propagation off with named table pointers preserves retail load order. */
+/* measured: baseline leaves 30 differing words; indexed skill/enemy table accesses retain the same setup-order residual. */
 #pragma push
 /* measured: func_0019fc70 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
@@ -894,7 +895,7 @@ result_zero_0019fc70:
 }
 
 #pragma pop
-/* measured: opt_propagation off is scoped to func_0019fe60. */
+/* measured: baseline leaves 13 differing words; indexed skill/enemy records still reorder the table loads. */
 /* measured: func_0019fe60 MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation off
 // FUN_0019FE60

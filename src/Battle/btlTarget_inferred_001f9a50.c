@@ -145,9 +145,6 @@ void btlVoiceFadeOut(void) {
     sdkSndFadeOutChannelFrames(1, 0, 8);
 }
 
-/* measured: opt_propagation off preserves 9ac0's explicit boolean branch. */
-/* measured: btlVoiceIdPacketUpdate MATCH -> MISMATCH without this pragma. */
-#pragma opt_propagation off
 /* Select the voice-id bank once and wait for the result/playback-completion condition. */
 /* Measured site/local/stride state-word stores changed MATCH; MEMBER preserves the packet state update. */
 // FUN_001F9AC0
@@ -181,8 +178,12 @@ s32 btlVoiceIdPacketUpdate(u8 *context)
         goto return_one_a;
     }
     flag = (((BtlVoicePlayback *)(iGpffffb3ac + 0xB2C))->idFlags & 1) != 0;
-    if (flag == 0) {
+    /* measured: switch retains the normalized boolean test under baseline propagation (12 differing words -> MATCH). */
+    switch (flag) {
+    case 0:
         goto return_zero;
+    default:
+        goto return_one_b;
     }
 return_one_b:
     return 1;
