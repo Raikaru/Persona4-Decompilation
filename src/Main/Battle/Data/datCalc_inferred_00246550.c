@@ -20,14 +20,14 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 {
     return left + right;
 }
-/* Promoted from the canonical function map: every function here is a
-   retail window with an INCLUDE_ASM fallback and no C body yet. */
+
+
 
 /* Source unit: src/promoted/code1_0024.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 00246550-00246550 */
-
+/* Initialize the playable-character records and return success to the callback table at 0x0063D240. */
 // FUN_00246550
-s32 func_00246550(void)
+s32 datCalcInitializeCharactersCommand(void)
 {
     func_00243ed0();
     return 1;

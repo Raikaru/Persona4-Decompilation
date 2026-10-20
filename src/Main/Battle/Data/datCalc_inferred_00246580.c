@@ -19,14 +19,14 @@ static inline f32 add_f32_ordered(f32 left, f32 right)
 {
     return left + right;
 }
-/* Promoted from the canonical function map: every function here is a
-   retail window with an INCLUDE_ASM fallback and no C body yet. */
+
+
 
 /* Source unit: src/promoted/code1_0024.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 00246580-00246580 */
-
+/* Model-neck-test task update hook: ignores its task and returns zero without changing state. */
 // FUN_00246580
-s32 func_00246580(u8 *unusedTask)
+s32 mdlNeckTestUpdateNoop(u8 *unusedTask)
 {
     return 0;
 }

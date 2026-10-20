@@ -95,7 +95,7 @@ extern void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
 extern u8 *iGpffffb3ac;
 
 extern s32 D_00881444_abs[];
-extern void func_0021be70(void *);
+extern void btlAdvantageInitNoop(void *);
 extern void btlEncounterUpdateEntries(void *state);
 extern void btlPanelNoOp(void *);
 extern void btlEntryListPrune(void *head);
@@ -104,7 +104,7 @@ extern f32 fGpffff8478;
 extern f32 fGpffffb478;
 extern void btlSelectionUpdateTransition(u8 *transition);
 extern void btlPanelLoadModels(void *panel);
-extern void func_0021b1e0(void *);
+extern void btlGaugeInitNoop(void *);
 extern void PrimAppendNode(u8 *list, u8 *node);
 extern u8 D_00794810[];
 extern u8 D_00794870[];
@@ -174,7 +174,7 @@ s32 btlUiTaskInit(u8 *unusedTask)
 
     work = (u8 *)kwlnTaskGetWork();
     /* measured: typed node addresses schedule argument setup ahead of the link clears. */
-    func_0021be70(((BtlUiTaskWork *)work)->advantage);
+    btlAdvantageInitNoop(((BtlUiTaskWork *)work)->advantage);
     ((BtlUiTaskWork *)work)->advantageNode.unk00 = 0;
     ((BtlUiTaskWork *)work)->advantageNode.unk04 = 0;
     PrimAppendNode(D_00795020, work + 0x9F0);
@@ -223,7 +223,7 @@ s32 btlUiTaskInit(u8 *unusedTask)
     ((BtlUiTaskWork *)work)->animateNode.unk00 = 0;
     ((BtlUiTaskWork *)work)->animateNode.unk04 = 0;
     PrimAppendNode(D_00795020, work + 0x950);
-    func_0021b1e0(((BtlUiTaskWork *)work)->gauge);
+    btlGaugeInitNoop(((BtlUiTaskWork *)work)->gauge);
     ((BtlUiTaskWork *)work)->gaugeNode.unk00 = 0;
     ((BtlUiTaskWork *)work)->gaugeNode.unk04 = 0;
     PrimAppendNode(D_00795020, work + 0x9B4);

@@ -3,7 +3,7 @@
 #include "type.h"
 #include "datPersona_internal.h"
 #include "datUnit_internal.h"
-
+#include "member_access.h"
 /* Level-learning rows have a byte level, signed event kind and halfword skill.
  * Both fixed (32 rows) and ordinary (16 rows) growth tables use this stride. */
 typedef struct DatPersonaLearnEvent
@@ -75,7 +75,7 @@ u8 *datPersonaGetRow(u16 personaId)
     }
     return DAT_00764530 + (u32)personaId * 0x11;
 }
-
+/* Read the persona-table arcana byte used by arcana comparisons; IDs outside the 256-row table assert. */
 // FUN_00109280
 /* measured: the u16 parameter is zero-extended separately for the range
    check and for the (u32) row offset, as retail does (two andi). A plain
@@ -285,39 +285,42 @@ s32 datPersonaCollectLearnableSkills(DatPersonaRecord *persona, void *outputSkil
 
 
 // Intent: passes skill slot arg1 of persona record arg0 to datCalcSkillSlotValue; fatal on bad id or slot.
+/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
 // FUN_001097C0
-/* Typed record/event access changed b210 addressing or register allocation;
- * retain byte accesses to DatPersonaRecord and the growth layouts above for MATCH. */
+
 void datPersonaRunSkillSlot(u8 *persona, s32 slotIndex)
 {
+    DatPersonaRecord *personaRecord = (DatPersonaRecord *)(persona);
     u8 *skillTable;
 
-    if ((u16)*(u16 *)(persona + 2) >= 0x100) {
+    if ((u16)((DatPersonaRecord *)persona)->id >= 0x100) {
         kAssertFail(D_005E4318, 0x1B7);
     }
     if ((slotIndex & 0xFFFF) >= 0x10) {
         kAssertFail(D_005E4318, 0x1B8);
     }
-    skillTable = iGpffffb3d8 + (u16)*(u16 *)(persona + 2) * 0x20;
-    datCalcSkillSlotValue(0, *(u16 *)(skillTable + (u16)slotIndex * 2));
+    skillTable = iGpffffb3d8 + (u16)personaRecord->id * 0x20;
+    datCalcSkillSlotValue(0, ((u16 *)skillTable)[(u16)slotIndex]);
 }
 
 // Intent: skill-slot value of persona id arg0 at slot arg1, read through datCalcSkillSlotValue; fatal when out of range.
+/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
 // FUN_00109870
-/* Typed record/event access changed b210 addressing or register allocation;
- * retain byte accesses to DatPersonaRecord and the growth layouts above for MATCH. */
+
 u32 datPersonaGetSkillSlot(u16 partyId, s32 slotIndex)
 {
+    DatPersonaRecord *skillPersona;
     u8 *persona;
 
     persona = (u8 *)datPersonaGetRecord(partyId);
-    if ((u16)*(u16 *)(persona + 2) >= 0x100) {
+    skillPersona = (DatPersonaRecord *)persona;
+    if ((u16)((DatPersonaRecord *)persona)->id >= 0x100) {
         kAssertFail(D_005E4318, 0x1B7);
     }
     if ((slotIndex & 0xFFFF) >= 0x10) {
         kAssertFail(D_005E4318, 0x1B8);
     }
-    return (u32)datCalcSkillSlotValue(0, *(u16 *)(iGpffffb3d8 + (u16)*(u16 *)(persona + 2) * 0x20 + (u16)slotIndex * 2));
+    return (u32)datCalcSkillSlotValue(0, ((u16 *)(iGpffffb3d8 + (u16)skillPersona->id * 0x20))[(u16)slotIndex]);
 }
 
 // Intent: battle stat (index 0..4, see DatPersonaStat in datPersona_internal.h) at +0x1C of a persona record.
@@ -331,8 +334,8 @@ u8 datPersonaGetStat(DatPersonaRecord *persona, s32 statIndex)
 }
 
 // Intent: battle stat (index 0..4) of the record for persona id arg0; same layout as datPersonaGetStat.
-// FUN_00109980
 /* Preserve the public word transport while interpreting the character as a halfword. */
+// FUN_00109980
 s32 datPersonaGetStatById(partyId, statIndex)
 u16 partyId;
 s32 statIndex;
@@ -448,8 +451,8 @@ extern u8 *iGpffffb1b0;
  * The real equipment-query inputs are unsigned halfwords. Keep each weighted
  * query independent and preserve the signed-byte result for the stat clamp. */
 // Intent: equipment bonus for stat arg1 of record arg0, summed from the equipped items of its party slot.
-// FUN_00109E30
 /* D_00796D90 is an interior equipment-field alias with a 0x88-byte party stride; keep that byte-relative alias instead of inventing another party layout. */
+// FUN_00109E30
 s8 datPersonaGetEquipStatBonus(DatPersonaRecord *persona, s32 statIndex)
 {
     /* Equipment rows have a 0x44 stride; only the five signed stat bonuses are used here. */
@@ -648,9 +651,10 @@ s32 datPersonaLeadBoosted(s32 partyId)
 }
 
 // Intent: index of the active roster slot whose id matches, or -1.
+/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+
 // FUN_0010AA80
-/* Typed record/event access changed b210 addressing or register allocation;
- * retain byte accesses to DatPersonaRecord and the growth layouts above for MATCH. */
+
 s32 datPersonaFindRosterSlotById(s32 personaId)
 {
     s32 count = datPersonaRosterCapacity() & 0xFFFF;
@@ -660,7 +664,8 @@ s32 datPersonaFindRosterSlotById(s32 personaId)
     s32 off;
     for (; (u16)i < count; i = (u16)(i + 1)) {
         off = (i & 0xFFFF) * 0x30;
-        if ((*(u16 *)(base + 0xBEC + off) & 1) != 0 && *(u16 *)(base + 0xBEC + off + 2) == id) {
+        /* measured: typed site/local/array forms change instructions; this existing member is exact. */
+        if ((((DatPersonaRecord *)(base + off + 0xBEC))->flags & 1) != 0 && MEMBER(u16, base + 0xBEC + off, DatPersonaRecord, id) == id) {
             return (s16)i;
         }
     }
@@ -690,9 +695,10 @@ s32 datPersonaRosterSlotActive(s16 slotIndex)
 }
 
 // Intent: roster record of the active slot matching the id, or NULL.
+/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+
 // FUN_0010AC10
-/* Typed record/event access changed b210 addressing or register allocation;
- * retain byte accesses to DatPersonaRecord and the growth layouts above for MATCH. */
+
 DatPersonaRecord *datPersonaFindRosterRecordById(s32 personaId)
 {
     s32 count = datPersonaRosterCapacity() & 0xFFFF;
@@ -704,8 +710,9 @@ DatPersonaRecord *datPersonaFindRosterRecordById(s32 personaId)
 
     for (; (u16)i < count; i = (u16)(i + 1)) {
         off = (i & 0xFFFF) * 0x30;
-        if ((*(u16 *)(base + 0xBEC + off) & 1) != 0 &&
-            *(u16 *)(base + 0xBEC + off + 2) == id) {
+        if ((((DatPersonaRecord *)(base + 0xBEC + off))->flags & 1) != 0 &&
+            /* measured: typed site/local/array forms change instructions; this existing member is exact. */
+            MEMBER(u16, base + 0xBEC + off, DatPersonaRecord, id) == id) {
             found = (s16)i;
             goto done;
         }
@@ -734,9 +741,10 @@ DatPersonaRecord *datPersonaRosterSlot(s16 slotIndex)
 }
 
 // Intent: removes the active roster slot holding the id, if any.
+/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+
 // FUN_0010AD80
-/* Typed record/event access changed b210 addressing or register allocation;
- * retain byte accesses to DatPersonaRecord and the growth layouts above for MATCH. */
+
 s32 datPersonaRemoveRosterMemberById(s32 personaId)
 {
     s32 count = datPersonaRosterCapacity() & 0xFFFF;
@@ -747,7 +755,8 @@ s32 datPersonaRemoveRosterMemberById(s32 personaId)
     s32 off;
     for (; (u16)i < count; i = (u16)(i + 1)) {
         off = (i & 0xFFFF) * 0x30;
-        if ((*(u16 *)(base + 0xBEC + off) & 1) != 0 && *(u16 *)(base + 0xBEC + off + 2) == id) {
+        /* measured: typed site/local/array forms change instructions; this existing member is exact. */
+        if ((((DatPersonaRecord *)(base + 0xBEC + off))->flags & 1) != 0 && MEMBER(u16, base + 0xBEC + off, DatPersonaRecord, id) == id) {
             slotIndex = (s16)i;
             goto done;
         }
@@ -758,8 +767,8 @@ done:
 }
 
 // Intent: removes roster slot arg0, shifts later slots down, then reselects the lead.
-// FUN_0010AE30
 /* The shifted roster cursor still points at the game-state base; +0xBEC/+0xBEE address the DatPersonaRecord flags/id, not a second object type. */
+// FUN_0010AE30
 s32 datPersonaRemoveRosterSlot(s32 slotIndex)
 {
     s16 i;
@@ -793,7 +802,7 @@ s32 datPersonaRemoveRosterSlot(s32 slotIndex)
     for (; (u16)j < count; j = (u16)(j + 1)) {
         entry = base + (j & 0xFFFF) * 0x30;
         if ((((DatPersonaRecord *)(entry + 0xBEC))->flags & 1) != 0 &&
-            *(u16 *)(entry + 0xBEE) == selected32) {
+            ((DatPersonaRecord *)(entry + 0xBEC))->id == selected32) {
             found = (s16)j;
             goto done;
         }
@@ -881,9 +890,10 @@ done:
 }
 
 // Intent: selects the active roster slot holding the id as lead; returns 0 when no slot matches.
+/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+
 // FUN_0010B300
-/* Typed record/event access changed b210 addressing or register allocation;
- * retain byte accesses to DatPersonaRecord and the growth layouts above for MATCH. */
+
 s32 datPersonaSelectRosterMemberById(s32 personaId)
 {
     s32 count = datPersonaRosterCapacity() & 0xFFFF;
@@ -894,7 +904,8 @@ s32 datPersonaSelectRosterMemberById(s32 personaId)
     s32 off;
     for (; (u16)i < count; i = (u16)(i + 1)) {
         off = (i & 0xFFFF) * 0x30;
-        if ((*(u16 *)(base + 0xBEC + off) & 1) != 0 && *(u16 *)(base + 0xBEC + off + 2) == id) {
+        /* measured: typed site/local/array forms change instructions; this existing member is exact. */
+        if ((((DatPersonaRecord *)(base + 0xBEC + off))->flags & 1) != 0 && MEMBER(u16, base + 0xBEC + off, DatPersonaRecord, id) == id) {
             slotIndex = (s16)i;
             goto done;
         }
@@ -920,8 +931,8 @@ s32 datPersonaSetLeadSlot(s32 slotIndex)
 }
 
 // Intent: persona id held in the lead slot's record (+2); callers treat it as the current lead persona.
-// FUN_0010B460
 /* D_00797F8E is the roster ID interior alias; its byte stride shares the separately linked flag alias and must not be treated as a new record base. */
+// FUN_0010B460
 u16 datPersonaLeadPersonaId(void)
 {
     s32 v = D_00797F88[0];
@@ -1106,9 +1117,10 @@ valid_index:
  * Initialization and diagnostics can change the capacity flags: reload them
  * at each subsequent validation, as the retail body does. */
 // Intent: places persona arg1 into the first free slot of roster mode arg0 (mode 1 is the selection).
+/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+
 // FUN_0010B9A0
-/* Typed record/event access changed b210 addressing or register allocation;
- * retain byte accesses to DatPersonaRecord and the growth layouts above for MATCH. */
+
 s32 datPersonaPlaceRosterMember(s32 partyId, u16 personaId)
 {
     s32 v = partyId & 0xFFFF;
@@ -1133,8 +1145,8 @@ s32 datPersonaPlaceRosterMember(s32 partyId, u16 personaId)
             emptyOff = empty * 0x30;
             p = (u8 *)D_007973A0 + emptyOff + 0xBEC;
             datPersonaInitRecord(p, personaId);
-            *(u16 *)((u8 *)D_00797F8C + emptyOff) &= 0xC;
-            *(u16 *)((u8 *)D_00797F8C + emptyOff) |= 1;
+            ((DatPersonaRecord *)((u8 *)D_00797F8C + emptyOff))->flags &= 0xC;
+            ((DatPersonaRecord *)((u8 *)D_00797F8C + emptyOff))->flags |= 1;
             datPersonaResolveRecord(p);
         }
         if (p == NULL) {
@@ -1155,7 +1167,8 @@ s32 datPersonaPlaceRosterMember(s32 partyId, u16 personaId)
         base = (u8 *)D_007973A0;
         for (; (u16)i < personaCount; i = (u16)(i + 1)) {
             off = (i & 0xFFFF) * 0x30;
-            if ((*(u16 *)(base + 0xBEC + off) & 1) != 0 && *(u16 *)(base + 0xBEC + off + 2) == id) {
+            /* measured: typed site/local/array forms change instructions; this existing member is exact. */
+            if ((((DatPersonaRecord *)(base + 0xBEC + off))->flags & 1) != 0 && MEMBER(u16, base + 0xBEC + off, DatPersonaRecord, id) == id) {
                 found = (s16)i;
                 goto search_done;
             }
@@ -1196,7 +1209,7 @@ pass52D:
         }
         kAssertFail(D_005E4318, 0x47E);
 pass47E:
-        if ((*(u16 *)((u8 *)D_00797F8C + found * 0x30) & 1) != 0) {
+        if ((((DatPersonaRecord *)((u8 *)D_00797F8C + found * 0x30))->flags & 1) != 0) {
             D_00797F88[0] = found;
         }
     } else {
@@ -1206,7 +1219,7 @@ pass47E:
                 kAssertFail(D_005E4318, 0x3FE);
             }
             curOff = cur * 0x30;
-            p = ((*(u16 *)((u8 *)D_00797F8C + curOff) & 1) != 0) ? (u8 *)D_007973A0 + curOff + 0xBEC : NULL;
+            p = ((((DatPersonaRecord *)((u8 *)D_00797F8C + curOff))->flags & 1) != 0) ? (u8 *)D_007973A0 + curOff + 0xBEC : NULL;
         } else {
             if (v >= 0xB) {
                 kAssertFail(D_005E4318, 0x3A5);
@@ -1237,6 +1250,7 @@ void datPersonaResetRosterMode(s16 partyId)
 }
 
 // Intent: true when persona record arg0 is in the fixed party id range 0xC0..0xD7 (fixed growth rows).
+
 // FUN_0010BE20
 s32 datPersonaUsesFixedGrowth(DatPersonaRecord *persona)
 {
@@ -1259,7 +1273,8 @@ s32 datPersonaUsesFixedGrowth(DatPersonaRecord *persona)
 static inline s32 DPGrowthIsParty(u8 *persona)
 {
     /* Same DatPersonaRecord +2 access retained by the matching level-preview caller. */
-    s32 id = *(u16 *)(persona + 2);
+    /* measured: typed site/local/array forms change instructions; this existing member is exact. */
+    s32 id = MEMBER(u16, persona, DatPersonaRecord, id);
     if (id >= 0xC0 && id < 0xD8) {
         return 1;
     }
@@ -1282,7 +1297,7 @@ static inline s32 DPGrowthFindSkill(u16 skill, u8 *skills, s32 known)
     s32 index;
     /* The skill-list byte cursor preserves the preview's halfword index truncation. */
     for (index = 0; (index & 0xFFFF) < known; index = (index + 1) & 0xFFFF) {
-        if (skill == *(u16 *)(skills + (u16)index * 2)) { break; }
+        if (skill == ((u16 *)skills)[(u16)index]) { break; }
     }
     return index & 0xFFFF;
 }
@@ -1290,11 +1305,14 @@ static inline s32 DPGrowthFindSkill(u16 skill, u8 *skills, s32 known)
 static inline s32 DPGrowthAddStat(s32 gain, s32 base) { return gain + base; }
 
 // Intent: previews stat, skill and level changes of persona arg0 at level arg2 into arg1 without modifying the persona.
+/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+
 // FUN_0010BE60
-/* Typed record/event access changed b210 addressing or register allocation;
- * retain byte accesses to DatPersonaRecord and the growth layouts above for MATCH. */
+
 void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
 {
+    DatPersonaLearnEvent *learningEvent;
+    DatPersonaRecord *personaRecord = (DatPersonaRecord *)(persona);
     u16 stat[5];
     s32 pid;
     s32 statIndex;
@@ -1334,7 +1352,7 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
     s32 collectIndex;
     u8 *event;
 
-    pid = *(u16 *)(persona + 2);
+    pid = ((DatPersonaRecord *)persona)->id;
     if (pid == 0 || pid >= 0x100) {
         kAssertFail(D_005E4318, 0x56D);
     }
@@ -1352,14 +1370,14 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
         /* The next accessor checks this unsigned halfword lvalue. */
         checkedIndex = &bonusIndex;
         *checkedIndex = statIndex;
-        *statValue += *(s8 *)(statBytes + 0x21);
+        *statValue += ((DatPersonaRecord *)statBytes)->statBonusA[0];
         if (*checkedIndex >= 5) {
             kAssertFail(D_005E4318, 0x299);
         }
-        *statValue += *(s8 *)(statBytes + 0x26);
+        *statValue += ((DatPersonaRecord *)statBytes)->statBonusB[0];
     }
     level = persona[4] + 1;
-    expsum = *(u32 *)(persona + 8) + (u32)addedExp;
+    expsum = (u32)((DatPersonaRecord *)persona)->exp + (u32)addedExp;
     pidoff = (pid & 0xFFFF) * 0x46;
     while (datPersonaGetExpForLevel(persona, level) <= expsum && level <= 99) {
         if (!DPGrowthIsParty(persona)) {
@@ -1392,10 +1410,11 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
                 }
             }
         } else {
-            if (*(u16 *)(persona + 2) < 0xC0 || *(u16 *)(persona + 2) > 0xD7) {
+            /* measured: typed site/local/array forms change instructions; this existing member is exact. */
+            if (MEMBER(u16, persona, DatPersonaRecord, id) < 0xC0 || MEMBER(u16, persona, DatPersonaRecord, id) > 0xD7) {
                 kAssertFail(D_005E4318, 0x59F);
             }
-            table = (u8 *)iGpffffb3e4 + (*(u16 *)(persona + 2) - 0xC0) * 0x26E;
+            table = (u8 *)iGpffffb3e4 + (personaRecord->id - 0xC0) * 0x26E;
             if (level >= 2) {
                 partyIndex = 0;
                 table += (u16)level * 5;
@@ -1417,11 +1436,13 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
         delta[0] += 1;
     }
     if (DPGrowthIsParty(persona)) {
-        entry = (u8 *)iGpffffb3e4 + (*(u16 *)(persona + 2) - 0xC0) * 0x26E + 4;
+        /* measured: typed site/local/array forms change instructions; this existing member is exact. */
+        entry = (u8 *)iGpffffb3e4 + (MEMBER(u16, persona, DatPersonaRecord, id) - 0xC0) * 0x26E + 4;
         limit = 32;
         oldLevel = persona[4];
     } else {
-        pid = (u16)*(s16 *)(persona + 2);
+        /* measured: typed site/local/array forms change instructions; this existing member is exact. */
+        pid = (u16)MEMBER(s16, persona, DatPersonaRecord, id);
         entry = (u8 *)iGpffffb3dc + pid * 0x46 + 6;
         limit = 16;
         oldLevel = persona[4] - DPGrowthBaseLevel(pid);
@@ -1432,7 +1453,7 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
     span = 0;
     for (rangeIndex = 0; (rangeCurrent = rangeIndex & 0xFFFF) < limit; rangeIndex = (rangeIndex + 1) & 0xFFFF) {
         event = entry + (u16)rangeIndex * 4;
-        if (*(s8 *)(event + 1) == 0) {
+        if (((DatPersonaLearnEvent *)event)->kind == 0) {
             break;
         }
         if (oldLevel < event[0]) {
@@ -1459,27 +1480,31 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
     removed = 0;
     collectIndex = 0;
     while ((collectIndex & 0xFFFF) < count) {
-        switch (*(s8 *)(entry + 1)) {
+        learningEvent = (DatPersonaLearnEvent *)entry;
+        switch (((DatPersonaLearnEvent *)entry)->kind) {
         case 1:
-            if (*(u16 *)(entry + 2) != 0) {
-                search = DPGrowthFindSkill(*(u16 *)(entry + 2), skills, known);
+
+            if (learningEvent->skill != 0) {
+
+                search = DPGrowthFindSkill(learningEvent->skill, skills, known);
                 if (search == known) {
                     if ((added & 0xFFFF) >= 32) {
                         kAssertFail(D_005E4318, 0x604);
                     }
-                    *(u16 *)(delta + (u16)added * 2 + 2) = *(u16 *)(entry + 2);
+                    ((DatPersonaGrowthDelta *)delta)->addedSkills[(u16)added] = ((DatPersonaLearnEvent *)entry)->skill;
                     added = (added + 1) & 0xFFFF;
                 }
             }
             break;
         case 2:
-            if (*(u16 *)(entry + 2) != 0) {
-                search = DPGrowthFindSkill(*(u16 *)(entry + 2), skills, known);
+            if (((DatPersonaLearnEvent *)entry)->skill != 0) {
+                search = DPGrowthFindSkill(((DatPersonaLearnEvent *)entry)->skill, skills, known);
                 if (search != known) {
                     if ((removed & 0xFFFF) >= 32) {
                         kAssertFail(D_005E4318, 0x614);
                     }
-                    *(u16 *)(delta + (u16)removed * 2 + 0x42) = *(u16 *)(entry + 2);
+
+                    ((DatPersonaGrowthDelta *)delta)->removedSkills[(u16)removed] = learningEvent->skill;
                     removed = (removed + 1) & 0xFFFF;
                 }
             }
@@ -1507,7 +1532,7 @@ void datPersonaApplyLevelUp(u8 *persona, u8 *delta)
     if (((DatPersonaRecord *)persona)->id == 0 || ((DatPersonaRecord *)persona)->id >= 0x100) {
         kAssertFail(D_005E4318, 0x62E);
     }
-    ((DatPersonaRecord *)persona)->level += *(u8 *)(delta + 0);
+    ((DatPersonaRecord *)persona)->level += ((DatPersonaGrowthDelta *)delta)->levelDelta;
     i = 0;
     while ((u16)i < 5) {
         *((u8 *)&((DatPersonaRecord *)persona)->stats[(u16)i]) += ((DatPersonaGrowthDelta *)delta)->statGains[(u16)i];
@@ -1532,12 +1557,13 @@ void datPersonaApplyLevelUp(u8 *persona, u8 *delta)
 /* 556/560 bytes; fifteen resolved relocations; four zero alignment bytes.
  * Typed party records and experience curves retain retail address ordering. */
 // Intent: total experience needed to reach level arg1 on persona arg0's growth curve; levels below 2 return 0.
+/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+
 // FUN_0010C750
-/* Typed record/event access changed b210 addressing or register allocation;
- * retain byte accesses to DatPersonaRecord and the growth layouts above for MATCH. */
+
 u32 datPersonaGetExpForLevel(void *persona, u16 level)
 {
-    u8 *work = persona;
+    DatPersonaRecord *work = persona;
     u32 partyPersona;
     s32 baseOffset;
     f32 levelF;
@@ -1553,29 +1579,33 @@ u32 datPersonaGetExpForLevel(void *persona, u16 level)
             level = 0x63;
         }
 
-        if ((*(u16 *)(work + 2) >= 0xC0) &&
-            (*(u16 *)(work + 2) < 0xD8)) {
+
+        if ((work->id >= 0xC0) &&
+            (work->id < 0xD8)) {
             partyPersona = 1;
         } else {
             partyPersona = 0;
         }
         if (partyPersona == 0) {
-            if (*(u16 *)(work + 2) >= 0x100) {
+
+            if (work->id >= 0x100) {
                 kAssertFail(D_005E4318, 0x673);
             }
             levelF = (f32)level;
-            baseOffset = (s32)*(u16 *)(work + 2) * 0xE;
+            baseOffset = (s32)work->id * 0xE;
             baseLevelF = (f32)(u32)iGpffffb3d4[baseOffset + 3];
             prod = fGpffff8150 * levelF;
             result = (s32)((0.0f + 10.0f) +
                            ((fGpffff820c + 0.0f - fGpffff8208 * baseLevelF) *
                             (prod * levelF * levelF)));
         } else {
-            if ((*(u16 *)(work + 2) < 0xC0) ||
-                (*(u16 *)(work + 2) > 0xD7)) {
+
+            if ((work->id < 0xC0) ||
+
+                (work->id > 0xD7)) {
                 kAssertFail(D_005E4318, 0x67B);
             }
-            curveId = iGpffffb3e4[*(u16 *)(work + 2) - 0xC0][0];
+            curveId = iGpffffb3e4[work->id - 0xC0][0];
             if ((curveId <= 1) || (curveId >= 0xB)) {
                 kAssertFail(D_005E4318, 0x67D);
             }
@@ -1728,8 +1758,8 @@ s32 datPersonaRemoveSkill(u8 *persona, u32 skillId)
 }
 
 // Intent: replaces skill arg1 in record arg0 with arg2 when present; returns the slot index, or -1 when absent.
-// FUN_0010CD70
 /* The slot lookup supplies a byte offset into the DatPersonaRecord skills at +0x0C; retain the explicit offset local used for the final store. */
+// FUN_0010CD70
 s32 datPersonaReplaceSkill(u8 *persona, s16 oldSkill, u16 newSkill)
 {
     if (persona == NULL || (s16)oldSkill == 0 || (newSkill & 0xFFFF) == 0) {
@@ -1739,7 +1769,7 @@ s32 datPersonaReplaceSkill(u8 *persona, s16 oldSkill, u16 newSkill)
         s32 r = datPersonaFindSkillSlot(persona, (u16)oldSkill);
         if (r != -1) {
             s32 off = r * 2;
-            *(u16 *)(off + (s32)persona + 0xC) = (u16)newSkill;
+            ((DatPersonaRecord *)(off + (s32)persona))->skills[0] = (u16)newSkill;
         }
         return r;
     }
