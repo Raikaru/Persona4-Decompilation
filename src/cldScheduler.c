@@ -4,7 +4,7 @@
 #include "type.h"
 #include "h_cdvd_internal.h"
 
-extern void chkmemAllocSiteTag(void *procedureTask, s32 id);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 extern void kAssertFail(const void *file, u32 line);
 extern void *memset(void *dest, s32 value, s32 size);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -21,16 +21,16 @@ typedef struct SdlSched
 
 extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
-extern void calSplitDayOfYear(s32 date, s32 *month, s32 *loadedMonth);
-extern void sequenceRequest(s32 id, void *data, s32 size, s32 sameMonth);
+extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
+extern void sequenceRequest(s32 sequenceId, void *parameters, s32 parameterSize, s32 delay);
 extern void cmmTickReverseProgress(void);
-extern s32 scrStartProcedureIndex(s32 kind, u8 *script, s32 index);
-extern s32 scrFindPrcdIdxByName(s32 scriptOrSize, void *fileData);
+extern s32 scrStartProcedureIndex(s32 priority, u8 *header, s32 procedureIndex);
+extern s32 scrFindPrcdIdxByName(s32 header, void *name);
 extern void memcpy(void *, void *, u32);
 extern s32 sprintf(char *buf, char *fmt, ...);
-extern s32 kwlnTaskIsLinked(void *task);
+extern s32 kwlnTaskIsLinked(void *target);
 extern u32 kwlnTaskGetWork(void *task);
-extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 kind);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
 extern char D_006372C0[];
 extern char D_00637310[];
 extern char D_00637320[];
@@ -43,7 +43,7 @@ extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
 
 extern char D_00637348[];
 extern s32 cldSchedulerTaskUpdate(u8 *task);
-extern void cldSchedulerTaskDestroy(u8 *task);
+extern void cldSchedulerTaskDestroy(u8 *unusedTask);
 
 
 

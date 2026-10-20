@@ -13,7 +13,7 @@ typedef char *va_list;
 extern u8 *iGpffffb510;
 extern s32 iGpffffa7c8;
 
-s32 mtMiscResourceValue(s32 eventWork);
+s32 mtMiscResourceValue(s32 resourceId);
 
 
 extern s32 iGpffffb538;
@@ -105,12 +105,12 @@ void mtMiscCollectType1Records(u8 *eventWork)
    helpers retain block-scoped u16 parameters for per-call masks. */
 s32 mtMiscAttachSlotModel(u8 *eventWork, u8 *model, s32 slotIndex, s32 entryIndex, s32 matrixIndex)
 {
-    extern void mdlDetachSlotModel(u8 *eventWork, s32 model);
-    extern s32 mdlCopyIndexedMatrix(u8 *eventWork, s32 model, u8 *slotIndex);
-    extern void *mdlFindModelObject(u32 eventWork, u16 model, u32 slotIndex);
+    extern void mdlDetachSlotModel(u8 *model, s32 slotIndex);
+    extern s32 mdlCopyIndexedMatrix(u8 *model, s32 index, u8 *destination);
+    extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
     extern void mdlAttachSlotModelFromPair(void *eventWork, u16 model, u32 slotIndex, u16 entryIndex, s32 matrixIndex, s32, u32);
-    extern void mdlAttachSlotModelFindOrCreate(void *eventWork, u16 model, u32 slotIndex, u16 entryIndex, u32 matrixIndex);
-    extern void mdlSetAttachedSlotValue(u8 *eventWork, u16 model, s32 slotIndex);
+    extern void mdlAttachSlotModelFindOrCreate(void *model, u16 slotIndex, u32 type, u16 id, u32 flags);
+    extern void mdlSetAttachedSlotValue(u8 *model, u16 slotIndex, s32 frameId);
     s32 flag;
     u32 lookupType;
     u8 *slot;

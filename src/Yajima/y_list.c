@@ -19,8 +19,8 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 fclSubClamped(s32 , s32 , s32 , s32 , s8 );
-extern void chkmemAllocSiteTag(void *msg, s32 id);
-extern void kwlnTaskDestroyWithHierarchy(s32 handle);
+extern void chkmemAllocSiteTag(void *file, s32 line);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 
 
 extern s32 comuDataApplyListRebuild(u8 *);
@@ -40,9 +40,9 @@ extern u8 *datPersonaCachedRecord(s32 );
 extern void datPersonaInitAllRecords(void);
 extern s32 yListRecordsDiffer(u8 *, u8 *);
 extern s32 fclAddClamped(s32 , s32 , s32 , s32 , s8 );
-extern s64 cmmCommunityIsListable(s32 id);
-extern s32 cmmCommunityPassesFlagGate(s32 id);
-extern s32 cmmCommunityHasFlagGate(s32 id);
+extern s64 cmmCommunityIsListable(s32 community);
+extern s32 cmmCommunityPassesFlagGate(s32 community);
+extern s32 cmmCommunityHasFlagGate(s32 community);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern s32 datItemCount(s16 );
 extern u32 datEntryGetFlags(s16 );

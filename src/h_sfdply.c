@@ -69,7 +69,7 @@ typedef struct HSfdQueueEntry
 
 extern s32 func_004215e0(void* threadParam);
 extern s32 func_00422920(s32 threadId, void* arg);
-extern void sdkWrapWorkerThread(HSfdQueueSlot* slot);
+extern void sdkWrapWorkerThread(HSfdQueueSlot* worker);
 extern u8 D_00902930[];
 extern u32 D_007690F0;
 extern s32 uGpffffb230;

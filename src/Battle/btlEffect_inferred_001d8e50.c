@@ -11,19 +11,19 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
     return left + right;
 }
 
-extern u16 datCalcMaxHp(u8 *input);
-extern u16 datCalcMaxSp(u8 *input);
+extern u16 datCalcMaxHp(u8 *unit);
+extern u16 datCalcMaxSp(u8 *unit);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 datCalcIsDead(u8 *input, s32 value);
-extern u32 datCalcChkBadStatus(s32 input, u32 value);
+extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern u32 datCalcChkBadStatus(int unit, u32 badStatus);
-extern u16 datCalcGetHp(u8 *input);
-extern u16 datCalcGetSp(u8 *input);
+extern u16 datCalcGetHp(u8 *unit);
+extern u16 datCalcGetSp(u8 *unit);
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb3b8;
-extern void btlEffectCollectTargetUnits(u8 *input, u8 *value, u32 options, u32 flags, u32 mode);
+extern void btlEffectCollectTargetUnits(u8 *action, u8 *selection, u32 sideFlags, u32 filterFlags, u32 statusMask);
 
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
@@ -386,10 +386,10 @@ int btlEffectFindUnitMatchingCallback(int action, int conditionValue, int sideMa
     s32 status;
     s32 effects;
 
-    extern s32 datCalcElementBit(s16 value);
-    extern s8 datCalcGetBuffStatus(u8 *value, s32 index);
+    extern s32 datCalcElementBit(s16 element);
+    extern s8 datCalcGetBuffStatus(u8 *unit, s32 buffIndex);
     extern s32 func_001f9ce0(u8 *value, s32 index);
-    extern s32 datTestBitmapBit(u16 value, u16 index);
+    extern s32 datTestBitmapBit(u16 entryIndex, u16 bitIndex);
 
     (void)action;
     unit = *(u8 **)(iGpffffb3ac + 0x174);

@@ -7,19 +7,19 @@ typedef struct RwRaster RwRaster;
 extern u8 D_007D0F00[];
 extern RwRaster *RpSkyTexGetTex0(RwRaster *raster, u32 *msb, u32 *lsb);
 extern void func_003f34e0(void* packet, u32 size);
-extern void gsBuildTextureUploadFixedStride(u32 texture, void* packet, u32 source, s32 a3,
-                           s32 a4, s32 a5, s32 a6, s32 a7, s32 a8, s32 a9);
-extern void gsBuildTextureUploadPacket(u32 texture, u8* packet, u32 source, s32 a3,
-                          s32 a4, s32 a5, s32 a6, s32 a7, s32 a8, s32 a9,
-                          s32 a10);
+extern void gsBuildTextureUploadFixedStride(u32 texture, void* packet, u32 source, s32 destinationX,
+                           s32 destinationY, s32 width, s32 height, s32 sourceColumn, s32 sourceRow, s32 skipRows);
+extern void gsBuildTextureUploadPacket(u32 texture, u8* packetOut, u32 sourceBase, s32 sourceStride,
+                          s32 destinationX, s32 destinationY, s32 textureWidth, s32 textureHeight, s32 sourceColumn, s32 sourceRow,
+                          s32 skipRows);
 
-extern void* poolAlloc(size_t size);
+extern void* poolAlloc(size_t requestedSize);
 extern void memset(void* dst, u32 value, u32 size);
 
-extern void gsPackDmaTag(u64* out, u32 a1, s32 a2, u32 a3, u32 a4,
-                          u32 a5, u32 a6);
-extern void gsPackGifTag(u32* out, u64 address, s32 a2, s32 a3, s32 a4,
-                          s32 a5, s32 a6, u32 a7);
+extern void gsPackDmaTag(u64* out, u32 scratchpad, s32 address, u32 interrupt, u32 tagId,
+                          u32 priority, u32 quadwordCount);
+extern void gsPackGifTag(u32* out, u64 address, s32 registerCount, s32 format, s32 primitive,
+                          s32 primitiveEnable, s32 endOfPacket, u32 loopCount);
 extern void gsPackBitbltBuf(u32* output, u32 image, u32 width, u32 height);
 extern void gsPackTrxPos(u32* output, u32 flag, u32 image, u32 height);
 extern void gsPackTrxReg(u32* out, u32 x, u32 y);

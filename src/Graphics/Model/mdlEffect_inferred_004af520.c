@@ -23,7 +23,7 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern u8 *mdlEffectCreateGridForRecord(u8 *instance);
+extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
 extern void PrimAppendNode();
 extern void ObjectParticleUpdateRecords();
@@ -61,8 +61,8 @@ extern f32 D_008872F8[];
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
-extern u16 *GeometryCreateTableGridMultiPart(s32 instance, s32 value, s32 count, s32 flags,
-                          void *data, s32 options);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern u8 D_0071401C[];
@@ -80,10 +80,10 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004af520-004af580 */
 
-extern s32 mdlEffectProjectBillboardQuad(u8 *instance, u8 *value);
-extern void mdlEffectBuildRectQuad(u8 *instance, u8 *value);
-extern void mdlEffectBuildOffsetQuad(u8 *instance, u8 *value);
-extern void mdlEffectBuildDirectRectQuad(u8 *instance, u8 *value);
+extern s32 mdlEffectProjectBillboardQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildRectQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildOffsetQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildDirectRectQuad(u8 *parameters, u8 *vertices);
 /* measured: restores the file's O2 loop-invariant baseline. */
 /* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma push

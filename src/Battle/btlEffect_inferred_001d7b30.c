@@ -46,11 +46,11 @@ typedef int (*code)();
 
 
 
-extern s32 fadeBeginReturnTransition(s32 input, s32 value);
+extern s32 fadeBeginReturnTransition(s32 mode, s32 duration);
 
 extern void *btlPacketAlloc();
 
-extern s32 btlEffectSetFadeLevel(u16 *input);
+extern s32 btlEffectSetFadeLevel(u16 *level);
 
 typedef struct RwV3d RwV3d;
 struct RwV3d

@@ -67,7 +67,7 @@ void nmMesWindowInitRecord(int recordAddress)
 // FUN_002BAAC0
 u8 nmMesWindowOpenCurrent(u8* message)
 {
-    extern s32 itfMesWindowInstall(u8* message);
+    extern s32 itfMesWindowInstall(u8* record);
     s32* command;
 
     if (DAT_00882F60_abs != NULL)
@@ -268,10 +268,10 @@ u32 nmMesWindowCloseCurrent(int release)
 // FUN_002BB290
 s32 nmMesWindowCloseSlot(s64 slotIndex, s32 release)
 {
-    extern void itfMesWindowSetState(s32 slotIndex, s8 release);
-    extern void itfMesWindowRelease(s32 slotIndex);
-    extern void itfMesWindowClear(s32 slotIndex, s32 release);
-    extern void nmMesWindowSetSlotRunning(s64 slotIndex, s32 release);
+    extern void itfMesWindowSetState(s32 handle, s8 state);
+    extern void itfMesWindowRelease(s32 handle);
+    extern void itfMesWindowClear(s32 handle, s32 clearLabel);
+    extern void nmMesWindowSetSlotRunning(s64 slotIndex, s32 running);
     u8 **slot;
     u8 *record;
     s32 handle;

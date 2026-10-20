@@ -230,7 +230,7 @@ static inline s32 fontAtlasColumn(s32 value)
 
 extern void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp);
 extern void mdlRenderInitializeBuffers(void);
-extern void PrimDrawFlatTriangle(volatile u8 *color, void *positions, s32 preserveState, f32 fparg0);
+extern void PrimDrawFlatTriangle(volatile u8 *color, void *positions, s32 preserveState, f32 depth);
 extern s32 kwlnGetCamera(void);
 #pragma push
 #pragma pop

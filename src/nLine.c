@@ -136,18 +136,18 @@ extern f32 fGpffff84a4;
 /* gp - 0x7DE0 = 0x00761310, GP-relative f32. */
 extern f32 iGpffff8220;
 
-s32 nLineRefreshTask(u8 *task);
+s32 nLineRefreshTask(u8 *unusedTask);
 void nLineDrawOriginCallback(void);
 void nLineSetDefaultDuration(void);
 void nLineInitRecords(void);
 void nLineDrawRecords(NLineTable *table, Vec2f position, s32 alpha);
-void nLineEmitQuad(u8 *vertices, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, u8 *color);
+void nLineEmitQuad(u8 *vertices, f32 x, f32 y, f32 width, f32 height, u8 *color);
 void nLineFlushLayer(u8 *vertices);
 void nLineDrawEffect(u8 *table, Vec2f position, s32 alpha);
 void nLineDrawBatch(NLineBatch *batch);
 s16 nLineRollStyle(u8 *table, s32 setIndex);
-s32 nLineBuildDecoration(u8 *table, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3);
-void nLineDrawLayers(u8 *work, f32 fparg0, f32 fparg1, f32 fparg2);
+s32 nLineBuildDecoration(u8 *table, f32 x, f32 y, f32 width, f32 height);
+void nLineDrawLayers(u8 *work, f32 originX, f32 originY, f32 amount);
 u32 RpRandom(void);
 void shdEnableBlendFlag(void);
 void shdDisableBlendFlag(void);
@@ -160,7 +160,7 @@ void kAssertFail(void *file, s32 line);
 void memset(void *dest, s32 value, s32 size);
 void nLineSetRenderStateBase(void);
 
-void nLineDrawFrameAt(u8 *table, f32 fparg0, f32 fparg1, f32 fparg2);
+void nLineDrawFrameAt(u8 *table, f32 offsetX, f32 offsetY, f32 amount);
 void nLineDrawFullFrame(u8 *table);
 void nLineSweepHorizontal(u8 *table, s32 entering);
 void nLineSweepHorizontalAlt(u8 *table, s32 entering);

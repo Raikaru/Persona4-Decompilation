@@ -28,7 +28,7 @@ extern u16 *kwlnTaskGetWork();
 
 extern s32 kwlnTaskGetTaskByName(void *name);
 
-extern u32 datCalcRandomBelow(u32 max);
+extern u32 datCalcRandomBelow(u32 limit);
 
 extern void kAssertFail(const void *file, s32 line);
 
@@ -54,23 +54,23 @@ extern void btlShuffleRandomizeOrder(u8 *cards, u8 *selection);
 
 extern u8 D_0064E7A0[];
 
-extern s32 btlShuffleTaskUpdate(u8 *task);
+extern s32 btlShuffleTaskUpdate(u8 *unusedTask);
 
-extern void btlShuffleTaskDestroy(u8 *task);
+extern void btlShuffleTaskDestroy(u8 *unusedTask);
 
-extern u16 datCalcMaxHpById(s16 character);
+extern u16 datCalcMaxHpById(s16 unitId);
 
-extern void datSetUnitHp(s16 character, s16 value);
+extern void datSetUnitHp(s16 unitId, s16 hp);
 
-extern u32 datCalcIsDeadById(s16 param);
+extern u32 datCalcIsDeadById(s16 unitId);
 
 extern s32 datGetPartyId();
 
-extern u16 datCalcMaxSpById(s16 character);
+extern u16 datCalcMaxSpById(s16 unitId);
 
-extern u32 datCalcGetSpById(s16 character);
+extern u32 datCalcGetSpById(s16 unitId);
 
-extern void datSetUnitSp(s16 character, s16 value);
+extern void datSetUnitSp(s16 unitId, s16 sp);
 
 extern u8 D_0064E5F0[];
 
@@ -82,11 +82,11 @@ extern s32 datPersonaRosterCapacity();
 
 extern s32 datPersonaGetLeadSlot();
 
-extern s32 datPersonaRosterSlotActive(s16 slot);
+extern s32 datPersonaRosterSlotActive(s16 slotIndex);
 
 extern s32 datPersonaFindRosterSlotById();
 
-extern struct DatPersonaRecord *datPersonaRosterSlot(s16 slot);
+extern struct DatPersonaRecord *datPersonaRosterSlot(s16 slotIndex);
 
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
 extern s32 datPersonaGetLevel();
@@ -114,9 +114,9 @@ extern s32 D_0064E7B8[];
 
 extern void datSetScriptValue(s32 index, u32 value);
 
-extern s32 datGetFlag(s32 id);
+extern s32 datGetFlag(s32 bit);
 
-extern void datSetFlag(s32 a, s32 b);
+extern void datSetFlag(s32 flagId, s32 enabled);
 
 extern void pscResTeardown(u8 *unusedTask);
 

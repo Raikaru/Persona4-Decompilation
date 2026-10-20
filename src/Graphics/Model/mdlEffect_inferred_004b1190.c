@@ -13,7 +13,7 @@ extern s32 iGpffffbb9c;
 extern u8 *iGpffffbba0;
 /* gp - 0x445C = 0x00764c94: enable predicate, called through the pointer */
 extern s32 (*iGpffffbba4)(void);
-extern void mdlEffectCommitTreeFrame(u8 *object);
+extern void mdlEffectCommitTreeFrame(u8 *effect);
 
 
 extern s32 iGpffffbb98;

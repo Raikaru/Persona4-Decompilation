@@ -32,7 +32,7 @@ extern void effMiscBuildRotationVU(void);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];
-extern void mdlEffectCommitTreeFrame(u8 *emitterData);
+extern void mdlEffectCommitTreeFrame(u8 *effect);
 extern u8 D_00713488[];
 extern u8 D_0071348C[];
 extern u8 D_00713480[];
@@ -56,9 +56,9 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 0048e2f0-0048e2f0 */
 
-extern f32 mdlEffectSampleScalarKeys(u8 *emitterData, s32 parametersData, s32 frame);
-extern void mdlEffectSampleKeyState(u8 *emitterData, u8 *parametersData, s32 frame, u_long128 *snapshot);
-extern void mdlEffectUpdateParticleTrail(u8 *emitterData, u8 *parametersData);
+extern f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration);
+extern void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition);
+extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
 extern void EffMotionEmitterUpdate(u8 *emitterData);
 extern void mdlEffectUpdateOrbitEmitter(u8 *emitterData);
 /* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
@@ -131,9 +131,9 @@ void EffConeEmitterUpdate(u8 *emitterData)
 {
     extern f32 cosf(f32 emitterData);
     extern f32 sinf(f32 emitterData);
-    extern void mdlEffectSampleKeyState(u8 *emitterData, u8 *parametersData, s32 frame, u_long128 *snapshot);
+    extern void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition);
     extern void *memcpy(void *dst, const void *src, u32 size);
-    extern void mdlEffectUpdateParticleTrail(u8 *emitterData, u8 *parametersData);
+    extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
     EffectVuVector direction;

@@ -38,14 +38,14 @@ extern u16 D_0076455A;
 extern f32 D_007613E0;
 extern f32 D_007613E4;
 extern f32 D_008872FC_abs[];
-extern u32 datCalcChkBadStatus(s32 input, u32 value);
-extern s32 datCalcGetBadStatus(s32 input);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
+extern s32 datCalcGetBadStatus(s32 unit);
 extern u8 *iGpffffb3c4;
-extern s32 datCalcGetHp(u8 *input);
-extern s32 datCalcGetSp(u8 *input);
-extern s32 datCalcMaxHp(u8 *input);
-extern u16 datCalcMaxSp(u8 *input);
-extern s32 datCalcGetBadStatusNoDown(u8 *input);
+extern s32 datCalcGetHp(u8 *unit);
+extern s32 datCalcGetSp(u8 *unit);
+extern s32 datCalcMaxHp(u8 *unit);
+extern u16 datCalcMaxSp(u8 *unit);
+extern s32 datCalcGetBadStatusNoDown(u8 *unit);
 extern u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern u8 *iGpffffb3d0;
 extern u8 *iGpffffb3e0;
@@ -72,16 +72,16 @@ extern s32 iGpffffb460;
 extern u8 *D_0076449C;
 extern u16 D_00624FC0[];
 extern u16 D_00624FD8[];
-extern s32 btlSoundLoadPlaybackFile(u8 *input);
+extern s32 btlSoundLoadPlaybackFile(u8 *work);
 extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
-extern void H_Cdvd_Destroy(u8 *input);
+extern void H_Cdvd_Destroy(u8 *cdvd);
 extern void fclMiscSetDoneFlag(void);
 
 extern void fclMiscPruneGlobal(void);
 extern void fclMiscStopAndClose(void);
-extern s32 H_Cdvd_IsFileLoaded(u8 *input);
+extern s32 H_Cdvd_IsFileLoaded(u8 *cdvd);
 
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
@@ -90,7 +90,7 @@ extern u8 D_006251F0[];
 
 
 
-extern u8 *btlPacketAlloc(s32 type, s32 workSize);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 
 
 
@@ -102,7 +102,7 @@ extern u8 D_00624F60[];
 extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
-extern s32 btlTargetTestUnitFlag(s32 input, s32 value);
+extern s32 btlTargetTestUnitFlag(s32 unitId, s32 bitIndex);
 
 
 
@@ -116,7 +116,7 @@ extern s32 btlTargetTestUnitFlag(s32 input, s32 value);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f6100-001f73d0 */
 
-extern s32 btlActionHasNoTargetClass(u32 input);
+extern s32 btlActionHasNoTargetClass(u32 action);
 struct EffRandState;
 static inline s32 battleMessageBand(s32 value, s32 band)
 {
@@ -214,7 +214,7 @@ void btlSoundCancelPlayback(void) {
 s32 btlSoundPickResistVoice(u8 *unit)
 {
     extern s32 datCalcGetLevel(u8 *unit);
-    extern s32 datCalcGetAffinity(u8 *unit, s32 value);
+    extern s32 datCalcGetAffinity(u8 *unit, s32 elementIndex);
     extern u32 effMiscRand(struct EffRandState *state);
     s32 code;
     s32 base;
@@ -293,7 +293,7 @@ s32 btlSoundPickResistVoice(u8 *unit)
 // FUN_001F65D0
 s32 btlSoundLoadPlaybackFile(u8 *work)
 {
-    extern void fclMiscOrStateFlags(u32 work);
+    extern void fclMiscOrStateFlags(u32 flags);
     extern void func_00440b68();
     extern s32 H_Cdvd_AcquireDirectory();
     extern u8 iGpffffa4e8;
@@ -362,8 +362,8 @@ u8 *btlSoundCreateLoadPlaybackPacket(s32 bank) {
 // FUN_001F6770
 s32 btlSoundRollStatusCure(u8 *action)
 {
-    extern u32 datCalcRandomBelow(s32 action);
-    extern s32 datCalcHasSkill(u8 *action, s32 value);
+    extern u32 datCalcRandomBelow(s32 limit);
+    extern s32 datCalcHasSkill(u8 *unit, s32 skillId);
     u16 chance;
     u8 *status;
     u32 mask;
@@ -434,7 +434,7 @@ s32 btlSoundCanReceiveStatus(u8 *action)
 // FUN_001F6930
 s32 btlSoundSelectCureableStatuses(u8 *action)
 {
-    extern s32 datCalcHasSkill(s32 action, s32 value);
+    extern s32 datCalcHasSkill(s32 unit, s32 skillId);
     extern s32 func_00244f60(u32 action, u16 *value, u16 *option, u16 extra, s32 flags);
     s32 cureMask;
     u32 statusIndex;

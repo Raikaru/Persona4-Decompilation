@@ -6,7 +6,7 @@
 
 extern void (*jtbl_008873EC[])(void *);
 
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 D_005F60B8[];
@@ -26,9 +26,9 @@ extern s32 func_003ef6d0(void);
 extern void *func_003ef650(s32 owner, const void *name);
 extern void func_00440b68(const void *file, const void *message, s32 line);
 extern void *H_Cdvd_AcquireDirectory(const char *path, s32 flags);
-extern void H_Cdvd_Destroy(void *handle);
+extern void H_Cdvd_Destroy(void *cdvd);
 extern s32 filerEnqueueRequest(s32, const void *, s32, s32, s32, s32, s32, s32, s64, s64);
-extern void filerTakeCompletedRequest(s32 task, s32 *result, s32 flags);
+extern void filerTakeCompletedRequest(s32 request, s32 *completed, s32 resultValue);
 extern s32 iGpffffa030;
 
 /* Source unit: src/promoted/k_readtex.c */

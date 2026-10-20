@@ -103,14 +103,14 @@ typedef struct {
 // FUN_00210C70
 void btlDamageDrawPanel(u8 *drawState, u8 *entry)
 {
-    extern s32 btlTargetFindInRange(s32 drawState, u8 *entry);
+    extern s32 btlTargetFindInRange(s32 position, u8 *output);
     extern f32 btlSelectionEaseCurve(s32 drawState, s32 entry, s32, s32);
-    extern void btlUnitGetHudAnchor(BtlUnit *unit, RwV3d *position);
+    extern void btlUnitGetHudAnchor(BtlUnit *unit, RwV3d *outPosition);
     extern void btlTransitionStepStretch(u8 *drawState, u8 *entry, u8 *, u8 *);
     extern void btlTransitionStepExpand(u8 *drawState, u8 *entry, u8 *, u8 *);
-    extern void btlTransitionStepPulse(u8 *drawState, u8 *entry, f32 x, f32 y);
+    extern void btlTransitionStepPulse(u8 *task, u8 *transition, f32 x, f32 y);
     extern void btlTransitionStepSlide(u8 *drawState, u8 *entry, u8 *, f32 x, f32 y, s32 a, u8 *out);
-    extern void btlSelectionDrawValue(u8 *drawState, f32 x, f32 y, s32 a, s32 b, u32 c);
+    extern void btlSelectionDrawValue(u8 *drawWork, f32 x, f32 y, s32 value, s32 rightAligned, u32 packedColor);
     extern f32 fGpffff8110;
     extern f32 fGpffff827c;
     s32 *panel;
@@ -365,7 +365,7 @@ union ColorWord {
 void btlDamageDrawGaugeBar(u8 *drawContext, u8 *trail)
 {
     extern BtlShuffleRenderStateSet D_00887300[];
-    extern void btlUiSetRenderMode(s32 drawContext);
+    extern void btlUiSetRenderMode(s32 mode);
     extern s32 btlAdvantageGetRaster(void);
     extern void btlPanelDrawQuad(f32, f32, f32, f32,
                               f32, f32, f32, f32,
@@ -508,12 +508,12 @@ void btlDamageDrawList(u8 *drawContext, u8 *state)
 // FUN_00211BA0
 void btlDamageDrawBadStatus(u8 *drawContext, u8 *state)
 {
-    extern void btlUnitGetStatusMarkerPoint(u8 *drawContext, f32 *state);
-    extern s32 btlTargetFindInRange(f32 *drawContext, f32 *state);
+    extern void btlUnitGetStatusMarkerPoint(u8 *unit, f32 *outPosition);
+    extern s32 btlTargetFindInRange(f32 *position, f32 *output);
     extern void btlUiSetOrigin(u8 *drawContext, f32, f32);
-    extern u32 datCalcChkBadStatus(s32 drawContext, u32 state);
+    extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
     extern f32 btlSelectionEaseCurve(s32 drawContext, s32 state, s32, s32);
-    extern void btlPanelDrawGauge(u8 *drawContext, u8 *state);
+    extern void btlPanelDrawGauge(u8 *work, u8 *state);
     extern f32 fGpffff81e0;
     f32 world[3];
     f32 screen[2];
@@ -719,15 +719,15 @@ void btlEncounterDrawTransition(u8 *drawPayload, s32 workAddress, void *callback
     extern s32 kwlnGetCamera(void);
     extern BtlShuffleMatrix *RwMatrixRotate(BtlShuffleMatrix *matrix,
         const BtlShuffleVec3 *axis, f32 angle, BtlShuffleCombine combine);
-    extern void sdkSpriteDrawOnceAt(s32 file, s32 tile, f32 x, f32 y,
+    extern void sdkSpriteDrawOnceAt(s32 packAddress, s32 image, f32 x, f32 y,
         u8 red, u8 green, u8 blue, u8 alpha);
-    extern void sdkSpriteDrawOnceScaled(s32 file, s32 tile, f32 x, f32 y, f32 z,
+    extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth,
         u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX, u16 scaleY,
-        f32 angle, s16 centerX, s16 centerY);
+        f32 angle, s16 pivotX, s16 pivotY);
     extern s32 sflDataDrawTexturedQuad(s32 x, s32 y, f32 z, s32 width, s32 height,
         s32 rgb, s32 alpha, s32 mode, s16 centerX, s16 centerY,
         BtlShuffleMatrix *matrix, s32 texture, f32 (*uv)[2]);
-    extern s32 sdkSpriteSlotHandle(u8 *file, s32 tile);
+    extern s32 sdkSpriteSlotHandle(u8 *pack, s32 recordIndex);
     /* Four render objects and the position reproduce the retail 0x3A0 frame. */
     Vec2f drawPosition;
     BtlShuffleSkyVertex bars[4];
@@ -1631,21 +1631,21 @@ void btlEncounterBuildStatusIcon(u8 *unit, u8 *icon)
 void btlPortraitDraw(s32 *hud, u8 *unit, f32 originX, f32 originY, s32 rowIndex)
 {
     typedef struct DatUnit DatUnit;
-    extern void btlUiSetOrigin(u8 *hud, f32 originX, f32 originY);
+    extern void btlUiSetOrigin(u8 *work, f32 x, f32 y);
     extern void btlUiSetRect(s32 *hud, f32 originX, f32 originY,
         f32, f32);
-    extern void btlUiDrawSpriteEntry(u8 *hud, s32 unit, s32 rowIndex, f32 originX,
-        f32 originY);
+    extern void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x,
+        f32 y);
     extern void btlUiDrawSpriteFaded(u8 *hud, s32 unit, s32 rowIndex, f32 originX,
         f32 originY, u8, u8, u8,
         u8);
     extern void btlUiAdjustTileOffset(s32 hud, s32 unit, s32 rowIndex, s32);
-    extern void btlUiSetRenderMode(s32 hud);
-    extern void btlUiSetFactorXY(u8 *hud, f32 originX, f32 originY);
-    extern u16 datCalcGetHp(s32 hud);
-    extern u16 datCalcGetSp(s32 hud);
-    extern u16 datCalcMaxHp(DatUnit *hud);
-    extern u16 datCalcMaxSp(DatUnit *hud);
+    extern void btlUiSetRenderMode(s32 mode);
+    extern void btlUiSetFactorXY(u8 *work, f32 x, f32 y);
+    extern u16 datCalcGetHp(s32 unit);
+    extern u16 datCalcGetSp(s32 unit);
+    extern u16 datCalcMaxHp(DatUnit *unit);
+    extern u16 datCalcMaxSp(DatUnit *unit);
     extern void *memset(void *dst, s32 value, u32 size);
     extern f32 fGpffff815c;
     extern f32 fGpffff8218;
@@ -2095,8 +2095,8 @@ void btlPortraitDrawFlash(s32 *hudContext, u8 *panelUnit, f32 originX, f32 origi
     extern f32 D_007615A4;
     extern f32 D_007615A8;
     extern f32 fGpffff8218;
-    extern f32 btlUiSpriteWidth(u8 *hudContext, s32 panelUnit, s32 rowIndex);
-    extern f32 btlUiSpriteHeight(u8 *hudContext, s32 panelUnit, s32 rowIndex);
+    extern f32 btlUiSpriteWidth(u8 *work, s32 slot, s32 segment);
+    extern f32 btlUiSpriteHeight(u8 *work, s32 slot, s32 segment);
     extern void btlUiDrawSpriteFaded(u8 *hudContext, s32 panelUnit, s32 rowIndex, f32 originX, f32 originY, u8, u8, u8, u8);
     s32 *hud;
     u8 *unit;
@@ -2571,32 +2571,32 @@ void btlPanelNoOp(void)
 // FUN_00216E60
 void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
 {
-    extern s32 btlUnitGetDataRow(u8 *drawContext);
-    extern void btlUiSetOrigin(u8 *drawContext, f32 x, f32 y);
-    extern void btlUiDrawSpriteEntry(u8 *drawContext, s32 font, s32 id, f32 x, f32 y);
+    extern s32 btlUnitGetDataRow(u8 *unit);
+    extern void btlUiSetOrigin(u8 *work, f32 x, f32 y);
+    extern void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y);
     extern void btlUiSetRenderMode(s32 mode);
     extern u8 *frFontCreateTextList(u8 *text, s32 style, s8 mode, s32, u8 *);
-    extern void frFontSetCharWidth(s32 drawContext, s32 panel);
+    extern void frFontSetCharWidth(s32 list, s32 spacing);
     extern void frFontMoveListTo(s32 drawContext, s32 panel, s32);
-    extern void frFontSetGlyphColor(s32 drawContext, s32 panel);
-    extern void frFontSetFlagBits(s32 drawContext);
-    extern void frFontClearFlagBits(s32 drawContext);
+    extern void frFontSetGlyphColor(s32 list, s32 color);
+    extern void frFontSetFlagBits(s32 bits);
+    extern void frFontClearFlagBits(s32 bits);
     extern s32 frFontDrawList(void *drawContext, u32 panel, u32);
-    extern s32 frFontNodeWidth(s32 drawContext);
-    extern void frFontExSetScale(s32 drawContext, f32 width);
-    extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 mode,
-                               s32 font, const char *text, s32 flags, s32 extra);
+    extern s32 frFontNodeWidth(s32 node);
+    extern void frFontExSetScale(s32 font, f32 scale);
+    extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr,
+                               s32 id, const char *str, s32 flags, s32 unused);
     extern void itfMesWindowBindRecord(s32 drawContext, s32 panel, s32);
     extern void itfMesWindowMove(s32 drawContext, s32 panel, s32);
-    extern void itfMesWindowSetFlagBits(s32 drawContext, s32 panel);
+    extern void itfMesWindowSetFlagBits(s32 handle, s32 flags);
     extern void itfMesWindowSetGlyphStyle(s32 drawContext, s32 panel, s32, s32, s32);
     extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32,
                              s32, s32, s32, s32);
     extern s32 itfMesWindowRunEntry(s32 drawContext, s32 panel, s32, s32);
-    extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 state);
+    extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
     extern void btlUiSetRenderStates(void);
     extern s32 itfMesWindowMeasureText(s32 drawContext, s32 panel, s32, s32);
-    extern void btlUiDrawSpriteFaded(u8 *work, s32 mode, s32 tile, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
+    extern void btlUiDrawSpriteFaded(u8 *work, s32 slot, s32 segment, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 opacity);
     extern void btlUiSetScale(void *drawContext, f32 panel, f32);
     extern u16 D_008C024E[];
     extern BtlShuffleRenderStateSet D_00887300[];

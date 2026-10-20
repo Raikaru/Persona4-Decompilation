@@ -15,7 +15,7 @@ typedef struct NmlistList {
     u16 count;
 } NmlistList;
 
-extern NmlistNode *nmListUnlinkNode(int *owner, int *source);
+extern NmlistNode *nmListUnlinkNode(int *list, int *node);
 extern void FUN_0043f9c8(u32 dest, int value, u32 size);
 
 extern code DAT_008873ec_abs[];

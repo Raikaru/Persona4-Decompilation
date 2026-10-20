@@ -9,19 +9,19 @@ extern void func_00440b68(...);
 extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void kAssertFail(const void *file, u32 line);
 extern void *H_Cdvd_AcquireDirectory(const char *path, s32 flags);
-extern void H_Cdvd_Destroy(void *handle);
-extern s32 H_Cdvd_IsFileLoaded(void *handle);
+extern void H_Cdvd_Destroy(void *cdvd);
+extern s32 H_Cdvd_IsFileLoaded(void *cdvd);
 
 extern s32 kwlnTaskIsLinked(s32);
-extern void kwlnTaskDestroyWithHierarchy(s32 handle);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
 extern void *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *, void *);
 extern void fadeBeginTransition(s32, s32);
 extern void fadeBeginReturnTransition(s32, s32);
 extern s32 fadeStatus(void);
-extern s32 titleFileLoadStep(u8 *task);
-extern void titleLoaderDestroy(u8 *task);
+extern s32 titleFileLoadStep(u8 *unusedTask);
+extern void titleLoaderDestroy(u8 *unusedTask);
 extern void titleDrawChildImage(void);
 extern void *kwlnTaskGetWork();
 extern void (*jtbl_008873EC[])(void *);
@@ -35,8 +35,8 @@ extern char D_005E5770[];
 extern char D_005E5790[];
 extern char D_005E57A8[];
 extern char D_00795E60[];
-extern s32 logoTaskUpdate(u8 *task);
-extern void logoTaskDestroy(u8 *task);
+extern s32 logoTaskUpdate(u8 *sdkTaskBytes);
+extern void logoTaskDestroy(u8 *unusedTask);
 
 
 /* Keep the allocator table base as a u32 local so MWCCPS2 hoists its

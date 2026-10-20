@@ -37,7 +37,7 @@ extern void func_003deff0(void *, s32, s32, s32, s32);
 extern void func_003e2ab0(void *, void *, s32);
 extern void K_Clump_FreeTextureNameList(void *listHead);
 extern void func_003e2e40(void *, s32);
-extern void *K_Clump_RenderAtomicCallBack(void *object, void *data);
+extern void *K_Clump_RenderAtomicCallBack(void *atomic, void *data);
 extern void K_Clump_ReadChunks(u8 *directory, s32 *outputPath, u8 *workBytes);
 extern s32 K_Clump_LoadDirUpdate(u8 *task);
 extern void K_Clump_LoadDestroy(u8 *task);

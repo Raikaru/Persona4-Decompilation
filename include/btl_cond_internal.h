@@ -54,19 +54,19 @@ s32 btlCond_FRALLHP(u8 *action, s32 conditionValue);
 s32 btlCond_ENALLHP(u8 *action, s32 conditionValue);
 
 /* Predicates defined in btlEffect.c. */
-u8 btlCond_FRLV_O(int param_1, u32 param_2);
-u8 btlCond_ENLV_O(int param_1, u32 param_2);
-u8 btlCond_FRCNT(int param_1, u32 param_2);
-u8 btlCond_ENCNT(int param_1, u32 param_2);
-u8 btlCond_MYUSESKIL(int param_1, int param_2);
-void btlCond_FRUSESKIL(int param_1, u32 param_2);
-void btlCond_ENUSESKIL(int param_1, u32 param_2);
-u32 btlCond_MYGROUP(int param_1);
-void btlCond_FRGROUP(int param_1, u32 param_2);
-void btlCond_ENGROUP(int param_1, u32 param_2);
-u8 btlCond_TURN(int param_1, u32 param_2);
-u8 btlCond_TURN_O(int param_1, u32 param_2);
-u8 btlCond_MYID(int param_1, int param_2);
+u8 btlCond_FRLV_O(int action, u32 conditionValue);
+u8 btlCond_ENLV_O(int action, u32 conditionValue);
+u8 btlCond_FRCNT(int action, u32 conditionValue);
+u8 btlCond_ENCNT(int action, u32 conditionValue);
+u8 btlCond_MYUSESKIL(int action, int conditionValue);
+void btlCond_FRUSESKIL(int action, u32 conditionValue);
+void btlCond_ENUSESKIL(int action, u32 conditionValue);
+u32 btlCond_MYGROUP(int action);
+void btlCond_FRGROUP(int action, u32 conditionValue);
+void btlCond_ENGROUP(int action, u32 conditionValue);
+u8 btlCond_TURN(int action, u32 conditionValue);
+u8 btlCond_TURN_O(int action, u32 conditionValue);
+u8 btlCond_MYID(int action, int conditionValue);
 
 /* Predicates defined in btlAICommand.c and referenced from other TUs. */
 s32 btlCond_MYNOMAL(u8 *formation, s32 index);

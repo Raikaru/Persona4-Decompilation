@@ -60,8 +60,8 @@ extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
 extern void func_003c22f0();
-extern u16 *GeometryCreateTableGridMultiPart(s32 instance, s32 value, s32 count, s32 flags,
-                          void *data, s32 options);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
 extern void func_003c42b0(void *instance, s32 value);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
@@ -103,13 +103,13 @@ typedef struct EffSpriteRGBA {
 void EffSpriteUpdate(u8 *instance)
 {
     extern void GeometryBlockSetFrameMatrix(void *instance, void *value, void *count, f32 flags);
-    extern s32 mdlEffectSamplePackedColor(u8 *instance, u8 *value, s32 count, s32 flags);
-    extern f32 mdlEffectSampleScalarKeys(u8 *instance, s32 value, s32 count);
-    extern void mdlEffectWrapTrackFrames(s32 instance, u32 value);
-    extern void mdlEffectEvalSubPose(s32 instance, f32 *value);
-    extern void TlpSelectFrame(void *instance, u32 value, f32 *count);
-    extern void GeometryBlockGetTextureInfo(s32 instance, u32 *value);
-    extern void GeometryBlockBindResource(void *instance, s32 value);
+    extern s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration);
+    extern f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration);
+    extern void mdlEffectWrapTrackFrames(s32 instance, u32 frame);
+    extern void mdlEffectEvalSubPose(s32 instance, f32 *output);
+    extern void TlpSelectFrame(void *work, u32 index, f32 *out);
+    extern void GeometryBlockGetTextureInfo(s32 block, u32 *info);
+    extern void GeometryBlockBindResource(void *block, s32 resourceId);
     extern void func_003c22f0(void *instance);
     extern void func_003c42b0(void *instance, s32 value);
     extern f32 cosf(f32 instance);

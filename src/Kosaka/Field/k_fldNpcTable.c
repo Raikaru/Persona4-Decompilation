@@ -44,10 +44,10 @@ extern s32 FldRc_GetLoadSource(void);
 extern void strcpy(void *destination, const char *source);
 extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 H_Cdvd_FileExists(void *path);
-extern s32 H_Cdvd_IsFileLoaded(u8 *request);
-extern void H_Cdvd_Destroy(void *request);
+extern s32 H_Cdvd_IsFileLoaded(u8 *cdvd);
+extern void H_Cdvd_Destroy(void *cdvd);
 extern void func_00440b68(char *context, const char *file, s32 line, ...);
-extern u8 *H_Cdvd_AcquireDirectory(void *path, s32 mode);
+extern u8 *H_Cdvd_AcquireDirectory(void *path, s32 flags);
 extern u8 *gMtScene;
 extern char D_00762F20;
 extern char D_005F0790[];
@@ -64,11 +64,11 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 D_00764384; /* owned fixed-record table */
 extern s32 D_00764388; /* fixed-table marker count */
 extern s32 D_0076438C; /* fixed-record count */
-extern u8 *H_Cdvd_LookupRequest(void *path, u32 *size);
+extern u8 *H_Cdvd_LookupRequest(void *pathAddress, u32 *slot);
 extern s32 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
-extern void calSplitDayOfYear(s16 year, s32 *month, s32 *day);
-extern s32 datGetFlag(s32 id);
+extern void calSplitDayOfYear(s16 dateIndex, s32 *monthOut, s32 *dayOut);
+extern s32 datGetFlag(s32 bit);
 extern s32 clndIsDateInRange(s32 startMonth, s32 startDay, s32 endMonth, s32 endDay);
 
 /* Source unit: src/promoted/k_fldNpcTable.c */

@@ -34,7 +34,7 @@ extern u8 *iGpffffb3e0;
 
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
-extern s32 sdkSndIsChannelPlaying(s16 channel);
+extern s32 sdkSndIsChannelPlaying(s16 channelIndex);
 
 
 

@@ -3,7 +3,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void *memset(void *dst, s32 value, s32 size);
@@ -12,8 +12,8 @@ extern u8 D_0063E918[];
 extern void yTimeLimitReset(void);
 extern void hsndQueueSound(s32 id, s32 unused);
 extern s32 sdkSpriteRequestLoad(u8 *name);
-extern s32 hMaestroDecodeIsReady(s32 handle);
-extern s32 kwlnTaskGetState(s32 handle);
+extern s32 hMaestroDecodeIsReady(s32 state);
+extern s32 kwlnTaskGetState(s32 task);
 extern s32 yTimeLimitTaskUpdate(u8 *task);
 extern void yTimeLimitTaskDestroy(u8 *task);
 extern u8 D_0063E900[];

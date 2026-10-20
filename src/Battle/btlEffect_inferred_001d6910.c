@@ -13,12 +13,12 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 btlEffectStepFormationPlacement(u8 *input);
-extern void btlFormationResetState(s32 input);
-extern void mdlEffectDestroyWithNodes(s32 input);
-extern void mdlDestroyModelObject(s32 input);
+extern s32 btlEffectStepFormationPlacement(u8 *work);
+extern void btlFormationResetState(s32 work);
+extern void mdlEffectDestroyWithNodes(s32 effect);
+extern void mdlDestroyModelObject(s32 model);
 extern void (*jtbl_008873EC[])(void *);
-extern void btlEffectReleaseNode(u8 *input);
+extern void btlEffectReleaseNode(u8 *node);
 extern u32 iGpffffb3b8;
 
 extern u8 D_005DC7D0[];

@@ -25,8 +25,8 @@ extern s8 D_0063BAB0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027ae90-0027ae90 */
 
-extern void itfMesWindowMoveSelection(u8 *value, s32 index);
-extern s32 itfMesWindowFindPressedEntry(s16 *value);
+extern void itfMesWindowMoveSelection(u8 *selection, s32 direction);
+extern s32 itfMesWindowFindPressedEntry(s16 *selection);
 /* measured: opt_propagation off probe for 002703d0 register setup. */
 /* measured: closes opt_propagation off probe for 002703d0. */
 /* measured: opt_rebuildconditionals off reproduces 002704f0 retail conditional-register schedule. */
@@ -41,11 +41,11 @@ extern s32 itfMesWindowFindPressedEntry(s16 *value);
 // FUN_0027AE90
 s32 itfMesWindowPollSelection(u8 *window)
 {
-    extern void itfMesWindowMoveSelection(u8 *window, s32 direction);
+    extern void itfMesWindowMoveSelection(u8 *selection, s32 direction);
     extern u16 D_008C0252[];
     extern u16 D_008C0274[];
     extern u16 D_008C027A[];
-    extern s32 itfMesWindowFindPressedEntry(u8 *window);
+    extern s32 itfMesWindowFindPressedEntry(u8 *selection);
     u8 *state;
     s32 result;
 

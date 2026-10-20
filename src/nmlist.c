@@ -2,7 +2,7 @@
 /* Original translation unit nmlist.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
 #include "type.h"
 
-void chkmemAllocSiteTag(const void *msg, s32 id);
+void chkmemAllocSiteTag(const void *file, s32 line);
 void kAssertFail(const void *file, s32 line);
 void memset(void *dst, s32 value, u32 size);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -35,7 +35,7 @@ typedef struct NmlistManager {
     u8 *data;
 } NmlistManager;
 
-void comuDataClearList(int managerAddress, int listAddress);
+void comuDataClearList(int owner, int source);
 
 /* Allocate a list node with an optional inline payload after its 0x18-byte header. */
 // FUN_002E1D00

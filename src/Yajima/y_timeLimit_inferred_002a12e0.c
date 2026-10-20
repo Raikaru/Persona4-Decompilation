@@ -29,8 +29,8 @@ extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
 extern s32 yTimeTrackIsIdle(u8 *track);
 extern f32 yTimeTrackProgress(u8 *track);
 extern s32 yTimeTrackCurrentKey(u8 *track, f32 *output);
-extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 rgb, u8 alpha, s32 recordIndex, void * pack, s32 setStates);
-extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 rgb, u8 alpha, s32 recordIndex, void * pack, s32 setStates, s16 pivotX, s16 pivotY, f32 farg3, f32 farg4, f32 farg5);
+extern void sdkSpriteDrawNowUnscaled(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex, void * pack, s32 setStates);
+extern s32 sdkSpriteDrawNow(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex, void * pack, s32 setStates, s16 pivotX, s16 pivotY, f32 angle, f32 scaleX, f32 scaleY);
 extern u8 D_007485D0[];
 extern s32 iGpffffb530;
 

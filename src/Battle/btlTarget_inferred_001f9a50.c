@@ -50,7 +50,7 @@ extern u16 D_00624FD8[];
 extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
-extern s32 sdkSndFadeOutChannelFrames(s16 channel, s16 mode, s32 frames);
+extern s32 sdkSndFadeOutChannelFrames(s16 channelIndex, s16 requestValue, s32 fadeFrames);
 
 extern s32 sdkSndStartIndexedSource(s32 sourceAux, s32 channelIndex, s32 cueId);
 

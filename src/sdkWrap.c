@@ -46,7 +46,7 @@ typedef struct SdkWrapStreamWork {
 } SdkWrapStreamWork;
 
 extern void (*jtbl_008873EC[])(void *);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 D_00712978[];
@@ -55,7 +55,7 @@ extern u8 D_00712A00[];
 extern u8 D_007129A0[];
 extern u8 D_007129C0[];
 extern s32 sdkWrapStreamCloseUpdate(u8 *task);
-extern s32 filerTakeCompletedRequest(s32 request, s32 *completed, s32 options);
+extern s32 filerTakeCompletedRequest(s32 request, s32 *completed, s32 resultValue);
 extern void func_003ef3a0(s32);
 extern void sdkWrapPollRequests(void);
 extern void sdkWrapWorkerThread(u8 *);
@@ -155,7 +155,7 @@ void sdkWrapWorkerThread(u8 *worker)
     extern s32 func_003ef740(u8 *worker, s32 value);
     extern u8 iGpffffb01c;
     extern u8 *func_003be180(s32 worker);
-    extern void func_003d60e0(u8 *worker, s32 value);
+    extern void func_003d60e0(u8 *object, s32 value);
     extern u8 D_0070B610[];
     extern s32 func_003c0f20(s32 worker);
     extern s32 func_003d5330(u8 *worker);
@@ -164,7 +164,7 @@ void sdkWrapWorkerThread(u8 *worker)
     extern s32 func_003bba90(u8 *worker);
     extern s32 func_003d6350(s32 worker, s32 value);
     extern u8 *func_003e6a90(s32 worker);
-    extern s32 tmxUploadStream(s32 worker, s32 value);
+    extern s32 tmxUploadStream(s32 stream, s32 useDma);
     extern s32 func_003eaf60(u8 *worker);
     extern s32 func_003bb210(s32 worker);
     extern s32 func_0042ba20(void);

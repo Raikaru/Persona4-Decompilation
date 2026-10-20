@@ -13,32 +13,32 @@
 typedef u32 (*BtlPacketUpdateFunc)(void* work);
 
 
-extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
-extern u32 btlCameraNudgeUnitPair(int* context);
+extern BtlPacket* btlPacketAlloc(u32 packetType, u32 workSize);
+extern u32 btlCameraNudgeUnitPair(int* work);
 extern u32 btlFormationPlaceUnits(u32 *work);
 extern void btlFormationEnterTurn(u32 *work);
-extern u32 btlFormationPlaceFromRaw(u8 *context);
+extern u32 btlFormationPlaceFromRaw(u8 *raw);
 extern void btlFormationLeaveTurn(u32 *work);
 extern u32 btlFormationUpdatePose(u32 *work);
-extern u32 btlFormationUpdateMovement(u16 *context);
-extern u32 btlFormationUpdateDeadPosition(u16 *context);
-extern u32 btlFormationAdvanceSlot(u8 **context);
+extern u32 btlFormationUpdateMovement(u16 *options);
+extern u32 btlFormationUpdateDeadPosition(u16 *flags);
+extern u32 btlFormationAdvanceSlot(u8 **actionWork);
 extern u32 btlFormationApplyDefaultPose(void);
-extern u32 btlEffectAllocEntry(u32 context);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern u32 btlEffectAllocEntry(u32 pool);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern u8 D_00609498[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 *D_0076449C;
-extern void btlUnitGetAnchorPose(void *context, void *value, void *option, void *flags);
-extern void btlUnitSetPos(void *context, void *value);
-extern void btlUnitSetRot(void *context, void *value);
-extern s32 btlUnitIsMoving(void *context);
-extern void btlUnitClearMoveFlags(void *context);
-extern void btlUnitClearRotateFlags(void *context);
-extern void btlUnitRequestLookAt(void *context);
-extern void btlTargetRefreshRadiusNode(void *context);
+extern void btlUnitGetAnchorPose(void *unit, void *outPosition, void *outRotation, void *outTarget);
+extern void btlUnitSetPos(void *unit, void *pos);
+extern void btlUnitSetRot(void *unit, void *rot);
+extern s32 btlUnitIsMoving(void *unit);
+extern void btlUnitClearMoveFlags(void *unit);
+extern void btlUnitClearRotateFlags(void *unit);
+extern void btlUnitRequestLookAt(void *unit);
+extern void btlTargetRefreshRadiusNode(void *unit);
 extern u8 *btlActionGetActiveOrQueueFront(void);
-extern void btlCameraAssignFormationSlots(s32 context, s32 value);
+extern void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused);
 extern f32 RwV3dNormalize(f32 *context, f32 *value);
 
 /* Two 0x314-byte resource blocks are copied before the reference-count tail. */
@@ -116,7 +116,7 @@ extern void (*DAT_008873EC[])(void *);
 
 extern u64 memcpy();
 
-extern u64 mdlEffectDestroyWithNodes(u32 context);
+extern u64 mdlEffectDestroyWithNodes(u32 effect);
 
 extern void btlFormationCopyRecord(int destination, u32 source);
 
@@ -145,24 +145,24 @@ extern float fGpffff8354;
 extern float fGpffff811c;
 extern u32 strlen(const char *text);
 extern char *strcpy(char *destination, const char *source);
-extern void btlBedCopyRecord(u32 *context);
-extern u32 btlBedLoad(u32 *context);
+extern void btlBedCopyRecord(u32 *bed);
+extern u32 btlBedLoad(u32 *bed);
 
 
 u32 btlFormationGetCount(void *formation);
 u32 btlFormationGetEntry(void *formation, u32 index);
 
-extern u32 btlEffectFreeEntry(int context, u16 *value);
-extern void btlFormationSetPlacement(u32 context);
-extern void btlFormationRefresh(u32 *context);
-extern u32 btlFormationIsReady(u32 *context);
+extern u32 btlEffectFreeEntry(int pool, u16 *entry);
+extern void btlFormationSetPlacement(u32 formation);
+extern void btlFormationRefresh(u32 *work);
+extern u32 btlFormationIsReady(u32 *work);
 
-extern u8 btlFormationHasEntry(u32 *context);
-extern void btlFormationRelease(u32 *context);
+extern u8 btlFormationHasEntry(u32 *work);
+extern void btlFormationRelease(u32 *work);
 
 extern u8* DAT_0076449c;
 extern char D_00609570[];
-extern u8 *btlFormationAllocEntry(u8 *context, s32 value, s32 option, s32 flags, s32 extra);
+extern u8 *btlFormationAllocEntry(u8 *table, s32 tableIndex, s32 unit, s32 target, s32 flags);
 extern char D_00609588[];
 extern u8 D_00763388;
 
@@ -224,9 +224,9 @@ u32 btlFormationPlaceUnits(u32 *work)
     extern void btlUnitGetGridSphereCenter(struct BtlUnit *, struct RwV3d *);
     extern f32 btlUnitGetGroupBounds(u32, u32, struct RwV3d *, f32 *, f32 *, u32);
     extern s32 btlUnitOpeningMotionMode(s32, u8 *, s16, s32);
-    extern s32 btlTargetCanSelectEntry(u8 *unit, s16 action, s32 paired);
-    extern void btlUnitGetSlotPose(u8 *unit, u8 *target, u8 *partner, s32 category,
-                            f32 *position, f32 *rotation, s32 options);
+    extern s32 btlTargetCanSelectEntry(u8 *context, s16 value, s32 option);
+    extern void btlUnitGetSlotPose(u8 *unit, u8 *anchorUnit, u8 *targetUnit, s32 motion,
+                            f32 *outPosition, f32 *outRotation, s32 slot);
     extern u16 btlTargetGetUnitIndex(struct BtlTarget *);
     extern void btlTargetBlendVectors(u8 *, u8 *, u8 *);
     extern f32 btlTargetAngleBetween(u8 *, u8 *, u8 *, u8 *);
@@ -234,7 +234,7 @@ u32 btlFormationPlaceUnits(u32 *work)
     extern f32 RwV3dLength(f32 *vector);
     extern f32 RwV2dLength(f32 *vector);
     extern s32 btlActionHasNoTargetClass(u32 action);
-    extern s32 btlTargetIsEntryActive(s16 action);
+    extern s32 btlTargetIsEntryActive(s16 context);
     extern s32 btlBossUnitsSameGenus(struct BtlUnit *, struct BtlUnit *);
     extern s32 btlBossTargetBlocked(u8 *);
     extern u32 btlBossFlagPairOk(s32, s32);
@@ -744,7 +744,7 @@ u32 btlFormationUpdatePose(u32 *work)
 {
     #include "rw_types_internal.h"
 
-    extern void btlUnitFaceTarget(void *context, void *value);
+    extern void btlUnitFaceTarget(void *unit, void *target);
     extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
     extern void RtQuatTransformVectors(void *out, const void *in, s32 count, const void *rot);
     extern f32 D_0060A0E0[3];
@@ -999,7 +999,7 @@ u32 btlFormationAdvanceSlot(u8 **actionWork)
         f32 y;
         f32 z;
     } FormationPosition;
-    extern void btlTargetPositionToCell(s16 *context, s16 *value, f32 *position);
+    extern void btlTargetPositionToCell(s16 *outX, s16 *outZ, f32 *position);
     extern u8 D_00609430[];
     extern f32 D_00609458[];
     extern f32 D_0060A110[];

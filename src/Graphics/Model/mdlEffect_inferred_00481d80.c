@@ -28,7 +28,7 @@ typedef struct RwMatrix
 
 extern void mdlEffectSelectResourceEntry(u8 *player, s32 entryIndex);
 extern u8 *mdlEffectLoadTrackResource(s32 *source);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_007132F0[];
 extern u8 D_00713470[];

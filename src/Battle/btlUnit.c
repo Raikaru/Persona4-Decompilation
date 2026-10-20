@@ -34,7 +34,7 @@ extern void btlUnitGetAnchorPose(void *unit, void *outPosition, s32 outRotation,
 extern void func_003dc740(void *dst, void *src, f32 angle, s32 mode);
 #define func_003dc740(dst, src, mode, angle) \
     func_003dc740(dst, src, angle, mode)
-extern f32 func_0044b950(f32 x, f32 y);
+extern f32 func_0044b950(f32 left, f32 right);
 extern f32 fGpffff8048;
 extern u8 D_0060A0E0[];
 extern void btlUnitRequestLookAt(void *unit);
@@ -143,24 +143,24 @@ struct BtlUnitAnimBounds
     u16 unk_6;
     u16 radius;
 };
-u8* btlUnitGetRecordPtr(u8* unit, s32 id);
+u8* btlUnitGetRecordPtr(u8* unit, s32 motion);
 
 
-BtlPacket* btlPacketAlloc(u32 id, s32 workDataSize);
+BtlPacket* btlPacketAlloc(u32 packetType, s32 workSize);
 RwV3d* RtQuatTransformVectors(RwV3d* vectorsOut, const RwV3d* vectorsIn,
                      s32 numPoints, const void* quat);
-void btlTargetBlendVectors(RwV3d* dst, const RwV3d* from, const RwV3d* to);
+void btlTargetBlendVectors(RwV3d* rotation, const RwV3d* first, const RwV3d* second);
 extern s32 datCalcIsDead(void *unit, s32 hpDelta);
 extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern f32 RwV3dLength(RwV3d *value);
 extern u8 *iGpffffb3ac;
 extern RwV3d D_00881430;
-void btlUnitHoldPendingMove(BtlUnitPacketMove* work);
-u32 btlUnitMovePacketUpdate(void* work);
-void btlUnitReleasePendingMove(BtlUnitPacketMove* work);
-void btlUnitHoldPendingPacket(BtlUnitPacketCountRef* work);
-u32 btlUnitMoveToUnitPacketUpdate(BtlUnitPacketMoveToUnit* work);
-void btlUnitReleasePendingPacket(BtlUnitPacketCountRef* work);
+void btlUnitHoldPendingMove(BtlUnitPacketMove* packetWork);
+u32 btlUnitMovePacketUpdate(void* workData);
+void btlUnitReleasePendingMove(BtlUnitPacketMove* packetWork);
+void btlUnitHoldPendingPacket(BtlUnitPacketCountRef* packet);
+u32 btlUnitMoveToUnitPacketUpdate(BtlUnitPacketMoveToUnit* packet);
+void btlUnitReleasePendingPacket(BtlUnitPacketCountRef* packet);
 
 /* Transform animation bounds toward another unit and translate the center to world coordinates. */
 // FUN_00195B60
@@ -796,9 +796,9 @@ struct BtlUnitPacketRotate
     u32 timer;
 };
 
-void btlUnitHoldPendingRotate(BtlUnitPacketCountRef* work);
-u32 btlUnitRotatePacketUpdate(void* work);
-void btlUnitReleasePendingRotate(BtlUnitPacketCountRef* work);
+void btlUnitHoldPendingRotate(BtlUnitPacketCountRef* packetWork);
+u32 btlUnitRotatePacketUpdate(void* packetWork);
+void btlUnitReleasePendingRotate(BtlUnitPacketCountRef* packetWork);
 extern RwV3d D_00881430;
 
 // FUN_00197F50
@@ -931,11 +931,11 @@ s32 btlUnitRotateTowardUnitPacketUpdate(u8 *packetData)
     *(s32 *)(packetData + 0xC) += 1;
     return 0;
 }
-BtlPacket* btlUnitCreateResNullifiedAnimPacket(BtlUnit* unit, f32 param);
-BtlPacket* btlUnitCreateArcOffsetPacket(BtlUnit* unit, s32 param);
+BtlPacket* btlUnitCreateResNullifiedAnimPacket(BtlUnit* unit, f32 value);
+BtlPacket* btlUnitCreateArcOffsetPacket(BtlUnit* unit, s32 value);
 BtlPacket* btlUnitCreateEnmDodgeAnimPacket(BtlUnit* unit, s32 param);
-void btlUnitHoldPendingAnim(BtlUnitPacketCountRef* work);
-void btlUnitReleasePendingAnim(BtlUnitPacketCountRef* work);
+void btlUnitHoldPendingAnim(BtlUnitPacketCountRef* packetWork);
+void btlUnitReleasePendingAnim(BtlUnitPacketCountRef* packetWork);
 
 // FUN_00199EE0
 BtlPacket* btlUnitCreateAnimPacket(BtlUnit* unit, s16 id, u16 blendFrameCount, f32 speed, u16 mode)
@@ -983,9 +983,9 @@ struct BtlUnitPacketLookAt
     u16 flags;
 };
 
-void btlUnitHoldPendingLookAtRef(BtlUnitPacketCountRef* work);
+void btlUnitHoldPendingLookAtRef(BtlUnitPacketCountRef* context);
 u32 btlUnitSetLookAtRanges(void* work);
-void btlUnitReleasePendingLookAtRef(BtlUnitPacketCountRef* work);
+void btlUnitReleasePendingLookAtRef(BtlUnitPacketCountRef* context);
 
 /* Retain the unit and reuse or start loading the requested model resource. */
 /* measured: remaining flag/unit reloads changed MATCH when typed; resource handle +0x0C lies in the shared model-load work padding. */
@@ -1050,10 +1050,10 @@ static inline u8 *btlUnitOffsetAdd(u32 offset, u8 *base)
 // FUN_0019AE20
 /* The constructor names +0x08 motion; these callbacks interpret that halfword as model flags. */
 s32 btlUnitModelMotionPacketUpdate(u8 *packetData) {
-    extern f32 mdlGetLayerKeyTime(void *a, s32 b, s64 c);
+    extern f32 mdlGetLayerKeyTime(void *model, s32 layer, s64 animationIndex);
     extern u8 *iGpffffb3cc;
-    extern void mdlSetLayerTime(void *a, s32 b, f32 c);
-    extern u32 datCalcRandomBelow(u32 a);
+    extern void mdlSetLayerTime(void *model, s32 layer, f32 frameValue);
+    extern u32 datCalcRandomBelow(u32 limit);
     u8 *unitData;
     BtlUnit *unit;
     u8 *model;
@@ -1522,9 +1522,9 @@ void btlUnitHoldPendingLookAtUnits(BtlUnitPacketTwoUnits* packet)
 u32 btlUnitLookAtUnitPacketUpdate(u8* packet)
 {
     extern u8* iGpffffb3ac;
-    extern void mdlLookAtSetupSetRange(void* model, f32 x, f32 y);
+    extern void mdlLookAtSetupSetRange(void* model, f32 pitchLimit, f32 yawLimit);
     extern void mdlSetBlendWeight(void* model, f32 value);
-    extern void btlUnitApplyModelState(void* unit, s32 state);
+    extern void btlUnitApplyModelState(void* unit, s32 mode);
     f32 firstHigh;
     f32 firstLow;
     f32 secondHigh;
@@ -1681,8 +1681,8 @@ struct BtlUnitPacket00284900
 };
 
 s16 btlUnitGetMotionState(BtlUnit* unit);
-u16 datCalcRandomBelow(u32 max);
-void btlUnitSetModelAnimFrame(BtlUnit* unit, s32 outPosition);
+u16 datCalcRandomBelow(u32 limit);
+void btlUnitSetModelAnimFrame(BtlUnit* unit, s32 frame);
 extern RwV3d D_0060a0d0;
 extern f32 DAT_007613f8;
 

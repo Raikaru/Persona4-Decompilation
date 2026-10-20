@@ -37,7 +37,7 @@ extern u32 kwlnTaskGetWork();
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
 
-extern void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 fparg0, f32 fparg1);
+extern void btlUiDrawSpriteEntry(u8 *work, s32 slot, s32 segment, f32 x, f32 y);
 extern void btlEntryListFlush(u8 *head);
 extern u8 *D_0076449C;
 extern s32 iGpffffb448;
@@ -58,8 +58,8 @@ extern u8 D_006265B0[];
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void memset(void *dst, s32 value, u32 size);
 
-extern s32 btlUiTaskInit(u8 *task);
-extern void btlUiTaskDestroy(u8 *task);
+extern s32 btlUiTaskInit(u8 *unusedTask);
+extern void btlUiTaskDestroy(u8 *unusedTask);
 extern void btlUiInitComponents(s32 task, u8 *work);
 extern s32 btlPacketBuildHitFlags(u8 *work);
 extern void itfMesWindowReleaseIfActive(s32 handle);
@@ -72,13 +72,13 @@ extern f32 fGpffff81a8;
 extern s32 btlUiIsOverlayReady(void);
 typedef void (*BattleSelectionDraw)(u8 *work, s32 slot, f32 x, f32 y,
                                     u8 opacity, s32 highlighted, s32 showDetail);
-extern void btlSelectionDrawSlideIn(u8 *work, u8 *state, f32 x, f32 y,
+extern void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
                          BattleSelectionDraw drawSelection);
 
-extern void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 farg0, f32 farg1,
+extern void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY,
                           BattleSelectionDraw callback);
 extern void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
-                         u8 opacity, s32 highlighted, s32 show_detail);
+                         u8 opacity, s32 highlighted, s32 showDetail);
 extern void RpSkyRenderStateSet(s32, s32);
 extern void (*D_00887300[])(u32 arg0, u32 arg1);
 extern f32 fGpffff82e0, fGpffff82e4;
@@ -625,8 +625,8 @@ s32 btlPacketBuildHitFlags(u8 *work)
     extern u8 *iGpffffb3b8;
     extern s32 datCalcSkillElement(u8 *unit, u16 skillId);
     extern s32 datCalcElementBit(s16 element);
-    extern void btlUnitGetHudAnchor(BtlUnit *unit, RwV3d *position);
-    extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *unit, RwV3d *position);
+    extern void btlUnitGetHudAnchor(BtlUnit *unit, RwV3d *outPosition);
+    extern void btlUnitGetAnimBoundsWorldCenter(BtlUnit *unit, RwV3d *outPosition);
     extern void btlSelectionPushEntry(u8 *task, s32 unitHandle, s32 *entryData, f32 *position, u16 flags);
 
     flags = 0;

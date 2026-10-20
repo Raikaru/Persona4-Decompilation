@@ -111,7 +111,7 @@ extern u8 iGpffffba50;
 extern u8 iGpffffba54;
 extern u8 iGpffffba58;
 extern void (*D_00887300[])(u32, u32);
-extern void chkmemAllocSiteTag(const void *msg, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 *kwlnGetCamera();
 extern void func_003e9d50(u8 *, void *, f32, s32);
@@ -175,7 +175,7 @@ extern u8 D_005F13A0[];
 
 
 
-extern s32 FldFrame_RaycastFieldWorlds(RwV3d *origin, RwV3d *vector, f32 fparg0,
+extern s32 FldFrame_RaycastFieldWorlds(RwV3d *origin, RwV3d *vector, f32 fraction,
                          u16 fieldId);
 
 
@@ -318,10 +318,10 @@ s32 FldFrame_RaycastField(const RwV3d *line, RwV3d *hitPointDst)
         f32 nearest;
         void *obj;
     } FldRayContext;
-    extern u8 *MT_Scene_GetResListHead(s32 task);
+    extern u8 *MT_Scene_GetResListHead(s32 resourceType);
     extern s32 FldMap_IsCurrentInEitherBand(void);
     extern s32* MT_Scene_GetFrameState(void);
-    extern void *FldFrame_RaycastWorldLocal(void *collisionWorld, void *ray);
+    extern void *FldFrame_RaycastWorldLocal(void *collisionWorld, void *data);
     extern void *RpClumpForAllAtomics(void *collisionWorld, void *(*cb)(void *, void *), void *ray);
     extern void *mdlGetClump(void *model);
     extern f32 fGpffff82b4;
@@ -1916,7 +1916,7 @@ void FldCameraAdvanceCurve(u8 *task, s32 mode)
     extern void func_003bb3a0(u8 *task, s32 mode, void *);
     extern void func_003bb5b0(u8 *curve, s32 mode, f32 time, void *copyDestination, void *aux);
     extern f32 RwV3dLength(void *task);
-    extern void kAssertFail(const void *task, s32 mode);
+    extern void kAssertFail(const void *file, s32 line);
     RwV3d difference;
     RwV3d previousPoint;
     RwV3d currentPoint;

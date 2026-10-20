@@ -19,7 +19,7 @@ static inline s32 code1_0012_stride_loop(s32 base, s32 index)
     return base + index;
 }
 
-extern u8 *resourceFindByName(char *filename);
+extern u8 *resourceFindByName(char *name);
 extern s32 titleSlotSetMode(u8 *, s32 );
 extern void sdkSpriteFreeNode(void *node);
 extern s32 nLineIsIdle(void);
@@ -29,11 +29,11 @@ extern void radarDrawPanel(u8 *);
 extern void radarStepSlotAnimB(u8 *);
 extern void radarStepPairAnim(u8 *);
 extern void kAssertFail(const void *file, s32 line);
-extern s32 datItemCount(s16 id);
+extern s32 datItemCount(s16 itemId);
 extern u8 D_005E76C8[];
 extern void memset(void *, s32 , s32 );
 extern s16 datBuildPartyIdList(void *);
-extern u8 *sdkSpriteNewNode(u32 sprites, u32 index);
+extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
 extern u8 D_005E5F40[];
 extern u8 D_005E7670[];
 extern u8 D_005E5830[];

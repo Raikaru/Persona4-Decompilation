@@ -9,10 +9,10 @@ void kAssertFail(void *file, s32 line);
 extern u32 kwlnTaskGetWork(void *task);
 extern void PrimAppendNode(u8 *list, u8 *node);
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
-extern u8 *shdPersonaTaskCreate(s32 a0, s32 a1, s32 a2, s32 a3, s32 a4);
+extern u8 *shdPersonaTaskCreate(s32 parentTask, s32 priority, s32 state, s32 openDuration, s32 closeDuration);
 extern void shdPersonaSetOrigin(u8 *task, f32 *position);
 extern void shdPersonaStartSlideIn(u8 *task);
-extern void shdPersonaSetPersonaId(u8 *task, s32 a1);
+extern void shdPersonaSetPersonaId(u8 *task, s32 personaId);
 extern u32 datGetFlag(s32 bit);
 extern void datSetFlag(s32 flagId, s32 enabled);
 /* This unit's view of the window helper takes the 16-bit display id as u16.
@@ -21,9 +21,9 @@ extern void datSetFlag(s32 flagId, s32 enabled);
    load after the window-pointer argument, as at 00223b5c. A conversion
    argument is always evaluated first (docs/matching.md). */
 extern void shdPersonaSetDisplayState(u8 *task, u16 inputCategory, u32 personaAddress, s8 cursor);
-extern u8 *H_Cdvd_GetArchiveEntry(u8 *archive, s32 index, s32 *size);
-extern u8 *shdPersonaLevelUpCreate(s32 a0, s32 a1, u8 *a2, s32 a3, s32 a4, s32 *a5);
-extern u32 datCalcRandomBelow(u32 max);
+extern u8 *H_Cdvd_GetArchiveEntry(u8 *request, s32 entryIndex, s32 *size);
+extern u8 *shdPersonaLevelUpCreate(s32 inputParentTask, s32 personaTask, u8 *inputLearnList, s32 messageResource, s32 extraMessage, s32 *messages);
+extern u32 datCalcRandomBelow(u32 limit);
 extern void btlSoundStopBank3(void);
 extern void btlVoicePlayIdCue(s32 context, s32 value);
 extern void btlVoiceFadeOut(void);

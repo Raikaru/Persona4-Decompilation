@@ -58,8 +58,8 @@ extern f32 D_008872F8[];
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
-extern u16 *GeometryCreateTableGridMultiPart(s32 sourceBytes, s32 value, s32 count, s32 flags,
-                          void *data, s32 options);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern u8 D_0071401C[];
@@ -67,7 +67,7 @@ extern u8 D_00714014[];
 
 
 // lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes FlashQuadCopyAllocFromRecord MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
-extern u8 *FlashQuadCopyAlloc(u16 sourceBytes, s32 value);
+extern u8 *FlashQuadCopyAlloc(u16 input, s32 resource);
 
 extern u16 iGpffffbb90;
 extern f32 fGpffffbb74;

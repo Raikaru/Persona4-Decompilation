@@ -223,7 +223,7 @@ extern void mainDrawSetSkySubtractiveBlendState(void);
 extern void mainDrawSetSkyReverseBlendState(void);
 extern void mainDrawClearCameraAndSky(void);
 extern s32 mainDrawClearOtUpdate(u8 *task);
-extern s32 mainDrawFrameUpdate(u8 *task);
+extern s32 mainDrawFrameUpdate(u8 *unusedTask);
 extern void mainDrawFrameDestroy(u8 *task);
 
 

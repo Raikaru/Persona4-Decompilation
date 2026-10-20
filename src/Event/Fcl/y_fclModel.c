@@ -19,19 +19,19 @@ extern u8 D_0064A6D0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
 
-extern s32 debugModelDrawClearScratch(u8 *task);
+extern s32 debugModelDrawClearScratch(u8 *unusedTask);
 extern void debugModelDrawDestroy(u8 *task);
 extern void fclModelBeginDraw(u8 *task, u8 *context);
-extern void mdlDestroyModelObject(u8 *task);
-extern void datFreeBlock(u8 *task);
-extern s32 mdlPrepareModel(u8 *task);
+extern void mdlDestroyModelObject(u8 *model);
+extern void datFreeBlock(u8 *block);
+extern s32 mdlPrepareModel(u8 *model);
 extern void *kwlnGetCamera(void);
-extern void K_View_SetFov(void *task, f32 context);
+extern void K_View_SetFov(void *camera, f32 fov);
 extern void *K_Clump_GetLightA(void);
 extern void func_003c38b0(void *task, void *context);
 extern void *K_Clump_GetLightB(void);
-extern void func_003e9cb0(s32 task, void *context, s32 combine);
-extern u8 *datCloneEntryBlock(s8 task);
+extern void func_003e9cb0(s32 frame, void *transform, s32 combine);
+extern u8 *datCloneEntryBlock(s8 entryIndex);
 extern void RwMatrixRotate(void *task, void *context, f32, s32);
 extern void RwMatrixTranslate(void *task, void *context, s32);
 extern s32 cmbEffModelUpdate(u8 *task);
@@ -128,10 +128,10 @@ typedef struct FclModelWork {
 #pragma opt_propagation off
 void fclModelBeginDraw(u8 *task, u8 *context)
 {
-    extern f32 K_View_GetFov(void *a);
+    extern f32 K_View_GetFov(void *camera);
     extern void *RwMatrixMultiply(void *a, void *b, void *c);
-    extern void mdlApplyModelMatrix(void *a, void *b, s32 c);
-    extern void mdlScale(void *a, void *b, s32 c);
+    extern void mdlApplyModelMatrix(void *model, void *matrix, s32 combineOp);
+    extern void mdlScale(void *model, void *scale, s32 combineOp);
     extern void memcpy(void *dst, void *src, u32 size);
     extern s32 K_Clump_GetWorld(void);
     extern u8 *K_Clump_GetLightC(void);

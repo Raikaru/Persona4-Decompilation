@@ -25,9 +25,9 @@ static inline u32 p4_add_u32(u32 left, u32 right)
     return left + right;
 }
 extern PolygonWindColor iGpffffbb64;
-extern u8 *mdlEffectCreateGridForRecord(u8 *drawable);
+extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
-extern s32 TnGetOffset38(u16 drawable);
+extern s32 TnGetOffset38(u16 slotIndex);
 extern void EffModelDrawableUpdate();
 extern f32 iGpffff8080;
 
@@ -57,7 +57,7 @@ extern u8 D_00714018[];
 extern u8 D_00714144[];
 
 
-extern void mdlSetLayerTime(u8 *drawable, s32 state, f32 count);
+extern void mdlSetLayerTime(u8 *model, s32 layer, f32 frameValue);
 
 extern u8 D_00714368[];
 extern f32 D_008872F8[];
@@ -65,11 +65,11 @@ extern f32 D_008872F8[];
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
-extern u16 *GeometryCreateTableGridMultiPart(s32 drawable, s32 state, s32 count, s32 flags,
-                          void *data, s32 options);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
-extern void mdlSetLayerWeight(void *drawable, s32 state, f32 count);
+extern void mdlSetLayerWeight(void *model, s32 layer, f32 speed);
 extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
@@ -85,10 +85,10 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004acb50-004ad450 */
 
-extern s32 mdlEffectProjectBillboardQuad(u8 *drawable, u8 *state);
-extern void mdlEffectBuildRectQuad(u8 *drawable, u8 *state);
-extern void mdlEffectBuildOffsetQuad(u8 *drawable, u8 *state);
-extern void mdlEffectBuildDirectRectQuad(u8 *drawable, u8 *state);
+extern s32 mdlEffectProjectBillboardQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildRectQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildOffsetQuad(u8 *parameters, u8 *vertices);
+extern void mdlEffectBuildDirectRectQuad(u8 *parameters, u8 *vertices);
 /* measured: restores the file's O2 loop-invariant baseline. */
 /* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma push
@@ -116,7 +116,7 @@ void EffModelDrawableResetLayerTime(u8 *drawable) {
 // FUN_004ACB80
 void EffModelDrawableRollCycle(u8 *drawable)
 {
-    extern f32 mdlGetLayerWeight(s32 drawable, s32 state);
+    extern f32 mdlGetLayerWeight(s32 model, s32 layer);
     f32 layerTime;
     u32 frameCount;
     u32 cycleEnd;
@@ -173,16 +173,16 @@ void EffModelDrawCallback(u8 *drawable)
     extern union BasisConst D_007144C8[];
     extern union BasisConst D_007144D8[];
     extern union BasisConst D_007144E8[];
-    extern f32 mdlGetLayerWeight(s32 drawable, s32 state);
-    extern f32 mdlEffectSampleScalarKeys(u8 *drawable, s32 state, s32 count);
+    extern f32 mdlGetLayerWeight(s32 model, s32 layer);
+    extern f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration);
     extern u8 *func_003e9700(s32 drawable);
-    extern u8 *mdlGetMatrix(s32 drawable);
+    extern u8 *mdlGetMatrix(s32 model);
     extern u8 *RwMatrixMultiply(void *drawable, void *state, void *count);
     extern void RwMatrixRotate(void *drawable, void *state, f32 fparg0, s32 count);
     extern void RwMatrixScale(void *drawable, void *state, s32 count);
     extern void func_003e4320(void *drawable, void *state, void *count);
-    extern void mdlUpdateModelMatrix(s32 drawable);
-    extern void mdlPrepareItemSlots(s32 drawable);
+    extern void mdlUpdateModelMatrix(s32 model);
+    extern void mdlPrepareItemSlots(s32 model);
     s32 frame_count;
     u32 frame_index;
     u8 *node;
@@ -272,14 +272,14 @@ void EffModelDrawCallback(u8 *drawable)
 // FUN_004AD030
 void EffModelDrawableUpdate(s32 drawable, u8 *state)
 {
-    extern f32 mdlGetLayerWeight(s32 drawable, s32 state);
-    extern s32 mdlEffectSamplePackedColor(u8 *drawable, u8 *state, s32 count, s32 flags);
-    extern void mdlSetColor(void *drawable, s32 *state);
-    extern f32 mdlEffectSampleScalarKeys(void *drawable, u32 state, u32 count);
-    extern void mdlSetLayerWeight(void *drawable, s32 state, f32 count);
+    extern f32 mdlGetLayerWeight(s32 model, s32 layer);
+    extern s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration);
+    extern void mdlSetColor(void *model, s32 *color);
+    extern f32 mdlEffectSampleScalarKeys(void *keys, u32 frame, u32 duration);
+    extern void mdlSetLayerWeight(void *model, s32 layer, f32 speed);
     extern s32 TnGetTableBase(void);
-    extern void mdlSetAttachedOwner(void *drawable, s32 state);
-    extern void mdlQueueModelForDraw(s32 drawable, void *state);
+    extern void mdlSetAttachedOwner(void *model, s32 owner);
+    extern void mdlQueueModelForDraw(s32 queue, void *model);
     extern f32 D_00761134;
     s32 appliedColor;
     s32 baseColor;
@@ -366,7 +366,7 @@ void EffModelDrawableUpdateByOffset(u8 *drawable) {
 // FUN_004AD280
 void EffModelDrawableRollAndUpdate(u8 *drawable)
 {
-    extern f32 mdlGetLayerWeight(s32 drawable, s32 state);
+    extern f32 mdlGetLayerWeight(s32 model, s32 layer);
     f32 layerTime;
     u32 nextFrame;
     u32 frameCount;

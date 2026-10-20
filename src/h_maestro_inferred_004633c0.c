@@ -45,7 +45,7 @@ extern s32 iGpffffba98;
 extern s32 iGpffffba9c;
 extern u8 D_008E43C0[];
 extern u8 D_008E43E4[];
-extern void *K_Clump_UpdateObjectCb(void *a0, void *a1);
+extern void *K_Clump_UpdateObjectCb(void *object, void *data);
 extern s32 D_00922984[];
 extern s32 D_00922980[];
 extern s32 D_00922988[];
@@ -72,7 +72,7 @@ extern u8 *D_00724C08;
 extern u8 D_007130E8[];
 extern s32 D_00724130;
 
-extern s32 hMaestroUpdateServicesTask(u8 *task);
+extern s32 hMaestroUpdateServicesTask(u8 *unusedTask);
 struct MovieNativeWork;
 extern u8 D_00712670[];
 extern s32 D_00724BF4;
@@ -127,8 +127,8 @@ extern f32 fGpffff84f0;
 /* Same RwV3d tag and fields as the ring provider and RenderWare. */
 #include "rw_types_internal.h"
 typedef RwV3d Code46RingPoint;
-extern void primCircleLine3D(const Code46RingPoint *position, f32 radius,
-                         u8 *color, f32 *matrix, s32 setStates);
+extern void primCircleLine3D(const Code46RingPoint *center, f32 radius,
+                         u8 *inputColors, f32 *inputMatrix, s32 inputPreserveState);
 struct Data_00712508 {
     f32 field_0;
     f32 field_4;

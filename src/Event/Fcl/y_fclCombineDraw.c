@@ -144,15 +144,15 @@ static inline void fclZero8(u8 *p)
    The earlier layout experiments and superseded floors are retained in
    build/continuation-20260921/fcl-worker3/closure-003212e0/stage-final/
    historical-conventions.txt and the recovery notes in docs/probe_archive. */
-extern void chkmemAllocSiteTag(const void *filename, u32 line);
+extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void *memset(void *dest, s32 value, s32 size);
 
 extern u8 *shdPersonaTaskCreate(s32, s32, s32, s32, s32);
-extern s32 fclDrawTaskStep(u8 *task);
+extern s32 fclDrawTaskStep(u8 *ownerTask);
 extern void fclDrawTaskDestroy(u8 *task);
 extern s32 datGetFlag(s32);
 extern s32 kwlnTaskIsLinked(void *);
-extern void shdPersonaSetOrigin(u8 *task, f32 *origin);
+extern void shdPersonaSetOrigin(u8 *task, f32 *position);
 extern void shdPersonaSetDisplayState(u8 *, s32, u32, s8);
 extern void shdPersonaBeginClose(u8 *task);
 extern void shdPersonaBeginDisplayAndEndSelection(u8 *, s32, s32, s8);
@@ -163,8 +163,8 @@ extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
 extern u8 *fclSpriteEntry(s16);
 extern s16 fclSpriteFlagBit(s16, s16);
 extern void fclSpriteReset(s16, s16);
-extern u8 *yListSlotWork(s8 slot);
-extern u8 *yListSlotEntry(s8 slot, s16 entry);
+extern u8 *yListSlotWork(s8 list);
+extern u8 *yListSlotEntry(s8 list, s16 index);
 extern void nmMesWindowSetNumberColor(u8 *, s16, FclDrawColor);
 extern s32 fclPackRgba(u8, u8, u8, u8);
 extern void fclSpriteStartColorAt(s16, s32, s32, s32, s32, s32);
@@ -203,10 +203,10 @@ extern u8 *fclSpriteWork(u8 *);
 extern f32 sdkSpriteScaledWidth(u8 *);
 extern void fclCombineDrawListRowPlain(u8 *, s8, FclVec2, s16, s16, s8);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
-extern void sdkSpriteRelease(u8 *sprite);
+extern void sdkSpriteRelease(u8 *node);
 extern void func_003ef3a0(u8 *resource);
-extern void itfMesWindowReleaseIfActive(s32 window);
-extern void H_Cdvd_Destroy(u8 *request);
+extern void itfMesWindowReleaseIfActive(s32 handle);
+extern void H_Cdvd_Destroy(u8 *cdvd);
 extern void (*D_008873EC[])(void *);
 extern char D_00644D30[];
 extern char D_00644D50[];
@@ -242,7 +242,7 @@ extern f32 fclEaseInterpolate(s64, f32, f32, f32, f32);
 extern u8 D_00795E60[];
 
 extern void func_00440b68();
-extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
 extern void fclCombineCdvdTaskDestroy(u8 *);
 extern char D_00644D70[];
 extern char D_00644D90[];
@@ -687,9 +687,9 @@ void fclCombineDrawSlotRows(u8 *task, s64 delay) {
 // FUN_00315600
 void fclCombineLayoutDetailSprites(u8 *task, s64 mode) {
     extern s64 datGetDateIndex(void);
-    extern s32 calGetWeekdayOfDay(s32 task);
-    extern s32 calHasDayEntry(s32 task);
-    extern s64 calGetDayEntryForMonthDay(s32 task, s32 mode);
+    extern s32 calGetWeekdayOfDay(s32 dateIndex);
+    extern s32 calHasDayEntry(s32 day);
+    extern s64 calGetDayEntryForMonthDay(s32 month, s32 day);
     extern u8 fclCalendarMonth(void);
     extern s32 fclCalendarDay(void);
     extern f32 D_00643DA8[];
@@ -5651,7 +5651,7 @@ void fclCombineDrawDetailPanel(u8 *task) {
     extern void strcpy(char *dst, const char *src);
     extern void strcat(char *dst, char *src);
     extern void frFontExCopyString(char *src, char *dst, s32 maxlen);
-    extern char *fclExpandNameTags(char *text, u8 *firstName, u8 *secondName, u8 *firstDescription, u8 *secondDescription);
+    extern char *fclExpandNameTags(char *text, u8 *mode, u8 *secondName, u8 *thirdName, u8 *fourthName);
     extern char *func_00243840(s32 task);
     char text[128];
     char convertedSuffix[64];

@@ -71,7 +71,7 @@ extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005E5548[];
 extern u8 D_005E5720[];
 extern s32 titleTaskUpdate(u8 *);
-extern void titleLoaderTeardown(u8 *task);
+extern void titleLoaderTeardown(u8 *unusedTask);
 extern void sdkSpritePackDestroy(s32 );
 extern void H_Cdvd_Destroy(s32 );
 extern void sdkSndStopChannel(s32 );
@@ -475,7 +475,7 @@ static inline u8 *titleCopyValue(u8 *destination, const u8 *source)
 
 static inline void titleRectangle(u8 *color, f32 x, f32 y, f32 depth, f32 width, f32 height, s32 flags, void *parent)
 {
-    extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *parent);
+    extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *queue);
     titleVisualSubmitRect(x, y, depth, color, width, height, flags, parent);
 }
 
@@ -523,14 +523,14 @@ static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOff
 // FUN_00124F70
 void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 drawMode, u8 *sceneContext)
 {
-    extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *parent);
-    extern s32 shdSpriteDrawNow(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha,
-        s32 spriteIndex, s32 frame, u8 *sprites, s32 flags);
+    extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *queue);
+    extern s32 shdSpriteDrawNow(f32 x, f32 y, f32 depth, s32 color, u8 alpha,
+        s32 entryId, s32 entryOffset, u8 *pack, s32 flags);
     extern void titleSkyApplyBasePreset(void);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     extern void titleTransformSlotModel(s32 modelIndex, f32 x, f32 y, f32 z,
         f32 pitch, f32 yaw, f32 roll, u32 baseColor, u32 highlightColor,
-        f32 scale, s32 flags, u32 *models);
+        f32 scale, s32 flags, u32 *context);
     extern TitlePalette D_005E5530;
     extern u8 D_005E5230[];
     extern u8 D_005E5234[];

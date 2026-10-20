@@ -179,12 +179,12 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
     extern void datScreenWipeGetPositions(u8 *, u8 *, u8 *, u8 *);
     extern void datScreenWipeGetScale(u8 *, f32 *);
     extern f32 btlShuffleCalcWave(f32, f32, f32, s32);
-    extern void shdDrawColourQuad(f32 depth, f32 x, f32 y, f32 shadowX, f32 shadowY,
-                              f32 width, f32 height, s32 color, s32 texture,
-                              s32 shadow, s32 mode);
-    extern void sflDataDrawEntry(DescriptorPair origin, f32 depth, s32 alpha, s16 *descriptor);
+    extern void shdDrawColourQuad(f32 depth, f32 color, f32 x, f32 y, f32 maskX,
+                              f32 maskY, f32 width, s32 height, s32 texture,
+                              s32 drawMask, s32 blendMode);
+    extern void sflDataDrawEntry(DescriptorPair position, f32 depth, s32 opacity, s16 *state);
     extern s32 RpSkyRenderStateSet(s32 state, s32 value);
-    extern s32 sdkSndStartChannel(s16 channel, const char *name);
+    extern s32 sdkSndStartChannel(s16 channelIndex, const char *path);
     extern u8 D_00629680[];
     extern f32 fGpffff838c;
     u8 *work;

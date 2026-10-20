@@ -6,14 +6,14 @@
 #include "effect_instance_internal.h"
 #include "include_asm.h"
 
-void GeometryBlockDestroy(void *arg);
+void GeometryBlockDestroy(void *block);
 void chkmemAllocSiteTag(u8 *file, s32 line);
 void kAssertFail(u8 *file, s32 line);
-void *TnGetOffset1C(u16 object);
-void *TnGetIndexedWord(u16 object);
-void PrimAppendNode(void *object, void *value);
+void *TnGetOffset1C(u16 slotIndex);
+void *TnGetIndexedWord(u16 slotIndex);
+void PrimAppendNode(void *list, void *node);
 void memcpy(void *dst, const void *src, u32 size);
-void LineNovaUpdateVertices(u8 *object, u8 *value);
+void LineNovaUpdateVertices(u8 *unused, u8 *effect);
 
 extern u8 D_00713310[];
 extern u8 D_00714628[];

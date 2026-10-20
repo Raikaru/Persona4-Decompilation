@@ -54,9 +54,9 @@ extern char D_008BF720[];
 
 /* library / file helpers */
 extern void func_00440b68(const char *fmt, ...);
-extern u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
-extern void H_Cdvd_ReadSync(void *handle);
-extern void H_Cdvd_Destroy(u8 *ptr);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
+extern void H_Cdvd_ReadSync(void *cdvd);
+extern void H_Cdvd_Destroy(u8 *cdvd);
 extern u8 *func_003eaf60(u8 *);
 extern s32 *func_003ec590(s32 width, s32 height, s32 depth, s32 flags);
 extern u8 *func_003ec180(u8 *, s32 *);

@@ -31,7 +31,7 @@ extern void sdkSpriteFreeNode(void *node);
 extern void kwlnTaskDestroyWithHierarchy(s32 );
 extern void nmMesWindowReleaseHandle(s32 );
 extern s32 cmmKindRecord(u16 );
-extern void kAssertFail(const void *module, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern void sprintf(void *dst, const void *fmt, ...);
 extern u8 D_0064CCF0[];
 extern u8 D_0064CD10[];

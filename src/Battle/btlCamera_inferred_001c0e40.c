@@ -41,7 +41,7 @@ struct RwMatrixTag {
     u32 pad3;
 };
 
-extern void CrossfadeRequest(s32 first);
+extern void CrossfadeRequest(s32 frameLimit);
 extern u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
                           P4CameraFrame *firstOut, P4CameraFrame *secondOut);
 extern f32 fGpffff809c;
@@ -52,41 +52,41 @@ extern f32 fGpffff8100;
 extern f32 RwV3dNormalize(RwV3d *first, const RwV3d *second);
 extern f32 RwV3dLength(f32 *first);
 extern void btlCameraCopyPose();
-extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *out);
+extern void btlUnitGetGridSphereCenter(BtlUnit *unit, RwV3d *dst);
 extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
 extern RwMatrix *RwMatrixRotate(RwMatrix *first, const RwV3d *second, f32 third, s32 fourth);
 extern RwV3d *func_003e4320(RwV3d *first, const RwV3d *second, const RwMatrix *third);
-extern u32 btlCameraClampOffsetToLimit(f32 *first, f32 *second);
+extern u32 btlCameraClampOffsetToLimit(f32 *pose, f32 *clampedPosition);
 extern f32 tanf(f32 first);
 extern f32 fGpffff80fc;
 extern f32 fGpffff8114;
 extern u8 *iGpffffb3ac; /* battle-state allocation */
 extern u8 *iGpffffb3e0;
 extern f32 fGpffff811c;
-extern void btlCameraSetupActionGeometry(u8 *first, u8 *second, f32 *third, f32 fourth, u16 fifth);
+extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
 extern void btlUnitSetChildValue(BtlUnitStateWork *work, u16 value);
-extern s32 btlCameraUnitAnimFinished(u8 *first, u8 *second);
-extern void btlCameraFrameStatus(u8 *first, s32 second);
-extern void btlMainCurveSetPoses(u16 *first, f32 *second, f32 *third, u16 fourth);
-extern void btlCameraSetDuration(u8 *first, f32 second);
+extern s32 btlCameraUnitAnimFinished(u8 *camera, u8 *unit);
+extern void btlCameraFrameStatus(u8 *camera, s32 unused);
+extern void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode);
+extern void btlCameraSetDuration(u8 *work, f32 value);
 extern u8 D_005F7CA0[];
 extern u8 D_005F91A0[];
 extern u8 D_005FA2D0[];
-extern s32 btlActionHasNoTargetClass(u8 *first);
-extern void btlCameraFrameWithFlags(u8 *first, s32 second, s32 third);
+extern s32 btlActionHasNoTargetClass(u8 *action);
+extern void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses);
 extern u8 D_005F78C0[];
 extern u8 D_005F7AB0[];
-extern s32 btlCameraIsActionBlocked(u8 *first);
-extern s32 btlTargetGetUnitIndex(u8 *first);
-extern s32 btlTargetGroupStateMatches(u8 *first);
-extern s32 btlTargetIsEntryActive(s16 first);
-extern s32 btlTargetCanSelectEntry(u8 *first, s16 second, s32 third);
-extern u32 datCalcChkBadStatus(s32 first, u32 second);
-extern s32 btlUnitSkillBlocked(u8 *first, u8 *second);
-extern void btlUnitGetSphereWorldCenter(u8 *first, f32 *second);
+extern s32 btlCameraIsActionBlocked(u8 *camera);
+extern s32 btlTargetGetUnitIndex(u8 *target);
+extern s32 btlTargetGroupStateMatches(u8 *context);
+extern s32 btlTargetIsEntryActive(s16 context);
+extern s32 btlTargetCanSelectEntry(u8 *context, s16 value, s32 option);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
+extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
+extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
 extern RwMatrix *RwMatrixRotate(RwMatrix *first, const RwV3d *second, f32 third, s32 fourth);
 extern RwV3d *func_003e4320(RwV3d *first, const RwV3d *second, const RwMatrix *third);
-extern void btlCameraLookAtQuat(void *first, const void *second, const void *third, const void *fourth);
+extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
 extern u8 D_0060A0D0[];
 extern u8 D_0060A0E0[];
 extern RwV3d D_0060A0F0;
@@ -107,12 +107,12 @@ extern f32 D_00607E20[];
 extern f32 D_00607E24[];
 extern f32 D_00607E30[];
 extern f32 D_00607E3C[];
-extern u8 *btlCameraRandomTableEntry(s32 first, s32 second);
+extern u8 *btlCameraRandomTableEntry(s32 tableIndex, s32 useFixedEntry);
 extern RwV3d *RtQuatTransformVectors(RwV3d *first, const RwV3d *second, s32 third, const RtQuat *fourth);
-extern void btlCameraFrameRandomOrbit(u8 *first, s32 second);
-extern void btlCameraFrameRandomEntry(u8 *first, s32 second, s32 third);
-extern void btlCameraFrameDistinctPair(u8 *first, s32 second, s32 third);
-extern void btlCameraFrameSplit(u8 *first, s32 second, s32 third);
+extern void btlCameraFrameRandomOrbit(u8 *camera, s32 unused);
+extern void btlCameraFrameRandomEntry(u8 *camera, s32 notify, s32 unused);
+extern void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses);
+extern void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses);
 static inline f32 func_001c_mul_add(f32 first, f32 second, f32 third)
 {
     return first * second + third;
@@ -219,10 +219,10 @@ void btlCameraFrameRandomOrbit(u8 *camera, s32 unused)
 {
     /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
 
-    extern s32 btlCameraIsTargetPrioritized(s32 cameraAddress);
+    extern s32 btlCameraIsTargetPrioritized(s32 cameraOrSkill);
     extern s32 btlCameraIsTargetEligible(u8 *camera);
-    extern void btlCameraCopyPose(f32 *out, f32 *in);
-    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
+    extern void btlCameraCopyPose(f32 *destination, f32 *source);
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 fGpffff8128;
     extern f32 fGpffff807c;
@@ -419,7 +419,7 @@ void btlCameraFrameRandomEntry(u8 *camera, s32 notify, s32 unused)
         P4CameraFrame frames[2];
     } transition;
     RwMatrix matrix;
-    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
     extern s32 btlCameraIsOrbitAction(u8 *camera);
     extern f32 func_003e41e0(f32 *camera, f32 *notify);
     extern f32 tanf(f32 camera);
@@ -657,11 +657,11 @@ void btlCameraFrameDistinctPair(u8 *camera, s32 notify, s32 distinctPoses)
     /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
 
     extern s32 btlCameraIsOrbitAction(u8 *camera);
-    extern s32 btlCameraIsTargetPrioritized(s32 cameraAddress);
-    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
+    extern s32 btlCameraIsTargetPrioritized(s32 cameraOrSkill);
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
     extern s32 btlCameraIsTargetEligible(u8 *camera);
     extern f32 func_003e41e0(f32 *out, f32 *in);
-    extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
+    extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *projection);
     extern f32 tanf(f32 angle);
     extern f32 fGpffff8030;
     extern f32 fGpffff8098;
@@ -954,12 +954,12 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
     /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
 
     extern s32 btlCameraIsOrbitAction(u8 *camera);
-    extern s32 btlCameraIsTargetPrioritized(s32 cameraAddress);
+    extern s32 btlCameraIsTargetPrioritized(s32 cameraOrSkill);
     extern s32 btlCameraStateRecordFlag(u8 *camera);
     extern s32 btlCameraIsTargetEligible(u8 *camera);
     extern f32 func_003e41e0(f32 *out, f32 *in);
     extern f32 tanf(f32 angle);
-    extern void btlCameraSetTransitionDuration(u8 *camera, f32 duration);
+    extern void btlCameraSetTransitionDuration(u8 *camera, f32 seconds);
     extern f32 fGpffff80cc;
     extern f32 fGpffff80e8;
     extern f32 fGpffff8110;
@@ -971,15 +971,15 @@ void btlCameraFrameWithFlags(u8 *camera, s32 notify, s32 distinctPoses)
     extern f32 fGpffff8148;
     extern f32 fGpffff814c;
     extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
-    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
     extern RwV3d *RtQuatTransformVectors(RwV3d *camera, const RwV3d *notify, s32 distinctPoses, const RtQuat *third);
-    extern void btlCameraLookAtQuat(void *camera, const void *notify, const void *distinctPoses, const void *third);
+    extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
     extern void btlUnitSetChildValue(BtlUnitStateWork *work, u16 value);
-    extern void btlCameraSetupActionGeometry(u8 *camera, u8 *notify, f32 *distinctPoses, f32 third, u16 fourth);
-    extern u32 btlCameraClampOffsetToLimit(f32 *camera, f32 *notify);
-    extern void btlMainCurveSetPoses(u16 *camera, f32 *notify, f32 *distinctPoses, u16 third);
-    extern void btlCameraSetDuration(u8 *camera, f32 notify);
-    extern void CrossfadeRequest(s32 camera);
+    extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
+    extern u32 btlCameraClampOffsetToLimit(f32 *pose, f32 *clampedPosition);
+    extern void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode);
+    extern void btlCameraSetDuration(u8 *work, f32 value);
+    extern void CrossfadeRequest(s32 frameLimit);
     f32 top;
     RwV3d direction;
     RwV3d delta;
@@ -1342,18 +1342,18 @@ void btlCameraFrameSplit(u8 *camera, s32 notify, s32 distinctPoses)
     /* Action+0x38 is variant target/AI-command storage; keep its opaque pointer/word interpretation. */
     /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
 
-    extern s32 btlCameraIsTargetPrioritized(s32 cameraAddress);
+    extern s32 btlCameraIsTargetPrioritized(s32 cameraOrSkill);
     extern s32 btlCameraIsTargetEligible(u8 *camera);
-    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
     extern f32 func_003e41e0(f32 *out, f32 *in);
-    extern void btlCameraLookAtQuat(void *camera, const void *notify, const void *distinctPoses, const void *third);
-    extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *out);
+    extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
+    extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *projection);
     extern f32 tanf(f32 angle);
-    extern void btlUnitSetChildValue(BtlUnitStateWork *action, u16 value);
-    extern void btlCameraSetupActionGeometry(u8 *camera, u8 *notify, f32 *distinctPoses, f32 third, u16 fourth);
-    extern void btlMainCurveSetPoses(u16 *camera, f32 *notify, f32 *distinctPoses, u16 third);
-    extern void btlCameraSetDuration(u8 *camera, f32 notify);
-    extern void CrossfadeRequest(s32 camera);
+    extern void btlUnitSetChildValue(BtlUnitStateWork *work, u16 value);
+    extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
+    extern void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode);
+    extern void btlCameraSetDuration(u8 *work, f32 value);
+    extern void CrossfadeRequest(s32 frameLimit);
     extern f32 fGpffff8030;
     extern f32 fGpffff803c;
     extern f32 fGpffff80f0;
@@ -1911,13 +1911,13 @@ void btlCameraFrameTargetPose(u8 *camera, s32 first)
     extern f32 fGpffff8118;
     extern f32 fGpffff8158;
     extern f32 fGpffff814c;
-    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *out);
-    extern void btlCameraCopyPose(f32 *out, f32 *in);
+    extern void btlUnitGetSphereWorldCenter(BtlUnit *unit, RwV3d *dst);
+    extern void btlCameraCopyPose(f32 *destination, f32 *source);
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
     extern f32 func_003e41e0(f32 *camera, f32 *first);
-    extern f32 btlTargetAngleBetween(u8 *camera, u8 *first, u8 *second, u8 *third);
-    extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0* first, P4Vec4Holder_001EC2B0* second);
-    extern void btlCameraCopyPoseTarget(f32 *camera, f32 *first);
+    extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *projection);
+    extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0* right, P4Vec4Holder_001EC2B0* left);
+    extern void btlCameraCopyPoseTarget(f32 *destination, f32 *source);
     extern f32 tanf(f32 camera);
 
     (void)first;
@@ -2081,7 +2081,7 @@ void btlCameraFrameFlagged(u8 *camera, s32 first)
     /* measured: each remaining raw field spelling was tested separately; struct access changed MWCC instruction bytes. */
 
     extern s32 btlCameraStateRecordFlag(u8 *camera);
-    extern void btlCameraCopyPose(f32 *out, f32 *in);
+    extern void btlCameraCopyPose(f32 *destination, f32 *source);
     extern f32 func_003e41e0(f32 *camera, f32 *first);
     extern f32 tanf(f32 camera);
     extern f32 fGpffff8110;

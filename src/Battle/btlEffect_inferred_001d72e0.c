@@ -14,9 +14,9 @@ extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern void (*jtbl_008873EC[])(void *);
-extern void btlFormationSetPlacement(s32 input);
-extern void btlEffectReleaseAllPlacements(u8 *input);
-extern void H_Cdvd_Destroy(u8 *input);
+extern void btlFormationSetPlacement(s32 formation);
+extern void btlEffectReleaseAllPlacements(u8 *unused);
+extern void H_Cdvd_Destroy(u8 *cdvd);
 extern u32 iGpffffb3b8;
 
 extern u8 D_005DC7D0[];

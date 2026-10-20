@@ -10,7 +10,7 @@ extern u8 D_00887300_abs[];
 typedef s32 (*KDrawFunc)(RwRenderState state, void *value);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void primAxisLine3D(f32 mat, u8 *length, s32 saveAndRestoreRenderState);
-extern void primCylinderLine3D(f32 *position, f32 width, f32 height, u8 *color, s32 setStates);
+extern void primCylinderLine3D(f32 *position, f32 radius, f32 height, u8 *color, s32 setStates);
 extern u8 iGpffff9dd4;
 typedef struct { u8 c[4]; } Rgba8;
 
@@ -34,16 +34,16 @@ typedef struct RwMatrix
 } RwMatrix;
 
 extern RwMatrix* func_003e0670(RwMatrix* matrixOut, RwMatrix* matrixIn);
-extern f32 func_0044b950(f32 x, f32 y);
+extern f32 func_0044b950(f32 left, f32 right);
 extern f32 gPI;
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void *PrimAllocQueueNode(void);
-extern void PrimAppendNode(void *param, void *work);
+extern void PrimAppendNode(void *list, void *node);
 extern void (*jtbl_008873EC[])(void *);
-extern void primSphereLine3D(u8 *position, f32 size, u8 *color, s32 setStates);
+extern void primSphereLine3D(u8 *center, f32 radius, u8 *color, s32 preserveState);
 extern u8 D_005EFBC8[];
 extern u8 D_005EFBD8[];
 extern u8 D_005EFBE8[];

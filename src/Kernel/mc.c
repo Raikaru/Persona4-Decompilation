@@ -12,7 +12,7 @@ extern u32 kwlnTaskGetWork(void *task);
 extern void *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *, void *);
 extern void PrimDrawFlatRectangle(void *, void *, f32, s32);
-extern void sdkSpritePackDestroy(u32 param_1);
+extern void sdkSpritePackDestroy(u32 pack);
 extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern void mcDrawDispatchCallback(void *, void *);
 extern void mcQueueDrawJob(s32);
@@ -124,8 +124,8 @@ extern void datSaveRestoreImage(s32, u8 *, s32);
 extern s32 datSaveVerifyChecksum(s32, u8 *, s32);
 extern u16 D_008C024E[];
 extern s32 calGetWeekdayOfDay(s32);
-extern void calSplitDayOfYear(s32 seed, s32 *month, s32 *day);
-extern s32 calHasDayEntry(s32 idx);
+extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
+extern s32 calHasDayEntry(s32 day);
 extern s32 shdSpriteEntryWidth(s32, s32, u8 *);
 /* Location keys and text pointer occupy three 32-bit retail words. */
 typedef struct McLocationNameEntry {

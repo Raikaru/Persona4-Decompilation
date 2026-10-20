@@ -8,7 +8,7 @@
 extern s32 D_0063BF80[];
 extern u16 D_008C024E[];
 
-extern void poolFree(s32 value);
+extern void poolFree(s32 address);
 
 
 extern s32 D_008815B0[];
@@ -21,20 +21,20 @@ extern u16 D_008817E8[];
 extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
-extern void itfMesWindowStepState(u8 *value);
-extern void itfMesWindowAdvanceRow(u8 *value);
+extern void itfMesWindowStepState(u8 *window);
+extern void itfMesWindowAdvanceRow(u8 *window);
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027a6f0-0027a970 */
 
-extern void datSetIndexedWord(s32 value, s32 index);
-extern s32 func_0027b980(s32 value);
-extern s32 func_0027b9e0(s32 value);
-extern s32 func_0027ba40(s32 value);
-extern s32 func_0027bc20(s32 value);
-extern s32 func_0027bc80(s32 value);
-extern s32 func_0027bce0(s32 value);
+extern void datSetIndexedWord(s32 index, s32 value);
+extern s32 func_0027b980(s32 handle);
+extern s32 func_0027b9e0(s32 handle);
+extern s32 func_0027ba40(s32 handle);
+extern s32 func_0027bc20(s32 handle);
+extern s32 func_0027bc80(s32 handle);
+extern s32 func_0027bce0(s32 handle);
 /* measured: opt_propagation off probe for 002703d0 register setup. */
 /* measured: closes opt_propagation off probe for 002703d0. */
 /* measured: opt_rebuildconditionals off reproduces 002704f0 retail conditional-register schedule. */
@@ -73,13 +73,13 @@ void itfMesWindowFreeSlots(s32 window) {
 // FUN_0027A780
 void itfMesWindowStepState(u8 *window)
 {
-    extern s32 func_0027b980(s32 window);
-    extern s32 func_0027b9e0(s32 window);
-    extern s32 func_0027ba40(s32 window);
-    extern s32 func_0027bc20(s32 window);
-    extern s32 func_0027bc80(s32 window);
-    extern s32 func_0027bce0(s32 window);
-    extern void frFontRunCommand(s32 window, s32 value, s32 count);
+    extern s32 func_0027b980(s32 handle);
+    extern s32 func_0027b9e0(s32 handle);
+    extern s32 func_0027ba40(s32 handle);
+    extern s32 func_0027bc20(s32 handle);
+    extern s32 func_0027bc80(s32 handle);
+    extern s32 func_0027bce0(s32 handle);
+    extern void frFontRunCommand(s32 stream, s32 mode, s32 command);
     s32 value;
     u8 *node;
 
@@ -149,10 +149,10 @@ node_done:
 // FUN_0027A970
 void itfMesWindowAdvanceRow(u8 *window)
 {
-    extern void frFontEnableList(u8 *window);
-    extern s32 frFontMeasureList(u8 *window);
-    extern void frFontLoadSystemSlot(u8 *window);
-    extern void datSetIndexedWord(s32 window, s32 value);
+    extern void frFontEnableList(u8 *node);
+    extern s32 frFontMeasureList(u8 *list);
+    extern void frFontLoadSystemSlot(u8 *fontData);
+    extern void datSetIndexedWord(s32 index, s32 value);
     extern void itfMesWindowBuildRow(u8 *window);
     extern void func_00440b68(void *window);
     extern void sdkSndResetChannel(s32 window, s32 value);

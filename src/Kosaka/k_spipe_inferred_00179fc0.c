@@ -61,8 +61,8 @@ extern u8 D_005F1950[];
 extern u8 D_005F1A60[];
 extern u8 D_005F1A64[];
 extern u16 D_008C024E[];
-void FldSmapTileQueueQuad(u8 *value, u8 *other, s32 flags, s32 data, s32 mode,
-                    s32 work, s32 count, f32 position, f32 width, f32 height);
+void FldSmapTileQueueQuad(u8 *queue, u8 *context, s32 tileType, s32 variant, s32 width,
+                    s32 height, s32 flags, f32 x, f32 y, f32 depth);
 
 extern f32 iGpffff8304;
 extern char D_005E5850[];
@@ -70,17 +70,17 @@ extern f32 iGpffff82fc;
 extern u8 D_00794E70[];
 
 
-extern u8 *MT_Scene_GetResListHead(s32 value);
+extern u8 *MT_Scene_GetResListHead(s32 resourceType);
 
-extern void *mdlGetMatrix(void *value);
-extern void mdlScale(void *value, void *other, s32 flags);
+extern void *mdlGetMatrix(void *model);
+extern void mdlScale(void *model, void *scale, s32 combineOp);
 extern s32 RwEngineGetMatrixTolerances(f32 *value);
 extern u8 *RwMatrixOptimize(void *value, f32 *other);
 extern u8 *RwMatrixUpdate(void *value);
-extern void mdlUpdateModelMatrix(void *value);
-extern void mdlPrepareItemSlots(void *value);
-extern s32 FldShadow_DrawProjection(u8 *value, s32 other, s32 flags, void *data,
-                         f32 factor, f32 distance, s32 mode, u8 *work);
+extern void mdlUpdateModelMatrix(void *model);
+extern void mdlPrepareItemSlots(void *model);
+extern s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, void *intersection,
+                         f32 opacity, f32 depth, s32 fadeWithDepth, u8 *workData);
 extern u8 D_007EFA00[];
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
 extern void FldRc_QueueScreenQuad(u8 *value, u8 *other,

@@ -117,28 +117,28 @@ static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 
 {
     btlUnitSetMotion(data, value, option, rate, flags);
 }
-extern s32 scrStartProcedureChecked(s32 data, s32 value, s32 option, s32 rate);
+extern s32 scrStartProcedureChecked(s32 priority, s32 source, s32 size, s32 procedureIndex);
 static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value, s32 rate)
 {
     scrStartProcedureChecked(data, value, option, rate);
 }
-extern void mdlSetColor(void *data, s32 *value);
+extern void mdlSetColor(void *model, s32 *color);
 extern u8 iGpffffa4d8;
-extern void btlUnitApplyModelState(u8 *data, s32 value);
+extern void btlUnitApplyModelState(u8 *unit, s32 mode);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
 
 
-extern void btlUnitClearModelState(u8 *data, s32 value);
-extern void btlUnitApplyModelState(u8 *data, s32 value);
-extern void SceneDraw_SetResVisibleChecked(u16 data, u32 value);
+extern void btlUnitClearModelState(u8 *unit, s32 mode);
+extern void btlUnitApplyModelState(u8 *unit, s32 mode);
+extern void SceneDraw_SetResVisibleChecked(u16 resTypeId, u32 visible);
 
 
 
 
 extern s32 iGpffffb444;
-extern void btlUnitInitChild(u8 *data, u16 value);
+extern void btlUnitInitChild(u8 *unit, u16 characterId);
 
 static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
 {
@@ -149,16 +149,16 @@ extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void btlUnitUpdateLookAtTarget(u8 *data);
+extern void btlUnitUpdateLookAtTarget(u8 *unit);
 extern void btlUnitHideModel();
-extern void btlUnitShowModel(u8 *data);
+extern void btlUnitShowModel(u8 *unit);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 0019c0d0-0019d0c0 */
 
-extern void btlUnitUpdateMotionLayer(u8 *data);
+extern void btlUnitUpdateMotionLayer(u8 *unit);
 typedef struct {
     f32 right[3];
     s32 flags;
@@ -211,24 +211,24 @@ static inline void btlUnitMultiplyColor(RwRGBA *dst, const u8 *src)
 /* Advance each unit, publish changed transform/color state, and refresh status-effect placement. */
 void btlUnitUpdateAll(void)
 {
-    extern u32 btlUnitUpdateFollowPath(u8 *unit);
+    extern u32 btlUnitUpdateFollowPath(u8 *context);
     extern void btlBossCopyPartnerMark(u8 *unit);
-    extern void SceneDraw_SetResPersona(u16 unit, u32 value);
+    extern void SceneDraw_SetResPersona(u16 resTypeId, u32 persona);
     extern void btlUnitUpdateModelLight(u8 *unit);
-    extern void mdlApplyModelMatrix(void *unit, void *value, s32 option);
-    extern void mdlScale(void *unit, void *value, s32 option);
-    extern void *mdlTranslateMatrix(void *unit, void *value, s32 option);
-    extern void mdlAdvanceModelFromFlags(void *unit);
+    extern void mdlApplyModelMatrix(void *model, void *matrix, s32 combineOp);
+    extern void mdlScale(void *model, void *scale, s32 combineOp);
+    extern void *mdlTranslateMatrix(void *matrix, void *translation, s32 combineOp);
+    extern void mdlAdvanceModelFromFlags(void *model);
     extern s32 btlTargetRefreshRadiusNode(u8 *unit);
     extern u32 btlUnitIsModelVisible(u8 *unit);
-    extern s32 btlEffectFlagToSlotIndex(s32 unit);
-    extern s16 btlPacketGetValue(s32 unit);
-    extern void btlEffectFlagToColor(s32 unit, u8 *value);
+    extern s32 btlEffectFlagToSlotIndex(s32 flag);
+    extern s16 btlPacketGetValue(s32 placement);
+    extern void btlEffectFlagToColor(s32 flag, u8 *color);
     /* Retail passes the sign-extended word from (s16)btlEffectFlagToSlotIndex() in $a1
      * without narrowing; the s16 definition's prototype adds a re-extension. */
-    extern void btlPacketSetValue(u8 *unit, s32 value);
-    extern void btlPacketSetTag(void *unit, u32 value);
-    extern void btlEffectRefreshPlacementState(u8 *unit);
+    extern void btlPacketSetValue(u8 *packet, s32 value);
+    extern void btlPacketSetTag(void *packet, u32 value);
+    extern void btlEffectRefreshPlacementState(u8 *placement);
     u8 *entry;
     u32 i;
     s32 statusFlags;

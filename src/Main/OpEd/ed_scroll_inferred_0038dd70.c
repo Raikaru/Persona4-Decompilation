@@ -29,12 +29,12 @@ extern f32 D_008872F8[];
 extern u8 D_0064F0E0[];
 extern u8 D_0064EEF0[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 hint);
-extern void sdkSpriteDrawOnceAt(s32 resource, s32 slot, f32 x, f32 y,
-                          u8 r, u8 g, u8 b, u8 alpha);
-extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 fparg0, f32 fparg1,
-                          f32 fparg2, u8 red, u8 green, u8 blue, u8 alpha,
-                          u16 scaleX, u16 scaleY, f32 fparg3, s16 arg_sp0,
-                          s16 arg_sp8);
+extern void sdkSpriteDrawOnceAt(s32 packAddress, s32 image, f32 x, f32 y,
+                          u8 red, u8 green, u8 blue, u8 alpha);
+extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y,
+                          f32 depth, u8 red, u8 green, u8 blue, u8 alpha,
+                          u16 scaleX, u16 scaleY, f32 angle, s16 pivotX,
+                          s16 pivotY);
 static inline u32 add_offset_first_0038(u32 offset, u32 base)
 {
     return offset + base;

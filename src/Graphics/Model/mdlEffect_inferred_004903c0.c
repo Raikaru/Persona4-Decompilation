@@ -40,8 +40,8 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 // FUN_004903C0
 void mdlEffectUpdateFloorEmitter(u8 *emitterData)
 {
-    extern void mdlEffectSampleKeyState(u8 *emitterData, u8 *parametersData, s32 frame, u_long128 *snapshot);
-    extern void mdlEffectUpdateParticleTrail(u8 *emitterData, u8 *parametersData);
+    extern void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition);
+    extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
     extern void effMiscBuildRotationVU(void);
     extern f32 fabsf(f32 emitterData);
     extern f32 fGpffff807c;

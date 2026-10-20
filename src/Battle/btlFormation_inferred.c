@@ -13,26 +13,26 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
     return left + right;
 }
 
-extern void btlTargetBlendVectors(void *out, void *first, void *second);
+extern void btlTargetBlendVectors(void *rotation, void *first, void *second);
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb3b8;
 
-extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *center);
+extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
 extern s32 mdlComputeIndexedAttachMatrix();
 extern void RtQuatTransformVectors(f32 *output, f32 *input, s32 count, u8 *rotation);
 extern void mdlEffectFlushTreeFrame(s32 effect);
 extern s32 TnGetTableBase(void);
 extern void TnSetTableBase(s32 table);
-extern void mdlEffectApplyPackedColor(u8 *effect, s32 color);
+extern void mdlEffectApplyPackedColor(u8 *effect, s32 value);
 extern void mdlEffectCommitTreeFrame(u8 *effect);
 extern void btlFormationUpdateAttachments(s32 work);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(char *queue, u8 *node);
+extern void PrimAppendNode(char *list, u8 *node);
 extern char D_005DC824[];
 extern char D_00794AE0[];
 extern char D_00794C00[];
@@ -51,7 +51,7 @@ extern u8 D_0060A0F0[];
 extern u8 *kwlnGetCamera();
 extern void func_003e8110(u8 *camera);
 extern void func_003e8120(u8 *camera);
-extern void func_003e9cb0(s32 frame, u8 *matrix, s32 combine);
+extern void func_003e9cb0(s32 frame, u8 *transform, s32 combine);
 extern u8 D_008813B0[];
 extern u8 D_00607E50[];
 extern u8 D_00609558[];
@@ -79,7 +79,7 @@ extern f32 fGpffff8110;
 /* Source unit: src/promoted/code1_001d.c */
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d4eb0-001d5b20 */
 
-extern s32 btlCameraFindFormationForCounts(u8 *work);
+extern s32 btlCameraFindFormationForCounts(u8 *counts);
 typedef void BtlAttachPositionCallback(u8 *work, u8 *unit, u8 *entry, f32 *position);
 static inline f32 btlAttachEffectScale(u8 *unit)
 {
@@ -213,10 +213,10 @@ void btlFormationAttachRotation(u8 *work, u8 *unit, u8 *attachment, u8 *output)
     u8 *lookupBase;
 
     extern void RtQuatTransformVectors(f32 *work, f32 *unit, s32 attachment, u8 *output);
-    extern f32 func_0044b950(f32 work, f32 unit);
-    extern s32 mdlCopyIndexedMatrix(u8 *work, s32 unit, f32 *attachment);
-    extern void effMiscMatrixToQuatVU(f32 *work);
-    extern void effMiscEulerToQuatVU(f32 work, f32 unit, f32 attachment);
+    extern f32 func_0044b950(f32 left, f32 right);
+    extern s32 mdlCopyIndexedMatrix(u8 *model, s32 index, f32 *destination);
+    extern void effMiscMatrixToQuatVU(f32 *matrix);
+    extern void effMiscEulerToQuatVU(f32 angleX, f32 angleY, f32 angleZ);
 
     entry = attachment + 8;
     type = *(u8 *)(attachment + 8);
@@ -332,10 +332,10 @@ case8_failure:
  * and color. Raw unit vector copies retain the existing aggregate types at this API boundary. */
 void btlFormationUpdateAttachments(s32 work)
 {
-    extern void mdlSetFileStatePair(u32 a0, u32 a1);
-    extern void mdlEffectSetChildPositions(u8 *a0, f32 *a1);
-    extern void mdlEffectSetChildRotations(u8 *a0, u8 *a1);
-    extern void mdlEffectSetChildScales(u8 *a0, f32 a1);
+    extern void mdlSetFileStatePair(u32 first, u32 second);
+    extern void mdlEffectSetChildPositions(u8 *effect, f32 *value);
+    extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
+    extern void mdlEffectSetChildScales(u8 *effect, f32 value);
     extern BtlAttachPositionCallback *D_00609500[];
     s32 count;
     BtlAttachWork *w;

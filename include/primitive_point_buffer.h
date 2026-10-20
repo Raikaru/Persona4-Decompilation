@@ -12,7 +12,7 @@ typedef union {
 
 /* Immediate input buffers: four color bytes and a two-float point per vertex. */
 void PrimDrawTransformed(const void *colors, const void *positions,
-                  f32 depth, u32 count, s32 primitive, s32 saveState,
+                  f32 depth, u32 count, s32 primitiveType, s32 preserveState,
                   s32 offsetX, s32 offsetY, f32 rotation, f32 scaleX, f32 scaleY);
 
 #endif

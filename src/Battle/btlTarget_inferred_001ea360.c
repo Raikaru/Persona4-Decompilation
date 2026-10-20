@@ -10,7 +10,7 @@
 #include "sdk_snd_internal.h"
 #include "btl_cond_internal.h"
 extern void btlCameraLookAtQuat(void *out, const void *first,
-                          const void *second, const void *up);
+                          const void *second, const void *config);
 extern void *D_00609850[];
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
    the 32-bit call result at this store site. */
@@ -72,7 +72,7 @@ extern u8 *btlCameraCreatePoseSequencePacket(s32, f32 *, f32 *, f32, f32 *, f32 
 extern u8 D_00609E40[];
 extern s32 btlUnitFindInSideById(s32, s32);
 extern s32 btlActionFindByUnit(s32);
-extern void btlEncounterSetSequence(s32 initialize, s32 update, s32 packet);
+extern void btlEncounterSetSequence(s32 start, s32 update, s32 argument);
 extern void btlActionRunFormationSequence(u8 *action);
 extern s32 btlEncounterFinishSetup(u8 *action);
 extern u8 *iGpffffb428;

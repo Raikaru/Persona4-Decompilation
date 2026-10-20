@@ -60,14 +60,14 @@ typedef s32 (*BtlShuffleRenderPrimitive)(BtlShufflePrimitive primitive,
                                        BtlShuffleSkyVertex *vertices,
                                        s32 count);
 
-void btlShuffleDrawCardSprites(u8 *work, s32 cardIndex, const BtlShuffleVec3 *position,
+void btlShuffleDrawCardSprites(u8 *context, s32 cardIndex, const BtlShuffleVec3 *position,
                   u8 *color, s32 restoreAlpha);
 
 /* The rotation initializer consumes two unsigned 16-bit timing values and
  * explicitly forwards both floating controls to the interpolation state. */
-void btlShuffleCalcSetCurveSample(u8 *state, u16 timing0, u16 timing1,
-                  const BtlShuffleVec3 *axis, f32 start, f32 end);
-void btlShuffleDrawSetCurve(u8 *context, s32 cardIndex, u16 timing0, u16 timing1,
+void btlShuffleCalcSetCurveSample(u8 *state, u16 delay, u16 duration,
+                  const BtlShuffleVec3 *axis, f32 startAngle, f32 endAngle);
+void btlShuffleDrawSetCurve(u8 *context, s32 cardIndex, u16 delay, u16 duration,
                   const BtlShuffleVec3 *axis, f32 start, f32 end);
 
 /* Bits in a shuffle child task's flag word (work[0]), set by btlShuffleTask* helpers. */

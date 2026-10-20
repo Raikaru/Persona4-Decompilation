@@ -33,7 +33,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 void chkmemAllocSiteTag();
 
-s32 cutinDrawTaskUpdate(u8 *input);
+s32 cutinDrawTaskUpdate(u8 *task);
 void cutinDrawTaskDestroy(u8 *task);
 
 

@@ -108,7 +108,7 @@ extern u8 D_00794150[];
 
 
 extern s64 btlUnitGetMotionId(u8 *unit, u16 motion);
-extern s16 btlUnitMotionFrames(u8 *unit, u16 motion, f32 fparg0);
+extern s16 btlUnitMotionFrames(u8 *unit, u16 motion, f32 rate);
 extern void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option);
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00198380-00198380 */

@@ -22,9 +22,9 @@ struct RpGeometry {
 
 typedef s32 (*code)();
 extern code DAT_008873ec_abs[];
-extern void mdlReleaseU16Ref(s32 object);
+extern void mdlReleaseU16Ref(s32 wrapper);
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
-extern void mdlDispatchTrackRows(u8 *object, u8 *value, f32 frame, f32 blendFrame, f32 blend);
+extern void mdlDispatchTrackRows(u8 *leftTrack, u8 *leftTime, f32 rightTrack, f32 rightTime, f32 weight);
 extern u8 D_00713260[];
 extern u32 D_00713220[];
 
@@ -70,14 +70,14 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void memset(void *dest, s32 value, s32 size);
 extern s32 func_003bd0b0(u8 *userData, s32 index);
 extern s32 strcmp(const char *left, const char *right);
-extern void mdlAppendU32Entry(s32 *object,u32 value);
+extern void mdlAppendU32Entry(s32 *wrapper,u32 value);
 extern u8 DAT_007641e0;
 
-extern void *mdlMatAnimCollectMaterial(void *object, void *data);
+extern void *mdlMatAnimCollectMaterial(void *object, void *context);
 
-extern void *mdlMatAnimFlagMatchedAtomic(void *object, void *data);
+extern void *mdlMatAnimFlagMatchedAtomic(void *object, void *context);
 
-extern void *mdlMatAnimCountAtomicMatch(void *object, void *data);
+extern void *mdlMatAnimCountAtomicMatch(void *atomic, void *context);
 
 
 
@@ -398,10 +398,10 @@ s32 mdlMatAnimLoadChunk(void *stream, u8 **list, u32 chunkTag, void *clump)
     u8 *tmp;
     extern u32 func_003e2910(void *a, void *b, u32 c);
     extern void *func_003e2ce0(void *a, u32 b);
-    extern u16 mdlMatAnimCountClumpMatches(void *a, u32 b);
-    extern u8 *mdlMatAnimAllocCollector(s32 a);
-    extern void *mdlMatAnimFlagClumpMatches(void *a, void *b);
-    extern u32 mdlRetainU16Ref(s32 a);
+    extern u16 mdlMatAnimCountClumpMatches(void *object, u32 nameAddress);
+    extern u8 *mdlMatAnimAllocCollector(s32 capacity);
+    extern void *mdlMatAnimFlagClumpMatches(void *object, void *context);
+    extern u32 mdlRetainU16Ref(s32 wrapper);
 
     func_003e2910(stream, &header, 0x14);
     if (header.nameLength < 0x80U) {

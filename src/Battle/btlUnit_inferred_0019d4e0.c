@@ -120,9 +120,9 @@ static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value,
     scrStartProcedureChecked(data, value, option, rate);
 }
 extern u8 iGpffffa4d8;
-extern void btlEffectDestroyPlacementEntry(s32 data);
-extern void btlEffectFreeNodePool(s32 data);
-extern void btlUnitUnlinkAndFree(u8 *data);
+extern void btlEffectDestroyPlacementEntry(s32 placement);
+extern void btlEffectFreeNodePool(s32 pool);
+extern void btlUnitUnlinkAndFree(u8 *incomingUnit);
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
@@ -132,7 +132,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 data, s32 value);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
@@ -144,7 +144,7 @@ extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void btlUnitReleaseModel(u8 *data);
+extern void btlUnitReleaseModel(u8 *unit);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];

@@ -25,24 +25,24 @@ extern s16 iGpffffb398;
 extern s16 iGpffffb39c;
 extern s16 iGpffffb3a0;
 extern s32 iGpffffb3a4;
-extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *handle);
+extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
 extern const KWindowEntryDescriptor D_005F5830[];
 extern const KWindowEntryDescriptor D_005F5730[];
 extern u8 D_007E3720[];
 extern u8 D_007966D0[];
 extern s64 iGpffff9fd0;
 extern s32 iGpffffb240;
-extern void FldBoardGenerate(s32 mode, s32 value, s32 option);
+extern void FldBoardGenerate(s32 mode, s32 seed, s32 unused);
 extern void FldSmapTileQueueByType(u8 *queue, u8 *context, s32 tileType, s32 variant,
                            f32 x, f32 y, f32 depth, s32 flags);
 extern void FldRc_QueueScreenQuad(u8 *queue, u8 *quad,
-                          f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3,
-                          f32 fparg4, u8 *color, s32 texture,
-                          f32 fparg5, f32 fparg6, f32 fparg7, s32 orientation,
-                          f32 arg_sp0);
+                          f32 left, f32 top, f32 depthOffset, f32 width,
+                          f32 height, u8 *color, s32 texture,
+                          f32 uMin, f32 vMin, f32 uMax, s32 orientation,
+                          f32 vMax);
 extern u16 D_008C024E[];
 extern s32 *MT_Scene_GetFrameState(void);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 FldMapTestUpdate(u8 *task);
 extern void FldMapTestDestroy(u8 *task);
@@ -92,7 +92,7 @@ s32 FldMapTestUpdate(u8 *task)
     extern PanelColor iGpffff9fd8;
     extern char iGpffff9fdc[3];
     extern s32 iGpffffb240;
-    extern void FldBoardGenerate(s32 mode, s32 value, s32 option);
+    extern void FldBoardGenerate(s32 mode, s32 seed, s32 unused);
     PanelColor color;
     /* Entry-table bytes 8/9 and frame bytes 4A/4B retain their byte layout; meanings unproven. */
     u8 *work;

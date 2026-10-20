@@ -10,7 +10,7 @@
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 /* 0x004833f0 is a texture release helper shared by the eff* units. */
-extern void GeometryBlockDestroy(void *geometry);
+extern void GeometryBlockDestroy(void *block);
 extern void kAssertFail(const char *file, s32 line);
 extern void chkmemAllocSiteTag(const char *file, s32 line);
 extern void memcpy(void *dst, void *src, u32 size);
@@ -25,7 +25,7 @@ extern u32 D_00713E84[]; /* parameter byte counts, six words per kind */
    GPREL16 reloc. */
 extern f32 iGpffff8044;
 extern u32 D_00713360[];
-extern u8 *GeometryCreateStripGrid(u16 copies, void *indices, s32 vertices, s32 flags);
+extern u8 *GeometryCreateStripGrid(u16 rowCount, void *indices, s32 verticesPerRow, s32 flags);
 
 /* 4-byte color, copied field-by-field by retail. */
 typedef EffMeshColor Color4;
@@ -33,10 +33,10 @@ typedef EffMeshColor Color4;
 typedef struct EffThunderColorRow {
     union { u32 packed; Color4 rgba; } colors[5];
 } EffThunderColorRow;
-extern s32 mdlEffectSamplePackedColor(u8 *parameters, u8 *baseColor, s32 age, s32 duration);
-extern void GeometryMatrixBuild(void *dst, void *obj, void *src, f32 scale);
-extern void func_003e9cb0(void *frame, void *matrix, s32 combineMode);
-extern void GeometryBlockBindResource(void *geometry, u16 resource);
+extern s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration);
+extern void GeometryMatrixBuild(void *matrix, void *translation, void *basis, f32 scale);
+extern void func_003e9cb0(void *frame, void *transform, s32 combine);
+extern void GeometryBlockBindResource(void *block, u16 resourceId);
 
 
 #pragma push
@@ -201,13 +201,13 @@ static inline f32 thunderAdd(f32 first, f32 second) { return first + second; }
 void ThunderBoltUpdateStrip(u8 *effect)
 {
     /* Earlier whole-layout probe: normalized_diff 1277; remaining raw sites are isolated below. */
-    extern void mdlEffectCopyCameraOrigin(f32 *origin);
+    extern void mdlEffectCopyCameraOrigin(f32 *output);
     extern void effMiscBuildRotationVU(void);
     extern f32 sinf(f32 angle);
     extern f32 cosf(f32 angle);
     extern f32 sqrtf(f32 value);
     extern f32 func_0044b938(f32 value);
-    extern void effMiscAxisAngleVU(f32 angle, f32 *axis);
+    extern void effMiscAxisAngleVU(f32 axis, f32 *angle);
     extern void func_003c22f0(u8 *geometry);
     extern f32 fGpffff8084;
     extern f32 iGpffff8084;
@@ -818,7 +818,7 @@ void ThunderPaddedGeometryDestroy(u8 *effect)
 void ThunderOrbitBoltUpdateStrip(u8 *effect)
 {
     /* Earlier whole-layout probe: normalized_diff 1868; remaining raw sites are isolated below. */
-    extern void mdlEffectCopyCameraOrigin(f32 *origin);
+    extern void mdlEffectCopyCameraOrigin(f32 *output);
     extern f32 sinf(f32 angle);
     extern f32 cosf(f32 angle);
     extern f32 sqrtf(f32 value);
@@ -827,7 +827,7 @@ void ThunderOrbitBoltUpdateStrip(u8 *effect)
     extern void effMiscRotateXVU(f32 angle);
     extern void effMiscRotateYVU(f32 angle);
     extern void effMiscCombineRotationVU(void);
-    extern void effMiscAxisAngleVU(f32 angle, f32 *axis);
+    extern void effMiscAxisAngleVU(f32 axis, f32 *angle);
     extern void func_003c22f0(u8 *geometry);
     extern f32 fGpffff804c;
     extern f32 fGpffff8084;
@@ -1530,10 +1530,10 @@ void ThunderPairedGeometryDestroy(u8 *effect)
 void ThunderPairedUpdateStrip(u8 *effect)
 {
     /* Earlier whole-layout probe: normalized_diff 1305; remaining raw sites are isolated below. */
-    extern void mdlEffectCopyCameraOrigin(f32 *origin);
+    extern void mdlEffectCopyCameraOrigin(f32 *output);
     extern void effMiscBuildRotationVU(void);
     extern f32 sinf(f32 angle);
-    extern void effMiscAxisAngleVU(f32 angle, f32 *axis);
+    extern void effMiscAxisAngleVU(f32 axis, f32 *angle);
     extern void func_003c22f0(u8 *geometry);
     extern f32 fGpffff8084;
     extern f32 fGpffff80d0;

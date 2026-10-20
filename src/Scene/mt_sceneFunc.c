@@ -13,19 +13,19 @@
 
 // lint: allow H011 -- measured: u16 prototype regresses MT_Scene_BeginResMoveToward (andi on wide id args); retail declared this old-style
 extern void *MT_Scene_GetRes();
-u32 MT_Scene_GetSegmentHeading(float* first, float* second, float* output, float* third);
+u32 MT_Scene_GetSegmentHeading(float* start, float* end, float* directionOutput, float* headingOutput);
 
 extern u32 MT_Scene_BeginResPathAnim(SceneUpdateResource* resource, u32 pathWords, float speed, u32 loop);
-extern u32 MT_Scene_SetResColorParam(u32 param_1, u8 param_2, u32 param_3, u32 param_4);
+extern u32 MT_Scene_SetResColorParam(u32 resourceAddress, u8 alpha, u32 duration, u32 enableBlend);
 
-extern u32 MT_Scene_SetResMotionRecord(u32 *param_1, u32 param_2, u32 param_3, u32 param_4,
-                         u32 param_5, u32 param_6, float param_7);
+extern u32 MT_Scene_SetResMotionRecord(u32 *resource, u32 layer, u32 animation, u32 frame,
+                         u32 flags, u32 blend, float speed);
 extern u32 MT_Scene_SetResActive(void* resource, s32 enabled);
 extern s32 MT_Scene_SetResShadowCaster(u8 *resource, s32 enabled);
 
 extern u8 *MT_Scene_GetResListHead(s32 resourceType);
 
-extern void MT_Scene_WrapAngles(float *param_1);
+extern void MT_Scene_WrapAngles(float *angles);
 
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbb90 (verified MATCH
 // there). 006a2f48 -> D_0063b1a0, 006a2f50 -> D_0063b1a8, 004c69f0 ->
@@ -61,14 +61,14 @@ extern float fGpffff8428;
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbd40 (verified MATCH
 // there). 003bbc90 -> MT_Scene_EvalCubicBezier.
 
-extern void MT_Scene_EvalCubicBezier(float param_1, float *param_2, float *param_3, float *param_4, float *param_5, float *param_6, float *param_7);
+extern void MT_Scene_EvalCubicBezier(float t, float *x, float *y, float *z, float *outX, float *outY, float *outZ);
 extern f32 RwV3dLength(const RwV3d *vector);
 
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bc0e0 (verified MATCH
 // there). 007cb0b8 -> D_007614c0, 003bbfd0 -> MT_Scene_GetCurveSegmentLength.
 
 extern f32 D_007614c0;
-extern float MT_Scene_GetCurveSegmentLength(float param_1, float param_2, float *param_3, float *param_4, float *param_5, float *param_6, float *param_7);
+extern float MT_Scene_GetCurveSegmentLength(float firstTime, float secondTime, float *controlX, float *controlY, float *controlZ, float *firstPoint, float *secondPoint);
 
 // Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bcc80 (verified MATCH
 // there). 007ce658 -> D_00764580, 003500e0 -> mdlEffectSeqStop.
@@ -80,7 +80,7 @@ extern u32 D_0076458C;
 extern void mdlEffectSeqStop(void);
 
 extern void MT_Scene_WrapObjectAngles(s32 object);
-extern float MT_Scene_GetCurveLength(char *param_1);
+extern float MT_Scene_GetCurveLength(char *path);
 extern s32 mtSceneIconSpawnTask(u16 resourceId, s32 iconIndex);
 extern s32 FldShadow_SetCasterFlag(s32, s32, s32);
 extern void memset(void *dst, s32 value, s32 size);
@@ -98,9 +98,9 @@ extern void mdlSetLayerWeight(u32 model, u16 layer, f32 speed);
 extern void mdlSetLayerTime(u32 model, u16 layer, f32 frameValue);
 extern void *mdlGetColor();
 extern void mdlEffectGetPackedColor(void *object, s32 *color);
-extern void chkmemAllocSiteTag(const void *msg, u32 id);
+extern void chkmemAllocSiteTag(const void *file, u32 line);
 
-extern void kAssertFail(const void *msg, u32 line);
+extern void kAssertFail(const void *file, u32 line);
 extern void func_00440b68(const void *msg, u32 value);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u32 *jtbl_008873E8[];
@@ -112,7 +112,7 @@ extern u32 MT_Scene_GetShakeOffset(float *offset);
 extern void func_003e9df0(void *);
 extern void func_003e9cb0(void *frame, void *transform, s32 combine);
 extern void func_003e0f40(void *);
-extern void MT_Scene_OffsetPointByRotation(f32 *input, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 *result);
+extern void MT_Scene_OffsetPointByRotation(f32 *input, f32 distance, f32 pitch, f32 yaw, f32 roll, f32 *result);
 extern u8 *resrcMngGetTableEntry(u32 curveKind);
 extern f32 cosf(f32);
 extern f32 func_0044b938(f32 value);
@@ -885,17 +885,17 @@ typedef union SceneEffectColor {
     RwRGBA rgba;
 } SceneEffectColor;
 
-extern void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *scale);
-extern void MT_Scene_GetAngleDelta(f32 *start, f32 *end, f32 *delta);
+extern void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *scaleInput);
+extern void MT_Scene_GetAngleDelta(f32 *start, f32 *end, f32 *output);
 extern f32 MT_Scene_SampleCurveTable(u32 kind, f32 duration, f32 elapsed);
 extern s32 MT_Scene_GetTerrainAtPoint(u16 *position);
 extern void mdlSetColor(Model *model, const RwRGBA *color);
 extern void mdlSetAlphaBlend(void *model);
 extern void mdlClearAlphaBlend(void *model);
-extern void mdlEffectSetPackedColor(void *effect, s32 *color);
+extern void mdlEffectSetPackedColor(void *object, s32 *packedColor);
 /* The companion forwarding provider requires this same object parameter. */
 
-extern s32 sdkSndStartStream(s16 index, s16 stream, s16 bank, s16 sound);
+extern s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
 
 static inline f32 sceneUpdateBlend(f32 start, f32 delta, f32 amount)
 {

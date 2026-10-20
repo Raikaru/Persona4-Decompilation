@@ -59,11 +59,11 @@ extern f32 fGpffff82d8;
 extern f32 fGpffff82d4;
 extern f32 fGpffff80f0;
 extern f32 fGpffff82dc;
-extern f32 func_0044b950(f32 x, f32 y);
+extern f32 func_0044b950(f32 left, f32 right);
 extern f32 fGpffff8048;
 extern void func_003dc740(void *dst, const void *src, s32 mode, f32 angle);
 extern u8 D_0060A0E0[];
-extern void btlUnitRequestLookAt(u8 *data);
+extern void btlUnitRequestLookAt(u8 *unit);
 extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
@@ -134,9 +134,9 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 data, s32 value);
-extern float btlFormationGetScale(int data);
-extern s32 btlUnitArcMovePacketUpdate(u8 *data);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
+extern float btlFormationGetScale(int unit);
+extern s32 btlUnitArcMovePacketUpdate(u8 *packetWork);
 extern s32 iGpffffb444;
 
 static inline void btlUnitInitChildOrdered(u16 value, u8 *data)

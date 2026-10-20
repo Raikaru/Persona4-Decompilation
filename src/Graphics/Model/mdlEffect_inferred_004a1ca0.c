@@ -60,8 +60,8 @@ extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
 extern void func_003c22f0();
-extern u16 *GeometryCreateTableGridMultiPart(s32 instance, s32 parameters, s32 count, s32 flags,
-                          void *data, s32 options);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern u8 D_0071401C[];

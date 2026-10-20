@@ -41,7 +41,7 @@ struct RwMatrixTag {
     u32 pad3;
 };
 
-extern void btlMainCurveReset(u16 *first, f32 *second);
+extern void btlMainCurveReset(u16 *curve, f32 *pose);
 extern u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
                           P4CameraFrame *firstOut, P4CameraFrame *secondOut);
 extern f32 fGpffff809c;
@@ -56,15 +56,15 @@ extern f32 fGpffff8114;
 extern u8 *iGpffffb3ac; /* battle-state allocation */
 extern u8 *iGpffffb3e0;
 extern f32 fGpffff811c;
-extern void btlCameraSetupActionGeometry(u8 *first, u8 *second, f32 *third, f32 fourth, u16 fifth);
+extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
 extern void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *second);
 extern u8 D_005F7CA0[];
 extern u8 D_005F91A0[];
 extern u8 D_005FA2D0[];
 extern u8 D_005F78C0[];
 extern u8 D_005F7AB0[];
-extern void btlUnitGetSphereWorldCenter(u8 *first, f32 *second);
-extern void btlCameraLookAtQuat(void *first, const void *second, const void *third, const void *fourth);
+extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
+extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
 extern u8 D_0060A0D0[];
 extern u8 D_0060A0E0[];
 extern RwV3d D_0060A0F0;

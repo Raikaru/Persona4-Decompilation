@@ -14,7 +14,7 @@ extern u8 *kwlnGetCamera(void);
 extern u8 *func_003e9700(s32 a0);
 extern void func_003e42a0(void *a0, void *a1, void *a2);
 extern void RwV3dLength(void *a0);
-extern void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, u8 *angle, f32 fparg0);
+extern void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, u8 *angle, f32 output);
 extern void RwV3dNormalize(f32 *a0, f32 *a1);
 extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
 extern void func_003dcc70(void *a0, void *a1, void *a2);
@@ -30,7 +30,7 @@ extern f32 D_007614E8;
 extern f32 cosf(f32 fparg0);
 extern f32 sinf(f32 fparg0);
 extern f32 D_00761470;
-f32 btlShuffleCalcEase(f32 fparg0);
+f32 btlShuffleCalcEase(f32 depth);
 typedef struct { f32 x, y, z, w; } ShuffleVec4;
 typedef BtlShuffleVec3 ShuffleVec3;
 typedef struct { f32 v[9]; s32 flag; } ShuffleOut;
@@ -44,7 +44,7 @@ typedef struct ShuffleCalcUnit {
     f32 target[3];
     f32 scale;
 } ShuffleCalcUnit;
-f32 btlShuffleCalcWave(f32 fparg0, f32 fparg1, f32 fparg2, s32 curve);
+f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
 
 /* SOLVED -- this was recorded here as a "Commutative FP-mul scheduling floor"
    and re-confirmed as a floor through wave 14. The nd-2 spelling those notes

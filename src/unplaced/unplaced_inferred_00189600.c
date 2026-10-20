@@ -38,11 +38,11 @@ typedef struct FldLmapCameraWork {
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void RpSkyRenderStateSet(s32, s32);
 extern void (*jtbl_008873EC[])(void *);
-extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *handle);
+extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
 extern void func_003e0f40(s32);
 extern s32 *MT_Scene_GetFrameState(void);
-extern void FldRc_SetPositionSlotLock(s32 a, s32 b, s32 c);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void FldRc_SetPositionSlotLock(s32 task, s32 slotIndex, s32 locked);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_005F5340[];
 extern u8 D_005F5350[];

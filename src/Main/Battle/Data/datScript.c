@@ -29,12 +29,12 @@ extern u8* DAT_007644F4;    /* parameter table (s16 entries) */
 s32 datCalcGetLevel(u16* unit);
 s32 datCalcGetHp(u16* unit);
 s32 datCalcMaxHp(u16* unit);
-s32 datCalcGetBattleStat(u16* unit, u32 param);
-s32 datCalcGetAffinity(u8* unit, s32 param);
-s32 datCalcStatusElement(s16 cmd, s32 param);
-s32 datCalcSkillElement(u8* unit, u16 cmd);
-s32 datCalcGetWeaponProperty(u16* unit, s32 param);
-s32 datCalcGetArmorProperty(u16* unit, s32 param);
+s32 datCalcGetBattleStat(u16* unit, u32 statIndex);
+s32 datCalcGetAffinity(u8* unit, s32 elementIndex);
+s32 datCalcStatusElement(s16 skillId, s32 statusMask);
+s32 datCalcSkillElement(u8* unit, u16 skillId);
+s32 datCalcGetWeaponProperty(u16* unitWords, s32 propertyKind);
+s32 datCalcGetArmorProperty(u16* unit, s32 propertyKindArg);
 s32 datCalcEnemyHasTableFlag(u16* unit);
 
 // FUN_00244F60

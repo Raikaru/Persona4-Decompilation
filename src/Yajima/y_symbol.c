@@ -43,7 +43,7 @@ extern u8 D_007E8C54[];
 extern u32 D_007EFA00[];
 extern u8 D_007EFA04[];
 
-extern void chkmemAllocSiteTag(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 
 extern s32 K_FldEvent_ArePosWithinDist(u8 *posA, u8 *posB, f32 maxDist);
 extern f32 KDraw_MatrixYawDeg(u8 *matrix);

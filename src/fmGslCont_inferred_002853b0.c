@@ -7,11 +7,11 @@
 #include "scene_light_override_internal.h"
 #include "evt_internal.h"
 
-s32 kwlnTaskGetTaskByName(void *value);
+s32 kwlnTaskGetTaskByName(void *name);
 extern s32 D_0063C368[];
 
 
-extern void kAssertFail(void *value, s32 otherValue);
+extern void kAssertFail(void *file, s32 line);
 extern s32 D_0063C1D0[];
 extern u8 D_0063C2B8[];
 extern f32 D_00882214[];
@@ -41,8 +41,8 @@ extern u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary,
 extern char D_0063C340[];
 extern char D_0063C380[];
 extern char D_0063C350[];
-extern void evtPolygonMovieLerpPose(s32 value, f32 otherValue, f32 *thirdValue, f32 *fourthValue,
-                          f32 *fifthValue);
+extern void evtPolygonMovieLerpPose(s32 enabled, f32 blend, f32 *fromPose, f32 *toPose,
+                          f32 *outPose);
 typedef signed __int128 s128;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00748340[];

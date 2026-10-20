@@ -40,10 +40,10 @@ typedef struct {
     s32 field20;
 } Code1_00263220State;
 
-extern void PrimDrawContour(f32 fparg0, f32 fparg1, f32 fparg2,
+extern void PrimDrawContour(f32 x, f32 y, f32 depth,
                           s32 rgb, s32 alpha, s32 unusedMode, s32 shape,
                           s32 originX, s32 originY,
-                          f32 fparg3, f32 fparg4, f32 fparg5);
+                          f32 rotation, f32 scaleX, f32 scaleY);
 extern char iGpffffa6c4;
 extern s32 (*D_00887300[])(RwRenderState state, void *value);
 extern u8 D_00881530[];
@@ -84,10 +84,10 @@ extern s32 cldDayChangeRequest(u32 unused, s32 day);
 extern void cldDayChangeMarkDone(u8 *task);
 extern s32 cldDayChangeIsDone(s32 task);
 extern f32 sinf(f32 fparg0);
-extern void calDrawWeather(s32 x, s32 y, f32 fparg0, u8 opacity,
-                           s32 weather, s32 highlight, f32 fparg1, f32 fparg2,
+extern void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity,
+                           s32 weather, s32 highlight, f32 scaleX, f32 scaleY,
                            s32 clipLeft, s32 clipWidth, s32 font,
-                           s32 arg_sp0);
+                           s32 forcedHighlight);
 extern char D_0063BA50[];
 extern char D_0063BA80[];
 extern s32 D_008815B0[];
@@ -398,13 +398,13 @@ void cldShapeListDraw(u8 **shapeWork)
     f32 scaleFactor;
     u8 *list;
     f32 time;
-    extern void comuDataRemoveAndReleaseNode(void *shapeWork, void *source, void *nodeStorage);
+    extern void comuDataRemoveAndReleaseNode(void *owner, void *source, void *nodeStorage);
     extern f32 D_00761514;
     extern f32 D_00761658;
     extern f32 D_0076165C;
     extern f32 D_00761260;
     extern s32 cldShapeDraw(u8 **shapeWork, u8 *entry);
-    extern f32 MT_Scene_CubicBezier(f32 shapeWork, f32 p1, f32 p2, f32 p3,
+    extern f32 MT_Scene_CubicBezier(f32 p0, f32 p1, f32 p2, f32 p3,
                               f32 t);
 
     work = (u8 *)shapeWork;

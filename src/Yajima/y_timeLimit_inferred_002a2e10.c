@@ -19,7 +19,7 @@ extern u8 D_0063EED0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
-extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 * pack, s32 flags);
+extern s32 shdSpriteDrawNow(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 * pack, s32 flags);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
 extern f32 fGpffff8204;

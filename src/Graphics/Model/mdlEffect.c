@@ -6,7 +6,7 @@
 #include "mdl_effect_internal.h"
 #include "effect_instance_internal.h"
 #include "effect_update_internal.h"
-extern void *mdlEffectCloneHelperInstance(void *source);
+extern void *mdlEffectCloneHelperInstance(void *opaqueSource);
 extern f32 effMiscRandFloat(EffRandState *state);
 extern void *WindCreateKindEntryAlt(void *source);
 extern void *mdlEffectCloneInstance(void *source);
@@ -22,21 +22,21 @@ extern void free(void *ptr);
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
-extern void mdlEffectListReleaseNodes(u32 *value);
+extern void mdlEffectListReleaseNodes(u32 *list);
 
-extern void mdlEffectFlushWithTable(s32 input, s32 data);
+extern void mdlEffectFlushWithTable(s32 table, s32 effect);
 
 extern void mdlEffectStart();
 
-extern void mdlEffectSetPackedColor(void *object, s32 *color);
+extern void mdlEffectSetPackedColor(void *object, s32 *packedColor);
 
 extern void mdlEffectSetUniformScale(float value, u8 data[][16]);
-extern void mdlEffectListReleaseHandles(u32 *value);
-extern void mdlEffectDestroy(int value);
-extern u32 mdlEffectCreateFromResource(u32 value);
+extern void mdlEffectListReleaseHandles(u32 *list);
+extern void mdlEffectDestroy(int model);
+extern u32 mdlEffectCreateFromResource(u32 resource);
 extern u32 mdlEffectClone();
 
-extern void mdlEffectAdvanceTrackQuad(int *value, u8 *data, float *output);
+extern void mdlEffectAdvanceTrackQuad(int *player, u8 *track, float *output);
 
 
 extern void ParticleProjectVertices(u8 *particle, f32 scale);
@@ -53,16 +53,16 @@ extern u64 iGpffffb8e8;
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern u8 D_007131E8[];
 /* Defined below in this file; called at line 54, above its definition. */
-extern void mdlEffectListClear(u32 *value);
+extern void mdlEffectListClear(u32 *list);
 extern s32 kwlnGetCamera(void);
 extern u8 *func_003e9700(s32 input);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern void memset(void *dest, s32 value, s32 size);
-extern s32 mdlCopyIndexedMatrix(void *input, s32 data, void *options);
+extern s32 mdlCopyIndexedMatrix(void *model, s32 index, void *destination);
 extern void func_003e0670(void *matrixOut, void *matrixIn);
 extern void RtQuatConvertFromMatrix(void *input, void *data);
-extern void mdlEffectSetMatrixPose(u8 *input, u8 *data);
+extern void mdlEffectSetMatrixPose(u8 *effect, u8 *matrix);
 typedef struct { u8 c0; u8 c1; u8 c2; u8 c3; } MdlCol;
 extern MdlCol iGpffffbb64;
 
@@ -107,7 +107,7 @@ static inline u8 *mdlEffect_camera_matrix(u8 *base)
 
 
 
-extern void datEntryDrawGatedByFlag39(s32 a0, s32 a1, s32 a2, s32 a3);
+extern void datEntryDrawGatedByFlag39(s32 port, s32 sequence, s32 duration, s32 flags);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern void mdlEffectDestroyModel(s32 input);
 extern void func_00182b40(void);
@@ -206,9 +206,9 @@ void btlUiSetWindowRect(u8 *command)
 }
 
 
-extern void fclFadeRectSetRenderStates(s32 input, u8 *data);
-extern u32 datEntryGetFlags(s16 item);
-extern s32 fclFirstSetBitIndex(s32 input);
+extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
+extern u32 datEntryGetFlags(s16 itemId);
+extern s32 fclFirstSetBitIndex(s32 flags);
 extern void (*D_00887300[])(s32 input, s32 data);
 /* measured: a typed vtable base local with propagation disabled reproduces the
    retail single D_00887300 address hoist and saved-register frame. */
@@ -256,7 +256,7 @@ u32 mdlEffectListCreate(void)
 }
 
 /* Defined below in this file; called at line 61, above its definition. */
-extern u32 *mdlEffectListAppendNode(u32 *list, u32 *data, u16 options);
+extern u32 *mdlEffectListAppendNode(u32 *list, u32 *sourceNode, u16 matrixIndex);
 
 /* Creates a list and appends a reference to each source node. */
 // FUN_0047D200
@@ -680,14 +680,14 @@ u32 *mdlEffectListWrapShared(u32 **source)
     obj[1] = obj[1] + 1;
     return wrapper;
 }
-extern u_long128 mdlEffectStoreQuadA(s32 emitter, u32 *position);
-extern u_long128 mdlEffectStoreQuadB(s32 emitter, u32 *rotation);
-void func_003e9cb0(void *frame, void *matrix, u32 flags);
-extern void mdlEffectReleaseTrackResource(u8 *input);
-extern void mdlEffectReleasePrimarySource(u8 *input);
-extern void mdlEffectReleaseSecondarySource(u8 *input);
+extern u_long128 mdlEffectStoreQuadA(s32 instance, u32 *quadData);
+extern u_long128 mdlEffectStoreQuadB(s32 instance, u32 *quadData);
+void func_003e9cb0(void *frame, void *transform, u32 combine);
+extern void mdlEffectReleaseTrackResource(u8 *resource);
+extern void mdlEffectReleasePrimarySource(u8 *instance);
+extern void mdlEffectReleaseSecondarySource(u8 *instance);
 extern void mdlEffectAdvanceEmitter(void *object);
-extern void ParticleUpdateScaled(u8 *input, f32 data);
+extern void ParticleUpdateScaled(u8 *particle, f32 scale);
 void GeometryMatrixBuildCombined();
 extern char D_00713CE0[];
 static inline f32 MulF32(f32 left, f32 right) {
@@ -884,8 +884,8 @@ u_long128 mdlEffectInitParticleState(u8 *instance)
 }
 
 
-extern void mdlEffectCommitTreeFrame(u8 *input);
-extern void mdlEffectFlushTreeFrame(u8 *input);
+extern void mdlEffectCommitTreeFrame(u8 *effect);
+extern void mdlEffectFlushTreeFrame(u8 *effect);
 #pragma push
 #pragma opt_propagation off
 #pragma pop
@@ -1758,7 +1758,7 @@ extern void (*D_00713F20[])(u8 *object);
 extern void (*D_00713D54[])(u8 *emitter, f32 scale);
 typedef struct EffRandState EffRandState;
 extern u32 effMiscRand(EffRandState *state);
-extern void mdlEffectAppendGeometryPrimitive(u8 *object, s32 resource);
+extern void mdlEffectAppendGeometryPrimitive(u8 *source, s32 texture);
 /* Scale applier for emitter kind 7 (word 1 of the D_00713D54 record). Writes the scaled fields of the record at +0x24 into the record at +0x20. */
 // FUN_00490360
 void EffBezierApplyScale(u8 *emitter, f32 scale) {
@@ -2003,7 +2003,7 @@ void EffEmitterApplyScale(u16 *emitter, f32 scale) {
 }
 
 
-extern void mdlEffectDestroyMultipartGeometry(u8 *input);
+extern void mdlEffectDestroyMultipartGeometry(u8 *source);
 #pragma opt_loop_invariants on
 #pragma opt_loop_invariants off
 #pragma opt_propagation off
@@ -2323,14 +2323,14 @@ void RingSetVec3(u8 *instance, f32 *scale) {
 }
 
 
-extern void mdlEffectCopyReferences(u8 *input, u8 *data);
-extern void mdlEffectDrawModelChildren(u8 *input);
-extern void EffSpriteUpdate(u8 *input);
-extern u8 *mdlEffectCreateGridForRecord(u8 *input);
-extern u8 *WindAllocKindEntry(u16 input, u8 *data);
+extern void mdlEffectCopyReferences(u8 *destination, u8 *source);
+extern void mdlEffectDrawModelChildren(u8 *instance);
+extern void EffSpriteUpdate(u8 *instance);
+extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
+extern u8 *WindAllocKindEntry(u16 kind, u8 *parameters);
 extern u8 D_0071413C[];
 extern void func_004adb50();
-extern void mdlEffectDrawModelChildren(u8 *input);
+extern void mdlEffectDrawModelChildren(u8 *instance);
 extern f32 iGpffff8080;
 extern void (*D_008873ec[])(void *);
 extern s32 D_00724C70;
@@ -2349,13 +2349,13 @@ extern u8 D_00714020[];
 extern u8 D_00714018[];
 extern u8 D_00714144[];
 extern u8 *func_003e9c10(u8 *input, const f32 *translation, s32 combineOp);
-extern void mdlEffectApplyShakeEnvelope(u8 *input, s32 data);
-extern void mdlSetLayerTime(u8 *input, s32 data, f32 options);
+extern void mdlEffectApplyShakeEnvelope(u8 *record, s32 elapsed);
+extern void mdlSetLayerTime(u8 *model, s32 layer, f32 frameValue);
 extern f32 fGpffff80f4;
-extern void mdlEffectCopyReferences(u8 *input, u8 *data);
-extern u8 *GeometryCloneBlock(s32 input);
+extern void mdlEffectCopyReferences(u8 *destination, u8 *source);
+extern u8 *GeometryCloneBlock(s32 source);
 extern void mdlSetResetCallback(void *input, void (*data)(void), void *options);
-extern void mdlEffectStartChildren(s32 input);
+extern void mdlEffectStartChildren(s32 effect);
 extern void *mdlEffectCreateInstance(void *source);
 
 
@@ -2569,11 +2569,11 @@ void WindSetVec3(u8 *instance, f32 *scale) {
 }
 
 
-extern void primQuad3D(f32 *input, u8 *data, s32 options, f32 flags);
-extern void primAxisLine3D(f32 *input, s32 data, f32 options);
-extern s32 mdlEffectShareTrackInstance(s32 input);
-extern void TlpRelease(s32 input);
-extern s32 TlpAddRef(s32 input);
+extern void primQuad3D(f32 *pos, u8 *col, s32 size, f32 saveAndRestoreRenderState);
+extern void primAxisLine3D(f32 *mat, s32 length, f32 saveAndRestoreRenderState);
+extern s32 mdlEffectShareTrackInstance(s32 source);
+extern void TlpRelease(s32 work);
+extern s32 TlpAddRef(s32 work);
 // Destroys an instance: releases its +0xCC table handle and +0xD0 record reference, destroys its geometry block, and frees the instance.
 // FUN_004A5DE0
 void mdlEffectDestroyInstance(u8 *instance) {
@@ -2760,13 +2760,13 @@ void mdlEffectIncrementCounter(int instance)
 void mdlEffectRenderFlares(u8 *instance)
 {
     /* measured: Remaining byte-addressed geometry/material reloads and entry-color load preserve MATCH: whole-line and inner-pointer typing each changed instruction bytes; other model fields, entries and native vertices are typed (measured individually). */
-    extern s32 mdlEffectSamplePackedColor(u8 *a, u8 *b, s32 c, s32 d);
+    extern s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration);
     extern RpGeometry *func_003c22f0(RpGeometry *geometry);
     extern RpMaterial *RpMaterialSetTexture(RpMaterial *material, RwTexture *texture);
-    extern s32 TnSlotObject(u16 b);
-    extern s32 TnGetOffset38(u16 b);
-    extern void PrimAppendNode(u8 *a, u8 *b);
-    extern RwFrame *func_003e9cb0(RwFrame *frame, const RwMatrix *matrix, RwOpCombineType combine);
+    extern s32 TnSlotObject(u16 slotIndex);
+    extern s32 TnGetOffset38(u16 slotIndex);
+    extern void PrimAppendNode(u8 *list, u8 *node);
+    extern RwFrame *func_003e9cb0(RwFrame *frame, const RwMatrix *transform, RwOpCombineType combine);
     extern s32 kwlnGetCamera(void);
     extern RwMatrix *RwFrameGetLTM(RwFrame *frame);
     extern f32 sqrtf(f32 x);
@@ -3510,30 +3510,30 @@ void ObjectParticleSetScale(u8 *instance, f32 scale) {
 }
 
 
-extern void mdlEffectScreenSpriteCopyResource(u8 *input, u8 *data);
+extern void mdlEffectScreenSpriteCopyResource(u8 *destination, u8 *source);
 extern s32 iGpffffbb98; /* sequence playback enabled */
 extern s32 iGpffffbb94; /* current sequence frame */
 extern s32 D_00922DA0[]; /* sequence duration; zero leaves it unbounded */
 extern s16 D_00922DA4[]; /* sequence selector */
 extern s32 D_00922DA8[];
 extern s32 D_00922DAC[];
-extern void mdlEffectSetChildPositions(void *input, f32 *data);
-extern void mdlEffectUpdateScreenSprite(u8 *input);
+extern void mdlEffectSetChildPositions(void *effect, f32 *value);
+extern void mdlEffectUpdateScreenSprite(u8 *instance);
 extern void func_003efd20(u8 *input, s32 data);
 extern void func_003e9390(s32 input);
 extern void func_003ec330(s32 input);
 extern void RpSkyTexCacheRasterLock(s32 input, s32 data);
 extern void func_003e8440(u8 *input);
-extern void mdlEffectScreenSpriteCopyResource(u8 *input, u8 *data);
+extern void mdlEffectScreenSpriteCopyResource(u8 *destination, u8 *source);
 extern u8 D_0071465C[];
 extern u8 D_00714650[];
 extern u8 D_00714660[];
-extern void mdlEffectGetPositionVec(u8 *input, u32 *data);
-extern void mdlEffectSetChildRotations(u8 *input, void *data);
-extern void effMiscEulerToQuatVU(f32 input, f32 data, f32 options);
+extern void mdlEffectGetPositionVec(u8 *object, u32 *output);
+extern void mdlEffectSetChildRotations(u8 *effect, void *value);
+extern void effMiscEulerToQuatVU(f32 angleX, f32 angleY, f32 angleZ);
 extern f32 iGpffff836c;
-extern void mdlEffectGetOrientationVec(u8 *input, u32 *data);
-extern void mdlEffectApplyPackedColor(u8 *input, s32 data);
+extern void mdlEffectGetOrientationVec(u8 *object, u32 *output);
+extern void mdlEffectApplyPackedColor(u8 *effect, s32 value);
 extern u32 mdlEffectGetPackedColorWord(void *object);
 typedef signed __int128 s128;
 extern void *mdlEffectCreateScreenSprite(void *opaqueSource);

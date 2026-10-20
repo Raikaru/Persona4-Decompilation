@@ -20,27 +20,27 @@ extern u16 D_008817E8[];
 extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
-extern void itfMesWindowStepState(u8 *value);
-extern void itfMesWindowAdvanceRow(u8 *value);
-extern void itfMesWindowCommitSelection(u8 *value);
-extern void itfMesWindowStepTransition(u8 *value);
-extern void itfMesWindowQueueCallback(s32 value);
-extern s32 func_0027bd40(s32 value);
-extern s32 func_0027bda0(s32 value);
-extern s32 func_0027be00(s32 value);
+extern void itfMesWindowStepState(u8 *window);
+extern void itfMesWindowAdvanceRow(u8 *window);
+extern void itfMesWindowCommitSelection(u8 *window);
+extern void itfMesWindowStepTransition(u8 *window);
+extern void itfMesWindowQueueCallback(s32 taskAddress);
+extern s32 func_0027bd40(s32 handle);
+extern s32 func_0027bda0(s32 handle);
+extern s32 func_0027be00(s32 handle);
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027b1c0-0027b500 */
 
-extern void itfMesWindowStepState(u8 *value);
-extern void itfMesWindowAdvanceRow(u8 *value);
-extern void itfMesWindowCommitSelection(u8 *value);
-extern void itfMesWindowQueueCallback(s32 value);
-extern s32 func_0027b910(s32 value);
-extern s32 func_0027bd40(s32 value);
-extern s32 func_0027bda0(s32 value);
-extern s32 func_0027be00(s32 value);
+extern void itfMesWindowStepState(u8 *window);
+extern void itfMesWindowAdvanceRow(u8 *window);
+extern void itfMesWindowCommitSelection(u8 *window);
+extern void itfMesWindowQueueCallback(s32 taskAddress);
+extern s32 func_0027b910(s32 handle);
+extern s32 func_0027bd40(s32 handle);
+extern s32 func_0027bda0(s32 handle);
+extern s32 func_0027be00(s32 handle);
 /* measured: opt_propagation off probe for 002703d0 register setup. */
 /* measured: closes opt_propagation off probe for 002703d0. */
 /* measured: opt_rebuildconditionals off reproduces 002704f0 retail conditional-register schedule. */
@@ -120,10 +120,10 @@ node_done:
 // FUN_0027B310
 void itfMesWindowUpdateLists(u8 *window)
 {
-    extern s32 frFontDrawListDefault(s32 window);
-    extern s32 frFontDrawListMode(s32 window, s32 index);
+    extern s32 frFontDrawListDefault(s32 list);
+    extern s32 frFontDrawListMode(s32 list, s32 mode);
     extern void itfMesWindowMarkRedraw(void);
-    extern s32 func_0027b910(s32 window);
+    extern s32 func_0027b910(s32 handle);
     s32 flags;
     u32 mask;
     s32 value;

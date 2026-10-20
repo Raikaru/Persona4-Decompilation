@@ -27,7 +27,7 @@ extern void memset(void *dst, s32 value, s32 size);
 extern s32 func_003bbb60(u8 *value);
 extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
-extern u32 datCalcIsDead(s32 value, s32 option);
+extern u32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern void (*jtbl_008873EC[])(void *);
 extern f32 D_00922CA0[];
 extern f32 D_00922CA4[];
@@ -49,8 +49,8 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*D_005F6E20[])(u8 *value);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern u32 iGpffffa0b8;
-extern void btlCameraSetupActionGeometry(u8 *value, u8 *option, f32 *data, f32 rate, u16 flags);
-extern void btlCameraStartEffect(u8 *value, u8 *option, s32 data);
+extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
+extern void btlCameraStartEffect(u8 *camera, u8 *script, s32 options);
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
 {
@@ -60,10 +60,10 @@ static inline f32 func_001ba790_mul(f32 left, f32 right)
 {
     return left * right;
 }
-extern s32 btlCameraFrameActionStart(u8 *value, u8 *option);
-extern u8 *btlCameraGetCurrentEntry(u8 *value);
-extern void btlCameraInitWork(u8 *value, s32 option, s32 data, u8 *flags, s32 rate);
-extern void btlCameraUpdateEffectList(u8 *value);
+extern s32 btlCameraFrameActionStart(u8 *camera, u8 *work);
+extern u8 *btlCameraGetCurrentEntry(u8 *work);
+extern void btlCameraInitWork(u8 *work, s32 firstAction, s32 secondAction, u8 *script, s32 options);
+extern void btlCameraUpdateEffectList(u8 *camera);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern void btlCameraSuppressEncounterCallback(void);
@@ -71,12 +71,12 @@ extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
 extern f32 fGpffff80c8;
 extern f32 fGpffff8430;
-extern void primQuad3D(f32 *value, u8 *option, s32 data, f32 flags);
-extern void primAxisLine3D(f32 *value, s32 option, f32 data);
-extern u8 *btlEncounterGetRecord(s32 value);
-extern void func_003e9cb0(void *value, void *option, s32 data);
+extern void primQuad3D(f32 *pos, u8 *col, s32 size, f32 saveAndRestoreRenderState);
+extern void primAxisLine3D(f32 *mat, s32 length, f32 saveAndRestoreRenderState);
+extern u8 *btlEncounterGetRecord(s32 index);
+extern void func_003e9cb0(void *frame, void *transform, s32 combine);
 extern s32 kwlnGetCamera(void);
-extern void K_View_SetFov(void *value, f32 option);
+extern void K_View_SetFov(void *camera, f32 fov);
 extern f32 fGpffff8048;
 extern u8 D_005F74C0[];
 extern void btlCameraUpdateUnitInRangeFlags(void);

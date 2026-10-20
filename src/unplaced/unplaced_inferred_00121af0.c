@@ -23,7 +23,7 @@ extern void (*jtbl_008873EC[])(void *);
 extern s32 iGpffffb1cc;
 extern s32 iGpffff9c58;
 extern void fclBankTableReset(void);
-extern s32 tickerInitBankTable(u8 *task);
+extern s32 tickerInitBankTable(u8 *unusedTask);
 /* The queue allocation is opaque beyond its callback and user-data fields. */
 typedef struct FadeQueueNode {
     u8 pad0[8];
@@ -32,7 +32,7 @@ typedef struct FadeQueueNode {
     s32 userData;
 } FadeQueueNode;
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(char *name, u8 *task);
+extern void PrimAppendNode(char *list, u8 *node);
 extern void fadeUpdateCallback(void *, u8 *);
 extern char D_00796340[];
 extern s16 clndGetPeriod(void);

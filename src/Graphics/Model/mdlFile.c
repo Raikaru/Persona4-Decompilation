@@ -61,7 +61,7 @@ void mdlReleaseSharedWrapper(int *wrapper)
 
 extern void (*iGpffffbb3c)();
 extern void (*jtbl_008873EC[])(void *);
-extern void Vpad_RefreshSelection(u8 *track);
+extern void Vpad_RefreshSelection(u8 *work);
 extern void Vpad_Noop(u8 *track);
 struct RuntimeWork;
 extern void Vpad_SetColor(struct RuntimeWork* work, const u8* color);

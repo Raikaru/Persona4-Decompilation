@@ -156,20 +156,20 @@ loop_test:
 // FUN_002E72C0
 s32 shopSystemUpdate(u8 *task)
 {
-    void fieldSceneLoad(s32 task, s32 roomId);
-    s32 fadeBeginTransition(s32 task, s32 duration);
-    s32 fadeBeginReturnTransition(s32 task, s32 duration);
+    void fieldSceneLoad(s32 fieldId, s32 roomId);
+    s32 fadeBeginTransition(s32 mode, s32 duration);
+    s32 fadeBeginReturnTransition(s32 mode, s32 duration);
     s32 fadeStatus(void);
     s32 fieldSceneLoadStep(void);
     void fieldSceneUnload(void);
     s32 MT_Scene_GetCameraResFirst(void);
     f32 MT_Scene_GetCameraFov(void);
     s32 mtSceneResListPrepareAll(void);
-    s32 fclItemShopCreate(u8 *task);
+    s32 fclItemShopCreate(u8 *shopTask);
     u8 *func_003e9cb0(u8 *task, ...);
-    s32 kwlnTaskGetTaskByName(s8 *task);
+    s32 kwlnTaskGetTaskByName(s8 *name);
     u8 *kwlnGetCamera(void);
-    void K_View_SetFov(void *task, f32 fov);
+    void K_View_SetFov(void *camera, f32 fov);
     s32 sdkSndPlayCue(s16 task, ...);
     extern s8 D_0063FC68[];
     s8 state;

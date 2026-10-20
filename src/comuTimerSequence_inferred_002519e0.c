@@ -11,7 +11,7 @@ static inline f32 p4_0025_add(f32 left, f32 right) {
     return left + right;
 }
 extern u32 kwlnTaskGetWork(void *task);
-extern void sdkSpritePackDestroy(s32 input);
+extern void sdkSpritePackDestroy(s32 pack);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 D_006367C0[];
 extern s16 D_00636A40[];
@@ -25,24 +25,24 @@ extern s32 iGpffffb480;
 
 
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(u8 *input, u8 *secondInput);
-extern s64 cmmCommunityArcana(s32 input);
-extern s32 sdkSpritePackCreate(u8 *input);
-extern s32 shdSpriteEnsureLoaded(s32 input);
-extern s32 datPortraitTaskCreate(s32 input, s64 secondInput, s32 thirdInput);
-extern s32 datPortraitIsLoaded(s32 input);
-extern s32 cmmRankUpCreate(s32 input, s32 *secondInput); /* lint: allow H011 -- caller stores the returned v0 at work[7] (retail keeps it); definition is void */
-extern void cmmRankUpSetEntryHold(s32 input, s32 secondInput);
-extern void cmmRankUpCopyState(s32 input, s32 secondInput, s32 thirdInput);
+extern void PrimAppendNode(u8 *list, u8 *node);
+extern s64 cmmCommunityArcana(s32 communityId);
+extern s32 sdkSpritePackCreate(u8 *descriptor);
+extern s32 shdSpriteEnsureLoaded(s32 pack);
+extern s32 datPortraitTaskCreate(s32 parentAddress, s64 portraitId, s32 flags);
+extern s32 datPortraitIsLoaded(s32 task);
+extern s32 cmmRankUpCreate(s32 parentTask, s32 *context); /* lint: allow H011 -- caller stores the returned v0 at work[7] (retail keeps it); definition is void */
+extern void cmmRankUpSetEntryHold(s32 taskHandle, s32 hold);
+extern void cmmRankUpCopyState(s32 taskHandle, s32 kind, s32 stateIndex);
 extern void kwlnTaskGetWorkCallback(s32 *input);
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
 extern f32 fGpffff8200;
-extern void PrimDrawPoints(void *input, void *secondInput, f32 floatInput,
-                           s32 thirdInput, s32 fourthInput, s32 fifthInput);
-extern void PrimDrawRadialTriangle(s32 input, s32 secondInput, void *thirdInput, s32 fourthInput,
-                           f32 floatInput, f32 secondFloatInput, s32 fifthInput);
+extern void PrimDrawPoints(void *colors, void *positions, f32 depth,
+                           s32 count, s32 primitiveType, s32 preserveState);
+extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 radius,
+                           f32 angle, f32 depth, s32 preserveState);
 
 
 

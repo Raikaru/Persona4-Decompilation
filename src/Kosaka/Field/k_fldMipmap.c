@@ -17,7 +17,7 @@ typedef struct FldMipmapLoadWork {
 
 extern void (*jtbl_008873EC[])(void *);
 
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern u8 D_005F5370[];
@@ -34,12 +34,12 @@ extern void *func_003ef6d0(void);
 extern void *func_003ef650(void *dictionary, const void *name);
 extern void func_003ef3a0(void *texture);
 extern void func_00440b68(void *context, const void *file, s32 line);
-extern void *H_Cdvd_AcquireDirectory(void *path, s32 mode);
-extern s32 H_Cdvd_IsFileLoaded(void *request);
+extern void *H_Cdvd_AcquireDirectory(void *path, s32 flags);
+extern s32 H_Cdvd_IsFileLoaded(void *cdvd);
 extern s32 filerEnqueueRequest(s32, const void *, s32, s32, s32, s32, s32, s32, s32, s32);
 extern void *func_003ec590(s32 width, s32 height, s32 depth, s32 flags);
-extern s32 filerTakeCompletedRequest(s32 request, s32 *complete, s32 mode);
-extern void H_Cdvd_Destroy(void *request);
+extern s32 filerTakeCompletedRequest(s32 request, s32 *completed, s32 resultValue);
+extern void H_Cdvd_Destroy(void *cdvd);
 extern void func_003ec6a0(void *raster, s32 mipLevel, s32 mode);
 extern void func_003ec180(void *raster, void *image);
 extern void func_003ec2a0(void *raster);

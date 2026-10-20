@@ -5,9 +5,9 @@
 #include "type.h"
 #include "include_asm.h"
 extern s32 btlCond_MYNOMAL(u8 *formation, s32 index);
-extern s32 btlCond_MYWEAK(u8 *input, s16 value);
-extern u16 btlSkillClassifyTargets(u8 *input, u8 *value, u16 options, u32 flags);
-extern void scrSetReturnInt(s32 value);
+extern s32 btlCond_MYWEAK(u8 *action, s16 conditionValue);
+extern u16 btlSkillClassifyTargets(u8 *action, u8 *selection, u16 skillId, u32 reverseSides);
+extern void scrSetReturnInt(s32 retVal);
 
 
 typedef struct BtlFormationWork {
@@ -26,9 +26,9 @@ typedef struct BtlFormationWork {
   u32 items;
 } BtlFormationWork;
 
-extern void btlFormationResetState(BtlFormationWork* input);
-extern void mdlEffectDestroyWithNodes(u32 input);
-extern void mdlDestroyModelObject(u32 input);
+extern void btlFormationResetState(BtlFormationWork* work);
+extern void mdlEffectDestroyWithNodes(u32 effect);
+extern void mdlDestroyModelObject(u32 model);
 
 /* Work payloads written by the sprite/counter packet constructors below. */
 typedef struct BtlSpriteFrameWork {
@@ -52,29 +52,29 @@ typedef struct BtlUnitCounterWork {
 typedef int (*code)();
 
 
-extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
+extern BtlPacket* btlPacketAlloc(u32 packetType, u32 workSize);
 extern void btlEffectReleaseCdvdHandle(void);
 extern u32 btlEffectLoadTable(void);
-extern u32 btlEffectReleaseId(u16 *input);
-extern u32 btlEffectApplyFadeCustomColor(u8 *input);
+extern u32 btlEffectReleaseId(u16 *mode);
+extern u32 btlEffectApplyFadeCustomColor(u8 *request);
 
 typedef u8 bool;
 
 
 
-extern u32 btlPacketStepSpriteFrame(int input);
+extern u32 btlPacketStepSpriteFrame(int work);
 
 extern void func_00440b68();
-extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
-extern s32 H_Cdvd_IsFileLoaded(u8* ptr);
-extern u8* H_Cdvd_GetArchiveEntry(u8* handle, s32 index, s32* out);
-extern void H_Cdvd_ReadSync(void* handle);
-extern void chkmemAllocSiteTag(void* msg, s32 id);
+extern u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags);
+extern s32 H_Cdvd_IsFileLoaded(u8* cdvd);
+extern u8* H_Cdvd_GetArchiveEntry(u8* request, s32 entryIndex, s32* size);
+extern void H_Cdvd_ReadSync(void* cdvd);
+extern void chkmemAllocSiteTag(void* file, s32 line);
 extern void memcpy(void* dst, void* src, u32 size);
-extern void H_Cdvd_Destroy(u8* ptr);
-extern s32 btlFormationAllocWork(u32 input);
-extern void btlFormationSetSlot(int input, u32 value);
-extern u32 btlEffectFindUnitMatchingCallback(int input, u32 value, u32 options, u32 flags, u16 mode, code *callback);
+extern void H_Cdvd_Destroy(u8* cdvd);
+extern s32 btlFormationAllocWork(u32 mode);
+extern void btlFormationSetSlot(int formation, u32 resource);
+extern u32 btlEffectFindUnitMatchingCallback(int action, u32 conditionValue, u32 sideMask, u32 statusMask, u16 filterFlags, code *predicate);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 
 extern u8* D_0076449C;
@@ -199,10 +199,10 @@ void btlUnitResourceClearFlag(void** units);
 void btlPacketSetValue(u8* packet, s16 value);
 void btlPacketSetTag(void* packet, u32 value);
 u32 btlFormationCurrentEntry(void* formation);
-s16 btlPacketGetValue(s32 input);
-void btlFormationEntrySetSelected(s32 input, u64* value);
-void btlFormationEntryCopySelected(s32 input, s32 value);
-u32 btlCond_MORE(s32 input);
+s16 btlPacketGetValue(s32 placement);
+void btlFormationEntrySetSelected(s32 selection, u64* key);
+void btlFormationEntryCopySelected(s32 destination, s32 source);
+u32 btlCond_MORE(s32 action);
 extern void (*jtbl_008873EC[])(void* ptr);
 /* Clear the active-node bit (0x200) on all 48 pool entries. */
 // FUN_001D6EE0
@@ -454,12 +454,12 @@ static inline u8 *p4_slot_001eb320(u32 offset, u8 *base)
 }
 extern u8 *scrGetAiState();
 extern s32 btlAICommandSelectCandidates();
-extern u32 datCalcRandomBelow(u32 input);
+extern u32 datCalcRandomBelow(u32 limit);
 extern s32 btlAICommandCollectSkillCandidates();
 extern s32 btlAICommandCollectCommandsOfType();
-extern u32 datCalcRandomBelow(u32 input);
-extern void btlUnitInitChild(u8 *input, u64 value);
-extern void btlAICommandSetActionCode(u8 *input, u8 *value, u16 options);
+extern u32 datCalcRandomBelow(u32 limit);
+extern void btlUnitInitChild(u8 *unit, u64 characterId);
+extern void btlAICommandSetActionCode(u8 *action, u8 *work, u16 actionCode);
 extern void *D_00609CE0[];
 /* Decode the packed condition argument and invoke its table predicate, returning the predicate result to the script. */
 // FUN_001E6B90
@@ -684,16 +684,16 @@ BtlPacket* btlEffectCreateSpriteFramePacket(u32 sprite, u16 frame)
   work[2] = 0;
   return (BtlPacket*)packetAddress;
 }
-extern void btlPacketIncUnitCounter(u8 *input);
-extern s32 btlPacketUpdateHpRatio(u8 *input);
-extern void btlPacketDecUnitCounter(u8 *input);
-extern s32 btlPacketStepEffectCounter(u8 *input);
-extern s32 btlPacketStepSpriteFrameLookup(u8 *input);
-extern s32 btlPacketStepSpriteTable(u8 *input);
-extern s32 btlPacketSetHpRatio(u8 **input);
+extern void btlPacketIncUnitCounter(u8 *work);
+extern s32 btlPacketUpdateHpRatio(u8 *work);
+extern void btlPacketDecUnitCounter(u8 *work);
+extern s32 btlPacketStepEffectCounter(u8 *work);
+extern s32 btlPacketStepSpriteFrameLookup(u8 *work);
+extern s32 btlPacketStepSpriteTable(u8 *work);
+extern s32 btlPacketSetHpRatio(u8 **work);
 extern s32 (*D_00887310[])(s32 primType, void *vertices, s32 count);
-extern void btlPacketIncUnitCounterAlt(u8 *input);
-extern void btlPacketDecUnitCounterAlt(u8 *input);
+extern void btlPacketIncUnitCounterAlt(u8 *work);
+extern void btlPacketDecUnitCounterAlt(u8 *work);
 #pragma opt_propagation off
 #pragma opt_propagation on
 #pragma push
@@ -792,9 +792,9 @@ u8 *btlPacketCreateHpRatio(u8 *unit)
 }
 
 
-s32 kwlnTaskGetTaskByName(void *input);
+s32 kwlnTaskGetTaskByName(void *name);
 extern u8 D_0063E918[];
-void kwlnTaskDestroyWithHierarchy(s32 input);
+void kwlnTaskDestroyWithHierarchy(s32 task);
 // Intent: Destroy the time limit task and its hierarchy if it exists [inferred]
 // FUN_002A2740
 void timeLimitTaskDestroy(void) {

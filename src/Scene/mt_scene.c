@@ -19,14 +19,14 @@ typedef struct MtScene
 } MtScene;
 
 extern MtScene* gMtScene;
-extern u8 *resrcMngFindResById(ResrcManager* resManager, u16 resTypeId);
+extern u8 *resrcMngFindResById(ResrcManager* manager, u16 resourceId);
 extern void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *scaleInput);
 
 /* Ported from P3FES src/Scene/mt_scene.c FUN_003b5df0 (verified MATCH there).
  * 007cd540 -> PTR_DAT_00762ea0, 003b5550 -> resrcMngGetTotalResInList. */
 
 #define RESRC_TYPE_MAX 22
-extern u32 resrcMngGetTotalResInList(ResrcManager* resManager, u8 resType);
+extern u32 resrcMngGetTotalResInList(ResrcManager* resLists, u8 resType);
 
 /* Ported from P3FES src/Scene/mt_scene.c FUN_003b63c0 (verified MATCH there).
  * 007cd540 -> PTR_DAT_00762ea0, 006a2bb0 -> D_005EF820, 005225a8 ->

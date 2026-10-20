@@ -6,9 +6,9 @@
 #include "btl_effect_internal.h"
 
 extern u32 btlUnitIsMoving(void* unit);
-extern void btlUnitGetAnchorPose(void* unit, void* outPosition, void* outRotation, RwV3d* rot);
+extern void btlUnitGetAnchorPose(void* unit, void* outPosition, void* outRotation, RwV3d* outTarget);
 extern BtlPacket* btlUnitCreateRotatePacket(void* unit, const RwV3d* rot, u32 flags);
-extern void btlPacketEnqueue(BtlPacket* packet, u32 type);
+extern void btlPacketEnqueue(BtlPacket* context, u32 value);
 extern void btlActionSetState(BtlAction* action, u16 state);
 
 #define BTL_UIDMAX 0x3FFFFFFFFFFFFFFF
@@ -46,13 +46,13 @@ void btlActionChangeFormationInit(BtlAction* action)
     extern u8* D_0076449C;
     extern f32 fGpffff809c;
     extern void btlActionFinishPresentation(BtlAction* action);
-    extern BtlPacket* btlFormationCreateReturnPacket(u16 mode);
-    extern BtlPacket* btlFormationCreateSlotPacket(u16 mode, u16 kind);
+    extern BtlPacket* btlFormationCreateReturnPacket(u16 flags);
+    extern BtlPacket* btlFormationCreateSlotPacket(u16 groupMask, u16 flags);
     extern BtlPacket* func_001f99c0(BtlAction* action, u16 kind, s32 firstValue,
                                      s32 secondValue, s32 thirdValue);
     extern BtlPacket* btlUnitCreateMovePacket(void* unit, const RwV3d* targetPos,
                                                f32 speed, u32 flags);
-    extern BtlPacket* btlUnitCreateResourceFreePacket(void* unit);
+    extern BtlPacket* btlUnitCreateResourceFreePacket(void* packetWork);
     extern BtlPacket* btlUnitCreateRotateTowardUnitPacket(void* unit,
                                                            void* targetUnit,
                                                            u32 flags);
@@ -153,7 +153,7 @@ void btlActionChangeFormationUpdate(BtlAction* action)
 
 
 
-u8 *btlUnitRecordFindByActionUID(u64 actionUID, u64 mask);
+u8 *btlUnitRecordFindByActionUID(u64 uid, u64 mask);
 /* Wait for persona records to finish, clear the party presentation flag, and resume. */
 // FUN_001ADE10
 void btlActionPersonaUpdate(BtlAction *action)

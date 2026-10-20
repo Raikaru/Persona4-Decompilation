@@ -1024,7 +1024,7 @@ void btlActionCheckStepTrigger(s32 context)
 {
     extern s32 btlActionGetQueueFront(void);
     extern s32 btlActionGetActive(void);
-    extern s32 btlActionActiveListPush(s32 context);
+    extern s32 btlActionActiveListPush(s32 action);
     s32 i;
     s32 result;
     u8 *current;

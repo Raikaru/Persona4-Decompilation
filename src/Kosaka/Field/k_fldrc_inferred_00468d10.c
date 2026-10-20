@@ -53,7 +53,7 @@ extern void kAssertFail(void *file, s32 line);
 struct MovieNativeWork;
 
 extern void movieNativeTaskUpdate(void *context, struct MovieNativeWork *work);
-extern void PrimAppendNode(char *name, u8 *task);
+extern void PrimAppendNode(char *list, u8 *node);
 extern s32 D_00724BF4;
 extern s32 func_0042ba70();
 extern s32 func_0042ba20();
@@ -104,7 +104,7 @@ typedef struct MoviePoolEntry { u32 address; u32 size; } MoviePoolEntry;
 // FUN_00468D10
 void movieLoadStep(void)
 {
-    extern s32 sdkPakStartEntryLoad(u8 *node, s32 slot);
+    extern s32 sdkPakStartEntryLoad(u8 *reader, s32 handleIndex);
     extern s32 func_004c9820(ADXF request);
     extern void *memset(void *dst, s32 value, size_t count);
     extern void H_Cdvd_RegisterArchiveEntries(u8 *basePath, u8 *archive, s32 singleEntry);
@@ -330,22 +330,22 @@ void movieNativeTaskUpdate(void *context, MovieNativeWork *work) {
     extern s32 sceDmaSync(u32 *channel, s32 mode, s32 timeout);
     extern void *memcpy(void *dst, const void *src, size_t size);
     extern void *memset(void *dst, s32 val, size_t size);
-    extern void chkmemAllocSiteTag(void *context, s32 line);
-    extern void chkmemSetLock(s32 context);
+    extern void chkmemAllocSiteTag(void *file, s32 line);
+    extern void chkmemSetLock(s32 locked);
     extern u8 kwlnTaskDestroyWithHierarchyByName(const char *name);
-    extern void H_Cdvd_StartPlayback(void *handle, void *path, s32 sync);
+    extern void H_Cdvd_StartPlayback(void *handle, void *path, s32 synchronous);
     extern s32 kwlnGetCamera(void);
-    extern void kAssertFail(void *context, s32 line);
-    extern s32 mwPlyCalcWorkCprmSfd(MWSFD_CRPRM *context);
+    extern void kAssertFail(void *file, s32 line);
+    extern s32 mwPlyCalcWorkCprmSfd(MWSFD_CRPRM *cprm);
     extern s32 func_00509268(u8 *context);
     extern void func_005097e8(s32 context);
-    extern void mwPlySetFrmSync(s32 context, s32 sw);
-    extern void mwPlyGetCurFrm(void *context, void *frmobj);
-    extern void mwPlyRelCurFrm(s32 context);
+    extern void mwPlySetFrmSync(s32 mwply, s32 sw);
+    extern void mwPlyGetCurFrm(void *obj, void *frmobj);
+    extern void mwPlyRelCurFrm(s32 mwply);
     extern s32 func_0050d4d0(s32 context);
-    extern void mwPlyReleaseLp(s32 context);
+    extern void mwPlyReleaseLp(s32 mwply);
     extern void H_Fade_SetCustomColor(s32 r, s32 g, s32 b);
-    extern void gsUploadRasterTiles(RwRaster *raster, u32 owner, s32 t0, s32 t1);
+    extern void gsUploadRasterTiles(RwRaster *source, u32 owner, s32 tileIndex, s32 tileCount);
     extern s32 iGpffffbaf0;
     extern s32 iGpffffbaf4;
     extern u8 D_0070B610[];

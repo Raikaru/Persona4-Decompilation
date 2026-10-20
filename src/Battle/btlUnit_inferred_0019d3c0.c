@@ -119,22 +119,22 @@ static inline void btlUnitStartProcedureOrdered(s32 option, s32 data, s32 value,
 {
     scrStartProcedureChecked(data, value, option, rate);
 }
-extern void MT_Scene_DestroyRes(u16 data);
-extern void mdlDestroyModelObject(void *data);
-extern void mdlSetColor(void *data, s32 *value);
-extern void mdlSetLayerWeight(u8 *data, s32 value, f32 option);
+extern void MT_Scene_DestroyRes(u16 resTypeId);
+extern void mdlDestroyModelObject(void *model);
+extern void mdlSetColor(void *model, s32 *color);
+extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
 
 
-extern void btlUnitClearModelState(u8 *data, s32 value);
+extern void btlUnitClearModelState(u8 *unit, s32 mode);
 
 
 
 
-extern u8 *btlPacketAlloc(s32 data, s32 value);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
@@ -146,7 +146,7 @@ extern u8 D_005F6D10[];
 extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void btlUnitReleaseModel(u8 *data);
+extern void btlUnitReleaseModel(u8 *unit);
 extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];

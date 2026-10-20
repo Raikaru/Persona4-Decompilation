@@ -6,7 +6,7 @@
 
 extern void (*DAT_008873EC[])(void *);
 
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern char D_005F0A88[];
@@ -59,25 +59,25 @@ extern char D_005F1010[];
 extern char D_005F1030[];
 extern u8 D_005F1050[];
 
-extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 mode);
-extern void H_Cdvd_ReadSync(HCdvd *file);
-extern void *mdlCreateModelObjectFromMemory(u32 kind, u16 id, void *memory, u32 size, u32 flags);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
+extern void H_Cdvd_ReadSync(HCdvd *cdvd);
+extern void *mdlCreateModelObjectFromMemory(u32 type, u16 id, void *memory, u32 size, u32 flags);
 extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 NpcTable_RequestFixedTable(void);
 extern s32 FldEnemyOpenTable(void);
 extern s32 mdlPrepareModel(u8 *model);
 
 extern void *memcpy(void *destination, const void *source, u32 size);
-extern u32 H_Cdvd_Destroy(HCdvd *file);
+extern u32 H_Cdvd_Destroy(HCdvd *cdvd);
 extern s32 NpcTable_InstallFixedTable(u8 *);
 extern s32 FldEnemyLoadTable(u8 *file);
-extern s32 sdkSndCreateStreamTask(void *parent, s32 kind, s32 buffer, void *name);
-extern s32 sdkSndStreamTaskReap(void *request);
-extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 size, const char *cacheName, s32 resultKind, s32 memoryKind);
-extern u8 *filerTakeCompletedRequest(u8 *request, s32 *ready, s32 *source);
+extern s32 sdkSndCreateStreamTask(void *parent, s32 stream, s32 callbackAddress, void *path);
+extern s32 sdkSndStreamTaskReap(void *task);
+extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName, s32 resultKind, s32 memoryKind);
+extern u8 *filerTakeCompletedRequest(u8 *request, s32 *completed, s32 *resultValue);
 extern s32 FldMipmapLoadTaskCreate(u8 *);
-extern s32 kwlnTaskIsLinked(void *task);
-extern void kAssertFail(const void *msg, s32 id);
+extern s32 kwlnTaskIsLinked(void *target);
+extern void kAssertFail(const void *file, s32 line);
 extern s32 D_007E3710[];
 extern s32 D_007E3714[];
 extern s32 D_007E3718[];

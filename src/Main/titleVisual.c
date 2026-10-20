@@ -24,7 +24,7 @@ extern void mdlUpdateModelMatrix(void *model);
 extern void mdlPrepareItemSlots(void *model);
 extern void mdlDrawVisibleAtomics(s32 clump);
 extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
-extern void datScreenPointToWorldPosition(void *output, s32 screenX, s32 screenY, f32 fparg0);
+extern void datScreenPointToWorldPosition(void *output, s32 screenX, s32 screenY, f32 distance);
 extern void *kwlnGetCamera(void);
 extern u8 *func_003e9700(s32);
 extern void RwV3dNormalize(void *a, void *b);

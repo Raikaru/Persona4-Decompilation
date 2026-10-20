@@ -109,11 +109,11 @@ typedef char CmpPersonaWorkSize[sizeof(CmpPersonaWork) == 0x1CC4 ? 1 : -1];
 /* Raw work-relative accesses retain MWCC alias scheduling; the CmpPersonaWork rewrite changed 74 instruction bytes and was reverted. */
 void cmpPersonaMenuInit(u8* work) {
  extern void cmpPersonaBuildRosterList(u8* work);
- extern s16 datBuildMemberIdList(s16* work);
+ extern s16 datBuildMemberIdList(s16* ids);
  extern void* memset(void* dst, s32 value, u32 size);
- extern u8* resourceFindByName(char* work);
+ extern u8* resourceFindByName(char* name);
  extern u8* sdkSpriteNewNode(u32 work, u32);
- extern u8 nmMesWindowOpenCurrent(u8* work);
+ extern u8 nmMesWindowOpenCurrent(u8* message);
  extern u8* datScreenWipeTaskCreate(s32 work, u16);
  extern u8* shdPersonaTaskCreate(s32 work, s32, s32, s32, s32);
  extern void shdPersonaSetPersonaId(u8* work, s32);
@@ -303,28 +303,28 @@ s32 cmpPersonaMenuUpdate(u8* work) {
 void cmpPersonaMenuDraw(u8* work)
 {
     extern void sdkRenderStateSetDefault(void);
-    extern void nLineDrawSet(Vec2f position, s32 alpha, s32 background, f32 depth);
+    extern void nLineDrawSet(Vec2f position, s32 alpha, s32 setIndex, f32 depthOffset);
     extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
-    extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 width,
-                              u16 height, s16 angle, f32 scale, s16 mode);
-    extern f32 cmpGridCellFade(u8 *cell, f32 xEdge, f32 yEdge, f32 ceiling);
-    extern void sdkSpriteDrawFooter(Vec2f position, f32 depth, u8 alpha, s32 mode, s32 texture);
+    extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
+                              u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
+    extern f32 cmpGridCellFade(u8 *cell, f32 xFraction, f32 yFraction, f32 amount);
+    extern void sdkSpriteDrawFooter(Vec2f unusedPosition, f32 depth, u8 alpha, s32 style, s32 packAddress);
     extern void RpSkyRenderStateSet(s32 state, s32 value);
     extern void datScreenWipeSetAlpha(u8 *task, u8 alpha);
     extern void datScreenWipeDraw(void *task);
-    extern void cmpPersonaDrawRosterRow(u8 *work, s32 index);
-    extern u32 datPersonaNamePart1(s16 character);
-    extern int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 font, int id, const char *text, int flags,
-                             int extra);
-    extern s32 shdPersonaGetChildTask(u8 *work);
-    extern void shdPersonaDrawSineQuad(u8 *work);
-    extern void shdPersonaDrawSmoothBar(u8 *work);
+    extern void cmpPersonaDrawRosterRow(u8 *work, s32 rowIndex);
+    extern u32 datPersonaNamePart1(s16 unitId);
+    extern int frFontExDrawText(f32 x, f32 y, f32 scale, int color, s8 chr, int id, const char *str, int flags,
+                             int unused);
+    extern s32 shdPersonaGetChildTask(u8 *task);
+    extern void shdPersonaDrawSineQuad(u8 *task);
+    extern void shdPersonaDrawSmoothBar(u8 *task);
     extern void shdPersonaDispCtlSetMode(u8 *work, u8);
     extern void shdPersonaDispCtlGetPosition(u8 *work, u8 *);
-    extern s32 shdPersonaDispCtlGetLoadedValue(u8 *work);
+    extern s32 shdPersonaDispCtlGetLoadedValue(u8 *task);
     extern f32 cosf(f32 angle);
-    extern void shdDrawColourQuad(f32 depth, s32 color, f32 x, f32 y, f32 sourceX, f32 sourceY, f32 width, f32 height,
-                              u8 *texture, s32 mode, s32 flag);
+    extern void shdDrawColourQuad(f32 depth, s32 color, f32 x, f32 y, f32 maskX, f32 maskY, f32 width, f32 height,
+                              u8 *texture, s32 drawMask, s32 blendMode);
     extern void kAssertFail(void *file, s32 line);
     extern CmpPersonaColor D_005EB540[8];
     extern u8 D_0064B2E0[];
@@ -947,12 +947,12 @@ static inline u32 cmpPersonaOffsetAddress(u32 offset, u32 base)
 // FUN_00137890
 void cmpPersonaDrawRosterRow(u8 *work, s32 rowIndex)
 {
-    extern void datPanelReset(u8 *panel);
-    extern void shdPersonaFillStatusBlock(u8 *persona, u8 *record, s32 mode);
+    extern void datPanelReset(u8 *panelBytes);
+    extern void shdPersonaFillStatusBlock(u8 *persona, u8 *status, s32 statMode);
     extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y,
                             u8 red, u8 green, u8 blue, u8 alpha);
     extern s32 datGetActiveRosterIndex(s32 character);
-    extern void shdPersonaDrawByMode(Vec2f position, u8 alpha, s16 *panel, f32 depth);
+    extern void shdPersonaDrawByMode(Vec2f basePosition, u8 alpha, s16 *descriptor, f32 depth);
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2E9[];
     extern u8 D_0064B2EA[];

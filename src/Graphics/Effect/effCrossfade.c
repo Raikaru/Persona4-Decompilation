@@ -39,23 +39,23 @@ extern char D_00714608[];
 extern char D_00714618[];
 extern u8 *iGpffffbb9c;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-extern u8 *kwlnTaskGetTaskByName(void *path);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern u8 *kwlnTaskGetTaskByName(void *name);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void kAssertFail(const char *file, s32 line);
 extern void memset(void *dst, s32 value, u32 size);
 
-extern void mdlEffectDrawCameraFade(u8 *object);
+extern void mdlEffectDrawCameraFade(u8 *fade);
 extern s32 effCrossfadeCaptureDisplay(u8 *object);
 extern void mdlEffectReleaseCameraTexture(u8 *object);
-extern s32 CrossfadeUpdate(u8 *object);
-extern void CrossfadeAdvance(u8 *object, u8 *value);
+extern s32 CrossfadeUpdate(u8 *task);
+extern void CrossfadeAdvance(u8 *unusedTask, u8 *work);
 extern u8 *func_003e84a0(void);
 extern s32 func_003e9320(void);
 extern void func_003efd20(void *a, void *b);
 extern s32 func_003ec590(s32 a, s32 b, s32 c, s32 d);
 extern void RpSkyTexCacheRasterLock(s32 a, s32 b);
 extern void RwCameraSetProjectionType(void *a, s32 b);
-extern void PrimAppendNode(void *a, void *b);
+extern void PrimAppendNode(void *list, void *node);
 
 // Crossfade state machine: state 1 sets up the camera and projection and falls through to state 2, state 2 runs func_004b2780 and advances to state 3, state 3 runs the update through the registered pack, and state 4 runs func_004b2e00 and returns to idle.
 // FUN_004B2ED0

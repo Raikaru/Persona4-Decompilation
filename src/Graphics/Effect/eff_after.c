@@ -26,14 +26,14 @@ typedef struct RuntimeCommandWork
     u16 reserved1a;
     u32 duration;
 } RuntimeCommandWork;
-extern void effMiscProgressStart(u8 *work, f32 duration);
-extern void effMiscProgressReset(void* work);
+extern void effMiscProgressStart(u8 *progress, f32 duration);
+extern void effMiscProgressReset(void* progress);
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void kAssertFail(u8 *file, s32 line);
 extern f32 RwV3dLength(void *a0);
 extern void RwV3dNormalize(f32 *a, f32 *b);
-extern f32 Vpad_GetSegmentLength(void *work, s32 section);
+extern f32 Vpad_GetSegmentLength(void *work, s32 index);
 extern s32 effAfterHistoryIndex(const EffAfterQueue *work, s32 index);
 extern f32 effAfterSectionTurnFactor(u8 *work, s32 section);
 extern f32 effAfterSideSegmentLength(u8 *work, s32 section, s32 side);
@@ -46,7 +46,7 @@ struct RpMaterial;
 extern const struct RpGeometry *func_003c2130(const struct RpGeometry *, struct RpTriangle *, u16, u16, u16);
 extern struct RpGeometry *func_003c2150(struct RpGeometry *, struct RpTriangle *, struct RpMaterial *);
 extern struct RpGeometry *func_003c2630(s32 nVtx, s32 nIdx, u32 flags);
-extern void effMiscProgressBlendColor(u8 *work, s32 side, f32 t, u8 *out);
+extern void effMiscProgressBlendColor(u8 *progress, s32 keyIndex, f32 secondWeight, u8 *output);
 
 /* Finds the section containing `distance` along the path and the fraction of that section it reaches. */
 // FUN_004B7460

@@ -22,8 +22,8 @@ extern s16 D_00922DA4[];
 extern s32 D_00922DA8[];
 extern s32 D_00922DAC[];
 extern void TnSetTableBase(void *table);
-extern void mdlEffectFlushTreeFrame(void *table);
-extern void mdlEffectAdvanceAndDrawChildren(void *table);
+extern void mdlEffectFlushTreeFrame(void *effect);
+extern void mdlEffectAdvanceAndDrawChildren(void *instance);
 typedef struct {
     u8 c0;
     u8 c1;

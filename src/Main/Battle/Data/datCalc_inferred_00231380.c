@@ -45,9 +45,9 @@ extern char D_00635770[];
 extern char D_00635790[];
 extern char D_006357B0[];
 extern char D_006357C8[];
-extern void mdlAttachSlotModelFromResource(void *model, u16 slot, u32 type, u16 id,
-                           void *path, u32 flags);
-extern void mdlAttachSlotModelFindOrCreate(void *model, u16 slot, u32 type, u16 id,
+extern void mdlAttachSlotModelFromResource(void *model, u16 slotIndex, u32 type, u16 id,
+                           void *resource, u32 flags);
+extern void mdlAttachSlotModelFindOrCreate(void *model, u16 slotIndex, u32 type, u16 id,
                           u32 flags);
 extern char D_006357E0[];
 extern char D_00635800[];

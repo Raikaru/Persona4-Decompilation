@@ -3,9 +3,9 @@
 #include "btl_voice_internal.h"
 #include "btl_effect_internal.h"
 
-BtlPacket* btlPacketAlloc(s32 type, s32 workSize);
-s32 btlVoicePacketUpdate(void* work);
-s32 btlVoiceIdPacketUpdate(BtlVoiceIdWork* work);
+BtlPacket* btlPacketAlloc(s32 packetType, s32 workSize);
+s32 btlVoicePacketUpdate(void* packetData);
+s32 btlVoiceIdPacketUpdate(BtlVoiceIdWork* context);
 void btlCameraFrameUnitPair(BtlCamera* camera);
 
 

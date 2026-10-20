@@ -46,13 +46,13 @@ extern u8 D_005F7000[];
 extern u8 D_005F6FE8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*D_005F6E20[])(u8 *first);
-extern u32 datCalcRandomBelow(u32 first);
+extern u32 datCalcRandomBelow(u32 limit);
 extern u32 iGpffffa0b8;
-extern void btlUnitGetSphereWorldCenter(u8 *first, f32 *second);
-extern void btlCameraSetupActionGeometry(u8 *first, u8 *second, f32 *third, f32 fifth, u16 fourth);
-extern void btlMainApplyUnitBaseColors(u8 *first);
-extern void btlCameraStartEffect(u8 *first, u8 *second, s32 third);
-extern s32 btlCameraFrameActionGeneral(u8 *first, s32 second, s32 third, s32 fourth);
+extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
+extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
+extern void btlMainApplyUnitBaseColors(u8 *unit);
+extern void btlCameraStartEffect(u8 *camera, u8 *script, s32 options);
+extern s32 btlCameraFrameActionGeneral(u8 *camera, s32 closeView, s32 nearScale, s32 farScale);
 extern u8 D_005FB400[];
 static inline u8 *func_001bf3a0_add(s32 offset, u8 *base)
 {
@@ -62,11 +62,11 @@ static inline f32 func_001ba790_mul(f32 left, f32 right)
 {
     return left * right;
 }
-extern void btlCameraUpdateEffectList(u8 *first);
+extern void btlCameraUpdateEffectList(u8 *camera);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
-extern void btlCameraLookAtQuat(void *first, const void *second, const void *third, const void *fourth);
-extern void btlCameraCopyPose(f32 *first, f32 *second);
+extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
+extern void btlCameraCopyPose(f32 *destination, f32 *source);
 extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
 extern f32 fGpffff80c8;

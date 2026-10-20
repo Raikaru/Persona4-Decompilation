@@ -38,14 +38,14 @@ typedef void (*shd_cb)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 // emit andi zero-extensions the retail never has.
 
 s32 strlen(const char *text);
-void chkmemAllocSiteTag(const void *msg, s32 id);
+void chkmemAllocSiteTag(const void *file, s32 line);
 void memcpy(void *dst, const void *src, u32 size);
 void memset(void *dst, s32 value, u32 size);
 s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
 u8 *sdkSpriteRequestLoad(const char *name);
-u32 hMaestroDecodeIsReady(s16 *param);
-f32 sdkSpriteEntryWidth(void *ptr, s32 index);
-s32 sdkSpriteSlotHandle(u8 *ptr, s32 index);
+u32 hMaestroDecodeIsReady(s16 *state);
+f32 sdkSpriteEntryWidth(void *blob, s32 index);
+s32 sdkSpriteSlotHandle(u8 *pack, s32 recordIndex);
 void kAssertFail(const void *file, s32 line);
 
 s32 sdkSpriteDrawNow(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32);

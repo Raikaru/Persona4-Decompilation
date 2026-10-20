@@ -51,7 +51,7 @@ extern u8 *D_0076449C;
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern s32 datGetPartyId(s32 idx);
-extern void sequenceRequest(s32 id, void *data, s32 size, s32 flag);
+extern void sequenceRequest(s32 sequenceId, void *parameters, s32 parameterSize, s32 delay);
 extern u8 *iGpffffb3e0;
 extern s32 iGpffffb430;
 extern s32 iGpffffb434;
@@ -69,8 +69,8 @@ extern void memcpy(void *dst, void *src, s32 size);
 extern s32 btlUiCreateTask(s32 parentTask);
 extern s32 datGetFlag(s32 bit);
 extern void btlMainSetPhase(s32 phase);
-extern s32 btlUpdateTask(u8 *task);
-extern s32 btlUpdateDraw3DTask(u8 *task);
+extern s32 btlUpdateTask(u8 *unusedTask);
+extern s32 btlUpdateDraw3DTask(u8 *unusedTask);
 extern s32 btlUpdateDraw2DTask(u8 *task);
 extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
 extern s32 btlUnitReactToDeath(void);
@@ -586,9 +586,9 @@ loop_5_check:
 s32 btlScriptResolvePartyDeath(void)
 {
     extern s16 datGetPartyId(s32 idx);
-    extern u32 datCalcIsDeadById(s16 character);
-    extern void datSetUnitHp(s16 character, s16 value);
-    extern void datCalcClearBadStatusById(s16 character, u32 mask);
+    extern u32 datCalcIsDeadById(s16 unitId);
+    extern void datSetUnitHp(s16 unitId, s16 hp);
+    extern void datCalcClearBadStatusById(s16 unitId, u32 mask);
     u32 partyIndex;
     u32 dep;
 

@@ -27,7 +27,7 @@ static inline f32 code1_0049_mul(f32 left, f32 right) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 00494740-00494740 */
 
-extern void mdlEffectSetRibbonMaterialColor(u8 *input, u16 value, Code1_0049Color *count);
+extern void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049Color *color);
 extern void mdlEffectInterpolateRibbonColors(u8 *track, u32 *colors);
 static inline u32 track_index(u16 value)
 {

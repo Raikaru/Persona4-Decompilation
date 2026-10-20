@@ -111,6 +111,6 @@ typedef struct FldEventWork {
     u8 pad158[8];
 } FldEventWork;
 
-void FldEventSnapshotCapture(FldEventSnapshot *destination, u8 *cameraTask);
+void FldEventSnapshotCapture(FldEventSnapshot *destination, u8 *task);
 
 #endif

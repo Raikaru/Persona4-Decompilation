@@ -360,10 +360,10 @@ static inline FieldUnitRecord *fieldUnitSlotAt(const s32 *index)
 }
 static inline s32 fieldUnitCalendarRoomMatch(void)
 {
-    extern s32 calIsCurrentMonthDay(s32 date, s32 month, s32 day);
+    extern s32 calIsCurrentMonthDay(s32 unused, s32 month, s32 day);
     extern s16 datGetDateIndex(void);
     extern u8 datGetTimeSlot(void);
-    extern s64 calGetDayEntryByPhase(s32 date, u32 phase);
+    extern s64 calGetDayEntryByPhase(s32 day, u32 phase);
     extern FieldUnitRoomKey D_005F1350[];
     u8 *fieldState;
     s32 fieldId;
@@ -578,13 +578,13 @@ void FldUnit_UpdateFacing(void)
     extern u8 *func_003e0f80(void);
     extern void func_003e0f40(u8 *);
     extern f32 RwV3dNormalize(f32 *, f32 *);
-    extern void FldFrameTask_SetHeight(u8 *task, f32 radius);
+    extern void FldFrameTask_SetHeight(u8 *task, f32 height);
     extern f32 FldFrameTask_GetHeight(u8 *task);
     extern void FldFrameTask_SetFlags(u8 *task, s32 flags);
     extern void FldFrameTask_SetPosition(u8 *task, u8 *position);
     extern void FldShadow_SetRingParticles(u8 *task, f32 radius);
     extern s32 FldMap_IsCurrentInEitherBand(void);
-    extern s32 MT_Scene_CreateModelCharShadowRes(u16 index, u16 variant, void *model);
+    extern s32 MT_Scene_CreateModelCharShadowRes(u16 resourceId, u16 shadowModelId, void *model);
     extern f32 D_007615DC;
     RwV3d formationOffset;
     RwV3d markerScale;

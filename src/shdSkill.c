@@ -28,7 +28,7 @@ void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x
 extern char D_005E5830[];
 extern char D_005E5850[];
 void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth, s32 color, s32 font, s32 mode, s32 item);
-u8 *resourceFindByName(char *file);
+u8 *resourceFindByName(char *name);
 void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode);
 void ShdSkill_DrawIcon(Vec2f position, f32 scale, Color4 color, u16 skill, s32 texture);
 

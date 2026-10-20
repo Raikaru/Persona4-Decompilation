@@ -31,7 +31,7 @@ extern void FldNoiseEmitPlain();
 extern void (*jtbl_008873EC[])(void *);
 extern RwTexDictionary *func_003ef6d0(void);
 extern RwTexture *func_003ef650(RwTexDictionary *, const char *);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern f32 sinf(f32);
 extern u8 *PrimQueueDrawPrimitive(void *, s32, void *, s32);

@@ -9,10 +9,10 @@
 #include "effect_update_internal.h"
 #include "effect_vu0_internal.h"
 extern void mdlEffectScreenSpriteCopyResource(u8 *destination, u8 *source);
-extern s32 mdlEffectShareTrackInstance(s32 destination);
-extern void mdlEffectReleaseTrackInstance(s32 destination);
-extern void TlpRelease(s32 destination);
-extern s32 TlpAddRef(s32 destination);
+extern s32 mdlEffectShareTrackInstance(s32 source);
+extern void mdlEffectReleaseTrackInstance(s32 instance);
+extern void TlpRelease(s32 work);
+extern s32 TlpAddRef(s32 work);
 /* Replace the screen sprite track resource, or reference the source TLP when no track is present. */
 /* measured: individual source/destination track and TLP typing changes resource-transfer scheduling (normalized_diff 102..106); retain their byte-base accesses. */
 // FUN_004B1A00

@@ -62,7 +62,7 @@ extern s32 pscResFindFreePersonaSlot(void);
 extern u32 *pscResFindFreeRequest(void);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern void func_00440b68(char *fmt, ...);
-extern s32 H_Cdvd_AcquireDirectory(void *msg, s32 kind);
+extern s32 H_Cdvd_AcquireDirectory(void *path, s32 flags);
 extern char D_00723A78;
 extern char D_0064E4F0[];
 extern char D_0064E510[];

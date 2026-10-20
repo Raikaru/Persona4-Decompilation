@@ -23,11 +23,11 @@ extern s64 calGetDayEntryByPhase(s32 , u32 );
 extern u32 datGetFlag(s32 );
 extern s32 FldMap_IsCurrentInEitherBand(void);
 
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern char D_005EFE50[];
 extern char D_005EFE68[];
-extern s32 FldColorCrossfadeUpdate(u8 *task);
+extern s32 FldColorCrossfadeUpdate(u8 *unusedTask);
 extern void MT_Scene_CallTaskHook(u8 *task);
 
 
@@ -185,26 +185,26 @@ s32 FldEnvOpenFile(s32 room) {
 #pragma opt_loop_invariants on
 s32 FldEnvironmentLoad(u8 *file, s32 room)
 {
-    extern u8 *MT_Scene_GetResListHead(s32 file);
-    extern void resrcMngSetEnvPrimary(s32 file);
-    extern void resrcMngSetEnvSecondary(s32 file);
-    extern void resrcMngSetEnvTertiary(s32 file);
-    extern void resrcMngSetEnvIntensity(s32 file);
+    extern u8 *MT_Scene_GetResListHead(s32 resourceType);
+    extern void resrcMngSetEnvPrimary(s32 value);
+    extern void resrcMngSetEnvSecondary(s32 value);
+    extern void resrcMngSetEnvTertiary(s32 value);
+    extern void resrcMngSetEnvIntensity(s32 value);
     extern u8 *resrcMngGetColorValue(void);
     extern u8 *resrcMngGetColorTarget(void);
     extern u8 *resrcMngGetTransform(void);
-    extern void MT_Scene_SetResVector(u8 *file, u8 *room);
+    extern void MT_Scene_SetResVector(u8 *resource, u8 *vector);
     extern s32 FldRainTaskCreate(u8 *file, s32 room, f32 , f32 , f32 , f32 , s32 , s32 , s32 );
     extern s32 FldFogTaskCreate(s32 file, s32 room, f32 , f32 , f32 , s16 , s16 , s16 , s16 , s32 , u8 *);
-    extern void FldMipmapSetFloatParam(f32 file);
-    extern void FldMipmapSetFixedParam(f32 file);
+    extern void FldMipmapSetFloatParam(f32 mipmapK);
+    extern void FldMipmapSetFixedParam(f32 value);
     extern u8 *func_003e8180(u8 *file, f32 room);
     extern u8 *func_003e81c0(u8 *file, f32 room);
-    extern void kwlnTaskDestroyWithHierarchy(void *file);
+    extern void kwlnTaskDestroyWithHierarchy(void *task);
     extern void kwlnSetColorRgba(u8 file, u8 room, u8 , u8 );
     extern void kwlnSetColorBytes(u8 file, u8 room, u8 , u8 );
-    extern void FldRc_SetClumpVector(void *file, void *room);
-    extern void *mdlGetClump(s32 file);
+    extern void FldRc_SetClumpVector(void *object, void *scale);
+    extern void *mdlGetClump(s32 model);
     extern char D_005EFEB0[];
     extern s32 iGpffffba48;
     extern u8 iGpffffba4c;

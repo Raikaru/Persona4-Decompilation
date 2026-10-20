@@ -5,7 +5,7 @@
 void kAssertFail(u8 *file, s32 line);
 void chkmemAllocSiteTag(u8 *file, s32 line);
 void *memcpy(void *dst, const void *src, s32 size);
-s32 TnUploadStreamTagged(u8 *ptr);
+s32 TnUploadStreamTagged(u8 *stream);
 void func_003ef3a0(void *ptr);
 
 extern u8 D_00713300[];

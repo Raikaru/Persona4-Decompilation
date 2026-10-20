@@ -27,7 +27,7 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern f32 func_0044b950(f32 object, f32 input);
+extern f32 func_0044b950(f32 left, f32 right);
 extern f32 fabsf(f32 value);
 extern void effMiscBuildRotationVU(void);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -416,8 +416,8 @@ f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration)
 // FUN_0048B220
 void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition)
 {
-    s32 mdlEffectSamplePackedColor(u8 *particle, u8 *parameters, s32 frame, s32 previousPosition);
-    f32 mdlEffectSampleScalarKeys(u8 *particle, s32 parameters, s32 frame);
+    s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration);
+    f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration);
     f32 mdlEffectProjectAnchorDepth(void);
     u_long128 projectedDelta;
     s32 size;
@@ -519,7 +519,7 @@ void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle)
         u32 alpha : 8;
     } TrailColor;
     extern void memcpy(void *dst, void *src, u32 size);
-    extern void mdlEffectCatmullRomVU(void *quads, f32 t);
+    extern void mdlEffectCatmullRomVU(void *progress, f32 points);
     extern f32 D_00761134;
     u_long128 controlPoints[4];
     u_long128 colorVector;
@@ -781,9 +781,9 @@ loop1_check:
 void EffWaveUpdate(u8 *emitterData)
 {
     extern f32 sinf(f32 emitterData);
-    extern void mdlEffectSampleKeyState(u8 *emitterData, u8 *input, s32 output, u_long128 *flags);
+    extern void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition);
     extern void *memcpy(void *dst, const void *src, u32 size);
-    extern void mdlEffectUpdateParticleTrail(u8 *emitterData, u8 *input);
+    extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
     extern u8 D_00713D30[];

@@ -39,7 +39,7 @@ extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern void memset(void* dest, s32 value, s32 size);
 extern u8* datUnitGetRecord(s16 unitId);
 extern s32 datCalcIsDead(DatUnit* unit, s32 hpDelta);
-extern void datCalcClearBuffLevel(DatUnit* unit, u8 index);
+extern void datCalcClearBuffLevel(DatUnit* unit, u8 buffIndex);
 extern u8* iGpffffb3c4;              /* 0x007644B4 (gp-0x4C3C): enemy data table */
 extern u8* iGpffffb414;              /* 0x00764504 (gp-0x4BEC) */
 

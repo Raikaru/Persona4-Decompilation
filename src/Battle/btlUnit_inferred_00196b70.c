@@ -130,7 +130,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 data, s32 value);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
@@ -150,9 +150,9 @@ extern u8 D_00794150[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00196b70-001973d0 */
 
-extern u8 *btlPacketAlloc(s32 data, s32 value);
-extern s64 btlPacketEnqueue(u8 *data, u32 value);
-extern void btlPacketStepSide(s32 data);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
+extern s64 btlPacketEnqueue(u8 *context, u32 value);
+extern void btlPacketStepSide(s32 side);
 extern void btlTargetResetWork(void *work);
 extern s32 btlRouteFindPath(u8 *route, f32 *start, f32 *end, f32 radius);
 extern s32 btlRouteBuildArc(u8 *route, const f32 *startXZ, const f32 *endXZ, const f32 *centerXZ);

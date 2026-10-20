@@ -11,7 +11,7 @@
 extern s32 D_0063BF80[];
 extern s32 itfMesWindowProcedureForKind(s32 kind);
 extern s16 datGetDateIndex(void);
-extern void calSplitDayOfYear(s32 date, s32 *month, s32 *day);
+extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
 #pragma push
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
@@ -63,17 +63,17 @@ void calDrawScreen(u8 *unusedTask, MsgProcWindowEntry *entry)
     typedef union { u8 rgba[4]; f32 value; } CalendarColor;
     extern s32 msgCalResourceGet(s32 index);
     extern f32 sinf(f32);
-    extern void PrimDrawFlatRectangle(u8 *colorData, f32 *entry, f32 fparg0, s32 preserveState);
+    extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
     extern u8 *resourceFindByName(char *name);
     extern s32 (*D_00887300[])(s32 state, void *value);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 rgb, u8 entry, s32 recordIndex, void *pack, s32 setStates, s16 pivotX, s16 pivotY, f32 farg3, f32 farg4, f32 farg5);
-    extern void kAssertFail(void *file, s32 entry);
+    extern s32 sdkSpriteDrawNow(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex, void *pack, s32 setStates, s16 pivotX, s16 pivotY, f32 angle, f32 scaleX, f32 scaleY);
+    extern void kAssertFail(void *file, s32 line);
     extern s32 calGetWeekdayOfDay(s32 dateIndex);
     extern s32 calHasDayEntry(s32 day);
-    extern s32 calGetPackedDayEntry(s32 day, s32 entry);
+    extern s32 calGetPackedDayEntry(s32 day, s32 referenceDay);
     extern void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite);
-    extern void calDrawWeather(s32 x, s32 entry, f32 fparg0, u8 opacity, s32 weather, s32 highlight, f32 fparg1, f32 fparg2, s32 clipLeft, s32 clipWidth, s32 font, s32 arg_sp0);
+    extern void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highlight, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipWidth, s32 font, s32 forcedHighlight);
     extern char D_0063BFB0[];
     extern u8 D_007482F0[];
     s32 month;

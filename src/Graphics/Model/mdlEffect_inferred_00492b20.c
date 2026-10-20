@@ -12,7 +12,7 @@ typedef struct EffRandState EffRandState;
 extern s32 D_00713D58[];
 extern s32 D_00713D5C[];
 extern u8 D_00713E10[];
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void *memcpy(void *dst, const void *src, u32 size);
 extern void kAssertFail(const void *file, s32 line);

@@ -25,7 +25,7 @@ extern s32 iGpffffb19c;
 extern s32 iGpffffb1b8;
 extern s32 iGpffffb1f0;
 extern void (*jtbl_008873EC[])(void *);
-extern u8 *datSaveBuildImage(s32 a, s32 *b, s32 c);
+extern u8 *datSaveBuildImage(s32 version, s32 *outSize, s32 compact);
 extern u8 D_007BBF00[];
 extern void memcpy(void *dst, void *src, s32 n);
 extern s16 D_00797B7A[];
@@ -173,7 +173,7 @@ static inline s64 calendarOverrideValue(s32 date, s32 phase)
     return result;
 }
 
-s32 calDayOfYearFromMonthDay(s32 day, s32 phase);
+s32 calDayOfYearFromMonthDay(s32 month, s32 day);
 
 #pragma push
 #pragma opt_loop_invariants off
@@ -183,7 +183,7 @@ s32 calDayOfYearFromMonthDay(s32 day, s32 phase);
 // FUN_00110A60
 s64 calGetDayEntryForMonthDay(s32 month, s32 day)
 {
-    extern s32 calHasDayEntry(s32 date);
+    extern s32 calHasDayEntry(s32 day);
     s32 previous;
     s32 total;
     s32 next;

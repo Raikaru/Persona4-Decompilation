@@ -523,7 +523,7 @@ static inline f32 cmpSkillAddPosition(f32 left, f32 right)
 #pragma opt_propagation off
 void cmpSkillMenuDraw(u8 *work)
 {
-    extern s32 cmpSkillElementLabelId(u16 skill);
+    extern s32 cmpSkillElementLabelId(u16 skillId);
     CmpSkillWork *menu;
     s32 rowIndex;
     f32 opacity;

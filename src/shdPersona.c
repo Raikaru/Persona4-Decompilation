@@ -124,7 +124,7 @@ typedef struct PersonaRenderWork {
 
 typedef struct KwlnTask KwlnTask;
 
-u16 datPersonaGetRecordId(u16 character);
+u16 datPersonaGetRecordId(u16 partyId);
 
 typedef unsigned int ShdByte __attribute__((mode(QI)));
 
@@ -174,7 +174,7 @@ void ShdSkill_ReplaceActiveSkill(u16, u16, u8 *);
 s32 shdPersonaDispCtlCreate(s32, s32, char *);
 void H_Cdvd_Destroy();
 void func_003ef3a0();
-void chkmemAllocSiteTag(const void *msg, s32 id);
+void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern char D_005E4810[];
@@ -201,11 +201,11 @@ extern u8 D_005E4AF0[];
 extern u8 D_005E4BC0[];
 extern u8 D_005E4C90[];
 void strcpy(void *dst, s32 value);
-void nmMesWindowSetCurrentString(s32 param, void *text);
+void nmMesWindowSetCurrentString(s32 variable, void *text);
 void sprintf(void *dst, void *fmt, s32 value);
-s32 nmMesWindowShowCurrentRecord(s32 param);
-s32 nmMesWindowSetCurrentParam(s32 a);
-void nmMesWindowSetCurrentFlag(u8 a);
+s32 nmMesWindowShowCurrentRecord(s32 recordIndex);
+s32 nmMesWindowSetCurrentParam(s32 recordIndex);
+void nmMesWindowSetCurrentFlag(u8 cursor);
 void nmMesWindowRequestRefresh(void);
 u8 *func_00243840(s32 skillId);
 s32 shdPersonaPickRandomSkillPair(u8 *);
@@ -221,7 +221,7 @@ s32 filerTakeCompletedRequest();
 s32 func_00440b68();
 extern char D_005E4ED0[];
 extern char D_005E4EF0[];
-void sdkSndStartChannel(s16 channelIndex, const char *name);
+void sdkSndStartChannel(s16 channelIndex, const char *path);
 extern char D_005E4868[];
 extern char D_005E4E20[];
 extern char D_005E4E40[];
@@ -1139,9 +1139,9 @@ extern u8 D_005E4D90[];
 extern s16 D_005E4D58[];
 u32 RpRandom(void);
 void PrimDrawPoints(u8 *, u8 *, f32, s32, s32, s32);
-void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 fparg0, f32 fparg1, f32 fparg2,
+void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth,
                    u8 red, u8 green, u8 blue, u8 alpha,
-                   u16 scaleX, u16 scaleY, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+                   u16 scaleX, u16 scaleY, f32 angle, s16 pivotX, s16 pivotY);
 /* Measured: 3632B, matching retail. Keep complete draw-position, triangle
    and radial-table objects, promoted timer snapshots and distinct interpolation
    lifetimes. Rotation precedes panel scale in the declaration group. The
@@ -1408,9 +1408,9 @@ void shdPersonaDrawEffect(u8 *panel)
 #pragma pop
 
 
-void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 fparg0, f32 fparg1, f32 fparg2,
+void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y, f32 depth,
                    u8 red, u8 green, u8 blue, u8 alpha,
-                   u16 scaleX, u16 scaleY, f32 fparg3, s16 arg_sp0, s16 arg_sp8);
+                   u16 scaleX, u16 scaleY, f32 angle, s16 pivotX, s16 pivotY);
 /* Complete views of one eight-byte incoming panel coordinate value. */
 typedef union PersonaPanelPosition {
     f32 coordinates[2];
@@ -1995,7 +1995,7 @@ void ShdSkill_DrawSelectionFrame(Vec2f, f32, u8, u16);
 void shdPersonaDrawBackdrop(u8 *);
 void shdPersonaDrawAcquisition(u8 *);
 void shdPersonaDrawEffect(u8 *);
-void sdkSpriteDrawFooter(Vec2f unused, f32 fparg0, u8 alpha, s32 style, s32 packAddress);
+void sdkSpriteDrawFooter(Vec2f unusedPosition, f32 depth, u8 alpha, s32 style, s32 packAddress);
 
 /* Update task counters, callbacks and independently animated Persona panels.
  * Flags are read again after callbacks because they can change draw visibility.

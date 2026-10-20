@@ -159,9 +159,9 @@ extern u8 iGpffffba60;
 extern u8 iGpffffba64;
 extern u8 iGpffffba68;
 extern u8 * iGpffff9db0;
-extern void sdkSpriteDrawSized(u8 *sprite, f32 fparg0, f32 fparg1, f32 fparg2,
+extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
                           u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
-                          u16 scaleY, s16 pivotX, f32 fparg3, s16 arg_sp0);
+                          u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
 extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
@@ -170,7 +170,7 @@ extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
 
 extern s32 D_007642E4;
 extern u8 D_005EFB10[];
-extern s32 resrcMngRenderTask(u8 *task);
+extern s32 resrcMngRenderTask(u8 *unusedTask);
 extern void FldShadow_SpawnCasterTask(u8 *parentTask);
 
 

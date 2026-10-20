@@ -76,7 +76,7 @@ typedef struct RuntimeWork
 } RuntimeWork;
 
 extern s32 AfPackIsActive(RuntimeListNode* node);
-extern s32 mdlCopyIndexedMatrix(void* context, s32 index, RuntimeMatrix* matrix);
+extern s32 mdlCopyIndexedMatrix(void* model, s32 index, RuntimeMatrix* destination);
 
 /* Ported from P3FES src/Kosaka/k_vpad.c FUN_001EDA90 (verified MATCH there).
  * Honest C: request = work->requestFlags; offset = i * 8; inlined at both
@@ -112,15 +112,15 @@ extern void (*D_00887300[])(s32 state, s32 value);
 extern void (*D_00887304[])(s32 state, void* value);
 extern void RpSkyRenderStateSet(s32 state, s32 value);
 extern void func_003e9df0(void* object);
-extern void* mdlGetMatrix(void* object);
-extern void func_003e9cb0(void* object, void* matrix, s32 flags);
+extern void* mdlGetMatrix(void* model);
+extern void func_003e9cb0(void* frame, void* transform, s32 combine);
 extern void func_003e0960(void* matrix, const void* source);
 extern void func_003e42a0(void* destination, const void* source,
                           RuntimeMatrix* matrix);
 extern void effAfterQueuePush(u8* data, const RuntimeVec3* position,
                           const RuntimeVec3* normal);
-extern void effMiscProgressAdvance(u8* data, f32* value);
-extern void effAfterRebuildTrailMesh(u8* data, u32* value);
+extern void effMiscProgressAdvance(u8* progress, f32* elapsedStep);
+extern void effAfterRebuildTrailMesh(u8* work, u32* pp);
 extern void effAfterRunCommands(RuntimeCommandWork* work, u32* unused);
 extern f32 iGpffff8040;
 

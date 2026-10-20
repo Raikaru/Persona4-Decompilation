@@ -89,10 +89,10 @@ void mtMiscDrawSpriteAt(s32 image, f32 x, f32 y, f32 scaleX, f32 scaleY,
                    s32 alphaSubtract, s32 centered)
 {
     /* measured: remaining name-entry byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
-    extern u8 *sdkSpriteNewNode(u32 image, u32 alphaSubtract);
-    extern f32 sdkSpriteScaledWidth(u8 *image);
-    extern f32 sdkSpriteScaledHeight(u8 *image);
-    extern void sdkSpriteDraw(u8 *image, s32 alphaSubtract);
+    extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
+    extern f32 sdkSpriteScaledWidth(u8 *sprite);
+    extern f32 sdkSpriteScaledHeight(u8 *sprite);
+    extern void sdkSpriteDraw(u8 *sample, s32 setStates);
     extern void sdkSpriteFreeNode(void *node);
     f32 height;
     f32 initialWidth;

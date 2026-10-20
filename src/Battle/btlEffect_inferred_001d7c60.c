@@ -14,14 +14,14 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern s32 datCalcIsDead(u8 *input, s32 value);
-extern u32 datCalcChkBadStatus(s32 input, u32 value);
+extern s32 datCalcIsDead(u8 *unit, s32 hpDelta);
+extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
 extern u32 datCalcChkBadStatus(int unit, u32 badStatus);
 extern void (*jtbl_008873EC[])(void *);
 extern u32 iGpffffb3b8;
-extern void btlEffectCollectTargetUnits(u8 *input, u8 *value, u32 options, u32 flags, u32 mode);
+extern void btlEffectCollectTargetUnits(u8 *action, u8 *selection, u32 sideFlags, u32 filterFlags, u32 statusMask);
 
-extern void btlUnitGetSphereWorldCenter(u8 *input, f32 *value);
+extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
 extern char D_005DC824[];
@@ -225,12 +225,12 @@ u16 btlSkillClassifyTargets(u8 *action, u8 *selection, u16 skillId, u32 reverseS
 /* Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
 // FUN_001D8010
 void btlEffectSelectNeighbourTarget(u8 *action, u8 *selection) {
-    extern void btlUnitGetSphereWorldCenter(u8 *a0, f32 *a1);
+    extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
     extern void func_003e42a0(f32 *dst, f32 *src, u8 *cam);
     extern f32 func_003e41e0(f32 *out, f32 *in);
-    extern f32 btlTargetAngleBetween(f32 *a0, f32 *a1, f32 *a2, f32 *a3);
-    extern s32 btlEffectCollectGenusMask(u8 *a0);
-    extern u8 *btlFormationCurrentEntry(u8 *a0);
+    extern f32 btlTargetAngleBetween(f32 *first, f32 *second, f32 *point, f32 *projection);
+    extern s32 btlEffectCollectGenusMask(u8 *selection);
+    extern u8 *btlFormationCurrentEntry(u8 *formation);
     extern u16 D_008C027A[];
     extern u16 D_008C0276[];
     extern u8 D_00881430[];

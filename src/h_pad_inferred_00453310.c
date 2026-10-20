@@ -15,7 +15,7 @@ extern s16 iGpffffba2c;
 extern s16 iGpffffba30;
 extern s16 iGpffffba34;
 extern void sdkPadStepSequence(void);
-extern void sdkPadRepeatButtonDispatch(s32 value, u16 index, s32 count);
+extern void sdkPadRepeatButtonDispatch(s32 padIndex, u16 buttonMask, s32 timerIndex);
 extern u8 D_008C0314[];
 extern u8 D_008C0316[];
 extern u8 D_008C031A[];

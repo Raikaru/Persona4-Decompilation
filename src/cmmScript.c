@@ -10,9 +10,9 @@
 
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern u32 kwlnTaskGetWork(void *task);
-extern void mdlEffectSetChildPositionVec(void *model, f32 *position);
-extern s32 sdkSndStartChannel(s16 channel, const char *name);
-extern s32 sdkSndStartStream(s16 channel, s16 stream, s16 thirdInput, s16 fourthInput);
+extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
+extern s32 sdkSndStartChannel(s16 channelIndex, const char *path);
+extern s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
 extern void kAssertFail(void *file, s32 line);
 
 u16 cmmTopReversedCommunity();
@@ -21,74 +21,74 @@ u16 cmmFindFreshReverseCandidate();
 
 u16 cmmFindReverseCandidate();
 
-extern s32 cmmCommunityFindActiveSlotInGroup(s32 input);
+extern s32 cmmCommunityFindActiveSlotInGroup(s32 group);
 extern s32 cmmCommunityGetCurrentEntryValue(s32 input);
-extern void cmmCommunityAddTotal(s32 input);
+extern void cmmCommunityAddTotal(s32 value);
 
 extern s32 cmmCommunityGetTotal(void);
 extern void datResetTotalBtl(void);
-extern void datAddMoney(s32 input);
+extern void datAddMoney(s32 delta);
 
 extern s16 datGetDateIndex(void);
-extern s32 cmmDateTableFindIndex(s32 input);
+extern s32 cmmDateTableFindIndex(s32 seed);
 extern s32 cmmDateTableHasEntry(s32 input);
-extern s32 cmmDateTableHasSpecialRecord(s32 input);
-extern s32 cmmDateTableReadColumn(s32 input, s32 secondInput, s32 thirdInput);
-extern s32 cmmDateTableApplyColumnDelta(s32 input, s32 secondInput);
+extern s32 cmmDateTableHasSpecialRecord(s32 date);
+extern s32 cmmDateTableReadColumn(s32 special, s32 date, s32 column);
+extern s32 cmmDateTableApplyColumnDelta(s32 date, s32 column);
 
 extern u8* cmmCommunityGetCurrentWork(void);
 extern s32 cmmCommunityGetCurrentId(void);
-extern void cmmCommunityAdvanceForm(s32 input);
-extern void cmmCommunitySetMarked(s32 input);
+extern void cmmCommunityAdvanceForm(s32 communityId);
+extern void cmmCommunitySetMarked(s32 communityId);
 extern void datDestroyTaskByName(void);
-extern void cmmCommunitySetCurrent(u16 input);
-extern s16 cmmResolveCounterpart(s16 input);
-extern s32 cmmDateTableAddCount(s32 input, s32 secondInput);
-extern s16 cmmTopPersonaOfArcana(s16 input);
-extern u8* cmmMsgStreamEntry(s32 input, u16 secondInput);
-extern s32 cmmDateTableFindNthMatch(s32 input, s32 secondInput, s32 thirdInput);
-extern void cmmRankUpSequenceStart(s32 input, s32 secondInput, s32 thirdInput, s32 fourthInput);
+extern void cmmCommunitySetCurrent(u16 communityId);
+extern s16 cmmResolveCounterpart(s16 value);
+extern s32 cmmDateTableAddCount(s32 value, s32 option);
+extern s16 cmmTopPersonaOfArcana(s16 value);
+extern u8* cmmMsgStreamEntry(s32 requestedKind, u16 communityId);
+extern s32 cmmDateTableFindNthMatch(s32 date, s32 status, s32 requestedIndex);
+extern void cmmRankUpSequenceStart(s32 parentTask, s32 communityId, s32 rank, s32 resourceId);
 extern s32 K_Cmd_TASK_LOOKUP(void);
-extern void kwlnTaskDestroyWithHierarchy(s32 handle);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern s32 D_00635A78[];
 extern s32 D_006359F0[];
 extern s32 D_00635A20[];
 extern s32 D_00635A00[];
 extern s16 D_00635BB8[];
 extern s32 D_00635B38[];
-extern void sdkSndFadeOutChannelFrames(s32 input, s32 secondInput, s32 thirdInput);
-extern s32 kwlnTaskIsLinked(s32 input);
-extern void sdkSpriteRelease(u8* input);
-extern void H_Cdvd_Destroy(u8* input);
-extern u8* H_Cdvd_AcquireDirectory(void* input, s32 secondInput);
-extern s32 H_Cdvd_IsFileLoaded(u8* input);
-extern s32 H_Cdvd_LookupRequest(void* input, u32* secondInput);
-extern s32 hMaestroDecodeIsReady(s32 input);
+extern void sdkSndFadeOutChannelFrames(s32 channelIndex, s32 requestValue, s32 fadeFrames);
+extern s32 kwlnTaskIsLinked(s32 target);
+extern void sdkSpriteRelease(u8* node);
+extern void H_Cdvd_Destroy(u8* cdvd);
+extern u8* H_Cdvd_AcquireDirectory(void* path, s32 flags);
+extern s32 H_Cdvd_IsFileLoaded(u8* cdvd);
+extern s32 H_Cdvd_LookupRequest(void* pathAddress, u32* slot);
+extern s32 hMaestroDecodeIsReady(s32 state);
 extern void func_00440b68(void* input, void* secondInput, u32 thirdInput);
-extern u8* cmmItemInfoRecord(s32 input);
-extern void cmmAdvanceReverseProgress(s32 input);
-extern void datPersonaCollectSkills(s32 input, void* secondInput, s32* thirdInput);
-extern void sequenceRequest(s32 input, void* secondInput, s32 thirdInput, s32 fourthInput);
+extern u8* cmmItemInfoRecord(s32 itemId);
+extern void cmmAdvanceReverseProgress(s32 excludedCommunity);
+extern void datPersonaCollectSkills(s32 personaId, void* skills, s32* skillCount);
+extern void sequenceRequest(s32 sequenceId, void* parameters, s32 parameterSize, s32 delay);
 extern s32 kwlnGetCurrentWorkValue(void);
-extern s32 datPersonaDisplayName(s16 input);
-extern s8 cmmCommunityEventValue(s32 input, s32 secondInput);
-extern s32 cmmNameRecord(s32 input);
-extern s64 cmmCommunityArcana(s32 input);
+extern s32 datPersonaDisplayName(s16 unitId);
+extern s8 cmmCommunityEventValue(s32 value, s32 option);
+extern s32 cmmNameRecord(s32 nameId);
+extern s64 cmmCommunityArcana(s32 communityId);
 extern s32 func_002438b0(s32 input);
-extern s32 cmmLabelRecord(s32 input);
-extern s32 cmmCommunityRecordValue(s32 input);
-extern s32 cmmNextUnlistedDate(s32 input);
+extern s32 cmmLabelRecord(s32 labelId);
+extern s32 cmmCommunityRecordValue(s32 communityId);
+extern s32 cmmNextUnlistedDate(s32 startDate);
 extern s32 calGetWeekdayOfDay(s32 input, s32* secondInput, s32* thirdInput);
-extern s32 cmmTextRecord(s32 input);
-extern s32 datGetItemNameId(s32 input);
-extern s32 cmmDateTableFindRecord(s32 input);
-extern s32 cmmDateTableFindSpecialRecord(s32 input);
-extern void itfMesWindowSetNumber(s32 input, s32 secondInput, s32 thirdInput);
-extern s32 cmmItemDescRecordOrNull(s32 input);
-extern s32 cmmItemExtraRecordOrNull(s32 input);
+extern s32 cmmTextRecord(s32 textId);
+extern s32 datGetItemNameId(s32 itemId);
+extern s32 cmmDateTableFindRecord(s32 seed);
+extern s32 cmmDateTableFindSpecialRecord(s32 date);
+extern void itfMesWindowSetNumber(s32 handle, s32 slotIndex, s32 value);
+extern s32 cmmItemDescRecordOrNull(s32 value);
+extern s32 cmmItemExtraRecordOrNull(s32 value);
 extern u8 datGetTimeSlot(void);
-extern s64 calGetDayEntryByPhase(s32 input, u32 secondInput);
-extern s32 datGetFlag(s32 input);
+extern s64 calGetDayEntryByPhase(s32 day, u32 phase);
+extern s32 datGetFlag(s32 bit);
 extern u32 RpRandom(void);
 
 
@@ -99,16 +99,16 @@ extern u8 D_00635AE0[];
 extern u8 D_00635B00[];
 extern u8 D_00635B20[];
 extern u8 D_005DC7D0[];
-extern s32 shdEffectTaskCreate(s32 input, s32 secondInput, s32 thirdInput, void *fourthInput);
-extern s32 func_0025ff60(s32 input);
-extern u8* cmmFishingEntryRecord(s32 input);
-extern s32 cmmDateTableRollValue(s32 input);
-extern void cmmDateTableRunEffect(s32 input);
-extern void datEntryDrawGatedByFlag39(s32 input, s32 secondInput, s32 thirdInput, s32 fourthInput);
+extern s32 shdEffectTaskCreate(s32 parentTask, s32 resource, s32 frameLimit, void *context);
+extern s32 func_0025ff60(s32 task);
+extern u8* cmmFishingEntryRecord(s32 entryId);
+extern s32 cmmDateTableRollValue(s32 index);
+extern void cmmDateTableRunEffect(s32 entryId);
+extern void datEntryDrawGatedByFlag39(s32 port, s32 sequence, s32 duration, s32 flags);
 extern f32 sinf(f32 input);
-extern void mdlEffectGetPackedColor(s32 input, void* secondInput);
-extern void mdlEffectGetPosition(s32 input, void* secondInput);
-extern void mdlEffectSetPackedColor(s32 input, void* secondInput);
+extern void mdlEffectGetPackedColor(s32 object, void* color);
+extern void mdlEffectGetPosition(s32 effect, void* position);
+extern void mdlEffectSetPackedColor(s32 object, void* packedColor);
 extern u16 D_008C024E[];
 extern u8 D_00635B50[];
 extern u8 D_00635B90[];
@@ -128,12 +128,12 @@ extern CmmFishingOrigin D_00635B78;
 extern f32 iGpffff8084;
 extern f32 iGpffff8094;
 extern u8 D_00794E70[];
-extern s32 sdkSpriteDrawQueued(f32 floatInput, f32 secondFloatInput, f32 thirdFloatInput,
-                         s32 input, u8 secondInput, s32 thirdInput, void* fourthInput,
-                         s32 fifthInput, s16 sixthInput, s16 seventhInput,
-                         f32 fourthFloatInput, f32 fifthFloatInput, f32 sixthFloatInput, void* eighthInput);
+extern s32 sdkSpriteDrawQueued(f32 x, f32 y, f32 depth,
+                         s32 rgb, u8 alpha, s32 recordIndex, void* pack,
+                         s32 setStates, s16 pivotX, s16 pivotY,
+                         f32 angle, f32 scaleX, f32 scaleY, void* queue);
 extern s32 func_00243840(s32 input);
-extern void itfMesWindowFormatValue(s32 input, s32 secondInput, s32 thirdInput, u32 fourthInput);
+extern void itfMesWindowFormatValue(s32 handle, s32 slotIndex, s32 value, u32 format);
 extern void frFontExCopyString();
 extern void itfMesWindowSetString();
 extern s32 iGpffffa658;
@@ -143,20 +143,20 @@ extern s32 D_00635A40[];
 extern s32 D_00635A60[];
 extern s32 D_00635BA8[];
 extern u8* evtEnsureEventTask(void); /* lint: allow H011 -- caller stores the returned value; the definition is void */
-extern void calSplitDayOfYear(s32 input, s32 *secondInput, s32 *thirdInput);
-extern s32 cmmMonthProfileRecord(s32 input);
-extern s32 datCalcGetLevelById(s32 input);
-extern s32 cmmArcanaCandidateAt(s32 input, s32 secondInput, s32 thirdInput);
+extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
+extern s32 cmmMonthProfileRecord(s32 monthId);
+extern s32 datCalcGetLevelById(s32 unitId);
+extern s32 cmmArcanaCandidateAt(s32 value, s32 option, s32 selection);
 
-extern void chkmemAllocSiteTag(const void* input, s32 secondInput);
+extern void chkmemAllocSiteTag(const void* file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern s32 cmmScriptStepFishingRound(u8* input);
-extern s32 cmmScriptStepFishingAim(u8* input);
+extern s32 cmmScriptStepFishingRound(u8* work);
+extern s32 cmmScriptStepFishingAim(u8* work);
 extern s32 cmmScriptLoadStep(u8 *task);
 extern void cmmScriptTaskDestroy(u8 *task);
-extern s32 cmmScriptStepWaveSprite(u8* input, u8* secondInput);
-extern s32 cmmScriptStepPopupBanner(u8* input, u8* secondInput);
-extern s32 cmmScriptStepScoreDisplay(u8* input, u8* secondInput);
+extern s32 cmmScriptStepWaveSprite(u8* unusedParent, u8* work);
+extern s32 cmmScriptStepPopupBanner(u8* unusedParent, u8* work);
+extern s32 cmmScriptStepScoreDisplay(u8* parent, u8* work);
 typedef struct { f32 x, y, z, w; } Vec4f;
 
 typedef int (*code)();
@@ -1084,8 +1084,8 @@ void cmmScriptTaskDestroyHandle(s32 slotIndex)
 /* Retain the split-stack position transfer and index-first slot addressing used by this measured matching body. */
 s32 cmmScriptSpawnHandle(s32 slotIndex) {
     extern s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask* task);
-    extern s32 H_Cdvd_LookupRequest(s32 slotIndex, s32* secondInput);
-    extern s32 func_0025ff60(s32 slotIndex);
+    extern s32 H_Cdvd_LookupRequest(s32 pathAddress, s32* slot);
+    extern s32 func_0025ff60(s32 task);
     s64 pos;
     f32 originZ;
     s32 resourceSize;

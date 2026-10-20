@@ -10,7 +10,7 @@ static u64 iGpffffa090 = 1;
 
 static u16 iGpffffa098 = 0x100;
 
-extern void btlPacketStepSide(u32 layer);
+extern void btlPacketStepSide(u32 side);
 extern void btlMainDrawSkyOverlay(void);
 extern void btlMainUpdate(void);
 extern void btlActionListUpdate(void);
@@ -46,7 +46,7 @@ struct BtlBattleFlagPacket
 extern Battle* iGpffffb3ac;
 
 
-extern BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
+extern BtlPacket* btlPacketAlloc(u32 packetType, u32 workSize);
 extern u32 btlSetFlagsPacketUpdate(void* work);
 extern u32 btlClearFlagsPacketUpdate(void* work);
 

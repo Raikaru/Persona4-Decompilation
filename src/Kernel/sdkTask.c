@@ -36,21 +36,21 @@ extern void* iGpffffb9f8;
 extern KwlnTask* iGpffffba04;
 
 
-void kwlnTaskAddChild(KwlnTask* a0, KwlnTask* a1);
-void kwlnTaskRemoveFromParent(KwlnTask* a0);
-u8 kwlnTaskDestroyWithHierarchy(KwlnTask* a0);
-void kwlnTaskUnlinkFromList(KwlnTask* a0);
-void kwlnTaskLinkToList(KwlnTask* a0);
-s32 kwlnTaskRunUpdate(KwlnTask* a0);
+void kwlnTaskAddChild(KwlnTask* parent, KwlnTask* child);
+void kwlnTaskRemoveFromParent(KwlnTask* childTask);
+u8 kwlnTaskDestroyWithHierarchy(KwlnTask* task);
+void kwlnTaskUnlinkFromList(KwlnTask* task);
+void kwlnTaskLinkToList(KwlnTask* task);
+s32 kwlnTaskRunUpdate(KwlnTask* task);
 void kwlnTaskRunList(void);
-void kwlnTaskMoveToDying(KwlnTask* a0);
-void kwlnTaskKillSiblingChain(KwlnTask* a0);
+void kwlnTaskMoveToDying(KwlnTask* task);
+void kwlnTaskKillSiblingChain(KwlnTask* task);
 /* GP-relative current-task pointer at gp -0x45EC (absolute 0x00764B04). */
 extern KwlnTask* iGpffffba14;
 extern void (*jtbl_008873FC[])();
 extern void kAssertFail(const void* file, u32 line);
 extern char D_00710568[];
-extern void kAssertFailAt(const void* file, const void* file2, u32 line);
+extern void kAssertFailAt(const void* msg, const void* file, u32 line);
 extern char D_00710580[];
 extern char D_00710550[];
 extern char D_00710598[];

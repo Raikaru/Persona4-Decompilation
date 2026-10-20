@@ -17,11 +17,11 @@ typedef struct KWindowEntryDescriptor
 } KWindowEntryDescriptor;
 
 KwlnTask* sdkLboxCreate(KwlnTask* parent, u32 width, u32 height);
-s32 sdkLboxCreateEx(u8* parent, s32 width, s32 height, s32 mode);
+s32 sdkLboxCreateEx(u8* parent, s32 x, s32 y, s32 mode);
 void sdkLboxAddDescriptors(KwlnTask* task, const KWindowEntryDescriptor* descriptors, u32 count);
 s32* sdkLboxGetValuePtr(KwlnTask* task, u32 id);
 void sdkLboxSetState(u8* task, s32 state);
-void sdkLboxSetSelection(u8* task, s32 enabled);
+void sdkLboxSetSelection(u8* task, s32 selection);
 void sdkLboxSetVisibleRows(u8* task, s32 visibleRows);
 s32 sdkLboxGetSelectedId(u8* task);
 

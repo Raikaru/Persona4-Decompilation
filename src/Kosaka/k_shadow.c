@@ -9,7 +9,7 @@
 extern u8 D_005F18C0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
-extern u8 *MT_Scene_GetResListHead(s32 value);
+extern u8 *MT_Scene_GetResListHead(s32 resourceType);
 #include "field_shadow_internal.h"
 #include "rw/plcore/barenderstate.h"
 #include "Kosaka/k_fldFrame_internal.h"
@@ -29,10 +29,10 @@ extern f32 sinf(f32 value);
 extern f32 cosf(f32 value);
 extern f32 iGpffff8304;
 extern FieldRenderStateSetFunction D_00887300[];
-void FldShadow_CmdProjectBounds(u8 *value, u8 *other);
-void FldShadow_CmdBeginFlip(u8 *value, u8 *other);
-void FldShadow_CmdEndFlip(u8 *value, u8 *other);
-void FldShadow_CmdRender(u8 *value, u8 *other);
+void FldShadow_CmdProjectBounds(u8 *unused, u8 *caster);
+void FldShadow_CmdBeginFlip(u8 *unused, u8 *caster);
+void FldShadow_CmdEndFlip(u8 *unused, u8 *caster);
+void FldShadow_CmdRender(u8 *unused, u8 *caster);
 extern void *SceneDraw_GetList4Matrix(void);
 extern f32 iGpffff8214;
 extern f32 iGpffff826c;
@@ -85,8 +85,8 @@ s32 FldShadow_StepCasterSetup(u8 *task)
     extern struct RwFrame *func_003e9320(void);
     extern struct RwFrame *func_003e9df0(struct RwFrame *frame);
     extern u8 *PrimAllocQueueNode(void);
-    extern void PrimAppendNode(u8 *pool, u8 *node);
-    extern void mdlQueueModelForDraw(void *pool, u8 *model);
+    extern void PrimAppendNode(u8 *list, u8 *node);
+    extern void mdlQueueModelForDraw(void *queue, u8 *model);
     extern RwRGBA iGpffff9f48;
     extern f32 fGpffff82bc;
     extern u8 D_00794330[];

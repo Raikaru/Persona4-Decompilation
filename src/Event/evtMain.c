@@ -31,7 +31,7 @@ typedef struct EvtMovieDefaults {
 
 extern u32 DAT_007645D8; /* event main flag */
 // lint: allow H011 -- measured: u16 prototype regresses evtCmdResPlace (andi on wide id args)
-u8 *MT_Scene_GetRes(s32 resourceId);
+u8 *MT_Scene_GetRes(s32 resTypeId);
 extern void kAssertFail(void *file, s32 line);
 extern void *kwlnGetCamera(void);
 extern u8 *kwlnGetColorRgb(void);
@@ -43,8 +43,8 @@ void memset(void *dst, s32 c, s32 n);
 extern s32 D_008821E0[];
 void MT_Scene_ClearExclusiveRes(void);
 struct KwlnTask;
-s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *handle);
-s32 kwlnTaskIsLinked(void *handle);
+s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *task);
+s32 kwlnTaskIsLinked(void *target);
 extern u8 D_0063C3C0[];
 extern u8 D_0063C3E0[];
 s32 mtMiscPlayFormattedCue();
@@ -59,13 +59,13 @@ extern u8 D_0063C5F0[];
 extern u8 D_0063C610[];
 extern s32 (**D_00882204[])(s32, s32, s32, u8 *, u8 *);
 void evtTintTaskKill(void);
-void K_View_SetFov(void *camera, f32 fieldOfView);
+void K_View_SetFov(void *camera, f32 fov);
 void mtMiscDestroyIconResources(void);
 static void evtNodeUnlink(int nodeAddress, int ownerAddress);
 void evtCreateTintTask(s32 parentTask, s32 *parameters, s32 duration);
 s32 evtCreateBlurFilterTask();
-s32 evtCreateBlurFilterTaskSet(s32 parent, s32 type, u8 *parameters);
-u32 MT_Scene_SetResColorParamById(u32 resourceId, u8 color, u32 duration, u32 flags);
+s32 evtCreateBlurFilterTaskSet(s32 parentTask, s32 type, u8 *record);
+u32 MT_Scene_SetResColorParamById(u32 resourceId, u8 alpha, u32 duration, u32 enableBlend);
 void mdlEffectSetUniformScale(u8 *effect, f32 scale);
 extern u8 D_0063C558[];
 extern u8 D_0063C568[];
@@ -76,9 +76,9 @@ extern s32 D_008821F0[]; /* pending layout record */
 extern s32 D_008821F4[]; /* pending selection result slot */
 extern u8 D_0063C580[];
 extern u8 D_0063C540[];
-s32 mdlLayerIsPresent(s32 resource, s32 layer);
+s32 mdlLayerIsPresent(s32 model, s32 layer);
 f32 mdlGetLayerTime(void *model, s32 layer);
-u32 MT_Scene_SetResMotionRecord(u32 *resource, u32 layer, u32 group, u32 index, u32 enabled, u32 startTime, f32 speed);
+u32 MT_Scene_SetResMotionRecord(u32 *resource, u32 layer, u32 animation, u32 frame, u32 flags, u32 blend, f32 speed);
 
 void MT_Scene_SetResActive(void *resource, s32 enabled);
 void FldState_SetEventViewMode(s32 mode);
@@ -86,11 +86,11 @@ extern void func_00440b68(char *fmt, ...);
 extern char D_0063C628[];
 extern void (*DAT_008873EC[])(void *);
 u32 MT_Scene_GetResManager(void);
-u8 *MT_Scene_GetResListHead(s32 kind);
+u8 *MT_Scene_GetResListHead(s32 resourceType);
 void MT_Scene_SetResEnabledById();
 void fldFilterBeginTransition(u8, u8, u8);
 void FldFilterSetIndex(u8);
-extern void chkmemAllocSiteTag(void *msg, s32 id);
+extern void chkmemAllocSiteTag(void *file, s32 line);
 extern char D_00748340[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -100,7 +100,7 @@ void sprintf();
 s32 evtStartScriptLoad(s32 parentTask); /* lint: allow H011 -- caller stores the returned v0 (retail keeps it); definition is void */
 void evtScriptLoadRequest(); /* lint: allow H011 -- unprototyped: arg2 is a char array (label) at the call, and the definition declares it s32; the return value is discarded */
 void MT_Scene_StopShake(void);
-void MT_Scene_StartShake(s32 duration, s32 mode);
+void MT_Scene_StartShake(s32 first, s32 second);
 extern u32 DAT_00764B38;
 extern u8 DAT_00764B3C;
 extern u8 DAT_00764B40;
@@ -108,11 +108,11 @@ extern u8 DAT_00764B44;
 extern f32 D_00764B5C;
 s32 fadeStatus(void);
 extern u32 DAT_00713890;
-extern void datEntryDrawGatedByFlag39(s16 a, s16 b, s16 c, s16 d);
+extern void datEntryDrawGatedByFlag39(s16 port, s16 sequence, s16 duration, s16 flags);
 void datStopPadRumble(void);
 extern void MT_Scene_SetResActiveById(u16, int);
 extern f32 fGpffff815c;
-extern void evtBlurFilterEnsureBlock(s32 *node);
+extern void evtBlurFilterEnsureBlock(s32 *slot);
 extern s32 DAT_007645DC;
 extern char D_0063C3F0[];
 extern char D_0063C400[];
@@ -123,8 +123,8 @@ extern s8 D_00763888[8];
 s32 fadeBeginTransition(s32 mode, s32 duration);
 s32 fadeBeginReturnTransition(s32 mode, s32 duration);
 s32 fadeState(void);
-void H_Fade_SetCustomColor(u8 red, u8 green, u8 blue);
-s32 cutinDrawTaskCreate(s32 parentTask, s32 packedCode);
+void H_Fade_SetCustomColor(u8 r, u8 g, u8 b);
+s32 cutinDrawTaskCreate(s32 unused, s32 packedIds);
 s32 taskRecordIsDone(void *task);
 void taskRecordRequestSecondary(void *task);
 void taskRecordRequestPrimary(void *task);

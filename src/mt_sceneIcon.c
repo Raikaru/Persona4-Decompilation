@@ -26,7 +26,7 @@ extern code DAT_008873ec_abs[];
 extern u8 iGpffffa6f8;
 /* gp - 0x5900 = 0x007637F0. */
 extern u8 iGpffffa700;
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 // lint: allow H011 -- measured: u16 prototype regresses func_0026da30 (andi on the wide icon id); retail declared this old-style
@@ -37,8 +37,8 @@ extern s32 mtSceneIconTaskUpdate(u8 *unusedTask);
 extern u8 D_0063B558[];
 extern u8 D_0063B568[];
 extern void func_00440b68(u8 *fmt, u8 *file, s32 line);
-extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 mode);
-extern void H_Cdvd_ReadSync(u8 *handle);
+extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
+extern void H_Cdvd_ReadSync(u8 *cdvd);
 
 
 

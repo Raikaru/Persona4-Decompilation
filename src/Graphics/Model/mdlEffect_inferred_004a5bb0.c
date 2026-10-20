@@ -35,7 +35,7 @@ extern s32 D_00724C64;
 extern f32 D_00724C78[2];
 extern f32 D_00724C7C;
 extern u8 D_00714350[];
-extern void kAssertFail(u8 *sourceBytes, s32 value);
+extern void kAssertFail(u8 *file, s32 line);
 extern f32 D_00922D80[];
 extern u32 D_00922D90[];
 extern f32 D_00922D94[];
@@ -53,7 +53,7 @@ extern u8 D_00714144[];
 
 
 
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void memcpy(void *dst, void *src, u32 size);
 extern u8 D_00714368[];
 extern f32 D_008872F8[];
@@ -62,13 +62,13 @@ extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
 extern void memset(void *dst, s32 value, u32 size);
-extern u16 *GeometryCreateTableGridMultiPart(s32 sourceBytes, s32 value, s32 count, s32 flags,
-                          void *data, s32 options);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
 extern void func_003c42b0(void *sourceBytes, s32 value);
-extern s32 TnSlotObject(u16 sourceBytes);
-extern s32 mdlEffectCreateTrackInstance(u16 *sourceBytes);
-extern s32 TlpCreate(u16 *sourceBytes);
-extern void GeometryBlockSetTextureFromHandle(u8 *sourceBytes, u16 *value);
+extern s32 TnSlotObject(u16 slotIndex);
+extern s32 mdlEffectCreateTrackInstance(u16 *source);
+extern s32 TlpCreate(u16 *desc);
+extern void GeometryBlockSetTextureFromHandle(u8 *block, u16 *handle);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern u8 D_0071401C[];

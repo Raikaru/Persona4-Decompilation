@@ -5,9 +5,9 @@
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void kAssertFail(u8 *file, s32 line);
-extern void evtMemAccount(s32 category, s32 bytes);
-extern void H_Cdvd_Destroy(u8 *request);
-extern void mtMiscClearAllSlotRes(u8 *table);
+extern void evtMemAccount(s32 slot, s32 byteCount);
+extern void H_Cdvd_Destroy(u8 *cdvd);
+extern void mtMiscClearAllSlotRes(u8 *tableAddress);
 extern void (*jtbl_008873EC[])(void *);
 extern void memset(void *dest, s32 value, s32 size);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -17,9 +17,9 @@ extern u8 D_0063C840[];
 extern u8 D_0063C870[];
 extern u8 iGpffffa7b8;
 extern void func_00440b68();
-extern s32 H_Cdvd_IsFileLoaded(u8 *request);
-extern u8 *H_Cdvd_LookupRequest(u8 *name, u32 *size);
-extern s32 H_Cdvd_AcquireDirectory(u8 *name, s32 mode);
+extern s32 H_Cdvd_IsFileLoaded(u8 *cdvd);
+extern u8 *H_Cdvd_LookupRequest(u8 *pathAddress, u32 *slot);
+extern s32 H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
 
 /* The loader advances 0x2C bytes per record; requests and lookup results occupy
    the last two words. The allocation is 0x190 bytes, with a 0x10-byte header. */

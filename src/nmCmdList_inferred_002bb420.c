@@ -40,9 +40,9 @@ extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
 extern s32 *nmMesWindowCurrent();
 extern void (*D_00887300[])(s32 slotIndex, s32 arg1);
-extern void itfMesWindowSetState(s32 slotIndex, s8 state);
-extern void itfMesWindowRelease(s32 slotIndex);
-extern void itfMesWindowClear(s32 slotIndex, s32 clearLabel);
+extern void itfMesWindowSetState(s32 handle, s8 state);
+extern void itfMesWindowRelease(s32 handle);
+extern void itfMesWindowClear(s32 handle, s32 clearLabel);
 extern void nmMesWindowSetSlotRunning(s64 slotIndex, s32 running);
 extern char D_0063F340[];
 extern char D_0063F360[];
@@ -82,7 +82,7 @@ typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : 
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002bb420-002bb550 */
 
-extern void fclFadeRectSetRenderStates(s32 slotIndex, u8 *work);
+extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 /* measured: opt_rebuildconditionals off probe for min/max */
 /* measured: close opt_rebuildconditionals after min/max */
 /* measured: opt_loop_invariants on adds retail's second divide hazard nop. */

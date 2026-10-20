@@ -44,14 +44,14 @@ extern f32 D_0076122C;
 extern void (*D_00887300[])(u32, u32);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-void chkmemAllocSiteTag(void *msg, s32 id);
+void chkmemAllocSiteTag(void *file, s32 line);
 void kAssertFail(const void *file, s32 line);
-extern void mdlComputeIndexedAttachMatrix(s32 value, s32 option1, void *option2);
+extern void mdlComputeIndexedAttachMatrix(s32 model, s32 index, void *destination);
 extern void FldPanel2dTaskCreate();
-extern void MT_Scene_SetResEnabled(s32 value, s32 option1);
+extern void MT_Scene_SetResEnabled(s32 resource, s32 enabled);
 extern void func_003ef3a0(s32 value);
-extern void H_Cdvd_Destroy(s32 value);
-extern void mdlSetLayerWeight(u8 *value, s32 option1, f32 option2);
+extern void H_Cdvd_Destroy(s32 cdvd);
+extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
 extern void *memset(void *destination, s32 value, size_t count);
 
 /* 128-bit object copies (retail lq/sq). */
@@ -92,41 +92,41 @@ typedef struct {
     s16 height;
 } RankUpSpriteState;
 extern u_long128 D_00636730;
-extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
-static void cmmRankUpLerpState(RankUpSpriteState *value, RankUpSpriteState *option1, RankUpSpriteState *option2, f32 floatValue);
+extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
+static void cmmRankUpLerpState(RankUpSpriteState *out, RankUpSpriteState *a, RankUpSpriteState *b, f32 t);
 
 extern struct RwMatrixTag *RwMatrixRotate(struct RwMatrixTag *matrix,
         const struct RwV3d *axis, f32 angle, s32 combine);
 extern void RpSkyRenderStateSet(s32 value, s32 option1);
-extern u8 *cmmRankUpReserveSparkle(s32 value, s32 option1);
-extern void cmmRankUpFadeSparklePools(u8 *value);
-extern s32 shdSpriteSlotHandle(s32 value, s32 option1, u8 *option2);
-extern s32 datPortraitValue(s32 value);
+extern u8 *cmmRankUpReserveSparkle(s32 workAddress, s32 poolKind);
+extern void cmmRankUpFadeSparklePools(u8 *work);
+extern s32 shdSpriteSlotHandle(s32 entryId, s32 entryOffset, u8 *pack);
+extern s32 datPortraitValue(s32 task);
 extern u32 RpRandom(void);
 extern u8 *RwMatrixMultiply(u8 *value, u8 *option1, u8 *option2);
 extern f32 cosf(f32 floatValue);
 extern f32 sinf(f32 floatValue);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
-extern void PrimDrawRectangle(u8 *color, u8 *rectangle, f32 depth,
-                          s32 saveState, s32 centerX, s32 centerY,
+extern void PrimDrawRectangle(u8 *colors, u8 *positions, f32 depth,
+                          s32 preserveState, s32 offsetX, s32 offsetY,
                           f32 rotation, f32 scaleX, f32 scaleY);
 
 extern s32 sflDataDrawTexturedQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s16 centerX, s16 centerY,
                           struct RwMatrixTag *matrix, s32 texture, f32 (*uv)[2]);
 
-extern s32 shdEffectTaskCreate(s32 value, s32 option1, s32 option2, void *option3);
-extern s32 func_0025ff60(s32 value);
-extern void mdlEffectSetMatrixPose(s32 value, s32 option1);
+extern s32 shdEffectTaskCreate(s32 parentTask, s32 resource, s32 frameLimit, void *context);
+extern s32 func_0025ff60(s32 task);
+extern void mdlEffectSetMatrixPose(s32 effect, s32 matrix);
 extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
 extern void mdlEffectGetPackedColor(void *object, s32 *color);
-extern void mdlEffectSetPackedColor(void *object, s32 *color);
-extern u8 *datScreenPointToWorldPosition(u8 *position, s32 screenX, s32 screenY, f32 distance);
+extern void mdlEffectSetPackedColor(void *object, s32 *packedColor);
+extern u8 *datScreenPointToWorldPosition(u8 *output, s32 screenX, s32 screenY, f32 distance);
 extern u8 *kwlnGetCamera(void);
 extern s32 func_003e9700(s32 value);
-extern void itfMesWindowSetString(s32 value, s32 option1, void *option2);
-extern void sdkSndStartChannel(s32 value, void *option1);
+extern void itfMesWindowSetString(s32 handle, s32 slotIndex, void *text);
+extern void sdkSndStartChannel(s32 channelIndex, void *path);
 extern f32 fGpffffa66c;
 extern f32 fGpffffa670;
 extern f32 fGpffffa674;
@@ -149,7 +149,7 @@ extern u8 D_00636710[];
 extern u8 D_00635C80[];
 extern u8 D_00635CA0[];
 extern u8 D_005DC974[];
-extern s64 cmmCommunityArcana(s32 value);
+extern s64 cmmCommunityArcana(s32 communityId);
 extern u8 *func_002438b0();
 extern u8 *cmmPersonaRecord();
 
@@ -162,7 +162,7 @@ extern u8 *cmmPersonaRecord();
 s32 cmmRankUpDrawMovingWipe(u8 *root, u8 *work, CmmRankUpCardTask *context);
 s32 cmmRankUpDrawExitWipe(u8 *root, u8 *work, CmmRankUpCardTask *context);
 s32 cmmRankUpSequenceUpdate(u8 *task);
-void cmmRankUpSequenceDestroy(u8 *task);
+void cmmRankUpSequenceDestroy(u8 *unusedTask);
 
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
@@ -283,23 +283,23 @@ extern f32 D_00635D2C[];
 extern f32 D_00635D30[];
 extern u8 D_00635D40[];
 extern u8 D_00636180[];
-extern u8 *cmmRankUpFindFreeEntry(u8 *value);
+extern u8 *cmmRankUpFindFreeEntry(u8 *entries);
 extern void *memset(void *dst, s32 value, u32 size);
 extern void *memcpy(void *dst, const void *src, u32 size);
-extern u8 *cmmKindRecord(s32 value);
-extern s32 datGetFlag(s32 flag);
+extern u8 *cmmKindRecord(s32 kindId);
+extern s32 datGetFlag(s32 bit);
 extern s64 cmmResolveCounterpart(s16 value);
-extern void itfMesWindowApplySlots(s32 value);
-extern u8 *itfMesWindowBuildEntry(f32 floatValue, f32 floatOption1, f32 floatOption2, s32 value,
-                         s32 option1, s32 option2, s32 option3, s32 option4, s32 option5);
-extern u8 *frFontSplitRun(u8 **value, s32 option1);
-extern s32 frFontNodeWidth(u8 *value);
-extern void frFontMoveListToFloat(u8 *value, f32 floatValue, f32 floatOption1);
-extern void frFontSetGlyphColor(u8 *value, s32 option1);
-extern void frFontListKeepOrRelease(u8 *value);
-extern u8 *MT_Scene_GetResListHead(s32 value);
-extern s32 MT_Scene_IsResEnabled(u8 *value);
-extern void MT_Scene_SetResEnabledById(s32 value, s32 option1);
+extern void itfMesWindowApplySlots(s32 handle);
+extern u8 *itfMesWindowBuildEntry(f32 x, f32 y, f32 scale, s32 color,
+                         s32 slotIndex, s32 effect, s32 flags, s32 handle, s32 recordIndex);
+extern u8 *frFontSplitRun(u8 **listAddress, s32 runIndex);
+extern s32 frFontNodeWidth(u8 *node);
+extern void frFontMoveListToFloat(u8 *list, f32 x, f32 y);
+extern void frFontSetGlyphColor(u8 *list, s32 color);
+extern void frFontListKeepOrRelease(u8 *list);
+extern u8 *MT_Scene_GetResListHead(s32 resourceType);
+extern s32 MT_Scene_IsResEnabled(u8 *resource);
+extern void MT_Scene_SetResEnabledById(s32 resTypeId, s32 enabled);
 
 /* measured: opt_propagation off around func_00252050 batches the D_00635D28/
    2C/30 lwc1 loads before the spFloat stores; plain float temps under the
@@ -786,13 +786,13 @@ extern u8 D_00636290[];
 extern u8 D_00635CC0[];
 extern u8 D_00635CE0[];
 extern f32 D_00761174, D_0076118C, D_00761308, D_0076132C, D_0076139C;
-s32 shdSpriteDrawNow(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5);
-s32 shdSpriteDrawNowEx(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, s16 a6, s16 a7, f32 f3, f32 f4, f32 f5);
-void PrimDrawPoints(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4);
-u8 *resourceFindByName(char *a0);
-f32 sdkSpriteEntryWidth(void *a0, s32 a1);
-void sdkSpriteDrawNowUnscaled(f32 f0, f32 f1, f32 f2, s32 a0, u8 a1, s32 a2, void *a3, s32 a4);
-u8 *cmmNameRecord(u32 a0);
+s32 shdSpriteDrawNow(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 *pack, s32 flags);
+s32 shdSpriteDrawNowEx(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 *pack, s32 flags, s16 width, s16 height, f32 rotation, f32 scaleX, f32 scaleY);
+void PrimDrawPoints(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType, s32 preserveState);
+u8 *resourceFindByName(char *name);
+f32 sdkSpriteEntryWidth(void *blob, s32 index);
+void sdkSpriteDrawNowUnscaled(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex, void *pack, s32 setStates);
+u8 *cmmNameRecord(u32 nameId);
 
 #pragma push
 #pragma opt_loop_invariants on
@@ -2315,7 +2315,7 @@ s32 cmmRankUpAttachResMatrix(s32 resourceIndex, void *matrix) {
 
 extern u8 *func_003ec3d0(void *raster, s32 lockMode);
 extern void *func_003ec2e0(void *raster);
-extern s32 H_Cdvd_LookupRequest(s32 name, s32 *size);
+extern s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
 
 #pragma push
 #pragma always_inline on
@@ -3237,22 +3237,22 @@ extern f32 fGpffff82a4;
 extern u8 *iGpffffb448;
 extern char cGpffffa680;
 extern char cGpffffa688;
-extern u8 *datPortraitTaskCreate(s32 parent, s64 id, s32 flags);
+extern u8 *datPortraitTaskCreate(s32 parentAddress, s64 portraitId, s32 flags);
 extern void func_00440b68();
 extern u8 *H_Cdvd_AcquireDirectory();
 extern s32 H_Cdvd_IsFileLoaded();
 extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName, s32 resultKind, s32 memoryKind);
 extern void *memcpy(void *destination, const void *source, u32 size);
 extern void *memset(void *destination, s32 value, u32 size);
-extern u8 *filerTakeCompletedRequest(u8 *request, s32 *complete, s32 *result);
+extern u8 *filerTakeCompletedRequest(u8 *request, s32 *completed, s32 *resultValue);
 extern s32 func_00459760();
 extern s32 func_0045b400();
 extern s32 sdkSndFadeMainChannel();
 extern void sdkSndFadeOutChannelFrames();
-extern void shdEffectSetRenderParams(u8 *value, s32 option1, u8 option2);
-extern void shdEffectFillFbufParams(u8 *dst, u8 option1, u32 option2, u32 option3, u32 option4, u32 option5, f32 farg0, f32 farg1);
-extern void shdEffectSetFargParams(u8 *dst, s32 option1, s32 option2, f32 farg0, f32 farg1);
-extern s32 shdEffectCreateBlurTask(s32 value, s32 option1, s32 option2, u8 *option3, void *renderContext);
+extern void shdEffectSetRenderParams(u8 *effect, s32 parameter, u8 flags);
+extern void shdEffectFillFbufParams(u8 *dst, u8 flags, u32 firstColor, u32 secondColor, u32 thirdColor, u32 fourthColor, f32 firstValue, f32 secondValue);
+extern void shdEffectSetFargParams(u8 *dst, s32 firstValue, s32 secondValue, f32 firstFloat, f32 secondFloat);
+extern s32 shdEffectCreateBlurTask(s32 parentTask, s32 filterKind, s32 filterHandle, u8 *effect, void *renderContext);
 extern u8 *cmmRankUpFindResEntry();
 extern void cmmRankUpPlayRankSound();
 extern s32 FldPanel2dRelease();
@@ -3265,17 +3265,17 @@ extern void nmMesWindowRestartSlot();
 extern void nmMesWindowDestroySlot();
 extern void nmMesWindowStepSlotRelease(s32);
 extern s8 nmMesWindowAcquire();
-extern s32 nmMesWindowShowSlotRecord(s8 slot, s32 message);
+extern s32 nmMesWindowShowSlotRecord(s8 slotIndex, s32 recordIndex);
 extern void nmMesWindowShowSlotRecordStyle1();
 extern s32 cmmRankUpSelectDisplayIndex();
-extern s64 cmmCommunityArcana(s32 value);
+extern s64 cmmCommunityArcana(s32 communityId);
 extern u8 *func_002438b0();
 extern u8 *cmmNameRecord(u32);
 extern u8 *cmmTextRecord();
 extern u8 *cmmPersonaRecord();
 extern char *strcpy(char *destination, const char *source);
-extern void frFontExCopyString(char *source, char *destination, s32 capacity);
-extern void nmMesWindowSetSlotString(s8 handle, s32 variable, void *text);
+extern void frFontExCopyString(char *src, char *dst, s32 maxlen);
+extern void nmMesWindowSetSlotString(s8 slotIndex, s32 variable, void *text);
 extern s32 datGetFlag();
 extern void datSetFlag();
 extern void hsndQueueSound();
@@ -3284,7 +3284,7 @@ extern void sdkSndStopMainChannel();
 extern void sdkSndStopChannel();
 extern void sdkSndFadeOutChannel();
 extern void sdkSndRequestTrack();
-extern s32 cmmRankUpCardTaskUpdate(u8 *task);
+extern s32 cmmRankUpCardTaskUpdate(u8 *sdkTaskBytes);
 extern void cmmRankUpCardTaskDestroy(u8 *task);
 extern void PrimAppendNode();
 extern u8 *PrimAllocQueueNode();

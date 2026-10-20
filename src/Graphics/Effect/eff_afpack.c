@@ -92,16 +92,16 @@ typedef struct AfPackRenderEntry {
 extern void* D_00764C98; /* render-list owner */
 extern s32 D_00922DB0[];
 extern s32 D_00922DB4[];
-extern void PrimAppendNode(void* drawList, s32* node);
+extern void PrimAppendNode(void* list, s32* node);
 extern void* D_00764C9C; /* instance-list tail */
 extern RuntimeListNode* D_00764CA0; /* instance-list head */
 extern void effAfterResetCommand(void* command, void* resource);
-extern void effAfterRunCommands(void* command, void* result);
+extern void effAfterRunCommands(void* work, void* unused);
 extern void func_00440b68(const void* msg, const void* file, s32 line);
-extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
-extern void H_Cdvd_ReadSync(void* handle);
+extern u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags);
+extern void H_Cdvd_ReadSync(void* cdvd);
 extern s32 func_003ef740(u8* param, s32 mode);
-extern void H_Cdvd_Destroy(u8* ptr);
+extern void H_Cdvd_Destroy(u8* cdvd);
 
 extern void memset(void* dst, s32 value, u32 size);
 extern u8 D_00764210;
@@ -113,20 +113,20 @@ extern u8 D_007146D0[];
 extern void* D_00922DB8[];
 extern s32 D_00922DC0[];
 extern void AfPackRunList(void);
-extern s32 AfPackTaskUpdate(u8 *task);
+extern s32 AfPackTaskUpdate(u8 *unusedTask);
 extern void kAssertFail(const void* file, s32 line);
 extern void func_003e9390(void* frame);
 extern void func_003c02e0(void* arg);
 extern void func_003c4220(void* arg);
-extern void effAfterFreeVectorBuffers(void* source);
+extern void effAfterFreeVectorBuffers(void* work);
 extern void (*jtbl_008873EC[])(void* ptr);
 extern void chkmemAllocSiteTag(const void* file, s32 line);
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
-extern void effAfterAllocVectorBuffers(void* source, void* taskPriority);
+extern void effAfterAllocVectorBuffers(void* work, void* config);
 extern s32 func_003c4140(void);
 extern void func_003c42b0(void* a, void* b);
 struct RpMaterial;
-extern u8* effAfterCreateRibbon(u8* a, struct RpMaterial* material);
+extern u8* effAfterCreateRibbon(u8* work, struct RpMaterial* material);
 extern s32 func_003c00e0(void);
 extern void func_003c0210(void* a, void* b, s32 c);
 extern s32 func_003e9320(void);
@@ -635,9 +635,9 @@ void AfPackRunList(void) {
     typedef int (*code)();
     extern code DAT_008873ec_abs[];
     void *(**table);
-    extern void Vpad_UpdateRenderEntries(void *source);
-    extern void Vpad_DrawEntries(void *source);
-    extern s32 Vpad_HasEntries(void *source);
+    extern void Vpad_UpdateRenderEntries(void *workData);
+    extern void Vpad_DrawEntries(void *work);
+    extern s32 Vpad_HasEntries(void *workData);
     s32 flags;
     u8 *first;
     u8 *prev;

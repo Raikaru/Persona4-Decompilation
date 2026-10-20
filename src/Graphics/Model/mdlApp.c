@@ -21,17 +21,17 @@ typedef struct MdlAppBc
     s32 secondaryRead; /* 0x18 */
 } MdlAppBc;
 
-extern s32 mdlSeIsLoaded(u32 id, u16 subId);
-extern void *mdlSeCreateRecord(u32 id, u16 subId, s32 kind);
-extern s32 mdlSeAcquireSlot(u32 id, u16 subId);
-extern s32 datGetFlag(s32 id);
+extern s32 mdlSeIsLoaded(u32 type, u16 id);
+extern void *mdlSeCreateRecord(u32 type, u16 id, s32 kind);
+extern s32 mdlSeAcquireSlot(u32 type, u16 id);
+extern s32 datGetFlag(s32 bit);
 extern s64 datGetDateIndex(void);
-extern s32 calGetDayWindowFlags(s16 value);
+extern s32 calGetDayWindowFlags(s16 day);
 extern s32 sprintf(char *buf, char *fmt, ...);
 extern void func_00440b68(char *fmt, ...);
-extern s32 H_Cdvd_AcquireDirectory(void *msg, s32 kind);
-extern void H_Cdvd_ReadSync(s32 handle);
-extern s32 btlBossResolveModelName(u32 type, u16 id, char *name);
+extern s32 H_Cdvd_AcquireDirectory(void *path, s32 flags);
+extern void H_Cdvd_ReadSync(s32 cdvd);
+extern s32 btlBossResolveModelName(u32 modelKind, u16 modelId, char *path);
 extern s32 mdlFileIsTypePac(u32 type, u16 id);
 extern s32 mdlResolvePacPath(u32 type, u16 id, char *path);
 extern s32 mdlAttachWeaponModelSlots(void *model);

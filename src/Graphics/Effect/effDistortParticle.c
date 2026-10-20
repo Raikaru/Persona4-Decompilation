@@ -22,23 +22,23 @@ extern void chkmemAllocSiteTag(const char *file, s32 line);
 extern void *memset(void *dest, s32 value, s32 size);
 extern void memcpy(void *dst, const void *src, u32 size);
 extern void func_003ef3a0(void *ptr);
-extern void mdlEffectFreeEmitterAllocation(void *ptr);
-extern u8 *mdlEffectAllocateTrackPath(u32 object, s32 value, u8 *options);
-extern void mdlEffectAdvanceEmitter(void *ptr);
-extern s32 TnSlotObject(u16 param);
-extern void mdlEffectLoadQuadB(void *object, void *value);
-extern void mdlEffectLoadQuadA(void *object, void *value);
-extern void DistortParticleDrawSky(u8 *object, u8 *value, void *options, void *context, void *flags, void *data, s32 mode, s32 index);
+extern void mdlEffectFreeEmitterAllocation(void *instance);
+extern u8 *mdlEffectAllocateTrackPath(u32 kind, s32 primaryCount, u8 *parameters);
+extern void mdlEffectAdvanceEmitter(void *object);
+extern s32 TnSlotObject(u16 slotIndex);
+extern void mdlEffectLoadQuadB(void *instance, void *quadData);
+extern void mdlEffectLoadQuadA(void *instance, void *quadData);
+extern void DistortParticleDrawSky(u8 *particle, u8 *record, void *sourceRecord, void *position, void *colorScale, void *textureSize, s32 drawMode, s32 uvIndex);
 extern void effMiscBuildRotationVU(void);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern f32 fGpffff8080;
 extern f32 fGpffff8098;
 extern f32 fGpffff809c;
 extern s32 iGpffff81f4; /* 0x007612E4 */
-void DistortParticleSeedRecord(u8 *object, u8 *value);
-void DistortParticleRebuildRecords(u8 *object, u32 value, u8 *options);
-void DistortParticleUploadTexture(u8 *object, s32 value);
-void DistortParticleShareTexture(u8 *object, u8 *value);
+void DistortParticleSeedRecord(u8 *particle, u8 *record);
+void DistortParticleRebuildRecords(u8 *particle, u32 sourceId, u8 *parameters);
+void DistortParticleUploadTexture(u8 *particle, s32 handle);
+void DistortParticleShareTexture(u8 *destination, u8 *source);
 extern s32 TnUploadStreamTagged();
 
 /* The header fills DistortParticleInstance::field_0x00; the copied settings

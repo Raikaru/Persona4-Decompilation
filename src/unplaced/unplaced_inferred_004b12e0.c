@@ -10,7 +10,7 @@
 #include "effect_vu0_internal.h"
 extern void func_004861f0(void *effect, f32 *matrix);
 extern void func_00486330(u8 *effect, void *matrix);
-extern void effMiscMatrixToQuatVU(f32 *effect);
+extern void effMiscMatrixToQuatVU(f32 *matrix);
 /* Set effect translation and derive its quaternion from the supplied RenderWare matrix. */
 /* Set effect translation and derive its quaternion from a RenderWare matrix. */
 /* measured: typing the post-callback translation reloads changes scheduling (normalized_diff 134/135/137); keep those three loads raw. */

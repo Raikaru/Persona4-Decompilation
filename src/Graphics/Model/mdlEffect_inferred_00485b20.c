@@ -30,7 +30,7 @@ extern void mdlEffectSetChildPositions(u8 *effect, f32 *value);
 extern void effMiscQuatMultiplyVU(void);
 extern void effMiscBuildRotationVU(void);
 extern void mdlEffectSetChildScales(u8 *effect, f32 value);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_007132F0[];
@@ -59,7 +59,7 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00485b20-004865c0 */
 
-extern u_long128 mdlEffectInitParticleState(u8 *effect);
+extern u_long128 mdlEffectInitParticleState(u8 *instance);
 extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
 extern void mdlEffectApplyPackedColor(u8 *effect, s32 value);
 static inline void model_normalize_packed_color(const u32 *source, f32 scale)

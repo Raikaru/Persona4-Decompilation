@@ -26,9 +26,9 @@ typedef struct RwMatrix
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-extern void mdlEffectReleasePrimarySource(u8 *source);
-extern void mdlEffectReleaseSecondarySource(u8 *source);
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void mdlEffectReleasePrimarySource(u8 *instance);
+extern void mdlEffectReleaseSecondarySource(u8 *instance);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void kAssertFail(void *file, s32 line);
 extern u8 D_007132F0[];
@@ -57,8 +57,8 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484570-004846d0 */
 
-extern void mdlEffectReleasePrimarySource(u8 *source);
-extern void mdlEffectReleaseSecondarySource(u8 *source);
+extern void mdlEffectReleasePrimarySource(u8 *instance);
+extern void mdlEffectReleaseSecondarySource(u8 *instance);
 /* Allocate a primitive record and construct its kind-specific payload. */
 // FUN_00484570
 u8 *mdlEffectCreatePrimitiveRecord(u8 *source)

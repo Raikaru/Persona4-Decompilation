@@ -60,7 +60,7 @@ extern void RpSkyRenderStateSet(s32 param, s32 value);
 extern void (*D_00887300[])(u32 state, u32 value);
 extern void (*D_00887314[])(s32, void *, s32, void *, s32);
 extern u8 D_00714368[];
-extern void mdlEffectEmitValuePacket(s64 arg);
+extern void mdlEffectEmitValuePacket(s64 instance);
 extern void mdlEffectEmitSlotPacket(void);
 extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
@@ -69,8 +69,8 @@ extern f32 D_008872F8[];
 extern f32 fGpffff80f4;
 extern f32 fGpffff81f4;
 
-extern u16 *GeometryCreateTableGridMultiPart(s32 parameters, s32 vertices, s32 count, s32 flags,
-                          void *data, s32 options);
+extern u16 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesPerRow, s32 verticesPerRow,
+                          void *indices, s32 flags);
 extern u8 D_00713408[];
 extern u8 D_007141A0[];
 extern u8 D_0071401C[];

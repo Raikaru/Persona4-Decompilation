@@ -37,7 +37,7 @@ extern void* func_003e9af0(void* object, KClumpCallback callback, void* data);
 extern s32 strcmp(const char* left, const char* right);
 extern char* strcpy(char* destination, const char* source);
 
-extern void* K_Clump_AtomicMatUsrDataCb(void* object, void* data);
+extern void* K_Clump_AtomicMatUsrDataCb(void* geometry, void* data);
 extern void* K_Clump_FindIntUsrDataFrameCb(void* object, void* data);
 extern void* K_Clump_CountIntUsrDataCb(void* object, void* data);
 extern void* K_Clump_IntUsrDataAtCb(void* object, void* data);

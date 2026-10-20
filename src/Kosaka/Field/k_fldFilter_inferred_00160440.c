@@ -33,7 +33,7 @@ extern u8 iGpffffba54;
 extern u8 iGpffffba58;
 extern void (*D_00887300[])(u32, u32);
 extern void RpSkyRenderStateSet(s32 , s32 );
-extern void chkmemAllocSiteTag(const void *msg, s32 line);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void H_Cdvd_ReadSync(void *);
 extern void memcpy(void *dst, void *src, u32 size);

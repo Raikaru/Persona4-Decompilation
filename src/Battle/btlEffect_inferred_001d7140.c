@@ -6,15 +6,15 @@
 #include "type.h"
 
 /* Canonical grouped function declarations. */
-extern void btlFormationSetPlacement(u32 input);
+extern void btlFormationSetPlacement(u32 formation);
 extern u8* DAT_0076449c;
 extern void* (*jtbl_008873E8[])(u32 size, u32 align);
 extern char D_00609558[];
-extern void btlFormationResetState(u8* input);
-extern void btlFormationCopyDefault(u8* input);
-extern u8* btlFormationAllocEntry(u8* input, s32 value, s32 options, s32 flags, s32 mode);
-extern void mdlEffectDestroyWithNodes(u32 input);
-extern void mdlDestroyModelObject(u32 input);
+extern void btlFormationResetState(u8* work);
+extern void btlFormationCopyDefault(u8* formation);
+extern u8* btlFormationAllocEntry(u8* table, s32 tableIndex, s32 unit, s32 target, s32 flags);
+extern void mdlEffectDestroyWithNodes(u32 effect);
+extern void mdlDestroyModelObject(u32 model);
 
 /* Source unit: src/btlFormation/btlFormation_001d4120.c (8 function markers) */
 

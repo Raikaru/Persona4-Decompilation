@@ -61,15 +61,15 @@ typedef struct SdkListState {
 } SdkListState;
 extern void (*D_008873EC[])(void *);
 extern void sdkSpriteFreeNode(void *node);
-extern void datScreenWipeSetTextureId(u8 *work, u16 value);
+extern void datScreenWipeSetTextureId(u8 *task, u16 textureId);
 static inline u32 addOffsetFirst(u32 offset, u32 base)
 {
     return offset + base;
 }
 
 extern s32 nLineIsIdle(void);
-extern void datPortraitSetValue(u8 *work, s8 value, s32 flags);
-extern void datPortraitSetLabel(s32 work, u16 value, s32 flags);
+extern void datPortraitSetValue(u8 *task, s8 portraitId, s32 flags);
+extern void datPortraitSetLabel(s32 taskAddress, u16 labelId, s32 flags);
 #pragma push
 #pragma optimization_level 2
 #pragma opt_propagation on
@@ -97,18 +97,18 @@ void datCommunityOverlayDestroy(u8 *task)
 }
 #pragma pop
 
-void datCommunityCursorFeedback(s32 work);
-void datCommunityFillVisibleRecords(u8 *work);
-s32 datCommunityIsReady(u8 *work);
-void datCommunityMenuInit(u8 *work);
-void datCommunityMenuRelease(u8 *work);
-s32 datCommunityPanelOpenStep(u8 *work);
-s32 datCommunityPushValue(s32 work, s32 value, s16 flags);
+void datCommunityCursorFeedback(s32 direction);
+void datCommunityFillVisibleRecords(u8 *menuWork);
+s32 datCommunityIsReady(u8 *menuWork);
+void datCommunityMenuInit(u8 *menuWork);
+void datCommunityMenuRelease(u8 *menuWork);
+s32 datCommunityPanelOpenStep(u8 *menuWork);
+s32 datCommunityPushValue(s32 menuAddress, s32 selectionIndex, s16 value);
 s32 datCommunityRequestExit(void);
-void datCommunityResetOffset(u8 *work);
-void datCommunitySetSlotLayout(u8 *work);
-s32 datCommunitySetTableMode(u8 *work, s32 value);
-void datScreenWipeSetupSlot(u8 *work, s32 value, s32 flags, s32 mode);
+void datCommunityResetOffset(u8 *menuWork);
+void datCommunitySetSlotLayout(u8 *menuWork);
+s32 datCommunitySetTableMode(u8 *menuWork, s32 mode);
+void datScreenWipeSetupSlot(u8 *task, s32 slotIndex, s32 initialize, s32 reverse);
 void resrcMngSuppressRender(void);
 void resrcMngUnsuppressRender(void);
 

@@ -14,19 +14,19 @@ static inline s32 p4_001d7f10_add(s32 left, s32 right)
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 *D_0076449C;
-extern void btlEffectFreeEntry(s32 input, s32 value);
-extern s32 btlEffectStepFormationPlacement(u8 *input);
-extern void btlFormationSetPlacement(s32 input);
+extern void btlEffectFreeEntry(s32 pool, s32 entry);
+extern s32 btlEffectStepFormationPlacement(u8 *work);
+extern void btlFormationSetPlacement(s32 formation);
 extern u32 iGpffffb3b8;
 
-extern void mdlEffectFlushTreeFrame(s32 input);
-extern void TnSetTableBase(s32 input);
-extern void mdlSetColor(u8 *input, u32 *value);
-extern void mdlEffectApplyPackedColor(u8 *input, s32 value);
-extern void mdlAdvanceModelFromFlags(s32 input);
-extern void mdlEffectCommitTreeFrame(u8 *input);
-extern void btlFormationUpdateAttachments(s32 input);
-extern void mdlQueueModelForDraw(s32 input, u8 *value);
+extern void mdlEffectFlushTreeFrame(s32 effect);
+extern void TnSetTableBase(s32 table);
+extern void mdlSetColor(u8 *model, u32 *color);
+extern void mdlEffectApplyPackedColor(u8 *effect, s32 value);
+extern void mdlAdvanceModelFromFlags(s32 model);
+extern void mdlEffectCommitTreeFrame(u8 *effect);
+extern void btlFormationUpdateAttachments(s32 work);
+extern void mdlQueueModelForDraw(s32 queue, u8 *model);
 extern u8 D_005DC7D0[];
 extern u8 D_00794150[];
 extern char D_005DC824[];
@@ -115,10 +115,10 @@ void btlEffectPrepareFormationStep(u8 *work) {
 // FUN_001D6360
 s32 btlEffectStepFormationPlacement(u8 *work)
 {
-    extern s32 btlUnitRecordFindByUID(s64 work, s64 unit);
-    extern u32 btlFormationGetCount(void *work);
-    extern s32 btlFormationGetIndex(s32 work, s32 unit);
-    extern s32 btlFormationAllocEntry(s32 work, s32 unit, s32 value, s32 entry, s32 options);
+    extern s32 btlUnitRecordFindByUID(s64 uid, s64 mask);
+    extern u32 btlFormationGetCount(void *formation);
+    extern s32 btlFormationGetIndex(s32 formation, s32 side);
+    extern s32 btlFormationAllocEntry(s32 table, s32 tableIndex, s32 unit, s32 target, s32 flags);
     s32 count;
     s32 value;
     s32 unit;

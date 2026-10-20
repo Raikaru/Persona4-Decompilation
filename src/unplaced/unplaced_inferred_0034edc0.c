@@ -56,7 +56,7 @@ typedef struct DatSmoothTarget {
 } DatSmoothTarget;
 extern s32 (*D_00887300[])(RwRenderState, void *);
 extern s32 RpSkyRenderStateSet(s32 command, void *value);
-extern void sdkSpriteDraw(u8 *sprite, s32 setStates);
+extern void sdkSpriteDraw(u8 *sample, s32 setStates);
 extern void kAssertFail(const void *file, s32 line);
 extern char D_0064B310[];
 extern u32 RpRandom();

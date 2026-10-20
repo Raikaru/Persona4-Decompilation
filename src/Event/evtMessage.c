@@ -19,12 +19,12 @@ typedef struct EvtMessageWindow {
 extern void itfMesWindowReleaseIfActive();
 extern void memset();
 extern s32 itfMesWindowInstall();
-extern void itfMesWindowApplyStyle(s32 windowId, s32 style, s32 flags);
+extern void itfMesWindowApplyStyle(s32 handle, s32 kind, s32 unusedValue);
 /* Source unit: src/Event/mt_evtMessage_00290a50.c (donor FUN_0039f2a0) */
 
 extern void kAssertFail(u8 *file, s32 line);
 extern u8 D_0063C820[];
-extern s32 itfMesWindowEntryValue(s32 windowId, s32 entryIndex);
+extern s32 itfMesWindowEntryValue(s32 handle, s32 recordIndex);
 
 extern void itfMesWindowSetState();
 extern void itfMesWindowRelease();
@@ -36,7 +36,7 @@ extern void func_00277ad0_typed(s32, s32);
 extern void func_002781e0_typed(s32, u32);
 /* Source unit: src/Event/mt_evtMessage_00290e10.c (donor FUN_0039f710) */
 
-extern u32 itfMesWindowRecordCount(int object);
+extern u32 itfMesWindowRecordCount(int handle);
 
 /* measured: a named u8 boolean preserves retail's sltu materialisation;
    object 188B matches the 192-byte retail window with zero padding. */

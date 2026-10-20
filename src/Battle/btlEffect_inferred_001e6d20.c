@@ -26,7 +26,7 @@ typedef struct P4RouteSlerp_001EF110 {
     s32 mode;
 } P4RouteSlerp_001EF110;
 extern void btlCameraLookAtQuat(void *out, const void *first,
-                          const void *second, const void *up);
+                          const void *second, const void *config);
 extern void *D_00609850[];
 extern s64 scrGetParamInt();
 /* The surrounding wrappers use the raw s64 ABI; this typed view preserves
@@ -46,7 +46,7 @@ extern u8 iGpffffa9b0;
 extern s32 *gEncountTbl;
 extern s32 D_00724504;
 extern s32 btlAICommandSelectCandidates();
-extern u32 datCalcRandomBelow(u32 input);
+extern u32 datCalcRandomBelow(u32 limit);
 extern u8 *btlEffectFindUnitByIdAndStatus();
 extern u8 *btlAICommandPickUnitByHpWeight();
 
@@ -62,7 +62,7 @@ extern f32 fGpffff8060;
 extern f32 D_00761438;
 
 
-extern u32 datCalcRandomBelow(u32 input);
+extern u32 datCalcRandomBelow(u32 limit);
 
 
 
@@ -85,8 +85,8 @@ extern f32 D_00881414[];
 extern f32 D_00881418[];
 extern f32 fGpffffb454;
 extern u8 D_00609E40[];
-extern s32 datCalcGetHp(s32 input);
-extern s32 datCalcIsDead(s32 input, s32 value);
+extern s32 datCalcGetHp(s32 unit);
+extern s32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 

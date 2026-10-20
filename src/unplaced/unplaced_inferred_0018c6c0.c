@@ -238,8 +238,8 @@ s32 sndPlayAreaCue(void) {
 // FUN_0018CED0
 s32 sndRequestAreaTrack(void)
 {
-    extern void sdkSndFadeOutChannelFrames(s32 channel, s32 volume, s32 frames);
-    extern void sdkSndRequestTrack(s32 track);
+    extern void sdkSndFadeOutChannelFrames(s32 channelIndex, s32 requestValue, s32 fadeFrames);
+    extern void sdkSndRequestTrack(s32 trackId);
     u8 *location;
     s32 area;
     s32 track;

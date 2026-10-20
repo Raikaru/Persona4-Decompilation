@@ -6,7 +6,7 @@
 #include "fr_font_internal.h"
 extern s32 D_005E45E0[];
 extern u8 D_0079B6D8[];
-extern void calSplitDayOfYear(s32 seed, s32 *month, s32 *day);
+extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
 extern s16 D_00797B7A[];
 // Intent: Return the day count of the calendar month at 1-based index arg0 from the twelve-entry month-length table, in the April-based year [inferred]
 // FUN_001104A0

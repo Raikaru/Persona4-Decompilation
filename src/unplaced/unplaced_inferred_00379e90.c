@@ -3,7 +3,7 @@
 #include "include_asm.h"
 #include "type.h"
 #include "btl_shuffle_state_internal.h"
-extern void btlShuffleCalcResetPose(u8 *context);
+extern void btlShuffleCalcResetPose(u8 *output);
 extern void btlShuffleDrawInitCard(u8 *context, s32 cardIndex, s32 output, f32 *endFrame, f32 *controlPoints, f32 *origin,
                            f32 angle, f32 endAngle);
 extern f32 cosf(f32 angle);
@@ -11,7 +11,7 @@ extern f32 sinf(f32 angle);
 extern f32 fGpffff80d8;
 extern f32 fGpffff83e4;
 extern f32 fGpffff837c;
-extern void btlShuffleDrawSetTiming(u8 *context, s32 cardIndex, s32 output, s32 endFrame, f32 *controlPoints);
+extern void btlShuffleDrawSetTiming(u8 *context, s32 cardIndex, s32 delay, s32 duration, f32 *start);
 static inline f32 btlShuffleAddPoseDepth(f32 a, f32 b) {
     return a + b;
 }
@@ -21,7 +21,7 @@ static inline u8 *btlShuffleAddCardOffset(u32 offset, u8 *base)
     return (u8 *)(offset + (u32)base);
 }
 
-void btlShuffleCalcRotatePointAroundAxis(u8 *context, u8 *cardIndex, u8 *output, f32 angle, u8 *endFrame);
+void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, f32 angle, u8 *output);
 
 #pragma push
 #pragma opt_propagation off
@@ -68,31 +68,31 @@ void btlShuffleInitSingleAxisPose(u8 *context, s32 cardIndex, f32 *output) {
 /* measured: field/access-site typing changes alias-driven reloads or scheduling (normalized_diff 239..2399); retain only the failing byte-base accesses. */
 // FUN_00379F90
 s32 btlShuffleSeq1Run(u8 *context) {
-    extern s32 btlShuffleSeqPick(u8 *context, s32 cardIndex);
+    extern s32 btlShuffleSeqPick(u8 *context, s32 count);
     extern s32 btlShuffleSeqLoadRecord(u8 *context);
     extern s32 btlShuffleSeqStep(u8 *context);
-    extern void btlShuffleDrawCardActivate(u8 *context);
-    extern void btlShuffleDrawCardSetDetail(u8 *context, s32 cardIndex);
-    extern void btlShuffleDrawCardEndDetail(u8 *context);
-    extern s32 btlShuffleDrawStateB(u8 *context);
-    extern s32 btlShuffleDrawStateA(u8 *context);
-    extern void btlShuffleDrawSetPose(u8 *context, s32 cardIndex, u16 output, u16 endFrame);
-    extern void btlShuffleDrawPoll(u8 *context, s32 cardIndex, s32 output);
-    extern void btlShuffleDrawSetFrames(u8 *context, s32 cardIndex, s32 output, s32 endFrame, s32 controlPoints);
-    extern s32 btlShuffleDrawCheck(u8 *context, u8 *cardIndex);
-    extern void btlShuffleDrawViewClearHold(u8 *context);
-    extern void btlShuffleDrawViewStartCue(u8 *context);
-    extern s32 btlShuffleDrawViewIsCueIdle(u8 *context);
-    extern s32 sdkSndStartStream(s16 context, s16 cardIndex, s16 output, s16 endFrame);
+    extern void btlShuffleDrawCardActivate(u8 *drawWork);
+    extern void btlShuffleDrawCardSetDetail(u8 *drawWork, s32 input);
+    extern void btlShuffleDrawCardEndDetail(u8 *drawWork);
+    extern s32 btlShuffleDrawStateB(u8 *record);
+    extern s32 btlShuffleDrawStateA(u8 *record);
+    extern void btlShuffleDrawSetPose(u8 *context, s32 cardIndex, u16 delay, u16 duration);
+    extern void btlShuffleDrawPoll(u8 *context, s32 cardIndex, s32 enabled);
+    extern void btlShuffleDrawSetFrames(u8 *context, s32 cardIndex, s32 delay, s32 duration, s32 start);
+    extern s32 btlShuffleDrawCheck(u8 *context, u8 *output);
+    extern void btlShuffleDrawViewClearHold(u8 *drawWork);
+    extern void btlShuffleDrawViewStartCue(u8 *drawWork);
+    extern s32 btlShuffleDrawViewIsCueIdle(u8 *drawWork);
+    extern s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
     extern void kAssertFail(const void *file, u32 line);
     extern char D_0064EAC0[];
     extern u16 D_008C024E[];
-    extern s32 datGetFlag(s32 context);
-    extern void datSetFlag(s32 context, s32 cardIndex);
+    extern s32 datGetFlag(s32 bit);
+    extern void datSetFlag(s32 flagId, s32 enabled);
     extern u16 btlShuffleSeqRoll(void);
-    extern s32 btlShuffleSeqRecord(u8 *context, s32 cardIndex, s32 output);
+    extern s32 btlShuffleSeqRecord(u8 *context, s32 cardIndex, s32 frames);
     extern void btlShuffleSeqMoveA(u8 *context, s32 cardIndex);
-    extern void btlShuffleSeqClearA(u8 *context, s32 cardIndex);
+    extern void btlShuffleSeqClearA(u8 *context, s32 count);
     extern s32 btlShuffleSeqFlag(u8 *context);
     extern void btlShuffleSeqReset(u8 *context);
     extern s32 btlShuffleSeqStateCheck(u8 *context);
@@ -334,7 +334,7 @@ s32 btlShuffleSeq1Run(u8 *context) {
 }
 #pragma pop
 
-void btlShuffleCalcRotatePointAroundAxis(u8 *context, u8 *cardIndex, u8 *output, f32 angle, u8 *endFrame);
+void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, f32 angle, u8 *output);
 
 #pragma push
 #pragma opt_propagation on
@@ -394,32 +394,32 @@ void btlShuffleInitAlternatingPose(u8 *context, s32 cardIndex, f32 *output) {
 }
 #pragma pop
 
-extern s32 btlShuffleSeqPick(u8 *context, s32 cardIndex);
+extern s32 btlShuffleSeqPick(u8 *context, s32 count);
 extern s32 btlShuffleSeqLoadRecord(u8 *context);
 extern s32 btlShuffleSeqStep(u8 *context);
-extern void btlShuffleDrawCardActivate(u8 *context);
-extern void btlShuffleDrawCardSetDetail(u8 *context, s32 cardIndex);
-extern void btlShuffleDrawCardEndDetail(u8 *context);
-extern s32 btlShuffleDrawStateB(u8 *context);
-extern s32 btlShuffleDrawStateA(u8 *context);
-extern void btlShuffleDrawSetPose(u8 *context, s32 cardIndex, u16 output, u16 endFrame);
-extern void btlShuffleDrawPoll(u8 *context, s32 cardIndex, s32 output);
-extern void btlShuffleDrawSetFrames(u8 *context, s32 cardIndex, s32 output, s32 endFrame, s32 controlPoints);
-extern s32 btlShuffleDrawCheck(u8 *context, u8 *cardIndex);
-extern void btlShuffleDrawViewClearHold(u8 *context);
-extern void btlShuffleDrawViewStartCue(u8 *context);
-extern s32 btlShuffleDrawViewIsCueIdle(u8 *context);
-extern s32 sdkSndStartStream(s16 context, s16 cardIndex, s16 output, s16 endFrame);
+extern void btlShuffleDrawCardActivate(u8 *drawWork);
+extern void btlShuffleDrawCardSetDetail(u8 *drawWork, s32 input);
+extern void btlShuffleDrawCardEndDetail(u8 *drawWork);
+extern s32 btlShuffleDrawStateB(u8 *record);
+extern s32 btlShuffleDrawStateA(u8 *record);
+extern void btlShuffleDrawSetPose(u8 *context, s32 cardIndex, u16 delay, u16 duration);
+extern void btlShuffleDrawPoll(u8 *context, s32 cardIndex, s32 enabled);
+extern void btlShuffleDrawSetFrames(u8 *context, s32 cardIndex, s32 delay, s32 duration, s32 start);
+extern s32 btlShuffleDrawCheck(u8 *context, u8 *output);
+extern void btlShuffleDrawViewClearHold(u8 *drawWork);
+extern void btlShuffleDrawViewStartCue(u8 *drawWork);
+extern s32 btlShuffleDrawViewIsCueIdle(u8 *drawWork);
+extern s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
 extern void kAssertFail(const void *file, u32 line);
 extern char D_0064EAE0[];
 extern char D_0064EB00[];
 extern u16 D_008C024E[];
-extern s32 datGetFlag(s32 context);
-extern void datSetFlag(s32 context, s32 cardIndex);
+extern s32 datGetFlag(s32 bit);
+extern void datSetFlag(s32 flagId, s32 enabled);
 extern u16 btlShuffleSeqRoll(void);
-extern s32 btlShuffleSeqRecord(u8 *context, s32 cardIndex, s32 output);
+extern s32 btlShuffleSeqRecord(u8 *context, s32 cardIndex, s32 frames);
 extern void btlShuffleSeqMoveA(u8 *context, s32 cardIndex);
-extern void btlShuffleSeqClearA(u8 *context, s32 cardIndex);
+extern void btlShuffleSeqClearA(u8 *context, s32 count);
 extern s32 btlShuffleSeqFlag(u8 *context);
 extern void btlShuffleSeqReset(u8 *context);
 extern s32 btlShuffleSeqStateCheck(u8 *context);
@@ -669,7 +669,7 @@ s32 btlShuffleSeq2Run(u8 *context) {
 }
 #pragma pop
 
-void btlShuffleCalcRotatePointAroundAxis(u8 *context, u8 *cardIndex, u8 *output, f32 angle, u8 *endFrame);
+void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, f32 angle, u8 *output);
 
 #pragma push
 #pragma opt_propagation on

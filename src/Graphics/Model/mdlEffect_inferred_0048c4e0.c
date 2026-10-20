@@ -54,9 +54,9 @@ static inline void code1_0048_call(s32 (*fn)(s32), s32 value) {
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 0048c4e0-0048c4e0 */
 
-extern f32 mdlEffectSampleScalarKeys(u8 *emitterData, s32 parametersData, s32 frame);
-extern void mdlEffectSampleKeyState(u8 *emitterData, u8 *parametersData, s32 frame, u_long128 *snapshot);
-extern void mdlEffectUpdateParticleTrail(u8 *emitterData, u8 *parametersData);
+extern f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration);
+extern void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition);
+extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
 /* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
  * eight zero alignment bytes. IDA retains the result that Ghidra drops:
  * retail leaves the copied quadword in v0 through return. Preserve that
@@ -106,9 +106,9 @@ extern void mdlEffectUpdateParticleTrail(u8 *emitterData, u8 *parametersData);
 #pragma opt_loop_invariants on
 void EffMotionEmitterUpdate(u8 *emitterData)
 {
-    extern void mdlEffectSampleKeyState(u8 *emitterData, u8 *parametersData, s32 frame, u_long128 *snapshot);
+    extern void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition);
     extern void *memcpy(void *dst, const void *src, u32 size);
-    extern void mdlEffectUpdateParticleTrail(u8 *emitterData, u8 *parametersData);
+    extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
     extern f32 fGpffff807c;
     extern f32 fGpffff8080;
     EffectVuVector direction;

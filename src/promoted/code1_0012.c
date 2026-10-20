@@ -22,8 +22,8 @@ extern u8 iGpffffb1d8;
 extern u8 iGpffffb1d4;
 extern u8 iGpffffb1d0;
 extern f32 sinf();
-extern void PrimDrawFlatRectangle(void *colorData, void *rectangleData, f32 fparg0, s32 preserveState);
-extern void PrimDrawPoints(void *colors, void *positions, f32 fparg0, s32 count,
+extern void PrimDrawFlatRectangle(void *colorData, void *rectangleData, f32 depth, s32 preserveState);
+extern void PrimDrawPoints(void *colors, void *positions, f32 depth, s32 count,
                           s32 primitiveType, s32 preserveState);
 extern f32 fGpffff8478;
 extern f32 cosf(f32 fparg0);
@@ -47,7 +47,7 @@ extern void cldDayChangeStartTask();
 extern s32 D_00796670[];
 extern u8 D_005E50D0[];
 extern u8 D_005E5870[];
-extern u8 *resourceFindByName(char *filename);
+extern u8 *resourceFindByName(char *name);
 extern void calendarSetMode(s32 mode);
 
 extern void cldTimeChangeCreate();
@@ -58,9 +58,9 @@ extern s32 iGpffffb1cc;
 extern s32 iGpffff9c58;
 extern void fclBankTableReset(void);
 
-extern s32 tickerInitBankTable(u8 *task);
+extern s32 tickerInitBankTable(u8 *unusedTask);
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(char *name, u8 *task);
+extern void PrimAppendNode(char *list, u8 *node);
 extern void fadeUpdateCallback(void *unusedContext, u8 *fadeWork);
 extern void calendarDrawBackdrop(void *unusedNode, void *work);
 extern char D_00796340[];
@@ -139,7 +139,7 @@ extern s32 titleSoundStartStep(u8 *task);
 extern void radarDrawPanel(u8 *state);
 extern void radarStepSlotAnimB(u8 *menu);
 extern void radarStepPairAnim(u8 *menu);
-extern s32 calendarStateTask(u8 *task);
+extern s32 calendarStateTask(u8 *unusedTask);
 /* Calendar state block at iGpffffb1dc: header fields, five 0x30-byte records from 0x20, owner pointer at 0x110. */
 typedef struct CalendarRecord {
     f32 field_00;
@@ -182,18 +182,18 @@ extern void clndPromptDestroy(u8 *task);
 extern s32 filerTakeCompletedRequest(s32 request, s32 *completed, s32 resultValue);
 extern void kAssertFail(const void *file, s32 line);
 extern u8 D_005E5548[];
-extern s32 datItemCount(s16 id);
+extern s32 datItemCount(s16 itemId);
 extern u8 D_005E76C8[];
 extern u8 D_005E5720[];
 extern s32 titleTaskUpdate(u8 *task);
-extern void titleLoaderTeardown(u8 *task);
+extern void titleLoaderTeardown(u8 *unusedTask);
 extern void sdkSpritePackDestroy(s32 pack);
 extern void H_Cdvd_Destroy(s32 cdvd);
 extern void sdkSndStopChannel(s32 fadeFrames);
 extern void mdlDestroyModelObject(s32 model);
 extern void memset(void *, s32, s32);
 extern s16 datBuildPartyIdList(void *ids);
-extern u8 *sdkSpriteNewNode(u32 sprites, u32 index);
+extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
 extern u8 D_005E5F40[];
 extern u8 D_005E7670[];
 extern u8 D_005E5830[];
@@ -262,7 +262,7 @@ static inline u8 *titleCopyValue(u8 *destination, const u8 *source)
 
 static inline void titleRectangle(u8 *color, f32 x, f32 y, f32 depth, f32 width, f32 height, s32 flags, void *parent)
 {
-    extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *parent);
+    extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *queue);
     titleVisualSubmitRect(x, y, depth, color, width, height, flags, parent);
 }
 static inline f32 titleBlend(f32 delta, f32 blend, f32 value)
@@ -302,7 +302,7 @@ static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOff
 #pragma push
 #pragma always_inline on
 #pragma pop
-extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 * pack, s32 flags);
+extern s32 shdSpriteDrawNow(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 * pack, s32 flags);
 extern void titleSkyApplyBasePreset(void);
 extern s32 RpSkyRenderStateSet(s32, s32);
 extern void mdlEffectEmitMaskedTagPair(void);
@@ -311,9 +311,9 @@ extern s32 D_005E55E0[];
 extern s8 D_005E5610[];
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 
-extern s32 shdSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 *pack, s32 flags);
-extern s32 shdSpriteDrawNowEx(f32 farg0, f32 farg1, f32 farg2, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 *pack, s32 flags,
-                         s16 width, s16 height, f32 farg3, f32 farg5, f32 farg4);
+extern s32 shdSpriteDrawNow(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 *pack, s32 flags);
+extern s32 shdSpriteDrawNowEx(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 *pack, s32 flags,
+                         s16 width, s16 height, f32 rotation, f32 scaleX, f32 scaleY);
 
 extern void titleSkyApplyBasePreset(void);
 extern s32 RpSkyRenderStateSet(s32, s32);
@@ -441,9 +441,9 @@ typedef struct TitleTask {
     s32 savedDayFlags;
 } TitleTask;
 #include "btl_shuffle_draw_internal.h"
-void titleTransformSlotModel(s32 modelIndex, f32 fparg0, f32 fparg1, f32 fparg2, f32 fparg3, f32 fparg4, f32 fparg5, u32 baseColor, u32 highlightColor, f32 fparg6, s32 flags, u32 *context);
+void titleTransformSlotModel(s32 modelIndex, f32 x, f32 y, f32 z, f32 pitch, f32 yaw, f32 roll, u32 baseColor, u32 highlightColor, f32 scale, s32 flags, u32 *context);
 
-void titleBuildPointRows(f32 fparg0, f32 fparg1, f32 fparg2, s32 opacity, u8 *context);
+void titleBuildPointRows(f32 originX, f32 originY, f32 depth, s32 opacity, u8 *context);
 
 void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 drawMode, u8 *sceneContext);
 
@@ -465,8 +465,8 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
     extern s32 shdSpriteDrawNowEx(f32, f32, f32, s32, u8, s32, s32, u8 *, s32, s16, s16, f32, f32, f32);
     extern void titleSkyApplyBasePreset(void);
-    extern void titleVisualSubmitSprite(f32 x, f32 y, f32 z, s32 color, s32 alpha, s32 mode, void *texture, s32 kind, void *extra);
-    extern void titleVisualDrawMaskedModel(f32 x, f32 y, f32 z, s32 color, s32 alpha, f32 scale, s32 mode, u8 *object, void *extra);
+    extern void titleVisualSubmitSprite(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, s32 spriteIndex, void *resource, s32 flags, void *queue);
+    extern void titleVisualDrawMaskedModel(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, f32 scale, s32 projectPosition, u8 *model, void *queue);
     extern s32 RpSkyRenderStateSet();
     extern s32 RpSkyGetDisplayBufferRaster(void);
     extern s32 func_0043c6a0(s32);
@@ -475,7 +475,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     extern s32 H_Cdvd_LookupRequest();
     extern s32 sdkSndStartStereoBuffer();
     extern void effMiscDrawScreenColor(u8 *colors, s32 enabled);
-    extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
+    extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
     extern s32 kAssertFail();
     extern s32 mdlPrepareModel();
     extern void mdlAdvanceModelFromFlags(u8 *);
@@ -881,7 +881,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
             titleCopyValue((u8 *)&layerColor, (const u8 *)&layerColorSource);
             {
                 /* Retail passes depth in f12 and saveState in a2 at both calls. */
-                extern void PrimDrawFlatRectangle(u8 *color, f32 *rectangle, f32 depth, s32 saveState);
+                extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
                 upperRectangle1 = D_005E5590;
                 PrimDrawFlatRectangle((u8 *)&layerColor, titleCopyRect((u8 *)&barRectangle1, (const u8 *)&upperRectangle1), 0.0f, 1);
                 lowerRectangle1 = D_005E55A0;
@@ -1825,31 +1825,31 @@ s32 titleTaskUpdate(u8 *task)
     extern char D_00795E60[];
     extern f32 fGpffff813c;
     extern s32 func_00440b68(const char *, ...);
-    extern u8 *H_Cdvd_AcquireDirectory(u8 *task, s32 mode);
-    extern s32 H_Cdvd_IsFileLoaded(void *task);
-    extern u8 *sdkSpritePackCreate(u8 *task);
-    extern s32 shdSpriteEnsureLoaded(u8 *task);
-    extern s32 taskLoadSlotModels(u8 *task);
-    extern s32 titleMusicStreamStep(u8 *task);
+    extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
+    extern s32 H_Cdvd_IsFileLoaded(void *cdvd);
+    extern u8 *sdkSpritePackCreate(u8 *descriptor);
+    extern s32 shdSpriteEnsureLoaded(u8 *pack);
+    extern s32 taskLoadSlotModels(u8 *context);
+    extern s32 titleMusicStreamStep(u8 *context);
     extern s32 titleChooseSceneVariant(u8 *unusedWork);
     extern s32 calReadDayFlagMask(void);
-    extern void calWriteDayFlagMask(s32 task);
+    extern void calWriteDayFlagMask(s32 mask);
     extern s32 calCaptureDayFlagMask(void);
     extern void datInitDefaultGameState(void);
-    extern void fadeBeginTransition(s32 task, s32 mode);
-    extern void fadeBeginReturnTransition(s32 task, s32 mode);
+    extern void fadeBeginTransition(s32 mode, s32 duration);
+    extern void fadeBeginReturnTransition(s32 mode, s32 duration);
     extern s32 fadeStatus(void);
-    extern s32 cmpConfigCreate(void *task, s32 mode);
+    extern s32 cmpConfigCreate(void *parentTask, s32 mode);
     extern s32 cmpConfigIsStepDone(u8 *task);
     extern s32 cmpConfigIsFlagsSynced(u8 *task);
     extern u8 *kwlnGetCamera(void);
-    extern void K_View_SetFov(void *task, f32 mode);
+    extern void K_View_SetFov(void *camera, f32 fov);
     extern u8 *func_003e8180(u8 *camera, f32 nearClip);
     extern u8 *func_003e81c0(u8 *camera, f32 farClip);
-    extern u8 *func_003e9cb0(u8 *frame, const void *matrix, s32 combine);
+    extern u8 *func_003e9cb0(u8 *frame, const void *transform, s32 combine);
     extern u8 *func_003e9c10(u8 *frame, const f32 *translation, s32 combine);
     extern u8 hsndQueueSound(s16 id, s16 unused);
-    extern void sdkSndFadeOutChannelFrames(s16 task, s32 mode, s32 duration);
+    extern void sdkSndFadeOutChannelFrames(s16 channelIndex, s32 requestValue, s32 fadeFrames);
 
     extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
     /* The persistent copy destination is a complete 0x5D0-byte buffer. */
@@ -2359,12 +2359,12 @@ void titleSlotTableInit(u8 *menu)
 
 s32 titleSlotUpdateAndDraw(u8 *menu)
 {
-    extern s32 titleSlotFramesElapsed(u8 *sprite);
+    extern s32 titleSlotFramesElapsed(u8 *menu);
     extern void sdkRenderStateSetDefault(void);
     extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
                               u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
-                              u16 scaleY, s16 mode, f32 angle, s16 flags);
-    extern void sdkSpriteDrawFooter(Vec2f pos, f32 z, u8 red, s32 green, s32 blue);
+                              u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
+    extern void sdkSpriteDrawFooter(Vec2f unusedPosition, f32 depth, u8 alpha, s32 style, s32 packAddress);
     Vec2f pos;
     Vec2f pos2;
     u8 *bytes;
@@ -2560,21 +2560,21 @@ typedef struct {
 void radarDrawPanel(u8 *state)
 {
     extern void sdkRenderStateSetDefault(void);
-    extern void nLineDrawSet(Vec2f position, s32 alpha, s32 mode, f32 depth);
+    extern void nLineDrawSet(Vec2f position, s32 alpha, s32 setIndex, f32 depthOffset);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
     extern void sdkSpriteDrawAt(void *sprite, f32 x, f32 y, u8 red, u8 green, u8 blue, u8 alpha);
-    extern f32 cmpGridCellFade(u8 *cell, f32 horizontal, f32 vertical, f32 gain);
+    extern f32 cmpGridCellFade(u8 *cell, f32 xFraction, f32 yFraction, f32 amount);
     extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth, u8 red, u8 green, u8 blue, u8 alpha, u16 scaleX,
-        u16 scaleY, s16 mode, f32 angle, s16 flags);
-    extern void radarDrawSpritePair(u8 *state, s64 position, s32 color);
+        u16 scaleY, s16 pivotX, f32 angle, s16 pivotY);
+    extern void radarDrawSpritePair(u8 *menu, s64 packedPosition, s32 packedColor);
     extern void datEntryReset(u8 *entry);
-    extern void datEntryDrawRow(Vec2f position, f32 depth, u8 alpha, u8 *entry);
-    extern void radarDrawEntryRow(u8 *state, s32 index);
-    extern u32 datEntryGetFlags(s16 item);
-    extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 font, s32 mode, const char *text, s32 flags,
+    extern void datEntryDrawRow(Vec2f position, f32 inputDepth, u8 opacity, u8 *inputEntry);
+    extern void radarDrawEntryRow(u8 *menu, s32 partyIndex);
+    extern u32 datEntryGetFlags(s16 itemId);
+    extern s32 frFontExDrawText(f32 x, f32 y, f32 scale, s32 color, s8 chr, s32 id, const char *str, s32 flags,
         s32 unused);
-    extern void radarDrawEntryCard(u8 *state, PackedVec2f position, s32 alpha, s16 *entry);
-    extern void sdkSpriteDrawFooter(Vec2f position, f32 depth, u8 alpha, s32 value, s32 mode);
+    extern void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16 *entry);
+    extern void sdkSpriteDrawFooter(Vec2f unusedPosition, f32 depth, u8 alpha, s32 style, s32 packAddress);
     extern u8 D_005E76B0[];
     extern u8 D_0064B2E8[];
     extern u8 D_0064B2E4[];

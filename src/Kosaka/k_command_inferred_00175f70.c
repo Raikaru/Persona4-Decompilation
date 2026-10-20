@@ -45,7 +45,7 @@ typedef struct
 } FieldColor_0017;
 extern void FldStepResetTables();
 extern s32 mtSceneResListPrepareAll();
-extern void sequenceRequest(s32 a, void *b, s32 c, s32 d);
+extern void sequenceRequest(s32 sequenceId, void *parameters, s32 parameterSize, s32 delay);
 extern s32 kwlnGetCurrentWorkValue(void);
 extern void fieldSceneUnload(void);
 extern void sdlSchedulerEnable(void);
@@ -88,7 +88,7 @@ extern void sndPlayAreaCue(void);
 extern s32 FldStepAdvance(s32 stepDelta);
 
 extern s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, void *intersection,
-                         f32 farg0, f32 farg1, s32 fadeWithDepth, u8 *workData);
+                         f32 opacity, f32 depth, s32 fadeWithDepth, u8 *workData);
 extern u8 D_007EFA00[];
 extern void FldRc_QueueScreenQuad(u8 *, u8 *,
                            f32, f32, f32, f32, f32,

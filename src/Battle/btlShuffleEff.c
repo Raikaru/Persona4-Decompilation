@@ -17,16 +17,16 @@ extern void btlShuffleEffRelease(u8 *task);
 extern void btlShuffleEffInitTrail(u8 *task, s32 slotIndex);
 
 extern u8 *mdlEffectCreateFromResource();
-extern void mdlEffectDestroy(u8 *a);
+extern void mdlEffectDestroy(u8 *model);
 extern void mdlEffectStart(s32 a);
-extern void mdlEffectSetChildPositionVec(void *a, void *b);
-extern void mdlEffectSetEulerRotation(u8 *a, f32 b, f32 c, f32 d);
-extern void mdlEffectSetUniformScale(u8 *a, f32 b);
+extern void mdlEffectSetChildPositionVec(void *object, void *position);
+extern void mdlEffectSetEulerRotation(u8 *object, f32 angleX, f32 angleY, f32 angleZ);
+extern void mdlEffectSetUniformScale(u8 *effect, f32 scale);
 /* The callee's real signature is (f32 *, f32 *, f32); this caller-side prototype keeps the
    float in the second position because mwcc b210 materialises call args in declaration
    order, and retail's bytes (addiu a0 / lwc1 f12 / addiu a1 before the jal) require that. */
-extern void btlShuffleCalcStepPose(f32 *stepPoint, f32 depth, f32 *position);
-extern void btlShuffleCalcLookAt(f32 *position, f32 *result);
+extern void btlShuffleCalcStepPose(f32 *screen, f32 output, f32 *depth);
+extern void btlShuffleCalcLookAt(f32 *output, f32 *point);
 
 /* measured: the operands must travel through this helper's parameters to get
    retail's index-first `addu $v1,$v1,$s0`; rewriting the callsite expression as

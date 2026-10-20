@@ -52,28 +52,28 @@ typedef struct MdlEffectInstance {
     union { s32 signedWord; u32 word; } elapsed; /* +0x98 */
 } MdlEffectInstance;
 
-extern void mdlSetLayerTime(u8 *model, s32 layer, f32 time);
+extern void mdlSetLayerTime(u8 *model, s32 layer, f32 frameValue);
 
 extern void TnInvokeCallback(void);
 extern void EffModelResetCallback(void);
 extern s32 TnGetOffset1C(s32 slotIndex);
-extern void *mdlFindOrCreateModelObject(u32 type, u16 id, u32 loadFlags);
+extern void *mdlFindOrCreateModelObject(u32 type, u16 id, u32 flags);
 extern void kAssertFail(const char *file, s32 line);
-extern void mdlInitIdentityMatrix(void *model);
+extern void mdlInitIdentityMatrix(void *matrixWords);
 extern s32 mdlLayerIsPresent(void *model, s32 layer);
-extern void mdlSetLayerWeight(void *model, s32 layer, f32 weight);
+extern void mdlSetLayerWeight(void *model, s32 layer, f32 speed);
 extern void mdlSetResetCallback(void *model, void (*callback)(void), void *context);
 extern void mdlDestroyModelObject(u32 model);
 extern void memcpy(void *destination, void *source, s32 size);
 extern void (*jtbl_008873EC[])(void *ptr);
 extern char D_007144A8[];
-extern void EffModelRebindModel(u8 *destination, u8 *source);
+extern void EffModelRebindModel(u8 *dst, u8 *src);
 extern void EffModelUpdate(s32 drawList, u8 *effect);
-extern void EffModelRebindDrawable(u8 *destination, u8 *source);
+extern void EffModelRebindDrawable(u8 *dst, u8 *src);
 extern void mdlSetDrawCallback(u8 *model, void (*callback)(u8 *), void *context);
-extern void mdlClearAtomicFlags(void *model, s32 mask);
+extern void mdlClearAtomicFlags(void *model, s32 flags);
 extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
-extern void *mdlCreateModelObjectFromMemory(u32 type, u16 id, void *resource, u32 size, u32 flags);
+extern void *mdlCreateModelObjectFromMemory(u32 type, u16 id, void *memory, u32 size, u32 flags);
 extern u16 iGpffffbb90; /* next candidate ID for embedded type-six models */
 extern char D_007144B8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
@@ -233,19 +233,19 @@ void EffModelRollCycle(u32 *effect)
 
 
 
-extern void EffModelDrawCallback(u8 *effect);
+extern void EffModelDrawCallback(u8 *drawable);
 extern char D_007144B8[];
-extern void mdlSetAlphaBlend(void *effect);
-extern s32 mdlEffectSamplePackedColor(u8 *effect, u8 *scale, s32 elapsed, s32 duration);
-extern void mdlSetColor(void *effect, s32 *scale);
-extern f32 mdlEffectSampleScalarKeys(void *keys, u32 elapsed, u32 duration);
-extern void mdlEffectBuildBasisRows(void *effect, void *scale);
-extern void mdlApplyModelMatrix(void *effect, void *scale, s32 combineOp);
-extern void mdlScale(void *effect, f32 *scale, s32 combineOp);
+extern void mdlSetAlphaBlend(void *model);
+extern s32 mdlEffectSamplePackedColor(u8 *colorData, u8 *opacityData, s32 frame, s32 duration);
+extern void mdlSetColor(void *model, s32 *color);
+extern f32 mdlEffectSampleScalarKeys(void *keys, u32 frame, u32 duration);
+extern void mdlEffectBuildBasisRows(void *output, void *orientation);
+extern void mdlApplyModelMatrix(void *model, void *matrix, s32 combineOp);
+extern void mdlScale(void *model, f32 *scale, s32 combineOp);
 extern RwMatrix *mdlTranslateMatrix(RwMatrix *matrix, const RwV3d *translation, int combineOp);
 extern void mdlSetAttachedOwner(void *model, s32 owner);
 extern s32 TnGetTableBase(void);
-extern void mdlQueueModelForDraw(s32 drawList, void *model);
+extern void mdlQueueModelForDraw(s32 queue, void *model);
 extern f32 D_00761134;
 
 /* Samples colour and scale keys, applies the effect transform and layer weight, then queues its model for drawing. */

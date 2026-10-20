@@ -83,7 +83,7 @@ extern u8 D_0060A0E0[];
 extern P4_95730_Vec3 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 extern void func_00194660(void);
-extern s32 btlUnitLoadStep(u8 *task);
+extern s32 btlUnitLoadStep(u8 *unusedTask);
 
 extern s32 btlUnitLoadBlocksFromFile(u8 *loadTable, s32 synchronous);
 extern void func_0010d480(void);

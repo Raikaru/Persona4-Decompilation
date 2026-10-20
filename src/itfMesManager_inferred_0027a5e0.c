@@ -13,7 +13,7 @@ extern u16 D_008C024E[];
 extern s32 D_008815B0[];
 
 extern void memset(void *value, s32 index, s32 count);
-extern s32 itfMesWindowProcedureForKind(s32 value);
+extern s32 itfMesWindowProcedureForKind(s32 kind);
 static inline u32 add_retail_ptr(u32 offset, u32 base) {
     return offset + base;
 }
@@ -27,7 +27,7 @@ extern s8 D_0063BAB0[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027a5e0-0027a690 */
 
-extern s32 itfMesWindowProcedureForKind(s32 value);
+extern s32 itfMesWindowProcedureForKind(s32 kind);
 /* measured: opt_propagation off probe for 002703d0 register setup. */
 /* measured: closes opt_propagation off probe for 002703d0. */
 /* measured: opt_rebuildconditionals off reproduces 002704f0 retail conditional-register schedule. */

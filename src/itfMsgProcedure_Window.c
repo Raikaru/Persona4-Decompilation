@@ -14,12 +14,12 @@
 
 extern u8 *kwlnTaskGetTaskByName(s8 *name);
 extern void kAssertFail(const void *file, u32 line);
-extern s32 shdSpriteEnsureLoaded(void *arg);
-extern void sdkSpritePackDestroy(u32 arg);
-extern void hMaestroDecodeIsReady(void *arg);
-extern s32 H_Cdvd_LookupRequest(char *str, void *out);
+extern s32 shdSpriteEnsureLoaded(void *pack);
+extern void sdkSpritePackDestroy(u32 pack);
+extern void hMaestroDecodeIsReady(void *state);
+extern s32 H_Cdvd_LookupRequest(char *pathAddress, void *slot);
 
-extern s32 sdkSpritePackCreate(char *str);
+extern s32 sdkSpritePackCreate(char *descriptor);
 extern s32 mtSceneBuildSpriteTable(void);
 extern s32 memset(void *a0, s32 a1, s32 a2);
 
@@ -27,7 +27,7 @@ extern void mdlEffectEmitMaskedTagPair(void);
 extern void mdlEffectEmitTagPair(void);
 extern float sinf(float angle);
 extern float cosf(float angle);
-extern void PrimQueueBatchAlpha(void *a0, void *a1, f32 f0, s32 a2, s32 a3, s32 a4, s16 a5, s16 a6, f32 f1, f32 f2, f32 f3, void *a7);
+extern void PrimQueueBatchAlpha(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType, s32 preserveState, s16 offsetX, s16 offsetY, f32 rotation, f32 scaleX, f32 scaleY, void *queue);
 extern float D_007612D0;
 extern f32 iGpffff81e0;
 extern f32 iGpffff8094;
@@ -38,27 +38,27 @@ extern s32 iGpffffb4dc;
 extern s32 iGpffffb4d8;
 extern u8 D_00796430[];
 extern u8 D_00796490[];
-extern void msgWinDrawShape(s32 a0, s32 a1, s32 a2, s32 a3, s16 t0, s16 t1, f32 f0, f32 f1, f32 f2, f32 f3, void *t2);
-extern void msgWinDrawRing(s32 a0, s32 a1, f32 f0, s32 a2, s32 a3, s32 t0, s32 t1, s16 t2, s16 t3, f32 f1, f32 f2, f32 f3, void *a4);
+extern void msgWinDrawShape(s32 x, s32 y, s32 rgb, s32 opacity, s16 pivotX, s16 pivotY, f32 depth, f32 rotation, f32 scaleX, f32 scaleY, void *queue);
+extern void msgWinDrawRing(s32 centerX, s32 centerY, f32 depth, s32 radius, s32 rgb, s32 alpha, s32 mode, s16 pivotX, s16 pivotY, f32 rotation, f32 scaleX, f32 scaleY, void *queue);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 *PrimAllocQueueNode(void);
-extern void PrimAppendNode(void *a0, void *a1);
+extern void PrimAppendNode(void *list, void *node);
 extern void calDrawScreen(u8 *unusedTask, MsgProcWindowEntry *entry);
-extern void msgWinDrawSprite(u32 a0, u32 a1, u32 a2, u32 a3, u32 t0, u32 t1, u32 t2, s16 t3, void *s0, float f0, float f1, float f2, float f3);
+extern void msgWinDrawSprite(u32 x, u32 y, u32 width, u32 height, u32 rgb, u32 alpha, u32 pivotX, s16 pivotY, void *queue, float depth, float rotation, float scaleX, float scaleY);
 extern void msgWinSelectionPoll(void);
 extern void msgCalResourcePoll(void);
 extern void itfMesWindowSetFlagBits(void *handle, u32 flags);
 extern void itfMesWindowClearFlagBits(void *handle, u32 flags);
 extern s32 itfMesWindowGetBodyList(void *handle);
 extern s32 itfMesWindowGetTextList(void *handle);
-extern void frFontMoveListToFloat(void *list, f32 f0, f32 f1);
+extern void frFontMoveListToFloat(void *list, f32 x, f32 y);
 extern void frFontSetListSlot(void *list, s32 slot);
 extern void frFontSetGlyphAux(void *list, s32 palette);
-extern void frFontReplaceGlyphAux(void *list, s32 a1, s32 a2);
+extern void frFontReplaceGlyphAux(void *list, s32 oldPalette, s32 newPalette);
 extern void frFontSetListFlag(void *list, s32 intensity);
 extern void frFontSetNodeId(void *list, s32 code);
 extern s32 itfMesWindowGetProcedureParam(void *handle, s32 index);
-extern void itfMesWindowSetProcedureParam(void *handle, s32 a1, s32 a2);
+extern void itfMesWindowSetProcedureParam(void *handle, s32 index, s32 value);
 extern void msgCalendarDraw(u8 *unusedTask, u8 *parameters);
 extern u32 D_00882080[];
 extern s16 D_00882084[];
@@ -81,7 +81,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern s32 itfMesWindowGetFontList(void *handle);
-extern s32 fclMiscSlotValue(s32 a0);
+extern s32 fclMiscSlotValue(s32 slotIndex);
 
 typedef struct MsgProcWindowWork {
     s16 state;
@@ -97,7 +97,7 @@ typedef struct MsgProcWindowResource {
 typedef char MsgProcWindowResourceSize[sizeof(MsgProcWindowResource) == 8 ? 1 : -1];
 
 
-extern s32 msgWinEntryStep(MsgProcWindowEntry *arg);
+extern s32 msgWinEntryStep(MsgProcWindowEntry *entry);
 
 typedef struct MsgProcWindowF2 {
     float x;
@@ -544,7 +544,7 @@ s32 msgWinChoicePhase(s32 window, u32 operation)
     extern s32 fclBankHasPendingLoad(void);
     extern void fclBankSetReadyFlag(void);
     extern s32 frFontGetPendingFlag(void);
-    extern void PrimQueueBatch(void *a0, void *a1, f32 f0, s32 closingRow, s32 a3, s32 a4, s32 a5, s16 a6, f32 extent, f32 scale, f32 offset, void *a7);
+    extern void PrimQueueBatch(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType, s32 preserveState, s32 offsetX, s16 offsetY, f32 rotation, f32 scaleX, f32 scaleY, void *queue);
     typedef struct { MsgProcWindowRGBA colors[10]; u8 gap[24]; MsgProcWindowF2 points[10]; } Work10;
     typedef struct { MsgProcWindowRGBA colors[16]; MsgProcWindowF2 points[16]; } Work16;
     Work10 introBackground;
@@ -1156,8 +1156,8 @@ s32 msgWinDrawSelection(s32 window, u32 operation)
     extern PrimitiveRectangleColor iGpffffa784;
     extern PrimitiveRectangleWords D_0063C130;
     extern PrimitiveRectangleWords D_0063C140;
-    extern s32 shdSpriteDrawQueued(s32 a0, u8 a1, s32 a2, s32 a3, u8 *a4, s32 a5, void *a6, f32 f0, f32 f1, f32 factor);
-    extern s32 frFontCountRuns(s32 window);
+    extern s32 shdSpriteDrawQueued(s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 *pack, s32 flags, void *drawList, f32 x, f32 y, f32 depth);
+    extern s32 frFontCountRuns(s32 node);
     PrimitiveRectangleColor color;
     PrimitiveRectangleColor backgroundColor;
     PrimitiveRectangleColor selectionColor;
@@ -2452,19 +2452,19 @@ void msgCalendarDraw(u8 *unusedTask, u8 *parameters)
         s32 window;
         s32 operation;
     } CalendarArgs;
-    extern void PrimDrawFlatRectangle(u8 *colorData, f32 *parameters, f32 fparg0, s32 preserveState);
+    extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
     extern u8 *resourceFindByName(char *name);
     extern s32 (*D_00887300[])(s32 state, void *value);
     extern s32 RpSkyRenderStateSet(s32 state, void *value);
-    extern s32 sdkSpriteDrawNow(f32 farg0, f32 farg1, f32 farg2, s32 rgb, u8 parameters, s32 recordIndex, void *pack, s32 setStates, s16 pivotX, s16 pivotY, f32 farg3, f32 farg4, f32 farg5);
-    extern void sdkSpriteDrawNowUnscaled(f32 farg0, f32 farg1, f32 farg2, s32 rgb, u8 parameters, s32 recordIndex, void *pack, s32 setStates);
+    extern s32 sdkSpriteDrawNow(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex, void *pack, s32 setStates, s16 pivotX, s16 pivotY, f32 angle, f32 scaleX, f32 scaleY);
+    extern void sdkSpriteDrawNowUnscaled(f32 x, f32 y, f32 depth, s32 rgb, u8 alpha, s32 recordIndex, void *pack, s32 setStates);
     extern s32 calGetWeekdayOfDay(s32 dateIndex);
     extern s32 calHasDayEntry(s32 day);
-    extern s32 calGetPackedDayEntry(s32 day, s32 parameters);
-    extern void calSplitDayOfYear(s32 dateIndex, s32 *parameters, s32 *dayOut);
+    extern s32 calGetPackedDayEntry(s32 day, s32 referenceDay);
+    extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
     extern s16 datGetDateIndex(void);
     extern void calDrawDateCell(s32 x, s32 y, f32 depth, u8 alpha, s32 date, s32 enabled, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipRight, s32 fontWord, s32 forceWhite);
-    extern void calDrawWeather(s32 x, s32 parameters, f32 fparg0, u8 opacity, s32 weather, s32 highlight, f32 fparg1, f32 fparg2, s32 clipLeft, s32 clipWidth, s32 font, s32 arg_sp0);
+    extern void calDrawWeather(s32 x, s32 y, f32 depth, u8 opacity, s32 weather, s32 highlight, f32 scaleX, f32 scaleY, s32 clipLeft, s32 clipWidth, s32 font, s32 forcedHighlight);
     extern f32 fGpffff803c;
     extern f32 fGpffff811c;
     extern f32 fGpffff813c;

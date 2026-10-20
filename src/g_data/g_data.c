@@ -103,7 +103,7 @@ extern s16 datRankForPoints(s16 category, s16 points);
 
 extern s32 cmmRankThreshold(s16 value, s16 option);
 
-extern void chkmemAllocSiteTag(void* msg, s32 id);
+extern void chkmemAllocSiteTag(void* file, s32 line);
 
 extern void func_00440b68(char *fmt, ...);
 
@@ -197,15 +197,15 @@ extern u8 iGpffff9bb0; /* gp -0x6450 */
 
 extern void sprintf(void* dst, void* fmt, void* value, void* extra);
 
-extern void H_Cdvd_ReadSync(u8* ptr);
+extern void H_Cdvd_ReadSync(u8* cdvd);
 
-extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
+extern u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags);
 
 extern void datSetFlag(s32 flagId, s32 enabled);
 
 extern u32 calGetWeekdayOfDay(s32 dateIndex);
 
-extern s32 calHasDayEntry(s32 idx);
+extern s32 calHasDayEntry(s32 day);
 
 extern void datSaveRestoreSection(s32 unusedVersion, u32 tag, u32 length, u8* data);
 
@@ -222,8 +222,8 @@ extern code DAT_008873ec_abs[];
 
 extern char D_005e4308[];
 extern char D_005E4318[];
-extern long kwlnTaskGetTaskByName(void* path);
-extern void kwlnTaskDestroyWithHierarchy(long handle);
+extern long kwlnTaskGetTaskByName(void* name);
+extern void kwlnTaskDestroyWithHierarchy(long task);
 
 extern void FUN_0046d730(const char* file, s32 line);
 

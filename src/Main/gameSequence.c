@@ -3,12 +3,12 @@
 #include "type.h"
 #include "sdk_task_registration.h"
 
-extern void poolSetAllocationSite(const void *file, u32 line);
+extern void poolSetAllocationSite(const void *allocationFile, u32 allocationLine);
 extern s32 H_Calloc(s32, s32);
 
 extern void kAssertFail(const void *file, u32 line);
-extern s32 kwlnTaskGetTaskByName(void *path);
-extern void kwlnTaskDestroyWithHierarchy(s32 handle);
+extern s32 kwlnTaskGetTaskByName(void *name);
+extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern char D_005E51C0[];
 extern char D_005E51D0[];
 extern void calendarResetPending(void);

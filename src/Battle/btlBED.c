@@ -19,13 +19,13 @@ struct BtlBed
     u16 loadFlags;        // 0x0C
 };
 
-void btlFormationCopyRecord(BtlBedWork* work, u32 param);
-void btlFormationSetState(BtlBedWork* work);
+void btlFormationCopyRecord(BtlBedWork* destination, u32 source);
+void btlFormationSetState(BtlBedWork* state);
 void func_00440b68();
-extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
-void H_Cdvd_Destroy(u8* ptr);
-s32 H_Cdvd_LookupRequest(u8* param, s32* out);
-s32 H_Cdvd_IsFileLoaded(u8* ptr);
+extern u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags);
+void H_Cdvd_Destroy(u8* cdvd);
+s32 H_Cdvd_LookupRequest(u8* pathAddress, s32* slot);
+s32 H_Cdvd_IsFileLoaded(u8* cdvd);
 extern void (*jtbl_008873EC[])(void* ptr);
 extern char iGpffffa288;
 extern char D_00609538[];

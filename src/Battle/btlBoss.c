@@ -14,7 +14,7 @@ enum { UNIT_GENUS_EC = 1 };
 extern u8* DAT_0076449c;
 
 
-BtlPacket* btlPacketAlloc(u32 type, u32 workSize);
+BtlPacket* btlPacketAlloc(u32 packetType, u32 workSize);
 u32 btlBossLoadPakInit(void* work);
 u32 btlBossLoadPakUpdate(void* work);
 extern s32 btlActionHasNoTargetClass();
@@ -28,8 +28,8 @@ extern u8 *iGpffffb414;
 void btlFormationAllocEncounterSlots(void);
 void func_00440b68();
 void sprintf();
-extern u8* H_Cdvd_AcquireDirectory(u8* param, s32 mode);
-s32 H_Cdvd_IsFileLoaded(u8* ptr);
+extern u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags);
+s32 H_Cdvd_IsFileLoaded(u8* cdvd);
 extern char iGpffffa5e8;
 extern char D_00635620[];
 extern char D_00635638[];

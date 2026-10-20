@@ -119,8 +119,8 @@ extern f32 fGpffff84f0;
 /* Same RwV3d tag and fields as the ring provider and RenderWare. */
 #include "rw_types_internal.h"
 typedef RwV3d Code46RingPoint;
-extern void primCircleLine3D(const Code46RingPoint *position, f32 radius,
-                         u8 *color, f32 *matrix, s32 setStates);
+extern void primCircleLine3D(const Code46RingPoint *center, f32 radius,
+                         u8 *inputColors, f32 *inputMatrix, s32 inputPreserveState);
 struct Data_00712508 {
     f32 field_0;
     f32 field_4;
@@ -238,7 +238,7 @@ void filerDrawDirectory(u8 *directory)
 {
     extern u32 func_003e8110(u32 camera);
     extern u32 func_003e8120(u32 camera);
-    extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 farg0, s32 preserveState);
+    extern void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
     extern char iGpffffb01c;
     extern u8 D_00712A20[];
     extern u8 D_00712A30[];

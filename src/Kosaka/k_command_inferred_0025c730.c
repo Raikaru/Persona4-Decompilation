@@ -19,17 +19,17 @@ extern char D_00635C60[];
 extern s32 iGpffffb480;
 
 
-extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 value);
+extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 icon);
 
 
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
 extern f32 fGpffff8200;
-extern void PrimDrawPoints(void *colors, void *positions, f32 farg0,
+extern void PrimDrawPoints(void *colors, void *positions, f32 depth,
                            s32 count, s32 primitiveType, s32 preserveState);
 extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 radius,
-                           f32 farg0, f32 farg1, s32 preserveState);
+                           f32 angle, f32 depth, s32 preserveState);
 
 
 

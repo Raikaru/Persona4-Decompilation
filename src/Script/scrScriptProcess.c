@@ -13,9 +13,9 @@ typedef struct KwlnTask KwlnTask;
 void* dds3GetProcessWorkData(KwlnTask* task);
 void dds3SetProcessWorkData(KwlnTask* task, void* workData);
 void scrReleaseScript(ScrData* scr);
-void scrDestroyTask(u8 *task);
+void scrDestroyTask(u8 *sdkTaskBytes);
 extern s32 scrRunTaskStep(u8 *task);
-extern void scrPoolFree(void* pool, void* elem);
+extern void scrPoolFree(void* pool, void* payload);
 
 typedef enum
 {
@@ -167,31 +167,31 @@ void kAssertFailAt(const void *msg, const void *file, u32 line);
 void kAssertFailMsg(char* file, s32 line, char* msg, s32 value);
 void memset(void* dst, s32 value, s32 size);
 void memcpy(void* dst, void* src, s32 size);
-void poolSetAllocationSite(char* file, s32 line);
-u8* poolAlloc(s32 size);
-void poolFree(void* ptr);
+void poolSetAllocationSite(char* allocationFile, s32 allocationLine);
+u8* poolAlloc(s32 requestedSize);
+void poolFree(void* address);
 u32 kwlnTaskGetWork(void* task);
 s32 func_0029e970(void);
 void func_0029e960(s32);
 void func_00440b68(char* fmt, ...);
 void H_Dbprt_FmtLog(char* fmt, ...);
 void itfMesWindowReleaseIfActive(s32 handle);
-s32 itfMesWindowInstall(u8* str);
+s32 itfMesWindowInstall(u8* record);
 void itfMesWindowApplyStyle(s32 handle, s32 kind, s32 unusedValue);
 s32 kwlnTaskDestroyWithHierarchy(KwlnTask* task);
-void H_Cdvd_Destroy(s32 handle);
-u8* sdkFilerTaskCreate(void* parent, const char* text);
+void H_Cdvd_Destroy(s32 cdvd);
+u8* sdkFilerTaskCreate(void* parent, const char* path);
 s32 sprintf(char* dst, const char* format, ...);
 u32 strlen(void*);
 
 
-extern s32 scrLoadScriptStep(u8* task);
+extern s32 scrLoadScriptStep(u8* sdkTask);
 s32 H_Cdvd_IsFileLoaded(s32 cdvd);
 s32 H_Cdvd_AcquireDirectory(void* path, s32 flags);
-s32 sdkFilerPollResult(u8* task, s8* text);
+s32 sdkFilerPollResult(u8* task, s8* resultPath);
 void strcpy(void*, void*);
 s32 H_Cdvd_LookupRequest(s32 pathAddress, s32 *slot);
-void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 fparg0, s32 preserveState);
+void PrimDrawFlatRectangle(u8 *colorData, f32 *rectangleData, f32 depth, s32 preserveState);
 static inline u8 *scrAddOff(u32 offset, u8 *base)
 {
     return (u8 *)(offset + (u32)base);

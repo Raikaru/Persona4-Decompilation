@@ -6,11 +6,11 @@
 
 void chkmemAllocSiteTag(void *file, s32 line);
 void kAssertFail(void *, s32);
-void PrimAppendNode(void *param, void *work);
+void PrimAppendNode(void *list, void *node);
 s32 nLineSelectSet(s32);
 void nLineSetActive(s32);
 void resrcMngUnsuppressRender(void);
-void datGridEffectCreate(s32 a, u8 *b, s32 c, s32 d, s32 e, s32 f, s32 g, s32 h);
+void datGridEffectCreate(s32 style, u8 *color, s32 duration, s32 tailDuration, s32 layout, s32 kind, s32 priority, s32 drawPriority);
 void sdkListStateConfigure(void *, s32, s32, s32, s32);
 void sdkListStateSetSecondaryMasks(void *, s32, s32, s32, s32);
 s32 sdkListStateHandleInput(void *);
@@ -19,11 +19,11 @@ void memset(void *dst, s32 value, u32 size);
 
 void func_00440b68();
 void cmpMainSetDefaultTableIndex(void);
-u8 *H_Cdvd_AcquireDirectory(u8 *param, s32 mode);
-s32 H_Cdvd_IsFileLoaded(u8 *ptr);
-void H_Cdvd_Destroy(u8 *ptr);
-s32 sdkSpriteCreateFromName(u32 param);
-s32 hMaestroDecodeIsReady(s32 param);
+u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
+s32 H_Cdvd_IsFileLoaded(u8 *cdvd);
+void H_Cdvd_Destroy(u8 *cdvd);
+s32 sdkSpriteCreateFromName(u32 name);
+s32 hMaestroDecodeIsReady(s32 state);
 
 /* Camp-family helpers declared locally; the retail TUs are separate objects. */
 void titleSlotTableInit(u8 *);

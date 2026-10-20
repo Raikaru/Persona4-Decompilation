@@ -12,7 +12,7 @@ typedef char *va_list;
 extern u8 *iGpffffb510;
 extern s32 iGpffffa7c8;
 
-s32 mtMiscResourceValue(s32 source);
+s32 mtMiscResourceValue(s32 resourceId);
 
 
 extern s32 iGpffffb538;
@@ -59,9 +59,9 @@ extern s32 D_0063E830[];
 
 /* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 002962f0-00296850 */
 
-extern void mtMiscCollectType1Records(u8 *source);
-extern void mtMiscCollectType2Records(u8 *source);
-extern void mtMiscBuildSceneNodes(u8 *source);
+extern void mtMiscCollectType1Records(u8 *eventWork);
+extern void mtMiscCollectType2Records(u8 *eventWork);
+extern void mtMiscBuildSceneNodes(u8 *eventWork);
 /* measured probe: preserve local constant with opt_propagation off. */
 /* measured probe: close opt_propagation bracket after func_00291530. */
 /* measured: opt_propagation off keeps `weapon` materialised between the index
@@ -85,9 +85,9 @@ extern void mtMiscBuildSceneNodes(u8 *source);
 // FUN_002962F0
 void mtMiscCollectType4Records(MtMiscSceneSource *source, u8 *eventWork)
 {
-  extern s32 evtMessageWindowRecordCount(s32 *source); /* lint: allow H011 -- the caller compares the count as signed (<= 0); the definition returns the same bits as u32 */
-  extern u8 *evtNodeAlloc(s32 source, u8 *eventWork);
-  extern u8 *evtNodeCreate(u8 *source, s32 eventWork, u8 *nodeData);
+  extern s32 evtMessageWindowRecordCount(s32 *object); /* lint: allow H011 -- the caller compares the count as signed (<= 0); the definition returns the same bits as u32 */
+  extern u8 *evtNodeAlloc(s32 kind, u8 *ownerAddress);
+  extern u8 *evtNodeCreate(u8 *parentBytes, s32 startFrame, u8 *event);
   s32 recordData;
   u8 *parentNode;
   s32 recordIndex;
@@ -343,10 +343,10 @@ void mtMiscCollectType19Records(MtMiscSceneSource *source, u8 *eventWork)
 // FUN_00296850
 s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
 {
-  extern void mtMiscBuildSceneNodes(u8 *source);
-  extern void mtMiscCollectType1Records(u8 *source);
-  extern void mtMiscCollectType2Records(u8 *source);
-  extern void evtNodeLoadRecordsByCount(u8 *source, u8 *eventWork, u8 *nodeData, u16 recordCount);
+  extern void mtMiscBuildSceneNodes(u8 *eventWork);
+  extern void mtMiscCollectType1Records(u8 *eventWork);
+  extern void mtMiscCollectType2Records(u8 *eventWork);
+  extern void evtNodeLoadRecordsByCount(u8 *source, u8 *eventWork, u8 *node, u16 recordCount);
   extern void evtNodeLoadRecords2F(u8 *source, u8 *eventWork);
   extern void evtNodeLoadCameraRecords(u8 *source, u8 *eventWork);
   extern void evtNodeLoadRecords24(u8 *source, u8 *eventWork);
@@ -356,10 +356,10 @@ s32 mtMiscBuildScene(MtMiscSceneSource *source, u8 *eventWork)
   extern void mtMiscCollectType4Records(MtMiscSceneSource *source, u8 *eventWork);
   extern void mtMiscCollectType5Records(MtMiscSceneSource *source, u8 *eventWork);
   extern void mtMiscCollectType19Records(MtMiscSceneSource *source, u8 *eventWork);
-  extern void evtRefreshNodeResources(u8 *source);
-  extern void evtResultSet(s32 source, s32 eventWork);
-  extern u8 *evtNodeAlloc(s32 source, u8 *eventWork);
-  extern u8 *evtNodeCreate(u8 *source, s32 eventWork, u8 *nodeData);
+  extern void evtRefreshNodeResources(u8 *event);
+  extern void evtResultSet(s32 slot, s32 value);
+  extern u8 *evtNodeAlloc(s32 kind, u8 *ownerAddress);
+  extern u8 *evtNodeCreate(u8 *parentBytes, s32 startFrame, u8 *event);
   extern void func_00440b68(char *fmt, ...);
   extern char D_0063CB00[];
   extern char D_0063CB18[];

@@ -15,17 +15,17 @@ extern u8 D_005F5700[];
 extern f32 D_00761624;
 extern f32 D_0076151C;
 
-extern void chkmemAllocSiteTag(void *msg, s32 id);
-extern void kAssertFail(void *msg, s32 id);
-extern s32 kwlnTaskIsLinked(s32 buf);
-extern s32 kwlnTaskGetTaskByName(void *buf);
-extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *handle);
+extern void chkmemAllocSiteTag(void *file, s32 line);
+extern void kAssertFail(void *file, s32 line);
+extern s32 kwlnTaskIsLinked(s32 target);
+extern s32 kwlnTaskGetTaskByName(void *name);
+extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
 
 
 extern s32 FldMapTestTaskCreate(u8 *parent);
 extern s32 K_Test_CreateLauncher(u8 *parentTask);
 extern void K_ReadTexTaskCreate(void);
-extern s32 FldRainTaskCreate(f32 f0, u8 *textureIndex, s32 distance, f32 f1, f32 f2, f32 f3,
+extern s32 FldRainTaskCreate(f32 parent, u8 *textureIndex, s32 distance, f32 acceleration, f32 speed, f32 spacing,
                           s32 alpha, s32 trailLength, s32 spawnInterval);
 extern s32 FldPlayerIconTaskCreate(u8 *task);
 extern s32 K_Clump_CreateLoadTask(s32);

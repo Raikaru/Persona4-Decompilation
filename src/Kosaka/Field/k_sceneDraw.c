@@ -40,7 +40,7 @@ typedef struct MtScene
 
 extern u32 PTR_DAT_00762ea0;
 #define gMtScene ((MtScene*)PTR_DAT_00762ea0)
-extern Resrc* resrcMngFindResById(ResrcManager* resManager, u16 resTypeId);
+extern Resrc* resrcMngFindResById(ResrcManager* manager, u16 resourceId);
 
 #define SCENEDRAW_RESRC_FLAG_DIRECTIONAL_ONLY 0x40000000
 
@@ -48,13 +48,13 @@ extern Resrc* resrcMngFindResById(ResrcManager* resManager, u16 resTypeId);
 
 
 
-extern u32 sdkLboxAddEntry(KwlnTask* task, const char* name);
+extern u32 sdkLboxAddEntry(KwlnTask* task, const char* text);
 extern void sdkLboxSetText(KwlnTask* task, u32 id, const char* text);
-extern void sdkLboxSetRefValue(KwlnTask* task, u32 id, s32 value);
+extern void sdkLboxSetRefValue(KwlnTask* task, u32 entryId, s32 value);
 extern void sdkLboxSetIntRange(KwlnTask* task, u32 id, s32 value, s32 minValue,
                           s32 maxValue, s32 flags);
-extern void sdkLboxSetFloatRange(KwlnTask* task, u32 id, s32 value, s32 minValue,
-                          s32 maxValue);
+extern void sdkLboxSetFloatRange(KwlnTask* task, u32 entryId, s32 value, s32 minimum,
+                          s32 maximum);
 extern void sdkLboxSetCallback(KwlnTask* task, u32 id, KWindowEntryCallback callback);
 
 

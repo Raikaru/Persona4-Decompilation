@@ -18,7 +18,7 @@ extern u8 D_005F6CA0[];
 extern f32 D_005F6C10[];
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb3b8;
-extern s32 datCalcSkillElement(u8 *data, u16 value);
+extern s32 datCalcSkillElement(u8 *unit, u16 skillId);
 extern u8 *iGpffffb3c0;
 extern u8 *iGpffffb3cc;
 
@@ -112,8 +112,8 @@ static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 
     *(u8 **)(address + offset) = stored;
 }
 
-extern f32 mdlGetLayerWeight(s32 data, s32 value);
-extern void mdlSetLayerTime(void *data, s32 value, f32 option);
+extern f32 mdlGetLayerWeight(s32 model, s32 layer);
+extern void mdlSetLayerTime(void *model, s32 layer, f32 frameValue);
 static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
 {
     btlUnitSetMotion(data, value, option, rate, flags);
@@ -132,7 +132,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 data, s32 value);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void btlUnitInitChildOrdered(u16 value, u8 *data)
@@ -282,7 +282,7 @@ return 0;
 /* Read model animation length and scale it by the available motion-table playback rate. */
 s16 btlUnitMotionModelFrames(u8 *unit, u16 motion, f32 rate)
 {
-    extern f32 mdlGetLayerKeyTime(s32 unit, s32 motion, s64 rate);
+    extern f32 mdlGetLayerKeyTime(s32 model, s32 layer, s64 animationIndex);
     u8 *table;
     s32 offset;
     s64 result;

@@ -225,7 +225,7 @@ extern void fclSpriteStartPosition(u8 *, f2 p1, f2 p2, u32 , s32 , s32 );
 extern void fclSpriteStartColor(u8 *, u4 , u4 , u8 , s16 , s32 );
 
 
-extern void chkmemAllocSiteTag(const void *msg, s32 id);
+extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void RpSkyRenderStateSet(s32, s32);
 extern void (*D_00887300[])(u32 state, u32 value);

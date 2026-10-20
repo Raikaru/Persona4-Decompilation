@@ -111,7 +111,7 @@ static inline void btlUnitStoreListEndpoint(u8 *value, u8 *base, u32 index, u32 
     *(u8 **)(address + offset) = stored;
 }
 
-extern void mdlSetLayerTime(void *data, s32 value, f32 option);
+extern void mdlSetLayerTime(void *model, s32 layer, f32 frameValue);
 static inline void btlUnitSetMotionOrdered(s16 value, u8 *data, u16 option, f32 rate, u16 flags)
 {
     btlUnitSetMotion(data, value, option, rate, flags);
@@ -130,7 +130,7 @@ extern f32 DAT_0076112c;
 
 
 
-extern u8 *btlPacketAlloc(s32 data, s32 value);
+extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
 static inline void btlUnitInitChildOrdered(u16 value, u8 *data)

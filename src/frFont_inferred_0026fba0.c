@@ -9,8 +9,8 @@
 #include "scene_event_internal.h"
 extern u32 frFontGetMode(void);
 extern void frFontLayoutText(u8 *text, u8 *context);
-extern s64 datPersonaNamePart0(s32 index);
-extern s64 datPersonaNamePart1(s32 index);
+extern s64 datPersonaNamePart0(s32 unitId);
+extern s64 datPersonaNamePart1(s32 unitId);
 extern s32 sprintf(char *dst, const char *fmt, ...);
 extern void frFontUpdateTextWork(u8 *context);
 extern u8 iGpffffa734;
