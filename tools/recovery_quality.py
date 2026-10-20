@@ -128,13 +128,20 @@ def function_bodies(path: Path) -> dict[str, tuple[list[str], str]]:
     """
     lines = path.read_text(encoding="utf-8", errors="replace").splitlines()
     out: dict[str, tuple[list[str], str]] = {}
-    for marker in V.scan_markers(path):
+    markers = V.scan_markers(path)
+    marker_lines = sorted(m["line"] for m in markers)
+    for marker in markers:
         name = marker.get("name")
         if not name:
             continue
+        # Pragma blocks and file-local externs may sit between a marker and its
+        # definition, so search up to the next marker rather than a fixed window.
+        limit = next((line for line in marker_lines if line > marker["line"]), len(lines))
         start = None
-        for index in range(marker["line"], min(marker["line"] + 12, len(lines))):
-            if re.search(r"\b%s\b\s*\(" % re.escape(name), lines[index]):
+        for index in range(marker["line"], min(limit, len(lines))):
+            line = lines[index]
+            if (re.search(r"\b%s\b\s*\(" % re.escape(name), line)
+                    and ("{" in line or not line.rstrip().endswith(";"))):
                 start = index
                 break
         if start is None:
