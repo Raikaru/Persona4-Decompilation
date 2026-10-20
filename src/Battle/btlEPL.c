@@ -164,6 +164,7 @@ extern BtlEplUnit *D_00881440_abs[];
 // FUN_001FC300
 /* Selection predicate for EPL unit loops; see BtlEplSelect.
  * measured: loop-invariant hoisting and the mode-1 branch form are justified above. */
+/* measured: structured selection scanning retains 71 baseline words; either selection toggle alone differs. */
 #pragma opt_loop_invariants on
 #pragma opt_rebuildconditionals off
 static s64 btlEplUnitIsSelected(BtlEplUnit *unit, BtlEplSelect *select)
@@ -304,6 +305,7 @@ typedef struct BtlEplUnitParam
    mode byte and 1 - scale above the unit loop in retail order. */
 /* Fade selected units' normalized colors and position against the EPL model, preserving the distinct fade-in and fade-out snapshots. */
 // FUN_001FC630
+/* measured: typed effect aliases and cached fade complements retain 341 or more baseline words; either toggle alone differs. */
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
 void btlEplStepUnitFadeInOut(u8 *effect)
@@ -467,6 +469,7 @@ typedef struct BtlEplFade2Param
    scaled per component); 189 words without it. */
 /* Blend the two scene color vectors through the requested fade-in/out interval, saving endpoints at each transition. */
 // FUN_001FCEB0
+/* measured: typed effect aliases and separate second-vector products retain 259 or more baseline words. */
 #pragma opt_dead_assignments off
 void btlEplStepColorPairFade(u8 *effect)
 {
@@ -623,6 +626,7 @@ typedef struct BtlEplUnitRgbaParam
  * 22 resolved target relocations and all 26 sibling functions unchanged. */
 /* Fade selected units' packed RGBA channels, rounding normalized results back to bytes and setting their explicit-color flag. */
 // FUN_001FD790
+/* measured: typed effect aliases and scalar blend arrays retain 377 baseline words; either toggle alone differs. */
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
 void btlEplStepUnitRgbaFade(u8 *effect)
@@ -767,6 +771,7 @@ void btlEplFreeColorValueTarget(void *work) {
    like the first (138 words without it). */
 /* Fade the resource color value and target vectors after applying the scene color multipliers. */
 // FUN_001FE090
+/* measured: typed effect aliases and separate second-vector products retain 138 or more baseline words. */
 #pragma opt_dead_assignments off
 void btlEplStepColorValueTargetFade(u8 *effect)
 {
@@ -1111,6 +1116,7 @@ extern BtlEplMatrix D_00922C60;
    source puts them, as in btlEplStepColorPairFade. */
 /* Fade both light color vectors and, when available, publish the transformed EPL model matrix. */
 // FUN_001FF490
+/* measured: typed effect aliases and separate second-vector products retain 298 baseline words. */
 #pragma opt_dead_assignments off
 void btlEplStepLightFadeInOut(u8 *effect)
 {
