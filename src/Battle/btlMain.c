@@ -1,3 +1,6 @@
+#include "member_access.h"
+#include "dat_skill_entry_internal.h"
+#include "model_battle_internal.h"
 /* Source unit: src/Battle/btlMain_001b5e60.c */
 #include "include_asm.h"
 #include "type.h"
@@ -8,6 +11,12 @@
 #include "btl_action_internal.h"
 
 /* Packet 0x606 (0x10 bytes) and 0x607 (8 bytes), filled by their factories. */
+/* Effect-kind column: each byte is separated from the next by a 0x28-byte skill stride. */
+typedef struct DatSkillEffectEntry {
+    u8 effectKind;
+    u8 pad01[0x27];
+} DatSkillEffectEntry;
+
 typedef struct BtlUnitTintWork {
     struct BtlAction *action;
     u32 totalFrames;
@@ -149,9 +158,9 @@ extern f32 fGpffff8438; /* P4 gp -0x7bc8 */
 
 
 
-// FUN_001B5E60
 /* Finish battle shutdown once both unit records and sound playback are drained, then clear the active
  * flag. */
+// FUN_001B5E60
 u32 btlMainExitUpdate(void* work)
 {
     BtlBattleState* btl;
@@ -168,8 +177,8 @@ u32 btlMainExitUpdate(void* work)
 
 
 
-// FUN_001B7880
 /* Create a field-color fade packet from two packed RGBA multipliers and a frame duration. */
+// FUN_001B7880
 BtlPacket* btlMainCreateColorLerpPacket(u32 startColor, u32 targetColor, u32 duration)
 {
     float *color;
@@ -196,9 +205,9 @@ BtlPacket* btlMainCreateColorLerpPacket(u32 startColor, u32 targetColor, u32 dur
 
 /* measured: opt_propagation off preserves the retail grouped first-vector products. */
 #pragma opt_propagation off
-// FUN_001B7B30
 /* Interpolate the saved scene color pair over the packet duration; return one when the endpoint is
  * installed. */
+// FUN_001B7B30
 u32 btlMainUpdateCameraLerp(void* work)
 {
     BtlMainLerpWork* lerpWork;
@@ -284,8 +293,8 @@ u32 btlMainUpdateCameraLerp(void* work)
 }
 /* measured: restore propagation after btlMainUpdateCameraLerp. */
 #pragma opt_propagation on
-// FUN_001B7E20
 /* Create the scene-color interpolation packet and store its unsigned frame duration. */
+// FUN_001B7E20
 BtlPacket* btlCreateTimingPacket(u32 value)
 {
     BtlPacket* packet;
@@ -300,9 +309,9 @@ BtlPacket* btlCreateTimingPacket(u32 value)
 
 /* measured: opt_loop_invariants on hoists the unit-loop byte constants into the retail preheader registers. */
 #pragma opt_loop_invariants on
-// FUN_001B7E70
 /* Snapshot scene colors and rotation, update unit light modes, then interpolate three color vectors.
- * Raw model mode bytes are SDK/model handle fields. */
+ * Model RGB selection bytes are updated when the packet is first processed. */
+// FUN_001B7E70
 u32 btlMainUpdateColorWork(BtlMainColorWork* work)
 {
     u8* global;
@@ -424,20 +433,20 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
             group = 0;
             while (group < 4)
             {
-                unit = *(u8**)(iGpffffb3ac + group * 8 + 0x178);
+                unit = ((BtlBattleState *)iGpffffb3ac)->unitLists[group * 2];
                 while (unit != 0)
                 {
                     if ((((BtlUnit *)unit)->flags2 & 2) != 0)
                     {
                         if ((work->flags & 1) != 0)
                         {
-                            (((BtlUnit *)unit)->layerHandle)[0x281] = 0;
-                            (((BtlUnit *)unit)->layerHandle)[0x282] = 6;
+                            ((MdlFileModel *)(((BtlUnit *)unit)->layerHandle))->colorGreen = 0;
+                            ((MdlFileModel *)(((BtlUnit *)unit)->layerHandle))->colorBlue = 6;
                         }
                         else
                         {
-                            (((BtlUnit *)unit)->layerHandle)[0x281] = 0x50;
-                            (((BtlUnit *)unit)->layerHandle)[0x282] = 4;
+                            ((MdlFileModel *)(((BtlUnit *)unit)->layerHandle))->colorGreen = 0x50;
+                            ((MdlFileModel *)(((BtlUnit *)unit)->layerHandle))->colorBlue = 4;
                         }
                     }
                     unit = (u8 *)((BtlUnit *)unit)->nextUnit;
@@ -514,8 +523,8 @@ u32 btlMainUpdateColorWork(BtlMainColorWork* work)
 #pragma opt_loop_invariants off
 /* measured: restore propagation after btlMainUpdateColorWork. */
 #pragma opt_propagation on
-// FUN_001B83F0
 /* Unpack three RGBA colors into a color-work packet and record duration and mode flags. */
+// FUN_001B83F0
 BtlPacket* btlMainCreateColorWorkPacket(s32 lightColor, s32 ambientColor, s32 fogColor, u32 duration, u16 flags)
 {
     float *color;
@@ -579,8 +588,7 @@ static inline void btlMainColorToV4d(RwV4d *out, const BtlCameraPalette *color)
 #pragma push
 #pragma opt_loop_invariants on
 /* Fade scene and unit colors toward the current palette, switching model light modes at the midpoint.
- * Raw model-handle reloads are measured alias-sensitive; unit tint vectors retain their existing
- * aggregate type. */
+ * Measured: MEMBER model reloads change MATCH in access-site, local-pointer and array forms. */
 u32 btlMainUpdateFade(void *workRaw)
 {
     BtlMainFadeWork *work = (BtlMainFadeWork *)workRaw;
@@ -616,10 +624,10 @@ u32 btlMainUpdateFade(void *workRaw)
             u32 group;
 
             for (group = 0; group < 4; group++) {
-                for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;
+                for (unit = ((BtlBattleState *)iGpffffb3ac)->unitLists[group * 2]; unit != NULL;
                      unit = (u8 *)((BtlUnit *)unit)->nextUnit) {
-                    *(BtlCameraPalette *)(unit + 0x38) = *(BtlCameraPalette *)(unit + 0x3c);
-                    *(RwV4d *)(unit + 0x60) = *(RwV4d *)(unit + 0x70);
+                    *(BtlCameraPalette *)&((BtlUnit *)unit)->cols[2] = *(BtlCameraPalette *)&((BtlUnit *)unit)->cols[3];
+                    *(RwV4d *)&((BtlUnit *)unit)->unk_60 = *(RwV4d *)&((BtlUnit *)unit)->unk_70;
                 }
             }
         }
@@ -630,15 +638,15 @@ u32 btlMainUpdateFade(void *workRaw)
             u8 *unit;
 
             for (group = 0; group < 4; group++) {
-                for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;
+                for (unit = ((BtlBattleState *)iGpffffb3ac)->unitLists[group * 2]; unit != NULL;
                      unit = (u8 *)((BtlUnit *)unit)->nextUnit) {
                     if ((((BtlUnit *)unit)->flags2 & 2) != 0 &&
-                        (*(*(u8 **)(unit + 0xa00) + 0x260) & 0x10) == 0) {
+                        (*(((BtlUnit *)unit)->layerHandle + 0x260) & 0x10) == 0) {
                         f32 *scale;
 
-                        (*(u8 **)(unit + 0xa00))[0x281] = 0x70;
-                        (*(u8 **)(unit + 0xa00))[0x282] = 6;
-                        scale = (f32 *)(*(u8 **)(unit + 0xa00) + 0x274);
+                        ((MdlFileModel *)(((BtlUnit *)unit)->layerHandle))->colorGreen = 0x70;
+                        ((MdlFileModel *)(MEMBER(u8 *, unit, BtlUnit, layerHandle)))->colorBlue = 6;
+                        scale = (f32 *)(MEMBER(u8 *, unit, BtlUnit, layerHandle) + 0x274);
                         if (*scale > 1.0f) {
                             *scale = 1.0f;
                         }
@@ -721,15 +729,15 @@ u32 btlMainUpdateFade(void *workRaw)
                 u8 *unit;
 
                 for (group = 0; group < 4; group++) {
-                    for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;
+                    for (unit = ((BtlBattleState *)iGpffffb3ac)->unitLists[group * 2]; unit != NULL;
                          unit = (u8 *)((BtlUnit *)unit)->nextUnit) {
-                        firstX = scale * unit[0x38];
+                        firstX = scale * ((BtlUnit *)unit)->cols[2].red;
                         firstX *= inv;
-                        firstY = scale * unit[0x39];
+                        firstY = scale * ((BtlUnit *)unit)->cols[2].green;
                         firstY *= inv;
-                        firstZ = scale * unit[0x3a];
+                        firstZ = scale * ((BtlUnit *)unit)->cols[2].blue;
                         firstZ *= inv;
-                        firstW = scale * unit[0x3b];
+                        firstW = scale * ((BtlUnit *)unit)->cols[2].alpha;
                         firstW *= inv;
                         secondX = target.x * ratio;
                         secondY = target.y * ratio;
@@ -739,14 +747,14 @@ u32 btlMainUpdateFade(void *workRaw)
                         tmp.y = firstY + secondY;
                         tmp.z = firstZ + secondZ;
                         tmp.w = firstW + secondW;
-                        unit[0x3c] = (s32)(0.5f + 255.0f * tmp.x);
-                        unit[0x3d] = (s32)(0.5f + 255.0f * tmp.y);
-                        unit[0x3e] = (s32)(0.5f + 255.0f * tmp.z);
-                        unit[0x3f] = (s32)(0.5f + 255.0f * tmp.w);
-                        *(f32 *)(unit + 0x70) = *(f32 *)(unit + 0x60) * inv;
-                        *(f32 *)(unit + 0x74) = *(f32 *)(unit + 0x64) * inv;
-                        *(f32 *)(unit + 0x78) = *(f32 *)(unit + 0x68) * inv;
-                        *(f32 *)(unit + 0x7c) = *(f32 *)(unit + 0x6c) * inv;
+                        ((BtlUnit *)unit)->cols[3].red = (s32)(0.5f + 255.0f * tmp.x);
+                        ((BtlUnit *)unit)->cols[3].green = (s32)(0.5f + 255.0f * tmp.y);
+                        ((BtlUnit *)unit)->cols[3].blue = (s32)(0.5f + 255.0f * tmp.z);
+                        ((BtlUnit *)unit)->cols[3].alpha = (s32)(0.5f + 255.0f * tmp.w);
+                        ((BtlUnit *)unit)->unk_70.imag.x = ((f32 *)((BtlUnit *)unit)->unk_60)[0] * inv;
+                        ((BtlUnit *)unit)->unk_70.imag.y = ((f32 *)((BtlUnit *)unit)->unk_60)[1] * inv;
+                        ((BtlUnit *)unit)->unk_70.imag.z = ((f32 *)((BtlUnit *)unit)->unk_60)[2] * inv;
+                        ((BtlUnit *)unit)->unk_70.real = ((f32 *)((BtlUnit *)unit)->unk_60)[3] * inv;
                     }
                 }
             }
@@ -765,10 +773,10 @@ u32 btlMainUpdateFade(void *workRaw)
                 u8 *unit;
 
                 for (group = 0; group < 4; group++) {
-                    for (unit = *(u8 **)(iGpffffb3ac + group * 8 + 0x178); unit != NULL;
+                    for (unit = ((BtlBattleState *)iGpffffb3ac)->unitLists[group * 2]; unit != NULL;
                          unit = (u8 *)((BtlUnit *)unit)->nextUnit) {
-                        *(BtlCameraPalette *)(unit + 0x3c) = D_007635C8;
-                        *(RwV4d *)(unit + 0x70) = tmp;
+                        *(BtlCameraPalette *)&((BtlUnit *)unit)->cols[3] = D_007635C8;
+                        *(RwV4d *)&((BtlUnit *)unit)->unk_70 = tmp;
                     }
                 }
             }
@@ -779,8 +787,8 @@ u32 btlMainUpdateFade(void *workRaw)
     return 0;
 }
 #pragma pop
-// FUN_001B9360
 /* Create the palette fade packet with its frame duration and halfword mode flags. */
+// FUN_001B9360
 BtlPacket* btlMainCreateFadePacket(s32 arg, s16 mode)
 {
     BtlPacket* packet;
@@ -796,8 +804,8 @@ BtlPacket* btlMainCreateFadePacket(s32 arg, s16 mode)
 
 
 
-// FUN_001B93C0
 /* Snapshot sky tint on the first frame and blend toward the packet color until its duration expires. */
+// FUN_001B93C0
 u8 btlMainUpdateTintLerp(BtlMainLerpWork* work)
 {
     f32 currentFloat;
@@ -840,8 +848,8 @@ u8 btlMainUpdateTintLerp(BtlMainLerpWork* work)
     work->currentFrame++;
     return 0;
 }
-// FUN_001B9560
 /* Create a sky-tint interpolation packet from packed RGBA and a frame duration. */
+// FUN_001B9560
 BtlPacket* btlMainCreateTintPacket(u32 targetColor, u32 duration)
 {
     float *color;
@@ -862,9 +870,9 @@ BtlPacket* btlMainCreateTintPacket(u32 targetColor, u32 duration)
 
 /* measured: opt_common_subs off preserves the retail per-component scale reloads. */
 #pragma opt_common_subs off
-// FUN_001B96E0
 /* Fade the current sky tint to the live default RGBA value and report completion after the endpoint
  * write. */
+// FUN_001B96E0
 u32 btlMainUpdateColorFade(void* work)
 {
     BtlMainColorFadeWork* colorWork;
@@ -916,8 +924,8 @@ u32 btlMainUpdateColorFade(void* work)
 }
 /* measured: restore common-subexpression optimization after btlMainUpdateColorFade. */
 #pragma opt_common_subs on
-// FUN_001B99A0
 /* Create a timed sky-tint fade back to the current default color. */
+// FUN_001B99A0
 BtlPacket* btlMainCreateColorFadePacket(s32 arg)
 {
     BtlPacket* packet;
@@ -940,9 +948,9 @@ extern void btlUnitSetColor(BtlUnit* unit, RwRGBA col);
 #pragma opt_common_subs on
 extern u8 *iGpffffb3b8;
 extern s32 btlActionHasNoTargetClass(u32 action);
+/* Fade unrelated unit groups while preserving the acting unit and selected target groups.
+ * Measured: MEMBER count, acting-unit and timer accesses require byte-alias reloads; all three typed forms differ. */
 // FUN_001B99F0
-/* Fade unrelated unit groups while preserving the acting unit and selected target groups. Raw target-
- * list storage is opaque in BtlAction; raw counter increments retain measured callback reloads. */
 u32 btlMainUpdateUnitTint(void *work)
 {
     u8 *tintWork;
@@ -977,17 +985,17 @@ u32 btlMainUpdateUnitTint(void *work)
         return 1;
     }
     tableBase = iGpffffb3b8 + 0x11;
-    if (*(u8 *)(tableBase + (selector & 0xFFFF) * 0x28) == 0x10)
+    if (((DatSkillEffectEntry *)tableBase)[selector & 0xFFFF].effectKind == 0x10)
     {
         return 1;
     }
-    if (((s32)*(u16 *)(unit + 0x6a) < 2) && (*(u8 *)(*(u8 **)(unit + 0x30) + 0xa2) != 0))
+    if (((s32)((BtlAction *)unit)->unk_6a < 2) && (((BtlUnit *)((BtlAction *)unit)->unit)->genus != 0))
     {
         return 1;
     }
     if (btlActionHasNoTargetClass((u32)unit) != 0)
     {
-        mask1 = ((1 << *(u8 *)(*(u8 **)(unit + 0x30) + 0xa2)) & 0xFFFF);
+        mask1 = ((1 << ((BtlUnit *)((BtlAction *)unit)->unit)->genus) & 0xFFFF);
         mask2 = 0;
     }
     else
@@ -996,19 +1004,19 @@ u32 btlMainUpdateUnitTint(void *work)
         mask1 = 3;
         mask2 = 0;
         maskIndex = 0;
-        while ((maskIndex & 0xFFFF) < (s32)*(u16 *)(unit + 0x6a))
+        while ((maskIndex & 0xFFFF) < (s32)MEMBER(u16, unit, BtlAction, unk_6a))
         {
-            mask2 = ((mask2 | ((1 << *(u8 *)(*(u8 **)(*(u8 **)(unit + ((u16)maskIndex * 4) + 0x38) + 0x30) + 0xa2)) & 0xFFFF)) & 0xFFFF);
+            mask2 = ((mask2 | ((1 << ((BtlUnit *)((BtlAction *)((BtlAction *)unit)->targets[(u16)maskIndex])->unit)->genus) & 0xFFFF)) & 0xFFFF);
             maskIndex = (maskIndex + 1) & 0xFFFF;
         }
     }
-    if (*(u8 *)(*(u8 **)(unit + 0x30) + 0xa2) == 0)
+    if (((BtlUnit *)((BtlAction *)unit)->unit)->genus == 0)
     {
         j = 1;
         k = 0;
-        while ((k & 0xFFFF) < (s32)*(u16 *)(unit + 0x6a))
+        while ((k & 0xFFFF) < (s32)MEMBER(u16, unit, BtlAction, unk_6a))
         {
-            if (*(u8 *)(*(u8 **)(*(u8 **)(unit + ((u16)k * 4) + 0x38) + 0x30) + 0xa2) != 0)
+            if (((BtlUnit *)((BtlAction *)((BtlAction *)unit)->targets[(u16)k])->unit)->genus != 0)
             {
                 j = 0;
                 break;
@@ -1041,7 +1049,7 @@ u32 btlMainUpdateUnitTint(void *work)
     mask2 = mask2 & 0xFFFF;
     while ((i & 0xFFFF) < 2)
     {
-        node = *(u8 **)(iGpffffb3ac + ((u16)i) * 8 + 0x178);
+        node = ((BtlBattleState *)iGpffffb3ac)->unitLists[(u16)i * 2];
         while (node != 0)
         {
             if (((BtlUnit *)node)->sceneDrawId != 0)
@@ -1049,10 +1057,10 @@ u32 btlMainUpdateUnitTint(void *work)
                 bit = ((1 << ((BtlUnit *)node)->genus) & 0xFFFF);
                 if (((mask1 & bit) != 0) && ((((BtlUnit *)node)->flags3 & 1) == 0))
                 {
-                    col.red = *(u8 *)(node + 0x30);
-                    col.green = *(u8 *)(node + 0x31);
-                    col.blue = *(u8 *)(node + 0x32);
-                    primary = *(u8 **)(unit + 0x30);
+                    col.red = ((BtlUnit *)node)->cols[0].red;
+                    col.green = ((BtlUnit *)node)->cols[0].green;
+                    col.blue = ((BtlUnit *)node)->cols[0].blue;
+                    primary = MEMBER(u8 *, unit, BtlAction, unit);
                     if ((node != primary) && ((mask2 & bit) == 0))
                     {
                         col.alpha = fade;
@@ -1068,12 +1076,12 @@ u32 btlMainUpdateUnitTint(void *work)
         }
         i = (i + 1) & 0xFFFF;
     }
-    *(u32 *)(tintWork + 8) = *(u32 *)(tintWork + 8) + 1;
+    MEMBER(u32, tintWork, BtlUnitTintWork, currentFrame) = MEMBER(u32, tintWork, BtlUnitTintWork, currentFrame) + 1;
     return result;
 }
 #pragma pop
-// FUN_001B9DE0
 /* Create an action-associated unit-tint packet with selector, duration and zero elapsed frames. */
+// FUN_001B9DE0
 BtlPacket* btlMainCreateUnitTintPacket(struct BtlAction *action, u32 selector, u32 duration)
 {
     BtlPacket* packet;
@@ -1091,9 +1099,9 @@ BtlPacket* btlMainCreateUnitTintPacket(struct BtlAction *action, u32 selector, u
 
 
 
+/* Raise drawable unit alpha to the fade threshold unless the battle transition guard blocks updates.
+ * Measured: both MEMBER timer accesses differ in access-site, local-pointer and array forms. */
 // FUN_001B9E50
-/* Raise drawable unit alpha to the current fade threshold, respecting the battle transition guard. Raw
- * elapsed-counter increments retain measured callback reloads. */
 u32 btlMainUpdateUnitAlphaFade(void* work)
 {
     RwRGBA color;
@@ -1136,13 +1144,13 @@ u32 btlMainUpdateUnitAlphaFade(void* work)
     compareThreshold = threshold & 0xFF;
     while ((index & 0xFFFF) < 2)
     {
-        unit = *(BtlUnit **)(iGpffffb3ac + (((u16)index) * 8) + 0x178);
+        unit = (BtlUnit *)((BtlBattleState *)iGpffffb3ac)->unitLists[(u16)index * 2];
         while (unit != NULL)
         {
             if ((((BtlUnit *)(u8 *)unit)->sceneDrawId != 0) &&
                 ((((BtlUnit *)(u8 *)unit)->flags3 & 1) == 0))
             {
-                color = *(RwRGBA *)((u8 *)unit + 0x30);
+                color = ((BtlUnit *)(u8 *)unit)->cols[0];
                 if ((s32)color.alpha < compareThreshold)
                 {
                     color.alpha = threshold;
@@ -1154,11 +1162,11 @@ u32 btlMainUpdateUnitAlphaFade(void* work)
         index = (index + 1) & 0xFFFF;
     }
 
-    *(u32 *)(fadeWork + 4) = *(u32 *)(fadeWork + 4) + 1;
+    MEMBER(u32, fadeWork, BtlUnitAlphaWork, currentFrame) = MEMBER(u32, fadeWork, BtlUnitAlphaWork, currentFrame) + 1;
     return result;
 }
-// FUN_001BA090
 /* Create the unit-alpha fade packet with an unsigned elapsed counter initialized by allocation. */
+// FUN_001BA090
 BtlPacket* btlMainCreateColorSetPacket(s32 arg)
 {
     BtlPacket* packet;
@@ -1171,10 +1179,10 @@ BtlPacket* btlMainCreateColorSetPacket(s32 arg)
 
 
 
-// FUN_001BA9E0
 /* Append an optional position/quaternion to the four-key ring and mirror position into the spline.
  * Measured: direct curveKeys addressing changes MATCH; retain integer-address copies and raw ring
  * writes. */
+// FUN_001BA9E0
 u32 btlMainCurveAppendKeyframe(u16 *curve, f32 *position, f32 *rotation)
 {
     u16 index;
@@ -1202,7 +1210,7 @@ u32 btlMainCurveAppendKeyframe(u16 *curve, f32 *position, f32 *rotation)
         entry[2] = value1;
         if ((*curve & 1) == 0)
         {
-            func_003bb4a0(*(u8 **)(curve + 0x4c), index, position);
+            func_003bb4a0((u8 *)((BtlCamera *)curve)->workList, index, position);
         }
     }
     if (rotation != ((void*)0))
@@ -1231,9 +1239,9 @@ u32 btlMainCurveAppendKeyframe(u16 *curve, f32 *position, f32 *rotation)
 
 
 
-// FUN_001BAB00
 /* Reset curve mode, ring counters and time, then seed the first position/quaternion. Raw ring writes
  * preserve callback-visible reloads and the existing integer-address copy shape. */
+// FUN_001BAB00
 void btlMainCurveReset(u16 *curve, f32 *pose)
 {
     u16 index;
@@ -1248,8 +1256,8 @@ void btlMainCurveReset(u16 *curve, f32 *pose)
     curve[0x3a] = 0;
     curve[0x3b] = 0;
     curve[0x3c] = 0;
-    *(u32*)((u8*)curve + 0x80) = 0;
-    *(u32*)((u8*)curve + 0x7c) = 0;
+    ((BtlCamera *)(u8*)curve)->unk80 = 0;
+    ((BtlCamera *)(u8*)curve)->unk7C = 0;
     if (((BtlCamera *)curve)->keyCount < 4)
     {
         index = ((BtlCamera *)curve)->keyWriteIndex;
@@ -1266,7 +1274,7 @@ void btlMainCurveReset(u16 *curve, f32 *pose)
             entry[2] = value1;
             if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index, pose);
+                func_003bb4a0((u8 *)((BtlCamera *)curve)->workList, index, pose);
             }
         }
         source = pose + 3;
@@ -1296,9 +1304,9 @@ void btlMainCurveReset(u16 *curve, f32 *pose)
 
 
 
-// FUN_001BAC20
 /* Seed four keys from two endpoint poses and their one-third/two-third interpolants. Measured: typed
  * count reloads change MATCH; keep raw ring writes and callback-visible count checks. */
+// FUN_001BAC20
 void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode)
 {
     u16 index;
@@ -1317,8 +1325,8 @@ void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode)
     curve[0x3a] = 0;
     curve[0x3b] = 0;
     curve[0x3c] = 0;
-    *(u32*)((u8*)curve + 0x80) = 0;
-    *(u32*)((u8*)curve + 0x7c) = 0;
+    ((BtlCamera *)(u8*)curve)->unk80 = 0;
+    ((BtlCamera *)(u8*)curve)->unk7C = 0;
     if (curve[0x3b] < 4)
     {
         index0 = ((BtlCamera *)curve)->keyWriteIndex;
@@ -1335,7 +1343,7 @@ void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode)
             entry[2] = value1;
             if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index0, firstPose);
+                func_003bb4a0((u8 *)((BtlCamera *)curve)->workList, index0, firstPose);
             }
         }
         source = firstPose + 3;
@@ -1374,7 +1382,7 @@ void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode)
             *(RwV3d*)entry = *(RwV3d*)work;
             if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index1, work);
+                func_003bb4a0((u8 *)((BtlCamera *)curve)->workList, index1, work);
             }
         }
         if (work + 3 != ((void*)0))
@@ -1382,7 +1390,7 @@ void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode)
             address = (u32)index1 * 0x1c;
             address += (u32)curve;
             entry = (f32*)(address + 0x10);
-            *(RwV4d*)entry = *(RwV4d*)(work + 3);
+            *(RwV4d*)entry = *(RwV4d *)&((BtlCameraPose *)work)->rot;
         }
         index1++;
         if (index1 >= 4)
@@ -1405,7 +1413,7 @@ void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode)
             *(RwV3d*)entry = *(RwV3d*)work;
             if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index, work);
+                func_003bb4a0((u8 *)((BtlCamera *)curve)->workList, index, work);
             }
         }
         if (work + 3 != ((void*)0))
@@ -1413,7 +1421,7 @@ void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode)
             address = (u32)index * 0x1c;
             address += (u32)curve;
             entry = (f32*)(address + 0x10);
-            *(RwV4d*)entry = *(RwV4d*)(work + 3);
+            *(RwV4d*)entry = *(RwV4d *)&((BtlCameraPose *)work)->rot;
         }
         index++;
         if (index >= 4)
@@ -1440,7 +1448,7 @@ void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode)
             entry[2] = value1;
             if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index, lastPose);
+                func_003bb4a0((u8 *)((BtlCamera *)curve)->workList, index, lastPose);
             }
         }
         source = lastPose + 3;
@@ -1474,9 +1482,9 @@ void btlMainCurveSetPoses(u16 *curve, f32 *firstPose, f32 *lastPose, u16 mode)
    one-third toward the last, then last. Curve writes precede quaternion
    reloads, including when an input aliases spline storage.
    Measured: 984/992B, eight resolved relocations, eight zero-tail bytes. */
-// FUN_001BAFF0
 /* Seed four keys from three poses, interpolating the interior pair around the middle pose. Measured:
  * typed count reloads change MATCH; keep raw ring writes and callback-visible count checks. */
+// FUN_001BAFF0
 void btlMainCurveSetThreePoses(u16 *curve, f32 *firstPose, f32 *middlePose, f32 *lastPose, u16 mode)
 {
     u16 index;
@@ -1495,8 +1503,8 @@ void btlMainCurveSetThreePoses(u16 *curve, f32 *firstPose, f32 *middlePose, f32 
     curve[0x3a] = 0;
     curve[0x3b] = 0;
     curve[0x3c] = 0;
-    *(u32*)((u8*)curve + 0x80) = 0;
-    *(u32*)((u8*)curve + 0x7c) = 0;
+    ((BtlCamera *)(u8*)curve)->unk80 = 0;
+    ((BtlCamera *)(u8*)curve)->unk7C = 0;
     if (curve[0x3b] < 4)
     {
         index0 = ((BtlCamera *)curve)->keyWriteIndex;
@@ -1513,7 +1521,7 @@ void btlMainCurveSetThreePoses(u16 *curve, f32 *firstPose, f32 *middlePose, f32 
             entry[2] = value1;
             if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index0, firstPose);
+                func_003bb4a0((u8 *)((BtlCamera *)curve)->workList, index0, firstPose);
             }
         }
         source = firstPose + 3;
@@ -1552,7 +1560,7 @@ void btlMainCurveSetThreePoses(u16 *curve, f32 *firstPose, f32 *middlePose, f32 
             *(RwV3d*)entry = *(RwV3d*)work;
             if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index1, work);
+                func_003bb4a0((u8 *)((BtlCamera *)curve)->workList, index1, work);
             }
         }
         if (work + 3 != ((void*)0))
@@ -1560,7 +1568,7 @@ void btlMainCurveSetThreePoses(u16 *curve, f32 *firstPose, f32 *middlePose, f32 
             address = (u32)index1 * 0x1c;
             address += (u32)curve;
             entry = (f32*)(address + 0x10);
-            *(RwV4d*)entry = *(RwV4d*)(work + 3);
+            *(RwV4d*)entry = *(RwV4d *)&((BtlCameraPose *)work)->rot;
         }
         index1++;
         if (index1 >= 4)
@@ -1583,7 +1591,7 @@ void btlMainCurveSetThreePoses(u16 *curve, f32 *firstPose, f32 *middlePose, f32 
             *(RwV3d*)entry = *(RwV3d*)work;
             if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index, work);
+                func_003bb4a0((u8 *)((BtlCamera *)curve)->workList, index, work);
             }
         }
         if (work + 3 != ((void*)0))
@@ -1591,7 +1599,7 @@ void btlMainCurveSetThreePoses(u16 *curve, f32 *firstPose, f32 *middlePose, f32 
             address = (u32)index * 0x1c;
             address += (u32)curve;
             entry = (f32*)(address + 0x10);
-            *(RwV4d*)entry = *(RwV4d*)(work + 3);
+            *(RwV4d*)entry = *(RwV4d *)&((BtlCameraPose *)work)->rot;
         }
         index++;
         if (index >= 4)
@@ -1618,7 +1626,7 @@ void btlMainCurveSetThreePoses(u16 *curve, f32 *firstPose, f32 *middlePose, f32 
             entry[2] = value1;
             if ((*curve & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8*)curve + 0x98), index, lastPose);
+                func_003bb4a0((u8 *)((BtlCamera *)curve)->workList, index, lastPose);
             }
         }
         source = lastPose + 3;
@@ -1647,9 +1655,9 @@ void btlMainCurveSetThreePoses(u16 *curve, f32 *firstPose, f32 *middlePose, f32 
 }
 /* Exact: 948B/960B, four resolved spline calls and twelve zero-tail bytes.
    Keep each append's count/index reloads and callback-visible copy order. */
-// FUN_001BB3D0
 /* Reset the curve and copy four explicit position/quaternion poses in order. Raw ring storage retains
  * the established callback-visible copy order and byte-address traversal. */
+// FUN_001BB3D0
 void btlMainCurveSetFourPoses(void *camera, void *first, void *second,
                    void *third, void *fourth, u16 mode)
 {
@@ -1667,8 +1675,8 @@ void btlMainCurveSetFourPoses(void *camera, void *first, void *second,
     state[0x3A] = 0;
     state[0x3B] = 0;
     state[0x3C] = 0;
-    *(u32 *)((u8 *)camera + 0x80) = 0;
-    *(u32 *)((u8 *)camera + 0x7C) = 0;
+    ((BtlCamera *)(u8 *)camera)->unk80 = 0;
+    ((BtlCamera *)(u8 *)camera)->unk7C = 0;
     if (state[0x3B] < 4)
     {
         index = state[0x3C];
@@ -1685,7 +1693,7 @@ void btlMainCurveSetFourPoses(void *camera, void *first, void *second,
             entry[2] = value1;
             if ((*state & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8 *)state + 0x98), index, first);
+                func_003bb4a0((u8 *)((BtlCamera *)state)->workList, index, first);
             }
         }
         source = (f32 *)((u8 *)first + 0xC);
@@ -1727,7 +1735,7 @@ void btlMainCurveSetFourPoses(void *camera, void *first, void *second,
             entry[2] = value1;
             if ((*state & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8 *)state + 0x98), index, second);
+                func_003bb4a0((u8 *)((BtlCamera *)state)->workList, index, second);
             }
         }
         source = (f32 *)((u8 *)second + 0xC);
@@ -1769,7 +1777,7 @@ void btlMainCurveSetFourPoses(void *camera, void *first, void *second,
             entry[2] = value1;
             if ((*state & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8 *)state + 0x98), index, third);
+                func_003bb4a0((u8 *)((BtlCamera *)state)->workList, index, third);
             }
         }
         source = (f32 *)((u8 *)third + 0xC);
@@ -1811,7 +1819,7 @@ void btlMainCurveSetFourPoses(void *camera, void *first, void *second,
             entry[2] = value1;
             if ((*state & 1) == 0)
             {
-                func_003bb4a0(*(u8 **)((u8 *)state + 0x98), index, fourth);
+                func_003bb4a0((u8 *)((BtlCamera *)state)->workList, index, fourth);
             }
         }
         source = (f32 *)((u8 *)fourth + 0xC);
@@ -1845,9 +1853,9 @@ extern RwV3d D_00881430;
 /* Exact: 296B/304B, six resolved relocations and eight zero-tail bytes.
    Scoped loop extraction hoists positive zero; the coefficient pointer
    retains retail's stack-address materialization with propagation off. */
-// FUN_001BB790
 /* Evaluate cubic Bezier position weights across the four-key ring. Raw coordinate loads retain the
  * integer-address traversal of the canonical 0x1C-byte pose records. */
+// FUN_001BB790
 void btlMainEvalBezierPosition(u8 *curveWork, f32 *position, f32 time)
 {
     f32 weights[4];
@@ -1879,9 +1887,9 @@ void btlMainEvalBezierPosition(u8 *curveWork, f32 *position, f32 time)
         weight = &weights[i];
         coefficient = *weight;
         p = curveWork + (u16)index * 0x1C;
-        f4 = *(f32 *)(p + 8) * coefficient;
-        f3 = *(f32 *)(p + 0xC) * coefficient;
-        position[0] = (position[0] + 0.0f) + *(f32 *)(p + 4) * coefficient;
+        f4 = ((BtlCamera *)p)->curveKeys[0].pos.y * coefficient;
+        f3 = ((BtlCamera *)p)->curveKeys[0].pos.z * coefficient;
+        position[0] = (position[0] + 0.0f) + ((BtlCamera *)p)->curveKeys[0].pos.x * coefficient;
         position[1] += f4;
         position[2] += f3;
         index = (u16)(index + 1);
@@ -1892,9 +1900,9 @@ void btlMainEvalBezierPosition(u8 *curveWork, f32 *position, f32 time)
     }
 }
 #pragma pop
-// FUN_001BB8C0
 /* Select adjacent ring keys from time and linearly interpolate their positions. Raw coordinate loads
  * retain the integer-address traversal of the canonical 0x1C-byte pose records. */
+// FUN_001BB8C0
 void btlMainEvalLinearPosition(u8* curve, f32* position, f32 time)
 {
     u16 currentIndex;
@@ -1929,18 +1937,18 @@ void btlMainEvalLinearPosition(u8* curve, f32* position, f32 time)
     blend = 1.0f - time;
     currentAddress = (u32)currentIndex * 0x1c;
     currentAddress = currentAddress + (u32)curve;
-    currentY = *(f32*)(currentAddress + 8);
+    currentY = ((BtlCamera *)currentAddress)->curveKeys[0].pos.y;
     currentY = currentY * blend;
-    currentZ = *(f32*)(currentAddress + 0xc);
+    currentZ = ((BtlCamera *)currentAddress)->curveKeys[0].pos.z;
     currentZ = currentZ * blend;
     nextAddress = (u32)nextIndex * 0x1c;
     nextAddress = nextAddress + (u32)curve;
-    nextY = *(f32*)(nextAddress + 8);
+    nextY = ((BtlCamera *)nextAddress)->curveKeys[0].pos.y;
     nextY = nextY * time;
-    nextZ = *(f32*)(nextAddress + 0xc);
+    nextZ = ((BtlCamera *)nextAddress)->curveKeys[0].pos.z;
     nextZ = nextZ * time;
-    currentX = *(f32*)(currentAddress + 4);
-    nextX = *(f32*)(nextAddress + 4);
+    currentX = ((BtlCamera *)currentAddress)->curveKeys[0].pos.x;
+    nextX = ((BtlCamera *)nextAddress)->curveKeys[0].pos.x;
     position[0] = currentX * blend + nextX * time;
     position[1] = currentY + nextY;
     position[2] = currentZ + nextZ;
@@ -1948,9 +1956,9 @@ void btlMainEvalLinearPosition(u8* curve, f32* position, f32 time)
 
 
 
-// FUN_001BB9B0
 /* Select neighboring ring quaternions and blend them using the prepared spherical/linear mode and sine
  * approximation. */
+// FUN_001BB9B0
 void btlMainEvalSlerpRotation(u8* curve, f32* rotation, f32 time)
 {
     u16 index;
@@ -2029,9 +2037,9 @@ void btlMainEvalSlerpRotation(u8* curve, f32* rotation, f32 time)
     rotation[2] = result.next2 * blend + rotation[2];
     rotation[3] = result.current3 * inverse + result.next3 * blend;
 }
+/* Sample one pose or interpolate ring positions/quaternions using linear, Bezier or spline position.
+ * Measured: the final MEMBER time reload differs in access-site, local-pointer and array forms. */
 // FUN_001BBC40
-/* Sample the available keys with a single pose, linear interpolation, Bezier, or spline position and
- * quaternion interpolation. Raw spline and pose copies retain their original pointer/copy shape. */
 u32 btlCameraSampleKeyframes(u8* curveWork, f32* position, f32* rotation)
 {
     void* curve;
@@ -2050,37 +2058,37 @@ has_frame:
         index = ((BtlCamera *)curveWork)->keyReadIndex;
         entry = (u8 *)((u32)index * 0x1c);
         entry += (u32)curveWork;
-        *(RwV3d *)position = *(RwV3d *)(entry + 4);
+        *(RwV3d *)position = *(RwV3d *)&((BtlCamera *)entry)->curveKeys[0].pos;
         index = ((BtlCamera *)curveWork)->keyReadIndex;
         entry = (u8 *)((u32)index * 0x1c);
         entry += (u32)curveWork;
-        *(RwV4d *)rotation = *(RwV4d *)(entry + 0x10);
+        *(RwV4d *)rotation = *(RwV4d *)&((BtlCamera *)entry)->curveKeys[0].rot;
         return 0;
     }
     if (frame < 4)
     {
-        btlMainEvalLinearPosition(curveWork, position, *(f32*)(curveWork + 0x7c));
+        btlMainEvalLinearPosition(curveWork, position, ((BtlCamera *)curveWork)->keyTime);
     }
     else if ((((BtlCamera *)curveWork)->curveFlags & 1) != 0)
     {
-        btlMainEvalBezierPosition(curveWork, position, *(f32*)(curveWork + 0x7c));
+        btlMainEvalBezierPosition(curveWork, position, ((BtlCamera *)curveWork)->keyTime);
     }
     else
     {
-        curve = *(void* *)(curveWork + 0x98);
+        curve = (void *)((BtlCamera *)curveWork)->workList;
         func_003bb5b0((void*)curve, 0xa,
-                     *(f32*)(curveWork + 0x7c),
+                     ((BtlCamera *)curveWork)->keyTime,
                      (RwV3d *)position, ((void*)0));
     }
-    btlMainEvalSlerpRotation(curveWork, rotation, *(f32*)(curveWork + 0x7c));
+    btlMainEvalSlerpRotation(curveWork, rotation, MEMBER(f32, curveWork, BtlCamera, keyTime));
     return 1;
 }
 
 
 
+/* Advance time, consume complete key intervals, and wrap the four-key read index.
+ * Measured: MEMBER ring writes differ in access-site, local-pointer and array forms. */
 // FUN_001BBD80
-/* Advance time, consume complete key intervals, and wrap the read index in the four-key ring. Raw ring
- * writes preserve the measured load/store alias behavior. */
 u32 btlCameraAdvanceKeyframes(u8* curveWork, f32 deltaTime)
 {
     u16 frame;
@@ -2090,17 +2098,17 @@ u32 btlCameraAdvanceKeyframes(u8* curveWork, f32 deltaTime)
     frame = ((BtlCamera *)curveWork)->keyCount;
     if (frame < 2)
     {
-        *(u32*)(curveWork + 0x7c) = 0;
+        ((BtlCamera *)curveWork)->unk7C = 0;
         return 0;
     }
-    value = *(f32*)(curveWork + 0x7c) + deltaTime;
+    value = ((BtlCamera *)curveWork)->keyTime + deltaTime;
     if (frame < 3)
     {
         if (!(value < fGpffff8434))
         {
             value = 0.0f;
-            *(u16 *)(curveWork + 0x76) = frame - 1;
-            *(u16 *)(curveWork + 0x74) = ((BtlCamera *)curveWork)->keyReadIndex + 1;
+            MEMBER(u16, curveWork, BtlCamera, keyCount) = frame - 1;
+            ((BtlCamera *)curveWork)->keyReadIndex = ((BtlCamera *)curveWork)->keyReadIndex + 1;
         }
     }
     else if (frame < 4)
@@ -2108,35 +2116,35 @@ u32 btlCameraAdvanceKeyframes(u8* curveWork, f32 deltaTime)
         if (!(value < fGpffff80c8))
         {
             value = 0.0f;
-            *(u16 *)(curveWork + 0x76) = frame - 2;
-            *(u16 *)(curveWork + 0x74) = ((BtlCamera *)curveWork)->keyReadIndex + 2;
+            MEMBER(u16, curveWork, BtlCamera, keyCount) = frame - 2;
+            ((BtlCamera *)curveWork)->keyReadIndex = ((BtlCamera *)curveWork)->keyReadIndex + 2;
         }
     }
     else if (!(value < fGpffff8438))
     {
         value = value - 1.0f;
-        *(u16 *)(curveWork + 0x76) = frame - 3;
-        *(u16 *)(curveWork + 0x74) = ((BtlCamera *)curveWork)->keyReadIndex + 3;
+        MEMBER(u16, curveWork, BtlCamera, keyCount) = frame - 3;
+        ((BtlCamera *)curveWork)->keyReadIndex = ((BtlCamera *)curveWork)->keyReadIndex + 3;
     }
     counter = ((BtlCamera *)curveWork)->keyReadIndex;
     if (counter >= 4)
     {
-        *(u16 *)(curveWork + 0x74) = counter & 3;
+        MEMBER(u16, curveWork, BtlCamera, keyReadIndex) = counter & 3;
     }
-    *(f32*)(curveWork + 0x7c) = value;
+    MEMBER(f32, curveWork, BtlCamera, keyTime) = value;
     result = 1;
     return result;
 }
 
 
 
-// FUN_001BBEF0
 /* Convert seconds to the camera frame-duration convention and select the eased transition mode. Raw
  * bit-pattern writes preserve the float storage interpretation. */
+// FUN_001BBEF0
 void btlCameraSetDuration(u8* work, f32 value)
 {
-    *(f32*)(work + 0x84) = (value * 2.0f * 60.0f) / 2.0f;
-    *(u32*)(work + 0x94) = 0x3f000000;
+    ((BtlCamera *)work)->curveDuration = (value * 2.0f * 60.0f) / 2.0f;
+    *(u32 *)&((BtlCamera *)work)->curveStep = 0x3f000000;
     *(u16*)work = *(u16*)work & 0xfff5;
     *(u16*)work = *(u16*)work | 4;
 }

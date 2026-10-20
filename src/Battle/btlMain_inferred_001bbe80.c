@@ -103,8 +103,8 @@ extern f32 fGpffff8108;
 #pragma pop
 #pragma push
 #pragma pop
-// FUN_001BBE80
 /* Initialize the camera spring duration from seconds and select spring transition mode. */
+// FUN_001BBE80
 void btlCameraSetSpringDuration(u8 *camera, f32 seconds) {
     btlTargetInitSpring(camera + 0x84, 60.0f * seconds / 2.0f);
     ((BtlCamera *)camera)->curveFlags &= 0xFFF3;
