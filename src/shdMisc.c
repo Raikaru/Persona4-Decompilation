@@ -5,6 +5,9 @@
 #include "shd_misc_internal.h"
 #include "mdl_effect_internal.h"
 
+/* Unit setting: loop invariants off; measured invariant-hoisting exceptions stay scoped below. */
+#pragma opt_loop_invariants off
+
 
 /* gp - 0x5418 = 0x00763CD8, accessed as a 64-bit word (ld/sd). */
 extern s64 iGpffffabe8;
@@ -140,7 +143,6 @@ s32 shdFormatGroupedNumber(char *out, s32 value)
     out[j] = 0;
     return i;
 }
-#pragma pop
 
 
 
@@ -161,7 +163,6 @@ typedef struct ShdQuadVertex {
     f32 unknown30[4];
 } ShdQuadVertex;
 
-#pragma push
 /* measured: byte-exact (372/372 instructions, 0 differing words, 1488-byte
    window).  opt_loop_invariants hoists the 255.0f bit pattern and the
    unsigned-conversion pieces out of the three vertex loops.  Each loop owns
@@ -171,7 +172,6 @@ typedef struct ShdQuadVertex {
    (the direct `D_00887300[0]` spelling is folded to lui/lw at every call).
    The colour channels are s32, which gives retail's $s5-$s2 colouring. */
 /* measured: baseline removal differs by 165 words; a named vertex pointer also fails. */
-#pragma opt_loop_invariants on
 // Intent: Draw a four-vertex colour quad from its corner floats and colour [inferred]
 // FUN_00364680
 void shdDrawColourQuad(f32 depth, s32 color, f32 x, f32 y, f32 maskX, f32 maskY, f32 width, f32 height, u8 *texture, s32 drawMask, s32 blendMode)
@@ -331,6 +331,7 @@ void shdDisableBlendFlag(void) {
    four bytes are unreachable function-alignment padding. */
 // Intent: Draw a rotated rectangle of the given width and height; alpha 255 in mode 1 uses the blend flag [inferred]
 // FUN_00364C90
+#pragma push
 /* measured: baseline removal differs by 155 words; invariant motion alone leaves 10, and cached vertex colors/depth also fail. */
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
@@ -391,8 +392,7 @@ void shdDrawRotatedRect(Vec2f position, f32 depth, s32 color,
         iGpffffabe8 &= ~0x80;
     }
 }
-#pragma opt_loop_invariants off
-#pragma opt_propagation on
+#pragma pop
 
 
 
