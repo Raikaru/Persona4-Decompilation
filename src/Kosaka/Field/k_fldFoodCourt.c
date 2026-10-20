@@ -4,6 +4,24 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "sdktask.h"
+#include "h_cdvd_request_internal.h"
+#include "rw_object_internal.h"
+#include "member_access.h"
+
+/* The controller allocates exactly sixteen bytes. */
+typedef struct FldFoodCourtWork {
+    s32 state;
+    u8 *cameraMatrix;
+    u8 *scriptRequest;
+    s32 scriptTask;
+} FldFoodCourtWork;
+
+/* Camera matrices are transferred as eight consecutive two-word records.
+ * Each cursor advances one record per iteration, preserving paired-word order. */
+typedef struct FldFoodCourtMatrixPair {
+    s32 first;
+    s32 second;
+} FldFoodCourtMatrixPair;
 
 extern void H_Cdvd_Destroy(void *);
 extern void func_003e0f40(void *);
@@ -45,7 +63,7 @@ extern s32 fadeStatus(void);
 
 
 /* Load the seasonal food-court script and scene, select its calendar camera, then run entry procedures. */
-/* Raw 0x10-byte work fields retained: the typed state/camera/script/task layout changed two functions' b210 matches; matrix copies retain paired-word order. */
+/* Named work fields and matrix-word pairs retain the verified access order. */
 // FUN_0018D950
 s32 K_FldFoodCourt_Update(u8 *task) {
     s32 secondWord;
@@ -63,26 +81,26 @@ s32 K_FldFoodCourt_Update(u8 *task) {
     s32 pairsRemaining;
 
     work = ((SdkTask *)task)->work;
-    state = *(s32 *)(work + 0);
+    state = ((FldFoodCourtWork *)(work))->state;
     switch (state) {
     case 0:
-        *(u8 **)(work + 4) = (u8 *)func_003e0f80();
+        ((FldFoodCourtWork *)(work))->cameraMatrix = (u8 *)func_003e0f80();
         fieldSceneLoad(9, 1);
         fieldSceneRequestSecondaryRoom((s64)(s16)FldEnvStateFromCalendar(9, 1));
         if (clndIsDateInRange(4, 1, 7, 0x1F) == 1) {
             func_00440b68(&iGpffff9f90, D_005F5450, 0x58);
-            *(u8 **)(work + 8) = (u8 *)H_Cdvd_AcquireDirectory(D_005F5470, 0);
+            ((FldFoodCourtWork *)(work))->scriptRequest = (u8 *)H_Cdvd_AcquireDirectory(D_005F5470, 0);
         } else if (clndIsDateInRange(8, 1, 0xB, 0x1E) == 1) {
             func_00440b68(&iGpffff9f90, D_005F5450, 0x5C);
-            *(u8 **)(work + 8) = (u8 *)H_Cdvd_AcquireDirectory(D_005F5490, 0);
+            ((FldFoodCourtWork *)(work))->scriptRequest = (u8 *)H_Cdvd_AcquireDirectory(D_005F5490, 0);
         } else {
             func_00440b68(&iGpffff9f90, D_005F5450, 0x60);
-            *(u8 **)(work + 8) = (u8 *)H_Cdvd_AcquireDirectory(D_005F54B0, 0);
+            ((FldFoodCourtWork *)(work))->scriptRequest = (u8 *)H_Cdvd_AcquireDirectory(D_005F54B0, 0);
         }
         *(s32 *)work += 1;
     case 1:
         if (fieldSceneLoadStep() != 0) {
-            if (H_Cdvd_IsFileLoaded(*(u8 **)(work + 8)) == 0) {
+            if (H_Cdvd_IsFileLoaded(((FldFoodCourtWork *)(work))->scriptRequest) == 0) {
                 return 0;
             }
             if (mtSceneResListPrepareAll() == 0) {
@@ -91,44 +109,44 @@ s32 K_FldFoodCourt_Update(u8 *task) {
             date = (s16)datGetDateIndex();
             if ((s8)calGetDayEntryByPhase(date, datGetTimeSlot() & 0xFF) == 1) {
                 secondaryMatrix = (u8 *)MT_Scene_GetCameraResSecond();
-                matrixDestination = *(u8 **)(work + 4);
+                matrixDestination = ((FldFoodCourtWork *)(work))->cameraMatrix;
                 pairsRemaining = 8;
                 do {
-                    firstWord = *(s32 *)(secondaryMatrix + 0);
-                    secondWord = *(s32 *)(secondaryMatrix + 4);
+                    firstWord = ((FldFoodCourtMatrixPair *)(secondaryMatrix))->first;
+                    secondWord = ((FldFoodCourtMatrixPair *)(secondaryMatrix))->second;
                     secondaryMatrix += 8;
                     pairsRemaining -= 1;
-                    *(s32 *)(matrixDestination + 0) = firstWord;
-                    *(s32 *)(matrixDestination + 4) = secondWord;
+                    ((FldFoodCourtMatrixPair *)(matrixDestination))->first = firstWord;
+                    ((FldFoodCourtMatrixPair *)(matrixDestination))->second = secondWord;
                     matrixDestination += 8;
                 } while (pairsRemaining > 0);
             } else {
                 primaryMatrix = (u8 *)MT_Scene_GetCameraResFirst();
-                matrixDestination = *(u8 **)(work + 4);
+                matrixDestination = ((FldFoodCourtWork *)(work))->cameraMatrix;
                 pairsRemaining = 8;
                 do {
-                    firstWord = *(s32 *)(primaryMatrix + 0);
-                    alternateSecondWord = *(s32 *)(primaryMatrix + 4);
+                    firstWord = ((FldFoodCourtMatrixPair *)(primaryMatrix))->first;
+                    alternateSecondWord = ((FldFoodCourtMatrixPair *)(primaryMatrix))->second;
                     primaryMatrix += 8;
                     pairsRemaining -= 1;
-                    *(s32 *)(matrixDestination + 0) = firstWord;
-                    *(s32 *)(matrixDestination + 4) = alternateSecondWord;
+                    ((FldFoodCourtMatrixPair *)(matrixDestination))->first = firstWord;
+                    ((FldFoodCourtMatrixPair *)(matrixDestination))->second = alternateSecondWord;
                     matrixDestination += 8;
                 } while (pairsRemaining > 0);
             }
             camera = (u8 *)kwlnGetCamera();
             K_View_SetFov(camera, MT_Scene_GetCameraFov());
             camera = (u8 *)kwlnGetCamera();
-            func_003e9cb0(*(s32 *)(camera + 4), *(u8 **)(work + 4), 0);
-            startupScript = *(u8 **)(work + 8);
-            *(s32 *)(work + 0xC) =
-                scrStartProcedureChecked(0xF, *(s32 *)(startupScript + 0x110), *(s32 *)(startupScript + 0x118), 0);
+            func_003e9cb0((s32)((RwObject *)(camera))->parent, MEMBER(u8 *, work, FldFoodCourtWork, cameraMatrix), 0);
+            startupScript = MEMBER(u8 *, work, FldFoodCourtWork, scriptRequest);
+            ((FldFoodCourtWork *)(work))->scriptTask =
+                scrStartProcedureChecked(0xF, MEMBER(s32, startupScript, HCdvdRequest, data), ((HCdvdRequest *)(startupScript))->signedSize, 0);
             *(s32 *)work += 1;
         } else {
             goto done;
         }
     case 2:
-        if (kwlnTaskIsLinked(*(s32 *)(work + 0xC)) != 1) {
+        if (kwlnTaskIsLinked(((FldFoodCourtWork *)(work))->scriptTask) != 1) {
             if (sndRequestAreaTrack() == 0) {
                 sndPlayAreaCue();
             }
@@ -140,9 +158,9 @@ s32 K_FldFoodCourt_Update(u8 *task) {
         }
     case 3:
         if (fadeStatus() != 0) {
-            entryScript = *(u8 **)(work + 8);
-            *(s32 *)(work + 0xC) =
-                scrStartProcedureChecked(0xF, *(s32 *)(entryScript + 0x110), *(s32 *)(entryScript + 0x118), 1);
+            entryScript = ((FldFoodCourtWork *)(work))->scriptRequest;
+            ((FldFoodCourtWork *)(work))->scriptTask =
+                scrStartProcedureChecked(0xF, MEMBER(s32, entryScript, HCdvdRequest, data), ((HCdvdRequest *)(entryScript))->signedSize, 1);
             *(s32 *)work += 1;
         }
     case 4:
@@ -155,17 +173,17 @@ done:
 }
 
 /* Release the seasonal script, camera transform and field scene before freeing the work. */
-/* Raw work camera/script fields retained: typing the 0x10-byte controller work changed the owner's b210 instruction selection. */
+/* Byte-base work-field fallbacks preserve the verified destructor instruction order. */
 // FUN_0018DCD0
 void K_FldFoodCourt_Destroy(u8 *task)
 {
     u8 *work;
 
     work = ((SdkTask *)task)->work;
-    H_Cdvd_Destroy(*(void **)(work + 8));
-    func_003e0f40(*(void **)(work + 4));
+    H_Cdvd_Destroy(((FldFoodCourtWork *)(work))->scriptRequest);
+    func_003e0f40(((FldFoodCourtWork *)(work))->cameraMatrix);
     fieldSceneUnload();
-    jtbl_008873EC[0](*(void **)(task + 0x38));
+    jtbl_008873EC[0](MEMBER(void *, task, SdkTask, work));
 }
 
 /* Create the food-court scene controller with a sixteen-byte work allocation. */
