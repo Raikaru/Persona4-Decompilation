@@ -71,7 +71,10 @@ CmmEarnScale *cmmEarnScaleTable(void);
 typedef struct CmmItemInfoRecord CmmItemInfoRecord;
 struct CmmItemInfoRecord
 {
-    u8 unk_00[0x04];         /* 0x00 */
+    union {
+        u8 unk_00[0x04];     /* 0x00: retained byte representation */
+        s32 unk00Word;      /* script field selector 3 reads the whole prefix */
+    };
     s32 value;               /* 0x04. Shown as a formatted value by cmmItemInfoShow */
     s8 tableIndexA;          /* 0x08. Index into the first name table, -1 for none */
     s8 valueB;               /* 0x09. Shown as a formatted value */
