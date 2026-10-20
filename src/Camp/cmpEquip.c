@@ -1,6 +1,5 @@
 #include "include_asm.h"
-/* Persona 4 USA decompilation - cmpEquip.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit cmpEquip.c (from __FILE__ assert strings). */
 #include "type.h"
 
 
@@ -35,8 +34,8 @@ extern u8 D_0064B2E4[];
 extern u8 D_0064B2E8[];
 extern u8 D_0064B2EC[];
 extern u8 D_0064B2F4[];
-/* The initializer clears 0x1598 bytes. Item records have a four-byte stride;
- * the transition copier establishes 41 row motions followed by three tab motions. */
+/* The initializer clears 0x1598 bytes; the transition copier sets up 41 row motions followed by
+ * three tab motions. */
 typedef struct { s16 id, quantity; } CmpEquipListEntry;
 typedef struct {
     f32 startX, startY, targetX, targetY, x, y;
@@ -73,8 +72,8 @@ typedef struct {
     u8 pad1594[4];
 } CmpEquipWork;
 typedef char CmpEquipWorkSize[sizeof(CmpEquipWork) == 0x1598 ? 1 : -1];
-/* sdkSpriteNewNode allocates this 0x2C-byte sample (sdkSpr.c).
- * The rotating menu decoration overrides its signed pivot coordinates. */
+/* sdkSpriteNewNode allocates this 0x2C-byte sample; the rotating menu decoration overrides its
+ * signed pivot coordinates. */
 typedef struct SdkSpriteSample {
     u32 packAddress, recordIndex;
     f32 x, y;
@@ -87,10 +86,10 @@ typedef struct SdkSpriteSample {
     f32 depth;
     u8 red, green, blue, pad2B;
 } SdkSpriteSample;
-/* measured: both initializers hoist the conversion constants and table bases. */
+/* measured: both initializers hoist the conversion constants and table bases out of their loops. */
 #pragma opt_loop_invariants on
-/* measured: initializer conversion and table setup match the retail window. */
-/* Initialize the equipment list, party equipment snapshots, motion records and sprite resources. */
+/* measured: retail hoists the initializer's conversion constants and table setup out of its loops.
+ * Initializes the equipment list, party equipment snapshots, motion records and sprite resources. */
 // FUN_001312B0
 void cmpEquipMenuInit(u8 *workArea)
 {
@@ -189,7 +188,6 @@ void cmpEquipMenuInit(u8 *workArea)
 
 /* Build the compatible equipment list, including the selected member's equipped item in its quantity. */
 // FUN_00131730
-/* measured: only the indexed party-id lookup changes instruction bytes; the other halfword work accesses now use members. */
 
 void cmpEquipBuildItemList(s16 *workArea) {
     s16 i;
@@ -202,7 +200,7 @@ void cmpEquipBuildItemList(s16 *workArea) {
     s16 value;
     s16 *entry;
 
-    id = workArea[workArea[20] + 28]; /* measured: this access-site member rewrite changes instruction bytes. */
+    id = workArea[workArea[20] + 28];
     type = ((CmpEquipWork *)workArea)->selection[1];
     equipmentType = type;
     for (i = 0, count = 0; i < 0x2FF; i++) {
@@ -235,9 +233,8 @@ void cmpEquipBuildItemList(s16 *workArea) {
         kAssertFail(D_005E9FA0, 0x299);
     }
 }
-// Advances the menu state from 0 to 1; returns 1 for states 0 and 1, 0 otherwise [inferred].
+// Advances the menu state from 0 to 1; returns 1 for states 0 and 1, 0 otherwise.
 // FUN_001318C0
-/* Access-site typing is measured independently below; retain the original byte-pointer local. */
 s32 cmpEquipStateStep(u8 *workArea) {
     CmpEquipWork *menu = (CmpEquipWork *)workArea;
     s32 v = menu->phase;
@@ -256,7 +253,6 @@ s32 cmpEquipStateStep(u8 *workArea) {
 
 /* Advance row and tab animations, draw the equipment menu, and report whether all rows are transparent. */
 // FUN_00131910
-/* Historical whole-layout rewrite changed 179 instruction bytes; typed root-local and indexed-field forms now keep MATCH. */
 s32 cmpEquipMenuUpdate(u8 *workArea) {
     CmpEquipWork *menu = (CmpEquipWork *)workArea;
     s32 i;
@@ -282,19 +278,12 @@ s32 cmpEquipMenuUpdate(u8 *workArea) {
     cmpEquipMenuDraw(workArea);
     return rv;
 }
-/* Equipment-menu renderer. Whole-owner MWCCPS2 b210 -O2 match (2026-09-30):
- * 10920 bytes plus the retail window's 8-byte zero tail; frame 0x110.
- * Byte/halfword conversion and coordinate snapshots preserve the retail ABI.
- * The two local records hold logical actor/opacity snapshots only. Pointer
- * address accumulation below uses the EE's 32-bit unsigned address domain.
- * opt_lifetimes retains the original call-crossing values; dead assignments
- * use the file baseline. Only the lifetime override is scoped here.
- */
+/* Equipment-menu renderer; the two local records hold actor and opacity snapshots, and pointer
+ * arithmetic uses 32-bit unsigned addresses. */
 // FUN_00131A00
 #pragma push
-/* measured: baseline draw has 2445 differing words; lifetime isolation restores MATCH without the redundant dead-assignment setting. */
+/* measured: retail keeps the original values live across calls, which needs opt_lifetimes on. */
 #pragma opt_lifetimes on
-/* Historical whole-layout rewrite changed 8450 instruction bytes; typed root-local and indexed-field forms now keep MATCH. */
 void cmpEquipMenuDraw(u8 *workArea)
 
 {
@@ -850,9 +839,7 @@ void cmpEquipMenuDraw(u8 *workArea)
 /* Save the previous cursor value before updating the selected equipment-menu slot. */
 // FUN_001344B0
 s32 cmpEquipSetSelection(u8 *workArea, s32 slotIndex, s16 selection) {
-    /* The offset must be computed before the base is added: writing
-       `workArea + slotIndex * 2` makes mwcc emit `addu $v1,$a0,$v0`, retail has
-       `addu $v1,$v0,$a0`. */
+    /* The offset is computed before the base is added to keep retail's addition operand order. */
     s32 off = slotIndex * 2;
     u8 *p = (u8 *)(off + (s32)workArea);
 
@@ -863,7 +850,6 @@ s32 cmpEquipSetSelection(u8 *workArea, s32 slotIndex, s16 selection) {
 
 /* Advance the three tab transitions with a frame counter capped at 100. */
 // FUN_001344D0
-/* Historical whole-layout rewrite changed 102 instruction bytes; typed root-local and indexed-field forms now keep MATCH. */
 void cmpEquipStepTabAnimations(u8 *workArea) {
     CmpEquipWork *menu = (CmpEquipWork *)workArea;
     s32 i;
@@ -878,10 +864,8 @@ void cmpEquipStepTabAnimations(u8 *workArea) {
     }
 }
 
-/* measured: equipment-mode switch and table update match the retail window. */
 /* Snapshot current row poses and apply the selected equipment-menu layout and visibility mask. */
 // FUN_00134560
-/* Historical whole-layout rewrite changed 614 instruction bytes; typed root-local and indexed-field forms now keep MATCH. */
 s32 cmpEquipSetMode(u8 *workArea, s32 mode)
 {
     CmpEquipWork *menu = (CmpEquipWork *)workArea;

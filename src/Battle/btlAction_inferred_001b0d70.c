@@ -1,7 +1,5 @@
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
-/* Grouped verified Persona 4 source units. */
-/* The original guards were independently verified before grouping. */
 #include "include_asm.h"
 #include "type.h"
 #include "datPersona_internal.h"
@@ -10,11 +8,6 @@ extern s32 iGpffffb3ac;
 extern u8 *D_0076449C;
 
 /* Canonical grouped function declarations. */
-
-/* Source unit: src/Battle/btlOrder_001b0d00.c */
-
-/* Source unit: src/Battle/btlOrder_grouped.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/Battle/btlOrder_grouped.c; members 001b0d70-001b1280 */
 
 // FUN_001B0D70
 /* Append an action to the first empty order slot; return zero if all twelve slots are occupied. */
@@ -76,7 +69,8 @@ store:
     return 1;
 }
 
-/* measured: opt_rebuildconditionals off probe for 0e90 guard polarity. */
+/* Return nonzero if the action may run now: it is already marked, the battle is not serialising
+ * actions, or it is the active or next queued action. */
 // FUN_001B0E90
 /* Allow queued or follow-up actions to run only when their order slot is currently eligible. */
 s32 btlActionCanRunNow(u8 *action)
@@ -106,7 +100,6 @@ check:
     return ((BtlBattleState *)battle)->actionQueue[1] == (s32)action;
 }
 
-/* measured: close opt_rebuildconditionals off for func_001b0e90. */
 // FUN_001B0F20
 /* Find an action in the twelve-slot queue and shift its predecessors back one position. */
 s32 btlActionQueueMoveToFront(s32 action)
@@ -185,21 +178,12 @@ store:
     return 1;
 }
 
-/* Recovered.  Three measured shapes carry this one.  The loop bound is the
-   expression `j < i - 1`, not a variable: retail hoists `i - 1` out of both
-   loops, and an explicit `limit` local puts it in the preheader ahead of the
-   hoisted constant instead of behind it.  The declaration order below fixes
-   the temporaries ($t3 index, $t4 pointer, $t5 flag) - permuting it is the
-   only thing that moves them.  `opt_dead_assignments off` keeps the
-   pre-loop `swapped = 1` store, whose constant retail materialises in the
-   outer preheader and reuses inside the loop (`move $t5,$a1`); with the
-   store eliminated the constant is rebuilt inside the loop instead.  Both
-   pragmas are scoped: the file-wide `opt_dead_assignments off` costs a
-   match elsewhere in this unit. */
-/* Stably sort queued actions by descending agility; optional enemy scores use a clamped 90–110 percent roll. */
+/* The loop bound stays the expression i - 1 rather than a local, and the local declaration order is
+ * deliberate, because both affect how retail's loops are laid out. */
 // FUN_001B1020
 #pragma push
-/* measured: cached inner bounds and a while-sort retain 32 or more baseline words; either toggle alone differs. */
+/* measured: retail hoists the inner loop bound and keeps the dead swapped store; both settings are
+ * needed. */
 #pragma opt_loop_invariants on
 #pragma opt_dead_assignments off
 /* Sort descending by agility, optionally applying the enemy-only 90 through 110 percent random factor. */
@@ -260,16 +244,14 @@ void btlActionQueueSortByRank(s32 randomizeEnemies)
 }
 #pragma pop
 
-/* Sort the twelve order slots so units of the given kind keep their place:
-   count the occupied prefix, then bubble adjacent units of different kinds.
-   The counting pass reuses the sort cursor and index; scoped opt_lifetimes
-   splits their two lifetimes, which gives the sort loop's cursor and index
-   their retail registers. */
+/* Sort the twelve order slots so units of the given kind keep their place: count the occupied
+ * prefix, then bubble adjacent units of different kinds. */
 // FUN_001B11C0
 #pragma push
-/* measured: separate counting cursors and cached inner bounds retain 33 or more words; either toggle alone differs. */
+/* measured: retail splits the counting and sorting lifetimes of the shared cursor and index, and
+ * hoists the inner bound. */
 #pragma opt_lifetimes on
-/* measured: keeping lifetimes alone still leaves 33 differing words without invariant hoisting. */
+/* measured: lifetime splitting alone is not enough; retail also hoists loop invariants. */
 #pragma opt_loop_invariants on
 void btlActionQueueSortKeepingKind(s32 genus)
 {

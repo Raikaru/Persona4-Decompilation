@@ -90,8 +90,6 @@ extern void func_003dcc70(f32 *first, f32 *second, f32 *third);
 #pragma push
 #pragma pop
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001be900-001c04d0 */
-
 extern void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius, u16 mode);
 extern void btlCameraUpdateUnitInRangeFlags(void);
 struct RwV3d;
@@ -100,16 +98,11 @@ typedef struct P4Vec4Holder_001EC2B0 { P4Vec4_001EC2B0 quat; } P4Vec4Holder_001E
 extern f32 btlTargetQuatAngle(P4Vec4Holder_001EC2B0 *, P4Vec4Holder_001EC2B0 *);
 extern RwV3d *RtQuatTransformVectors(RwV3d *, const RwV3d *, s32, const RtQuat *);
 extern void btlMainCurveSetPoses(u16 *, f32 *, f32 *, u16);
-/* measured: opt_rebuildconditionals off for func_001b19c0 branch-fed scalar. */
-/* measured: close opt_rebuildconditionals off for func_001b19c0. */
-/* measured: scoped opt_lifetimes on with these disjoint work-pointer
- * lifetimes reproduces the complete 4156-byte retail body; all 122 owner
- * siblings, allocated data and 122 exact-position references are preserved.
- * The separate retained-height caller-domain proof remains required. */
+/* measured: opt_rebuildconditionals is off because func_001b19c0 feeds a scalar through a branch.
+ * opt_lifetimes is on because the work pointers have disjoint lifetimes. */
 #pragma push
 #pragma pop
-/* 744/752 bytes; twenty resolved relocations; eight zero alignment bytes.
- * Keep full-width dependency snapshots and branch-materialized final mode. */
+/* Keep full-width dependency snapshots and the branch-materialized final mode. */
 #pragma push
 #pragma pop
 #pragma push
@@ -120,19 +113,10 @@ extern void btlMainCurveSetPoses(u16 *, f32 *, f32 *, u16);
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: disabling propagation preserves retail's independent outer-index
-   materialisation after the preheader branch. */
-/* measured: disabling common-subexpression folding preserves retail's second
-   masked loop-counter use. */
-/* measured: closes opt_common_subs for the following translation-unit code. */
-/* measured: closes opt_propagation for the following translation-unit code. */
-/* measured: opt_common_subs off preserves the retail per-use masked index. */
-/* measured: restore common-subexpression optimization after btlCameraUpdateUnitInRangeFlags. */
 /* Refresh action geometry around the actor sphere while action flag 1 remains set. */
 // FUN_001BE900
 void btlCameraFrameUnitWide(u8 *camera)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     RwV3d sphereCenter;
     u8 *unit;
@@ -147,15 +131,12 @@ void btlCameraFrameUnitWide(u8 *camera)
     }
 }
 
-/* Exact P4 general action camera, ported from P3 FES btlCameraFrameAction
-   (04d95e2) with the P4 rejection path, literals and interpolation state.
-   2564/2576 bytes; all 73 relocations and the duration literal resolved.
-   See docs/probe_archive/Action_camera_frame_action_20260920.md. */
+/* General action camera, ported from P3FES btlCameraFrameAction with P4's rejection path, literals
+ * and interpolation state. */
 // FUN_001BE990
 s32 btlCameraFrameActionGeneral(u8 *camera, s32 closeView, s32 nearScale, s32 farScale)
 {
     /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
 
     typedef struct RwMatrixTag { RwV3d right; u32 flags; RwV3d up; u32 pad1; RwV3d at; u32 pad2; RwV3d pos; u32 pad3; } RwMatrix;
@@ -436,7 +417,6 @@ action_done:
 // FUN_001BF3A0
 void btlCameraChooseActionStyle(u8 *camera)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     u8 *frameResult;
     u16 characterId;
@@ -484,7 +464,6 @@ finish:
 // FUN_001BF530
 void btlCameraUpdateActionFrame(u8 *camera)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     RwV3d sphereCenter;
     u8 *unit;
@@ -505,9 +484,8 @@ done:
     ;
 }
 
-/* Adapted from P3 FES btlCameraFrameActionPair at 04d95e2.
-   P4 unit fields, lens constants and radius choices are verified against retail.
-   See docs/probe_archive/Action_camera_pair_duel_20260920.md. */
+/* Adapted from P3 FES btlCameraFrameActionPair, using P4 unit fields, lens constants and radius
+ * choices. */
 // FUN_001BF5E0
 void btlCameraFrameActionPair(u8 *camera)
 {
@@ -671,7 +649,6 @@ void btlCameraFrameActionPair(u8 *camera)
 // FUN_001BFB70
 void btlCameraFrameUnitTight(u8 *camera)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     RwV3d sphereCenter;
     u8 *unit;
@@ -686,9 +663,8 @@ void btlCameraFrameUnitTight(u8 *camera)
     }
 }
 
-/* Adapted from P3 FES btlCameraFrameActionDuel at 04d95e2.
-   P4 unit fields, lens constants and radius choices are verified against retail.
-   See docs/probe_archive/Action_camera_pair_duel_20260920.md. */
+/* Adapted from P3 FES btlCameraFrameActionDuel, using P4 unit fields, lens constants and radius
+ * choices. */
 // FUN_001BFC00
 void btlAct_SKILL_RECITE_E(u8 *camera)
 {

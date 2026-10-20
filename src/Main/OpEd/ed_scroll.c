@@ -1,4 +1,3 @@
-/* Source unit: src/Main/OpEd/ed_scroll_0038e6d0.c */
 #include "type.h"
 #include "member_access.h"
 #include "include_asm.h"
@@ -47,7 +46,7 @@ u32 edScrollStreamCommand(void);
 s32 edScrollStreamOperand(void);
 void edScrollStreamAdvance(void);
 
-// Intent: Release every scroll record and clear the work pointer [inferred]
+// Release every scroll record and clear the work pointer.
 // FUN_0038DDF0
 void edScrollRelease(void)
 {
@@ -68,7 +67,7 @@ void edScrollRelease(void)
     D_007246A0 = NULL;
 }
 
-// Intent: Start the roll: reset the scroll offsets and timers, lay out the records and set the active bit [inferred]
+// Start the roll: reset the scroll offsets and timers, lay out the records and set the active bit.
 // FUN_0038DE90
 void edScrollStart(void)
 {
@@ -90,7 +89,7 @@ void edScrollStart(void)
     ((EdScrollWork *)work)->phase = 0;
 }
 
-// Intent: Report whether the roll is active [inferred]
+// Report whether the roll is active.
 // FUN_0038DF10
 u32 edScrollIsActive(void)
 {
@@ -100,11 +99,9 @@ u32 edScrollIsActive(void)
     return D_007246A0[0] & 1;
 }
 
-// Intent: Per-frame roll step: run the hold and scroll phases, parse stream commands into new text records and drift them up [inferred]
-/* Advance credit scrolling, parse new lines, and hold then fade the final record before stopping. */
+// Advance credit scrolling: parse stream commands into new text records, drift them up, then hold
+// and fade the final record before stopping.
 // FUN_0038DF60
-/* Initial whole-layout typing changed b210 address materialization; the per-access
- * forms below were measured independently against the whole translation unit. */
 void edScrollStep(void)
 {
     EdScrollRecord *recordFields;
@@ -249,10 +246,11 @@ void edScrollStep(void)
     }
 }
 
-// Intent: Colour and draw each active record's glyph lists while the roll is active [inferred]
-/* Apply the current packed RGBA color and draw each active credit record glyph list. */
+// While the roll is active, apply the current packed RGBA colour and draw each active credit
+// record's glyph lists.
 // FUN_0038E4B0
-/* The glyph handle pointer is a field-address transport into EdScrollRecord.glyphs (eight-byte pairs), not an independent allocation. */
+/* The glyph handle pointer points into EdScrollRecord.glyphs (eight-byte pairs); it is not a
+ * separate allocation. */
 void edScrollDrawLines(void)
 {
     s32 i;
@@ -284,7 +282,7 @@ void edScrollDrawLines(void)
     }
 }
 
-// Intent: Allocate the first free record and mark it in use [inferred]
+// Allocate the first free record and mark it in use.
 // FUN_0038E610
 u32 *edScrollAllocRecord(void)
 {
@@ -311,7 +309,7 @@ u32 *edScrollAllocRecord(void)
     return record;
 }
 
-// Intent: Release a record's font lists and clear its in-use bit [inferred]
+// Release a record's font lists and clear its in-use bit.
 // FUN_0038E6D0
 void edScrollFreeRecord(u32* record)
 {
@@ -323,7 +321,7 @@ void edScrollFreeRecord(u32* record)
     record[0] &= ~1u;
 }
 
-// Intent: Position and colour every active record at its current row [inferred]
+// Position and colour every active record at its current row.
 // FUN_0038E740
 void edScrollLayoutRecords(void)
 {
@@ -349,7 +347,7 @@ void edScrollLayoutRecords(void)
     }
 }
 
-// Intent: Lay out one text line into a record's glyph lists, token by token [inferred]
+// Lay out one text line into a record's glyph lists, token by token.
 // FUN_0038E810
 void edScrollLayoutText(u32 *work, char *text, s32 align)
 {
@@ -452,8 +450,7 @@ void edScrollLayoutText(u32 *work, char *text, s32 align)
     ((EdScrollRecord *)work)->count = count;
 }
 
-// Intent: Move a record's glyph lists to its row and reset their scale [inferred]
-/* Position each glyph relative to its record origin and reset the glyph list scale. */
+// Position each glyph relative to its record origin and reset the glyph list scale.
 // FUN_0038EAE0
 /* The float cursor addresses an EdScrollGlyph pair; its second word is a handle, so keep the bit-preserving word reinterpretation for the font ABI. */
 void edScrollMoveRecord(u32* work, const f32* pos)
@@ -468,7 +465,7 @@ void edScrollMoveRecord(u32* work, const f32* pos)
     }
 }
 
-// Intent: Set the colour of a record's glyph lists from a packed RGBA value [inferred]
+// Set the colour of a record's glyph lists from a packed RGBA value.
 // FUN_0038EBB0
 void edScrollSetRecordColor(u32* work, const u8* color)
 {
@@ -482,10 +479,9 @@ void edScrollSetRecordColor(u32* work, const u8* color)
     }
 }
 
-// Intent: Return the stream command byte at the current read offset [inferred]
-/* Read the current command byte from the resource stream without advancing its cursor. */
+// Read the current command byte from the resource stream without advancing its cursor.
 // FUN_0038EC50
-/* The parameter header returns a byte-stream base address; no object layout applies to its command bytes. */
+/* The parameter header returns the base address of a raw byte stream of commands. */
 u32 edScrollStreamCommand(void)
 {
     u32 *work;
@@ -501,10 +497,9 @@ u32 edScrollStreamCommand(void)
     return ((u8 *)(uintptr_t)(base + ((EdScrollWork *)work)->streamOffset))[0];
 }
 
-// Intent: Return the byte after the current stream command, used as its operand [inferred]
-/* Read the unsigned operand byte immediately following the current resource stream command. */
+// Read the unsigned operand byte immediately following the current resource stream command.
 // FUN_0038ECC0
-/* The parameter header returns a byte stream; the operand is the next raw byte rather than a struct field. */
+/* The operand is the raw byte after the command in the stream. */
 s32 edScrollStreamOperand(void)
 {
     u32 *work;
@@ -520,11 +515,8 @@ s32 edScrollStreamOperand(void)
     return ((u8 *)(uintptr_t)(((EdScrollWork *)work)->streamOffset + base + 1))[0];
 }
 
-// Intent: Advance the stream read offset by the length of the current command [inferred]
-/* Advance the stream cursor by one command, including the extra byte carried by spacing commands. */
+// Advance the stream cursor by one command, including the extra byte carried by spacing commands.
 // FUN_0038ED30
-/* Initial whole-layout typing changed b210 address materialization; the per-access
- * forms below were measured independently against the whole translation unit. */
 void edScrollStreamAdvance(void)
 {
     u32 *work;

@@ -98,10 +98,6 @@ extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
 
 
-
-
-
-
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
@@ -115,25 +111,7 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00194ff0-00195530 */
-
-/* measured: opt_propagation off is scoped to func_001927c0. */
-/* measured: closes opt_propagation around func_001927c0. */
-/* measured: opt_propagation off is scoped to func_001928c0. */
-/* measured: opt_loop_invariants on is scoped to func_001928c0. */
-/* measured: closes opt_loop_invariants around func_001928c0. */
-/* measured: closes opt_propagation around func_001928c0. */
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
-/* measured: aggregate Vec3 copies and float frame fields reproduce the 500-byte body. */
 /* Return the grid anchor and optionally its facing rotation and selected target point. */
-/* measured: separate typed aliases retain the action-state and selected-action accesses that moved instructions with access-site fields. */
 // FUN_00194FF0
 void btlUnitGetAnchorPose(u8 *unit, u8 *outPosition, f32 *outRotation, f32 *outTarget)
 {
@@ -196,22 +174,11 @@ void btlUnitGetAnchorPose(u8 *unit, u8 *outPosition, f32 *outRotation, f32 *outT
     }
 }
 
-/* measured: object 832B/window 832B, nd 0. slot is an s32 param copied to a u8
-   temporary before each use (retail keeps the raw value in $s0 and re-masks);
-   `kind` is a plain u16 local (a redundant & 0xFFFF becomes a hoisted $s
-   constant under propagation off) and outTarget goes through a u16 temporary. The
-   table addresses: `(u8 *)off + (s32)((u8 *)(kind * 0x58) + (s32)iGpffffb3e0)`
-   for the deferred GP load with addu kind,base / off,sum; and a `tbl = gp`
-   local plus `(u8 *)(kind * 0x58) + (s32)tbl` where retail loads the base first.
-   `dist = call; dist += 50.0f` gives the result-first add.s; stack arrays in
-   declaration order tmp, pos, scaled, origin, rot. */
-/* Compute a slot position/rotation from character offsets or a motion-distance approach to the target. */
-/* Named quaternion copies preserve the original aggregate type; the typed formation slot keeps offset-first integer address construction. */
-/* measured: opt_propagation off keeps the per-use u8/u16 conversions and the
-   named scaled index (`slotOffset = slotIndex * 6`) from being folded into one address. */
-/* measured: func_001951f0 MATCH -> MISMATCH without this pragma. */
+/* Compute a slot position/rotation from character offsets or a motion-distance approach to the
+ * target. */
 // FUN_001951F0
-/* measured: baseline leaves 32 differing words; indexed slot/character records still differ in address and FP order. */
+/* measured: without it, the slot and character record address math and float order differ from
+ * retail. */
 #pragma opt_propagation off
 void btlUnitGetSlotPose(u8 *unit, u8 *anchorUnit, u8 *targetUnit, s32 motion, f32 *outPosition, f32 *outRotation, s32 slot)
 {
@@ -293,8 +260,7 @@ void btlUnitGetSlotPose(u8 *unit, u8 *anchorUnit, u8 *targetUnit, s32 motion, f3
     }
 }
 
-/* measured: closes the propagation bracket; the file default is on. */
-/* measured: func_00195530 MATCH -> MISMATCH without this pragma. */
+/* measured: btlUnitGetPersonaAlphaColor only matches retail with propagation turned back on here. */
 #pragma opt_propagation on
 /* Build the child-unit alpha color from its character-table entry, otherwise return -1. */
 // FUN_00195530

@@ -53,16 +53,10 @@ extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
 
-
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
 extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
-
-
-
-
-
 
 
 extern s32 iGpffffb464;
@@ -72,11 +66,9 @@ extern u8 D_00624F60[];
 extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f0620-001f0a10 */
-
 extern s32 btlActionIsPendingBit(s32);
 #pragma push
-/* measured: baseline nd4 in shared-return branches; explicit result/break joins leave nd386. */
+/* measured: retail shares return branches, so conditional rebuilding is disabled. */
 #pragma opt_rebuildconditionals off
 // FUN_001F0620
 /* Evaluate a target-command availability mode, including encounter and protagonist restrictions. */

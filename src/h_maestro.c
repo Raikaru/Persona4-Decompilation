@@ -1,5 +1,4 @@
 #include "include_asm.h"
-/* Source unit: src/h_maestro_0045c390.c */
 #include "type.h"
 
 typedef struct HCdvd HCdvd;

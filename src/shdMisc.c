@@ -1,11 +1,12 @@
-/* Original translation unit shdMisc.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit shdMisc.c (from __FILE__ assert strings). */
 #include "operand_order_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "shd_misc_internal.h"
 #include "mdl_effect_internal.h"
 
-/* Unit setting: loop invariants off; measured invariant-hoisting exceptions stay scoped below. */
+/* measured: retail compiles this unit with loop-invariant hoisting off, and only the functions
+ * below turn it back on. */
 #pragma opt_loop_invariants off
 
 
@@ -42,14 +43,12 @@ f32 cosf(f32 fparg0);
 f32 sinf(f32 fparg0);
 s32 shdFormatGroupedNumber(char *out, s32 value);
 
-/* Measured: Vec2f-by-value, explicit digit-pointer lifetime and separate alpha
- * extraction reproduce 660 executable bytes and 18 resolved relocations.
- * The remaining 12 bytes are zero function-alignment padding. */
 #pragma push
-/* measured: baseline removal differs by 147 words; direct digit indexing and either single-toggle probe also fail. */
+/* measured: retail does not propagate or share the digit and alpha computations, so both
+ * optimizations stay off. */
 #pragma opt_propagation off
 #pragma opt_common_subs off
-// Intent: Draw a number in sprite digits; a value of zero or less shows the player's money [inferred]
+// Draw a number in sprite digits; a value of zero or less shows the player's money.
 // FUN_00364320
 void shdDrawNumberText(Vec2f pos, f32 z, s32 color, s32 num)
 {
@@ -104,15 +103,10 @@ void shdDrawNumberText(Vec2f pos, f32 z, s32 color, s32 num)
 #pragma pop
 
 
-/* Matched.  Formats a decimal with a '.' every three digits and returns the
-   digit count, which is what keeps the index in $v0.  opt_loop_invariants
-   on is load-bearing: it hoists the four constants into the preheader
-   (without it the function measures 59 words); the named constant locals
-   the earlier body carried were not. */
+/* Formats a decimal with a '.' every three digits and returns the digit count. */
 #pragma push
-/* measured: baseline removal differs by 22 words; replacing modulo-three with a bounded counter also fails. */
+/* measured: retail hoists the loop constants out of the digit loop. */
 #pragma opt_loop_invariants on
-// Intent: Format a number as decimal text with a '.' every three digits and return the digit count [inferred]
 // FUN_003645C0
 s32 shdFormatGroupedNumber(char *out, s32 value)
 {
@@ -145,8 +139,6 @@ s32 shdFormatGroupedNumber(char *out, s32 value)
 }
 
 
-
-
 typedef struct ShdQuadVertex {
     f32 x;
     f32 y;
@@ -163,16 +155,8 @@ typedef struct ShdQuadVertex {
     f32 unknown30[4];
 } ShdQuadVertex;
 
-/* measured: byte-exact (372/372 instructions, 0 differing words, 1488-byte
-   window).  opt_loop_invariants hoists the 255.0f bit pattern and the
-   unsigned-conversion pieces out of the three vertex loops.  Each loop owns
-   its counter in a block scope; a function-scope `i` takes $v0 ahead of the
-   hoisted invariants and costs 55 edits.  The render-state and draw tables
-   go through `(void *)`-cast locals, which keeps retail's $s0/$s6 bases
-   (the direct `D_00887300[0]` spelling is folded to lui/lw at every call).
-   The colour channels are s32, which gives retail's $s5-$s2 colouring. */
-/* measured: baseline removal differs by 165 words; a named vertex pointer also fails. */
-// Intent: Draw a four-vertex colour quad from its corner floats and colour [inferred]
+/* Draws a four-vertex colour quad from its corner floats and colour. Each vertex loop keeps its own
+ * block-scoped counter, and the draw tables go through (void *)-cast locals. */
 // FUN_00364680
 void shdDrawColourQuad(f32 depth, s32 color, f32 x, f32 y, f32 maskX, f32 maskY, f32 width, f32 height, u8 *texture, s32 drawMask, s32 blendMode)
 {
@@ -313,26 +297,27 @@ void shdDrawColourQuad(f32 depth, s32 color, f32 x, f32 y, f32 maskX, f32 maskY,
 }
 #pragma pop
 
-// Intent: Set bit 0x80 of the shared draw flags, marking the blend pass on [inferred]
+// Set bit 0x80 of the shared draw flags, turning the blend pass on.
 // FUN_00364C50
 void shdEnableBlendFlag(void) {
     iGpffffabe8 |= 0x80;
 }
 
-// Intent: Clear bit 0x80 of the shared draw flags, marking the blend pass off [inferred]
+// Clear bit 0x80 of the shared draw flags, turning the blend pass off.
 // FUN_00364C70
 void shdDisableBlendFlag(void) {
     iGpffffabe8 &= ~0x80;
 }
 
-/* measured: Vec2f-by-value and scalar geometry snapshots reproduce the
-   retail argument spill, FP lifetimes and load-all/store-all schedule.
-   All 796 executable bytes and 21 resolved relocations match; the remaining
-   four bytes are unreachable function-alignment padding. */
-// Intent: Draw a rotated rectangle of the given width and height; alpha 255 in mode 1 uses the blend flag [inferred]
+/* measured: passing position as a Vec2f by value and snapshotting geometry into scalars reproduces
+ * retail's argument spill and load/store order. Draws a rotated width-by-height rectangle; alpha
+ * 255 in mode 1 uses the blend flag. */
+/* Draw a filled rectangle of the given width and height, rotated by angle around position, in the
+ * packed RGBA color. In a nonzero mode with full alpha, set the blend flag while drawing. */
 // FUN_00364C90
 #pragma push
-/* measured: baseline removal differs by 155 words; invariant motion alone leaves 10, and cached vertex colors/depth also fail. */
+/* measured: retail hoists loop invariants but does not propagate copies of the vertex colour and
+ * depth values. */
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 void shdDrawRotatedRect(Vec2f position, f32 depth, s32 color,
@@ -395,18 +380,15 @@ void shdDrawRotatedRect(Vec2f position, f32 depth, s32 color,
 #pragma pop
 
 
-
-/* The far-column store retains the origin load, and the separate Y
- * accumulation preserves the fused rotation before its offset add. */
-/* Store the rotated far-column X coordinate relative to the wedge origin. */
-/* measured: plain expansion changes wedge-coordinate FPR allocation and arithmetic scheduling. */
+/* Store the rotated far-column X coordinate relative to the wedge origin. measured: retail keeps
+ * this as a separate inline; expanding it in place changes the float arithmetic order. */
 static inline void shdStoreWedgeFarX(f32 *out, const f32 *origin,
                            f32 offset, f32 length, f32 sine)
 {
     *out = (0.0f + (*origin + offset)) - length * sine;
 }
 
-// Intent: Draw a wedge from a centre point and an angle; arg3 selects the far-column layout [inferred]
+// Draw a wedge from a centre point and an angle; farColumn selects the far-column layout.
 // FUN_00364FB0
 void shdDrawWedge(Vec2f position, f32 depth, s32 color, f32 angle, s32 blend, s32 farColumn) {
     f32 vertices[4][16];
@@ -495,13 +477,8 @@ void shdDrawWedge(Vec2f position, f32 depth, s32 color, f32 angle, s32 blend, s3
         iGpffffabe8 &= ~0x80;
     }
 }
-/* measured: Vec2f-by-value preserves the exact 752-byte body and 14 relocations.
-   The canonical declaration is shared with the panel transition caller. */
-/* measured: the four byte->float conversions are plain `(f32)(u32)x` (mwcc emits the
-   bltz / srl-andi-or / mtc1 / cvt / add.s idiom itself with retail's $v1 destination;
-   spelling it out by hand colours $v0). The angle is `iGpffff8094 * (f32)vertexIndex`
-   in one expression so the GP constant is the first mul.s operand. */
-// Intent: Draw a rotating quad: four points on a circle around the origin, spaced by a fixed angle step [inferred]
+/* Draws a rotating quad: four points on a circle around the origin, spaced by a fixed angle step.
+ * Position is a Vec2f passed by value, shared with the panel transition caller. */
 // FUN_003657D0
 void shdDrawRotatingQuad(Vec2f position, f32 depth, s32 color, f32 radius, f32 initialAngle, s32 blend) {
     f32 vertices[4][16];
@@ -556,10 +533,9 @@ void shdDrawRotatingQuad(Vec2f position, f32 depth, s32 color, f32 radius, f32 i
 }
 
 
-/* Keep the signed axis components and geometry parameters live across
- * their actual operations; the native 1088-byte window is exact. */
 #pragma push
-/* measured: baseline removal differs by 220 words; combining counter initialization with the for-loop also fails. */
+/* measured: retail hoists loop invariants in this function; folding the counter init into the for-
+ * loop also changes the code. */
 #pragma opt_loop_invariants on
 
 /* Combine width and height contributions for one rectangle-outline axis. */
@@ -576,7 +552,7 @@ static inline f32 shdOutlineAxis(s32 phase, f32 width, f32 height)
     f32 extent = shdOutlineExtent(isTip, half, width, height);
     return operandOrderMultiply((f32)(phase < 4 ? 1 : -1), extent);
 }
-// Intent: Draw a ten-vertex rectangle outline rotated by the angle [inferred]
+// Draw a ten-vertex rectangle outline rotated by the angle.
 // FUN_00365AC0
 void shdDrawRectOutline(Vec2f position, f32 depth, s32 color, f32 angle, f32 width, f32 height, s32 mode) {
     f32 output[160];
@@ -632,11 +608,8 @@ void shdDrawRectOutline(Vec2f position, f32 depth, s32 color, f32 angle, f32 wid
 }
 #pragma pop
 
-/* The checked low-halfword count and full-width angle divisor have separate
- * lifetimes. Inline validation and alpha/blue/green/red snapshots reproduce
- * 1148 executable bytes and 17 resolved relocations; four zero bytes align
- * the next function. */
-/* Validate and return the low-halfword radial segment count before mesh generation. */
+/* Validate and return the low-halfword radial segment count before mesh generation; the count and
+ * the full-width angle divisor have separate lifetimes. */
 static inline s32 shdCheckedRadialSegmentCount(u32 segments)
 {
     s32 count = (s32)(segments & 0xFFFF);
@@ -646,8 +619,8 @@ static inline s32 shdCheckedRadialSegmentCount(u32 segments)
     return count;
 }
 
-// Intent: Draw a radial fan of up to 100 segments from the centre colour to the edge colour [inferred]
-/* measured: the packed-position byte read matches; using position.y changes instructions. */
+// Draws a radial fan of up to 100 segments from the centre colour to the edge colour. Position is
+// read through the packed byte, not position.y, as retail does.
 // FUN_00365F00
 void shdDrawRadialFan(Vec2f position, f32 depth, s32 centerColor, s32 edgeColor,
                    f32 radius, f32 angle, u32 segments, f32 xscale, f32 yscale,

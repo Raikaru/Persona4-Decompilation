@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00222210-00222d20 */
 
 #include "rw_types_internal.h"
 #include "member_access.h"
@@ -54,8 +53,7 @@ static inline void logoDrawTitle(u8 *work, LogoVec2 ofs, LogoColor col, LogoVec2
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
-// Intent: Draw the logo title sprites at the given alpha. [inferred]
-/* MEMBER frame reloads/resets avoid the b210 member-address hoisting measured across float conversions. */
+// Draw the logo title sprites at the given alpha.
 // FUN_00222210
 void btlLogoDrawTitle(u8 *work, u32 alpha)
 {
@@ -163,10 +161,10 @@ void btlLogoDrawTitle(u8 *work, u32 alpha)
 }
 #pragma pop
 
-// Intent: Draw the logo scene and title for one frame. [inferred]
-/* b210: remaining frame and wipe-pointer reloads individually change instructions when typed. */
+// Draw the logo scene and title for one frame. The remaining frame and wipe-pointer reloads stay
+// untyped because typing them changes the generated code.
 // FUN_00222D20
-/* measured: baseline and direct opaque-alpha assignment each differ by one instruction (addiu versus daddiu). */
+/* measured: retail keeps the opaque alpha as a separate add, so copy propagation stays off here. */
 #pragma push
 #pragma opt_propagation off
 void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)

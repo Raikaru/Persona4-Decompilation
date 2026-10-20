@@ -17,7 +17,6 @@
 /* Force the offset operand into the first addu slot. */
 
 
-
 extern RwRenderState D_00625210[];
 typedef s32 (*BattleRenderStateFunction)(RwRenderState state, void *value);
 extern BattleRenderStateFunction D_00887300[];
@@ -33,7 +32,6 @@ extern u8 *iGpffffb3e0;
 
 extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *input, s32 value, s32 option);
-
 
 
 extern u8 D_0060AB08[];
@@ -54,16 +52,10 @@ extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
 
-
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
 extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
-
-
-
-
-
 
 
 extern s32 iGpffffb464;
@@ -74,52 +66,24 @@ extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
 
-
-
 #pragma push
 #pragma pop
 
-
-
-
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f7650-001f7b40 */
 
 extern s32 btlActionHasNoTargetClass(u32 action);
 extern s32 btlSoundRollStatusCure(u8 *action);
 extern s32 btlSoundPickStatusTalkVoiceA(u8 *action);
 extern s32 btlSoundPickStatusTalkVoiceB(u8 *action);
 extern void btlSoundAdvanceSlotQueue(void);
-/* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
-/* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_loop_invariants on hoists the loop's one constant before the entry test. */
-/* measured: close opt_loop_invariants after btlSoundRollStatusCure. */
-/* measured: every instruction matches and the object is exactly the 80-byte
-   window; the only residual is that retail materialises the shift constant
-   (`addiu $v1,$zero,1`) BEFORE the branch into the loop test while b210 puts
-   it after, which also shifts the back-edge displacement by one word (nd 9).
-   Measured identical at nd 9: an inline `1 << i`, a hoisted `one` local, and
-   an explicit goto loop with the test at the bottom. Preheader hoist-order
-   floor. Committed at nd 9. */
+/* measured: opt_loop_invariants on hoists the loop's shift constant into the preheader before the
+ * entry test, as retail does. */
 
 #pragma push
 #pragma pop
-/* measured: retail materialises this loop's invariant in the preheader; plain
-   -O2 rematerialises it in the body (nd 9 -> byte-exact with the hoist). */
-/* measured: closes the hoist bracket opened above and restores the -O2
-   baseline for the rest of the file. */
-/* measured: opt_rebuildconditionals off probe for btlSoundPickStatusTalkVoiceA final branch. */
-/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceA probe. */
-/* measured: opt_rebuildconditionals off preserves btlSoundPickStatusTalkVoiceB's positive flag branch. */
-/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceB. */
-/* measured: optimization_level 1 required for exact btlSoundAdvanceSlotQueue codegen. */
-/* measured: opt_loop_invariants off baseline for btlSoundAdvanceSlotQueue. */
-/* measured: restore optimization_level 2 after btlSoundAdvanceSlotQueue. */
 /* Select the character voice bank for the calendar window or supported enemy character ID. */
 // FUN_001F7650
 u8 *btlSoundGetCharacterBank(u8 *unit)
@@ -294,7 +258,8 @@ s32 btlSoundSetSlotChannel(u8 *work)
     u8 *slotBase;
     u32 offset;
 
-    /* measured: typing this request reload grows SetSlotChannel from 224 to 232 bytes; later cache accesses are typed. */
+    /* measured: this request reload stays untyped because typing it changes the retail code; later
+     * cache accesses are typed. */
     cue = cueWork->cue;
     channel = ((BtlSoundCueWork *)work)->channel;
     offset = channel * 6;

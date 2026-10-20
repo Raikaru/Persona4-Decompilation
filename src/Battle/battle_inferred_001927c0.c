@@ -130,10 +130,6 @@ extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
 
 
-
-
-
-
 extern s32 iGpffffb444;
 extern s32 datCalcIsStandardUnit(s32 unitFlags, s32 itemId);
 
@@ -156,8 +152,8 @@ extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
 
-/* The sky path locks the atomic geometry, advances 89 eight-byte UV pairs,
- * then marks its lock word and calls the atomic renderer (SDK bageomet.h). */
+/* The sky path locks the atomic geometry, advances 89 UV pairs, marks its lock word and calls the
+ * atomic renderer. */
 typedef struct BtlSkyTexCoord {
     f32 u;
     f32 v;
@@ -182,10 +178,8 @@ typedef struct BtlEncounterRecord {
     u8 pad16[2];
 } BtlEncounterRecord;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 001927c0-001935c0 */
-
-/* measured: a byte-addressed render-state table retains MATCH with propagation enabled. */
-/* Initialize render state and opaque black colour before the battle draw pass. */
+/* Set up the sky and render-state flags for the battle draw pass, then draw an opaque black screen
+ * colour between tag pairs. */
 // FUN_001927C0
 void btlRenderStateSetup(void)
 {
@@ -210,7 +204,7 @@ void btlRenderStateSetup(void)
     mdlEffectEmitTagPair();
 }
 
-/* measured: byte-addressed callback-table loads also remove the sky's propagation exception. */
+/* measured: retail hoists loop invariants in the sky scroll loop. */
 #pragma opt_loop_invariants on
 /* Scroll the sky texture V coordinates, wrapping after one texture period. */
 // FUN_001928C0
@@ -273,7 +267,7 @@ void btlSkyScroll(void)
     }
 }
 
-/* measured: btlRelease, func_001932f0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail propagates copies in btlRelease and its neighbours. */
 #pragma opt_propagation on
 // FUN_00192AC0
 void btlReleaseTask(u8 *unusedTask) {
@@ -426,9 +420,8 @@ s32 btlTaskCreate(s32 setupAddress)
     return battleTask;
 }
 
-/* Count participating living/dead actions and store the battle-end result code. */
-/* A separate unit pointer preserves the post-query data reload while using
- * the shared layouts; direct repeated unit->datUnit access changed 335 bytes. */
+/* Count participating living/dead actions and store the battle-end result code. A separate unit
+ * pointer keeps retail's reload of the unit data after each query. */
 // FUN_00193060
 s32 btlCheckBattleEnd(void)
 {
@@ -529,8 +522,7 @@ s32 btlIsLeaderStandardUnit(void)
     return 0;
 }
 
-// AI script command 0x20DC (AI command table entry, VA 0x0063DCC0). AI library name: AI_FUNCTION_00DC.
-/* Build an encounter setup from party slots and encounter formation defaults. */
+// Builds an encounter setup from party slots and encounter formation defaults.
 // FUN_001932F0
 s32 btlScriptStartEncounter(void)
 {
@@ -575,9 +567,7 @@ loop_5_check:
     return 1;
 }
 
-// AI script command 0x20DD (AI command table entry, VA 0x0063DCC8). AI library name: AI_FUNCTION_00DD.
-/* Measured: the archived body compiles to object 356B in the 368B window. Retail words at offsets 356, 360, and 364 are all 00000000 (nop); verify therefore accepts the zero-padded tail and reports MATCH. */
-/* After teardown, start the leader-death script or revive defeated party members to one HP. */
+// After teardown, start the leader-death script or revive defeated party members to one HP.
 // FUN_00193450
 s32 btlScriptResolvePartyDeath(void)
 {
@@ -623,7 +613,6 @@ block_13:
     return 0;
 }
 
-// AI script command 0x20DE (AI command table entry, VA 0x0063DCD0). AI library name: AI_FUNCTION_00DE.
 // FUN_001935C0
 s32 btlScriptFadeOut(void) {
     hFadeTaskStart(1);

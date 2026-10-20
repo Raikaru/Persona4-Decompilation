@@ -1,4 +1,3 @@
-/* Source unit: src/Script/scrCommonCommand_00298fc0.c */
 #include "type.h"
 #include "scr_data_internal.h"
 
@@ -8,7 +7,6 @@ extern s32 scrGetParamInt(s32 paramIdx);
 extern u32 scrGetCmdTimer(void);
 
 void sequenceRequest(s32 sequenceId, void *parameters, s32 parameterSize, s32 delay);
-/* Source unit: src/Kosaka/k_command/k_command_00299400.c (1 function markers) */
 #include "Kosaka/k_command_internal.h"
 #include "include_asm.h"
 
@@ -49,8 +47,6 @@ typedef struct ScrTask450
     u8 pad[0x20];
     s32 priority; // 0x20
 } ScrTask450;
-
-
 
 
 // Sets the script flag named by parameter 0 to 1 (asserts the index is below 0x1600).
@@ -125,8 +121,6 @@ u32 scrCommand_WAIT()
 }
 
 
-
-
 // Debug print: writes integer parameter 0 through the debug format string D_0063CFC8.
 // FUN_00299020
 u32 scrDebugPrintInt(void)
@@ -143,7 +137,7 @@ u32 scrDebugPrintString(void)
     return 1;
 }
 
-// Kills the task named by parameter 0 when it is nonzero [inferred].
+// Kills the task named by parameter 0 when it is nonzero.
 // FUN_002990A0
 u32 scrKillTask(void)
 {
@@ -157,7 +151,7 @@ u32 scrKillTask(void)
     return 1;
 }
 
-// Sets parameter 0 on the task named by parameter 1 when parameter 1 is nonzero [inferred].
+// Sets parameter 0 on the task named by parameter 1 when parameter 1 is nonzero.
 // FUN_002990E0
 u32 scrSetTaskParam(void)
 {
@@ -180,10 +174,10 @@ u32 scrIsFading(void)
     return fadeStatus() != 0;
 }
 
-// Sends the value of parameter 0 as a two-entry parameter pair through the sound/command channel [inferred].
+// Sends parameter 0 as a two-entry parameter pair through the sound/command channel.
 // FUN_00299170
 s32 scrSendParamPair(void) {
-    s16 parameters[2]; /* measured: 2-element form required for retail slot at 0x1c */
+    s16 parameters[2]; /* Two-element array gives the retail stack slot layout. */
 
     parameters[0] = scrGetParamInt(0);
     sequenceRequest(0x1D, parameters, 2, 0xA);
@@ -191,9 +185,7 @@ s32 scrSendParamPair(void) {
 }
 
 
-
-
-// Returns 1 when the command at index 0 is idle [inferred].
+// Returns 1 when the command at index 0 is idle.
 // FUN_002991C0
 u32 scrIsIdle(void)
 {
@@ -241,7 +233,8 @@ u32 scrMaskReturnSecondary(void)
     return 1;
 }
 
-// Parameter 0 of zero stops the pad rumble; otherwise draws the flag-gated entry with the other four parameters [inferred].
+// Parameter 0 of zero stops the pad rumble; otherwise draws the flag-gated entry with the other
+// four parameters.
 // FUN_00299310
 u32 scrRumbleOrDrawEntry(void)
 {
@@ -265,7 +258,7 @@ u32 scrRumbleOrDrawEntry(void)
     return 1;
 }
 
-// Returns the result of the table lookup for parameter 0 [inferred].
+// Returns the result of the table lookup for parameter 0.
 // FUN_002993C0
 u32 scrQueryTableValue(void)
 {
@@ -273,7 +266,7 @@ u32 scrQueryTableValue(void)
     return 1;
 }
 
-// Stores parameter 1 at table index parameter 0 [inferred].
+// Stores parameter 1 at table index parameter 0.
 // FUN_00299400
 u32 scrSetTableValue()
 {
@@ -281,8 +274,6 @@ u32 scrSetTableValue()
 
     return true;
 }
-
-
 
 
 // Starts procedure parameter 0 in the current script context at the task priority plus parameter 1; the new task id is returned.
@@ -335,7 +326,6 @@ u32 scrCommand_SCR_KILL_SYNC()
 }
 
 
-
 /* Set the script return integer to task-link status and complete the command immediately. */
 // FUN_00299600
 u32 scrCommand_SCR_EXISTS()
@@ -355,7 +345,6 @@ u32 scrCommand_SCR_EXISTS()
 
     return 1;
 }
-
 
 
 /* Set the script return integer to a linked task's timer, or zero for an unlinked handle. */

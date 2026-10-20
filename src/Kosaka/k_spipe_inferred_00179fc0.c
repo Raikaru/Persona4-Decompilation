@@ -44,11 +44,8 @@ typedef struct
     u8 alpha;
 } FieldColor_0017;
 extern s32 *MT_Scene_GetFrameState(void);
-/* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
-   before the two lhu loads and $a3 (a) after them, which is the default-
-   promotion order of an old-style call with a u16 local for b and an explicit
-   (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
-   loads (nd4). Sole caller in this unit. */
+/* Cmd_PickEncounter is called unprototyped so its u16 arguments get old-style default promotion,
+ * matching retail's masking order. */
 extern s32 iGpffffb284;
 extern s32 iGpffffb300;
 extern s32 iGpffffb304;
@@ -115,31 +112,6 @@ extern FieldRenderStateSetFunction D_00887300[];
 extern s32 iGpffffba48;
 
 
-
-
-
-/* measured: ONE real defect, and it is the `slt $at` family. Retail emits
-   `slti $at,$v0,4; bnez $at` where b210 emits `slti $v0,$v0,4; bnez $v0`,
-   reusing the dead call result as the comparison destination. obj 92B vs
-   window 96B, so the reported count also includes one padding word.
-   `#pragma schedule off` and hoisting the call result into a local both leave
-   it unchanged.
-
-   Do NOT record this as a blanket floor. A census of the retail image shows the
-   $at form in 276 first-party functions that ALREADY MATCH, so it is reachable
-   from C -- it appears when the comparison feeds a short-circuit `&&`/`||`
-   chain, or when its source register is still live afterwards (see the matched
-   datCalc func_00231ef0: `if (arg1 > 99 && !(*(u16 *)arg0 & 4))` compiles to
-   `andi $v1; slti $at,$v1,0x64; bnez $at`). What is NOT reachable is this
-   shape: a single bare comparison on a dead call result, where b210 always
-   recycles the source register. 359 of the remaining first-party ASM functions
-   contain an $at comparison, so the distinction is worth knowing before writing
-/* SOLVED by tools/permute.py; this previously carried a `slt $at` floor note
-   and sat under #ifdef NON_MATCHING. The permuter found the shape from the
-   preserved body. */
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0017; members 00179fc0-0017abd0 */
-
 #include "rw_types_internal.h"
 #include "Kosaka/k_shadow_layout_internal.h"
 #include "Kosaka/k_shadow_projection_internal.h"
@@ -199,8 +171,7 @@ enum RwPrimitiveType
     rwPRIMITIVETYPEFORCEENUMSIZEINT = 0x7fffffff
 };
 struct _RxObjSpace3DVertex;
-/* Retain the source's existing function-scoped propagation setting. */
-/* measured: FldShadow_DrawProjection MATCH -> MISMATCH without this pragma. */
+/* measured: retail code for FldShadow_DrawProjection is compiled without constant/copy propagation. */
 #pragma opt_propagation off
 /* Set up projection coordinates, traverse world or atomic collision, and flush the vertex buffer. */
 // FUN_00179FC0
@@ -430,11 +401,7 @@ join_path:;
 
 /* Build a box or sphere intersection around the caster model and project its shadow. */
 // FUN_0017A700
-/* measured: opt_propagation off preserves the second-branch descriptor
-   pointer materialisation and grouped float-load order; object matches
-   the 464-byte retail window. */
-/* The raster argument reads the handle's native signed-word representation, not a converted pointer.
- * measured: this named-member word access preserves both projection branches and whole-file MATCH. */
+/* The raster argument reads the handle's native signed word, not a converted pointer. */
 void FldShadow_CmdProjectBounds(u8 *unused, u8 *caster)
 {
     struct
@@ -508,8 +475,6 @@ void FldShadow_CmdProjectBounds(u8 *unused, u8 *caster)
 
 /* Save the model matrix, reflect it across the configured axis, and disable item-slot drawing. */
 // FUN_0017A8D0
-/* measured: scratch-position stores in access-site/indexed forms add four bytes each; typed-local forms
- * add twelve bytes. MEMBER preserves those two stores; the remaining fields and copy granules are typed. */
 void FldShadow_CmdBeginFlip(u8 *unused, u8 *caster)
 {
     /* Scratch layout: matrix 0x00, tolerances 0x40, reflection scale 0x50,
@@ -668,7 +633,6 @@ loop_4_cond:
 
 /* Render the caster ring atomic with the shadow render-state configuration. */
 // FUN_0017ABD0
-/* measured: opt_propagation off keeps the cached D_00887300 base in $s0. */
 void FldShadow_CmdRender(u8 *unused, u8 *caster)
 {
     FieldRenderStateSetFunction *renderStates;

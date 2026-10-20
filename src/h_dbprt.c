@@ -1,4 +1,3 @@
-/* Source unit: src/h_dbprt_004504f0.c */
 #include "type.h"
 
 #define HDBPRT_LOG_MAXLINE 15
@@ -13,7 +12,6 @@ static s8 sLogLine;
 static char sLogs[HDBPRT_LOG_MAXLINE][HDBPRT_LOG_MAXCHAR];
 
 extern void* memcpy(void* destination, const void* source, size_t count);
-
 
 
 /* Format and append a diagnostic line, discarding the oldest when fifteen lines are retained. */

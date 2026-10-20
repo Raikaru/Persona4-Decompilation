@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0033e1e0-0033e5a0 */
 
 #include "fcl_object_internal.h"
 #include "member_access.h"
@@ -52,7 +51,6 @@ extern u8 D_007955C0[];
 // FUN_0033E1E0
 s32 fclBustupUpdate(u8 *task)
 {
-    /* measured: remaining bustup fields preserve b210 reload/scheduling; individual typed substitutions lose MATCH. */
     u8 *p;
     s16 value;
 
@@ -104,7 +102,6 @@ s32 fclBustupUpdate(u8 *task)
 // FUN_0033E3A0
 void fclBustupDestroy(u8 *task)
 {
-    /* measured: MEMBER reloads task work after sprite release before invoking the free callback. */
     sdkSpriteRelease(((FclBustupWork *)((KwlnTask *)(task))->work)->sprite.pointer);
     jtbl_008873EC[0](MEMBER(u8 *, task, KwlnTask, work));
 }

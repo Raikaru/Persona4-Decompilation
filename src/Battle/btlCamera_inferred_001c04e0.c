@@ -84,18 +84,14 @@ extern f32 D_00607E3C[];
 extern RwV3d *RtQuatTransformVectors(RwV3d *first, const RwV3d *second, s32 third, const RtQuat *fourth);
 
 
-/* P3 btlCameraFrameActionSide (002a6ee0, donor NONMATCHING), adapted to P4; b210 -O2: 1208 bytes plus 8 retail zero bytes. */
+/* Adapted from P3 btlCameraFrameActionSide; retail pads the function with 8 zero bytes. */
 
-
-/* Source unit: src/promoted/code1_001c.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001c.c; members 001c04e0-001c09a0 */
 
 /* Place side-view endpoints around actor and target, with floor and minimum-distance clamps. */
 // FUN_001C04E0
 void btlCameraFrameActionSide(u8 *camera)
 {
     /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     extern void btlUnitGetSphereWorldCenter(BtlUnit *, RwV3d *);
     extern f32 RwV3dNormalize(RwV3d *, const RwV3d *);

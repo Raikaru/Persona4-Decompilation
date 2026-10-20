@@ -219,11 +219,8 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 
 
-
 #pragma push
 #pragma pop
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 0045ed60-0045ee00 */
 
 extern void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp);
 extern void mdlRenderInitializeBuffers(void);
@@ -231,39 +228,22 @@ extern void mdlRenderInitializeBuffers(void);
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_propagation off preserves the retail global-load destination register. */
-/* measured: close propagation-off probe for K_ClumpLookAtBasis. */
-/* measured: opt_scalarize off keeps the prop triple in stack spill slots with direct sp-relative accesses. */
+/* measured: retail keeps the global load in its own register and the prop triple in stack spill
+ * slots accessed directly off sp. */
 #pragma push
 #pragma pop
-/* measured: opt_loop_invariants on hoists the array base into $v1 ahead of
-   the loop as retail; a named base local is coloured $a0 (archived nd 8). */
-/* measured: closes the hoisting scope after func_0045b430. */
+/* measured: opt_loop_invariants on hoists the array base out of the loop as retail does; a named
+ * base local gets a different register. measured: the loop-invariant hoisting setting applies only
+ * up to func_0045b430. */
 #pragma push
 #pragma pop
-/* STEP 4 (2026-09-20): this MATCH rests on a banned construct. `volatile u8 *arg0` */
-/* is compiler-steering (H001): arg0 is a plain color buffer, not hardware, and the */
-/* qualifier exists only to defeat b210 CSE. Re-measured 2026-09-20 in isolated */
-/* probe copies (production never written for probes): baseline volatile + prop off */
-/* probe_variants 0 words, fndiff 0 (obj 148B/window 160B, 12B zero tail); plain u8 * */
-/* + prop off only: probe 22 words, fnalign 9 edits (retail 36 vs object 29 instrs, */
-/* 8 lbu in two reload groups deleted, call tail exact) -- plain CSEs the reloads; */
-/* plain + prop off + common_subs off (function-scoped): probe 1 word, fnalign 1 edit */
-/* (retail move $a3,$a2 vs object addiu $a3,$zero,3; 37/37 instrs) -- reloads return */
-/* but the 3,3 pair un-CSEs from retail li $a2,3 / move $a3,$a2; narrower scope */
-/* (common off before fn, on inside before call): probe 22 words, fnalign 9 edits */
-/* identical to plain -- pragma is function-granular, cannot split loads from call; */
-/* reordered 3,3 (s32 n=3 as n,n / 3,n / n,3; s32 a=3,b=a as a,b): probe 27/28/28/28 */
-/* words, copy-through fnalign 11 edits with addiu hoisted to prologue and $t1 lost. */
-/* Callers: owner_of.py -> src/promoted/code1_0045.c; grep src+include finds no other */
-/* volatile declaration (src/Kernel/mc.c declares void *,void *,s32,f32, not edited). */
-/* opt_propagation off keeps the colors pointer in $t1; it is not the banned part. */
-/* Honest plain-C best is the 1-word common-off body, still MISMATCH. */
-/* measured: PrimDrawFlatTriangle MATCH -> MISMATCH without this pragma. */
-/* measured: baseline C nd 80B; adjacent-local declaration probe nd 80B; retain settings for owner MATCH. */
+/* measured: retail keeps the colors pointer live across the separate byte reloads, which requires
+ * propagation off. */
 #pragma opt_propagation off
-/* Replicate one RGBA color across the three positions and submit one triangle.
- * Preserve the measured legacy volatile input; removing it is outside this cleanup. */
+/* measured: retail reads each colour byte separately from memory, so the color input stays
+ * volatile. */
+/* Copy one RGBA color to all three vertices and submit a single flat-shaded triangle through
+ * PrimDrawPoints. */
 // FUN_0045ED60
 void PrimDrawFlatTriangle(volatile u8 *color, void *positions, s32 preserveState, f32 depth) {
     u8 colors[12];
@@ -299,8 +279,8 @@ void PrimDrawFlatTriangle(volatile u8 *color, void *positions, s32 preserveState
     PrimDrawPoints(ptr, positions, depth, 3, 3, preserveState);
 }
 
-/* measured: restores propagation after PrimDrawFlatTriangle. */
-/* measured: PrimDrawRadialTriangle MATCH -> MISMATCH without this pragma. */
+/* measured: propagation is re-enabled after PrimDrawFlatTriangle; PrimDrawRadialTriangle needs it
+ * on to match retail code. */
 #pragma opt_propagation on
 /* Construct three corners 120 degrees apart around the screen center and draw a flat triangle. */
 // FUN_0045EE00

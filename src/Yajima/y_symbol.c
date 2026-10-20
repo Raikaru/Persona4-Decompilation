@@ -1,8 +1,7 @@
 #include "mt_scene_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Persona 4 USA decompilation - y_symbol.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit y_symbol.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "g_data_internal.h"
 #include "kwln_task_internal.h"
@@ -39,7 +38,7 @@ extern u8 D_00794D20[];
 extern u8 D_00794DB0[];
 extern u8 D_00794DE0[];
 extern u8 D_007E80A0[];
-/* +8 interior alias of the 0x168-byte target slots; one disables its marker. */
+/* Interior alias 8 bytes into the 0x168-byte target slots; one disables its marker. */
 typedef struct MapSymbolTargetState {
     s32 state;
     u8 pad04[0x164];
@@ -148,10 +147,6 @@ s32 mapSymbolMarkerCreate(s32 parent)
     sdkSpriteFreeNode(sprite);
     return taskHandle;
 }
-/* Re-derived body: the prior nd118 candidate is retained in
-   build/WBHygiene_func_002b3ae0_archive.txt for provenance; this body is
-   verified MATCH after correcting the callee ABI and arithmetic statement
-   order. */
 /* Rotate the player marker relative to model yaw, with the selected highlight palette. */
 // FUN_002B3AE0
 void mapSymbolMarkerDraw(u8 *task, s64 position, f32 depth, s32 color)
@@ -460,11 +455,8 @@ void mapSymbolTargetSetState(u8 *task, s8 mode)
     ((MapSymbolEntity *)entity)->mode = mode;
 }
 
-/* Native b210 O2: 1236/1248 bytes, 38 resolved relocations and
- * twelve zero alignment bytes. Preserve complete coordinate
- * snapshots and the providers' float-first argument order.
- * See docs/probe_archive/Map_symbol_002b4ad0_20260924.md. */
-/* Packed float pairs preserve sprite ABI snapshots; typed interior aliases retain native actor/target strides. */
+/* Keep complete coordinate snapshots and the providers' float-first argument order; packed float
+ * pairs carry sprite positions by value. */
 // FUN_002B4AD0
 /* Draw a revealed target marker; scrolling mode clips it to the minimap rectangle. */
 s32 mapSymbolTargetUpdate(u8 *task)

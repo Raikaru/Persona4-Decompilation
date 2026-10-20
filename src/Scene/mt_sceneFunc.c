@@ -2,7 +2,6 @@
 #include "model_motion_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Source unit: src/Scene/mt_sceneFunc.c (functions consolidated from the retired src/mt_scene/mt_scene_00268bd0.c) */
 #include "type.h"
 #include "member_access.h"
 #include "effect_update_internal.h"
@@ -11,14 +10,13 @@
 #include "scene_task_internal.h"
 #include "kwln_view_internal.h"
 
-/* Unit settings: measured scene helpers use loop invariants off and propagation on. */
+/* measured: scene helpers in this unit are built with loop invariants off and propagation on. */
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 
 
-
-
-// lint: allow H011 -- measured: u16 prototype regresses MT_Scene_BeginResMoveToward (andi on wide id args); retail declared this old-style
+// lint: allow H011 -- retail declared this old-style; a u16 prototype adds masking of the wide id
+// arguments.
 extern void *MT_Scene_GetRes();
 u32 MT_Scene_GetSegmentHeading(float* start, float* end, float* directionOutput, float* headingOutput);
 
@@ -34,10 +32,7 @@ extern u8 *MT_Scene_GetResListHead(s32 resourceType);
 
 extern void MT_Scene_WrapAngles(float *angles);
 
-// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbb90 (verified MATCH
-// there). 006a2f48 -> D_0063b1a0, 006a2f50 -> D_0063b1a8, 004c69f0 ->
-// func_003e40b0, 00530da0 -> func_0044dcd8, 0052e9a0 -> func_0044b8d8,
-// 005318a0 -> func_0044e7d8, 007caf18 -> fGpffff8428 (gp 0x007690f0 - 0x7bd8).
+// Matches P3FES FUN_003bbb90.
 
 typedef struct SceneVecBits
 {
@@ -61,24 +56,21 @@ extern u32 func_0044b8d8(u32 value);
 extern float dptofp(u32 value);
 extern float fGpffff8428;
 
-/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbc90 (verified MATCH there). */
+/* Matches P3FES func_003bbc90. */
 
 #include "rw_types_internal.h"
 
-// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbd40 (verified MATCH
-// there). 003bbc90 -> MT_Scene_EvalCubicBezier.
+// Matches P3FES func_003bbd40.
 
 extern void MT_Scene_EvalCubicBezier(float t, float *x, float *y, float *z, float *outX, float *outY, float *outZ);
 extern f32 RwV3dLength(const RwV3d *vector);
 
-// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bc0e0 (verified MATCH
-// there). 007cb0b8 -> D_007614c0, 003bbfd0 -> MT_Scene_GetCurveSegmentLength.
+// Matches P3FES FUN_003bc0e0.
 
 extern f32 D_007614c0;
 extern float MT_Scene_GetCurveSegmentLength(float firstTime, float secondTime, float *controlX, float *controlY, float *controlZ, float *firstPoint, float *secondPoint);
 
-// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bcc80 (verified MATCH
-// there). 007ce658 -> D_00764580, 003500e0 -> mdlEffectSeqStop.
+// Matches P3FES func_003bcc80.
 
 extern u16 D_00764580;
 extern u32 D_00764584;
@@ -181,7 +173,6 @@ u32 MT_Scene_SetResEnabled(ResrcHeader* resource, s32 enabled)
 }
 
 
-
 /* Resolve a resource id and update the bit-3 transition-pause flag. */
 // FUN_00268C20
 u32 MT_Scene_SetResEnabledById(u32 resTypeId, s32 enabled)
@@ -213,7 +204,6 @@ u32 MT_Scene_SetResEnabledById(u32 resTypeId, s32 enabled)
 }
 
 
-
 /* Return whether a non-NULL resource has its bit-3 flag set. */
 // FUN_00268CB0
 u8 MT_Scene_IsResEnabled(ResrcHeader* resource)
@@ -227,13 +217,8 @@ u8 MT_Scene_IsResEnabled(ResrcHeader* resource)
 }
 
 
-
-/* measured: volatile casts on the D_0063B0B8/D_0063B0C0 global loads and the
-   source-local stores force mwcc b210 to batch both loads before both stores
-   (retail: lui+ld, lui+lwc1, sd, swc1) and to emit the exact FPU
-   mul.s/adda.s/madd.s dot chain with the zero term in $f5; the plain form
-   emits load-store-load-store. Same pattern as the matched P3FES port
-   FUN_0026C860. */
+/* measured: volatile global loads and source stores make retail batch both loads before both
+ * stores; the plain form interleaves them. Matches P3FES FUN_0026C860. */
 // FUN_00268CE0
 u32 MT_Scene_GetSegmentHeading(f32 *start, f32 *end, f32 *directionOutput, f32 *headingOutput)
 {
@@ -279,7 +264,6 @@ u32 MT_Scene_GetSegmentHeadingAngle(f32* start, f32* end, f32* headingOutput)
 }
 
 
-
 /* Start constant-speed movement from the current position to the requested endpoint. */
 // FUN_00268E60
 s32 MT_Scene_BeginResMoveToward(u32 resourceId, u8 *destination, f32 speed) {
@@ -301,7 +285,6 @@ s32 MT_Scene_BeginResMoveToward(u32 resourceId, u8 *destination, f32 speed) {
     *(s8 *)&((ResrcHeader *)resource)->moveKind = 0;
     return 1;
 }
-
 
 
 /* Start timed movement; mode 1 uses the frame counters and the selected easing curve. */
@@ -363,10 +346,11 @@ s32 MT_Scene_SetResCurveParams(u8 *resource, u8 *startCenter, u8 *endCenter, f32
 }
 
 
-// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b89f0 (verified MATCH
-// there). 003b5d10 -> func_00145270, 003b88c0 -> MT_Scene_BeginResPathAnim.
+// Matches P3FES FUN_003b89f0.
 
 
+/* Look up a scene resource by ID and set its camera curve parameters (center, yaw, pitch, distance,
+ * duration and easing). Return 0 if the resource does not exist. */
 // FUN_002690B0
 s32 MT_Scene_SetResCurveParamsById(u32 resourceId, u8 *startCenter, u8 *endCenter, f32 startYaw, f32 endYaw,
                   f32 startPitch, f32 endPitch, f32 startDistance, f32 endDistance, s32 duration,
@@ -384,7 +368,6 @@ s32 MT_Scene_SetResCurveParamsById(u32 resourceId, u8 *startCenter, u8 *endCente
 }
 
 /* Copy the 0x130-byte path, cache its sampled length and optionally wrap elapsed distance. */
-/* measured: three path-pointer accesses require MEMBER: access-site, typed-local and array forms grow the body to 328 bytes (320-byte window). */
 // FUN_00269190
 u32 MT_Scene_BeginResPathAnim(ResrcHeader *resource, u32 pathWords, f32 speed, u32 loop)
 {
@@ -456,7 +439,6 @@ u32 MT_Scene_BeginResPathAnimById(u32 resourceId, u32 pathWords, f32 speed, u32 
 }
 
 
-
 /* Snapshot the current rotation and normalize both endpoints before starting the timer. */
 // FUN_00269340
 s32 MT_Scene_BeginResRotation(u32 resourceId, SVec3 *angles, u32 duration, u8 easing)
@@ -499,8 +481,7 @@ s32 MT_Scene_BeginResScale(u32 resourceId, u8 *scale, s32 duration) {
 }
 
 
-// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b8e10 (verified MATCH
-// there). 003b5d10 -> func_00145270, 003b8ce0 -> MT_Scene_SetResColorParam.
+// Matches P3FES FUN_003b8e10.
 
 
 /* Start an alpha transition on NPC models or effects, preserving the current alpha. */
@@ -567,7 +548,6 @@ u32 MT_Scene_SetResColorParamById(u32 resourceId, u8 alpha, u32 duration, u32 en
 }
 
 
-
 /* Start a field-of-view transition only for a type-7 camera resource. */
 // FUN_00269690
 s32 MT_Scene_BeginResFovChange(u32 resourceId, f32 fieldOfView, s32 duration) {
@@ -591,9 +571,7 @@ s32 MT_Scene_BeginResFovChange(u32 resourceId, f32 fieldOfView, s32 duration) {
 }
 
 
-// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003b93c0 (verified MATCH
-// there). 003b5d10 -> func_00145270, 003b8ff0 -> MT_Scene_SetResMotion,
-// 003b9260 -> MT_Scene_SetResMotionRecord.
+// Matches P3FES FUN_003b93c0.
 
 
 /* Cancel active transform, animation, alpha and orbit transition flags without changing their stored values. */
@@ -726,7 +704,6 @@ end:
 }
 
 
-
 /* Set or clear the resource draw-active bit (bit 1). */
 // FUN_00269BD0
 u32 MT_Scene_SetResActive(void* resource, s32 enabled)
@@ -756,7 +733,6 @@ u32 MT_Scene_SetResActive(void* resource, s32 enabled)
 }
 
 
-
 /* Resolve the resource id before updating its draw-active flag; return zero when absent. */
 // FUN_00269C20
 s32 MT_Scene_SetResActiveById(u32 resourceId, s32 enabled) {
@@ -769,11 +745,9 @@ s32 MT_Scene_SetResActiveById(u32 resourceId, s32 enabled) {
 }
 
 
-
 #pragma push
-/* measured: opt_propagation off closes first-target nd 9 -> 0 by preserving
-   absolute-global and early source-pointer load order; direct stores remain exact. */
-/* measured: baseline differs by 9 words; packed-vector copy/direct field stores leave nd8/nd29; retain propagation off. */
+/* measured: propagation off keeps retail's order of global and source-pointer loads ahead of the
+ * stores. */
 #pragma opt_propagation off
 /* Rotate a unit offset by two angles, scale it and add it to the supplied center. */
 // FUN_00269C70
@@ -814,8 +788,6 @@ void MT_Scene_GetAnglePoint(f32 *out, f32 *base, f32 angle0, f32 angle1, f32 sca
     out[2] = transformed[2] + base[2];
 }
 
-/* measured: opt_propagation off closes nd 5 -> 0 for global-load ordering. */
-/* measured: baseline differs by 5 words; direct axis stores and scale lifetime changes leave nd14; retain propagation off. */
 /* Build an orthonormal basis and recover Euler angles, including the vertical-direction fallback. */
 // FUN_00269DB0
 void MT_Scene_GetDirectionAngles(f32 *angles, f32 *direction)
@@ -910,11 +882,9 @@ extern void mdlEffectSetPackedColor(void *object, s32 *packedColor);
 extern s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
 
 
-
-
-
-/* Test whether a movement step has not yet reached its destination, including unordered distances. */
-/* measured: expanding its one remaining call changes MT_Scene_UpdateResource from 6708 to 6688 executable bytes and changes allocation/branches. */
+/* Test whether a movement step has not yet reached its destination, including unordered distances.
+ * measured: retail keeps this as a separate inline; expanding it at its call site changes register
+ * allocation and branches. */
 static inline s32 sceneUpdateStepContinues(f32 distance, f32 step)
 {
     return !(distance <= step);
@@ -939,10 +909,9 @@ static inline void sceneUpdateInterpolate(RwV3d *out, const RwV3d *start,
 }
 
 
-
-/* Attached-effect slots follow the fixed character-resource prefix. */
-/* Locate an attached-effect slot after the character-resource prefix. */
-/* measured: direct effects[index] at either call changes whole-owner code generation; the byte cursor retains the slot calculation. */
+/* Attached-effect slots follow the fixed character-resource prefix. measured: indexing
+ * effects[index] directly changes code generation in the calling function; retail computes the slot
+ * with a byte cursor. */
 static inline u8 *sceneUpdateAttachedEffect(SceneCharacterUpdate *character, s32 index)
 {
     u8 *slot = (u8 *)character + index * sizeof(character->effects[0]);
@@ -971,7 +940,6 @@ static inline void sceneUpdatePath(ResrcHeader *resource,
     s8 *path = resource->path;
     MT_Scene_SamplePath(path, elapsed, total, &position->x, &rotation->x);
 }
-
 
 
 /* Play the current terrain or fixed-bank footstep and cycle its four-note sequence. */
@@ -1005,9 +973,6 @@ static inline void sceneUpdateFootstep(ResrcHeader *resource)
     }
 }
 
-/* Recovered Scene update: native unsigned conversions, resource views,
-   queued animation snapshots and footstep bank indexing reproduce the retail
-   body. Full owner/data proof: build/next-wave-20260921/event/release-closure-v3. */
 // FUN_0026A020
 void MT_Scene_UpdateResource(u8 *resourceData)
 {
@@ -1429,19 +1394,13 @@ void MT_Scene_UpdateResource(u8 *resourceData)
         }
     }
 }
-/* measured: ported from m2c + P3FES idioms. Best nd 60 (obj 428B/window 432B)
-   with hoisted temp_3[0]/temp_3[4] loads + sp40p base pointer. Residual:
-   retail materializes func_00168ec0 arg3 (&sp40) via addiu $a2,$sp,0x40 at the
-   loop top (before the D_0063B080/B088 loads); a sp40p local forces it early
-   but spills to callee-saved $s3 (frame 0x70 vs 0x60). Without sp40p, nd 84
-   with frame 0x60. Argument-materialization + load-position scheduling floor. */
-/* measured: opt_propagation off plus block-scoped stack-address and global-load
-   temporaries closes MT_Scene_GetTerrainAtPoint (normalized_diff 0). */
-/* measured: baseline differs by 18 words; aggregate reference copy/direct stores leave nd9/nd50; retain propagation off. */
+/* measured: propagation is off so the block-scoped stack-address and global-load temporaries are
+ * computed where retail computes them. */
 #pragma push
 #pragma opt_propagation off
-/* Search both triangles of each type-21 quad within a 100-unit vertical band; otherwise use the field terrain table. */
-/* The field-terrain byte load retains base+index order: array syntax swaps the addu operands (one differing word). */
+/* Search both triangles of each type-21 quad within a 100-unit vertical band; otherwise use the
+ * field terrain table. The terrain byte load uses pointer arithmetic because array syntax swaps the
+ * add operands. */
 // FUN_0026BA60
 s32 MT_Scene_GetTerrainAtPoint(u16 *position)
 {
@@ -1568,7 +1527,6 @@ s32 MT_Scene_SetResShadowCasterById(u32 resourceId, s32 enabled) {
 }
 
 
-
 /* Reset the footstep state and install mode, sound, period, delay and surface selection. */
 // FUN_0026BDA0
 s32 MT_Scene_SetResSoundRange(u32 resourceId, s32 mode, u8 sound, s16 period, s16 delay, s16 surface)
@@ -1636,21 +1594,8 @@ void MT_Scene_ClearResState(u32 resourceId)
     }
 }
 
-/* measured: ported from P3FES FUN_003bb450 with the P4 global addresses and
-   interleaved func_003e0870 declaration. Corrected func_003e4320's return
-   declaration to u8 * (verified definition); initial plain C was nd 9, object
-   460B/window 464B. The initial fndiff residual rows were offset 0x70
-   (axis2's retail lwc1 versus mwcc's second aggregate ld), 0x78 (retail swc1
-   versus mwcc sd), and offsets 0x80/0x88/0x8C (axis3 global-load order and
-   register assignment). Direct axis2-width, direct axis3-load, typed-component,
-   and load-order variants all measured worse or unchanged in the initial
-   probes. The final opt_propagation-off form below uses named axis2_xy/axis2_z
-   field temporaries and a block-scoped axis2p, closing normalized_diff 0 with
-   object 460B/window 464B; the retail six-op COP1 adda.s/msub.s chain is
-   reproduced by the natural float subtraction. */
-/* measured: opt_propagation off plus axis2 field temporaries and block-scoped
-   pointer closes normalized_diff 0; object 460B/window 464B. */
-/* measured: baseline differs by 32 words; aggregate axis copies/direct fields leave nd16/nd80; retain propagation off. */
+/* measured: Matches P3FES func_003bb450. Retail loads the second axis field by field, so
+ * propagation stays off and axis2 components are held in named temporaries. */
 #pragma push
 #pragma opt_propagation off
 // FUN_0026BFC0
@@ -1740,11 +1685,8 @@ void MT_Scene_OffsetPointByRotation(f32 *input, f32 distance, f32 pitch, f32 yaw
 }
 
 
-
-/* measured: direction field temporaries plus opt_propagation off close nd 4 -> 0,
-   preserving retail ld/lwc1/sd/swc1 ordering; object 376B fits the 384B window. */
-/* measured: baseline differs by 5 words; aggregate direction copy/direct fields leave nd6/nd13; retain propagation off. */
-/* Resolve an optional anchor resource, apply the 15-unit backward offset and rotate the requested distance. */
+/* Resolve an optional anchor resource, apply the 15-unit backward offset and rotate the requested
+ * distance. */
 // FUN_0026C190
 void MT_Scene_GetResAnchor(f32 *out, void *resource, f32 scale)
 {
@@ -1806,10 +1748,7 @@ void MT_Scene_GetResAnchor(f32 *out, void *resource, f32 scale)
     *(RwV3d *)out = *(RwV3d *)output;
 }
 
-/* measured: opt_propagation off closes 15 load-order differences; lverify MATCH. */
-/* measured: baseline differs by 12 words; aggregate camera-axis copies/direct fields leave nd16/nd32; retain propagation off. */
 /* Apply resource orientation or look-at basis, screen shake and field of view to the active camera. */
-/* measured: a shared typed local for the look-at flag/position accesses preserves MATCH; access-site casts alone grow this body beyond its 880-byte window. */
 // FUN_0026C310
 void MT_Scene_UpdateCameraResource(u8 *resource)
 {
@@ -1970,9 +1909,8 @@ void MT_Scene_UpdateCameraResource(u8 *resource)
 #pragma pop
 
 #pragma push
-/* Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bb9b0 (verified MATCH there). */
-/* Removing this loses FUN_003bb9b0 (MATCH nd0 -> MISMATCH nd143) - measured W161. */
-/* measured: baseline differs by 46 words; component-pointer traversal leaves nd144; retain hoisting. */
+/* measured: loop-invariant hoisting is required for retail's code shape; matches P3FES
+ * func_003bb9b0. */
 #pragma opt_loop_invariants on
 
 /* Normalize each degree-valued component into the half-open interval [0, 360). */
@@ -2001,7 +1939,6 @@ void MT_Scene_WrapAngles(f32 *angles)
 }
 
 
-
 // FUN_0026C740
 void MT_Scene_WrapObjectAngles(s32 object)
 {
@@ -2009,11 +1946,10 @@ void MT_Scene_WrapObjectAngles(s32 object)
 }
 
 
-// Ported from P3FES src/Scene/mt_sceneFunc.c FUN_003bbaa0 (verified MATCH
-// there). 003bb9b0 -> MT_Scene_WrapAngles.
+// Matches P3FES FUN_003bbaa0.
 
-/* opt_loop_invariants on: measured off nd 95, object 236/240; on nd 0, object 228/240 (MATCH); retain on. */
-/* measured: baseline differs by 33 words; component-pointer traversal leaves nd92; retain hoisting. */
+/* measured: retail hoists the loop-invariant wrap and limit constants out of the per-axis loop, so
+ * loop-invariant hoisting stays enabled. */
 
 /* Return the shortest signed degree difference on each axis, keeping positive 180 unchanged. */
 // FUN_0026C770
@@ -2045,11 +1981,10 @@ void MT_Scene_GetAngleDelta(f32 *start, f32 *end, f32 *output)
 #pragma pop
 
 
-// The volatile-qualified staging of the D_0063b1a0/D_0063b1a8 header into the
-// local SceneVecBits is carried from the P3 donor (FUN_003bbb90), which is
-// MATCH nd0 there with the same construct. measured in P4: removing the four
-// volatile qualifiers regressed 0026c860 MATCH nd0 -> MISMATCH nd10 (object
-// 256/256 both ways); retained to reproduce retail's load/store sequence.
+// The header is staged into the local SceneVecBits through volatile copies, as in P3FES
+// func_003bbb90, to reproduce retail's load/store sequence.
+// measured: retail stages the scene header into the local through volatile loads and stores, so the
+// volatile qualifiers are needed to reproduce that sequence.
 
 
 /* Project a normalized direction onto the horizontal plane and return its signed yaw. */
@@ -2089,7 +2024,6 @@ void MT_Scene_GetDirectionYaw(const f32 *direction, f32 *angles)
         angles[2] = 0.0f;
     }
 }
-
 
 
 /* Evaluate a cubic Bezier with four independent control coordinates per axis. */
@@ -2133,8 +2067,6 @@ void MT_Scene_EvalCubicBezier(f32 t, f32 *x, f32 *y, f32 *z, f32 *outX,
     *outZ = result.z;
 }
 
-
-/* measured: branch-local control-point counters retain the 400-byte MATCH under baseline lifetimes. */
 
 /* Sample a packed cubic path; neighboring segments share their endpoint and use a 0x24-byte stride. */
 // FUN_0026CA10
@@ -2182,9 +2114,9 @@ void MT_Scene_SampleCurve(char *path, f32 time, f32 *output)
 }
 
 
-
-/* Construct a one-segment easing curve from the selected four-float table entry. */
-/* Retain byte-addressed scratch storage: the sampler output begins at +0x130 inside the original 0x138-byte stack allocation. */
+/* Construct a one-segment easing curve from the selected four-float table entry. The scratch stays
+ * a raw byte buffer because the sampler writes its output right after the path data in the same
+ * stack allocation. */
 // FUN_0026CBA0
 f32 MT_Scene_SampleCurveTable(u32 kind, f32 duration, f32 elapsed)
 {
@@ -2252,7 +2184,6 @@ f32 MT_Scene_GetCurveSegmentLength(f32 firstTime, f32 secondTime, f32 *controlX,
 }
 
 
-
 /* Approximate path length with twenty equal-parameter samples per cubic segment. */
 // FUN_0026CDB0
 f32 MT_Scene_GetCurveLength(char *path)
@@ -2299,8 +2230,7 @@ f32 MT_Scene_GetCurveLength(char *path)
 }
 
 
-
-/* measured: removing this pragma takes MT_Scene_GetShakeOffset nd 0 -> nd 17 (object 60 -> 56, window 64). */
+/* measured: retail's code for this function is built at optimization level 1. */
 #pragma optimization_level 1
 
 /* Read the two adjacent global shake outputs while shake state is enabled. */
@@ -2318,9 +2248,7 @@ u32 MT_Scene_GetShakeOffset(f32* offset)
     return 1;
 }
 #pragma optimization_level 2
-/* measured: b210 -O2, 824 executable bytes / 832B window; all 28
-   relocations resolve exactly, including the 0.01f literal and 0.6f pair.
-   Expiry disables first; the following disabled update clears the outputs. */
+/* Expiry disables shake first; the following disabled update clears the outputs. */
 // FUN_0026D440
 void MT_Scene_UpdateShake(void)
 {

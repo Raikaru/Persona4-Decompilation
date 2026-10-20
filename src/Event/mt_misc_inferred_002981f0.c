@@ -25,11 +25,11 @@ extern char D_0063D050[];
 s32 sdkSndStopChannel(s16);
 
 
-
 extern void sdkSndRequestTrack(s32);
 extern s32 D_0063CB50[]; /* 0x86 packed-key/action pairs */
 extern u8 D_0063CFA0[];
-// lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
+// lint: allow H011 -- callers such as func_00291a60 pass wide id arguments, so a u16 prototype
+// changes the output.
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32, s32, s32,
                           s32);
@@ -46,25 +46,10 @@ extern u8 D_0063E810[];
 extern u16 D_008C024E[];
 extern s32 D_0063E830[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 002981f0-00298250 */
-
 extern void mtMiscCollectType1Records(u8 *);
 extern void mtMiscCollectType2Records(u8 *);
-/* measured probe: preserve local constant with opt_propagation off. */
-/* measured probe: close opt_propagation bracket after func_00291530. */
-/* measured: opt_propagation off keeps `weapon` materialised between the index
-   shift and the base add (retail sll/andi/addu); with propagation on the CSE'd
-   address is finished before any argument. The index/five locals must stay
-   literal under this pragma or they take a sixth saved register. Attachment
-   helpers retain block-scoped u16 parameters for per-call masks. */
-/* measured: restore propagation for the rest of the unit. */
-/* measured probe: preserve the retail type constant and close bracket below. */
-/* measured probe: close opt_propagation bracket after func_00291810. */
-/* measured: O1 float-local register mapping probe for func_00293710. */
-/* measured: closes O1 float-local register mapping probe for func_00293710. */
-/* Each filtered scan owns its resource and index. With opt_lifetimes on,
- * those local scopes reproduce all 6312 retail code bytes; the 6320-byte
- * function window ends in eight zero alignment bytes. */
+/* measured: with opt_propagation off, retail keeps `weapon` in its own register between the index
+ * shift and the base add, and the index locals stay literal. */
 #pragma push
 #pragma pop
 // Request trackId through sdkSndRequestTrack; the first argument is unused.
@@ -81,12 +66,9 @@ s32 mtMiscFadeOutSoundChannel(s64 channel) {
     return 0;
 }
 
-// Look up keyHigh << 16 | keyLow in the 0x86-entry table D_0063CB50 and run
-// the action in the entry's second word: 1 and 2 call sndRequestAreaTrack (then
-// sndPlayAreaCue when it returns 0), 3 calls sdkSndFadeOutChannel(3, 0) and
-// sdkSndStopChannel(0x1E). Absent keys act as 3. Returns the action code.
-/* measured: a break-based search loses MATCH; the shared exit preserves the
- * explicit not-found assignment without retaining the decompiler loop labels. */
+// Look up (keyHigh << 16) | keyLow in the 0x86-entry table D_0063CB50 and run the entry's action:
+// 1/2 request the area track (cue on 0), 3 fades and stops. Missing keys act as 3; returns the
+// action.
 // FUN_00298250
 s32 mtMiscDispatchKeyAction(s32 keyHigh, s32 keyLow)
 {

@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 001900a0-00190130 */
 
 #include "btl_skill_target_internal.h"
 #include "member_access.h"
@@ -22,6 +21,8 @@ extern u8 D_005F6010[];
 extern u8 D_005F6020[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 K_MapEditTask(u8 *task);
+/* Release each of the nine dictionaries held in the map editor task's work entries, then free the
+ * work block. */
 // FUN_001900A0
 /* Destroy the nine loaded texture dictionaries, then release editor work. */
 void K_MapEdit_Destroy(u8 *task)
@@ -30,7 +31,6 @@ void K_MapEdit_Destroy(u8 *task)
     s32 dictionary;
     s32 index;
 
-    /* Task work is at +0x38; retain the pointer access types for MWCC reloads. */
     entries = (s32 *)((KwlnTask *)(task))->work;
     index = 0;
     while (index < 9) {
@@ -46,7 +46,7 @@ void K_MapEdit_Destroy(u8 *task)
 /* Allocate editor work and register its update/destruction callbacks on a child task.
  * Allocation failure returns zero without creating the task. */
 // FUN_00190130
-/* Allocate the 0x1CD20-byte map editor and attach it to its parent task. */
+/* Allocate the map editor work and attach it to its parent task. */
 s32 K_MapEdit_Create(s32 parent)
 {
     s32 *work;

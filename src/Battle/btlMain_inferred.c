@@ -77,14 +77,8 @@ extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 
 
-
-
-
-
 #pragma push
 #pragma pop
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001ba0e0-001ba710 */
 
 typedef struct { u8 r; u8 g; u8 b; u8 a; } BlendColor;
 typedef struct ColorBlendWork {
@@ -109,16 +103,6 @@ static inline u8 btlMainBlendChannel(u8 start, u8 target, f32 t, f32 inv)
     return ((s32)(m * 255.0f + 0.5f)) & 0xFF;
 }
 struct RwV3d;
-/* measured: opt_rebuildconditionals off for func_001b19c0 branch-fed scalar. */
-/* measured: close opt_rebuildconditionals off for func_001b19c0. */
-/* measured: scoped opt_lifetimes on with these disjoint work-pointer
- * lifetimes reproduces the complete 4156-byte retail body; all 122 owner
- * siblings, allocated data and 122 exact-position references are preserved.
- * The separate retained-height caller-domain proof remains required. */
-#pragma push
-#pragma pop
-/* 744/752 bytes; twenty resolved relocations; eight zero alignment bytes.
- * Keep full-width dependency snapshots and branch-materialized final mode. */
 #pragma push
 #pragma pop
 #pragma push
@@ -127,11 +111,10 @@ struct RwV3d;
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: MATCH. The 1/255 scale is the pooled literal, not a global;
-   with it written as a literal no pragmas are needed. The start colour is
-   one struct copy (retail loads all four bytes, then stores them). */
+#pragma push
+#pragma pop
 /* Blend the current window RGBA toward the packet color, rounding each normalized channel back to a
- * byte. */
+ * byte. The 1/255 scale is a pooled literal, and the start colour is copied as one struct. */
 // FUN_001BA0E0
 s32 btlColorBlendPacketUpdate(ColorBlendWork *work)
 {
@@ -176,8 +159,8 @@ u8 *btlColorBlendPacketCreate(s32 targetColor, s32 duration) {
     return packet;
 }
 
-/* Capture the initial scene quaternion, then publish the target rotation matrix when its duration ends.
- * Measured: access-site, local-pointer and array forms of the MEMBER timer accesses change MATCH. */
+/* Capture the initial scene quaternion, then publish the target rotation matrix when its duration
+ * ends. */
 // FUN_001BA590
 s32 btlQuatMatrixPacketUpdate(u8 *work)
 {

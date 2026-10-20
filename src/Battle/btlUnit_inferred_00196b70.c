@@ -65,16 +65,10 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-
-
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
-
-
-
-
 
 
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
@@ -90,9 +84,6 @@ extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
 
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00196b70-001973d0 */
-
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s64 btlPacketEnqueue(u8 *context, u32 value);
 extern void btlPacketStepSide(s32 side);
@@ -100,14 +91,6 @@ extern void btlTargetResetWork(void *work);
 extern s32 btlRouteFindPath(u8 *route, f32 *start, f32 *end, f32 radius);
 extern s32 btlRouteBuildArc(u8 *route, const f32 *startXZ, const f32 *endXZ, const f32 *centerXZ);
 extern f32 RwV3dNormalize(f32 *data, f32 *value);
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
 // FUN_00196B70
 void btlUnitClearMoveFlags(u8 *unit) {
     ((BtlUnit *)unit)->stateFlags &= ~1;
@@ -120,8 +103,8 @@ void btlUnitClearRotateFlags(u8 *unit) {
     ((BtlUnit *)unit)->movementFlags &= ~BTLUNIT_MOVEMENTFLAGS_ROTATE;
 }
 
-/* measured: access-site scale typing changes MATCH to MISMATCH; a distinct typed unit alias preserves the final reload. */
-/* Combine the scaled motion-table distance with the target anchor or bounding sphere fallback. */
+/* Return the unit's motion-table distance for a motion, scaled by the unit's scale and extended by
+ * the target's action anchor height or, failing that, its bounding sphere. */
 // FUN_00196BD0
 f32 btlUnitGetMotionDistance(u8 *unit, u8 *target, u16 motion)
 {
@@ -158,10 +141,8 @@ void btlUnitHoldPendingMove(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-/* The vector snapshot preserves all three coordinates before flattening Y.
-   Separate vector/pair objects retain their natural stack lifetimes. Native
-   proof: 1736 executable bytes, ten resolved calls, 150 unchanged siblings. */
-/* measured: distinct typed unit/work aliases preserve scalar accesses that moved instructions with access-site fields. */
+/* The vector snapshot preserves all three coordinates before flattening Y. */
+/* measured: separate typed unit and work aliases keep the scalar accesses in retail order. */
 /* Advance direct or routed movement; completion waits until both move and rotate activity clear. */
 // FUN_00196D00
 u32 btlUnitMovePacketUpdate(void *workData)
@@ -301,7 +282,6 @@ u32 btlUnitMovePacketUpdate(void *workData)
             if (index == 0) {
                 ((BtlUnit *)unit)->moveDestination = ((BtlUnitMovePacket *)packetWork)->destination;
             } else {
-                /* The route tail uses a pre-offset byte cursor to preserve the indexed address helper. */
                 work = (u8 *)((index * 8) + ((s32)unit));
                 direction.values[0] = ((BtlTargetRoute *)(unit + 0xEC))->points[index - 2].x;
                 direction.values[1] = 0.0f;

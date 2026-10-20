@@ -9,8 +9,6 @@
 #include "ed_staff_internal.h"
 
 
-
-
 extern u8 *D_007246AC;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064ECA0[];
@@ -36,19 +34,9 @@ extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y,
                           u16 scaleX, u16 scaleY, f32 angle, s16 pivotX,
                           s16 pivotY);
 
-/* Source unit: src/promoted/code1_0038.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0038.c; members 0038dd70-0038dd70 */
-
 extern void btlShuffleInitWaveStrips(u8 *drawWork);
 extern s32 (*D_00887300[])(RwRenderState state, void *value);
 extern s32 (*D_00887310[])(s32, void *, s32);
-/* measured: opt_rebuildconditionals off preserves the retail positive branch. */
-/* measured: restore conditional rebuilding after this function. */
-/* measured: opt_loop_invariants on hoists the conversion constants into the retail preheader. */
-/* measured: restore loop-invariant optimization after func_00389cb0. */
-/* Measured: 904/912 bytes, eleven resolved relocations and eight zero
- * alignment bytes. D_00761490 is the retail scalar 0xBD872B00, not the
- * rounded -0.066f literal; keep the five-frame and 300-frame reloads. */
 #pragma push
 #pragma pop
 /* Empty poll callback in sequence row 0x005DD2A0; unlike ordinary polls this entry does not define a result. */

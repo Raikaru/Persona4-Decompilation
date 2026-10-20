@@ -13,24 +13,22 @@ extern u8 D_006359B0[];
 extern u8 D_006359C0[];
 
 extern f32 D_00761260;
-/* fGpffff811c: scale on the attacker-side term when the target is an enemy [inferred]. */
+/* fGpffff811c: scale on the attacker-side term when the target is an enemy. */
 extern f32 fGpffff811c;
 /* Two scripted damage formulas, datScriptCalcPhysicalDamage and datScriptCalcMagicDamage,
    driven by datScriptCalcFloat selectors and the fGpffff* float constants (documented beside
    their externs). Each is a separate retail function with its own C body. */
 
-/* Source unit: src/promoted/code1_0024.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 00244110-00244540 */
-
-// Intent: Compute physical damage from attacker STR, defender END, skill base power, status resistance and level factors; the flag-4 target split picks one of two formulas [inferred]
+// Compute physical damage from attacker STR, defender END, skill power, resistance and level
+// factors; the flag-4 target split picks one of two formulas.
 // FUN_00244110
 void datScriptCalcPhysicalDamage(void)
 {
     extern s32 datScriptCmdFlag2Set(void);
     extern f32 sqrtf(f32);
-    /* fGpffff82c0: multiplier on the flag-2 branch of the enemy-target physical formula [inferred]. */
+    /* fGpffff82c0: multiplier on the flag-2 branch of the enemy-target physical formula. */
     extern f32 fGpffff82c0;
-    /* fGpffff824c: scale on the clamped result, after the 30-point offset (datScriptCalcPhysicalDamage) [inferred]. */
+    /* fGpffff824c: scale on the clamped result, after the 30-point offset. */
     extern f32 fGpffff824c;
     f32 damageTerm;
     f32 scaledTerm;
@@ -113,12 +111,13 @@ void datScriptCalcPhysicalDamage(void)
     datScriptSetResult(damageTerm);
 }
 
-// Intent: Compute magic damage from attacker MAG, defender END and skill base power, with the same level and resistance factors as the physical formula [inferred]
+// Compute magic damage from attacker MAG, defender END and skill power, with the same level and
+// resistance factors as the physical formula.
 // FUN_00244540
 void datScriptCalcMagicDamage(void)
 {
     extern f32 sqrtf(f32);
-    /* fGpffff824c: scale on the clamped result, after the 30-point offset (datScriptCalcMagicDamage) [inferred]. */
+    /* fGpffff824c: scale on the clamped result, after the 30-point offset. */
     extern f32 fGpffff824c;
     f32 damageTerm;
     f32 baseDamage;

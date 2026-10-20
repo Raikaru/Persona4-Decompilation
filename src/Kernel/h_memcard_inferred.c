@@ -159,29 +159,6 @@ extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 typedef struct FilerEntry {
     char name[256];
     s32 type;
@@ -209,9 +186,8 @@ typedef struct FilerStat {
     u32 private_5;
 } FilerStat;
 
-/* Extended directory entry: 64-byte stat, 256-byte name, trailing word.
- * Layout: PCSX2 IopBios.cpp, revision 9fe8235e, fxio_dirent_t.
- * Natural four-byte alignment, not modern ps2sdk's aligned(64) variant. */
+/* Extended directory entry: 64-byte stat, 256-byte name, trailing word, laid out like PCSX2's
+ * fxio_dirent_t with natural four-byte alignment. */
 typedef struct FilerDirent {
     FilerStat stat;
     char name[256];
@@ -221,8 +197,6 @@ typedef struct FilerDirent {
 
 extern void sdkFilerScanDirectory(u8 *work);
 extern void filerDrawDirectory(u8 *directory);
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 00467bd0-00467bd0 */
 
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
@@ -296,15 +270,11 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
-/* Measured: 1252/1264 native bytes, 20 resolved relocations and twelve
- * zero alignment bytes; 57 neighboring functions and data preserved.
- * See docs/probe_archive/Filer_navigation_00467bd0_20260924.md. */
 #pragma push
-/* measured: share the checked path index and hoist the slash constant. */
-/* measured: func_00467bd0 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline removal differs in 760 bytes; pointer-based backwards path scan; for-loop forward path scan also differ. */
+/* measured: retail hoists loop-invariant address computations out of the path scan loops. */
 #pragma opt_loop_invariants on
-// Intent: per-frame update of the filer task. Works on the FilerWork state (path, entry list, page, row). func_00468170 creates the task with this as its update callback.
+// Per-frame update of the filer task, working on the FilerWork path, entry list, page and row;
+// func_00468170 creates the task with this callback.
 // FUN_00467BD0
 s32 sdkFilerTaskUpdate(u8 *task)
 {

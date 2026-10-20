@@ -222,11 +222,8 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 
 
-
 #pragma push
 #pragma pop
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 004566c0-00456840 */
 
 #pragma push
 #pragma pop
@@ -237,8 +234,6 @@ typedef struct Code45Im2DVertex {
  * check follows path construction; name is already used before that check. */
 // FUN_004566C0
 s32 H_Cdvd_FileOpen(s32 unusedContext, u8 *slot, u8 *name, s32 openMode) {
-    /* Measured: descriptor reload through this local retains MATCH, whereas
-     * an access-site cast changes instruction selection after the length store. */
     HCdvdFileSlot *fileSlot = (HCdvdFileSlot *)slot;
     u8 path[0x100];
     s32 bit0;
@@ -284,7 +279,7 @@ s32 H_Cdvd_FileOpen(s32 unusedContext, u8 *slot, u8 *name, s32 openMode) {
     return 1;
 }
 
-// Intent: file-record close callback. Closes the handle and clears the shared path buffer.
+// File-record close callback; closes the handle and clears the shared path buffer.
 // FUN_00456840
 void H_Cdvd_FileClose(u8 *slot) {
     func_004244c8(D_00711738);

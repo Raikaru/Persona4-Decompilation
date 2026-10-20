@@ -1,8 +1,7 @@
 #include "include_asm.h"
 #include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
-/* Persona 4 USA decompilation - cldDayChange.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit cldDayChange.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 #include "btl_effect_internal.h"
@@ -260,8 +259,8 @@ void cldDayChangeDrawMarker(s32 x, s32 y, f32 depth, s32 opacity, u32 month,
 
 typedef struct { f32 x, y; } DayChangePoint;
 
-/* measured: loop-invariant probe for integer-to-float hoisting in 00265f40. */
-/* measured: baseline casts nd133; explicit pre-loop float origins nd169; retain loop hoisting. */
+/* measured: retail hoists the integer-to-float origin conversions out of the vertex loop, so loop-
+ * invariant optimization stays enabled. */
 #pragma opt_loop_invariants on
 /* Builds vertices and colours from a point array and draws them as a polygon. */
 // FUN_00265F40
@@ -298,16 +297,11 @@ void cldDayChangeDrawPolygon(s32 x, s32 y, f32 depth, u32 rgb, s32 opacity,
     PrimDrawPoints(colors, vertices, depth, pointCount, 4, 1);
     shdDisableBlendFlag();
 }
-/* measured: closes loop-invariant probe for func_00265f40. */
+/* measured: restores the unit setting after func_00265f40. */
 #pragma opt_loop_invariants off
 
-/* Native b210 O2: 1600/1600 bytes and 41 fully resolved code relocations.
- * The eleven local point-array initializers produce retail's two-word copy
- * loops. All eleven constant arrays and the thirteen-entry dispatch table
- * are independently exact. Keep the float third in this function and its
- * drawing helper's coherent declarations and calls.
- * See docs/probe_archive/Day_change_00266050_20260924.md. */
-/* Draws the outline of month `month` at (x, y) with the given depth and opacity. */
+/* Draws the outline of month `month` at (x, y) with the given depth and opacity. The local point-
+ * array initializers compile to two-word copy loops. */
 // FUN_00266050
 void cldDayChangeDrawMonthOutline(s32 x, s32 y, f32 depth, s32 opacity, s32 month)
 {
@@ -652,12 +646,8 @@ void cldDayChangeDrawMonthOutline(s32 x, s32 y, f32 depth, s32 opacity, s32 mont
     PrimDrawFlatRectangle(shade, rectangle.transport, 0.0f, 1);
 }
 
-/* The day renderer's depth is 0.0f. Retail also uses this register as
- * the accumulator seed in the 336 + 128*sin interpolation. The angle scale
- * here is iGpffff84a4 (pi/2); the renderer's separate case-12 horizontal
- * scale is iGpffff8570. This callback's native switch table remains at
- * 0x748020, following the renderer's native table at 0x747FE0. */
-/* Per-frame render callback: animates the month outline and its marker. */
+/* Per-frame render callback: animates the month outline and its marker. The angle scale iGpffff84a4
+ * is pi/2. */
 // FUN_00266690
 void cldDayChangeDrawFrame(s32 unused, s32 task)
 {
@@ -672,7 +662,6 @@ void cldDayChangeDrawFrame(s32 unused, s32 task)
     f32 ratio;
     f32 value;
 
-    /* CldDayChangeWork offsets retained: typed month loads change MWCC scheduling (nd 45). */
     work = kwlnTaskGetWork(task);
     state = ((CldDayChangeWork *)work)->state - 4;
     switch (state) {

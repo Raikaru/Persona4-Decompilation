@@ -1,7 +1,7 @@
 #include "member_access.h"
 #include "mt_scene_internal.h"
 #include "model_motion_internal.h"
-/* Original translation unit k_fldUnit.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit k_fldUnit.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "datUnit_internal.h"
 #include "h_cdvd_internal.h"
@@ -16,7 +16,7 @@
 #include "rw/std/stddef.h"
 #include "field_frame_internal.h"
 
-/* Unit settings: measured common-subexpression elimination and propagation are on outside the update scopes. */
+/* Common-subexpression elimination and propagation are on for this unit outside the update scopes. */
 #pragma opt_common_subs on
 #pragma opt_propagation on
 
@@ -188,9 +188,6 @@ s32 Encount_GetEntryRate(u16 field, u16 room, u16 entryIndex);
 s32 fldStepGetModelSlot(void);
 u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode);
 
-/* Source unit: src/promoted/k_fldUnit.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_fldUnit.c; members 00162c30-00167d90 */
-
 /* Word-aligned RenderWare matrix view; retail copies all 64 bytes. */
 typedef struct {
     RwV3d right;       /* 0x00 */
@@ -306,8 +303,6 @@ typedef struct FieldUnitLayerResource {
     s32 unk2FC;
 } FieldUnitLayerResource;
 
-/* Field-address casts below retain native integer-handle accesses without
- * changing shared call signatures or byte-pointer aliasing. */
 typedef struct FieldUnitEffectNode {
     struct FieldUnitEffectNode *first;
     u8 pad04[4];
@@ -361,20 +356,20 @@ typedef struct FldPairSelection {
     s32 actorId;
 } FldPairSelection;
 
-/* Locate a model animation layer for the selected unit. */
-/* measured: expansion moves the model-pointer load before the animation-layer index shifts and changes registers. */
+/* Locate a model animation layer for the selected unit. measured: retail loads the model pointer
+ * after computing the layer index, which only the inline wrapper reproduces. */
 static inline FieldUnitAnimationLayer *fldUnitLayerAt(FieldUnitRecord *unit, s32 index)
 {
     return &unit->model->layers[index];
 }
-/* Locate the indexed pair of cached unit samples. */
-/* measured: expansion reverses the addu operands for the first sample member. */
+/* Locate the indexed pair of cached unit samples. measured: writing the access out inline swaps the
+ * address-add operand order for the first sample member, unlike retail. */
 static inline FieldUnitSamplePair *fldUnitSampleAt(FieldUnitRecord *unit, s32 index)
 {
     return &unit->samples[index];
 }
-/* Locate a party unit using an index read through its original pointer. */
-/* measured: expansion changes unit-index allocation and grows the facing-update frame from 0xc0 to 0xd0. */
+/* Locate a party unit using an index read through its original pointer. measured: inlining by hand
+ * changes how the unit index is allocated and enlarges the facing-update stack frame. */
 static inline FieldUnitRecord *fldUnitSlotAt(const s32 *index)
 {
     return &((FieldUnitRecord *)D_007EF9B0)[*index];
@@ -513,13 +508,12 @@ checked_party:
     }
     return choice;
 }
-/* measured: disable common-subexpression elimination to preserve the retail
-   second unit-base materialization after the allocator call. */
-/* measured: FldUnit_UpdateTable MATCH -> MISMATCH without this pragma. */
+/* measured: common-subexpression elimination is off so the unit base address is computed again
+ * after the allocator call, as in retail. */
 #pragma push
 /* Wait for party models and animation slots, then copy loaded per-unit resource data. */
 // FUN_00162C30
-/* measured: baseline 106 differing words; block lifetimes did not match; retain scoped settings. */
+/* measured: retail's block lifetimes need common-subexpression elimination off for this function. */
 #pragma opt_common_subs off
 s32 FldUnit_UpdateTable(void)
 {
@@ -575,29 +569,16 @@ s32 FldUnit_UpdateTable(void)
 }
 #pragma pop
 
-/* measured: restore common-subexpression elimination after FldUnit_UpdateTable. */
-/* measured: FldUnit_CreateEncounterUnit, FldUnit_ReleaseSlot, FldUnit_SetupSlot, FldUnit_SpawnAtEntry, FldUnit_SpawnEncounter, FldUnit_UpdateFacing MATCH -> MISMATCH without this pragma. */
-/* Initialize the four occupied party slots that do not yet have scene resources:
- * attach models and placements, apply the leader's calendar/room animation rule,
- * position the party, then create follower controllers and reset per-unit state.
- *
- * measured: 1 -> 0 fnalign edits, 736 instructions. The remaining operand was a
- * real inline-result lifetime, not a compiler floor. The calendar search below
- * follows matched sibling FldDayEventActive: its initial found = 0 and early return 0
- * both survive allocation, giving found four counted references and retail's $s5.
- * Post-color CSE removes the early-return zero; the success store is then the
- * required addiu $s5, $zero, 1. A capture confirms that exact deletion.
- *
- * Typed views document observed offsets; unknown fields remain unnamed. Separate
- * placementCursor preserves the node-loop entry branch. Per-phase slot lookups,
- * address conversions and word-aligned copies preserve retail's evaluation order.
- */
+/* measured: the slot setup, spawn and facing functions below need this optimizer setting to
+ * reproduce retail code. Initialize the four occupied party slots lacking scene resources: attach
+ * models and placements, apply the leader's calendar/room animation rule, position the party, then
+ * create follower controllers. */
 #pragma push
-/* measured: dead assignments off + lifetimes on took 180 -> 173 edits;
- * retain these scopes for the byte-exact initializer below. */
-/* measured: FldUnit_UpdateFacing MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps dead assignments and separate variable lifetimes here; the initializer and
+ * FldUnit_UpdateFacing need these settings. */
 // FUN_00162E10
-/* measured: baseline 337 differing words; block lifetimes did not match; retain scoped settings. */
+/* measured: retail keeps assignments the optimizer would drop, so dead-assignment elimination is
+ * off. */
 #pragma opt_dead_assignments off
 void FldUnit_UpdateFacing(void)
 {
@@ -712,7 +693,8 @@ void FldUnit_UpdateFacing(void)
             if (placement == NULL) {
                 u8 *gridRow;
 
-                /* Keep the separate grid queries and unsigned byte-to-float casts. */
+                /* Retail queries the frame state separately for each grid read and casts the bytes
+                 * to float as unsigned. */
                 spawnPosition.x = 1200.0f *
                     (f32)(u32)((FldFrame *)MT_Scene_GetFrameState())->spawnColumn;
                 spawnPosition.y = 2.0f;
@@ -852,13 +834,11 @@ void FldUnit_UpdateFacing(void)
 }
 
 #pragma pop
-/* 760/768 bytes, 15 resolved relocations, and eight zero alignment bytes.
- * Loop-invariant motion preserves the slot stride and copy-loop scheduling. */
+/* Loop-invariant motion keeps the slot stride and copy-loop scheduling. */
 #pragma push
-/* measured: FldUnit_CreateEncounterUnit MATCH -> MISMATCH without this pragma. */
-/* Raw word cursors preserve the paired-word copy of the 0x150-byte placement image. */
+/* Raw word cursors copy the 0x150-byte placement image in word pairs. */
 // FUN_00163990
-/* measured: baseline 42 differing words; typed access, block lifetimes did not match; retain scoped settings. */
+/* measured: retail hoists the slot stride and copy-loop values, so loop-invariant motion is on. */
 #pragma opt_loop_invariants on
 u8 *FldUnit_CreateEncounterUnit(u32 encounter, u8 *placement, s32 variant)
 {
@@ -948,21 +928,8 @@ u8 *FldUnit_CreateEncounterUnit(u32 encounter, u8 *placement, s32 variant)
     levelSum = 0;
     unitCount = ((DatUnitGenusBase *)(MEMBER(u8 *, slot, FieldUnitRecord, unitData)))->count;
     for (; unitIndex < (s32)unitCount; unitIndex++) {
-        /* Step 4: batch protocol record. Baseline 36 MATCH / 6 ASM, this
-           function 0 words diff (760B obj / 768B window) with volatile.
-           Step 2 plain `*(u8 * *)&((FieldUnitRecord *)slot)->unitData` scores 32 words diff:
-           hoists to preheader `lw $a1,0x48($s0)` + loop `lw $v0,4($a1)`,
-           retail reloads per iteration `lw $a0,0x48($s0)` + `lw $v0,4($a0)`.
-           Step 3 `opt_loop_invariants off` with correct save/restore
-           (unit default around function is loop_invariants off / common_subs
-           on; function scope is loop_invariants on via push, restored to on
-           after the loop) still scores 32 scoped and 25 whole-function off
-           (extra andi on the bound), still hoisted. Also scored and kept out:
-           scoped common_subs off 32, whole common_subs off 144,
-           whole propagation off 169, scoped optimization_level 1 25,
-           block-scope group 32, inlined double-deref 32, s32 unitCount 32,
-           (s32)slot cast 35. No honest spelling reproduces the reload, so
-           volatile is kept to preserve MATCH; H001 remains here. */
+        /* measured: retail reloads unitData on every iteration; no plain spelling or pragma
+         * reproduces it without volatile. */
         group = MEMBER(u8 *volatile, slot, FieldUnitRecord, unitData);
         levelSum += ((DatUnitGenusBase *)group)->unit[unitIndex].level;
     }
@@ -972,10 +939,7 @@ u8 *FldUnit_CreateEncounterUnit(u32 encounter, u8 *placement, s32 variant)
 }
 
 #pragma pop
-/* Historical probe residual below predates the current MATCH; retained as provenance. */
-/* measured: parked nd 5, object/window 808/816. The control flow, 0x50-byte frame, stack aggregate stores, and 35.0f COP1 call match. Exact fndiff residuals are offsets 0x14, 0x18, 0x1C, 0x20, and 0x24: b210 schedules the D_005F1528 lwc1 before the D_005F1520 ld and colors the ld result $v0 instead of retail $v1. Ruled out assignment/declaration-order swaps, named-local versus direct-store forms, pointer and aggregate S8/S12 forms, comma sequencing, register storage, and pragma wrappers; no prototype or symbol changes. Committed at nd 5. */
 /* Create an encounter slot scene object and size its shadow and marker from the level difference. */
-/* measured: retained byte-alias unit/model/placement accesses changed codegen even individually (201..598 differing bytes); keep their byte-pointer aliasing. Nested scene fields are typed. */
 // FUN_00163C90
 s32 FldUnit_SetupSlot(s32 slotIndex)
 {
@@ -1075,8 +1039,9 @@ s32 FldUnit_AllSlotsReady(void)
     return 1;
 }
 
-/* Release unit data, scene resources, model ownership and controller tasks for one occupied slot. */
-/* measured: typing the remaining model reads or final slot clears changed codegen (207..250 differing bytes); keep the measured pointer/MEMBER accesses after teardown calls. */
+/* Release unit data, scene resources, model ownership and controller tasks for one occupied slot.
+ * measured: retail reads the model fields and clears the slot through raw pointers after the
+ * teardown calls, so those accesses stay untyped. */
 // FUN_00164020
 void FldUnit_ReleaseSlot(u8 *unit)
 {
@@ -1144,9 +1109,8 @@ void FldUnit_ReleaseAllSlots(void)
     }
 }
 
-/* Keep cache traversal and signed selection lifetimes separate. Script records
-   contain fixed 32-byte paths indexed by the 16-bit PC ID. */
-/* measured: the two retained byte-alias model-cache reads changed codegen by 135/436 bytes; cache records start eight bytes beyond the biased cursor. */
+/* Script records contain fixed 32-byte paths indexed by the 16-bit PC ID; model-cache records start
+ * eight bytes beyond the biased cursor. */
 // FUN_00164230
 void FldUnit_SpawnAtEntry(u16 fieldId, u16 roomId, u16 entryId)
 {
@@ -1324,15 +1288,15 @@ s32 FldUnit_SpawnEncounter(u32 limit, s32 refill)
     return spawnCount;
 }
 
-/* measured: one shared update scope also preserves the intervening count, dispatch and animation wrappers. */
 #pragma push
-/* measured: FldUnit_FindNearestUnits MATCH -> MISMATCH without this pragma. */
-/* measured: FldUnit_FindNearestUnits MATCH -> MISMATCH without this pragma. */
-/* Both field modes use genuine position and difference vectors. The
-   selection temporary holds the first mode's saved node and the second
-   mode's current node in mutually exclusive paths. */
+/* measured: retail output for FldUnit_FindNearestUnits needs this pragma scope. Both field modes
+ * use real position and difference vectors; the selection temporary holds a saved or current node,
+ * depending on the mode. */
+/* Search the field unit placements for a spawn candidate that is away from the party and other
+ * units, and return the best one found. */
 // FUN_00164880
-/* measured: baseline 321 differing words; block lifetimes did not match; retain scoped settings. */
+/* measured: retail block lifetimes need common-subexpression and propagation optimizations disabled
+ * for this function. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
 u8 *FldUnit_FindNearestUnits(s32 unused, u32 limit, f32 minimumDistance)
@@ -1551,14 +1515,9 @@ void FldUnit_UpdateSlots(s32 includeLeader)
     }
 }
 
-/* 708/720 bytes; forty resolved relocations; twelve zero alignment bytes.
- * Preserve repeated unit-base multiplies and the link destination lifetime. */
-/* measured: FldUnit_UpdateSlot MATCH -> MISMATCH without this pragma. */
-/* measured: FldUnit_UpdateSlot MATCH -> MISMATCH without this pragma. */
 /* Reattach a party slot from its saved matrix and recreate its marker and follower controller. */
-/* Raw word cursors copy the saved 64-byte matrix; interior linker labels retain per-slot character/icon addresses without rebasing symbols. */
 // FUN_00164FA0
-/* measured: baseline 74 differing words; block lifetimes did not match; retain scoped settings. */
+/* measured: retail block lifetimes need the scoped optimizer settings for this function. */
 void FldUnit_UpdateSlot(s32 slotIndex)
 {
     f32 markerScale[3];
@@ -1663,16 +1622,8 @@ s32 FldUnit_AllSlotAnimsDone(void)
 /* Recreate encounter scene models while preserving each slot matrix and tint controller. */
 /* Remaining raw accesses retain paired-word matrix transfers, the radius table lookup and the native resource-ID halfword load. */
 // FUN_00165380
-/* nd 148 -> 0 (the old "GVN merges the slot address" floor). Each section-local
-   `slot = D_007E8C00 + i * 0x750` reassignment (A, B, C, the 0x1CB read, the
-   FldUnit_SpawnTintTask argument) must rematerialise; `slot += 0x54` must stay an addiu
-   between the two calls (`secondWordOrResourceId = firstWordOrResourceId & 0xFFFF` first so the andi precedes it); the
-   0x1CB read goes through `unitForTint = ...` so its recompute precedes the arg-0 load. */
-/* measured: opt_common_subs off rematerialises the slot address per assignment;
-   opt_propagation off keeps the pointer bump out of the store offset. */
-/* measured: FldUnit_UpdateSlotModels MATCH -> MISMATCH without this pragma. */
-/* measured: FldUnit_UpdateSlotModels MATCH -> MISMATCH without this pragma. */
-/* measured: baseline 143 differing words; block lifetimes did not match; retain scoped settings. */
+/* measured: with common-subexpression elimination off, the slot address is recomputed at each
+ * assignment; with propagation off, the slot pointer bump stays out of the store offset. */
 void FldUnit_UpdateSlotModels(void)
 {
     s32 i;
@@ -1750,11 +1701,8 @@ void FldUnit_UpdateSlotModels(void)
 }
 #pragma pop
 
-/* measured: restore the unit settings after the shared slot-update scope. */
-/* measured: FldUnit_ApplySlotTint, FldUnit_FindNearestSlot, FldUnit_InstallResources, FldUnit_PulseTintBlend, FldUnit_PulseTintPeriod, FldUnit_PulseTintStep, FldUnit_RequestSceneResource, FldUnit_RequestUnitResource, FldUnit_SetSlotModel, FldUnit_SetupEncounter, FldUnit_SpawnPartyTask, FldUnit_UpdateAllEnemySlots, FldUnit_UpdateEnemySlot MATCH -> MISMATCH without this pragma. */
-/* measured: FldUnit_ApplySlotTint, FldUnit_FindNearestSlot, FldUnit_SetSlotModel, FldUnit_SetupEncounter MATCH -> MISMATCH without this pragma. */
-/* Save the current model matrix before detaching scene resources and optional model ownership. */
-/* measured: individual remaining model reads and final clears changed codegen by 35..300 bytes; paired-word matrix cursors preserve the native copy. */
+/* Save the current model matrix before detaching scene resources and optional model ownership; the
+ * matrix is copied word by word through paired source/destination cursors, as retail does. */
 // FUN_00165670
 void FldUnit_SetSlotModel(u8 *unit, s32 destroyModel)
 {
@@ -1915,13 +1863,12 @@ void FldUnit_RequestUnitResource(void)
     }
 }
 
-/* Install the selected NPC placement pair with copied scripts, markers and control tasks. */
-/* measured: remaining NPC marker/model/file-size reads changed codegen by 104..681 bytes; the script-handle array retains its byte-offset slot addressing. */
+/* Install the selected NPC placement pair with copied scripts, markers and control tasks. The
+ * script-handle array is addressed by byte-offset slots. */
 // FUN_00165BE0
 #pragma push
-/* measured: FldUnit_InstallResources MATCH -> MISMATCH without this pragma. */
-/* measured: FldUnit_InstallResources MATCH -> MISMATCH without this pragma. */
-/* measured: baseline 16 differing words; block lifetimes did not match; retain scoped settings. pulloutconstants off removed; only invariant motion is needed. */
+/* measured: retail hoists loop-invariant loads out of the resource install loops; only invariant
+ * motion is needed here. */
 #pragma opt_loop_invariants on
 s32 FldUnit_InstallResources(void)
 {
@@ -2072,10 +2019,9 @@ s32 FldUnit_InstallResources(void)
 }
 
 #pragma pop
-/* measured: FldUnit_ApplySlotTint is an exact C match (object 796B, window 800B, normalized_diff 0). Retail computes the +4 byte first and keeps it live in $a1 while computing +7 into $v0; reusing the existing colorOrEffect loop temporary for the +4 assignment reproduces that liveness order and both endpoint stores. */
-/* The archived nd2 body had the endpoint temporaries reversed; naming/order probes did not move them. This liveness change preserves the 796B object and closes both prior residual words. */
-/* Create the placed field model and its marker, propagating model and effect tint colors. */
-/* measured: remaining scene/model/placement reads changed codegen even individually (193..540 differing bytes); retain these callback-crossing byte-pointer accesses. */
+/* Create the placed field model and its marker, propagating model and effect tint colors. The +4
+ * color byte reuses the colorOrEffect loop temporary because retail computes it before the +7 byte.
+ * Scene, model and placement reads stay as raw byte-pointer accesses across callbacks. */
 // FUN_00165FB0
 void FldUnit_ApplySlotTint(u8 *entry, u8 *placement, s32 resourceId)
 {
@@ -2155,8 +2101,8 @@ void FldUnit_ApplySlotTint(u8 *entry, u8 *placement, s32 resourceId)
     }
 }
 
-/* Select encounter placements and initialize the eight-entry field-object table. */
-/* Raw word cursors copy a placement image; the slot-table scan retains its proven 0x168-byte record stride. */
+/* Select encounter placements and initialize the eight-entry field-object table. Raw word cursors
+ * copy a placement image, and the slot-table scan uses a 0x168-byte record stride. */
 // FUN_001662D0
 void FldUnit_UpdateEnemySlot(void)
 {
@@ -2360,8 +2306,8 @@ u8 *FldUnit_FindNearestSlot(u8 *limit, u32 *selectedIndex, s32 requestedIndex)
     return selected;
 }
 
-/* Advance encounter creation, wait for slot readiness, and refill when the field limit permits. */
-/* measured: typing the remaining refill-limit read changed 385 bytes; retain that read through the original work cursor. */
+/* Advance encounter creation, wait for slot readiness, and refill when the field limit permits. The
+ * refill-limit read stays untyped, through the original work cursor. */
 // FUN_001668E0
 s32 FldUnit_SetupEncounter(u8 *task)
 {
@@ -2488,8 +2434,8 @@ void FldUnit_SetMode(u8 *task, s32 mode)
     }
 }
 
-/* Apply the fixed violet tint while whitening ordinary model effects. */
-/* measured: retained byte-alias work/effect accesses changed codegen individually (74..292 differing bytes); preserve byte-pointer aliasing across tint callbacks. */
+/* Apply the fixed violet tint while whitening ordinary model effects. Work and effect fields are
+ * accessed through byte pointers across the tint callbacks. */
 // FUN_00166C80
 s32 FldUnit_PulseTintStep(u8 *task)
 {
@@ -2553,15 +2499,8 @@ s32 FldUnit_PulseTintStep(u8 *task)
     return 0;
 }
 
-/* Historical probe residual below predates the current MATCH; retained as provenance. */
-/* measured: same three defects as sibling FldUnit_PulseTintBlend (see its note): (1)
-   (u8) conversions emit firstEffect.ole.s 0x46010036 vs retail 0x46000036 â€” 3 words,
-   nLine nLineDrawRecords floor; (2) pulse (sine result) spilled to
-   the stack instead of $f20 â€” frame 0x40 vs 0x50; (3) the four model-color byte
-   copies interleave lbu/sb. The madd.s (175+70x) and msub.s (37-10x,
-   255-200x) fused expressions and the 0x28 store match. */
-/* Pulse the model RGB over forty frames and propagate it to the marker effect. */
-/* measured: retained byte-alias work/effect accesses changed codegen individually (77..554 differing bytes); preserve counter reloads and callback-crossing accesses. */
+/* Pulse the model RGB over forty frames and propagate it to the marker effect. Counter reloads and
+ * accesses across callbacks are kept as retail does them. */
 // FUN_00166E30
 s32 FldUnit_PulseTintPeriod(u8 *task)
 {
@@ -2660,7 +2599,6 @@ mode_done:
 }
 
 /* Pulse the model RGB over twenty frames and propagate it to the marker effect. */
-/* measured: retained byte-alias work/effect accesses changed codegen individually (77..528 differing bytes); preserve counter reloads and callback-crossing accesses. */
 // FUN_00167120
 s32 FldUnit_PulseTintBlend(u8 *task)
 {
@@ -2764,8 +2702,8 @@ void FldUnit_FreeTintState(u8 *task)
     (*DAT_008873EC)(*(void * *)&((KwlnTask *)task)->work);
 }
 
-/* Create the encounter-category tint callback and initialize its pulse period. */
-/* measured: typing the remaining model access changed 62 bytes; keep the measured model/flag path while initializing the tint task. */
+/* Create the encounter-category tint callback and initialize its pulse period. measured: the model
+ * and flag accesses stay untyped because typed forms change retail codegen. */
 // FUN_00167420
 s32 FldUnit_SpawnTintTask(u8 *parent, u8 *unit)
 {
@@ -2793,16 +2731,14 @@ void FldUnit_ClearFlagBlock(void)
     memset(D_007E8020, 0, 0x40);
 }
 
-/* measured: the field and party state updates share the reload settings; party lifetimes remain scoped below. */
+/* measured: the field and party state updates share the same reload settings. */
 #pragma push
-/* Preserve the per-site unit addresses and the readiness value used by each
-   scan. The grid coordinates are signed integers; the second scan shares its
-   center and grid size while retaining the original coordinate before addition. */
-/* measured: indexing the second nearby-pointer list as an array changed one normalized byte; retain its original base-plus-offset address order. */
+/* Keeps per-site unit addresses and each scan's readiness value; grid coordinates are signed, and
+ * the second scan reuses the center and grid size, addressing its nearby-pointer list as base plus
+ * offset. */
 // FUN_00167560
-/* measured: FldUnit_UpdateFieldState MATCH -> MISMATCH without this pragma. */
-/* measured: FldUnit_UpdateFieldState MATCH -> MISMATCH without this pragma. */
-/* measured: baseline 197 differing words; block lifetimes did not match; retain scoped settings. */
+/* measured: retail does not merge common subexpressions or propagate copies in this function, so
+ * both optimizations are turned off here. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
 void FldUnit_UpdateFieldState(void)
@@ -2904,16 +2840,12 @@ void FldUnit_UpdateFieldState(void)
     }
 }
 
-/* Model replacement waits for all selected units before completing the task.
- * Measured: 904 relocated bytes plus eight zero suffix bytes. The scoped
- * lifetime/reload profile preserves the kind field across model teardown. */
-/* The retained byte-alias model-table access preserves the per-selection slot materialization described above; the surrounding request/cache fields are typed. */
+/* Model replacement waits for all selected units before completing the task; the scoped lifetime
+ * settings keep the kind field across model teardown. */
 // FUN_001679D0
 #pragma push
-/* measured: FldUnit_UpdatePartyState MATCH -> MISMATCH without this pragma. */
-/* measured: FldUnit_UpdatePartyState MATCH -> MISMATCH without this pragma. */
-/* measured: FldUnit_UpdatePartyState MATCH -> MISMATCH without this pragma. */
-/* measured: baseline 212 differing words; typed access, block lifetimes did not match; retain scoped settings. */
+/* measured: FldUnit_UpdatePartyState needs lifetime optimization on; typed access and block-scoped
+ * lifetimes did not reproduce retail register allocation. */
 #pragma opt_lifetimes on
 s32 FldUnit_UpdatePartyState(u8 *task)
 {

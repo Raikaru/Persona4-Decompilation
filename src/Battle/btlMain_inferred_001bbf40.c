@@ -82,24 +82,14 @@ extern f32 fGpffff8108;
 s32 btlTargetIsSlotAlive(u8 *context);
 
 
-
-
-
 #pragma push
 #pragma pop
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001bbf40-001bc330 */
-
-/* measured: opt_rebuildconditionals off for func_001b19c0 branch-fed scalar. */
-/* measured: close opt_rebuildconditionals off for func_001b19c0. */
-/* measured: scoped opt_lifetimes on with these disjoint work-pointer
- * lifetimes reproduces the complete 4156-byte retail body; all 122 owner
- * siblings, allocated data and 122 exact-position references are preserved.
- * The separate retained-height caller-domain proof remains required. */
+/* measured: opt_rebuildconditionals is off so func_001b19c0's branch-fed scalar keeps the retail
+ * branch shape. */
 #pragma push
 #pragma pop
-/* 744/752 bytes; twenty resolved relocations; eight zero alignment bytes.
- * Keep full-width dependency snapshots and branch-materialized final mode. */
+/* Keep full-width dependency snapshots and a branch-materialized final mode. */
 #pragma push
 #pragma pop
 #pragma push
@@ -117,8 +107,7 @@ void btlCameraSetTransitionDuration(u8 *camera, f32 seconds) {
     ((BtlCamera *)camera)->curveFlags = (u16) (((BtlCamera *)camera)->curveFlags & 0xFFF7);
 }
 
-/* Compute the selected linear, spring, or eased time step and publish the sampled camera pose.
- * Measured: the MEMBER step store avoids an extra +0x94 temporary in all three typed forms. */
+/* Compute the selected linear, spring, or eased time step and publish the sampled camera pose. */
 // FUN_001BBF90
 void btlCameraUpdateTransition(u8 *camera)
 {
@@ -205,7 +194,10 @@ s32 btlCameraIsTargetEligible(u8 *camera)
     return 1;
 }
 
-/* measured: opt_propagation off probe for bc240 table-address order. */
+/* measured: opt_propagation off keeps retail's table-address load order. */
+/* Return whether the camera's action target should take priority: always true when the battle state
+ * flag is set, otherwise true only when the skill has flag 0x20 and neither the acting unit's child
+ * record nor the skill flag 0x10 rules it out. */
 // FUN_001BC240
 /* Honor the battle override, otherwise require an eligible skill with priority bit 0x20. */
 s32 btlCameraIsTargetPrioritized(s32 cameraOrSkill)
@@ -249,9 +241,7 @@ done:
     return result;
 }
 
-/* measured: close opt_propagation probe for bc240. */
-/* Test the current action slot and action mode three. Measured: the MEMBER action reload differs
- * in access-site, local-pointer and array forms across the slot predicate. */
+/* Returns whether the camera's current action slot is dead or the action uses mode three. */
 // FUN_001BC330
 s32 btlCameraIsOrbitAction(u8 *camera) {
     u8 *action = (u8 *)((BtlCamera *)camera)->action;

@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00285cc0-002866c0 */
 
 /* Unit optimizer settings shared by the neighboring functions. */
 #pragma opt_loop_invariants off
@@ -66,7 +65,7 @@ extern s32 evtEffectLoadStep(s32 );
 extern void mtMiscBuildScene(s32 , u8 *);
 extern s32 mtMiscDispatchKeyAction(s32 , s32 );
 extern s32 cmmTableLookupValue(s32 , s32 , s32 );
-extern void mtMiscPlayCue(s32 ); /* lint: allow H011 -- measured: retyping to the u64(s16) definition changes evtStepEventTask codegen (nd 89); keep the caller's s32 argument */
+extern void mtMiscPlayCue(s32 ); /* lint: allow H011 -- the s32 argument keeps retail codegen in evtStepEventTask; the definition takes s16. */
 extern void evtLoadEventTables(u8 *);
 extern void evtEnvSlotSave(u8 *, s32 );
 extern void evtCamPosSave(u8 *);
@@ -97,7 +96,8 @@ typedef struct EvtCondition {
     u8 pad07;
 } EvtCondition;
 extern u8 *MT_Scene_GetResListHead(s32 );
-// Requests the field room for the event's room record (and the secondary room when set), loading it when the room file exists [inferred].
+// Requests the field room for the event's room record (and the secondary room when set), loading it
+// when the room file exists.
 // FUN_00285CC0
 s32 evtRequestFieldRoom(u8 *source) {
     s64 room;
@@ -130,11 +130,10 @@ s32 evtRequestFieldRoom(u8 *source) {
     return 1;
 }
 
-// Event task step: runs the event's state machine (stream, file and room loads) for the current state [inferred].
+// Event task step: runs the event's state machine (stream, file and room loads) for the current
+// state.
 // FUN_00285DD0
 s32 evtStepEventTask(u8 *sdkTaskBytes) {
-    /* measured: remaining loader fields preserve b210 pointer/address scheduling; individual typed substitutions move instructions. */
-    /* measured: remaining event-state byte accesses preserve b210 reload/address ordering; individual typed sites change instructions. */
     s32 taskAddress = (s32)sdkTaskBytes;
     u8 *data;
     u8 *entry;
@@ -305,7 +304,8 @@ s32 evtStart(s32 owner, s32 loadField) {
     if (owner != 0) {
         p[0] |= 0x40000000;
     }
-    // Event player task named D_0063C368 = "evtEditLoad" (retail string at VA 0x63C368); update is evtStepEventTask.
+    // Creates the event player task named "evtEditLoad" (D_0063C368) with evtStepEventTask as its
+    // update.
     task = (s32)kwlnTaskCreate((const void *)(D_0063C368), 0, 0, 0, evtStepEventTask, evtTaskDestroy, (u8 *)(p));
     if (loadField != 0) {
         p[0] |= 0x80000000;
@@ -319,7 +319,7 @@ s32 evtFindTask(void) {
     return kwlnTaskGetTaskByName(D_0063C368);
 }
 
-// Sets the load-request bit (loadFlags 0x1, +0x770); evtStepEventTask state 14 clears it.
+// Sets the load-request bit (loadFlags 0x1); evtStepEventTask state 14 clears it.
 // FUN_00286380
 void evtRequestLoad(s32 task)
 {
@@ -329,13 +329,13 @@ void evtRequestLoad(s32 task)
     ((EvtEventWork *)p)->loadFlags = ((EvtEventWork *)p)->loadFlags | 0x1;
 }
 
-// Returns 1 when the loader is idle (loadFlags bit 0x2, +0x770), else 0 [inferred].
+// Returns 1 when the loader is idle (loadFlags bit 0x2), else 0.
 // FUN_002863B0
 s32 evtLoaderIsIdle(s32 task) {
     return (((EvtEventWork *)kwlnTaskGetWork((void *)task))->loadFlags & 2) != 0;
 }
 
-// Event id: stores the three id words (+0x78C..+0x794) that label the event.
+// Stores the three eventId words that label the event.
 // FUN_002863E0
 void evtSetId(u32 task, s32 firstId, s32 secondId, s32 thirdId) {
     s32 *work;
@@ -349,7 +349,8 @@ void evtSetId(u32 task, s32 firstId, s32 secondId, s32 thirdId) {
 // Event condition: evaluates the supplied block; kind 0 always passes, kind 1 compares a result slot.
 // FUN_00286430
 s32 evtCheckCondition(u8 *key) {
-    /* measured: remaining diagnostic kind load preserves b210 address scheduling. */
+    /* measured: the diagnostic kind is loaded through the raw key pointer to keep retail's address
+     * scheduling. */
     s16 expected;
     u8 *ptr;
     s32 val;
@@ -407,7 +408,7 @@ fail:
     return 0;
 }
 
-// Applies an event block to the event's state table, clearing and refilling the working copy [inferred].
+// Applies an event block to the event's state table, clearing and refilling the working copy.
 // FUN_002865E0
 void evtApplyEventBlock(EvtLoaderBlock *work) {
     s32 block[15];
@@ -453,11 +454,9 @@ void evtApplyEventBlock(EvtLoaderBlock *work) {
     }
 }
 
-// Appends a node to the event's node list (head and tail pointers at +0x68/+0x6C) [inferred].
+// Appends a node to the event's child list (childHead/childTail).
 // FUN_002866C0
 void evtAppendNodeToList(u8 *owner, u8 *child) {
-    /* measured: remaining child-list fields preserve b210 pointer reload ordering; typed substitutions move instructions. */
-    /* measured: remaining child-list byte accesses preserve b210 alias-driven pointer reloads; typed sites change instructions. */
     u8 *node;
     u8 *previous;
 

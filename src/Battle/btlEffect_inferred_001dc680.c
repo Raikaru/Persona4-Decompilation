@@ -1,12 +1,10 @@
 #include "btl_action_internal.h"
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Battle/btlBoss.c; members 001dc680-001dc680 */
 
-/* Grouped verified Persona 4 source units. */
-/* The original guards were independently verified before grouping. */
 #include "include_asm.h"
 #include "type.h"
 u32 btlEffectSelectSelfTarget(void* object);
-/* Make the action its own sole selected target: first selected-target slot (+0x38) and count (+0x6A). */
+/* Make the action its own sole selected target by setting the first selected-target slot to itself
+ * and the count to 1. */
 // FUN_001DC680
 u32 btlEffectSelectSelfTarget(void* object)
 {

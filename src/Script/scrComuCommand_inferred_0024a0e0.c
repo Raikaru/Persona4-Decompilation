@@ -18,17 +18,10 @@ extern s32 cmmDateNotListed(s32 value);
 
 extern f32 D_00761260;
 extern f32 fGpffff811c;
-/* Promoted from the canonical function map: every function here is a
-   retail window with an INCLUDE_ASM fallback and no C body yet. */
-
-/* Source unit: src/promoted/code1_0024.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 0024a0e0-0024a140 */
 
 extern s32 cmmEnsureRecord(void);
-/* measured: optimization_level 1 preserves the saved task id across the guard. */
-/* measured: closes optimization_level 1 around func_00249b10. */
-// Returns 1 when the community table has entries and today's date is not yet listed, else 0 [inferred].
-/* script command 0x3018 (no p4flow name) */
+/* Script command 0x3018: returns 1 when the community table has entries and today's date is not yet
+ * listed, else 0. */
 // FUN_0024A0E0
 s32 cmmTodayNotListed(void)
 {
@@ -42,8 +35,8 @@ s32 cmmTodayNotListed(void)
     return 1;
 }
 
-// Classifies the next unlisted date: 1 when it is tomorrow, 2 when it falls on weekday 0, 3 when it has a day entry, else 0 [inferred].
-/* script command 0x301B (no p4flow name) */
+// Classifies the next unlisted date: 1 when it is tomorrow, 2 when it falls on weekday 0, 3 when it
+// has a day entry, else 0.
 // FUN_0024A140
 s32 cmmNextUnlistedDateKind(void)
 {

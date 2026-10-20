@@ -83,10 +83,6 @@ extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
 
 
-
-
-
-
 extern s32 iGpffffb444;
 
 /* RwCameraGetCurrentCamera (reads curCamera); cf. src/renderware/core/bacamera.c */
@@ -106,12 +102,8 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00191e20-00191e20 */
-
-/* RpClumpForAllAtomics callback (registered by K_Clump_ReadChunks). func_003E8120 and
- * func_003E8110 are RwCameraBeginUpdate and RwCameraEndUpdate, called through the
- * camera's beginUpdate/endUpdate slots (+0x18/+0x1C, include/rw/core/bacamera.h:277-278).
- * func_003C1BD0 renders the atomic through its renderCallBack (+0x48). */
+/* RpClumpForAllAtomics callback registered by K_Clump_ReadChunks; brackets the atomic render with
+ * RwCameraBeginUpdate/RwCameraEndUpdate. */
 // FUN_00191E20
 void *K_Clump_RenderAtomicCallBack(void *atomic, void *data) {
     if (func_003e8120(kwlnGetCamera()) != 0) {

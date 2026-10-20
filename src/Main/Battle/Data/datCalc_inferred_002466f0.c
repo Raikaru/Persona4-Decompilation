@@ -13,10 +13,8 @@ extern f32 D_00761260;
 extern f32 fGpffff811c;
 
 
-
-/* Source unit: src/promoted/code1_0024.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 002466f0-002466f0 */
-/* IMANISHI (STAFF) sequence stop hook at row 0x005DD250 +12; retail performs no teardown. See sequenceRequest: start/poll/stop use row offsets +4/+8/+12. */
+/* IMANISHI (STAFF) sequence stop hook; retail performs no teardown. The sequence table row holds
+ * start, poll and stop hooks in that order. */
 // FUN_002466F0
 void imanishiStaffStopNoop(void)
 {

@@ -32,8 +32,7 @@ s32 FldShadow_PollIntcBit13(void)
     return 0;
 }
 
-// P3 donor: AddIntcHandler/EnableIntc/RemoveIntcHandler (00502e40/00503ca8/00502e60),
-// DAT_007cc148 -> D_007616AC, DAT_007ce13c -> D_00764294 per map_shared_p3.py.
+// Matches P3 AddIntcHandler/EnableIntc/RemoveIntcHandler (00502e40/00503ca8/00502e60).
 extern s32 FldShadow_PollIntcBit13();
 extern s32 func_004214c0(s32 cause, s32 (*handler)(s32), s32 mode);
 extern s32 func_00422328(s32 cause);

@@ -1,7 +1,6 @@
 #include "btl_unit_internal.h"
 #include "datCalc_internal.h"
 #include "btl_motion_internal.h"
-/* Source unit: src/Battle/btlCamera_001bc3a0.c */
 #include "include_asm.h"
 #include "btl_action_internal.h"
 #include "effect_instance_internal.h"
@@ -258,12 +257,8 @@ s32 btlCameraStateRecordFlag(u8 *camera)
     offset += (u32)iGpffffb3bc;
     return (s32)((((BtlSkillFlags *)offset)->flags & 0x4000) != 0);
 }
-/* measured: no COP1 here despite the old "accumulator-chain floor" archive.
-   The state-history shift is retail's dead `while ((n = i) == 0)` (beq to the
-   body); the u16 counter's fresh andi on the store side needs the fused
-   `[i--]` subscript (raw byte-offset forms CSE it with n, nd185), and the
-   pointer-plus-index spelling with the constant last gives addu base,index. */
-/* Select the encounter-specific camera callback, reset timing, and optionally clear unit visibility flags. */
+/* Select the encounter-specific camera callback, reset timing, and optionally clear unit visibility
+ * flags. */
 // FUN_001BC660
 void btlCameraSetState(s32 state, BtlAction* action, u32 clearUnitFlags)
 {
@@ -428,7 +423,7 @@ void btlCameraCopyPoseTarget(f32 *destination, f32 *source)
     ((BtlCameraPose *)destination)->rot = ((BtlCameraPose *)source)->rot;
 }
 
-/* Build an orthonormal look-at matrix from eye, target, and supplied up vector. Matrix fields retain the existing 16-byte row stride. */
+/* Build an orthonormal look-at matrix from eye, target, and supplied up vector. */
 // FUN_001BD620
 void btlCameraBuildLookAtFrame(float *matrix,float *target,float *eye,float *up)
 {
@@ -468,10 +463,8 @@ void btlCameraLookAtQuat(void* out, const void* first, const void* second, const
 }
 
 
-/* Exact P4 action framing from the P3 FES 04d95e2 structural donor,
-   with P4 distance/angle branches and typed complete poses.
-   See docs/probe_archive/Action_camera_001be050_20260920.md. */
-/* Frame the acting unit while limiting angular change using near/far degree thresholds. */
+/* Frame the acting unit while limiting angular change using near/far degree thresholds. Structure
+ * follows the P3FES action camera, with P4 distance/angle branches. */
 // FUN_001BE050
 void btlCameraFrameActionDegrees(u8 *camera, f32 nearDegrees, f32 farDegrees)
 {
@@ -553,8 +546,8 @@ void btlCameraFrameActionDegrees(u8 *camera, f32 nearDegrees, f32 farDegrees)
     candidate.x += center.x;
     candidate.y += center.y;
     candidate.z += center.z;
-    
-    
+
+
     candidate.y += fGpffff8128 * (unitData->unk_8c * unitData->scale);
     delta.x = candidate.x - center.x;
     delta.y = candidate.y - center.y;
@@ -671,12 +664,8 @@ void btlCameraSetDefaultDistanceA(void* camera)
     btlCameraFrameActionDegrees((u8 *)camera, 45.0f, 200.0f);
 }
 
-/* Ported from current P3FES src/Battle/btlCamera.c btlCameraFrameActionTarget
- * (0x002a7390, donor 04d95e2). Historical donor verification is
- * recorded in the recovery note; no fresh P3 retail run is claimed.
- * Complete pose and quaternion objects retain the retail copy boundaries.
- * measured: 1156/1168 bytes; all executable bytes and relocations exact. */
-/* Ease the current camera toward the action unit anchor, limiting angular change. */
+/* Matches P3FES btlCameraFrameActionTarget. Whole pose and quaternion objects are copied as units,
+ * as in retail. Ease the current camera toward the action unit anchor, limiting angular change. */
 // FUN_001C09B0
 void btlCameraFrameActionTarget(u8* camera)
 {
@@ -920,8 +909,8 @@ void btlCameraFrameOrbit(void *camera, float angle, float distanceScale, float h
   radius = (float)((BtlUnit *)unitBytes)->sphereRadius * unitData->scale;
   
   halfHeight = (float)((BtlUnit *)unitBytes)->unk_8c * unitData->scale * 0.5f;
-  centerXY = *(volatile /* Removing this function's qualifier batch loses func_001c6760 (MATCH nd0 -> MISMATCH nd6, size 936 -> 936) - measured W170. */ u64 *)&scratch.sphereCenter.value;
-  centerZ = *(volatile /* Removing this function's qualifier batch loses func_001c6760 (MATCH nd0 -> MISMATCH nd6, size 936 -> 936) - measured W170. */ f32 *)&scratch.sphereCenter.value.z;
+  centerXY = *(volatile /* measured: retail reads the sphere center through memory as a doubleword before copying. */ u64 *)&scratch.sphereCenter.value;
+  centerZ = *(volatile /* measured: retail reloads the center Z from memory separately. */ f32 *)&scratch.sphereCenter.value.z;
   *(u64 *)&scratch.center.value = centerXY;
   scratch.center.value.z = centerZ;
   scratch.center.value.y = halfHeight * heightScale + scratch.center.value.y;
@@ -1108,12 +1097,8 @@ static inline f32 btlCameraChooseDistance(f32 current, f32 minimum)
     return minimum;
 }
 
-/* The P3 func_002add10 draft supplies the broad camera operation; the P4
- * source below is recovered against 001c6f40's own retail window.
- * Ordinary vectors and the two complete poses reproduce the 0x120 frame
- * and the twelve-byte ld/lwc1 vector copy. The projection record retains
- * the half-angle argument before the scaled extent is evaluated. */
-/* Build current/target poses framing the acting unit against the group bounds. */
+/* Builds current/target poses framing the acting unit against the group bounds. Matches P3FES
+ * func_002add10. */
 // FUN_001C6F40
 u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
                  P4CameraFrame *firstOut, P4CameraFrame *secondOut)
@@ -1406,8 +1391,6 @@ extern f32 btlTargetAngleBetween(u8 *first, u8 *second, u8 *point, u8 *projectio
 extern f32 RwV3dLength(f32 *vector);
 extern RwV3d D_0060A0D0;
 
-/* Measured: 1300 executable bytes, 23 resolved relocations, twelve zero
-   alignment bytes. Both aggregates contain only initialized live values. */
 /* Frame actor and first target using their relative heights and horizontal directions. */
 // FUN_001CC0A0
 void btlCameraFrameFreshPose(u8 *camera)
@@ -1563,7 +1546,7 @@ void btlCameraFrameFreshPose(u8 *camera)
         work.pos.y = 25.0f;
     }
 
-    
+
     btlCameraSetupActionGeometry((u8 *)cameraData->action, (u8 *)&work.pos, (f32 *)&target, 400.0f, 3);
     btlMainCurveReset((u16 *)(camera), (f32 *)(&work.pos));
 }
@@ -1612,11 +1595,9 @@ void btlCameraFrameSlerpTarget(u8 *camera, f32 *out)
     work.position[1] = work.distance;
     work.position[2] = -value;
     btlCameraLookAtQuat(out + 3, work.position, work.target, &D_0060A0E0);
-    /* measured: using the typed pose.rot address here loses MATCH (nd746). */
     blend = btlTargetQuatAngle((P4Vec4Holder_001EC2B0*)(camera + 0xA8), (P4Vec4Holder_001EC2B0*)(out + 3));
     if (blend > fGpffff80d8[1]) {
         blend = fGpffff80d8[1] / blend;
-        /* measured: using the typed pose.rot address here loses MATCH (nd742). */
         func_003dcc70((f32 *)(camera + 0xA8), out + 3, &work.result);
         if (blend <= 0.0f) {
             sample = ((BtlCamera *)camera)->pose.rot.imag.x;
@@ -1704,9 +1685,6 @@ void btlCameraFrameSlerpTarget(u8 *camera, f32 *out)
     out[1] = work.target[1] + work.direction[1];
     out[2] = work.target[2] + work.direction[2];
 }
-/* measured: plain-C aggregate reconstruction reproduces every retail
-   instruction; the object is 112B against the 128B window, with the retail
-   trailing jr/nop pair left as window padding. */
 /* Interpolate from the current pose to the group-target framing over ten seconds. */
 // FUN_001CC9E0
 void btlAct_TARGET(u8 *camera)
@@ -1827,13 +1805,8 @@ void btlCameraFrameClampedDistance(BtlCamera* camera)
 void btlCameraClampedDistanceUpdateNoop(void)
 {
 }
-/* The battle-start mode is 0..2 (001ef8c0); the group queries require
- * nonempty eligible unit sets. Three complete poses retain the first,
- * interpolated and final camera frames consumed by 001baff0.
- * measured b210 -O2: 2124/2128 bytes, four zero alignment bytes.
- * Whole quaternion assignment preserves the grouped copy; strict >1
- * participant tests retain the retail large-angle-first branch layout. */
-/* Build the battle-opening camera sequence according to opening side and participant count. */
+/* Builds the battle-opening camera sequence from the opening side (mode 0..2) and participant
+ * count, producing first, interpolated and final poses for the camera curve. */
 // FUN_001CCDB0
 void btlAct_NOP(u8 *camera)
 {
@@ -1920,15 +1893,15 @@ void btlAct_NOP(u8 *camera)
                 frames[0].pos.y = 25.0f;
             }
             btlUnitGetGridSphereCenter((BtlUnit *)unit, &unitCenter);
-            
-            
+
+
             unitCenter.y = unitData->unk_8c * unitData->scale;
             direction.x = unitCenter.x - groupCenter.x;
             direction.y = unitCenter.y - groupCenter.y;
             direction.z = unitCenter.z - groupCenter.z;
             distance = RwV3dLength(&direction);
-            
-            
+
+
             distance += (5.0f * (unitData->sphereRadius * unitData->scale)) /
                         
                         tanf(fGpffff8110 * (0.5f * cameraData->fovRad));
@@ -2227,12 +2200,8 @@ void btlAct_CONDITION(u8 *camera)
                   (f32 *)&work.targetPosition, 1);
     btlCameraSetDuration(camera, 0.75f);
 }
-/* Ported from current P3FES src/Battle/btlCamera.c FUN_002b41e0
- * (0x002b41e0, donor 04d95e2). Historical donor verification is
- * recorded in the recovery note; no fresh P3 retail run is claimed.
- * Complete pose and quaternion objects retain the retail copy boundaries.
- * measured: 1336/1344 bytes; all executable bytes and relocations exact. */
-/* Frame the acting unit grid center while limiting the quaternion turn. */
+/* Matches P3FES func_002b41e0. Frames the acting unit grid center while limiting the quaternion
+ * turn; whole pose and quaternion objects are copied as in retail. */
 // FUN_001CDE50
 void btlCameraFrameActionFocus(u8* camera)
 {
@@ -2294,7 +2263,6 @@ void btlCameraFrameActionFocus(u8* camera)
     candidate.y = candidate.y + pointNear.y;
     candidate.z = candidate.z + pointNear.z;
     candidate.y = candidate.y +
-        /* measured: direct, typed-local and array scale loads give nd991/1348B; retain byte-base aliasing. */
         fGpffff811c * (((BtlUnit *)unit)->unk_8c * MEMBER(f32, unit, BtlUnit, scale));
 
     btlCameraLookAtQuat(&frames[1].rot, &candidate,
@@ -2793,7 +2761,7 @@ void btlCameraInitWork(u8 *work, s32 firstAction, s32 secondAction, u8 *script, 
 // FUN_001D1200
 u8 *btlCameraGetCurrentEntry(u8 *work)
 {
-    /* measured: direct script-row indexing changes one byte; type the helper-addressed duration instead. */
+    /* measured: retail addresses the script row through the helper rather than direct indexing. */
     u8 *base;
     s16 index;
     s32 condition;

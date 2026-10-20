@@ -52,7 +52,6 @@ extern f32 D_00761438;
 extern u32 datCalcRandomBelow(u32 limit);
 
 
-
 extern void btlAICommandSetActionCode(u8 *action, u8 *work, u16 actionCode);
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
@@ -79,11 +78,8 @@ extern s32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001e8d80-001ea220 */
-
 #pragma push
 #pragma pop
-/* AI script command 0x2090 (p4flow AI.json AI_FUNCTION_0090). */
 // FUN_001E8D80
 /* Return the acting unit's default skill element to the AI script. */
 s32 btlEffectScriptGetSelfElement(void) {
@@ -91,7 +87,7 @@ s32 btlEffectScriptGetSelfElement(void) {
     return 1;
 }
 
-/* AI script command 0x209b (p4flow AI.json AI_FUNCTION_009B). */
+/* AI script command: return the id of the living side-0 unit with the lowest HP. */
 // FUN_001E8DD0
 /* Pick the living genus-0 action with least HP; scripts receive its tagged action id. */
 s32 btlEffectScriptPickLowestHpLivingSide0Unit(void) {
@@ -113,7 +109,8 @@ s32 btlEffectScriptPickLowestHpLivingSide0Unit(void) {
             entry = (u8 *)((BtlAction *)current)->unit;
             if (((BtlUnit *)entry)->genus == 0 &&
                 datCalcIsDead((s32)((BtlUnit *)entry)->datUnit, 0) == 0) {
-                /* measured: repeating typed action->unit across the call hoists +30 (232 vs 224 bytes). */
+                /* measured: repeating the typed action->unit load across the call hoists the unit
+                 * address out of the loop. */
                 value = datCalcGetHp((s32)((BtlUnit *)(u8 *)currentFields->unit)->datUnit) & 0xFFFF;
                 if (value < min) {
                     best = current;
@@ -128,7 +125,8 @@ s32 btlEffectScriptPickLowestHpLivingSide0Unit(void) {
     return 1;
 }
 
-/* AI script command 0x2083 (p4flow AI.json AI_FUNCTION_0083). */
+/* AI script command: among the candidates matching the normal-ally condition, return the id of the
+ * one with the lowest HP, or -1 if none match. */
 // FUN_001E8EB0
 /* Pick the least-HP action among normal candidates, or return -1 when none qualify. */
 s32 btlEffectScriptPickLowestHpNormalUnit(void) {
@@ -149,9 +147,9 @@ s32 btlEffectScriptPickLowestHpNormalUnit(void) {
             selected = NULL;
             min = 0x0FFFFFFF;
             index = 0;
-            /* measured: typing both count reads hoists +6A (312 vs 304 bytes). */
+            /* measured: typing both count reads hoists the target count out of the loop. */
             while (index < workFields->unk_6a) {
-                /* measured: a typed indexed target reverses the addu operands. */
+                /* measured: a typed indexed target reverses the address-add operands. */
                 entry = ((BtlAction *)(work))->targets[index];
                 value = datCalcGetHp((s32)((BtlAction *)entry)->unit->datUnit) & 0xFFFF;
                 if (value < min) {
@@ -168,7 +166,6 @@ s32 btlEffectScriptPickLowestHpNormalUnit(void) {
     return 1;
 }
 
-/* AI script command 0x2084 (p4flow AI.json AI_FUNCTION_0084). */
 // FUN_001E8FE0
 /* Pick the least-HP normal candidate with the extra 0x100000 selection filter. */
 s32 btlEffectScriptPickLowestHpNormalFilteredUnit(void) {
@@ -189,7 +186,7 @@ s32 btlEffectScriptPickLowestHpNormalFilteredUnit(void) {
             selected = NULL;
             min = 0x0FFFFFFF;
             index = 0;
-            /* measured: repeated typed count reads hoist +6A into a saved register. */
+            /* measured: repeated typed count reads hoist the target count into a saved register. */
             while (index < workFields->unk_6a) {
                 /* Preserve the work-first addu operands used for this indexed target. */
                 entry = ((BtlAction *)(work))->targets[index];
@@ -208,7 +205,6 @@ s32 btlEffectScriptPickLowestHpNormalFilteredUnit(void) {
     return 1;
 }
 
-/* AI script command 0x2085 (p4flow AI.json AI_FUNCTION_0085). */
 // FUN_001E9110
 /* Pick the least-HP normal candidate using selector 0x2D instead of 0x2C. */
 s32 btlEffectScriptPickLowestHpNormalAltUnit(void) {
@@ -229,7 +225,7 @@ s32 btlEffectScriptPickLowestHpNormalAltUnit(void) {
             selected = NULL;
             min = 0x0FFFFFFF;
             index = 0;
-            /* measured: repeated typed count reads hoist +6A into a saved register. */
+            /* measured: repeated typed count reads hoist the target count into a saved register. */
             while (index < workFields->unk_6a) {
                 /* Preserve the work-first addu operands used for this indexed target. */
                 entry = ((BtlAction *)(work))->targets[index];
@@ -248,7 +244,8 @@ s32 btlEffectScriptPickLowestHpNormalAltUnit(void) {
     return 1;
 }
 
-/* AI script command 0x2089 (p4flow AI.json AI_FUNCTION_0089). */
+/* AI script command: return the id of the remembered side-1 unit if there is one, otherwise return
+ * a random living side-1 unit. */
 // FUN_001E9240
 /* Reuse a genus-1 target when available, otherwise randomly choose a living one. */
 s32 btlEffectScriptPickRandomSide1Unit(void) {
@@ -284,7 +281,9 @@ s32 btlEffectScriptPickRandomSide1Unit(void) {
     return 1;
 }
 
-/* AI script command 0x208a (p4flow AI.json AI_FUNCTION_008A). */
+/* Find an element the target action's unit is weak to, checking the AI unit's default attack
+ * element first and then each skill in its skill list. Return that element to the script, or -1 if
+ * none matches. */
 // FUN_001E9350
 /* Find a usable skill element whose target affinity includes mask 0x08000000. */
 s32 btlEffectScriptFindAilmentSkillElement(void) {
@@ -311,7 +310,7 @@ s32 btlEffectScriptFindAilmentSkillElement(void) {
         scrSetReturnInt((s16)element);
         return 1;
     }
-    /* measured: repeated typed datUnit/action-unit fields hoist addresses across calls (412 vs 400 bytes). */
+    /* measured: repeated typed datUnit/action-unit fields hoist addresses across calls. */
     count = datCalcGetTableLength(entryFields->datUnit) & 0xFFFF;
     base = datCalcSkillList(entryFields->datUnit);
     index = 0;
@@ -330,7 +329,8 @@ s32 btlEffectScriptFindAilmentSkillElement(void) {
     return 1;
 }
 
-/* AI script command 0x208b (p4flow AI.json AI_FUNCTION_008B). */
+/* Return the id of the selected action's unit if it is on side 1. Otherwise pick a random living,
+ * active side-1 unit and return its id. */
 // FUN_001E94E0
 /* Resolve the selected action's key, falling back to a random living genus-1 action. */
 s32 btlEffectScriptPickRandomSide1OtherUnit(void) {
@@ -367,7 +367,8 @@ s32 btlEffectScriptPickRandomSide1OtherUnit(void) {
     return 1;
 }
 
-/* AI script command 0x208c (p4flow AI.json AI_FUNCTION_008C). */
+/* Return the id of the lowest-HP living side-1 unit that has a usable skill candidate. If none has
+ * one, return the lowest-HP living side-1 unit instead. */
 // FUN_001E9600
 /* Prefer the least-HP skill-eligible genus-1 target, falling back to least HP. */
 s32 btlEffectScriptPickLowestHpSkillEligibleUnit(void) {
@@ -418,7 +419,9 @@ s32 btlEffectScriptPickLowestHpSkillEligibleUnit(void) {
     return 1;
 }
 
-/* AI script command 0x209d (p4flow AI.json AI_FUNCTION_009D). */
+/* Return the id of the lowest-HP side-0 unit whose HP is at least the given minimum, whose HP
+ * percentage is at most the given maximum, and that has any of the requested bad statuses. Return
+ * -1 if no unit qualifies. */
 // FUN_001E9770
 /* Pick least HP within the script's minimum HP, maximum percentage and status mask. */
 s32 btlEffectScriptPickLowestHpInRangeUnit(void) {
@@ -490,15 +493,8 @@ loop_test:
     return 1;
 }
 
-/* Rank usable skills by the best single target or the accumulated target score.
- * The producer's 0x40-byte target record includes selected@0x3A and flags@0x3C.
- * Register/spill notes (verified MATCH): skill and element are s32 (retail passes
- * skill unnarrowed and re-sign-extends element); func_0023d8e0 and func_001d7f10
- * are declared here with s32 skill parameters, as retail passes $s2 without a
- * mask. Retail spills skillStore, singleTargetElement, groupElement, skillIndex and bestCost; the
- * declaration order (bestTargetId before skillIndex, element before skill, skillStore
- * after singleTargetElement/groupElement) reproduces that spill set and slot order. */
-/* AI script command 0x20fa (p4flow AI.json AI_FUNCTION_00FA). */
+/* Rank usable skills by the best single target or the accumulated target score; the 0x40-byte
+ * target record holds selected at 0x3A and flags at 0x3C. */
 // FUN_001E9950
 s32 btlEffectScriptChooseBestSkill(void) {
     BtlAction *singleTargetFields;
@@ -555,7 +551,7 @@ s32 btlEffectScriptChooseBestSkill(void) {
     bestCost = 0x3E7;
     bestScore = -1.0f;
     skillLimit = ((datCalcGetTableLength(((BtlUnit *)unit)->datUnit) & 0xFFFF) + 1) & 0xFFFF;
-    /* measured: repeated typed datUnit/action-unit loads hoist addresses (1512 vs 1488 bytes). */
+    /* measured: repeated typed datUnit/action-unit loads hoist addresses across calls. */
     table = (u16 *)datCalcSkillList(unitFields->datUnit);
     skillIndex = 0;
     skillCount = skillLimit & 0xFFFF;
@@ -689,7 +685,8 @@ outer_test:
     return 1;
 }
 
-/* AI script command 0x2100 (p4flow AI.json AI_FUNCTION_0100). */
+/* Return the id of the highest-HP living side-1 unit that has any of the requested bad statuses, or
+ * -1 if there is none. */
 // FUN_001E9F20
 /* Pick the living genus-1 target with matching status bits and greatest HP. */
 s32 btlEffectScriptPickHighestHpBadStatusUnit(void) {
@@ -710,7 +707,7 @@ s32 btlEffectScriptPickHighestHpBadStatusUnit(void) {
     bestHp = 0;
     current = ((BtlBattleState *)iGpffffb3ac)->actions;
     currentFields = (BtlAction *)current;
-    /* measured: repeated typed action->unit loads hoist +30 across status/HP calls. */
+    /* measured: repeated typed action->unit loads hoist the unit address across status/HP calls. */
     while (current != NULL) {
         flags = ((BtlAction *)current)->unk_1a;
         if ((flags & 1) && (flags & 8)) {
@@ -735,7 +732,8 @@ s32 btlEffectScriptPickHighestHpBadStatusUnit(void) {
     return 1;
 }
 
-/* AI script command 0x2101 (p4flow AI.json AI_FUNCTION_0101). */
+/* AI script command: among living units of genus 1 carrying the bad status given by the first
+ * parameter, return the id of the one with the lowest HP, or -1 if there is none. */
 // FUN_001EA050
 /* Pick the living genus-1 target with matching status bits and least HP. */
 s32 btlEffectScriptPickLowestHpBadStatusUnit(void) {
@@ -756,7 +754,7 @@ s32 btlEffectScriptPickLowestHpBadStatusUnit(void) {
     bestHp = 0x0FFFFFFF;
     current = ((BtlBattleState *)iGpffffb3ac)->actions;
     currentFields = (BtlAction *)current;
-    /* measured: repeated typed action->unit loads hoist +30 across status/HP calls. */
+    /* measured: repeated typed action->unit loads hoist the unit address across status/HP calls. */
     while (current != NULL) {
         flags = ((BtlAction *)current)->unk_1a;
         if ((flags & 1) && (flags & 8)) {
@@ -781,7 +779,8 @@ s32 btlEffectScriptPickLowestHpBadStatusUnit(void) {
     return 1;
 }
 
-/* AI script command 0x2102 (p4flow AI.json AI_FUNCTION_0102). */
+/* AI script command: choose a random unit from the AI's selected side and return its id, or -1 if
+ * no unit qualifies. */
 // FUN_001EA180
 /* Return a random action from the side selector, or -1 for an empty selection. */
 s32 btlEffectScriptPickRandomSideUnit(void) {
@@ -797,7 +796,6 @@ s32 btlEffectScriptPickRandomSideUnit(void) {
     return 1;
 }
 
-/* AI script command 0x2104 (p4flow AI.json AI_FUNCTION_0104). */
 // FUN_001EA220
 /* Set command kind 9 and its script arguments, then run the command handler fallback. */
 s32 btlEffectScriptSetActionParams(void) {
@@ -809,7 +807,7 @@ s32 btlEffectScriptSetActionParams(void) {
     ((BtlAiCommandWork *)((BtlAction *)work)->unk_38)->plan = scrGetParamInt(1);
     /* Use the command cursor directly; re-deriving it from action fields hoists +38. */
     ((BtlAiCommandWork *)(work + 0x38))->planArgument = scrGetParamInt(2);
-    /* The fourth script argument occupies command +0x42. */
+    /* The fourth script argument is stored in planArgument2. */
     ((BtlAiCommandWork *)(work + 0x38))->planArgument2 = scrGetParamInt(3);
     if (((s32 (*)(u8 *, s32))D_00609D20[0])(work, 0) == 0)
         ((s32 (*)(u8 *, s32))D_00609CE0[0])(work, 0);

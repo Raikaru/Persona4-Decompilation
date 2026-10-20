@@ -69,9 +69,9 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-
-/* Widen a signed motion-table halfword to the return-value integer domain. */
-/* measured: keeps dsll32/dsra32 after the byte-table load; direct casts remove both instructions in five callers. */
+/* Widen a signed motion-table halfword to the return-value integer domain. measured: retail sign-
+ * extends the loaded halfword to 64 bits explicitly; direct casts at the callers drop that
+ * extension. */
 static inline s64 btlUnitExtendSignedHalfword(s16 value)
 {
     return value;
@@ -83,10 +83,6 @@ extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
-
-
-
-
 
 
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
@@ -101,21 +97,8 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 001991c0-00199ec0 */
-
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off is scoped to func_001990d0. */
-/* measured: closes opt_propagation around func_001990d0. */
-/* measured: typing the initial genus load or the remaining table-pointer load changes MATCH to MISMATCH; a separate typed unit pointer matches. */
 /* Return motion-table frames divided by the requested and per-motion playback rates. */
 // FUN_001991C0
 s16 btlUnitMotionFrames(u8 *unit, u16 motion, f32 rate)
@@ -162,7 +145,8 @@ value_done:
 finish:
     motionId = (s32)(s16)result;
     if (motionId < ((BtlUnit *)unit)->motionCount) {
-        /* measured: a signed scalar result retains the motion-index allocation; byteAddressAdd changes 18 bytes. */
+        /* measured: a signed scalar motion index keeps the retail register allocation;
+         * byteAddressAdd does not. */
         entry = (u8 *)operandOrderAdd((s32)motionId * 10, (s32)*(u8 * *)&typedUnit->motionRates);
         return (s64)(s32)((f32)((BtlMotionRate *)entry)->unk0 /
             (rate * ((f32)((BtlMotionRate *)entry)->rate / 100.0f)));
@@ -170,7 +154,6 @@ finish:
     return 0;
 }
 
-/* measured: typing the initial genus load or the remaining table-pointer load changes MATCH to MISMATCH; a separate typed unit pointer matches. */
 /* Return the scaled follow-up interval; a negative table interval yields zero. */
 // FUN_00199350
 s16 btlUnitMotionFollowFrames(u8 *unit, u16 motion, f32 rate)
@@ -219,7 +202,8 @@ finish:
     s32 motionId;
     motionId = (s32)(s16)result;
     if (motionId < ((BtlUnit *)unit)->motionCount) {
-        /* measured: a signed scalar result retains the motion-index allocation; byteAddressAdd changes 18 bytes. */
+        /* measured: a signed scalar motion index keeps the retail register allocation;
+         * byteAddressAdd does not. */
         entry = (u8 *)operandOrderAdd((s32)motionId * 10, (s32)*(u8 * *)&typedUnit->motionRates);
         numerator = ((BtlMotionRate *)entry)->unk4;
         if (numerator < 0) {
@@ -232,8 +216,8 @@ finish:
 return 0;
 }
 
-/* measured: typing the initial genus load changes MATCH to MISMATCH; the later genus access is typed. */
-/* Read model animation length and scale it by the available motion-table playback rate. */
+/* Return the frame length of a motion's model animation, divided by the given rate and the motion
+ * table's playback rate when the motion has a table entry. */
 // FUN_00199500
 s16 btlUnitMotionModelFrames(u8 *unit, u16 motion, f32 rate)
 {
@@ -292,7 +276,6 @@ finish:
     return (s64)(s32)modelFrames;
 }
 
-/* measured: typing the initial genus load changes MATCH to MISMATCH; the later genus access is typed. */
 /* Resolve the final halfword of a motion row, defaulting to six when unavailable. */
 // FUN_001996D0
 s16 btlUnitGetMotionTableFrames(u8 *unit, u16 motion)
@@ -365,9 +348,8 @@ void btlUnitSetModelAnimFrame(u8 *unit, s32 frame)
         mdlSetLayerTime(((BtlUnit *)unit)->layerHandle, 0, (f32)frame);
 }
 
-/* measured: opt_propagation off is scoped to func_001998e0. */
-/* Formation class values occupy the first halfword of each four-byte hit-class pair. */
-/* Classify the requested motion and read the formation-specific class value when applicable. */
+/* Formation class values occupy the first halfword of each four-byte hit-class pair. Classify the
+ * requested motion and read the formation-specific class value when applicable. */
 // FUN_001998E0
 s32 btlUnitMotionClassValue(u8 *unit, s32 motion)
 {
@@ -431,13 +413,9 @@ function_done_001998e0:
     return finalResult;
 }
 
-/* measured: closes opt_propagation around func_001998e0. */
-/* Measured: the hit ordinal is s64 and motion is u16. Propagation off
-   retains the entry mask and the late unsigned-halfword table index. */
-/* measured: func_001999f0 MATCH -> MISMATCH without this pragma. */
+/* measured: the hit ordinal is s64 and motion is u16; with propagation off, retail keeps the entry
+ * mask and indexes the table late with an unsigned halfword. */
 #pragma opt_propagation off
-/* measured: remaining genus/table spelling changes lose MATCH; mixed 0xE8/0x14C formation hit records remain partial. */
-/* Resolve the hit interval for a motion class and ordinal, then apply playback-rate scaling. */
 // FUN_001999F0
 s16 btlUnitMotionHitFrames(u8 *unit, u16 motion, f32 rate, s64 hitOrdinal)
 {
@@ -548,9 +526,6 @@ finish_001999f0:
                       (rate * ((f32)denominator / 100.0f)));
 }
 
-/* Measured: 336B/336B, nd 0. Keep the full-width ID for the predicate;
-   scoped propagation preserves the staged unsigned table offset. */
-/* measured: indexed and local skill-flag loads change codegen; MEMBER_OFFSET preserves base-plus-two-before-index order. */
 /* Select the opening mode from skill flags, battle state, or the calculated skill element. */
 // FUN_00199D00
 #pragma push

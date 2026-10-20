@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 003136b0-003142f0 */
 
 /* Unit optimizer settings shared by the neighboring functions. */
 #pragma opt_loop_invariants off
@@ -212,7 +211,7 @@ s8 fclCombineItemSlot(s8 materialCount, u16 persona)
 /* Resolve date-selection entries for today and tomorrow, then clear the pending selection. */
 #pragma push
 #pragma opt_loop_invariants on
-/* measured: cached and typed date-table bases do not match; baseline retains 101 differing words. */
+/* measured: retail hoists the date-table base out of the loop, so loop invariants are on. */
 // FUN_00313B50
 void cmmDateSelectionRefresh(u8 *task)
 {
@@ -238,16 +237,15 @@ void cmmDateSelectionRefresh(u8 *task)
 }
 #pragma pop
 
-/* Select the highest-priority enabled date entry, retaining mandatory
- * priority-100 entries and the retail repeated count-flag reads.
- * The calendar branch consumes the low day byte; the explicit-date
- * branch reuses that parameter as its signed-halfword loop index. */
+/* The calendar branch uses the low day byte; the explicit-date branch reuses that parameter as its
+ * signed-halfword loop index. */
 
 
 /* Select the highest-priority enabled date option while retaining mandatory priority-100 options. */
 #pragma push
 #pragma opt_loop_invariants on
-/* measured: cached selection/count pointers and typed option access do not match; baseline retains 133 differing words. */
+/* measured: retail hoists the selection and count pointers out of the loop, so loop invariants are
+ * on. */
 // FUN_00313D20
 void cmmDateSelectionSelect(u8 *task, u8 month, s32 day, s8 mode)
 {
@@ -325,7 +323,6 @@ s32 datPersonaExpToNextLevel(u8 *persona)
     return temp - datPersonaGetExpForLevel(persona, persona[4]);
 }
 
-/* measured: corrected all six callee declarations from the verified definitions. */
 extern void shdPersonaSetDisplayState(u8 *, s32 , u32 , s8 );
 extern s32 shdPersonaIsTransitioning(u8 *);
 extern void shdPersonaStartSlideIn(u8 *);
@@ -334,7 +331,8 @@ extern u8 shdPersonaGetAlpha(u8 *);
 /* Drive the child Persona display through opening, reconfiguration and closing transitions. */
 // FUN_00314010
 s32 fclDrawTaskStep(u8 *ownerTask) {
-    /* measured: remaining task/date/recipe byte accesses preserve b210 reload and address scheduling; individual typed substitutions lose MATCH. */
+    /* measured: retail reloads the task, date and recipe bytes in an order that typed accesses do
+     * not reproduce. */
     s32 value;
     s8 state;
     u8 *work;

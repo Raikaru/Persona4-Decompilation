@@ -4,19 +4,11 @@
 
 /* Unit settings: propagation disabled and loop-invariant motion enabled. */
 #pragma opt_propagation off
-/* measured: these unit settings retain all six owner MATCHes. */
+/* measured: retail compiles this unit with propagation off and loop-invariant motion on. */
 #pragma opt_loop_invariants on
 
-/* Encounter-selection helpers (Kosaka unit).
- *
- * gp-relative globals (GP base 0x007690F0, see config/symbol_data_addrs.txt):
- *   iGpffffb41c (gp-0x4BE4 = 0x0076450C) -- pointer to the 10-byte encounter
- *       table entries (u16 id at +0, u8 flags/rates at +2/+3/+4, u16 at +6)
- *   iGpffffb418 (gp-0x4BE8 = 0x00764508) -- pointer to the 0xF8-stride
- *       per-encounter sub-table (two 0x78 halves, selected by the bool flag)
- *   iGpffffb424 (gp-0x4BDC = 0x00764514) -- pointer to the 0x15C-stride
- *       encounter-record table used by Encount_FindRecord
- */
+/* Encounter-selection helpers. iGpffffb41c points to 10-byte encounter entries, iGpffffb418 to the
+ * 0xF8-stride sub-table, iGpffffb424 to the 0x15C-stride record table. */
 
 extern s32 FldMap_IsInBandA(s32 fieldId, s32 roomId);
 extern s32 FldMap_IsInBandB(s32 fieldId, s32 roomId);
@@ -68,19 +60,12 @@ typedef struct EncWeightedTable {
     EncWeightedEntry entries[2][30];
 } EncWeightedTable;
 
-/* measured: the retained byteAddressAdd calls keep retail's offset-first
- * addu operands; the other eight former helper calls use plain sums. */
+/* measured: the remaining byteAddressAdd calls keep retail's offset-first add operand order. */
 
-/* This "load-sinking + addu-flip floor" needed BOTH levers at once, which is why
-   the four spellings listed before (plain expr, base local, m2c chain+base,
-   fully split statements) all stalled at nd 8: `#pragma opt_propagation off`
-   brings the single-use gp base load ahead of the index chain, and `byteAddressAdd`
-   helper holds the offset-first addu. Either alone leaves the other wrong.
-   The same pair matches the identically shaped FUN_00161B10 below. */
-/* Return encounter-entry flags only when the field and room belong to a supported encounter band. */
+/* Return encounter-entry flags only when the field and room belong to a supported encounter band.
+ * Matching needs both opt_propagation off and byteAddressAdd, as in FUN_00161B10. */
 // FUN_00161A70
-/* measured: forces the single-use gp base load ahead of the index chain. */
-/* measured: baseline removal differs in 16 bytes; typed encounter table indexing; name encounter table entry before load also differ. */
+/* The separate base local makes the single-use gp table load happen before the index arithmetic. */
 s32 Encount_GetEntryFlags(s32 field, s32 room, s32 entryIndex) {
     s32 result;
     u8 *base;
@@ -95,9 +80,6 @@ s32 Encount_GetEntryFlags(s32 field, s32 room, s32 entryIndex) {
 
 /* Return the entry's rate4 value for supported field and room encounter bands. */
 // FUN_00161B10
-/* measured: same recipe as FUN_00161A70 -- the pragma forces the single-use gp
-   base load ahead of the index chain. */
-/* measured: baseline removal differs in 16 bytes; typed encounter table indexing; name encounter table entry before load also differ. */
 s32 Encount_GetEntryRate(s32 field, s32 room, s32 entryIndex) {
     s32 result;
     u8 *base;
@@ -112,9 +94,8 @@ s32 Encount_GetEntryRate(s32 field, s32 room, s32 entryIndex) {
 
 /* Return the entry's rate3 value unless FldStepBandValue supplies a byte override. */
 // FUN_001619B0
-/* measured: same pair of levers as FUN_00161A70 -- the pragma brings the gp base
-   load ahead of the index chain, the helper holds the offset-first addu. */
-/* measured: baseline removal differs in 16 bytes; typed encounter table indexing; name encounter table entry before load also differ. */
+/* measured: like FUN_00161A70, retail loads the gp table base before the index math and adds the
+ * offset first. */
 s32 Encount_GetEntryRateOrOverride(s32 field, s32 room, s32 entryIndex) {
     s32 result;
     s32 idx;
@@ -134,13 +115,11 @@ s32 Encount_GetEntryRateOrOverride(s32 field, s32 room, s32 entryIndex) {
     return result;
 }
 
-/* The encounter tables and the constants 1/-1 are loop invariants that retail
-   hoists ahead of both loops. */
-/* measured: opt_loop_invariants on does that hoisting (and sign-extends the
-   s16 id once into $t2); without it the bases are rematerialised per iteration
-   (nd 45). `id == *(u16 *)(q + 2)` keeps retail's bne operand order. */
-/* measured: baseline removal differs in 137 bytes; typed active-slot array indexing; cache identifier table base outside loop also differ. */
-/* Search live encounter slots for an identifier in the tracked identifier table. */
+/* measured: retail hoists the encounter table bases and the -1 constant out of both loops; the id
+ * == *(u16 *)(q + 2) order keeps retail's compare order. Searches live encounter slots for an
+ * identifier. */
+/* Return 1 if the identifier appears in the tracked identifier table and is held by an enabled,
+ * non-finished encounter slot. */
 // FUN_00161BB0
 s32 Encount_IsEncounterActive(s16 id) {
     s32 result;
@@ -166,14 +145,13 @@ s32 Encount_IsEncounterActive(s16 id) {
     }
     return result;
 }
-/* Typed table aliases retain the two normal-rate load address orders under b210. */
+/* Pick an encounter for the field and room from the weighted tables, first rolling for normal,
+ * special or rare, then rolling a weighted entry. Return -1 if the room is outside the encounter
+ * bands or no entry has weight. */
 // FUN_00161630
-/* Choose a category, then draw an encounter from its weighted entries.
- * The three categories occupy entries [0,20), [20,25), and [25,30).
- * Return the encounter ID in the low halfword and the category bits above it.
- * Measured b210 -O2: 888/896 bytes, 19 resolved relocations, eight zero bytes.
- * Retained propagation preserves address lifetimes; the unsigned table-index
- * expression keeps the threshold lookup distinct from the cached signed offset. */
+/* Choose a category, then draw an encounter from its weighted entries; categories occupy entries
+ * [0,20), [20,25), and [25,30). Returns the encounter ID in the low halfword and category bits
+ * above it. */
 s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
 {
     u16 selected;
@@ -277,15 +255,12 @@ s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level)
     return (kind << 16) | selected;
 }
 
+/* Pick a random encounter record from the room's encounter table, weighted by each record's weight.
+ * Records are skipped if their item is already held, if the encounter is active or already in an
+ * active slot, or if the record doesn't fit the requested mode. */
 // FUN_00161C80
-/* Pick a weighted record (0x1D records of 0xC bytes) from the block of the
-   given encounter. A record is skipped when its id is in the D_005F1260 list
-   with a nonzero datItemCount count, or when Encount_IsEncounterActive or the D_007E80A0
-   slot scan finds it already present; bit 0 of byte 7 selects which modes
-   count it. The first pass sums the weights, the second draws against it. */
-/* measured: opt_loop_invariants on hoists the D_005F1260/D_007E80A0 bases and
-   the constants ahead of both loops, as retail does. */
-/* measured: baseline removal differs in 749 bytes; typed record array indexing; cache active-slot and identifier table bases also differ. */
+/* Pick a weighted record (0x1D records of 0xC bytes), skipping held items, active encounters, and
+ * records whose byte-7 bit 0 excludes the mode; sum weights, then draw. */
 u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode)
 {
     u8 *base;
@@ -350,9 +325,8 @@ u8 *Encount_FindRecord(s32 field, s32 room, u16 index, u16 mode)
         kAssertFail(D_005F12C8, 0x166);
     }
     rnd = RpRandom() % total;
-    /* measured: the draw loop's locals live in their own block, id first and
-       the counter last; that ranks the counter in $s0 and the id in $s4 as
-       retail does (other orders leave the two swapped). */
+    /* measured: retail allocates the draw loop's locals in their own block, declared id first and
+     * counter last. */
     {
         s16 id;
         s16 *pid;

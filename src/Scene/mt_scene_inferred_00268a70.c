@@ -51,12 +51,7 @@ typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 
 
-
-
 extern u8 D_00637420[];
-
-
-
 
 
 extern void (*jtbl_008873EC[])(void *);
@@ -74,45 +69,22 @@ extern char D_0063BA80[];
 extern s32 D_008815B0[];
 extern u8 iGpffffa734;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 00268a70-00268ad0 */
-
 extern f32 D_007612C4;
-/* Three trail-segment layouts (arg4 0/1/2). The 0xC0-byte point tables are
- * struct copies; each loop's i = 0 precedes the invariant scale products,
- * which opt_loop_invariants hoists while the (s16) conversion of the second
- * product stays in the loop as in retail. The closing call's position
- * arguments are computed before its D_007612C4 products. shdSpriteDrawNowEx's
- * colour parameter is declared u32 here (H011): retail converts arg2 for each
- * call and keeps the per-case colour copies in $fp/$s7. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: optimization-level probe for 00263220 register colouring */
-/* measured: closes optimization-level probe for 00263220 */
-/* measured: opt_loop_invariants on hoists (u8)opacity into the sq/lq spill retail has (269 -> 253 words on the shape before the statement-ordered font word; off it stays inside the fade block). */
+/* measured: opt_loop_invariants hoists the (u8)opacity conversion out of the fade block into a
+ * spill, as retail does. */
 #pragma push
 #pragma pop
-/* The switch arms are in retail's jump-table order. Locals whose live ranges
- * are disjoint share one variable (temp_18_2/temp_3, temp_17_10/temp_16_2,
- * temp_19_2/temp_17_3, fadeAlpha/temp_17_9, temp_22/temp_17), as retail's
- * register reuse across the cases shows. In case 7's day loop the date is
- * `temp_20` and the `* 0x5E` column is `var_2`, both dead outside that loop:
- * retail's register numbering follows which variable each value lives in, and
- * these give the $s3/$s4/$s5 order of the product, date and font word. The
- * render-state table goes through a u32 local, both fade rectangles are
- * {x,y,w,h} structs copied into the 16-byte argument, the case-5 and case-7
- * fallback tails are separate copies, and `temp_3_2 > 1` gives the slti $at
- * form. opt_lifetimes on is measured (102 -> 85 edits without the other levers). */
+/* The switch arms are in retail's jump-table order. Locals with disjoint live ranges share one
+ * variable, following retail's register reuse across cases. */
 #pragma push
 #pragma pop
-/* measured: opens optimization_level 1 to preserve retail's FPU term and accumulator order (nd 0). */
-/* measured: closes the optimization_level bracket (nd 0). */
-/* Copy complete table objects; renderer callbacks may change the item index. */
-// Intent: Scene icon task update, the callback created by MT_Scene_SpawnIconTask [inferred]
-/* measured: only the post-destroy clear requires MEMBER; access-site, typed-local and array forms change 42 bytes. */
+/* Scene icon task update, the callback created by MT_Scene_SpawnIconTask. */
 // FUN_00268A70
 s32 MT_Scene_IconTaskUpdate(u8 *task)
 {
@@ -130,8 +102,7 @@ s32 MT_Scene_IconTaskUpdate(u8 *task)
     return 0;
 }
 
-// Intent: Scene icon task destroy: releases the icon resource and the task work block [inferred]
-/* measured: only the post-destroy clear requires MEMBER; access-site, typed-local and array forms grow this body to 92 bytes (80-byte window). */
+// Scene icon task destroy: releases the icon resource and the task work block.
 // FUN_00268AD0
 void MT_Scene_IconTaskDestroy(u8 *task)
 {

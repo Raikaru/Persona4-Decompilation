@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0021dda0-0021ec40 */
 
 #include "datCalc_unit_internal.h"
 #include "member_access.h"
@@ -47,7 +46,7 @@ extern void btlXpAddRosterExp(u8 *);
 extern void btlXpAddPartyExp(s32);
 /* Unit setting: keep loop-invariant expressions in their original loops. */
 #pragma opt_loop_invariants off
-// Intent: start the shuffle overlay task if it is not already running. [inferred]
+// Start the shuffle overlay task if it is not already running.
 // FUN_0021DDA0
 void btlShuffleStartOverlay(void)
 {
@@ -63,16 +62,16 @@ void btlShuffleStartOverlay(void)
     }
 }
 
-// Intent: report whether the shuffle overlay task has finished. [inferred]
+// Report whether the shuffle overlay task has finished.
 // FUN_0021DE60
 s32 btlShuffleOverlayIdle(void)
 {
     return kwlnTaskGetTaskByName(&D_006290E0) == 0;
 }
 
-// Intent: compute an XP award for one persona from its level scaling and the award flags. [inferred]
+// Compute an XP award for one persona from its level scaling and the award flags.
 // FUN_0021DE90
-/* measured: baseline differs by 12 bytes; staged multiplication leaves 2 bytes, a separate weighted value leaves 26. */
+/* measured: retail does not propagate the scaled values, so copy propagation stays off here. */
 #pragma push
 #pragma opt_propagation off
 s32 btlXpComputeAward(s32 level, u8 *reward)
@@ -120,7 +119,7 @@ s32 btlXpComputeAward(s32 level, u8 *reward)
 }
 #pragma pop
 
-// Intent: return the base XP award for one persona after the award flags. [inferred]
+// Return the base XP award for one persona after the award flags.
 // FUN_0021E050
 s32 btlXpBaseAward(u8 *reward)
 {
@@ -145,9 +144,9 @@ extern u8 datPersonaGetLevel(int persona);
 extern u32 datPersonaGetExp(int persona);
 extern u16 datItemValue(s16);
 extern s16 datGetEquippedItemByUnit(s16, s16);
-// Intent: prepare the XP award blocks for the leader and the party without applying them. [inferred]
+// Prepare the XP award blocks for the leader and the party without applying them.
 // FUN_0021E110
-/* measured: baseline and while-loop roster traversal both differ by 1118 bytes. */
+/* measured: retail hoists loop-invariant expressions out of the roster loops in this function. */
 #pragma push
 #pragma opt_loop_invariants on
 void btlXpPrepareAwards(u8 *awards, u8 *reward)
@@ -307,15 +306,15 @@ void btlXpPrepareAwards(u8 *awards, u8 *reward)
                 datPersonaPreviewLevelUp((u8 *)partyPersona, awards + partyOutput * 0x88 + 0x6B4, partyAward);
             }
             expOffset = partyOutput * 4;
-            MEMBER(u32, expOffset + (s32)awards, BtlXpAwards, partyExp[0]) /* partyExp: typed indexing changes retail instruction bytes. */ = partyAward;
+            MEMBER(u32, expOffset + (s32)awards, BtlXpAwards, partyExp[0]) = partyAward;
         }
         idOffset = partyOutput * 2;
-        MEMBER(u16, idOffset + (s32)awards, BtlXpAwards, partyIds[0]) /* partyIds: typed indexing changes retail instruction bytes. */ = 5;
+        MEMBER(u16, idOffset + (s32)awards, BtlXpAwards, partyIds[0]) = 5;
     }
 }
 #pragma pop
 
-// Intent: apply the prepared level and skill-point awards to the leader and party. [inferred]
+// Apply the prepared level and skill-point awards to the leader and party.
 // FUN_0021E9A0
 void btlXpApplyAwards(u8 *awards, u8 *reward)
 {
@@ -360,7 +359,7 @@ void btlXpApplyAwards(u8 *awards, u8 *reward)
     }
 }
 
-// Intent: add prepared experience to each roster member and apply any level-ups. [inferred]
+// Add prepared experience to each roster member and apply any level-ups.
 // FUN_0021EB60
 void btlXpAddRosterExp(u8 *awards)
 {
@@ -384,7 +383,7 @@ void btlXpAddRosterExp(u8 *awards)
     }
 }
 
-// Intent: add prepared experience to the four party slots and apply any level-ups. [inferred]
+// Add prepared experience to the four party slots and apply any level-ups.
 // FUN_0021EC40
 void btlXpAddPartyExp(s32 awardsAddress)
 {

@@ -1,6 +1,5 @@
 /* Unit setting: propagate ordinary local values. */
 #pragma opt_propagation on
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002230e0-002238c0 */
 
 #include "rw_types_internal.h"
 #include "member_access.h"
@@ -52,7 +51,7 @@ extern u8 D_006296E8[];
 u8 *H_Cdvd_GetArchiveEntry(u8 *, s32, s32 *);
 extern void (*jtbl_008873EC[])(void *);
 extern void shdPersonaFinishPhase(u8 *);
-// Intent: Create the logo title task and its child draw. [inferred]
+// Create the logo title task and its child draw.
 // FUN_002230E0
 s32 btlLogoTitleCreate(s32 parent)
 {
@@ -74,7 +73,7 @@ s32 btlLogoTitleCreate(s32 parent)
     return task;
 }
 
-// Intent: Advance the logo title task state after its overlay finishes. [inferred]
+// Advance the logo title task state after its overlay finishes.
 // FUN_002231E0
 void btlLogoTitleAdvance(KwlnTask *task) {
     u16 *work;
@@ -89,25 +88,24 @@ void btlLogoTitleAdvance(KwlnTask *task) {
     ((BtlLogoWork *)work)->state = 5;
 }
 
-// Intent: Report whether the logo title task is ready (flag bit 1). [inferred]
+// Report whether the logo title task is ready (flag bit 1).
 // FUN_00223240
 s32 btlLogoTitleIsReady(KwlnTask *task)
 {
     return *(u16 *)kwlnTaskGetWork(task) & 1;
 }
 
-// Intent: Report whether the logo title task exists by name. [inferred]
+// Report whether the logo title task exists by name.
 // FUN_00223270
 s32 btlLogoTitleExists(void)
 {
     return kwlnTaskGetTaskByName((s8 *)D_00629640) != 0;
 }
 
-// Intent: Run the result overlay state machine for one tick. [inferred]
-/* b210: remaining state writes, child-handle reloads and roster counters individually differ when typed. */
+// Run the result overlay state machine for one tick.
 // FUN_002232A0
-/* 1036/1040 bytes; 26 code relocations and all nine switch entries exact. */
-/* measured: baseline differs by 556 bytes; cached roster index differs by 692 bytes. */
+/* measured: retail reloads values instead of propagating copies, so the roster index must not be
+ * cached in a local. */
 #pragma push
 #pragma opt_propagation off
 s32 btlResultOverlayTick(u8 *sdkTaskBytes)
@@ -245,7 +243,7 @@ s32 btlResultOverlayTick(u8 *sdkTaskBytes)
 }
 #pragma pop
 
-// Intent: Result overlay event callback; ignores events once the flag is set. [inferred]
+// Result overlay event callback; ignores events once flag bit 2 is set.
 // FUN_002236B0
 void btlResultOverlayOnEvent(s32 event, u16 *flags, s32 eventData)
 {
@@ -254,8 +252,8 @@ void btlResultOverlayOnEvent(s32 event, u16 *flags, s32 eventData)
     }
 }
 
-// Intent: Destroy the result overlay task work. [inferred]
-/* b210: typing the persona-window zero-store adds four bytes; its read remains typed. */
+// Destroys the result overlay task work. The persona-window zero-store stays untyped because typing
+// it changes the output; its read remains typed.
 // FUN_002236C0
 void btlResultOverlayDestroy(u8 *sdkTaskBytes)
 {
@@ -274,7 +272,7 @@ void btlResultOverlayDestroy(u8 *sdkTaskBytes)
     (*jtbl_008873EC)(work);
 }
 
-// Intent: Create the result overlay task. [inferred]
+// Create the result overlay task.
 // FUN_00223730
 s32 btlResultOverlayCreate(s32 parent)
 {
@@ -296,7 +294,7 @@ s32 btlResultOverlayCreate(s32 parent)
     return task;
 }
 
-// Intent: Start the result overlay and set its state. [inferred]
+// Start the result overlay and set its state.
 // FUN_00223830
 void btlResultOverlayStart(KwlnTask *task) {
     u16 *work;
@@ -311,14 +309,14 @@ void btlResultOverlayStart(KwlnTask *task) {
     ((BtlResultOverlayWork *)work)->state = 7;
 }
 
-// Intent: Report whether the result overlay is ready. [inferred]
+// Report whether the result overlay is ready.
 // FUN_00223890
 s32 btlResultOverlayIsReady(KwlnTask *task)
 {
     return *(u16 *)kwlnTaskGetWork(task) & 1;
 }
 
-// Intent: Report whether the result overlay task exists by name. [inferred]
+// Report whether the result overlay task exists by name.
 // FUN_002238C0
 s32 btlResultOverlayExists(void)
 {

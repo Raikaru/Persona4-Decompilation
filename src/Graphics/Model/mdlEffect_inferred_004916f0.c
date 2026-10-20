@@ -23,41 +23,22 @@ typedef struct {
 extern Code1_0049Color iGpffffbb64;
 
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 004916f0-004916f0 */
-
-/* Ported from the Cone emitter (EffConeEmitterUpdate): the same
- * owner identity, loop constants, clear-loop and snapshot shapes. The scale
- * locals are declared in retail FPR order (variation, E8, E4, F4, D8). The
- * live-particle height is read from VF10 through $v0 (qmfc2/prot3w), and
- * the floor blend and downward speed use a named product operand. */
+/* Shares the Cone emitter's (EffConeEmitterUpdate) loop constants, clear loop and snapshot shapes. */
 #pragma push
 #pragma pop
-/* Particle emitter update: spawn/respawn bookkeeping, then per-particle
- * motion with VU0 direction, sway and bounce.
- * Matching notes: the config/D_00922D70/prev quad copies go through $2
- * (user-approved, as in func_0048d8c0); swayBase is declared last and also
- * holds the accumulated spawn value earlier (`acc` in the m2c output), which
- * with opt_lifetimes on gives it a late web number so b210 spills it rather
- * than the asm `dot`, as retail does; the trail index `(node - base) >> 5` is
- * a named u32 multiplied by trailSpan; and `burst = 1` goes through a u8 local
- * (with opt_propagation off the only spelling that gives `daddiu`). The
- * pragmas are measured: opt_lifetimes off leaves 25 edits (dot is spilled),
- * opt_loop_invariants is what hoists the constant block retail loads before
- * the particle loop, and opt_propagation off keeps the u8 copy. */
+/* Particle emitter update: spawn/respawn bookkeeping, then per-particle motion with VU0 direction,
+ * sway and bounce. */
 #pragma push
 #pragma pop
-/* Swirl emitter update, ported from the d8c0/c4e0 particle family: three
- * stack vectors with retail's w=0 stores, the captured origin quad, loop
- * constants in hoist order, u8 preroll flag and snapshot pointer. The spawn
- * angle forms (angleRange * a) * b as one named product before the half-weighted
- * remainder; the radius pairs are both formed before the first is stored. */
+/* Swirl emitter update, ported from the d8c0/c4e0 particle family; the spawn angle is computed as
+ * one named product, (angleRange a) b. */
 #pragma push
-/* measured: func_004916f0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists the loop constants out of the particle loop and loads them before the
+ * loop starts. */
 #pragma opt_loop_invariants on
-/* measured: func_004916f0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps the u8 preroll flag copy. */
 #pragma opt_propagation off
 /* Spawn and advance orbiting particles, including preroll, key sampling and trail snapshots. */
-/* measured: baseline removal and a structured primary loop still differ (best isolated nd 1235 bytes); retain both toggles. */
 // FUN_004916F0
 void mdlEffectUpdateSwirlEmitter(u8 *emitterBytes)
 {
@@ -119,7 +100,6 @@ void mdlEffectUpdateSwirlEmitter(u8 *emitterBytes)
     f32 randomSample;
     f32 trigValue;
 
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     count = (emitterCounts = (MdlEffectEmitter *)parent)->primaryCount.value;
     flags = ((MdlEffectEmitter *)parent)->flags;
     nodes = ((MdlEffectEmitter *)parent)->particles;
@@ -138,7 +118,7 @@ void mdlEffectUpdateSwirlEmitter(u8 *emitterBytes)
     motionVector[3] = 0.0f;
     {
         u_long128 *const capture = &origin;
-        /* The complete 16-byte VU position copy retains its quadword storage representation. */
+        /* The position is copied as one 16-byte quadword. */
         *capture = *(u_long128 *)&((MdlEffectSwirlParameters *)config)->common.position;
     }
     effectVuLoad10((const EffectVuVector *)(config + 16));
@@ -151,7 +131,6 @@ void mdlEffectUpdateSwirlEmitter(u8 *emitterBytes)
     if ((((MdlEffectEmitter *)parent)->ticks == 0) && (((MdlEffectSwirlParameters *)config)->common.preroll != 0)) {
         initialPreroll = 1;
         preroll = initialPreroll;
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         if (!((prerollParameters = (MdlEffectSwirlParameters *)config)->common.emissionVariation <= 0.0f)) {
             f32 prerollScale = (fGpffff807c - ((MdlEffectSwirlParameters *)config)->common.emissionVariation) * effMiscRandFloat(0);
             secondValue = (f32)((MdlEffectEmitter *)parent)->primaryCount.value;
@@ -162,7 +141,6 @@ void mdlEffectUpdateSwirlEmitter(u8 *emitterBytes)
         goto post_init;
     } else {
         preroll = 0;
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         if (!((emissionParameters = (MdlEffectSwirlParameters *)config)->common.emissionVariation <= 0.0f)) {
             f32 scale = (fGpffff807c - ((MdlEffectSwirlParameters *)config)->common.emissionVariation) * effMiscRandFloat(0);
             countValue = ((MdlEffectSwirlParameters *)config)->common.emissionRate.signedValue;
@@ -189,7 +167,6 @@ post_init:
     zero = 0.0f;
     goto main_check;
 main_body:
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     if ((activeParticle = (SpawnParticle *)nodes)->age < lifetime) {
         goto skip_clear;
     }
@@ -233,9 +210,7 @@ skip_clear:
     firstValue = firstValue * randomSample;
     angle = firstValue + half * (angleRange * (one - angle));
     trigValue = sinf(angle);
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     firstValue = MEMBER(f32, config, MdlEffectSwirlParameters, startRadius) * trigValue;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     secondValue = MEMBER(f32, config, MdlEffectSwirlParameters, endRadius) * trigValue;
     state[0] = firstValue;
     state[1] = (secondValue - firstValue) / (f32)lifetime;
@@ -287,7 +262,6 @@ skip_clear:
         state[7] = zero;
         state[8] = one;
     }
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     (resetParticle = (SpawnParticle *)nodes)->age = 0;
     {
         u_long128 *snapshot = &previousPosition;
@@ -311,11 +285,9 @@ skip_clear:
         effectVuStore10((EffectVuVector *)nodes);
         ((SpawnParticle *)nodes)->age = (s32)angle;
     }
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     mdlEffectSampleKeyState(nodes, config, (sampledParticle = (SpawnParticle *)nodes)->age, &previousPosition);
     ((SpawnParticle *)nodes)->size = ((SpawnParticle *)nodes)->size * state[6];
     ((SpawnParticle *)nodes)->angle = ((SpawnParticle *)nodes)->angle * state[8];
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     MEMBER(f32, nodes, SpawnParticle, angle) = MEMBER(f32, nodes, SpawnParticle, angle) + state[7];
     if (preroll != 0) {
         trailSpan = ((MdlEffectSwirlParameters *)((MdlEffectEmitter *)parent)->parameters)->common.trailCount.signedValue * ((MdlEffectSwirlParameters *)((MdlEffectEmitter *)parent)->parameters)->common.trailWidth;
@@ -358,7 +330,6 @@ else_branch:
     mdlEffectSampleKeyState(nodes, config, age, &previousPosition);
     ((SpawnParticle *)nodes)->size = ((SpawnParticle *)nodes)->size * state[6];
     ((SpawnParticle *)nodes)->angle = ((SpawnParticle *)nodes)->angle * state[8];
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     ((SpawnParticle *)nodes)->angle = ((SpawnParticle *)nodes)->angle + state[7];
     mdlEffectUpdateParticleTrail(parent, nodes);
     ((SpawnParticle *)nodes)->age = age + 1;

@@ -1,15 +1,8 @@
-/* Source unit: src/Kosaka/Field/k_fldrc.c */
 #include "type.h"
 #include "Kosaka/k_clump_internal.h"
 
-/*
- * Retail reaches the "%03d" / "_%03d" / ".rws" fragments of its field-path
- * format table through gp-relative addiu with the offset folded in as an
- * addend.  These dummy externs are anchored at the GP base (0x007690f0) so
- * the pointer-minus-offset expressions below materialize the string
- * addresses (0x00762ee8 / 0x00762ef0 / 0x00762ef8) exactly like the donor
- * P3 unit (gp0xffff9538 at the P3 GP base, minus 0x6ac8).
- */
+/* Dummy externs anchored at the GP base let pointer-minus-offset expressions reach the "%03d",
+ * "_%03d" and ".rws" path fragments gp-relatively, as retail does. */
 extern u32 gp0xffff9df8;
 extern u32 gp0xffff9e00;
 extern u32 gp0xffff9e08;
@@ -34,7 +27,6 @@ struct RpMaterial;
 extern struct RpMaterial *FldRcMaterialSetMipmapTex(struct RpMaterial *material, void *data);
 extern u8 *iGpffffb590;
 extern void *RpClumpForAllAtomics(void *object, KClumpCallback callback, void *data);
-
 
 
 /* Build the field resource path from the current root and the two numeric IDs. */
@@ -78,6 +70,7 @@ void FldRc_ReleaseCachedObject(void) {
     }
 }
 /* Measured callback-wrapper idiom: preserve the object in s0, move userdata to a2, and call the shared iterator with the object field and callback. */
+/* Scale the material colors of the atomic's geometry by the given scale, then return the atomic. */
 // FUN_00458C40
 void *FldRc_ScaleGeometryColors(void *object, void *scale)
 {

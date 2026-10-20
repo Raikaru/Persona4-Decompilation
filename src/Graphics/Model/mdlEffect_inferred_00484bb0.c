@@ -15,7 +15,7 @@ typedef struct RwV3d
     f32 z;
 } RwV3d;
 
-// 64 bytes. Layout from P3FES include/rw/rwplcore.h.
+// Layout from P3FES RenderWare rwplcore.h.
 typedef struct RwMatrix
 {
     RwV3d right;   // 0x00
@@ -53,8 +53,6 @@ extern f32 fGpffff8044;
 
 extern void (*jtbl_008873EC[])(void *);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484bb0-00485870 */
-
 extern u_long128 mdlEffectInitParticleState(u8 *instance);
 extern void mdlEffectSetChildPositions(u8 *effect, f32 *value);
 extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
@@ -79,21 +77,18 @@ typedef struct Code48InitialState {
     f32 scalar74;
     u32 unknown78[2];
 } Code48InitialState;
-/* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
- * eight zero alignment bytes. IDA retains the result that Ghidra drops:
- * retail leaves the copied quadword in v0 through return. Preserve that
- * live-out; the current C callers discard it. The four hardware vf0 stores
- * produce (0,0,0,1), not a zero quadword. */
+/* measured: retail returns the copied quadword even though callers discard it; the four vf0 stores
+ * produce (0,0,0,1), not zero. */
 #pragma push
 #pragma pop
 /* The input and allocated result have separate construction lifetimes.
  * Both initial vectors use the first input quad, as in retail. */
 // FUN_00484BB0
 #pragma push
-/* measured: func_00484bb0 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline C nd 186B; adjacent-local declaration probe nd 186B; retain settings for owner MATCH. */
+/* measured: retail register allocation for this function needs opt_lifetimes enabled; the default
+ * allocation differs. */
 #pragma opt_lifetimes on
-/* measured: func_00484bb0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail code generation for this function requires propagation disabled. */
 #pragma opt_propagation off
 u8 *mdlEffectBuildFromResource(u8 *effect)
 {
@@ -136,7 +131,7 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
             kAssertFail(D_00713470, 0x547);
         }
         memset(clone, 0, 0x90);
-        (cloneTree = (MdlEffectTree *)clone)->childCount = 0; /* measured: the separate typed pointer preserves MATCH under b210. */
+        (cloneTree = (MdlEffectTree *)clone)->childCount = 0;
         *(s32 *)&((MdlEffectTree *)clone)->frame = 0;
         mdlEffectInitParticleState(clone);
         /* Retail initializes both vectors from the first input quad. */
@@ -172,13 +167,13 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
-                    MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind;
                     ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)linkedSource)->id;
                     ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)linkedSource)->sourceKind;
-                    if (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) >= 0x21U) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    if (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) >= 0x21U) {
                         kAssertFail(D_00713470, 0x2DD);
                     }
-                    if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->create == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
+                    if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->create == NULL) {
                         kAssertFail(D_00713470, 0x2DE);
                     }
                     ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
@@ -199,10 +194,10 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
-                    MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind;
                     ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)childSource)->id;
                     ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)childSource)->sourceKind;
-                    if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->clone == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
+                    if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->clone == NULL) {
                         kAssertFail(D_00713470, 0x321);
                     }
                     ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
@@ -212,7 +207,7 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
                 mdlEffectCopyRecord(nodeClone, node);
                 strcpy((char *)nodeClone + 0x9C, (const char *)node + 0x9C);
                 *(s32 *)&((MdlEffectNode *)nodeClone)->next = 0;
-                if (MEMBER(u8 *, clone, MdlEffectTree, lastChild) != NULL) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                if (MEMBER(u8 *, clone, MdlEffectTree, lastChild) != NULL) {
                     ((MdlEffectNode *)((MdlEffectTree *)clone)->lastChild)->next = nodeClone;
                     ((MdlEffectNode *)nodeClone)->previous = ((MdlEffectTree *)clone)->lastChild;
                 } else {
@@ -257,7 +252,7 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
                     sourceIndex = ((MdlEffectNode *)cur)->sourceIndex;
                     slot = base + sourceIndex * 0xC0;
                     target = input + ((MdlEffectNode *)slot)->id;
-                    if (MEMBER(s32, target, MdlEffectSource, secondaryCount) == 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    if (MEMBER(s32, target, MdlEffectSource, secondaryCount) == 0) {
                         kAssertFail(D_00713470, 0x5BE);
                     }
                     *(s32 *)parameterCount = ((MdlEffectSource *)target)->secondaryCount;
@@ -280,13 +275,13 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
-                    MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind;
                     ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)indexedSource)->id;
                     ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)indexedSource)->sourceKind;
-                    if (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) >= 0x21U) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    if (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) >= 0x21U) {
                         kAssertFail(D_00713470, 0x2DD);
                     }
-                    if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->create == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
+                    if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->create == NULL) {
                         kAssertFail(D_00713470, 0x2DE);
                     }
                     ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
@@ -306,13 +301,13 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
                     }
                     memset(prim, 0, 0x2C);
                     *(s32 *)prim = 0xD2;
-                    MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind;
                     ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)indexedSource)->id;
                     ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)indexedSource)->sourceKind;
-                    if (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) >= 0x21U) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                    if (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) >= 0x21U) {
                         kAssertFail(D_00713470, 0x2DD);
                     }
-                    if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->create == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
+                    if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->create == NULL) {
                         kAssertFail(D_00713470, 0x2DE);
                     }
                     ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
@@ -332,10 +327,10 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
                 }
                 memset(prim, 0, 0x2C);
                 *(s32 *)prim = 0xD2;
-                MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind; /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+                MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) = kind;
                 ((MdlEffectPrimitiveRecord *)prim)->id = ((MdlEffectPrimitiveRecord *)childSource)->id;
                 ((MdlEffectPrimitiveRecord *)prim)->sourceKind = ((MdlEffectPrimitiveRecord *)childSource)->sourceKind;
-                if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->clone == NULL) { /* measured: byte-based kind reloads preserve MATCH across table dispatch. */
+                if (((MdlEffectPrimitiveHandlers *)(D_00713480 + (MEMBER(u16, prim, MdlEffectPrimitiveRecord, kind) << 6)))->clone == NULL) {
                     kAssertFail(D_00713470, 0x321);
                 }
                 ((MdlEffectPrimitiveRecord *)prim)->instance.pointer =
@@ -345,7 +340,7 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
             mdlEffectCopyRecord(nodeClone, cur);
             strcpy((char *)nodeClone + 0x9C, (const char *)cur + 0x9C);
             *(s32 *)&((MdlEffectNode *)nodeClone)->next = 0;
-            if (MEMBER(u8 *, clone, MdlEffectTree, lastChild) != NULL) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            if (MEMBER(u8 *, clone, MdlEffectTree, lastChild) != NULL) {
                 ((MdlEffectNode *)((MdlEffectTree *)clone)->lastChild)->next = nodeClone;
                 ((MdlEffectNode *)nodeClone)->previous = ((MdlEffectTree *)clone)->lastChild;
             } else {
@@ -372,14 +367,9 @@ u8 *mdlEffectBuildFromResource(u8 *effect)
 }
 
 #pragma pop
-/* The saved-rotation restore is written as an lq/sq that names $2, as
- * retail does at 0x0048569C: b210 keeps $v0 live from every call to the end
- * of an int or void function, so no C copy can use it there (measured on
- * plain, struct, union and inline-helper copies, `return;`, a K&R
- * definition and discarded-result calls; all give $v1). Allowed by the
- * user on 2026-10-09 after no other match was found. */
 #pragma push
-/* measured: func_00485630 MATCH -> MISMATCH without this pragma. */
+/* measured: retail does not propagate copied values across this function, so copy propagation is
+ * turned off. */
 #pragma opt_propagation off
 /* Propagate the current tree transform to eligible children, commit each primitive and advance the frame. */
 // FUN_00485630
@@ -388,9 +378,8 @@ void mdlEffectCommitTreeFrame(u8 *effect)
     extern u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *target, u_long128 *output);
     extern u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *target, u_long128 *output);
     extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
-    /* 00484b30 initializes the 0x80-byte state; 00484bb0 allocates a
-     * 0x90-byte root. The union keeps field and quadword transfers in the
-     * same object, including all four components of the saved rotation. */
+    /* 00484b30 initializes the 0x80-byte state and 00484bb0 allocates a 0x90-byte root; the union
+     * allows both field and quadword access. */
     typedef union SceneStateStorage {
         Code48InitialState fields;
         u_long128 quad[8];
@@ -433,7 +422,8 @@ void mdlEffectCommitTreeFrame(u8 *effect)
         mdlEffectResolveChildOrientation(effect, (u8 *)&work.origin, &work.rotation);
         mdlEffectSetChildRotations(effect, (u8 *)&work.rotation);
         restore_slot = &work.savedRotation;
-        /* lint: allow H009 -- retail copies this quad through $2 at 0x0048569C; b210 keeps $v0 live after calls (user-approved 2026-10-09) */
+        /* lint: allow H009 -- retail copies the saved rotation quad through a fixed register after
+         * the calls, which C cannot express. */
         __asm__ volatile("lq $2, 0(%0)\n\tsq $2, 0x50(%1)" : : "r"(restore_slot), "r"(root) : "$2", "memory");
     }
     count = (s32)root->frame;
@@ -447,7 +437,7 @@ void mdlEffectCommitTreeFrame(u8 *effect)
         if ((((MdlEffectNode *)child)->flags & 2) != 0) {
             continue;
         }
-        if ((MEMBER(s32, child, MdlEffectState, flags.signedValue) & 0x18) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+        if ((MEMBER(s32, child, MdlEffectState, flags.signedValue) & 0x18) != 0) {
             mdlEffectResolveChildOffset(child, (u8 *)&work.origin, &work.position);
             __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&work.origin), "m"(work.origin) : "$vf10", "memory");
             childFlags = ((MdlEffectState *)child)->flags.signedValue;
@@ -493,10 +483,9 @@ void mdlEffectCommitTreeFrame(u8 *effect)
 }
 
 #pragma pop
-/* As in func_00485630, the saved-rotation restore at 0x00485900 is an
- * lq/sq that names $2; no C copy can use $v0 after the propagation calls. */
 #pragma push
-/* measured: func_00485870 MATCH -> MISMATCH without this pragma. */
+/* measured: retail does not propagate copied values across this function, so copy propagation is
+ * turned off. */
 #pragma opt_propagation off
 /* Flush eligible children for the previous frame, propagating transforms only if not already committed. */
 // FUN_00485870
@@ -505,9 +494,8 @@ void mdlEffectFlushTreeFrame(u8 *effect)
     extern u_long128 mdlEffectResolveChildOffset(u8 *effect, u8 *target, u_long128 *output);
     extern u_long128 mdlEffectResolveChildOrientation(u8 *effect, u8 *target, u_long128 *output);
     extern void mdlEffectSetChildRotations(u8 *effect, u8 *value);
-    /* 00484b30 initializes the 0x80-byte state; 00484bb0 allocates a
-     * 0x90-byte root. The union keeps field and quadword transfers in the
-     * same object, including all four components of the saved rotation. */
+    /* 00484b30 initializes the 0x80-byte state and 00484bb0 allocates a 0x90-byte root; the union
+     * allows both field and quadword access. */
     typedef union SceneStateStorage {
         Code48InitialState fields;
         u_long128 quad[8];
@@ -557,7 +545,8 @@ void mdlEffectFlushTreeFrame(u8 *effect)
             mdlEffectResolveChildOrientation(effect, (u8 *)&work.origin, &work.rotation);
             mdlEffectSetChildRotations(effect, (u8 *)&work.rotation);
             restore_slot = &work.savedRotation;
-            /* lint: allow H009 -- retail copies this quad through $2 at 0x00485900; b210 keeps $v0 live after calls (user-approved 2026-10-09) */
+            /* lint: allow H009 -- retail copies the saved rotation quad through a fixed register
+             * after the calls, which C cannot express. */
             __asm__ volatile("lq $2, 0(%0)\n\tsq $2, 0x50(%1)" : : "r"(restore_slot), "r"(root) : "$2", "memory");
         }
     }
@@ -575,7 +564,7 @@ void mdlEffectFlushTreeFrame(u8 *effect)
             continue;
         }
         if ((flags & mask) == 0) {
-            if ((MEMBER(s32, child, MdlEffectState, flags.signedValue) & 0x18) != 0) { /* measured: typing this field access changes MATCH to MISMATCH under b210. */
+            if ((MEMBER(s32, child, MdlEffectState, flags.signedValue) & 0x18) != 0) {
                 mdlEffectResolveChildOffset(child, (u8 *)&work.origin, &work.position);
                 __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(&work.origin), "m"(work.origin) : "$vf10", "memory");
                 childFlags = ((MdlEffectState *)child)->flags.signedValue;
@@ -618,7 +607,6 @@ void mdlEffectFlushTreeFrame(u8 *effect)
     }
     root->state.fields.word68 &= 0x7fffffffU;
 }
-
 
 
 #pragma pop

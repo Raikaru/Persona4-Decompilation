@@ -32,9 +32,8 @@ u8 *resourceFindByName(char *name);
 void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode);
 void ShdSkill_DrawIcon(Vec2f position, f32 scale, Color4 color, u16 skill, s32 texture);
 
-/* 1384/1392 bytes, 23 resolved relocations; eight zero tail bytes.
-   Preserve live flag, ID, and style reads across draw callbacks and sample
-   costs after the text call. Keep the dash row's Y lifetime separate. */
+/* Flag, ID and style are re-read after each draw callback, and costs are sampled after the text
+ * call. */
 // FUN_001138C0
 void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 mode)
 {
@@ -180,18 +179,8 @@ void ShdSkill_DrawDescriptor(Vec2f position, f32 scale, u8 alpha, void *descript
     }
 }
 
-/* measured: re-confirmed nd 5 this wave (reloc-masked; probe_variants reports
-   11 unmasked) with the m2c-faithful 9-arg 275020 spelling -- the only
-   residual is (a) prologue save order: retail `sd $a0,0x48; mov.s $f20,$f12;
-   move $s1,$a1; move $s0,$a2`, mwcc groups `[GPR callee-saves, FP
-   callee-saves, spills]` = `move $s1; move $s0; mov.s $f20; sd $a0` (same
-   grouping floor as ShdSkill_DrawIcon), and (b) `mov.s $f14,$f20` deferred past
-   the a2/a3/t0/t1 setup (retail emits it right after the lb $a1). Everything
-   else byte-identical (243840 nested call, cvt pairs into f12/f13, the
-   x*255/255U divu + |~0xFF chain, lh->sll->D_005E47F0 byte index). Probed
-   this wave: z/depthSnapshot assignment orders, arg1/arg2 locals, lo/hi locals -- all
-   nd 5/11. prologue/FP-arg save-order floor. */
-/* measured: MATCH, object 184/192. The cluster's float-first interleaving and callee-first local evaluation reproduce the retail body; the remaining 8 bytes are zero tail padding accepted by the verifier. */
+/* Draw a skill entry's name at position, using the descriptor's style for the font and alpha for
+ * transparency. */
 // FUN_00113E30
 void ShdSkill_DrawEntryName(Vec2f position, f32 scale, u8 alpha, void *descriptor, s32 unusedMode) {
     f32 depth;
@@ -214,12 +203,9 @@ void ShdSkill_DrawEntryName(Vec2f position, f32 scale, u8 alpha, void *descripto
                   -1);
 }
 
-/* 1384/1392 bytes, 20 resolved relocations; eight zero tail bytes.
-   The caller draws entries 0..7. Preserve byte promotion, coordinate-field
-   updates, and the plain-char font lookup with scalar propagation disabled. */
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+/* The caller draws entries 0..7; the font lookup uses a plain char index. */
 // FUN_00113EF0
-/* measured: baseline and either single-toggle form differ; scalarization/propagation probes retain both settings. */
+/* measured: retail output needs both propagation and scalarization disabled; either alone differs. */
 #pragma push
 #pragma opt_propagation off
 #pragma opt_scalarize off
@@ -318,13 +304,10 @@ void ShdSkill_DrawListSlot(Vec2f base, f32 scale, u8 alpha, u8 *state, u8 entry,
 }
 #pragma pop
 
-/* Skill detail frame, digit counter and pending-skill markers.
-   2116/2128 bytes, 37 resolved relocations and 12 zero alignment bytes.
-   Compound u16 narrowing and the local declaration order preserve the
-   digit/label lifetimes across sprite submissions. */
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+/* Draws the skill detail frame, digit counter and pending-skill markers. Compound u16 narrowing and
+ * local declaration order keep digit/label lifetimes across sprite submissions. */
 // FUN_00114460
-/* measured: baseline and either single-toggle form differ; scalarization/propagation probes retain both settings. */
+/* measured: retail output needs both propagation and scalarization disabled; either alone differs. */
 #pragma push
 #pragma opt_propagation off
 #pragma opt_scalarize off
@@ -517,17 +500,6 @@ s32 ShdSkill_GetIconId(u16 skill) {
     }
 }
 
-/* measured: retail prologue value-saves are `sd $a0,0x30; mov.s $f20,$f12; sw
-   $a1,0x3c; move $s0,$a3` (stack spills interleaved around the FP save, $s0
-   move LAST); mwcc b210 always groups `[callee-GPR move, mov.s $f20, stack
-   spills in assignment order]` with the $s0 move FIRST, whatever the source
-   ordering (re-measured this wave: 7 spellings incl. all decl/assign orders,
-   decl-initialised, lo/hi/z locals, inline derefs -> best nd 3 = assignment
-   `colorSnapshot=arg1` before `positionSnapshot=arg0` which fixes the spill order to [a1,a0] but
-   leaves the $s0 move first vs retail last; every other spelling nd 4).
-   Everything after the prologue matches byte-for-byte (14cb0 call, blez,
-   alpha chain, 11-arg d4c0 setup with a3=alpha, f12/f13=arg0 halves,
-   t0-t2=arg1 bytes, f14=fparg0, t3=0). prologue-save scheduling floor. */
 /* Draw the skill element icon when its lookup returns a positive sprite ID. */
 // FUN_00114DC0
 void ShdSkill_DrawIcon(Vec2f position, f32 scale, Color4 color, u16 skill, s32 texture) {
@@ -548,23 +520,6 @@ void ShdSkill_DrawIcon(Vec2f position, f32 scale, Color4 color, u16 skill, s32 t
                       0);
     }
 }
-/* measured: best nd 38 (this wave, down from recorded 73) with an `s32 alpha
-   local` = inverseAlpha & 0xFF passed as the d4c0 arg4 (a3) -- without it the
-   masks are deleted and the arg setup reorders. Residual is five independent
-   families: (1) prologue save rotation (4w: retail `sd $a0; mov.s $f21; move
-   $s0; move $s3`, mwcc `move $s0; move $s3; mov.s $f21; sd $a0` -- same
-   floor as ShdSkill_DrawIcon); (2) retail computes each call's f32 args before
-   the alpha chain, mwcc emits the alpha chain first (8w, argument-evaluation
-   order; x/y-locals spellings hoist all FP work before call 1, worse);
-   (3) retail coalesces inverseAlpha into arg1's $s0 with `andi $a3,$s0,0xff` at
-   ALL three calls, mwcc keeps opacity in $s0 / inverseAlpha in $s1 and deletes
-   every mask (move $a3,$s1); (4) 2bc860 block: retail does both adds first
-   ($f2 then $f1) then both cvt pairs, mwcc interleaves add/cvt and picks
-   $f0; (5) mov.s $f14 before addiu $a1/$a2 vs retail after the or $a0.
-   Prologue + 0x68 slot, hi hoisted to $f20, 46a770/trap/d4c0 setups and the
-   beqz chain otherwise byte-identical. Tried: m2c-faithful (107), hi local
-   (76), x/y locals (76), alpha local (38), inverseAlpha-first, decl swaps,
-   u8 alpha (79). arg-eval-order + reg-coalescing + FP-scheduling floor. */
 /* Draw the selection borders and optional message for the selected skill. */
 // FUN_00114E50
 void ShdSkill_DrawSelectionFrame(Vec2f position, f32 scale, u8 alpha, u16 messageId) {
@@ -600,12 +555,8 @@ void ShdSkill_DrawSelectionFrame(Vec2f position, f32 scale, u8 alpha, u16 messag
     }
 }
 
-/* 652/656 bytes, two resolved relocations; four zero tail bytes.
-   Native signed remainder preserves negative byte-index behavior.
-   The fallback-first ternary keeps active/previous in the retail registers
-   without adding a caller argument or a conditional trampoline. */
-/* Move between two four-row columns and the optional pending-skill slot. */
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+/* Move between two four-row columns and the optional pending-skill slot; signed remainder keeps
+ * negative byte-index behavior. */
 // FUN_00115020
 s32 ShdSkill_MoveCursor(u8 *state, s32 force) {
     extern u16 D_008C027A[];
@@ -718,17 +669,6 @@ s16 ShdSkill_FindSlot(u8 *pool, s32 skill) {
     return -1;
 }
 
-/* measured: retail allocates the s16 loop counter to $a1, the match key
-   (`arg0 & 0xFFFF`) to $a3 and the u16 bound (0x224) to $a2, and reuses the
-   counter register directly at the ShdSkill_RemovePoolEntry call (`move $a0,$s0; jal`,
-   $5 already holds the counter). mwcc b210 pins the s16 counter in $a3 and
-   gives the key $a2 / bound $a1 for EVERY spelling tried (10+ probe_variants
-   batches: all 6 declaration orders, all 6 def orders, u16/s16 variants of
-   key/bound/count, comparison-form swaps, while vs for, inline bound/key
-   expressions, for-init placement, bound/key hoisted before the trap). The
-   whole function is otherwise byte-identical. nd 23, all in this rotation
-   plus the extra dsll32/dsra32 re-extension the call path needs; temp-register
-   rotation floor. */
 /* Append a skill to the eight active rows and remove its pending-pool entry. */
 
 // FUN_00115420
@@ -762,14 +702,10 @@ loop_test:
     }
 }
 
-/* measured: MATCH, object 368/window 368. The second-loop counter is made a
-   block-local s16 and the call uses a block-scope s16 prototype for
-   ShdSkill_RemovePoolEntry; this makes b210 retain the counter in $a1 and sign-extend
-   through $a0 exactly as retail. The file-scope s32 prototype and helper
-   definition remain unchanged so neighboring ShdSkill_AddActiveSkill and
-   ShdSkill_RemovePoolEntry stay MATCH. */
-/* Replace the matching active skill and remove the replacement from the pending pool. */
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
+/* measured: retail sign-extends the loop counter at the call, so the counter is a local s16 and
+ * ShdSkill_RemovePoolEntry gets a block-scope s16 prototype. */
+/* Replace oldSkill with newSkill in the active skill list, then remove newSkill from the pending
+ * pool. */
 // FUN_00115500
 void ShdSkill_ReplaceActiveSkill(u16 oldSkill, u16 newSkill, u8 *pool) {
     extern void ShdSkill_RemovePoolEntry(u8 *, s16, s32, s32);
@@ -824,9 +760,8 @@ second_test:
     }
 }
 
-/* Discard the first pending row and compact the parallel row/value arrays. */
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
-/* Tail clearing also uses end-relative integer cursors for the last row and parallel value. */
+/* Discard the first pending row and compact the parallel row/value arrays; tail clearing uses end-
+ * relative integer cursors for the last row and value. */
 // FUN_00115760
 void ShdSkill_PopPoolEntry(u8 *pool) {
     typedef ShdSkillVector S3f;
@@ -853,10 +788,10 @@ void ShdSkill_PopPoolEntry(u8 *pool) {
     MEMBER(u16, pool, ShdSkillPool, pendingCount) -= 1;
 }
 
-/* measured: live MATCH, object 220B/window 224B, normalized_diff 0. Corrected kAssertFail to (void *, s32). The trampoline form initializes a named input local before the guard and assigns the loop counter after the guard; this makes retail's entry branch target the loop pre-jump instead of b210 threading directly to loop_test. */
-/* Remove a pending row at index and compact the row and parallel halfword arrays. */
-/* measured: direct fields and local object aliases change retail code; named MEMBER offsets preserve MATCH. */
-/* Tail clearing also uses end-relative integer cursors for the last row and parallel value. */
+/* The input local is set before the guard and the loop counter after it, so the entry branch
+ * targets the loop pre-jump as in retail. Remove a pending row at index and compact the row and
+ * parallel halfword arrays. Tail clearing also uses end-relative integer cursors for the last row
+ * and parallel value. */
 // FUN_00115670
 void ShdSkill_RemovePoolEntry(u8 *pool, s32 index, s32 unusedCount, s32 unusedSkill) {
     typedef ShdSkillVector S3f;

@@ -19,9 +19,7 @@ typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
 
-
 extern u32 datGetItemNameId(s16 itemId);
-
 
 
 extern f32 fGpffff815c;
@@ -32,7 +30,6 @@ extern s32 iGpffffb448;
 extern s32 D_0062656C[];
 extern void btlPanelStartEntry(s32 task, s32 text);
 extern void btlPanelMarkEntryStarted(s32 task);
-
 
 
 extern s32 btlPacketStepSpriteFrameLookup(u8 *work);
@@ -81,21 +78,13 @@ extern u8 D_00795080[];
 
 extern u8 D_006253B0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00202070-00202070 */
-
-/* measured: caching D_00887300 in s0 reproduces retail's one-time
-   lui/addiu vtable materialization across these callback calls. */
-/* measured: close the vtable propagation probe and restore default state. */
-/* Keep the opacity base ahead of byte promotion, matching retail order. */
+/* measured: retail loads the vtable address once across these callback calls and computes the
+ * opacity base before byte promotion. */
 #pragma push
 #pragma pop
-/* Measured: 676/688 bytes, seven resolved relocations and twelve zero alignment bytes.
- * Snapshot inputs before providers; reload the skill fields and final output
- * metadata at their retail callback boundaries. */
 #pragma push
 #pragma pop
-/* measured: opt_rebuildconditionals off tested for callback completion. */
-// Intent: packet callback; steps a sprite frame using a lookup table value. [inferred]
+/* Packet callback that steps a sprite frame using a value from a lookup table. */
 // FUN_00202070
 s32 btlPacketStepSpriteFrameLookup(u8 *work)
 {

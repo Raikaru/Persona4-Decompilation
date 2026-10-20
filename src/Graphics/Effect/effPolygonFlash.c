@@ -1,28 +1,26 @@
 /* Unit settings: hoist loop invariants and preserve assignment lifetimes. */
 #pragma opt_loop_invariants on
-/* measured: without this unit setting, radial emitters differ by 56/62 normalized bytes. */
+/* measured: radial emitters need this unit-wide optimizer setting to reproduce retail code. */
 #pragma opt_dead_assignments off
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
-/* Original translation unit effPolygonFlash.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit effPolygonFlash.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "type.h"
 #include "effect_vu0_internal.h"
 #include "effect_instance_internal.h"
 #include "effect_mesh_internal.h"
 
-/* Same spelling as mdlEffect.c: a 128-bit type makes mwcc emit the lq/sq
-   quadword copy retail uses, with no inline asm. */
+/* A 128-bit type gives the quadword load/store copy retail uses, as in mdlEffect.c. */
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef signed __int128 s128;
 
 extern f32 cosf(f32);
 extern f32 sinf(f32);
-/* Anonymous gp-relative float slots (-0x7FBC / -0x7F30 of $28), same
-   convention as effPolygonThunder.c's iGpffff8044. */
+/* Anonymous gp-relative float constants, named as in effPolygonThunder.c. */
 extern f32 fGpffff8044;
 extern f32 fGpffff80d0;
-/* Scratch color quads, addressed absolutely by retail (lui/addiu). */
+/* Scratch color quads, addressed absolutely by retail. */
 extern f32 D_00713D10[4];
 extern f32 D_00713D14[4];
 extern f32 D_00713D18[4];
@@ -37,7 +35,7 @@ extern s32 TnSlotObject(s32);
 extern void func_003c42b0(void *, void *);
 extern void GeometryBlockSetTextureFromHandle(void *, void *);
 extern char D_00713408[];
-/* Interior aliases retain their own relocation bases within 0x1C-byte rows. */
+/* Interior aliases into 0x1C-byte kind table rows keep their own symbol bases. */
 typedef struct FlashKindSize { s32 parameterBytes; u8 pad04[0x18]; } FlashKindSize;
 typedef struct FlashKindAllocator { void *(*allocate)(void *, void *); u8 pad04[0x18]; } FlashKindAllocator;
 typedef struct FlashKindInitializer { void (*initialize)(void *); u8 pad04[0x18]; } FlashKindInitializer;
@@ -79,7 +77,7 @@ typedef struct FlashEffect {
     u8 pad44[0xC];
 } FlashEffect;
 
-/* The allocation header precedes the variant-sized particle array at +0x10. */
+/* Allocation header that comes before the variant-sized particle array. */
 typedef struct FlashBlock {
     union { u8 *bytes; u32 word; } particles;
     union { u8 *bytes; u32 word; void *pointer; } geometry;
@@ -116,10 +114,8 @@ typedef struct FlashUvQuad {
     f32 coordinates[8];
 } FlashUvQuad;
 
-/* Particle ages -1/-2 mean awaiting birth/disabled; nonnegative ages are live.
- * Access-site trials recovered the native mesh chain without retyping byte cursors.
- * Separate typed block locals preserve the original cursor reloads. */
-// Allocates a rotating-flash block: count * 24 particle bytes, a geometry handle, and an owner link.
+/* Allocates a rotating-flash block: count 24 particle bytes, a geometry handle, and an owner link.
+ * Particle ages -1/-2 mean awaiting birth/disabled; nonnegative ages are live. */
 // FUN_0049A900
 void *FlashRotatingAllocBlock(u8 *input, s32 resource)
 {
@@ -140,8 +136,6 @@ void *FlashRotatingAllocBlock(u8 *input, s32 resource)
     ((FlashBlock *)mem)->geometry.bytes = (u8 *)GeometryCreateTableGrid(id & 0xFFFF, 3, 5, D_007133A0, 0x48);
     return mem;
 }
-
-
 
 
 // Frees a rotating-flash block: its geometry handle, then the block itself.
@@ -264,9 +258,7 @@ void FlashRotatingEmitQuads(u8 *effect)
         births = config->births;
     }
     RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 0xa);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget)->vertices;
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     colors = ((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->colors;
     direction.lane[1] = 0.0f;
     direction.lane[3] = 0.0f;
@@ -459,12 +451,8 @@ void FlashRotatingEmitQuads(u8 *effect)
 }
 
 
-/* measured: retail's else-branch restores 0xFF to the alpha byte after the
-   color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
-   plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
-   where the copy takes its address. An earlier wave wrote it through a volatile
-   byte access, which was never necessary. */
-// Packs the rotating flash vertex colours from the inner and outer colour words.
+/* Retail's else-branch restores 0xFF to the alpha byte after the colour copy. Packs the rotating
+ * flash vertex colours from the inner and outer colour words. */
 // FUN_0049B2B0
 void FlashRotatingPackColors(u8 *input)
 {
@@ -564,34 +552,9 @@ void FlashRotatingPackColors(u8 *input)
         }
     }
 }
-/* measured: with #pragma opt_loop_invariants on, the fill loop matches retail
- * exactly (including the preheader -1 hoist and the slt/nop/bnez tail); the
- * residual is 8 words in the func_0043f9c8 argument block: retail completes
- * the four-load chain (resourceData->0x10->0x18->0x5C->0x14) before computing the size
- * operand, mwcc b210 splits the chain around the size computation (chain1-3,
- * size, chain4) regardless of spelling (inline chain, explicit temps, locals,
- * opt_propagation off). Argument-evaluation-order/scheduling floor.
- * measured: #pragma schedule was probed and does NOT move the residual (best
- * stays 8 differing words): schedule off at function scope = 8 (no-op, it is
- * the default), schedule on at function scope = 49, schedule off scoped around
- * the memset call = 49, schedule on scoped around the call = 8 (no-op).
- * optimization_level 3 = 49, optimization_level 1 = 46, opt_lifetimes on/off =
- * 8 (no-op). The chain split is a register-allocation artifact (retail loads
- * chain3 into $v0 and chain4 into $a0; mwcc reuses $a0 for both, forcing the
- * chain4 load after the size arithmetic), not a scheduling toggle. */
-/* measured: three separate defects, each worth a note.  m2c wrote the entry
-   pointer as `s32 *` advancing by 0x1C, which walks 112 bytes where retail
-   walks 28 - the loop still compiled and still looked right.  The -1 stored in
-   the loop is loop-invariant and retail hoists it; b210 at -O2 rematerialises
-   it inside instead, so opt_loop_invariants is what retail was built with here
-   (nd 60 -> 17, and the hoisted addiu appears in the preheader exactly as
-   retail has it).  The last 8 words were argument order: writing the texture
-   handle as tex[5] instead of *(s32 *)(tex + 0x14) makes b210 finish the
-   pointer chain before evaluating the size argument, which is what retail
-   does; the cast-and-offset spelling lets the second load sink below the
-   multiply and no declaration order fixes it.
-   measured: without opt_loop_invariants the residual is nd 17, not 0. */
-// Updates the rotating flash geometry: locks the model geometry and clears its vertex buffer before the rebuild.
+/* Updates the rotating flash geometry: locks the model geometry and clears its vertex buffer before
+ * the rebuild. Built with opt_loop_invariants so the stored -1 is hoisted; tex[5] keeps the pointer
+ * chain ahead of the size argument. */
 // FUN_0049B470
 void FlashRotatingUpdateGeometry(u8 *input)
 {
@@ -611,10 +574,8 @@ void FlashRotatingUpdateGeometry(u8 *input)
     geometryBlock = (EffGeometryBlock *)work;
     count = ((FlashParameters *)((FlashEffect *)input)->parameters)->vertexCount.signedCount;
     RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 2);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     tex = (s32**)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget;
     memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     model = (u8*)((RpAtomic *)geometryBlock->atomic)->geometry;
     func_003c22f0(model);
     if (*(u16 *)work & 4) {
@@ -652,8 +613,6 @@ void *FlashRadialAllocBlock(u8 *input, s32 resource)
 }
 
 
-
-
 // Frees a radial-flash block: its geometry handle, then the block itself.
 // FUN_0049B640
 void FlashRadialFreeBlock(u8 *input)
@@ -662,9 +621,7 @@ void FlashRadialFreeBlock(u8 *input)
     jtbl_008873EC[0](((FlashBlock *)input)->allocation.pointer);
 }
 
-/* The inclusive color-fill bound selects retail's assembler-temp branch.
- * See docs/matching.md, "slt $at vs slt $v0".
- */
+/* The inclusive colour-fill bound reproduces retail's branch shape; see docs/matching.md. */
 typedef struct FlashRadialParticle {
     s32 age;
     f32 velocity;
@@ -796,9 +753,7 @@ void FlashRadialEmitQuads(u8 *effect)
         births = config->births;
     }
     RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 0xa);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget)->vertices;
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     colors = ((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->colors;
     zero = 0.0f;
     direction.lane[1] = zero;
@@ -1001,12 +956,8 @@ void FlashRadialEmitQuads(u8 *effect)
         }
     }
 }
-/* measured: retail's else-branch restores 0xFF to the alpha byte after the
-   color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
-   plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
-   where the copy takes its address. An earlier wave wrote it through a volatile
-   byte access, which was never necessary. */
-// Packs the radial flash vertex colours from the inner and outer colour words.
+/* Packs the radial flash vertex colours from the inner and outer colour words; the else-branch
+ * writes 0xFF back to the alpha byte after the colour copy, as retail does. */
 // FUN_0049BFF0
 void FlashRadialPackColors(u8 *input)
 {
@@ -1107,12 +1058,8 @@ void FlashRadialPackColors(u8 *input)
     }
 }
 
-/* measured: shares FlashRotatingUpdateGeometry's recorded floor - the fill loop matches
-   retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
-   splits around the size computation (8-word residual). schedule pragmas
-   measured, no help (see 0x0049b470). */
-/* measured: same shape as FlashRotatingUpdateGeometry above; see that note. */
-// Updates the radial flash geometry: locks the model geometry and clears its vertex buffer before the rebuild.
+/* Updates the radial flash geometry: locks the model geometry and clears its vertex buffer before
+ * the rebuild. */
 // FUN_0049C1B0
 void FlashRadialUpdateGeometry(u8 *input)
 {
@@ -1132,10 +1079,8 @@ void FlashRadialUpdateGeometry(u8 *input)
     geometryBlock = (EffGeometryBlock *)work;
     count = ((FlashParameters *)((FlashEffect *)input)->parameters)->vertexCount.signedCount;
     RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 2);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     tex = (s32**)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget;
     memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     model = (u8*)((RpAtomic *)geometryBlock->atomic)->geometry;
     func_003c22f0(model);
     if (*(u16 *)work & 4) {
@@ -1170,8 +1115,6 @@ void *FlashRadialAllocBlockWide(u8 *input, s32 resource)
     ((FlashBlock *)mem)->geometry.bytes = (u8 *)GeometryCreateTableGrid(id & 0xFFFF, 0xC, 0xD, D_007133C0, 0x48);
     return mem;
 }
-
-
 
 
 // Frees a wide radial-flash block: its geometry handle, then the block itself.
@@ -1281,9 +1224,7 @@ void FlashEvolvingRadialEmitQuads(u8 *effect)
         births = config->births;
     }
     RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 0xa);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget)->vertices;
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     colors = ((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->colors;
     zero = 0.0f;
     direction.lane[1] = zero;
@@ -1496,12 +1437,7 @@ void FlashEvolvingRadialEmitQuads(u8 *effect)
         }
     }
 }
-/* measured: retail's else-branch restores 0xFF to the alpha byte after the
-   color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
-   plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
-   where the copy takes its address. An earlier wave wrote it through a volatile
-   byte access, which was never necessary. */
-// Packs the evolving radial flash vertex colours from the inner and outer colour words.
+/* Packs the evolving radial flash vertex colours from the inner and outer colour words. */
 // FUN_0049CD10
 void FlashEvolvingRadialPackColors(u8 *input)
 {
@@ -1602,12 +1538,8 @@ void FlashEvolvingRadialPackColors(u8 *input)
     }
 }
 
-/* measured: shares FlashRotatingUpdateGeometry's recorded floor - the fill loop matches
-   retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
-   splits around the size computation (8-word residual). schedule pragmas
-   measured, no help (see 0x0049b470). */
-/* measured: same shape as FlashRotatingUpdateGeometry above; see that note. */
-// Updates the evolving radial flash geometry: locks the model geometry and clears its vertex buffer before the rebuild.
+/* Updates the evolving radial flash geometry: locks the model geometry and clears its vertex buffer
+ * before the rebuild. */
 // FUN_0049CED0
 void FlashEvolvingRadialUpdateGeometry(u8 *input)
 {
@@ -1627,10 +1559,8 @@ void FlashEvolvingRadialUpdateGeometry(u8 *input)
     geometryBlock = (EffGeometryBlock *)work;
     count = ((FlashParameters *)((FlashEffect *)input)->parameters)->vertexCount.signedCount;
     RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 2);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     tex = (s32**)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget;
     memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     model = (u8*)((RpAtomic *)geometryBlock->atomic)->geometry;
     func_003c22f0(model);
     if (*(u16 *)work & 4) {
@@ -1644,12 +1574,12 @@ void FlashEvolvingRadialUpdateGeometry(u8 *input)
         i++;
     }
 }
-/* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
- * constants inside the loop instead of hoisting them to the preheader
- * (14+ differing words); with it the loop matches. */
-// Initialises the evolving radial entries from the config (asserts when the entry array is missing).
+/* measured: without opt_loop_invariants the 0.5f/1.0f constants are reloaded inside the loop
+ * instead of hoisted. Initialises the evolving radial entries from the config, asserting when the
+ * entry array is missing. */
+/* Fill the evolving radial geometry's texture coordinates with alternating half-texture UV quads,
+ * one per vertex entry, then unlock the geometry. */
 // FUN_0049CFC0
-/* Earlier whole-chain trial: 320 -> 308 bytes, 38 normalized bytes changed; separate typed block locals now retain MATCH. */
 void FlashEvolvingRadialInitEntries(u8 *input, u8 *resource)
 {
     FlashBlock *block = (FlashBlock *)input;
@@ -1661,7 +1591,6 @@ void FlashEvolvingRadialInitEntries(u8 *input, u8 *resource)
     count = (u32)((FlashParameters *)resource)->vertexCount.signedCount;
     if (count != 0) {
         RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)block->geometry.bytes)->atomic)->geometry, 0xFF0);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         workCursor = (u8 *)((RpGeometry *)((RpAtomic *)((EffGeometryBlock *)block->geometry.bytes)->atomic)->geometry)->texCoords[0];
         if (workCursor == NULL) {
             kAssertFail(D_00713FF0, 0x4BE);
@@ -1690,7 +1619,6 @@ void FlashEvolvingRadialInitEntries(u8 *input, u8 *resource)
             i++;
             workCursor += 0x20;
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         workCursor = block->geometry.bytes;
         sourceObject = (u8*)((RpAtomic *)((EffGeometryBlock *)workCursor)->atomic)->geometry;
         func_003c22f0(sourceObject);
@@ -1702,8 +1630,8 @@ void FlashEvolvingRadialInitEntries(u8 *input, u8 *resource)
 
 // Allocates an evolving radial flash block with a texture (default texture 0x12 when none is given).
 // FUN_0049D100
-/* Preserve integer pointer-bit stores and narrowed count fields through their real layout unions. */
-/* Earlier constructor-wide typing grew 304 -> 312 bytes; separate typed block locals retain MATCH. */
+/* Pointer-bit stores and narrowed count fields go through their real layout unions, using separate
+ * typed block locals. */
 void *FlashEvolvingRadialAllocBlock(u8 *input, void *resource)
 {
     u32 size;
@@ -1721,10 +1649,8 @@ void *FlashEvolvingRadialAllocBlock(u8 *input, void *resource)
     allocation->particles.word = (u32)(mem + 0x10);
     allocation->allocation.word = (u32)mem;
     if (settings->unk70.bits == 0) {
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         settings->unk70.bits = 1;
     }
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     allocation->geometry.word = (u32)GeometryCreateTableGrid(settings->vertexCount.low, 2, 4, D_00713408, 0x4C);
     if (resource == NULL) {
         func_003c42b0(((EffGeometryBlock *)allocation->geometry.bytes)->material, (void *)TnSlotObject(0x12));
@@ -1759,7 +1685,6 @@ void *FlashEvolvingRadialAllocFromParent(u8 *input)
     allocation->particles.word = (u32)(mem + 0x10);
     allocation->allocation.pointer = (void *)mem;
     if (settings->unk70.bits == 0) {
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         settings->unk70.bits = 1;
     }
     allocation->geometry.bytes = (u8 *)GeometryCloneBlock(((FlashBlock *)sourceObject)->geometry.pointer);
@@ -1813,9 +1738,7 @@ void FlashEvolvingRadialFreeBlock(u8 *input)
             births = ((FlashParameters *)config)->births;
         }
         RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 10);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget)->vertices;
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         colors = ((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->colors;
         zero = 0.0f;
         direction.lane[1] = zero;
@@ -2006,9 +1929,6 @@ void FlashEvolvingRadialFreeBlock(u8 *input)
     }
 
 
-
-
-
 // Packs the textured flash vertex colours from the inner and outer colour words.
 // FUN_0049DB20
 void FlashTexturedPackColors(u8 *input)
@@ -2110,12 +2030,8 @@ void FlashTexturedPackColors(u8 *input)
     }
 }
 
-/* measured: shares FlashRotatingUpdateGeometry's recorded floor - the fill loop matches
-   retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
-   splits around the size computation (8-word residual). schedule pragmas
-   measured, no help (see 0x0049b470). */
-/* measured: same shape as FlashRotatingUpdateGeometry above; see that note. */
-// Updates the textured flash geometry: locks the model geometry and clears its vertex buffer before the rebuild.
+/* Updates the textured flash geometry: locks the model geometry and clears its vertex buffer before
+ * the rebuild. */
 // FUN_0049DCE0
 void FlashTexturedUpdateGeometry(u8 *input)
 {
@@ -2135,10 +2051,8 @@ void FlashTexturedUpdateGeometry(u8 *input)
     geometryBlock = (EffGeometryBlock *)work;
     count = ((FlashParameters *)((FlashEffect *)input)->parameters)->vertexCount.signedCount;
     RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 2);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     tex = (s32**)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget;
     memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     model = (u8*)((RpAtomic *)geometryBlock->atomic)->geometry;
     func_003c22f0(model);
     if (*(u16 *)work & 4) {
@@ -2152,12 +2066,9 @@ void FlashTexturedUpdateGeometry(u8 *input)
         i++;
     }
 }
-/* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
- * constants inside the loop instead of hoisting them to the preheader
- * (14+ differing words); with it the loop matches. */
-// Initialises the textured flash entries from the config: per-entry geometry and offsets.
+/* Needs opt_loop_invariants so the 0.5f/1.0f constants are hoisted out of the loop. Initialises the
+ * textured flash entries from the config: per-entry geometry and offsets. */
 // FUN_0049DDD0
-/* Earlier whole-chain trial: 320 -> 308 bytes, 38 normalized bytes changed; separate typed block locals now retain MATCH. */
 void FlashTexturedInitEntries(u8 *input, u8 *resource)
 {
     FlashBlock *block = (FlashBlock *)input;
@@ -2169,7 +2080,6 @@ void FlashTexturedInitEntries(u8 *input, u8 *resource)
     count = (u32)((FlashParameters *)resource)->vertexCount.signedCount;
     if (count != 0) {
         RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)block->geometry.bytes)->atomic)->geometry, 0xFF0);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         workCursor = (u8 *)((RpGeometry *)((RpAtomic *)((EffGeometryBlock *)block->geometry.bytes)->atomic)->geometry)->texCoords[0];
         if (workCursor == NULL) {
             kAssertFail(D_00713FF0, 0x65A);
@@ -2198,7 +2108,6 @@ void FlashTexturedInitEntries(u8 *input, u8 *resource)
             i++;
             workCursor += 0x20;
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         workCursor = block->geometry.bytes;
         sourceObject = (u8*)((RpAtomic *)((EffGeometryBlock *)workCursor)->atomic)->geometry;
         func_003c22f0(sourceObject);
@@ -2210,14 +2119,12 @@ void FlashTexturedInitEntries(u8 *input, u8 *resource)
 
 // Allocates a textured flash block (default texture 0x13 when none is given).
 // FUN_0049DF10
-/* Earlier count/pointer trial: 288 -> 292 bytes; separate typed block locals now retain MATCH. */
 void *FlashTexturedAllocBlock(u8 *input, void *resource)
 {
     u32 size;
     u8 *mem;
     FlashBlock *allocation;
 
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     FlashParameters *settings = (FlashParameters *)input;
     size = settings->vertexCount.count * 24;
     chkmemAllocSiteTag(D_00713FF0, 0x643);
@@ -2228,7 +2135,6 @@ void *FlashTexturedAllocBlock(u8 *input, void *resource)
     }
     allocation->particles.bytes = mem + 0x10;
     allocation->allocation.word = (u32)mem;
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     allocation->geometry.word = (u32)GeometryCreateTableGrid(settings->vertexCount.low, 2, 4, D_00713408, 0x4C);
     if (resource == NULL) {
         func_003c42b0(((EffGeometryBlock *)allocation->geometry.bytes)->material, (void *)TnSlotObject(0x13));
@@ -2316,9 +2222,7 @@ void FlashTexturedFreeBlock(u8 *input)
             births = ((FlashParameters *)config)->births;
         }
         RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 10);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget)->vertices;
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         colors = ((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->colors;
         zero = 0.0f;
         direction.lane[1] = zero;
@@ -2601,12 +2505,8 @@ void FlashCenteredStripPackColors(u8 *input)
     }
 }
 
-/* measured: shares FlashRotatingUpdateGeometry's recorded floor - the fill loop matches
-   retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
-   splits around the size computation (8-word residual). schedule pragmas
-   measured, no help (see 0x0049b470). */
-/* measured: same shape as FlashRotatingUpdateGeometry above; see that note. */
-// Updates the centred-strip flash geometry: locks the model geometry and clears its vertex buffer before the rebuild.
+/* Updates the centred-strip flash geometry: locks the model geometry and clears its vertex buffer
+ * before the rebuild. */
 // FUN_0049EAE0
 void FlashCenteredStripUpdateGeometry(u8 *input)
 {
@@ -2626,10 +2526,8 @@ void FlashCenteredStripUpdateGeometry(u8 *input)
     geometryBlock = (EffGeometryBlock *)work;
     count = ((FlashParameters *)((FlashEffect *)input)->parameters)->vertexCount.signedCount;
     RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 2);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     tex = (s32**)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget;
     memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     model = (u8*)((RpAtomic *)geometryBlock->atomic)->geometry;
     func_003c22f0(model);
     if (*(u16 *)work & 4) {
@@ -2643,12 +2541,11 @@ void FlashCenteredStripUpdateGeometry(u8 *input)
         i++;
     }
 }
-/* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
- * constants inside the loop instead of hoisting them to the preheader
- * (14+ differing words); with it the loop matches. */
-// Initialises the centred-strip entries from the config: per-entry geometry and offsets.
+/* measured: opt_loop_invariants hoists the 0.5f/1.0f constants out of the loop, as retail does.
+ * Initialises the centred-strip entries from the config: per-entry geometry and offsets. */
+/* Fill the centred strip geometry's texture coordinates with alternating half-texture UV quads, one
+ * per vertex entry, then unlock the geometry. */
 // FUN_0049EBD0
-/* Earlier whole-chain trial: 320 -> 308 bytes, 38 normalized bytes changed; separate typed block locals now retain MATCH. */
 void FlashCenteredStripInitEntries(u8 *input, u8 *resource)
 {
     FlashBlock *block = (FlashBlock *)input;
@@ -2660,7 +2557,6 @@ void FlashCenteredStripInitEntries(u8 *input, u8 *resource)
     count = (u32)((FlashParameters *)resource)->vertexCount.signedCount;
     if (count != 0) {
         RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)block->geometry.bytes)->atomic)->geometry, 0xFF0);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         workCursor = (u8 *)((RpGeometry *)((RpAtomic *)((EffGeometryBlock *)block->geometry.bytes)->atomic)->geometry)->texCoords[0];
         if (workCursor == NULL) {
             kAssertFail(D_00713FF0, 0x803);
@@ -2689,7 +2585,6 @@ void FlashCenteredStripInitEntries(u8 *input, u8 *resource)
             i++;
             workCursor += 0x20;
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         workCursor = block->geometry.bytes;
         sourceObject = (u8*)((RpAtomic *)((EffGeometryBlock *)workCursor)->atomic)->geometry;
         func_003c22f0(sourceObject);
@@ -2701,14 +2596,12 @@ void FlashCenteredStripInitEntries(u8 *input, u8 *resource)
 
 // Allocates a centred-strip flash block: count * 40 entry bytes and a geometry handle.
 // FUN_0049ED10
-/* Earlier count/pointer trial: 288 -> 292 bytes; separate typed block locals now retain MATCH. */
 void *FlashCenteredStripAllocBlock(u8 *input, void *resource)
 {
     u32 size;
     u8 *mem;
     FlashBlock *allocation;
 
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     FlashParameters *settings = (FlashParameters *)input;
     size = settings->vertexCount.count * 40;
     chkmemAllocSiteTag(D_00713FF0, 0x7EC);
@@ -2719,7 +2612,6 @@ void *FlashCenteredStripAllocBlock(u8 *input, void *resource)
     }
     allocation->particles.bytes = mem + 0x10;
     allocation->allocation.word = (u32)mem;
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     allocation->geometry.word = (u32)GeometryCreateTableGrid(settings->vertexCount.low, 2, 4, D_00713408, 0x4C);
     if (resource == NULL) {
         func_003c42b0(((EffGeometryBlock *)allocation->geometry.bytes)->material, (void *)TnSlotObject(0x12));
@@ -2799,9 +2691,7 @@ void FlashCenteredStripEmitQuads(u8 *effect)
         births = ((FlashParameters *)config)->births;
     }
     RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 10);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget)->vertices;
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     colors = ((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->colors;
     zero = 0.0f;
     center.lane[1] = zero;
@@ -3008,12 +2898,7 @@ particleData[5] = particleData[5] + particleData[6];
         if (((EffGeometryBlock *)owner)->kind & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 }
-/* measured: retail's else-branch restores 0xFF to the alpha byte after the
-   color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
-   plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
-   where the copy takes its address. An earlier wave wrote it through a volatile
-   byte access, which was never necessary. */
-// Packs the box flash vertex colours from the inner and outer colour words.
+/* Packs the box flash vertex colours from the inner and outer colour words. */
 // FUN_0049F820
 void FlashBoxPackColors(u8 *input)
 {
@@ -3114,12 +2999,8 @@ void FlashBoxPackColors(u8 *input)
     }
 }
 
-/* measured: shares FlashRotatingUpdateGeometry's recorded floor - the fill loop matches
-   retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
-   splits around the size computation (8-word residual). schedule pragmas
-   measured, no help (see 0x0049b470). */
-/* measured: same shape as FlashRotatingUpdateGeometry above; see that note. */
-// Updates the box flash geometry: locks the model geometry and clears its vertex buffer before the rebuild.
+/* Updates the box flash geometry: locks the model geometry and clears its vertex buffer before the
+ * rebuild. */
 // FUN_0049F9E0
 void FlashBoxUpdateGeometry(u8 *input)
 {
@@ -3139,10 +3020,8 @@ void FlashBoxUpdateGeometry(u8 *input)
     geometryBlock = (EffGeometryBlock *)work;
     count = ((FlashParameters *)((FlashEffect *)input)->parameters)->vertexCount.signedCount;
     RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 2);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     tex = (s32**)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget;
     memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     model = (u8*)((RpAtomic *)geometryBlock->atomic)->geometry;
     func_003c22f0(model);
     if (*(u16 *)work & 4) {
@@ -3175,7 +3054,6 @@ void *FlashBoxAllocBlock(u8 *input)
     }
     allocation->particles.word = (u32)(mem + 0x10);
     allocation->allocation.pointer = (void *)mem;
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     allocation->geometry.bytes = (u8 *)GeometryCreateTableGrid(settings->vertexCount.low, 3, 5, D_007133A0, 0x48);
     return mem;
 }
@@ -3226,9 +3104,7 @@ void FlashBoxEmitQuads(u8 *effect)
         births = ((FlashParameters *)config)->births;
     }
     RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 10);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget)->vertices;
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     colors = ((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->colors;
     zero = 0.0f;
     center.lane[1] = zero;
@@ -3458,12 +3334,8 @@ particleData[5] = particleData[5] + particleData[6];
         if (((EffGeometryBlock *)owner)->kind & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 }
-/* measured: retail's else-branch restores 0xFF to the alpha byte after the
-   color copy. That store is load-bearing -- dropping it measures nd 32 -- and a
-   plain sp4C.b[3] = 0xFF; keeps it, because the union is already memory-resident
-   where the copy takes its address. An earlier wave wrote it through a volatile
-   byte access, which was never necessary. */
-// Packs the aged-box flash vertex colours from the inner and outer colour words.
+/* Packs the aged-box flash vertex colours from the inner and outer colour words; the else-branch
+ * restores 0xFF to the alpha byte after the colour copy. */
 // FUN_004A05F0
 void FlashAgedBoxPackColors(u8 *input)
 {
@@ -3564,12 +3436,8 @@ void FlashAgedBoxPackColors(u8 *input)
     }
 }
 
-/* measured: shares FlashRotatingUpdateGeometry's recorded floor - the fill loop matches
-   retail with opt_loop_invariants, but the func_0043f9c8 four-load chain
-   splits around the size computation (8-word residual). schedule pragmas
-   measured, no help (see 0x0049b470). */
-/* measured: same shape as FlashRotatingUpdateGeometry above; see that note. */
-// Updates the aged-box flash geometry: locks the model geometry and clears its vertex buffer before the rebuild.
+/* Updates the aged-box flash geometry: locks the model geometry and clears its vertex buffer before
+ * the rebuild. */
 // FUN_004A07B0
 void FlashAgedBoxUpdateGeometry(u8 *input)
 {
@@ -3589,10 +3457,8 @@ void FlashAgedBoxUpdateGeometry(u8 *input)
     geometryBlock = (EffGeometryBlock *)work;
     count = ((FlashParameters *)((FlashEffect *)input)->parameters)->vertexCount.signedCount;
     RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 2);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     tex = (s32**)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget;
     memset((s32)tex[5], 0, ((EffGeometryBlock *)work)->vertexCount * 0xC);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     model = (u8*)((RpAtomic *)geometryBlock->atomic)->geometry;
     func_003c22f0(model);
     if (*(u16 *)work & 4) {
@@ -3606,12 +3472,8 @@ void FlashAgedBoxUpdateGeometry(u8 *input)
         i++;
     }
 }
-/* measured: without opt_loop_invariants mwcc rematerializes the 0.5f/1.0f
- * constants inside the loop instead of hoisting them to the preheader
- * (14+ differing words); with it the loop matches. */
-// Initialises the aged-box entries from the config: per-entry geometry and offsets.
+/* Initialises the aged-box entries from the config: per-entry geometry and offsets. */
 // FUN_004A08A0
-/* Earlier whole-chain trial: 320 -> 308 bytes, 38 normalized bytes changed; separate typed block locals now retain MATCH. */
 void FlashAgedBoxInitEntries(u8 *input, u8 *resource)
 {
     FlashBlock *block = (FlashBlock *)input;
@@ -3623,7 +3485,6 @@ void FlashAgedBoxInitEntries(u8 *input, u8 *resource)
     count = (u32)((FlashParameters *)resource)->vertexCount.signedCount;
     if (count != 0) {
         RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)block->geometry.bytes)->atomic)->geometry, 0xFF0);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         workCursor = (u8 *)((RpGeometry *)((RpAtomic *)((EffGeometryBlock *)block->geometry.bytes)->atomic)->geometry)->texCoords[0];
         if (workCursor == NULL) {
             kAssertFail(D_00713FF0, 0xB08);
@@ -3652,7 +3513,6 @@ void FlashAgedBoxInitEntries(u8 *input, u8 *resource)
             i++;
             workCursor += 0x20;
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         workCursor = block->geometry.bytes;
         sourceObject = (u8*)((RpAtomic *)((EffGeometryBlock *)workCursor)->atomic)->geometry;
         func_003c22f0(sourceObject);
@@ -3664,14 +3524,12 @@ void FlashAgedBoxInitEntries(u8 *input, u8 *resource)
 
 // Allocates an aged-box flash block: count * 32 entry bytes and a geometry handle.
 // FUN_004A09E0
-/* Earlier count/pointer trial: 272 -> 284 bytes; separate typed block locals now retain MATCH. */
 void *FlashAgedBoxAllocBlock(u8 *input, void *resource)
 {
     u32 size;
     u8 *mem;
     FlashBlock *allocation;
 
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     FlashParameters *settings = (FlashParameters *)input;
     size = settings->vertexCount.count * 32;
     chkmemAllocSiteTag(D_00713FF0, 0xAF1);
@@ -3682,7 +3540,6 @@ void *FlashAgedBoxAllocBlock(u8 *input, void *resource)
     }
     allocation->particles.bytes = mem + 0x10;
     allocation->allocation.word = (u32)mem;
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     allocation->geometry.word = (u32)GeometryCreateTableGrid(settings->vertexCount.low, 2, 4, D_00713408, 0x4C);
     if (resource == NULL) {
         func_003c42b0(((EffGeometryBlock *)allocation->geometry.bytes)->material, (void *)TnSlotObject(0x13));
@@ -3717,8 +3574,6 @@ void *FlashAgedBoxAllocFromParent(u8 *input)
 }
 
 
-
-
 // Frees an aged-box flash block: its geometry handle, then the block itself.
 // FUN_004A0BB0
 void FlashAgedBoxFreeBlock(u8 *input) {
@@ -3726,11 +3581,8 @@ void FlashAgedBoxFreeBlock(u8 *input) {
     D_008873ec[0](((FlashBlock *)input)->allocation.pointer);
 }
 
-/* The length scale reaches VF2 as `nop; qmtc2.ni` on a C load of the
- * field's bits, as in FlashRadialEmitQuads. Loading it inside the asm block (`lw %0`)
- * made the asm output a long-lived virtual and swapped $v0/$v1 across the
- * whole direction block (16 words). */
-// Emits aged-box flash quads from the direction, width and length vectors, with age and fade terms.
+/* The length scale is loaded in C and moved to VF2 with qmtc2.ni, as in FlashRadialEmitQuads. Emits
+ * aged-box flash quads from the direction, width and length vectors, with age and fade terms. */
 // FUN_004A0C00
 void FlashAgedBoxEmitQuads(u8 *effect)
 {
@@ -3740,9 +3592,8 @@ void FlashAgedBoxEmitQuads(u8 *effect)
     s32 firstFrame, count, index, fadeIn, fadeOut, initialAge, terminalAge, ageStep, recycle;
     u8 *state, *owner, *config;
         EffGeometryBlock *geometryBlock;
-    /* 004a09e0/004a0af0 allocate 0x20 bytes per particle; 004a07b0
-     * advances eight words. Retail loads the age as a word and the
-     * seven remaining fields as floats. Keep those types in one record. */
+    /* Each particle is 0x20 bytes: retail loads the age as a word and the seven remaining fields as
+     * floats. */
     typedef struct FlashInclinedParticle {
         s32 age;
         f32 velocity;
@@ -3791,9 +3642,7 @@ void FlashAgedBoxEmitQuads(u8 *effect)
         births = ((FlashParameters *)config)->births;
     }
     RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 10);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     vertices = (FlashVertex*)((RpMorphTarget *)(u8*)((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->morphTarget)->vertices;
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     colors = ((RpGeometry *)(u8*)((RpAtomic *)geometryBlock->atomic)->geometry)->colors;
     zero = 0.0f;
     direction.lane[1] = zero;
@@ -3990,8 +3839,7 @@ void FlashAgedBoxEmitQuads(u8 *effect)
         if (((EffGeometryBlock *)owner)->kind & 4) ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
 }
-/* Native resolved residual: sixteen $v0/$v1 words in the VU address/transfer live range. */
-// Packs the quad-copy flash vertex colours from the inner and outer colour words.
+/* Packs the quad-copy flash vertex colours from the inner and outer colour words. */
 // FUN_004A14A0
 void FlashQuadCopyPackColors(u8 *input)
 {
@@ -4094,9 +3942,8 @@ void FlashQuadCopyPackColors(u8 *input)
 
 // Allocates a quad-copy flash block, copying the source quad into the block.
 // FUN_004A1660
-/* measured: without opt_propagation off, mwcc folds the %lo of D_00713CE0
- * into the lq offset (lui+lq); retail materializes lui+addiu+lq. */
-/* measured: named-pointer and direct quad-copy forms both differ by 46 normalized bytes without propagation disabled. */
+/* measured: with propagation on, the compiler folds the low half of D_00713CE0's address into the
+ * load offset; retail builds the full address before loading. */
 #pragma push
 #pragma opt_propagation off
 void *FlashQuadCopyAlloc(s32 input, void *resource)

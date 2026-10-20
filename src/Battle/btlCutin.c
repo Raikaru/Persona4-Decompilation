@@ -1,6 +1,6 @@
 #include "h_cdvd_request_internal.h"
 #include "btl_effect_internal.h"
-/* Original translation unit btlCutin.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit btlCutin.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "type.h"
 #include "effect_instance_internal.h"
@@ -49,10 +49,8 @@ extern char D_00625130[];
 extern char D_00625160[];
 
 
-/* Exact under MWCC b210/O2: evaluate the case-0 count first, use the
-   table element directly for the first format call, then retain the
-   table-element address for the loop. */
-/* Build cut-in resource paths from the request and day window, then start the required asynchronous loads. */
+/* Build cut-in resource paths from the request and day window, then start the required asynchronous
+ * loads. */
 // FUN_001F9CF0
 void btlCutinLoad(u8 *request) {
     s32 slotOffset;
@@ -99,7 +97,6 @@ void btlCutinLoad(u8 *request) {
     }
     ((BtlBattleState *)(iGpffffb3ac))->cutinKind = *(u16 *)request;
 }
-
 
 
 /* Poll all pending resource handles; build loaded effects unless cancellation is pending, and release each loaded handle. */

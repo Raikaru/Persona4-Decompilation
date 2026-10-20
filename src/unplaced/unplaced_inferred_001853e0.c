@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 001853e0-00186640 */
 
 /* Unit optimizer settings; the noise-update invariant exception remains scoped below. */
 #pragma opt_loop_invariants off
@@ -68,7 +67,7 @@ typedef struct {
     union { u8 *raster; s32 rasterHandle; };
 } GridDrawWork;
 
-/* measured: byte-address views retain one dispatch-table base snapshot across each render-state sequence at baseline. */
+/* measured: retail loads the dispatch-table base once for each render-state sequence. */
 
 #pragma push
 #pragma optimization_level 2
@@ -201,15 +200,12 @@ void FldNoiseEmitRings(void)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-/* Build the grid, horizontal strips and three concentric ring pairs, then
- * queue their draw and state callbacks. The constant reciprocal depth is
- * 1/1000, matching each vertex's depth and the retail literal at 0x761304.
- * Separate loop lifetimes and complete work/vertex records recover the
- * retail 0x90 frame without artificial storage. */
-/* Noise draw nodes carry the second callback payload in PrimQueueDrawNode.endArgument. */
+/* Build the grid, horizontal strips and three concentric ring pairs, then queue their draw and
+ * state callbacks. The reciprocal depth constant is 1/1000, matching each vertex's depth. Noise
+ * draw nodes carry the second callback payload in PrimQueueDrawNode.endArgument. */
 // FUN_00185850
 #pragma push
-/* measured: separate block-local counters remove opt_lifetimes; baseline invariant handling still differs by 2525 bytes. */
+/* measured: retail keeps loop-invariant values hoisted out of the vertex loops. */
 #pragma opt_loop_invariants on
 s32 FldNoiseUpdate(u8 *task)
 {

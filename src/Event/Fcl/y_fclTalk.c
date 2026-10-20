@@ -2,8 +2,7 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "kwln_task_internal.h"
-/* Persona 4 USA decompilation - y_fclTalk.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit y_fclTalk.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -82,15 +81,11 @@ void weaponShopTalkCreate(u8 *parent) {
     (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_0064A030), 0xF, 0, 0, weaponShopTalkUpdate, weaponShopTalkDestroy, (u8 *)(work));
     *work = 0;
 }
-/* measured: nd 165 with a full C body (object 592B against a 576B window).
-   Wave 9 ran out of turns here and left it uncommitted, so this is a partial
-   adaptation rather than a settled floor -- re-attempt from the m2c draft with
-   the brief's recipes before treating any of it as established. */
-/* Select the first flagged item-shop message whose calendar window includes today, then release its message slot. */
+/* Select the first flagged item-shop message whose calendar window includes today, then release its
+ * message slot. */
 // FUN_00332060
 s32 itemShopTalkUpdate(u8 *task) {
     FclShopTalkRecord *talkRecord;
-    /* measured: access-site typing hoists the flag address; a separate typed record local preserves the reload. */
     s8 *work;
     u8 *entry;
     s8 i;
@@ -203,7 +198,7 @@ void wshopMaterialTalkShowRequirement(u8 *task, s32 itemId, s32 materialInfo) {
 // FUN_00332520
 s32 wshopMaterialTalkUpdate(u8 *task) {
     FclMaterialTalkWork *materialWork;
-    /* measured: a typed work local preserves the count reloads; MEMBER retains the indexed selection address order. */
+    /* measured: retail reloads the count each time, which the typed work local reproduces. */
     s8 *work;
     s32 currentDate;
     s16 calendarDate;

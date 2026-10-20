@@ -16,8 +16,6 @@ extern char D_00635C60[];
 extern s32 iGpffffb480;
 
 
-
-
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(u8 *list, u8 *node);
 extern s64 cmmCommunityArcana(s32 communityId);
@@ -25,7 +23,7 @@ extern s32 sdkSpritePackCreate(u8 *descriptor);
 extern s32 shdSpriteEnsureLoaded(s32 pack);
 extern s32 datPortraitTaskCreate(s32 parentAddress, s64 portraitId, s32 flags);
 extern s32 datPortraitIsLoaded(s32 task);
-extern s32 cmmRankUpCreate(s32 parentTask, s32 *context); /* lint: allow H011 -- caller stores the returned v0 at work[7] (retail keeps it); definition is void */
+extern s32 cmmRankUpCreate(s32 parentTask, s32 *context); /* lint: allow H011 -- caller stores the return value in work[7] as retail does; the definition is void. */
 extern void cmmRankUpSetEntryHold(s32 taskHandle, s32 hold);
 extern void cmmRankUpCopyState(s32 taskHandle, s32 kind, s32 stateIndex);
 extern void kwlnTaskGetWorkCallback(s32 *input);
@@ -39,14 +37,6 @@ extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 ra
                            f32 angle, f32 depth, s32 preserveState);
 
 
-
-
-
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 002519e0-00251d30 */
-
-/* Candidate reconstructed from retail dispatch and generated source. */
 /* Load the rank-up card resources, wait for confirmation, then finish after the exit delay. */
 // FUN_002519E0
 s32 cmmRankUpCardTaskUpdate(u8 *sdkTaskBytes) {

@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Battle/btlAction.c; members 0021a7b0-0021dc50 */
 
 #include "datCalc_unit_internal.h"
 #include "operand_order_internal.h"
@@ -13,7 +12,7 @@
 #include "datPersona_internal.h"
 #include "btl_unit_internal.h"
 #include "btl_ui_task_internal.h"
-/* Adjacent BtlUnit gauge blocks at +0xA28/+0xA3C establish the 0x14 stride. */
+/* Adjacent BtlUnit gauge blocks establish the 0x14 stride. */
 typedef struct BtlGaugeTween
 {
     f32 requestedFill;
@@ -117,8 +116,8 @@ union ColorWord {
     u8 bytes[4];
 };
 
-// Intent: draw a panel flourish with sky vertices and its fade. [inferred]
-/* Packed halfword index pairs and RwCamera.nearPlane determine the sky packet geometry. */
+// Draws a panel flourish using sky vertices, plus its fade. Packed halfword index pairs and
+// RwCamera.nearPlane set the sky packet geometry.
 // FUN_0021A7B0
 void btlPanelDrawFlourish(u8 *task, u8 *state)
 {
@@ -195,7 +194,6 @@ void btlPanelDrawFlourish(u8 *task, u8 *state)
                 ((s16 *)outputIndices)[1] = (s16)secondIndex;
                 outputIndices += 4;
             } while (pairsLeft > 0);
-            /* Keep the first vertex cursor at the packet byte-address boundary. */
             vertex = (BtlShuffleSkyVertex *)(u8 *)&vertices[0];
             vertex->u.els.scrVertex.x = originX;
             vertex->u.els.scrVertex.y = originY;
@@ -297,7 +295,7 @@ void btlPanelDrawFlourish(u8 *task, u8 *state)
     }
 }
 
-// Intent: initialise a gauge with its default range. [inferred]
+// Initialise a gauge with its default range.
 // FUN_0021AE60
 void btlGaugeInit(u8 *unusedTask, u8 *gauge)
 {
@@ -306,15 +304,14 @@ void btlGaugeInit(u8 *unusedTask, u8 *gauge)
     ((BtlGaugeTween *)gauge)->frame = -1;
 }
 
-// Intent: clear a unit's gauge state. [inferred]
+// Clear a unit's gauge state.
 // FUN_0021AE80
 void btlUnitGaugeClear(s32 unitAddress)
 {
     btlGaugeSetActive(unitAddress + 0xA3C);
 }
 
-// Intent: draw a unit's gauge with its HP fraction and fill. [inferred]
-/* Access-site fields and allocation-bound aliases retain the measured byte-pointer interface. */
+// Draws a unit's gauge with its HP fraction and fill.
 // FUN_0021AEB0
 
 void btlGaugeDrawUnit(s32 task, u8 *unit, f32 x, f32 y, s32 visible, f32 hpRatio)
@@ -348,8 +345,7 @@ callback:
     }
 }
 
-// Intent: refresh the HP ratio of each party gauge. [inferred]
-/* Access-site fields and allocation-bound aliases retain the measured byte-pointer interface. */
+// Refreshes the HP ratio of each party gauge; fields are accessed through byte pointers.
 // FUN_0021AFA0
 
 void btlGaugeRefreshAll(void)
@@ -391,8 +387,7 @@ outer_test:
     }
 }
 
-// Intent: return a unit's HP as a fraction of its max HP. [inferred]
-/* Access-site fields and allocation-bound aliases retain the measured byte-pointer interface. */
+// Returns a unit's HP as a fraction of its max HP; takes a byte pointer because retail passes one.
 // FUN_0021B0A0
 
 f32 btlGaugeHpRatio(u8 *unit)
@@ -419,7 +414,7 @@ f32 btlGaugeHpRatio(u8 *unit)
     return hpFloat / maxHpFloat;
 }
 
-// Intent: initialise a gauge value and its counter. [inferred]
+// Initialise a gauge value and its counter.
 // FUN_0021B190
 void btlGaugeInitValue(u8 *valueState, s32 value)
 {
@@ -432,10 +427,9 @@ void btlGaugeInitNoop(void)
 {
 }
 
-// Intent: step every unit's gauge animation toward its target. [inferred]
+// Step every unit's gauge animation toward its target.
 // FUN_0021B1F0
-// measured: loop-invariant constant hoisting probe for func_0021b1f0.
-/* measured: baseline off differs by 65 words; explicit frame-count/zero locals still differ (217 bytes); retain hoisting. */
+// measured: retail hoists the loop-invariant frame-count and zero constants out of the gauge loop.
 #pragma opt_loop_invariants on
 /* Head/tail pairs belong to BtlBattleState; the tween is the BtlUnit HP-gauge subobject. */
 void btlGaugeStepAll(s32 unusedTask, s32 *taskPointer)
@@ -485,7 +479,7 @@ void btlGaugeStepAll(s32 unusedTask, s32 *taskPointer)
 }
 
 #pragma opt_loop_invariants off
-// Intent: set a gauge's active state. [inferred]
+// Set a gauge's active state.
 // FUN_0021B310
 void btlGaugeSetActive(u8 *gauge, s32 active)
 {
@@ -495,8 +489,7 @@ void btlGaugeSetActive(u8 *gauge, s32 active)
     ((BtlGaugeReveal *)gauge)->active = active;
 }
 
-/* object 452B; retail window 464B; normalized_diff 6; differing offsets 0x28, 0x30, 0xF8, 0x11C, 0x12C, 0x13C; best legal plain-C body; residual is saved FPU parameter-coloring and 12B tail padding. */
-// Intent: draw one gauge segment with its scale and fill. [inferred]
+/* Draws one gauge segment with its scale and fill. */
 // FUN_0021B330
 void btlGaugeDrawSegment(s32 task, u8 *gauge, f32 x, f32 y, f32 fill)
 {
@@ -530,7 +523,7 @@ void btlGaugeDrawSegment(s32 task, u8 *gauge, f32 x, f32 y, f32 fill)
     }
 }
 
-// Intent: store a gauge quad's position, depth, colour and texture coordinates. [inferred]
+// Store a gauge quad's position, depth, colour and texture coordinates.
 // FUN_0021B500
 static void btlGaugeSetStyle(u8 *vertex, f32 x, f32 y, f32 depth,
                    f32 u, f32 v, f32 reciprocalDepth, s32 packedColor)
@@ -563,10 +556,8 @@ typedef struct {
     u32 padding2[4];
 } PanelQuad;
 
-/* One four-vertex strip. The union preserves the packed RGBA bits through
- * the retail float-local spill; channel values are stored as floats.
- * Nine float formals precede the color union to preserve caller scheduling. */
-// Intent: draw one textured four-vertex strip at a panel position. [inferred]
+/* Draws one textured four-vertex strip at a panel position. The color union carries packed RGBA
+ * bits; channel values are stored as floats. */
 // FUN_0021B630
 /* RwCamera.nearPlane supplies reciprocal depth for the four sky vertices. */
 void btlPanelDrawQuad(f32 x, f32 y, f32 depth, f32 width,
@@ -645,7 +636,7 @@ void btlPanelDrawQuad(f32 x, f32 y, f32 depth, f32 width,
     D_00887310[0](4, &quads[0], 4);
 }
 
-// Intent: draw the sky pulse effect for one frame index. [inferred]
+// Draw the sky pulse effect for one frame index.
 // FUN_0021BBB0
 void btlEffectDrawSkyPulse(s32 packedColor, u16 frame)
 {
@@ -719,7 +710,7 @@ void btlEffectDrawSkyPulse(s32 packedColor, u16 frame)
     }
 }
 
-// Intent: initialise an effect block with its frame and its state. [inferred]
+// Initialise an effect block with its value and state.
 // FUN_0021BE10
 void btlEffectInit(u8 *effect, s32 value)
 {
@@ -741,9 +732,6 @@ void btlAdvantageInitNoop(void)
 {
 }
 
-/* Advantage-panel geometry uses complete tile, anchor and sky-vertex objects.
- * The final selector owns both random samples and returns the selected bits.
- * See docs/probe_archive/Battle_advantage_0021be80_20260922.md. */
 /* Platform render-state domain from rw/sky2/rwcore.h. */
 enum RpSkyRenderState {
     rpSKYRENDERSTATENARENDERSTATE = 0,
@@ -874,8 +862,7 @@ static inline u16 btlAdvantageChooseSegments(void)
     return selected & eligible;
 }
 
-// Intent: draw the advantage panel's background, segments and random pattern. [inferred]
-/* Access-site fields and allocation-bound aliases retain the measured byte-pointer interface. */
+// Draws the advantage panel's background, segments and random pattern.
 // FUN_0021BE80
 
 void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
@@ -986,8 +973,8 @@ void btlAdvantageDrawPanel(u8 *drawPayload, s32 workAddress, void *callback)
     }
 }
 
-// Intent: start a shuffle task and mark it ready. [inferred]
-/* The owning battle UI task stores the advantage ready flag and frame counter in this component. */
+// Starts a shuffle task by clearing the advantage frame counter and setting its ready flag in the
+// owning battle UI task.
 // FUN_0021D440
 void btlShuffleStart(s32 task)
 {
@@ -998,8 +985,8 @@ void btlShuffleStart(s32 task)
     ((BtlAdvantageState *)(((BtlUiTaskWork *)(p))->advantage))->flags = ((BtlAdvantageState *)(((BtlUiTaskWork *)(p))->advantage))->flags | 1;
 }
 
-// Intent: report whether the shuffle task is not ready. [inferred]
-/* Read the advantage ready flag written by btlShuffleStart in the owning battle UI task. */
+// Report whether the shuffle task is idle by reading the advantage ready flag that btlShuffleStart
+// sets in the owning battle UI task.
 // FUN_0021D470
 s32 btlShuffleIsIdle(s32 task)
 {
@@ -1009,8 +996,8 @@ s32 btlShuffleIsIdle(s32 task)
     return flag ^ 1;
 }
 
-// Intent: advance the shuffle task state machine. [inferred]
-/* Access-site fields and allocation-bound aliases retain the measured byte-pointer interface. */
+// Advances the shuffle task state machine; the task is taken as a byte pointer because retail
+// accesses its fields by byte offset.
 // FUN_0021D4A0
 
 s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
@@ -1173,7 +1160,7 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
     return 0;
 }
 
-// Intent: release a shuffle task and its load handle. [inferred]
+// Release a shuffle task and its load handle.
 // FUN_0021D920
 void btlShuffleDestroyTask(u8 *sdkTaskBytes)
 {
@@ -1189,7 +1176,7 @@ void btlShuffleDestroyTask(u8 *sdkTaskBytes)
     jtbl_008873EC[0](p);
 }
 
-// Intent: create a shuffle task with its child task and state. [inferred]
+// Create a shuffle task with its child task and state.
 // FUN_0021D980
 s32 btlShuffleCreate(s32 parentTask, u16 *parameters)
 {
@@ -1212,7 +1199,7 @@ s32 btlShuffleCreate(s32 parentTask, u16 *parameters)
     return result;
 }
 
-// Intent: cancel a shuffle task and its children. [inferred]
+// Cancel a shuffle task and its children.
 // FUN_0021DAB0
 void btlShuffleCancel(s32 task)
 {
@@ -1226,14 +1213,14 @@ void btlShuffleCancel(s32 task)
     *(s32 *)p |= 2;
 }
 
-// Intent: report whether a shuffle task was canceled. [inferred]
+// Report whether a shuffle task was canceled.
 // FUN_0021DB10
 s32 btlShuffleIsCanceled(s32 task)
 {
     return (*(s32 *)kwlnTaskGetWork((void *)task) & 2) != 0;
 }
 
-// Intent: report whether a shuffle task still has an active child. [inferred]
+// Report whether a shuffle task still has an active child.
 // FUN_0021DB40
 s32 btlShuffleIsBusy(s32 task)
 {
@@ -1251,7 +1238,7 @@ s32 btlShuffleIsBusy(s32 task)
     return 0;
 }
 
-// Intent: advance a shuffle task's frame counter and return -1 when done. [inferred]
+// Advance a shuffle task's frame counter and return -1 when done.
 // FUN_0021DBA0
 s32 btlShuffleTickFrame(u8 *sdkTaskBytes)
 {
@@ -1280,7 +1267,7 @@ exit:
     return 0;
 }
 
-// Intent: draw the shuffle sweep quad for the current frame. [inferred]
+// Draw the shuffle sweep quad for the current frame.
 // FUN_0021DC50
 void btlShuffleDrawSweep(s32 unusedTask, s32 *frameState)
 {

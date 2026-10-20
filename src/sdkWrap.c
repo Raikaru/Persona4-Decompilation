@@ -1,4 +1,4 @@
-/* Original translation unit sdkWrap.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sdkWrap.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -71,12 +71,11 @@ extern char iGpffffb010[6];
 extern u8 iGpffffbae0[8];
 extern f32 iGpffffbb24;
 
-/* 540/544 bytes; twenty resolved relocations; four zero alignment bytes.
- * The pointer switch retains the retail null guard and separate backedge. */
-/* measured: baseline removal differs by 3 words; an explicit state local and an if-null backedge do not match. */
+/* measured: retail keeps the null guard and a separate loop backedge on the pointer switch, which
+ * needs loop-invariant optimization enabled. */
 #pragma opt_loop_invariants on
-/* Poll queued directory requests and wake the resource worker once ready. */
-/* measured: direct fields change instructions; local aliases retain MATCH, with MEMBER for the measured poll-state culprits. */
+/* Poll queued directory requests and wake the resource worker once ready. Fields are read through
+ * local aliases because direct field access changes the generated code. */
 // FUN_00466C60
 void sdkWrapPollRequests(void)
 {
@@ -147,7 +146,6 @@ next_queue:
 }
 #pragma opt_loop_invariants reset
 /* Resource worker loop: dispatch a ready request and release its directory. */
-/* measured: direct fields change instructions; local aliases retain MATCH, with MEMBER for the measured poll-state culprits. */
 // FUN_00466E80
 void sdkWrapWorkerThread(u8 *worker)
 {
@@ -298,10 +296,8 @@ process:
         goto wait_start;
     }
 }
-/* The stream-close callback registered by func_004672c0. It sits inside the
-   func_00466e80 verify window and is not in the retail function table, so its
-   marker splits the window: 820B + padding, then this 200B callback. */
-/* measured: direct fields change instructions; local aliases retain MATCH, with MEMBER for the measured poll-state culprits. */
+/* Stream-close callback registered by func_004672c0; it lies inside func_00466e80's address range
+ * but is missing from the retail function table. */
 // FUN_004671C0
 s32 sdkWrapStreamCloseUpdate(u8 *task)
 {
@@ -333,19 +329,14 @@ s32 sdkWrapStreamCloseUpdate(u8 *task)
 }
 
 
-
-
 // FUN_00467290
 void sdkWrapStreamCloseDestroy(u8 *task)
 {
     jtbl_008873EC[0]((void *)((SdkTask *)task)->work);
 }
 
-/* measured: `handle` must be declared BEFORE `mem`. With `mem` first, b210
-   colours mem into $s1 and handle into $s0 -- the exact mirror of retail --
-   and every one of the 9 differing words is that swap. Declaration order is
-   the whole fix here (9 -> 1, the remaining word being window padding). */
-/* Create a deferred-close task holding the stream and its acquired directory. */
+/* Create a deferred-close task holding the stream and its acquired directory. taskHandle is
+ * declared before work so the two locals land in the same registers as retail. */
 // FUN_004672C0
 s32 sdkWrapStreamCloseCreate(s32 stream, u8 *directory)
 {

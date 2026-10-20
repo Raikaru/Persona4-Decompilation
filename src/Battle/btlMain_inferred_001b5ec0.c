@@ -20,7 +20,7 @@
 #include "btl_effect_internal.h"
 #include "btl_unit_internal.h"
 
-/* SDK light color at +0x18; K_Clump light getters supply this RpLight. */
+/* SDK light color field; K_Clump light getters supply this RpLight. */
 typedef struct RpLight { u8 pad00[0x18]; BtlSceneColor color; } RpLight;
 /* Prefix of effGeometry.c's 0x48-byte allocation (frame/atomic/material). */
 typedef struct EffGeometryBlock {
@@ -111,27 +111,12 @@ extern f32 fGpffff805c;
 extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001b5ec0-001b7520 */
-
-/* 564/576 bytes; sixteen resolved relocations; twelve zero alignment bytes.
- * Named unsigned address terms retain table ordering without signed overflow. */
-/* Retail allocates the scan as found=v1, base=v0, i=a3. The second scan walks
-   a `table` copy of `base`; that copy use keeps `base` a declared local
-   instead of folding into its gp load temporary. `found` declared first and
-   `base` second give retail's v1/v0 pair. In the owner, the measured
-   `opt_common_subs off` keeps the scan's offset and table reloads separate. */
+/* Unsigned address terms keep the table ordering without signed overflow; the second scan walks a
+ * `table` copy so `base` stays a declared local. */
 #pragma push
 #pragma pop
-/* measured: opt_rebuildconditionals off for func_001b19c0 branch-fed scalar. */
-/* measured: close opt_rebuildconditionals off for func_001b19c0. */
-/* measured: scoped opt_lifetimes on with these disjoint work-pointer
- * lifetimes reproduces the complete 4156-byte retail body; all 122 owner
- * siblings, allocated data and 122 exact-position references are preserved.
- * The separate retained-height caller-domain proof remains required. */
 #pragma push
 #pragma pop
-/* 744/752 bytes; twenty resolved relocations; eight zero alignment bytes.
- * Keep full-width dependency snapshots and branch-materialized final mode. */
 #pragma push
 #pragma pop
 // FUN_001B5EC0
@@ -231,13 +216,9 @@ void btlMainRelease(void)
 {
 }
 
-/* Camera snapshots, quaternion conversion and effect geometry setup.
- * Shared geometry and complete palette contracts match their providers.
- * Native proof and the retail matrix-padding omission are documented in
- * docs/probe_archive/Battle_camera_setup_001b6120_20260922_worker7.md.
- */
+/* Camera snapshots, quaternion conversion and effect geometry setup. */
 #pragma push
-/* measured: baseline nd81; typed position/UV cursor traversal nd223; invariant hoisting retains MATCH. */
+/* measured: hoisting loop invariants keeps the position/UV cursor loads in retail order. */
 #pragma opt_loop_invariants on
 // FUN_001B6120
 /* Snapshot field lighting and scene colors, build the battle transform, and configure the optional
@@ -456,13 +437,14 @@ void btlMainSetupCameraAndEffects(void)
 }
 #pragma pop
 #pragma push
-/* measured: reversed and component-consistent scalar reuse both leave nd8 with propagation enabled. */
+/* measured: retail's second float load group only comes out in order with propagation off;
+ * reordering the scalar reuse does not help. */
 #pragma opt_propagation off
 
-/* measured: opt_propagation off probes the retail ordered second float load group. */
+/* measured: propagation off keeps retail's ordered second float load group. */
 // FUN_001B68D0
-/* measured: func_001b68d0 MATCH -> MISMATCH without this pragma. */
-/* Restore saved light-color snapshots, destroy optional sky geometry, and unload the field scene. */
+/* measured: retail's float load order comes out right only with this optimizer setting. Restores
+ * saved light-color snapshots, destroys optional sky geometry, and unloads the field scene. */
 void btlMainSaveFieldSnapshotAndUnload(void)
 {
     f32 d;
@@ -498,8 +480,7 @@ void btlMainSaveFieldSnapshotAndUnload(void)
 }
 #pragma pop
 
-/* measured: closes opt_propagation probe for func_001b68d0. */
-/* measured: func_001b6ab0, func_001b73f0 MATCH -> MISMATCH without this pragma. */
+/* Load the field scene for the current battle's formation and formation variant. */
 // FUN_001B6990
 void btlMainLoadBattleFieldScene(void)
 {
@@ -551,9 +532,8 @@ void btlMainSyncSceneDrawColors(void)
     }
 }
 
-/* measured (this session): cold reconstruction v2 object 380/retail 348 instrs (9% over, not short); probe_variants 357 words/79 edits; probe_search 120 orders flat (propagation/rebuild/no_branch/dead/loop/lifetimes/strength/size/unroll all 357, common_subs worse 397); fnalign $at none (float/bltz tail, slti $at lever N/A); residual is stack layout (0x160 frame pads) and u32->float halving (bltz) vs dead-store elimination; banked guarded floor. */
-/* measured 001b6ab0 2026-09-19: invented f60/f64 pair removed (retail has constants at buf+0x40, not floats; 18 -> 16 float stores) and schedule pragmas removed (retail is unscheduled with nop after every branch/jal); object 350/retail 348 +0.6% INSIDE, 328 words, 48 edits (+3 reloc-only) via fnalign --candidate (was 311/347 -10.4%, 332 words, 228 edits with schedule on). Remaining pure deletes: 0x1b6afc lui $s0,0x88 + addiu $s0,$s0,0x7300 (table-base copy; candidate materialises per site) and 0x1b6c0c sw $zero,0x24($sp) + sw $zero,0x60($sp) (frame 0x120 vs 0x160 offset shift, same 8 constant stores). Frame offsets differ but counts match. */
-/* Draw the full-screen sky-color overlay with the retail render states and four primitive vertices. */
+/* Draw the full-screen sky-color overlay with the retail render states and four primitive vertices.
+ * Retail has integer constants at buf+0x40, not floats, and is compiled unscheduled. */
 // FUN_001B6AB0
 void btlMainDrawSkyOverlay(void) {
     extern s32 RpSkyRenderStateSet(s32 state, s32 value);
@@ -676,15 +656,10 @@ void btlMainSkillColorPairDefaultsAlt(u32 skill, s32 *color, s32 *tint) {
     *tint = -1;
 }
 
-/* Native b210: 812/816 bytes, unmasked relocations and zero tail proved.
- * Scene getters return void * from u16 IDs; matrix copies use SDK values.
- * Evidence: build/continue-first-party-20260922/battle-after-rebase/light-native.
- */
+/* Scene getters return void from u16 IDs; matrix copies use SDK values. */
 // FUN_001B70C0
 #pragma push
-/* Preserve the position/color snapshots and the two cross-product phases. */
-/* Build a light basis toward the unit sphere center and publish its tint and matrix by scene ID.
- * Measured: MEMBER scene-ID reloads differ in access-site, local-pointer and array forms across provider calls. */
+/* Build a light basis toward the unit sphere center and publish its tint and matrix by scene ID. */
 void btlUnitUpdateModelLight(u8 *unit)
 {
     extern void *SceneDraw_GetLightColorA(u16 resTypeId);
@@ -874,12 +849,8 @@ done:
     ;
 }
 
-/* 860/864 bytes; seven resolved relocations; four zero alignment bytes.
- * Snapshot both field colors once, then interpolate to their products.
- * The packet callback keeps its u32(void *) contract and unsigned timer. */
-/* measured: sharing the component-product locals between both colors removes the propagation exception (nd278 to MATCH). */
-/* Snapshot both field colors, form componentwise products, and blend to those products for the packet
- * duration. */
+/* Snapshot both field colors, form componentwise products, and blend to them over the packet
+ * duration; both colors share the product locals. */
 // FUN_001B7520
 u32 btlMainFieldColorFadePacketUpdate(void *workData)
 {

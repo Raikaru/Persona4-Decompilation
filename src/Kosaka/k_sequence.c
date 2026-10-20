@@ -1,6 +1,6 @@
 #include "member_access.h"
 #include "Kosaka/k_field_state_internal.h"
-/* Original translation unit k_sequence.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit k_sequence.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "include_asm.h"
 
@@ -29,8 +29,7 @@ extern u8 D_005F1748[];
 extern s32 D_00763028;
 extern s32 D_00764434;
 
-/* Source unit: src/promoted/k_sequence.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_sequence.c; members 00170220-00170900 */
+/* Inferred translation unit (no __FILE__ assert strings); covers functions 00170220-00170900. */
 
 /* Payload layouts are read by the corresponding sequence start callbacks. */
 typedef struct KSeqFieldParameters {
@@ -75,8 +74,6 @@ s32 K_SeqFrameTaskLinked(void)
 }
 
 /* Create a root field task from the alternate payload words and record its handle. */
-/* measured: access-site, typed-local, and indexed payload guard forms enlarge this function from
- * 160 to 172 bytes. MEMBER preserves the retail guard while naming the proven payload member. */
 // FUN_00170350
 void K_SeqFieldPosStart(u8 *parameters)
 {

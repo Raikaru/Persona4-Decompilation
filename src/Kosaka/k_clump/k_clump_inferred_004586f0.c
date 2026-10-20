@@ -216,19 +216,14 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 
 
-
 #pragma push
 #pragma pop
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 004586f0-004586f0 */
 
 extern void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp);
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_propagation off preserves the retail global-load destination register. */
-/* measured: close propagation-off probe for K_ClumpLookAtBasis. */
 /* Store an RGBA color as the material property packed in ARGB order. */
 // FUN_004586F0
 void K_ClumpMatColorStore(u8 *material, u8 *color) {

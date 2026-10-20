@@ -1,5 +1,5 @@
 #include "include_asm.h"
-/* Original translation unit titleVisual.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit titleVisual.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 #include "member_access.h"
@@ -72,8 +72,7 @@ typedef struct TitleModelPacket
     u8 pad58[8];
 } TitleModelPacket;
 
-/* Model prefix agrees with mdlManager.c: flags +0xD8, clump +0xDC.
- * Matrices and the rest of the model remain owned by the mdl API. */
+/* Model prefix shared with mdlManager.c; matrices and the rest of the model belong to the mdl API. */
 typedef struct Model
 {
     u8 pad00[0xD8];
@@ -81,8 +80,7 @@ typedef struct Model
     s32 clump;
 } Model;
 
-/* measured: all seven functions MATCH with the render callbacks' shared
- * opt_propagation off setting, without per-function restoration. */
+/* measured: all functions in this file share the render callbacks' propagation-off setting. */
 #pragma opt_propagation off
 /* Allocate a rectangle packet from screen bounds; enqueue it or draw immediately. */
 // FUN_002AAF20
@@ -210,9 +208,6 @@ void titleVisualSubmitSprite(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, s32 sp
 
 /* Draw a queued model with its saved transform and flags, then restore live flags and release the packet. */
 // FUN_002AB4B0
-/* Draw a queued model with its saved flags and matrix, restoring the live flags afterward. */
-/* Per-access typing preserves retail allocation; remaining MEMBER_OFFSET
- * flag restores retain byte-cursor aliasing measured against the whole file. */
 void titleVisualDrawModelPacket(void *unused, u8 *packet) {
     s8 color[4];
     u8 *model;
@@ -236,8 +231,6 @@ void titleVisualDrawModelPacket(void *unused, u8 *packet) {
 /* Apply title render states and RGBA tint, draw visible model atomics, and close optional blend and mask modes. */
 // FUN_002AB550
 /* Install the title render state and draw the model with the supplied RGBA color. */
-/* Per-access typing preserves retail allocation; remaining MEMBER_OFFSET
- * flag restores retain byte-cursor aliasing measured against the whole file. */
 void titleVisualDrawTintedModel(u8 *model, s8 *color) {
     Model *drawModelState = (Model *)model;
     void (**render)(u32 state, u32 value);
@@ -283,9 +276,8 @@ void titleVisualDrawTintedModel(u8 *model, s8 *color) {
 
 /* Build a camera-facing scaled model transform and submit a packet while preserving the live model matrix for immediate draws. */
 // FUN_002AB790
-/* Build a camera-facing scaled model matrix and submit a model packet; immediate drawing restores the live matrix. */
-/* Per-access typing preserves retail allocation; remaining MEMBER_OFFSET
- * flag restores retain byte-cursor aliasing measured against the whole file. */
+/* Build a camera-facing scaled model matrix and submit a model packet; immediate drawing restores
+ * the live matrix. */
 void titleVisualSubmitModel(f32 x, f32 y, f32 depth, s32 rgb, s32 alpha, f32 scale, s32 projectPosition, u8 *model, void *queue) {
     TitleModelPacket *modelPacket;
     s8 color[4];

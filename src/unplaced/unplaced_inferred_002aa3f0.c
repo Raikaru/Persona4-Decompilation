@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002aa3f0-002aabf0 */
 
 /* Unit optimizer settings shared by the neighboring functions. */
 #pragma opt_common_subs on
@@ -99,7 +98,7 @@ s32 mcIconTaskPoll(void) {
 
 #pragma push
 #pragma no_branch_likely off
-// Intent: Draw the rotating three-colour loading spinner for one frame [inferred]
+// Draws the rotating three-colour loading spinner for one frame.
 // FUN_002AA450
 void loadingSpinnerDraw(void) {
     s64 bits;
@@ -186,7 +185,7 @@ void loadingSpinnerDraw(void) {
 
 #pragma push
 #pragma no_branch_likely off
-// Intent: Loading spinner task update: run its show/hide state machine and queue its draw [inferred]
+// Loading spinner task update: runs its show/hide state machine and queues its draw.
 // FUN_002AA890
 s32 loadingSpinnerTaskUpdate(u8 *task) {
     s32 *state;
@@ -243,7 +242,7 @@ void loadingSpinnerTaskDestroy(u8 *unusedTask)
 
 #pragma push
 #pragma no_branch_likely off
-// Intent: Create the loading spinner task and clear its state block [inferred]
+// Create the loading spinner task and clear its state block.
 // FUN_002AAA10
 void loadingSpinnerTaskCreate(void) {
     memset(D_00882F20, 0, 0x10);
@@ -253,7 +252,7 @@ void loadingSpinnerTaskCreate(void) {
 
 #pragma push
 #pragma no_branch_likely off
-// Intent: Request the loading spinner to show (sets bit 0 of its state) [inferred]
+// Request the loading spinner to show by setting bit 0 of its state.
 // FUN_002AAA80
 void loadingSpinnerRequestShow(void) {
     D_00882F20[0] |= 1;
@@ -262,7 +261,7 @@ void loadingSpinnerRequestShow(void) {
 
 #pragma push
 #pragma no_branch_likely off
-// Intent: Request the loading spinner to hide (clears bit 0 of its state) [inferred]
+// Request the loading spinner to hide by clearing bit 0 of its state.
 // FUN_002AAAA0
 void loadingSpinnerRequestHide(void) {
     D_00882F20[0] &= ~1;
@@ -271,7 +270,7 @@ void loadingSpinnerRequestHide(void) {
 
 #pragma push
 #pragma no_branch_likely off
-// Intent: Apply the shared title sky base render preset; callers set the pass-specific sky state after it [inferred]
+// Apply the shared title sky base render preset; callers set the pass-specific sky state after it.
 // FUN_002AAAC0
 void titleSkyApplyBasePreset(void) {
     void (*(*base)[1])(s32, s32);
@@ -295,9 +294,11 @@ void titleSkyApplyBasePreset(void) {
 
 #pragma push
 #pragma no_branch_likely off
-// Intent: Title visual draw callback: read a 0x1C packet (rect, depth, colour, flags) and draw a flat rectangle [inferred]
+// Title visual draw callback: reads a packet (rect, depth, colour, flags) and draws a flat
+// rectangle.
 #pragma opt_propagation off
-/* measured: direct table calls, pointer-to-array access, reordered and direct packet snapshots leave at least 8 differing words. */
+/* measured: retail keeps the packet values in registers instead of propagating copies, so
+ * propagation stays off. */
 // FUN_002AABF0
 void titleVisualDraw(void *unusedQueue, u8 *packet) {
     TitleVisualDrawState work;

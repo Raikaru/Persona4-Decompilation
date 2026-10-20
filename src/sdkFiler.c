@@ -1,4 +1,4 @@
-/* Original translation unit sdkFiler.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sdkFiler.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdk_task_registration.h"
 #include "include_asm.h"
@@ -43,8 +43,6 @@ extern char iGpffffb030;
 void sdkFilerSelectorDraw(u8 *selector);
 
 
-
-
 /* Allocates filer work, creates the child task and copies its initial path. */
 // FUN_00468170
 u8 *sdkFilerTaskCreate(void *parent, const char *path) {
@@ -64,13 +62,8 @@ u8 *sdkFilerTaskCreate(void *parent, const char *path) {
     return task;
 }
 
-/* measured: b210 CSEs the four D_008C0256 button-mask reads into one
-   register; retail re-loads per test. Each read spells its address in a
-   different integer domain (&arr[0], (u8 *)+0, (u32), (s32)) so the CSE
-   keys differ and the loads stay separate -- 3 differing words (padding
-   only, MATCH), matching the previous spelling exactly. */
-/* Processes character-grid movement, text editing and screen-position input. */
-/* measured: direct selector fields change instructions; local selector and character pointers retain MATCH and the button-mask address domains preserve reloads. */
+/* Processes character-grid movement, text editing and screen-position input. Each button-mask read
+ * is spelled differently so that every test reloads it, as retail does. */
 // FUN_00468260
 s32 sdkFilerSelectorUpdate(u8 *task) {
     SdkFilerSelector *typedFiler;
@@ -167,8 +160,8 @@ s32 sdkFilerSelectorUpdate(u8 *task) {
     return 0;
 }
 
-/* Draws the selector text, character grid, selection marker and preview glyph. */
-/* measured: direct selector fields change instructions; local selector and character pointers retain MATCH and the button-mask address domains preserve reloads. */
+/* Draws the selector text, character grid, selection marker and preview glyph. Uses local selector
+ * and glyph pointers instead of direct field access so retail's reloads are reproduced. */
 // FUN_004685c0
 void sdkFilerSelectorDraw(u8 *selector) {
     SdkFilerSelector *typedSelector = (SdkFilerSelector *)selector;

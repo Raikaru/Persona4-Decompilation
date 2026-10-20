@@ -218,21 +218,17 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 
 
-
 #pragma push
 #pragma pop
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00456530-00456530 */
-
 #pragma push
 #pragma pop
-/* measured: MWCC b210 -O2, 348B / 352B window; executable bytes exact.
- * Literal separators with loop-invariant motion and propagation disabled
- * recover the retail register allocation; the final word is zero alignment. */
-// Intent: walks the archive directory records and registers each entry under its upper-cased path. singleEntry stops after the first record.
+/* measured: retail register allocation needs literal separators with loop-invariant motion and
+ * propagation disabled; the final word is zero alignment. Walks the archive directory records and
+ * registers each entry under its upper-cased path; singleEntry stops after the first record. */
 // FUN_00456530
 #pragma push
-/* measured: baseline nd67; incrementing the uppercase cursor gives nd57. */
+/* measured: retail hoists loop invariants in the record walk. */
 #pragma opt_loop_invariants on
 void H_Cdvd_RegisterArchiveEntries(u8 *basePath, u8 *archive, s32 singleEntry) {
     s32 recordLength;

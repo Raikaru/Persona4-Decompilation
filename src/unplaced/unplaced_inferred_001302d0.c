@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 001302d0-00130ce0 */
 
 #include "list_item_internal.h"
 #include "include_asm.h"
@@ -26,13 +25,12 @@ extern u8 D_0064B2EC[];
 extern u8 D_0064B2F0[];
 extern u8 D_0064B2FC[];
 extern u8 D_0064B308[];
-/* Use the configured optimization defaults except for measured scoped overrides. */
 #pragma push
-/* measured: literal and named-constant forms both leave 76 differing bytes without invariant hoisting. */
+/* measured: retail hoists loop invariants out of the slot loop. */
 #pragma opt_loop_invariants on
-// Intent: Shift each of the four slots' positions and alphas into their previous values, highlight the selected slot, and reset the counter at +0x1C [inferred]
+// Shift each of the four slots' positions and alphas into their previous values, highlight the
+// selected slot, and reset the counter.
 // FUN_001302D0
-/* Earlier whole-layout typing probe: MenuSlotAnimation row pointers changed codegen (nd 122).; access-site and typed-local forms now match. */
 void radarPushSlotState(u8 *menu) {
     s32 i;
 
@@ -56,9 +54,9 @@ void radarPushSlotState(u8 *menu) {
 }
 #pragma pop
 
-// Intent: Reset the indicator's colours and positions, choosing the x offset by comparing the counters at +0x24 and +0x2A [inferred]
+// Reset the indicator's colours and positions, choosing the x offset by comparing two menu
+// counters.
 // FUN_00130360
-/* Earlier whole-layout typing probe: RadarMenu access changed codegen (nd 32).; access-site and typed-local forms now match. */
 void radarResetIndicator(u8 *menu) {
     f32 indicatorY;
     f32 baseY;
@@ -90,9 +88,9 @@ void radarResetIndicator(u8 *menu) {
 
 #pragma push
 #pragma optimization_level 1
-// Intent: Randomize the scatter of each of the twelve entries with probability three in four; the others keep their current alpha [inferred]
+// Randomize the scatter of each of the twelve entries with probability three in four; the others
+// keep their current alpha.
 // FUN_00130430
-/* Earlier whole-layout typing probe: MenuSlotAnimation row pointers changed codegen (nd 182).; access-site and typed-local forms now match. */
 void radarRandomizeEntries(u8 *menu)
 {
     f32 scatterX;
@@ -133,7 +131,7 @@ void radarRandomizeEntries(u8 *menu)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Free the 51 sprite nodes in the radar sprite table and clear the count at +0x14 [inferred]
+// Free the 51 sprite nodes in the radar sprite table and clear the sprite count.
 // FUN_00130580
 void radarFreeSpriteNodes(u8 *menu) {
     s32 i;
@@ -158,7 +156,8 @@ void radarFreeSpriteNodes(u8 *menu) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Return 1 when the value at +0x1C is at least the threshold of every one of the 30 entries and the external check passes [inferred]
+// Return 1 when entryFrame is at least the end frame of all 30 entries and the external check
+// passes.
 // FUN_00130600
 s32 radarEntriesCoverValue(u8 *menu) {
     s32 flag = 1;
@@ -177,9 +176,10 @@ s32 radarEntriesCoverValue(u8 *menu) {
 
 #pragma push
 #pragma optimization_level 2
-/* measured: typed, MEMBER and sprite snapshots leave 98/160 differing bytes; retain the load before alpha math. */
+/* measured: retail keeps the load before the alpha math instead of propagating it. */
 #pragma opt_propagation off
-// Intent: Draw one radar entry row: the panel row with its highlight, the level digits and the icon, at the slot position and fade [inferred]
+// Draw one radar entry row: the panel row with its highlight, the level digits and the icon, at the
+// slot position and fade.
 // FUN_00130680
 void radarDrawEntryRow(u8 *menu, s32 partyIndex)
 {
@@ -277,9 +277,9 @@ void radarDrawEntryRow(u8 *menu, s32 partyIndex)
 
 #pragma push
 #pragma optimization_level 2
-/* measured: typed and MEMBER loads leave 15 differing bytes; a sprite snapshot leaves 106. */
+/* measured: retail keeps the sprite and colour loads in place rather than propagating them. */
 #pragma opt_propagation off
-// Intent: Draw a sprite at the given position and another 340 units to its right, with the given colour [inferred]
+// Draw a sprite at the given position and another 340 units to its right, with the given colour.
 // FUN_00130C30
 void radarDrawSpritePair(u8 *menu, s64 packedPosition, s32 packedColor)
 {
@@ -305,10 +305,8 @@ void radarDrawSpritePair(u8 *menu, s64 packedPosition, s32 packedColor)
 
 #pragma push
 #pragma optimization_level 2
-/* 1476/1488 bytes; fourteen resolved relocations and twelve zero tail bytes.
- * The position and color copies have their full object extents. Keep the
- * original Y component and the shared sprite cursor across the draw pairs. */
-// Intent: Draw one radar entry card: the background bars, the value text and the entry row, at the given position and alpha [inferred]
+/* Draws one radar entry card (background bars, value text and entry row) at the given position and
+ * alpha. The original Y component and shared sprite cursor are kept across the draw pairs. */
 // FUN_00130CE0
 void radarDrawEntryCard(u8 *work, PackedVec2f inputPosition, s32 inputAlpha, s16 *entry)
 {

@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/datCalendar.c; members 001104a0-00110810 */
 
 #include "list_item_internal.h"
 #include "include_asm.h"
@@ -12,7 +11,7 @@ extern s32 D_005E45E0[];
 extern u8 D_0079B6D8[];
 extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
 extern s16 D_00797B7A[];
-// Intent: Return the day count of the calendar month at 1-based index arg0 from the twelve-entry month-length table, in the April-based year [inferred]
+// Return the day count of a 1-based month from the twelve-entry, April-based month-length table.
 // FUN_001104A0
 s32 calGetMonthLength(s32 month)
 {
@@ -20,10 +19,11 @@ s32 calGetMonthLength(s32 month)
 }
 
 #pragma push
-/* measured: baseline and structured/cached-month loop probes differ (nd 33/86); retain retail hoisting and propagation. */
+/* measured: retail hoists loop invariants and does not propagate the month values in this loop. */
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
-// Intent: Split a day count within the 365-day year into a 1-based month and day by subtracting month lengths from April [inferred]
+// Split a day within the 365-day year into a 1-based month and day, subtracting month lengths from
+// April.
 // FUN_001104D0
 void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut)
 {
@@ -61,13 +61,13 @@ done:
 }
 #pragma pop
 
-// Intent: Return the weekday index (0 to 6) of a day count within the 365-day year [inferred]
+// Return the weekday index (0 to 6) of a day within the 365-day year.
 // FUN_00110580
 s32 calGetWeekdayOfDay(s32 dateIndex) {
     return (((dateIndex % 0x16D) % 7) + 5) % 7;
 }
 
-// Intent: Return the one-based seven-day bucket within the month (despite the recovered function name) [inferred]
+// Return the one-based seven-day bucket within the month, despite the function name.
 // FUN_001105B0
 s32 calGetWeekOfYear(s32 dateIndex) {
     s32 month;
@@ -78,7 +78,8 @@ s32 calGetWeekOfYear(s32 dateIndex) {
     return day + 1;
 }
 
-// Intent: Return the day-of-year offset of a month and day: the summed month lengths from April plus day minus one [inferred]
+// Return the day-of-year offset of a month and day: summed month lengths from April plus day minus
+// one.
 // FUN_00110600
 s32 calDayOfYearFromMonthDay(s32 month, s32 day) {
     s32 sum = 0;
@@ -104,7 +105,7 @@ s32 calDayOfYearFromMonthDay(s32 month, s32 day) {
     return sum + (day - 1);
 }
 
-// Intent: Return whether the current calendar day equals month arg1 and day arg2 [inferred]
+// Return whether the current calendar day equals the given month and day.
 // FUN_00110680
 s32 calIsCurrentMonthDay(s32 unused, s32 month, s32 day) {
     s32 currentMonth;
@@ -117,7 +118,8 @@ s32 calIsCurrentMonthDay(s32 unused, s32 month, s32 day) {
     return 0;
 }
 
-// Intent: Return 1 when day count arg0 lies between the start month-day (arg1, arg2) and the end month-day (arg3, arg4), by summed month lengths [inferred]
+// Return 1 when dateIndex lies between the start and end month-day, compared by summed month
+// lengths.
 // FUN_001106F0
 s32 calIsDayInRange(s32 dateIndex, s32 startMonth, s32 startDay, s32 endMonth, s32 endDay)
 {
@@ -177,7 +179,7 @@ fail:
     return 0;
 }
 
-// Intent: Set one byte of the 1536-entry state table; the new-game reset clears the table [inferred]
+// Set one byte of the 1536-entry state table; the new-game reset clears the table.
 // FUN_00110810
 void datSetStateTableEntry(s32 index, u8 flags)
 {

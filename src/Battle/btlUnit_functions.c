@@ -1,7 +1,6 @@
 #include "btl_effect_internal.h"
 #include "btl_unit_internal.h"
 #include "btl_motion_internal.h"
-/* Source unit: src/Battle/btlUnit_00198300.c */
 #include "include_asm.h"
 #include "type.h"
 
@@ -123,7 +122,6 @@ typedef struct RotateTowardUnitPacket {
 } RotateTowardUnitPacket;
 
 
-
 /* Create target-facing work and retain both units through the paired lifecycle callbacks. */
 // FUN_00198300
 BtlPacket* btlUnitCreateRotateTowardUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, u32 flags)
@@ -142,7 +140,6 @@ BtlPacket* btlUnitCreateRotateTowardUnitPacket(BtlUnit* unit, BtlUnit* targetUni
 
     return packet;
 }
-
 
 
 /* Create a rest-motion request with the requested blend-frame halfword. */
@@ -164,7 +161,6 @@ BtlPacket* btlUnitCreateMotionRequestPacket(BtlUnit* unit, u16 value)
 }
 
 
-
 /* Create the alternating resource-nullified displacement animation with the supplied amplitude. */
 // FUN_0019A2E0
 BtlPacket* btlUnitCreateResNullifiedAnimPacket(BtlUnit* unit, f32 value)
@@ -182,7 +178,6 @@ BtlPacket* btlUnitCreateResNullifiedAnimPacket(BtlUnit* unit, f32 value)
 
     return packet;
 }
-
 
 
 /* Create temporary arc-offset work with its requested mode and a cleared counter. */
@@ -205,7 +200,6 @@ BtlPacket* btlUnitCreateArcOffsetPacket(BtlUnit* unit, s32 value)
 }
 
 
-
 /* Create enemy-dodge animation work with its starting counter cleared; the second argument is unused. */
 // FUN_0019A860
 BtlPacket* btlUnitCreateEnemyDodgePacket(BtlUnit* unit, s32 unused)
@@ -225,7 +219,6 @@ BtlPacket* btlUnitCreateEnemyDodgePacket(BtlUnit* unit, s32 unused)
 }
 
 
-
 // FUN_0019A980
 BtlPacket* btlUnitCreateMotionSettlePacket(BtlUnit* unit)
 {
@@ -239,7 +232,6 @@ BtlPacket* btlUnitCreateMotionSettlePacket(BtlUnit* unit)
 
     return packet;
 }
-
 
 
 /* Create a model-frame request carrying the signed frame value. */
@@ -259,7 +251,6 @@ BtlPacket* btlUnitCreateModelFramePacket(BtlUnit* unit, s16 value)
 
     return packet;
 }
-
 
 
 /* Create a motion-speed request carrying blend frames, playback rate, and playback option. */
@@ -283,7 +274,6 @@ BtlPacket* btlUnitCreateMotionSpeedPacket(BtlUnit* unit, u16 value, f32 speed, u
 }
 
 
-
 // FUN_0019B6A0
 BtlPacket* btlUnitCreateModelReleasePacket(BtlUnit* unit)
 {
@@ -298,7 +288,6 @@ BtlPacket* btlUnitCreateModelReleasePacket(BtlUnit* unit)
 
     return packet;
 }
-
 
 
 /* Create a timed color transition with its target color, start frame, duration and mode flags. */
@@ -324,7 +313,6 @@ BtlPacket* btlUnitCreateColorPacket(BtlUnit* unit, u32 targetColor, s16 startFra
 }
 
 
-
 // FUN_0019BD00
 BtlPacket* btlUnitCreateShowPacket(BtlUnit* unit)
 {
@@ -340,7 +328,6 @@ BtlPacket* btlUnitCreateShowPacket(BtlUnit* unit)
 }
 
 
-
 // FUN_0019BDD0
 BtlPacket* btlUnitCreateHidePacket(BtlUnit* unit)
 {
@@ -354,7 +341,6 @@ BtlPacket* btlUnitCreateHidePacket(BtlUnit* unit)
 
     return packet;
 }
-
 
 
 /* Create resource-loading work for genus plus one; clear dispatcher flag bit zero before enqueueing. */
@@ -380,7 +366,6 @@ BtlPacket* btlUnitCreateResourceLoadPacket(BtlUnit* unit, u16 id, u16 flags)
 }
 
 
-
 /* Create unit-targeted look-at work; selection flags may apply it to whole party or enemy lists. */
 // FUN_0019E550
 BtlPacket* btlUnitCreateLookAtUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, u16 flags)
@@ -399,7 +384,6 @@ BtlPacket* btlUnitCreateLookAtUnitPacket(BtlUnit* unit, BtlUnit* targetUnit, u16
 
     return packet;
 }
-
 
 
 /* Retain a supplied unit while its look-at deactivation request is pending. */
@@ -504,7 +488,6 @@ BtlPacket* btlUnitCreateLookAtDeactivatePacket(BtlUnit* unit, u16 flags)
 
     return packet;
 }
-
 
 
 /* Release both unit references held by the target-facing packet. */

@@ -9,7 +9,6 @@ extern s32 D_0063BF80[];
 extern u16 D_008C024E[];
 
 
-
 extern s32 D_008815B0[];
 
 
@@ -28,8 +27,6 @@ extern s32 itfMesWindowSendRowTransitionLeave(s32 handle);
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027b1c0-0027b500 */
-
 extern void itfMesWindowStepState(u8 *window);
 extern void itfMesWindowAdvanceRow(u8 *window);
 extern void itfMesWindowCommitSelection(u8 *window);
@@ -38,18 +35,9 @@ extern s32 itfMesWindowSendDrawLists(s32 handle);
 extern s32 itfMesWindowSendRowTransitionEnter(s32 handle);
 extern s32 itfMesWindowSendRowTransitionActive(s32 handle);
 extern s32 itfMesWindowSendRowTransitionLeave(s32 handle);
-/* measured: opt_propagation off probe for 002703d0 register setup. */
-/* measured: closes opt_propagation off probe for 002703d0. */
-/* measured: opt_rebuildconditionals off reproduces 002704f0 retail conditional-register schedule. */
-/* measured: closes opt_rebuildconditionals off for 002704f0. */
-/* measured: opt_propagation off probe for 00270780 family add */
-/* measured: close opt_propagation off probe for 00270780 family add */
-/* measured: opt_propagation off probe for 00270a80 addu order */
-/* measured: close opt_propagation off probe for 00270a80 */
-// Intent: Returns the entry value whose bit is set in the pressed-input mask, or -1 [inferred]
+/* Returns the entry value whose bit is set in the pressed-input mask, or -1. */
 // FUN_0027B1C0
-/* measured: opt_loop_invariants hoists mask/count/const-1 into preheader */
-/* measured: itfMesWindowFindPressedEntry MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists the mask, count and the -1 constant out of the loop into the preheader. */
 #pragma opt_loop_invariants on
 s32 itfMesWindowFindPressedEntry(s16 *selection)
 {
@@ -71,8 +59,7 @@ s32 itfMesWindowFindPressedEntry(s16 *selection)
     return -1;
 }
 
-/* measured: opt_loop_invariants off */
-// Intent: Advances a selection's transition state (waits on ops 0x10, 0x11, 0x12) [inferred]
+/* Advances a window's transition state, waiting on ops 0x10, 0x11 and 0x12. */
 // FUN_0027B230
 void itfMesWindowStepTransition(u8 *window)
 {
@@ -113,7 +100,7 @@ node_done:
     }
 }
 
-// Intent: Updates a window's three lists: draws them and advances the window's list state [inferred]
+// Draws a window's three lists and advances the window's list state.
 // FUN_0027B310
 void itfMesWindowUpdateLists(u8 *window)
 {
@@ -201,7 +188,7 @@ node_done:
     }
 }
 
-// Intent: Marks the window for redraw when it is visible and in an active state [inferred]
+// Marks the window for redraw when it is visible and in an active state.
 // FUN_0027B4C0
 void itfMesWindowMarkRedraw(s32 *window)
 {
@@ -213,7 +200,8 @@ void itfMesWindowMarkRedraw(s32 *window)
     }
 }
 
-// Intent: Per-frame task update: steps each window's state, row, selection and transition, then queues the callback [inferred]
+// Per-frame task update: steps each window's state, row, selection and transition, then queues the
+// callback.
 // FUN_0027B500
 s32 itfMesWindowTaskUpdate(u8 *sdkTaskBytes)
 {

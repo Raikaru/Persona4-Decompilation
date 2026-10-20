@@ -214,11 +214,8 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 
 
-
 #pragma push
 #pragma pop
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 004571c0-004571c0 */
 
 #pragma push
 #pragma pop

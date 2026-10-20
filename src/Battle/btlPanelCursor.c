@@ -1,6 +1,5 @@
 #include "include_asm.h"
-/* Persona 4 USA decompilation - btlPanelCursor.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit btlPanelCursor.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "shd_misc_internal.h"
 #include "btl_panel_internal.h"
@@ -52,13 +51,8 @@ extern f32 fGpffff837c;
 extern f32 D_00761590;
 
 #pragma opt_loop_invariants on
-/* Recovered.  `alpha` is deliberately left uninitialised: retail reads the
-   FPR on the reset path (case 1 sets the flag bits that make the later
-   `iGpffff83d4[1] * alpha` live) without ever writing it there, so the
-   defensive `= 1.0f` initialiser this recovery used to carry produced two
-   extra instructions (`lui`/`mtc1` of 1.0f into $f20) at the top and cost
-   the whole match. */
-/* Update the eight-segment target cursor and its HP gauge. The dedicated cursor alias preserves the byte-base allocation. */
+/* Update the eight-segment target cursor and its HP gauge. `alpha` is deliberately uninitialised
+ * because retail reads it on the reset path without writing it. */
 // FUN_0020BFF0
 void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
@@ -172,16 +166,8 @@ void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
         btlGaugeDrawUnit(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
     }
 }
-/* measured triage: no real C body was produced for the 2016B retail window;
-   prior switch/MAC probes were discarded rather than parked because object-size
-   closeness was not established. */
-/* Recovered.  `alpha` is deliberately left uninitialised: retail reads the
-   FPR on the reset path (case 1 sets the flag bits that make the later
-   `iGpffff83d4[1] * alpha` live) without ever writing it there, so the
-   defensive `= 1.0f` initialiser this recovery used to carry produced two
-   extra instructions (`lui`/`mtc1` of 1.0f into $f20) at the top and cost
-   the whole match. */
-/* Update the seven-segment target cursor with its rotating sprite and HP gauge. The dedicated cursor alias preserves the byte-base allocation. */
+/* Update the seven-segment target cursor with its rotating sprite and HP gauge. `alpha` is
+ * deliberately uninitialised because retail reads it on the reset path without writing it. */
 // FUN_0020C680
 void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
@@ -305,16 +291,9 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
         btlGaugeDrawUnit(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
     }
 }
-/* measured triage: no real C body was produced for the 2112B retail window;
-   prior switch/MAC probes were discarded rather than parked because object-size
-   closeness was not established. */
-/* Recovered.  Same uninitialised `alpha` as the two cursors above, plus the
-   `tile` parameter of func_002016e0: retail passes the converted float
-   straight through (`mfc1 $a2,$f0`), so the parameter is s32, not s16 -
-   the narrow declaration added a dsll32/dsra32 pair here.  The other call
-   sites pass a constant distance, where the conversion folds away, which
-   is why they matched with the wrong width. */
-/* Update the expanding cross target cursor and its HP gauge. The dedicated cursor alias preserves the byte-base allocation. */
+/* Update the expanding cross target cursor and its HP gauge. Like the other cursors, alpha is left
+ * uninitialised; func_002016e0's tile parameter is s32 because retail passes the converted float
+ * straight through. */
 // FUN_0020CE60
 void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
@@ -447,15 +426,14 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
         btlGaugeDrawUnit(task, panel, position[0] - 9.0f, position[1] - 5.0f, 255, t);
     }
 }
-/* Native b210 O2: 2404/2416 bytes, 32 resolved relocations and twelve
- * zero alignment bytes. The lifetime pass retains task on the stack
- * while the loop keeps its repeated color components in registers.
- * See docs/probe_archive/Battle_cursor_0020d6a0_20260923.md. */
+/* The lifetime pass keeps task on the stack while the loop holds its repeated color components in
+ * registers. */
 #pragma push
-/* measured: baseline nd800; typed pointer reuse, typed parameter cache, inverted if/else did not match (best nd800); retain opt_lifetimes on. */
+/* measured: retail keeps task on the stack and the color components in registers, which needs
+ * opt_lifetimes on. */
 #pragma opt_lifetimes on
 // FUN_0020D6A0
-/* Update the green four-segment/ring target cursor and its HP gauge. The dedicated cursor alias preserves the byte-base allocation. */
+/* Update the green four-segment/ring target cursor and its HP gauge. */
 void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
 {
     extern void btlUiSetScale(u8 *work, f32 x, f32 y);
@@ -468,8 +446,7 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
     CursorDirections dir;
     u8 *work;
     u8 *control;
-    /* Reset paths leave alpha unwritten in retail, just as in the three
-     * sibling cursors. Keep that original initialization omission. */
+    /* Reset paths leave alpha unwritten in retail, as in the three sibling cursors. */
     f32 alpha;
     f32 t;
     f32 length;

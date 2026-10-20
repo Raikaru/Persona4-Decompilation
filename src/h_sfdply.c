@@ -1,4 +1,3 @@
-/* Source unit: src/h_sfdply_00466580.c */
 #include "type.h"
 
 typedef struct EeThreadStatus
@@ -81,7 +80,6 @@ static HSfdQueueSlot sSfdQueue[1];
 static HSfdAsyncEntry sSfdEntries[HSFD_ENTRY_COUNT];
 
 
-
 /* Suspend the pending Sofdec worker unless already suspended or wait-suspended; restore the prior interrupt state. */
 // FUN_00466580
 void hsfdSuspendWorker(void)
@@ -103,7 +101,6 @@ void hsfdSuspendWorker(void)
         func_0042ba20();
     }
 }
-
 
 
 /* Reset the Sofdec request pool and create and start its single worker thread with the configured stack. */

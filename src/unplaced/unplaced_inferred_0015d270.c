@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0015d270-0015d310 */
 
 /* Unit optimizer settings shared by all field-step functions. */
 #pragma opt_loop_invariants on
@@ -35,14 +34,10 @@ typedef struct {
     u8 pad68[0x1C];
 } FldStepRecord;
 
-/* Step record layout (stride 0x84): id +0, month/day/time +2/+4/+6,
- * calendar masks +8/+9/+A, phase condition +B, five required flag pairs +C,
- * twelve excluded flags +34, field/room +64/+66. The active location stores
- * two s32 values at +0/+4. The release handle is at work +0x14.
- * Typed record cursors preserve the reverse traversal and calendar cutoffs. */
-// Intent: Release the handle at the work block's +0x14 through the hook table and clear it [inferred]
+/* Step records are 0x84 bytes: id, month/day/time, calendar masks, phase condition, five required
+ * flag pairs, twelve excluded flags, and field/room. Release the work block's handle through the
+ * hook table and clear it. */
 // FUN_0015D270
-/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 void FldStepReleaseHandle(u8 *work)
 {
     FldStepWork *stepWork = (FldStepWork *)work;
@@ -55,7 +50,7 @@ void FldStepReleaseHandle(u8 *work)
     }
 }
 
-// Intent: Return the step record at the given count of empty records (id 0xFFFF) in the record table [inferred]
+// Return the step record at the given count of empty records (id 0xFFFF) in the record table.
 // FUN_0015D2C0
 u16 *FldStepFindEmptySlot(u32 emptyIndex)
 {
@@ -86,7 +81,6 @@ u16 *FldStepFindEmptySlot(u32 emptyIndex)
 
 /* Select the last step whose location, calendar masks and flag requirements pass; return NULL if none do. */
 // FUN_0015D310
-/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 u8 *fldStepFindEligibleRecord(u16 *records)
 {
     FldStepRecord *stepRecord;
