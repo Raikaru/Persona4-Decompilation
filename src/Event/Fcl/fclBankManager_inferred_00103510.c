@@ -9,6 +9,11 @@
 #include "kwln_view_internal.h"
 #include "rw_texture_internal.h"
 #include "sdk_ot_state_api.h"
+
+/* Unit settings: propagation, loop-invariant motion and common subexpressions enabled. */
+#pragma opt_propagation on
+#pragma opt_loop_invariants on
+#pragma opt_common_subs on
 extern void strcpy(void *dst, void *src);
 extern void func_00440b68();
 extern void (*jtbl_008873EC[])(void *);
@@ -167,9 +172,6 @@ extern u8 *PrimQueueDrawPrimitive(void *inputList, s32 primitive, void *vertices
 extern u8 iGpffff85d0;
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Start the time limit task under the root with no parent [inferred]
 // FUN_00103510
 void timeLimitStart(void) {
@@ -179,9 +181,6 @@ void timeLimitStart(void) {
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Report whether the time limit task is running [inferred]
 // FUN_00103540
 s32 timeLimitIsActive(void) {
@@ -191,9 +190,6 @@ s32 timeLimitIsActive(void) {
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Stop the time limit task and its hierarchy [inferred]
 // FUN_00103570
 void timeLimitStop(void) {
@@ -203,18 +199,12 @@ void timeLimitStop(void) {
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // FUN_00103590
 void fclBankNoop(void) {}
 #pragma pop
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Apply the base render states for a bank slot's sky layer [inferred]
 // FUN_001035A0
 void fclBankRenderStateBase(void) {
@@ -226,9 +216,6 @@ void fclBankRenderStateBase(void) {
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Apply the full render states for a bank slot's sky layer, including the interpolation mode [inferred]
 // FUN_00103600
 void fclBankRenderStateFull(void)
@@ -249,9 +236,6 @@ void fclBankRenderStateFull(void)
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Bank task update: run the state machine for the slot's current state [inferred]
 /* Primitive-node and camera byte-pointer APIs have no shared complete layout here; retain their ABI offsets. */
 // FUN_001036D0
@@ -383,9 +367,6 @@ loop2_check:
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Bank task destroy: free the slot's batch nodes and release its task memory [inferred]
 /* Typed task work accesses changed codegen (nd5); retain task work +0x38 and node pointers +4/+8. */
 // FUN_00103980
@@ -401,9 +382,6 @@ void fclBankTaskDestroy(u8 *task) {
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Create the bank task with its update and destroy callbacks [inferred]
 // FUN_001039E0
 void fclBankTaskCreate(void) {
@@ -414,9 +392,6 @@ void fclBankTaskCreate(void) {
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Reset the bank slot table's per-slot flags and counters [inferred]
 /* Keep the linker-visible interior table aliases and their byte stride; rebasing them changes relocation targets. */
 // FUN_00103A60
@@ -437,9 +412,6 @@ void fclBankTableReset(void)
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Register the bank resource tables and load each of the two bank slots [inferred]
 // FUN_00103B00
 void fclBankTableInit(void) {
@@ -471,9 +443,6 @@ struct RwTexture;
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Load a bank slot's resources from its archive entries and register them [inferred]
 /* Texture and primitive-array cursor casts preserve external resource pointer interfaces. */
 /* Typed display-slot accesses changed codegen (nd432); retain the 0x370-byte slot layout: state +0, textures +0x14, archive +0x24, request +0x48. */
@@ -591,9 +560,6 @@ void fclBankSlotLoad(u8 *slot)
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Advance a bank slot's loading and display state each step [inferred]
 /* Camera access and biased vertex cursors retain byte addressing where the external layout is incomplete. */
 /* Typed vertex/display accesses changed codegen (nd1156); retain 0x40-byte vertices at +0x160/+0x260 and display fields at their measured offsets. */
@@ -768,9 +734,6 @@ void fclBankSlotUpdate(u8 *display)
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Mark a bank slot as finished (state 5) [inferred]
 /* The state table is an interior linker alias with a 0x370-byte display stride. */
 // FUN_001044D0
@@ -781,9 +744,6 @@ void fclBankMarkDone(s64 bank) {
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Configure a bank slot from a three-id descriptor, looking up its table entry; default 0x3E when not found [inferred]
 /* Alias-relative member access preserves the independently linked column bases. */
 // FUN_00104510
@@ -838,9 +798,6 @@ void fclBankSlotConfigure(s16 bank, s16 firstId, s16 secondId, s16 thirdId)
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Set the alpha byte of a bank slot [inferred]
 /* Alpha is a byte sub-object at an independently linked interior alias. */
 // FUN_00104770
@@ -851,9 +808,6 @@ void fclBankSetAlpha(s64 bank, u8 alpha) {
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Set a bank slot's active flag; when set, reset its phase and timers [inferred]
 /* State sub-objects keep their original alias-relative display-slot stride. */
 // FUN_001047B0
@@ -872,9 +826,6 @@ void fclBankSetActive(s64 bank, s32 active) {
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Resume a waiting bank slot (state 3 to 4) [inferred]
 // FUN_00104830
 void fclBankResume(s64 bank) {
@@ -889,9 +840,6 @@ void fclBankResume(s64 bank) {
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Return a pointer to the bank slot's position fields [inferred]
 // FUN_00104880
 u8 *fclBankGetPositionPtr(s64 bank) {
@@ -901,9 +849,6 @@ u8 *fclBankGetPositionPtr(s64 bank) {
 
 #pragma push
 #pragma tailcall off
-#pragma opt_propagation on
-#pragma opt_loop_invariants on
-#pragma opt_common_subs on
 // Intent: Report whether a bank slot is waiting (state 3) [inferred]
 /* The state table is an interior linker alias with a 0x370-byte display stride. */
 // FUN_001048C0
