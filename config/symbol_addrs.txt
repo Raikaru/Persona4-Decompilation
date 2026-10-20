@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2562 of 13102 symbols carry a recovered name.
+// 2571 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 kwlnExitRuntime = 0x00100218; // type:func
 kwlnExitThread = 0x00100220; // type:func
@@ -1950,18 +1950,18 @@ func_001c6560 = 0x001C6560; // type:func
 func_001c6650 = 0x001C6650; // type:func
 func_001c6760 = 0x001C6760; // type:func
 func_001c6b10 = 0x001C6B10; // type:func
-func_001c6b50 = 0x001C6B50; // type:func
+btlCameraOrbitTightUpdateNoop = 0x001C6B50; // type:func
 btlAct_SKILL_EXEC_ONE = 0x001C6B60; // type:func
-func_001c6ba0 = 0x001C6BA0; // type:func
+btlCameraSkillExecOneUpdateNoop = 0x001C6BA0; // type:func
 func_001c6bb0 = 0x001C6BB0; // type:func
-func_001c6be0 = 0x001C6BE0; // type:func
+btlCameraResetToDefaultUpdateNoop = 0x001C6BE0; // type:func
 func_001c6bf0 = 0x001C6BF0; // type:func
-func_001c6f30 = 0x001C6F30; // type:func
+btlCameraOrbitUnitUpdateNoop = 0x001C6F30; // type:func
 func_001c6f40 = 0x001C6F40; // type:func
 func_001c73e0 = 0x001C73E0; // type:func
-func_001c7500 = 0x001C7500; // type:func
+btlCameraFrameTransitionUpdateNoop = 0x001C7500; // type:func
 func_001c7510 = 0x001C7510; // type:func
-func_001c7770 = 0x001C7770; // type:func
+btlCameraActionUnitPoseUpdateNoop = 0x001C7770; // type:func
 func_001c7780 = 0x001C7780; // type:func
 btlCameraOverlimitUpdate = 0x001C79E0; // type:func
 func_001c79f0 = 0x001C79F0; // type:func
@@ -1992,12 +1992,12 @@ func_001cb970 = 0x001CB970; // type:func
 func_001cbf80 = 0x001CBF80; // type:func
 func_001cbfe0 = 0x001CBFE0; // type:func
 func_001cc0a0 = 0x001CC0A0; // type:func
-func_001cc5c0 = 0x001CC5C0; // type:func
+btlCameraFreshPoseUpdateNoop = 0x001CC5C0; // type:func
 func_001cc5d0 = 0x001CC5D0; // type:func
 btlAct_TARGET = 0x001CC9E0; // type:func
-func_001cca50 = 0x001CCA50; // type:func
+btlCameraTargetUpdateNoop = 0x001CCA50; // type:func
 func_001cca60 = 0x001CCA60; // type:func
-func_001ccda0 = 0x001CCDA0; // type:func
+btlCameraClampedDistanceUpdateNoop = 0x001CCDA0; // type:func
 btlAct_NOP = 0x001CCDB0; // type:func
 func_001cd600 = 0x001CD600; // type:func
 func_001cd6a0 = 0x001CD6A0; // type:func
