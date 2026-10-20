@@ -1,3 +1,4 @@
+#include "btl_formation_attach_internal.h"
 #include "btl_effect_internal.h"
 #include "btl_skill_target_internal.h"
 #include "include_asm.h"
@@ -197,8 +198,7 @@ void btlEffectFlagToColor(s32 flag, u8 *color)
 }
 
 /* measured: close opt_propagation after btlEffectFlagToColor. */
-/* Release all formation slots and their mode-dependent backing storage, then clear the loaded-table flag.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Release all formation slots and their mode-dependent backing storage, then clear the loaded-table flag. */
 // FUN_001D75D0
 void btlEffectReleaseAllPlacements(u8 *unused)
 {
@@ -208,36 +208,35 @@ void btlEffectReleaseAllPlacements(u8 *unused)
     int slotOffset = 0;
     u8 *state;
 
-    if ((*(u32 *)(iGpffffb3ac + 0x14) & 0x4000000) == 0) {
+    if ((((BtlBattleState *)(iGpffffb3ac))->resourceFlags & 0x4000000) == 0) {
         for (firstIndex = 0; firstIndex < 0x30; firstIndex = firstIndex + 1) {
             state = iGpffffb3ac;
-            if (*(int *)(state + firstIndex * 4 + 0xD04) != 0) {
-                btlFormationSetPlacement(*(u32 *)(state + firstIndex * 4 + 0xD04));
-                *(u32 *)(iGpffffb3ac + firstIndex * 4 + 0xD04) = 0;
+            if (*(int *)&((BtlBattleState *)(state + firstIndex * 4))->formations[0] != 0) {
+                btlFormationSetPlacement(*(u32 *)&((BtlBattleState *)(state + firstIndex * 4))->formations[0]);
+                *(u32 *)&((BtlBattleState *)(iGpffffb3ac + firstIndex * 4))->formations[0] = 0;
             }
         }
-        if (*(int *)(iGpffffb3ac + 0xDC4) != 0) {
-            H_Cdvd_Destroy((u8 *)(u32)*(u32 *)(iGpffffb3ac + 0xDC4));
-            *(u32 *)(iGpffffb3ac + 0xDC4) = 0;
+        if (*(int *)&((BtlBattleState *)(iGpffffb3ac))->formationHandle != 0) {
+            H_Cdvd_Destroy((u8 *)(u32)*(u32 *)&((BtlBattleState *)(iGpffffb3ac))->formationHandle);
+            *(u32 *)&((BtlBattleState *)(iGpffffb3ac))->formationHandle = 0;
         }
     }
     else {
         for (slotIndex = 0; slotIndex < 0x30; slotIndex = slotIndex + 1) {
             state = iGpffffb3ac;
             slotOffset = slotIndex * 4;
-            formation = *(int *)(state + slotOffset + 0xD04);
+            formation = *(int *)&((BtlBattleState *)(state + slotOffset))->formations[0];
             if (formation != 0) {
-                (*jtbl_008873EC)((u8 *)(u32)*(u32 *)(formation + 0x634));
-                btlFormationSetPlacement(*(u32 *)(iGpffffb3ac + slotOffset + 0xD04));
-                *(u32 *)(iGpffffb3ac + slotOffset + 0xD04) = 0;
+                (*jtbl_008873EC)((u8 *)(u32)((BtlFormationState *)(formation))->value);
+                btlFormationSetPlacement(*(u32 *)&((BtlBattleState *)(iGpffffb3ac + slotOffset))->formations[0]);
+                *(u32 *)&((BtlBattleState *)(iGpffffb3ac + slotOffset))->formations[0] = 0;
             }
         }
     }
-    *(u32 *)(iGpffffb3ac + 0xC) = *(u32 *)(iGpffffb3ac + 0xC) & 0xfffbffff;
+    ((BtlBattleState *)(iGpffffb3ac))->flags = ((BtlBattleState *)(iGpffffb3ac))->flags & 0xfffbffff;
 }
 
-/* Release the formation archive in its owning mode and clear the handle in either mode.
- * Raw offsets retained: The cached runtime byte cursor retains the original resource-flag/handle load ordering. */
+/* Release the formation archive in its owning mode and clear the handle in either mode. */
 // FUN_001D7700
 void btlEffectReleaseCdvdHandle(void)
 {
@@ -245,14 +244,14 @@ void btlEffectReleaseCdvdHandle(void)
     u8 *state;
 
     state = iGpffffb3ac;
-    if ((*(s32 *)(state + 0x14) & 0x4000000) == 0) {
-        handle = *(u8 **)(state + 0xDC4);
+    if ((*(s32 *)&((BtlBattleState *)(state))->resourceFlags & 0x4000000) == 0) {
+        handle = ((BtlBattleState *)(state))->formationHandle;
         if (handle != NULL) {
             H_Cdvd_Destroy(handle);
         }
         ((BtlBattleState *)iGpffffb3ac)->formationHandle = NULL;
         return;
     }
-    *(u8 **)(state + 0xDC4) = NULL;
+    ((BtlBattleState *)(state))->formationHandle = NULL;
 }
 

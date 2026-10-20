@@ -1,4 +1,5 @@
 #include "btl_unit_internal.h"
+#include "btl_formation_attach_internal.h"
 #include "datCalc_internal.h"
 /* Source unit: src/Battle/btlFormation_001d1eb0.c */
 #include "include_asm.h"
@@ -40,37 +41,6 @@ extern void btlTargetRefreshRadiusNode(void *unit);
 extern u8 *btlActionGetActiveOrQueueFront(void);
 extern void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused);
 extern f32 RwV3dNormalize(f32 *context, f32 *value);
-
-/* Two 0x314-byte resource blocks are copied before the reference-count tail. */
-typedef struct BtlFormationResourceEntry
-{
-    u8 kind;                    /* FE absent, FF reference, FD non-owning */
-    u8 pad01[3];
-    u32 resource;              /* file-relative offset, then an effect pointer */
-    u8 pad08[0x10];
-} BtlFormationResourceEntry;
-
-typedef struct BtlFormationResourceBlock
-{
-    u8 pad00[8];
-    u32 unk08;
-    u32 duration;
-    u16 entryCount;
-    u8 pad12[2];
-    u32 unk14;
-    u8 pad18[4];
-    BtlFormationResourceEntry entries[31];
-    u8 pad304[0x10];
-} BtlFormationResourceBlock;
-
-typedef struct BtlFormationState
-{
-    BtlFormationResourceBlock blocks[2];
-    u8 pad628[8];
-    u16 flags;
-    u16 counter;
-    u32 value;
-} BtlFormationState;
 
 /* Packet 0xB03 stores two unit addresses followed by a pose selector. */
 typedef struct BtlFormationPoseWork

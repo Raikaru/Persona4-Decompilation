@@ -113,8 +113,7 @@ void btlEffectFreeAllNodes(void)
     btlEffectReleaseAllPlacements(node);
 }
 
-/* Allocate a 48-slot pool and 0x24-byte nodes, linking each initialized node into the global fade-node list.
- * Raw offsets retained: Member access changes MWCC code generation; retain the proven offsets and original access types. */
+/* Allocate a 48-slot pool and 0x24-byte nodes, linking each initialized node into the global fade-node list. */
 // FUN_001D6AD0
 u8 *btlEffectAllocNodePool(void)
 {
@@ -146,17 +145,17 @@ u8 *btlEffectAllocNodePool(void)
             *(u8 **)&((BtlEffectNode *)node)->next = NULL;
         }
         *(u8 **)&((BtlBattleState *)iGpffffb3ac)->effectNodes = node;
-        *(u8 **)(array + i * 4) = node;
+        *(u8 * *)&((BtlEffectNodePool *)array)->nodes[i] = node;
         i++;
     }
     return array;
 }
 
-/* Reset and unlink every pool node before freeing it, then release the pool allocation.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Reset and unlink every pool node before freeing it, then release the pool allocation. */
 // FUN_001D6C10
 void btlEffectFreeNodePool(u8 *pool)
 {
+    BtlEffectNode *entryState;
     u32 i;
     u8 *entry;
     u8 *next;
@@ -164,17 +163,18 @@ void btlEffectFreeNodePool(u8 *pool)
 
     i = 0;
     while (i < 0x30U) {
-        entry = *(u8 **)(pool + (i * 4));
+        entry = *(u8 * *)&((BtlEffectNodePool *)pool)->nodes[i];
+        entryState = (BtlEffectNode *)(entry);
         btlEffectResetEntry(entry);
-        next = *(u8 **)(entry + 0x20);
+        next = *(u8 * *)&((BtlEffectNode *)(entry))->next;
         if (next != NULL) {
-            *(u8 **)(next + 0x1C) = *(u8 **)(entry + 0x1C);
+            *(u8 * *)&((BtlEffectNode *)(next))->previous = *(u8 * *)&((BtlEffectNode *)(entry))->previous;
         }
-        prev = *(u8 **)(entry + 0x1C);
+        prev = *(u8 * *)&((BtlEffectNode *)(entry))->previous;
         if (prev != NULL) {
-            *(u8 **)(prev + 0x20) = *(u8 **)(entry + 0x20);
+            *(u8 * *)&((BtlEffectNode *)(prev))->next = *(u8 * *)&entryState->next;
         } else {
-            *(u8 **)(iGpffffb3ac + 0x1B8) = *(u8 **)(entry + 0x20);
+            *(u8 * *)&((BtlBattleState *)(iGpffffb3ac))->effectNodes = *(u8 * *)&entryState->next;
         }
         (*jtbl_008873EC)(entry);
         i++;

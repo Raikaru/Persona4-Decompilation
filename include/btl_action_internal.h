@@ -13,7 +13,8 @@ typedef struct BtlActionParameters
     u16 resolvedSkill;
     u16 persona;                 /* action +0x74 */
     u16 summonIds[3];            /* action +0x76 */
-    u8 pad0C[4];
+    u16 commandKind;             /* action +0x7C: command kinds 1/2 use skill */
+    u16 skill;                   /* action +0x7E */
     u16 drop;
     u8 dropChance;
     u8 pad13[5];
@@ -66,7 +67,8 @@ typedef struct BtlActionTargetBlock
             u8 padF0[0x300];
             s16 (*savedCursors)[2];     /* 0x3F0: four {first, selected} pairs */
             u16 enduranceSkill;         /* 0x3F4 */
-            u8 pad3F6[0x1A];
+            u8 statusTurns[24];        /* 0x3F6: elapsed turns for each status bit */
+            u8 pad40E[2];
         } recovery;
     };
     u8 unk_410[0x41C - 0x410];

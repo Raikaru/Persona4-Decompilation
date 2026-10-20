@@ -161,8 +161,11 @@ extern BtlEplUnit *D_00881440_abs[];
    { var = 0; t = var; } return (s8)t;` - the copy at the join keeps the then-branch as
    retail's `b join` trampoline (the plain if/else folds to xor/sltiu under rebuildconditionals,
    which must stay off for these two blocks). */
+/* Accept all units, masked explicit slots, or the requested same-kind anchor group.
+ * Kind 1 selects only its anchor; kind 2 selects every unit of that kind. */
 // FUN_001FC300
-/* Selection predicate for EPL unit loops; see BtlEplSelect. */
+/* Selection predicate for EPL unit loops; see BtlEplSelect.
+ * measured: loop-invariant hoisting and the mode-1 branch form are justified above. */
 #pragma opt_loop_invariants on
 #pragma opt_rebuildconditionals off
 static s64 btlEplUnitIsSelected(BtlEplUnit *unit, BtlEplSelect *select)

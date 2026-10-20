@@ -90,34 +90,34 @@ extern f32 fGpffff8110;
 #pragma push
 /* measured: restore pragma state after btlEffectStepFormationPlacement. */
 #pragma pop
-/* Release node resources, unlink both neighbours, repair the global head if needed, and free the node.
- * Raw offsets retained: Typed members change MWCC instruction selection/allocation; retain the proven byte offsets for the match. */
+/* Release node resources, unlink both neighbours, repair the global head if needed, and free the node. */
 // FUN_001D6910
 void btlEffectReleaseNode(u8 *node)
 {
-    if (*(s32 *)(node + 0x10) != 0) {
-        btlFormationResetState(*(s32 *)(node + 0x10));
-        *(s32 *)(node + 0x10) = 0;
+    BtlEffectNode *nodeState = (BtlEffectNode *)(node);
+    if (*(s32 *)&((BtlEffectNode *)(node))->formation != 0) {
+        btlFormationResetState(*(s32 *)&((BtlEffectNode *)(node))->formation);
+        *(s32 *)&nodeState->formation = 0;
     }
-    if (*(s32 *)(node + 0x14) != 0) {
-        mdlEffectDestroyWithNodes(*(s32 *)(node + 0x14));
-        *(s32 *)(node + 0x14) = 0;
+    if (*(s32 *)&((BtlEffectNode *)(node))->effect != 0) {
+        mdlEffectDestroyWithNodes(*(s32 *)&((BtlEffectNode *)(node))->effect);
+        *(s32 *)&nodeState->effect = 0;
     }
-    if (*(s32 *)(node + 0x18) != 0) {
-        mdlDestroyModelObject(*(s32 *)(node + 0x18));
-        *(s32 *)(node + 0x18) = 0;
+    if (*(s32 *)&((BtlEffectNode *)(node))->model != 0) {
+        mdlDestroyModelObject(*(s32 *)&((BtlEffectNode *)(node))->model);
+        *(s32 *)&nodeState->model = 0;
     }
-    *(s32 *)(node + 4) = -1;
-    *(u8 *)(node + 8) = 0x14;
-    *(s32 *)(node + 0xC) = 0;
-    *(u16 *)(node + 0) = 0x200;
-    if (*(u8 **)(node + 0x20) != NULL) {
-        *(u8 **)(*(u8 **)(node + 0x20) + 0x1C) = *(u8 **)(node + 0x1C);
+    *(s32 *)&((BtlEffectNode *)(node))->color = -1;
+    ((BtlEffectNode *)(node))->fadeStep = 0x14;
+    *(s32 *)&((BtlEffectNode *)(node))->counter = 0;
+    ((BtlEffectNode *)(node))->flags = 0x200;
+    if (*(u8 * *)&((BtlEffectNode *)(node))->next != NULL) {
+        *(u8 * *)&((BtlEffectNode *)(*(u8 * *)&((BtlEffectNode *)(node))->next))->previous = *(u8 * *)&((BtlEffectNode *)(node))->previous;
     }
-    if (*(u8 **)(node + 0x1C) != NULL) {
-        *(u8 **)(*(u8 **)(node + 0x1C) + 0x20) = *(u8 **)(node + 0x20);
+    if (*(u8 * *)&((BtlEffectNode *)(node))->previous != NULL) {
+        *(u8 * *)&((BtlEffectNode *)(*(u8 * *)&((BtlEffectNode *)(node))->previous))->next = *(u8 * *)&nodeState->next;
     } else {
-        *(u8 **)(iGpffffb3ac + 0x1B8) = *(u8 **)(node + 0x20);
+        *(u8 * *)&((BtlBattleState *)(iGpffffb3ac))->effectNodes = *(u8 * *)&nodeState->next;
     }
     (*jtbl_008873EC)(node);
 }
