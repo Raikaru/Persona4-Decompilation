@@ -1,11 +1,8 @@
 #include "member_access.h"
-/* Measured alias-sensitive fields use MEMBER; typed access-site, local-pointer
- * and applicable array forms are recorded in FullBattle2.culprits.tsv. */
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
 #include "btl_unit_internal.h"
 #include "datCalc_internal.h"
-/* Source unit: src/Battle/btlBoss_0022fb90.c */
 #include "btl_skill_target_internal.h"
 #include "type.h"
 #include "btl_unit_internal.h"
@@ -40,7 +37,6 @@ extern char D_00635650[];
 extern char D_00635668[];
 
 
-
 /* Full-word zero/one predicate, shared with formation placement.
  * Both provider and caller retain their original native code. */
 // FUN_0022FB90
@@ -60,7 +56,6 @@ s32 btlBossUnitsSameGenus(BtlUnit* first, BtlUnit* second)
     }
     return first->genus == second->genus;
 }
-
 
 
 /* Reject a distinct same-side target only for a non-enemy actor outside status 0x100; return one when unrestricted. */
@@ -121,9 +116,6 @@ u32 btlBossFlagPairOk(s32 first, s32 second)
 }
 
 
-
-
-
 /* Report unrestricted actions outside enabled boss enemy actions; otherwise invert the skill target-reach predicate. */
 // FUN_0022FD30
 s32 btlBossActionBlocked(u8* action)
@@ -142,11 +134,13 @@ s32 btlBossActionBlocked(u8* action)
     }
     return !((u32)btlActionSkillReachesTargets());
 }
+/* In boss battles, rebuild the action queue from living units' actions, adding extra slots for
+ * multi-action flags. Then rotate the queue so the given preferred action is at the front if its
+ * unit is still alive. */
 // FUN_0022FDC0
 /* Rebuild the boss action queue with flag-dependent weights, optionally rotating a living preferred action to the front. */
 void btlBossCollectTargets(u8 *preferredAction)
 {
-    /* Typed action/unit/packet fields changed MWCC codegen (436B trial); retain the proven byte offsets for MATCH. */
     s32 *encounterFlags;
     s32 frontAction;
     s32 battleFlags;
@@ -220,9 +214,11 @@ loop_16:
         }
     }
 }
-/* measured: optimization_level 1 preserves retail's lhu/move halfword
-   argument materialization; object 168B, retail window 176B. */
+/* measured: retail loads the halfword argument with an unsigned load and a separate move, which
+ * only level 1 produces. */
 #pragma optimization_level 1
+/* Return 1 if, in a boss battle, a non-genus-1 unit's skill targets class 1 or 2, so its result
+ * should be blocked; otherwise return 0. */
 // FUN_0022FF70
 /* Classify a non-enemy action in boss mode and accept only target classes one and two. */
 s32 btlBossSkillResultBlocked(u8 *action)
@@ -257,7 +253,9 @@ done:
     return result;
 }
 #pragma optimization_level 2
-/* measured: literal-return switch reproduces the retail branch after the zero assignment. */
+/* measured: a switch returning literals gives retail's branch after the zero assignment. */
+/* Return 0 if, in a boss battle, a genus-1 unit is using one of the restricted boss skills;
+ * otherwise return 1. */
 // FUN_00230020
 /* Exclude the listed skill IDs for enemy actions in boss mode. */
 s32 btlBossSkillAllowed(u8 *action)
@@ -302,8 +300,10 @@ u32 btlBossRemapSkillPair(u8 *unit, u16 *genus, u16 *unitId)
     *unitId = 0x110;
     return 1;
 }
-/* measured: typed unit aliases and named member reads retain 23 differing words without invariant hoisting. */
+/* measured: retail hoists the loop-invariant partner reads out of the loop. */
 #pragma opt_loop_invariants on
+/* In a boss battle, if this unit is character 0x106 and its partner 0x10f has the mark flag, set
+ * the same flag on this unit and copy the partner's colour alpha. */
 // FUN_00230170
 /* For unit 0x106, inherit the marked flag and color byte from partner unit 0x10F. */
 void btlBossCopyPartnerMark(u8 *unit)
@@ -426,7 +426,6 @@ u32 btlBossLoadPakInit(void* work)
 }
 
 
-
 /* Wait for the boss resource directory, then allocate encounter slots; a missing handle completes immediately. */
 // FUN_00230450
 u32 btlBossLoadPakUpdate(void* work)
@@ -459,7 +458,6 @@ BtlPacket* btlBossCreateLoadPakPacket(void)
 
     return packet;
 }
-
 
 
 typedef struct BtlBossEndBgmWork {

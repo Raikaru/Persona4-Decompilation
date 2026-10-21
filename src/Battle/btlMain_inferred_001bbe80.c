@@ -68,25 +68,13 @@ extern f32 fGpffff8060;
 extern f32 fGpffff8108;
 
 
-
-
-
-
 #pragma push
 #pragma pop
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001bbe80-001bbe80 */
-
-/* measured: opt_rebuildconditionals off for func_001b19c0 branch-fed scalar. */
-/* measured: close opt_rebuildconditionals off for func_001b19c0. */
-/* measured: scoped opt_lifetimes on with these disjoint work-pointer
- * lifetimes reproduces the complete 4156-byte retail body; all 122 owner
- * siblings, allocated data and 122 exact-position references are preserved.
- * The separate retained-height caller-domain proof remains required. */
+/* measured: opt_rebuildconditionals off keeps the branch-fed scalar in func_001b19c0; opt_lifetimes
+ * on matches retail's disjoint work-pointer lifetimes. */
 #pragma push
 #pragma pop
-/* 744/752 bytes; twenty resolved relocations; eight zero alignment bytes.
- * Keep full-width dependency snapshots and branch-materialized final mode. */
 #pragma push
 #pragma pop
 #pragma push

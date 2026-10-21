@@ -1,6 +1,4 @@
 #include "member_access.h"
-/* Measured alias-sensitive fields use MEMBER; typed access-site, local-pointer
- * and applicable array forms are recorded in FullBattle2.culprits.tsv. */
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
 #include "list_item_internal.h"
@@ -206,12 +204,8 @@ extern u8 *btlActionFindByUnit(s32);
 #pragma push
 #pragma pop
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001b1510-001b5e40 */
-/* Access-site layouts preserve the original byte-pointer locals. Raw-site
- * measurements quote the whole-owner verifier's object size and differing-byte
- * count (nd = normalized_diff); each remaining access was tested separately. */
-/* ENCOUNT rows are 0x18 bytes: flags, two halfword result fields,
- * five enemy IDs and three remaining halfwords. No local copy is made. */
+/* ENCOUNT rows are 0x18 bytes: flags, two halfword result fields, five enemy IDs and three
+ * remaining halfwords. */
 typedef struct BattleOpeningEncounter {
     u32 flags;
     u16 field04;
@@ -220,7 +214,7 @@ typedef struct BattleOpeningEncounter {
     u16 field12[3];
 } BattleOpeningEncounter;
 
-/* Fade-out's phase-specific word at +0xC is distinct from WIN's delay pair. */
+/* Fade-out's phase-specific finishRequested word is distinct from WIN's delay pair. */
 typedef struct BtlMainFadeOutWork {
     s32 phase;
     s32 unk04;
@@ -463,14 +457,15 @@ void btlMainInitInit(void) {
     datSetScriptValue(0x78, datGetScriptValue(0x78) + 1);
 }
 
+/* Load the next encounter's enemy record, advance the encounter index and set up boss globals if
+ * needed, then return the next init state. */
 // FUN_001B1940
 /* Select the next encounter descriptor and initialize encounter globals when required. */
 s32 btlMainInitUpdate(void) {
-    /* Historical indexed-layout trial: 100B; the remaining slot read is measured separately below. */
     u8 *b = D_0076449C;
     s32 off = ((BtlBattleState *)b)->encounterIndex << 2;
 
-    ((BtlBattleState *)b)->encounterRecord = *(s32 *)&((BtlBattleState *)(off + (s32)b))->encounter.enemyUnits[0] /* measured: BtlBattleState.encounter.enemyUnits typing gives 120B, nd 83. */;
+    ((BtlBattleState *)b)->encounterRecord = *(s32 *)&((BtlBattleState *)(off + (s32)b))->encounter.enemyUnits[0];
     b = D_0076449C;
     ((BtlBattleState *)b)->encounterIndex = ((BtlBattleState *)b)->encounterIndex + 1;
     if (btlEncounterIsBoss() != 0) {
@@ -485,9 +480,8 @@ void btlMainSceneSetInit(void)
     btlMainLoadBattleFieldScene();
 }
 
-/* measured: opt_rebuildconditionals off for func_001b19c0 branch-fed scalar. */
-/* measured: btlMainSceneSetUpdate MATCH -> MISMATCH without this pragma. */
-/* measured: if/else, conditional and switch voice selectors retain 49 or more baseline words. */
+/* measured: retail keeps the branch-fed voice selector unrebuilt; if/else, ternary and switch forms
+ * all differ without this pragma. */
 #pragma opt_rebuildconditionals off
 // FUN_001B19C0
 /* Wait for field loading and outstanding packets, then queue voice and optional boss resources. */
@@ -555,8 +549,8 @@ done:
     return 0;
 }
 
-/* measured: close opt_rebuildconditionals off for func_001b19c0. */
-/* measured: btlMainWinInit MATCH -> MISMATCH without this pragma. */
+/* measured: conditional rebuilding goes back on here; only the preceding functions need it off to
+ * match retail branch layout. */
 #pragma opt_rebuildconditionals on
 // FUN_001B1B20
 void btlMainContinuousInit(void)
@@ -567,7 +561,6 @@ void btlMainContinuousInit(void)
 /* Wait for enemy actions to finish before selecting and preparing the next encounter wave. */
 s32 btlMainContinuousUpdate(void)
 {
-    /* Historical indexed-layout trial: 564B; the remaining slot read is measured separately below. */
     extern u8 *btlTargetCreateTargetPacket(u8 *, s32, s32, s32, s32);
     extern void btlDamageSetSource(u8 *, s32);
     extern void btlSelectionClearTargetFlag(s32);
@@ -603,7 +596,7 @@ first_check:
     *(u16 *)&((BtlBattleState *)(u8 *)iGpffffb3ac)->endState = 0;
     work = (u8 *)iGpffffb3ac;
     ((BtlBattleState *)work)->encounterRecord =
-        *(s32 *)&((BtlBattleState *)(((((BtlBattleState *)work)->encounterIndex << 2) + (s32)work)))->encounter.enemyUnits[0] /* measured: BtlBattleState.encounterIndex typing gives 564B, nd 1. */;
+        *(s32 *)&((BtlBattleState *)(((((BtlBattleState *)work)->encounterIndex << 2) + (s32)work)))->encounter.enemyUnits[0];
     work = (u8 *)iGpffffb3ac;
     ((BtlBattleState *)work)->encounterIndex = ((BtlBattleState *)work)->encounterIndex + 1;
     btlActionResetActiveState();
@@ -640,14 +633,10 @@ done:
     return 0;
 }
 
-/* Round-3 reconstruction: retain the u16 model ID, table-entry reloads,
- * switch dispatch and full-width status-roll locals.
- * See docs/probe_archive/BattleSetup_001b1d70_20260926_body.c and the
- * corrected model-ID contract survey, Prototype_mismatch_00477c40_00478140_20260926.md. */
+/* Keeps the u16 model ID, table-entry reloads, switch dispatch and full-width status-roll locals. */
 // FUN_001B1D70
 /* Create party/enemy actions, reuse loaded models, and select the initial side and queue order. */
 void btlMainUnitCreateInit(void) {
-    /* Historical whole-layout trial: 1576B; remaining exceptions are measured per access below. */
     extern s32 iGpffffb414;
     extern u8 *btlActionCreateWork(s32, u16, u16 *);
     extern u32 datCalcClearBadStatus(s32, u32);
@@ -687,7 +676,7 @@ void btlMainUnitCreateInit(void) {
     if ((((BtlBattleState *)D_0076449C)->flags & 0x20000000) == 0) {
         i = 0;
         while (i < 4) {
-            recordOrModel = *(s32 *)&((BtlBattleState *)((u32)D_0076449C + i * 4))->encounter.partyUnits[0] /* measured: BtlBattleState.encounter.partyUnits typing gives 1548B, nd 7. */;
+            recordOrModel = *(s32 *)&((BtlBattleState *)((u32)D_0076449C + i * 4))->encounter.partyUnits[0];
             if (recordOrModel == 0)
                 break;
             dataOrModel = *(u8* *)&((DatUnitPc *)recordOrModel)->base.unit;
@@ -695,9 +684,9 @@ void btlMainUnitCreateInit(void) {
             actionOrPacket = btlActionCreateWork(0, id, (u16 *)dataOrModel);
             unit = *(u8* *)&((BtlAction *)actionOrPacket)->unit;
             datCalcClearBadStatus(*(s32 *)&((BtlUnit *)unit)->datUnit, 0xFFF7FFFF);
-            ((DatUnit *)MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 1560B, nd 1075. */)->flags &= 0xFFDF;
-            ((DatUnit *)MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 1560B, nd 1075. */)->flags &= 0xFFF7;
-            ((DatUnit *)MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 1560B, nd 1075. */)->flags &= 0xFFEF;
+            ((DatUnit *)MEMBER(u8 *, unit, BtlUnit, datUnit))->flags &= 0xFFDF;
+            ((DatUnit *)MEMBER(u8 *, unit, BtlUnit, datUnit))->flags &= 0xFFF7;
+            ((DatUnit *)MEMBER(u8 *, unit, BtlUnit, datUnit))->flags &= 0xFFEF;
             recordOrModel = (s32)mdlFindModelObject((u16)(((BtlUnit *)unit)->genus + 1), id, 0);
             *(s32 *)&((BtlUnit *)unit)->layerHandle = recordOrModel;
             if (recordOrModel == 0) {
@@ -710,13 +699,13 @@ void btlMainUnitCreateInit(void) {
                 modelFlags = *(s32 *)&((BtlUnit *)unit)->flags2 | 2;
                 *(s32 *)&((BtlUnit *)unit)->flags2 = modelFlags;
                 *(s32 *)&((BtlUnit *)unit)->flags2 = modelFlags | 8;
-                ((BtlUnit *)unit)->sceneDrawId = MT_Scene_CreateModelCharRes(id, MEMBER(void *, unit, BtlUnit, layerHandle) /* measured: BtlUnit.layerHandle typing gives 1552B, nd 987. */);
-                SceneDraw_SetDirectionalOnly(MEMBER(u16, unit, BtlUnit, sceneDrawId) /* measured: BtlUnit.sceneDrawId typing gives 1560B, nd 1092. */, 1);
+                ((BtlUnit *)unit)->sceneDrawId = MT_Scene_CreateModelCharRes(id, MEMBER(void *, unit, BtlUnit, layerHandle));
+                SceneDraw_SetDirectionalOnly(MEMBER(u16, unit, BtlUnit, sceneDrawId), 1);
                 btlUnitApplyModelState(unit, 1);
                 btlUnitUpdateStatusMotion(unit, 0);
                 btlUnitSetMotion(unit, ((BtlUnit *)unit)->restMotion, 0, ((BtlUnit *)unit)->restRate, ((BtlUnit *)unit)->restOption);
                 btlUnitSetRandomAnimFrame(unit);
-                dataOrModel = MEMBER(u8 *, unit, BtlUnit, layerHandle) /* measured: BtlUnit.layerHandle typing gives 1560B, nd 1089. */;
+                dataOrModel = MEMBER(u8 *, unit, BtlUnit, layerHandle);
                 if (*(s32 *)&((Model *)dataOrModel)->motion.object == 0) {
                     mdlRunDataCallback(dataOrModel);
                 }
@@ -733,7 +722,7 @@ void btlMainUnitCreateInit(void) {
     unitIndex = 0;
     while (unitIndex < 6) {
         if (((DatUnit *)list)->id != 0 && datCalcIsDead((s32)list, 0) == 0) {
-            btlActionCreateWork(1, MEMBER(s16, list, DatUnit, id) /* measured: DatUnit.id typing gives 1552B, nd 731. */, (u16 *)list);
+            btlActionCreateWork(1, MEMBER(s16, list, DatUnit, id), (u16 *)list);
         }
         unitIndex++;
         list += 0x30;
@@ -782,10 +771,10 @@ void btlMainUnitCreateInit(void) {
             for (enemyUnit = ((BtlBattleState *)D_0076449C)->unitLists[2]; enemyUnit != NULL; enemyUnit = *(u8* *)&((BtlUnit *)enemyUnit)->nextUnit) {
                 if (*(u8* *)&((BtlUnit *)enemyUnit)->datUnit != NULL) {
                     if ((datCalcGetAffinity(*(u8* *)&((BtlUnit *)enemyUnit)->datUnit, secondStatusElement) & 0x27000000) == 0 && (s32)datCalcRandomBelow(100) < 0) {
-                        datCalcSetBadStatus(MEMBER(s32, enemyUnit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 1552B, nd 295. */, 2);
+                        datCalcSetBadStatus(MEMBER(s32, enemyUnit, BtlUnit, datUnit), 2);
                     }
-                    if ((datCalcGetAffinity(MEMBER(u8 *, enemyUnit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 1552B, nd 296. */, firstStatusElement) & 0x27000000) == 0 && (s32)datCalcRandomBelow(100) < 0) {
-                        datCalcSetBadStatus(MEMBER(s32, enemyUnit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 1552B, nd 295. */, 4);
+                    if ((datCalcGetAffinity(MEMBER(u8 *, enemyUnit, BtlUnit, datUnit), firstStatusElement) & 0x27000000) == 0 && (s32)datCalcRandomBelow(100) < 0) {
+                        datCalcSetBadStatus(MEMBER(s32, enemyUnit, BtlUnit, datUnit), 4);
                     }
                 }
             }
@@ -804,22 +793,14 @@ void btlMainUnitCreateInit(void) {
     }
 }
 
-/* Opening positions use complete vectors and a quaternion: the formation and
- * sphere-center providers write all components. The two list rows are eight
- * bytes apart and are reloaded between passes. Packets wait on full 64-bit UIDs.
- * Retail keeps the redundant actor comparison at 001b2aa0. The unreachable
- * inner block is retained as source rather than changing the surrounding test. */
-/* measured: scoped opt_lifetimes on with these disjoint work-pointer
- * lifetimes reproduces the complete 4156-byte retail body; all 122 owner
- * siblings, allocated data and 122 exact-position references are preserved.
- * The separate retained-height caller-domain proof remains required. */
+/* Opening positions use full vectors and a quaternion; the two list rows are eight bytes apart and
+ * are reloaded between passes. Retail keeps a redundant actor comparison and an unreachable inner
+ * block. */
 #pragma push
-/* measured: split entry-move and bonus-scan lifetimes reduce baseline to nine words, but do not match. */
 #pragma opt_lifetimes on
 // FUN_001B2380
 s32 btlMainUnitCreateUpdate(void)
 {
-    /* Historical whole-layout trial: 4184B; remaining exceptions are measured per access below. */
     extern void btlSoundPlayRetailSelectTrack(void);
     extern void btlShuffleStart(s32 task);
     extern s32 iGpffffb414;
@@ -874,19 +855,14 @@ s32 btlMainUnitCreateUpdate(void)
     RwV3d offset;
 
     if (btlCountUnitRecords() == 0) {
-      /* Valid special continuations have a fresh, nonempty enemy row from
-       * the authenticated normal encounter queue. That prepass supplies Y
-       * before a dead party unit reuses it. Script/direct descriptors have
-       * one wave: their normal dead-unit path never reads this position,
-       * and their live-unit path receives a complete formation vector.
-       * The separate resource/history review proves this caller boundary;
-       * arbitrary fabricated special/empty-row states are outside it. */
+      /* Special continuations always have a nonempty enemy row that supplies Y first; single-wave
+       * descriptors never read this position for dead units. */
       btlSoundPlayRetailSelectTrack();
       formation = (BattleOpeningEncounter *)((u32)iGpffffb414 + (u32)((DatUnitEc *)((BtlBattleState *)D_0076449C)->encounterRecord)->encountId * 0x18);
       action = (u8 *)btlActionGetQueueFront();
       if ((((action == 0) || (((BtlUnit *)*(s32 *)&((BtlAction *)action)->unit)->genus == 1)) ||
           (value = datCalcIsDead(*(u32 *)&((BtlUnit *)*(s32 *)&((BtlAction *)action)->unit)->datUnit,0), value == 1)) ||
-         (value = datCalcChkBadStatus(*(u32 *)&((BtlUnit *)MEMBER(s32, action, BtlAction, unit) /* measured: BtlAction.unit typing gives 4160B, nd 3034. */)->datUnit,0x100000), value == 1
+         (value = datCalcChkBadStatus(*(u32 *)&((BtlUnit *)MEMBER(s32, action, BtlAction, unit))->datUnit,0x100000), value == 1
          )) {
         action = ((BtlBattleState *)D_0076449C)->selectedAction;
       }
@@ -916,8 +892,8 @@ s32 btlMainUnitCreateUpdate(void)
         btlUnitShowModel(unit);
         value = datCalcIsDead(*(u32 *)&((BtlUnit *)unit)->datUnit,0);
         if (value != 0) {
-          datCalcSetBadStatus(MEMBER(s32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2689. */,0x80000);
-          datCalcSetHp(MEMBER(u32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2690. */,0);
+          datCalcSetBadStatus(MEMBER(s32, unit, BtlUnit, datUnit),0x80000);
+          datCalcSetHp(MEMBER(u32, unit, BtlUnit, datUnit),0);
           ((BtlUnit *)unit)->flags3 |= 1;
           btlUnitUpdateStatusMotion(unit,0);
           btlPacketEnqueue((u8 *)btlSoundCreateUnitFlagSetPacket((BtlUnit *)unit),1);
@@ -1003,7 +979,7 @@ s32 btlMainUnitCreateUpdate(void)
 normal_opening:
             {
               if ((D_0076449C[0xc64] != 1) && ((((BtlBattleState *)D_0076449C)->battleFlags & 1) == 0)) {
-                nodeOrPacket = MEMBER(u8 *, action, BtlAction, unit) /* measured: BtlAction.unit typing gives 4160B, nd 2970. */;
+                nodeOrPacket = MEMBER(u8 *, action, BtlAction, unit);
                 if (nodeOrPacket == unit) {
                   distance = 500.0f;
                   if (nodeOrPacket != unit) {
@@ -1063,14 +1039,14 @@ normal_opening:
                 *rotatePacket = 4;
                 ((BtlPacket *)rotatePacket)->dependencyUID = ((BtlPacket *)nodeOrPacket)->uid;
                 btlPacketEnqueue(rotatePacket,1);
-                value = datCalcChkBadStatus(MEMBER(u32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2691. */,0xfffff);
+                value = datCalcChkBadStatus(MEMBER(u32, unit, BtlUnit, datUnit),0xfffff);
                 if (((value == 0) &&
-                    (value = datCalcIsLowHp(MEMBER(s32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2693. */), value == 0)) &&
-                   ((MEMBER(u8 *, action, BtlAction, unit) /* measured: BtlAction.unit typing gives 4160B, nd 2970. */ != unit ||
-                    (unitClassOrFrames = datCalcUnitClass(MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2692. */), unitClassOrFrames == 4)))) {
+                    (value = datCalcIsLowHp(MEMBER(s32, unit, BtlUnit, datUnit)), value == 0)) &&
+                   ((MEMBER(u8 *, action, BtlAction, unit) != unit ||
+                    (unitClassOrFrames = datCalcUnitClass(MEMBER(u8 *, unit, BtlUnit, datUnit)), unitClassOrFrames == 4)))) {
                   recoveryPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0x11, 4, 1.0f, 0);
                   *recoveryPacket = 4;
-                  ((BtlPacket *)recoveryPacket)->dependencyUID = MEMBER(u64, nodeOrPacket, BtlPacket, uid) /* measured: BtlPacket.uid typing gives 4160B, nd 1211. */;
+                  ((BtlPacket *)recoveryPacket)->dependencyUID = MEMBER(u64, nodeOrPacket, BtlPacket, uid);
                   ((BtlPacket *)recoveryPacket)->delay = 4;
                   btlPacketEnqueue(recoveryPacket,1);
                 }
@@ -1078,7 +1054,7 @@ normal_opening:
             }
           }
           else {
-            value = datCalcChkBadStatus(MEMBER(u32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2689. */,0x180001);
+            value = datCalcChkBadStatus(MEMBER(u32, unit, BtlUnit, datUnit),0x180001);
             if (value != 0) {
               btlTargetBlendVectors((u8 *)&rotation,(u8 *)&position,(u8 *)&groupCenter);
               btlPacketEnqueue(btlUnitCreateOverridePacket(unit,(u8 *)&position,(u8 *)&rotation,0),0);
@@ -1103,14 +1079,14 @@ normal_opening:
               *rotatePacket = 4;
               ((BtlPacket *)rotatePacket)->dependencyUID = ((BtlPacket *)nodeOrPacket)->uid;
               btlPacketEnqueue(rotatePacket,1);
-              value = datCalcChkBadStatus(MEMBER(u32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2691. */,0xfffff);
+              value = datCalcChkBadStatus(MEMBER(u32, unit, BtlUnit, datUnit),0xfffff);
               if (((value == 0) &&
-                  (value = datCalcIsLowHp(MEMBER(s32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2693. */), value == 0)) &&
-                 ((MEMBER(u8 *, action, BtlAction, unit) /* measured: BtlAction.unit typing gives 4160B, nd 2970. */ != unit ||
-                  (unitClassOrFrames = datCalcUnitClass(MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 2692. */), unitClassOrFrames == 4)))) {
+                  (value = datCalcIsLowHp(MEMBER(s32, unit, BtlUnit, datUnit)), value == 0)) &&
+                 ((MEMBER(u8 *, action, BtlAction, unit) != unit ||
+                  (unitClassOrFrames = datCalcUnitClass(MEMBER(u8 *, unit, BtlUnit, datUnit)), unitClassOrFrames == 4)))) {
                 recoveryPacket = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)unit, 0x11, 4, 1.0f, 0);
                 *recoveryPacket = 4;
-                ((BtlPacket *)recoveryPacket)->dependencyUID = MEMBER(u64, nodeOrPacket, BtlPacket, uid) /* measured: BtlPacket.uid typing gives 4160B, nd 796. */;
+                ((BtlPacket *)recoveryPacket)->dependencyUID = MEMBER(u64, nodeOrPacket, BtlPacket, uid);
                 ((BtlPacket *)recoveryPacket)->delay = 4;
                 btlPacketEnqueue(recoveryPacket,1);
               }
@@ -1131,11 +1107,11 @@ unit_done:
             if (hasSkill != 0) {
               hasSkill213 = 1;
             }
-            hasSkill = datCalcHasSkill(MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4168B, nd 3087. */,0x214);
+            hasSkill = datCalcHasSkill(MEMBER(u8 *, unit, BtlUnit, datUnit),0x214);
             if (hasSkill != 0) {
               hasSkill214 = 1;
             }
-            hasSkill = datCalcHasSkill(MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4168B, nd 3087. */,0x215);
+            hasSkill = datCalcHasSkill(MEMBER(u8 *, unit, BtlUnit, datUnit),0x215);
             if (hasSkill != 0) {
               hasSkill215 = 1;
             }
@@ -1145,19 +1121,19 @@ unit_done:
             unit = *(u8* *)&((BtlUnit *)unit)->nextUnit) {
           if (*(u8* *)&((BtlUnit *)unit)->datUnit != NULL) {
             hasSkill = datCalcHasSkill(*(u8* *)&((BtlUnit *)unit)->datUnit,0x202);
-            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 506. */,0x53) != 0)
+            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(MEMBER(u8 *, unit, BtlUnit, datUnit),0x53) != 0)
                 ) || (hasSkill214 == 1)) {
-              datCalcApplyBuffMask(MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 506. */,5,1);
+              datCalcApplyBuffMask(MEMBER(u8 *, unit, BtlUnit, datUnit),5,1);
             }
-            hasSkill = datCalcHasSkill(MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 507. */,0x203);
-            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 506. */,0x54) != 0)
+            hasSkill = datCalcHasSkill(MEMBER(u8 *, unit, BtlUnit, datUnit),0x203);
+            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(MEMBER(u8 *, unit, BtlUnit, datUnit),0x54) != 0)
                 ) || (hasSkill213 == 1)) {
-              datCalcApplyBuffMask(MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 506. */,0x40,1);
+              datCalcApplyBuffMask(MEMBER(u8 *, unit, BtlUnit, datUnit),0x40,1);
             }
-            hasSkill = datCalcHasSkill(MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 507. */,0x204);
-            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 506. */,0x55) != 0)
+            hasSkill = datCalcHasSkill(MEMBER(u8 *, unit, BtlUnit, datUnit),0x204);
+            if (((hasSkill != 0) || (datCalcCountSlotsWithValue(MEMBER(u8 *, unit, BtlUnit, datUnit),0x55) != 0)
                 ) || (hasSkill215 == 1)) {
-              datCalcApplyBuffMask(MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 4160B, nd 507. */,0x110,1);
+              datCalcApplyBuffMask(MEMBER(u8 *, unit, BtlUnit, datUnit),0x110,1);
             }
             **(u16* *)&((BtlUnit *)unit)->datUnit = **(u16* *)&((BtlUnit *)unit)->datUnit & 0xf3ff;
           }
@@ -1202,16 +1178,14 @@ unit_done:
 }
 #pragma pop
 
-/* 744/752 bytes; twenty resolved relocations; eight zero alignment bytes.
- * Keep full-width dependency snapshots and branch-materialized final mode. */
+/* Keep full-width dependency snapshots and a branch-materialized final mode. */
 #pragma push
-/* measured: conditional/switch finish modes and named unit members retain 26 or more baseline words. */
+/* measured: retail selects the finish mode with branches rather than a rebuilt conditional. */
 #pragma opt_rebuildconditionals off
 // FUN_001B33C0
 /* Chain enemy model loads and entry effects, followed by panel and voice playback packets. */
 void btlMainUnitLoadInit(void)
 {
-    /* Historical whole-layout trial: 748B; remaining exceptions are measured per access below. */
     extern u8 *btlUnitCreateModelLoadPacket(u8 *, u16, s16);
     extern u8 *btlEffectCreateFormationPacket(s32, s32, s32, s64, s32);
     extern u8 *btlEffectCreateLoadPacket(void);
@@ -1257,7 +1231,7 @@ void btlMainUnitLoadInit(void)
             motionPacket = btlEffectCreateFormationPacket(iGpffffb450, (s32)unit, 0, 0, 0);
             motionMode = 4;
             *(s8 *)&((BtlPacket *)motionPacket)->dependencyKind = 4;
-            *(s64 *)&((BtlPacket *)motionPacket)->dependencyUID = MEMBER(s64, unitPacket, BtlPacket, uid) /* measured: BtlPacket.uid typing gives 756B, nd 522. */;
+            *(s64 *)&((BtlPacket *)motionPacket)->dependencyUID = MEMBER(s64, unitPacket, BtlPacket, uid);
             if (first == 1) {
                 *(s16 *)&((BtlPacket *)motionPacket)->delay = 1;
             } else {
@@ -1272,7 +1246,7 @@ void btlMainUnitLoadInit(void)
             previousMotionUID = *(s64 *)&((BtlPacket *)motionPacket)->uid;
             followupPacket = (u8 *)btlUnitCreateColorPacket((BtlUnit *)unit, 0xFFFFFFFF, 0xC, 0, 3, 1);
             *(s8 *)&((BtlPacket *)followupPacket)->dependencyKind = 4;
-            *(s64 *)&((BtlPacket *)followupPacket)->dependencyUID = MEMBER(s64, unitPacket, BtlPacket, uid) /* measured: BtlPacket.uid typing gives 756B, nd 522. */;
+            *(s64 *)&((BtlPacket *)followupPacket)->dependencyUID = MEMBER(s64, unitPacket, BtlPacket, uid);
             *(s8 *)&((BtlPacket *)followupPacket)->dependencyKind2 = 5;
             *(s64 *)&((BtlPacket *)followupPacket)->dependencyUID2 = previousMotionUID;
             *(s16 *)&((BtlPacket *)followupPacket)->delay = 0x1D;
@@ -1280,7 +1254,7 @@ void btlMainUnitLoadInit(void)
         } else {
             simplePacket = (u8 *)btlUnitCreateColorPacket((BtlUnit *)unit, 0xFFFFFFFF, 0, 0, 3, 1);
             *(s8 *)&((BtlPacket *)simplePacket)->dependencyKind = 4;
-            *(s64 *)&((BtlPacket *)simplePacket)->dependencyUID = MEMBER(s64, unitPacket, BtlPacket, uid) /* measured: BtlPacket.uid typing gives 748B, nd 409. */;
+            *(s64 *)&((BtlPacket *)simplePacket)->dependencyUID = MEMBER(s64, unitPacket, BtlPacket, uid);
             *(s16 *)&((BtlPacket *)simplePacket)->delay = 2;
             btlPacketEnqueue(simplePacket, 1);
             previousMotionUID = *(s64 *)&((BtlPacket *)simplePacket)->uid;
@@ -1385,9 +1359,8 @@ done:
     return;
 }
 
-/* measured: narrowing func_00198920's integer parameter declaration to the
-   retail s16/u16/s16 widths reorders the loop call's argument loads; object
-   372 bytes in the 384-byte window, normalized_diff 0. */
+/* func_00198920's parameters are declared with retail s16/u16/s16 widths, which sets the order of
+ * the loop call's argument loads. */
 // FUN_001B3870
 /* Wait for opening UI work, restore party motion, and enable the action queue. */
 s32 btlMainStartUpdate(void)
@@ -1437,20 +1410,12 @@ void btlMainActionInit(void)
 {
 }
 
-/* 1268/1280 bytes (retail ends in three words of padding); relocations:
-   iGpffffb3ac / D_0076449C (the same battle-work pointer under both of this
-   file's names), iGpffffb414, iGpffffb410 and the called functions.
-   Levers: the state switch falls from the 1/3 body into case 2 so the final
-   test reuses `state`; the "slot occupied" read goes through D_0076449C,
-   which is what makes retail reload the pointer there; the two unit loops
-   use separate cursors; the rank is taken before the CE0 load; the s32 at
-   0xCE4 is passed straight to the s16 parameter; the declaration order
-   pick/unit/alive/total/hurt gives retail's saved-register colouring. */
+/* The state switch falls from the 1/3 body into case 2 so the final test reuses state; the slot-
+ * occupied read goes through D_0076449C to force retail's reload. */
 // FUN_001B3A00
 /* Handle battle-end state, collect result data and select revival, victory or defeat processing. */
 s32 btlMainActionUpdate(void)
 {
-    /* Historical whole-layout trial: 1284B; remaining exceptions are measured per access below. */
     extern s32 iGpffffb414;
     extern s32 iGpffffb410;
     u16 state;
@@ -1502,7 +1467,7 @@ s32 btlMainActionUpdate(void)
                 if (datCalcIsDead(*(s32 *)&((BtlUnit *)unit)->datUnit, 0) != 0) {
                     total++;
                 } else {
-                    ((BtlBattleState *)(u8 *)iGpffffb3ac)->survivingPartyIds[alive] = ((DatUnit *)MEMBER(u8 *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 1280B, nd 938. */)->id;
+                    ((BtlBattleState *)(u8 *)iGpffffb3ac)->survivingPartyIds[alive] = ((DatUnit *)MEMBER(u8 *, unit, BtlUnit, datUnit))->id;
                     alive++;
                     total++;
                 }
@@ -1534,7 +1499,7 @@ s32 btlMainActionUpdate(void)
             for (member = ((BtlBattleState *)(u8 *)iGpffffb3ac)->unitLists[1]; member != NULL; member = *(u8* *)&((BtlUnit *)member)->prevUnit) {
                 if (*(s32 *)&((BtlUnit *)member)->datUnit != 0) {
                     status = datCalcGetBadStatus(*(s32 *)&((BtlUnit *)member)->datUnit);
-                    datCalcClearBadStatus(MEMBER(s32, member, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 1272B, nd 283. */, 0xFFF7FFFF);
+                    datCalcClearBadStatus(MEMBER(s32, member, BtlUnit, datUnit), 0xFFF7FFFF);
                     if ((status & 0x100000) == 0) {
                         btlUnitUpdateStatusMotion(member, 6);
                     }
@@ -1601,15 +1566,12 @@ s32 btlMainRevivalMesUpdate(void)
     return 0;
 }
 
-/* measured: MATCH. Each follow-up packet chains to the +0x58 of the packet
-   it follows (the SE packet, the per-unit formation packet, the result
-   packet), not to its own. Short-lived packets use `next` so they never
-   take a saved register; locals are declared in retail's $s7..$s0 order. */
+/* Each follow-up packet chains to the packet it follows (SE, per-unit formation, result), not to
+ * its own. */
 // FUN_001B4060
 /* Queue the party revival formation, HP/SP restoration and dependent camera/display sequence. */
 void btlMainRevivalInit(void)
 {
-    /* Historical whole-layout trial: 1508B; remaining exceptions are measured per access below. */
     union {
         u8 bytes[0x20];
         s32 words[8];
@@ -1669,10 +1631,10 @@ void btlMainRevivalInit(void)
         unitAction = btlActionFindByUnit((s32)unit);
         btlTargetClearResultBuffer(result.bytes);
         maxHp = datCalcMaxHp(((BtlUnit *)unit)->datUnit);
-        maxSp = datCalcMaxSp(MEMBER(DatUnit *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 1492B, nd 686. */);
-        result.words[0] = maxHp - datCalcGetHp(MEMBER(s32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 1500B, nd 1043. */);
-        result.words[1] = maxSp - datCalcGetSp(MEMBER(s32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 1500B, nd 1043. */);
-        if (datCalcIsDead(MEMBER(s32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 1500B, nd 1046. */, 0) != 0) {
+        maxSp = datCalcMaxSp(MEMBER(DatUnit *, unit, BtlUnit, datUnit));
+        result.words[0] = maxHp - datCalcGetHp(MEMBER(s32, unit, BtlUnit, datUnit));
+        result.words[1] = maxSp - datCalcGetSp(MEMBER(s32, unit, BtlUnit, datUnit));
+        if (datCalcIsDead(MEMBER(s32, unit, BtlUnit, datUnit), 0) != 0) {
             result.words[3] = 0x80000;
         }
         next = btlPacketCreateHpRatio(unit);
@@ -1680,7 +1642,7 @@ void btlMainRevivalInit(void)
         btlPacketEnqueue(next, 1);
         packet = (u8 *)btlFormationCreatePacket(form, (u32)unit, (u32)unit, 1, 0);
         packet[0] = 4;
-        *(s64 *)&((BtlPacket *)packet)->dependencyUID = MEMBER(s64, sePacket, BtlPacket, uid) /* measured: BtlPacket.uid typing gives 1492B, nd 772. */;
+        *(s64 *)&((BtlPacket *)packet)->dependencyUID = MEMBER(s64, sePacket, BtlPacket, uid);
         packet[0x10] = 4;
         *(s64 *)&((BtlPacket *)packet)->dependencyUID2 = last;
         *(s64 *)&((BtlPacket *)packet)->actionUID = *(s64 *)action;
@@ -1691,9 +1653,9 @@ void btlMainRevivalInit(void)
         btlPacketEnqueue(next, 1);
         camera = (u8 *)btlCameraCreateSetStatePacket((BtlAction *)(unitAction), (u16)(0x1B));
         camera[0] = 5;
-        *(s64 *)&((BtlPacket *)camera)->dependencyUID = MEMBER(s64, packet, BtlPacket, uid) /* measured: BtlPacket.uid typing gives 1492B, nd 493. */;
+        *(s64 *)&((BtlPacket *)camera)->dependencyUID = MEMBER(s64, packet, BtlPacket, uid);
         camera[0x20] = 0xB;
-        *(s64 *)&((BtlPacket *)camera)->dependencyUID3 = MEMBER(s64, packet, BtlPacket, uid) /* measured: BtlPacket.uid typing gives 1492B, nd 493. */;
+        *(s64 *)&((BtlPacket *)camera)->dependencyUID3 = MEMBER(s64, packet, BtlPacket, uid);
         *(s16 *)&((BtlPacket *)camera)->duration = 0x12;
         *(s64 *)&((BtlPacket *)camera)->actionUID = *(s64 *)action;
         btlPacketEnqueue(camera, 0);
@@ -1701,13 +1663,13 @@ void btlMainRevivalInit(void)
         if ((result.words[3] & 0x80000) != 0 && (*(s32 *)&((BtlUnit *)unit)->flags3 & 0x200) != 0) {
             next = (u8 *)btlUnitCreateAnimPacket((BtlUnit *)(unit), (s16)(0x14), (u16)(0), 1.0f, (u16)(0));
             *next = 0xB;
-            *(s64 *)&((BtlPacket *)next)->dependencyUID = MEMBER(s64, packet, BtlPacket, uid) /* measured: BtlPacket.uid typing gives 1492B, nd 493. */;
+            *(s64 *)&((BtlPacket *)next)->dependencyUID = MEMBER(s64, packet, BtlPacket, uid);
             *(s64 *)&((BtlPacket *)next)->actionUID = *(s64 *)action;
             btlPacketEnqueue(next, 1);
         }
         unitAction = (u8 *)btlTargetCreateDataPacket((s32)unitAction, (s32)unitAction, result.bytes, 1, 1);
         *unitAction = 0xB;
-        *(s64 *)&((BtlPacket *)unitAction)->dependencyUID = MEMBER(s64, packet, BtlPacket, uid) /* measured: BtlPacket.uid typing gives 1492B, nd 493. */;
+        *(s64 *)&((BtlPacket *)unitAction)->dependencyUID = MEMBER(s64, packet, BtlPacket, uid);
         *(s64 *)&((BtlPacket *)unitAction)->actionUID = *(s64 *)action;
         btlPacketEnqueue(unitAction, 1);
         if (result.words[0] != 0) {
@@ -1805,8 +1767,8 @@ s32 btlMainEnemyDeadUpdate(void)
     return 0;
 }
 
-/* The phase index at iGpffffb3ac+0x2FC is the first word of the phase work.
- * Index 11 in D_005F7180 is the WIN phase (btlMainWinInit/btlMainWinUpdate). */
+/* The phase index is the first word of the phase work; index 11 in D_005F7180 is the WIN phase
+ * (btlMainWinInit/btlMainWinUpdate). */
 #define BTLMAIN_PHASE_WIN 0xB
 
 // FUN_001B4860
@@ -1815,15 +1777,10 @@ s32 btlMainIsNotWinPhase(s32 *phase)
     return *phase != BTLMAIN_PHASE_WIN;
 }
 
-/* Complete packet and color phases preserve the live group dependency, all four
- * palette samples and the quaternion's W lane. The color helper follows the SDK
- * normalization, in-place channel product and byte-quantization operation graph.
- * measured b210 -O2: 2688 live bytes, frame0x90; all75 references resolved exactly.
- * The return delay instruction is included; there is no alignment tail.
- * See docs/Battle_camera_sequence_20261005.md for the finite source/native scope. */
+/* Packet and color phases keep the live group dependency, all four palette samples and the
+ * quaternion's W lane; the color helper follows the SDK normalize-multiply-quantize sequence. */
 // FUN_001B4880
 void btlMainWinInit(u8 *phaseWork) {
-    /* Historical whole-layout trial: 2704B; remaining exceptions are measured per access below. */
     extern void btlTargetEndDamagePhase(void);
     extern void btlDamageSetSource(u8 *phaseWork, s32);
     extern void btlTargetResetCommandRecord(u8 *record);
@@ -1915,7 +1872,7 @@ void btlMainWinInit(u8 *phaseWork) {
             if ((((BtlAction *)actionNode)->unk_1a & 1) != 0) {
                 unit = *(u8* *)&((BtlAction *)actionNode)->unit;
                 if ((((BtlUnit *)unit)->genus == 1) && (datCalcIsDead(*(s32 *)&((BtlUnit *)unit)->datUnit, 0) != 0)) {
-                    pkt = btlUnitCreateResourceFreePacket(MEMBER(u8 *, actionNode, BtlAction, unit) /* measured: BtlAction.unit typing gives 2692B, nd 1590. */);
+                    pkt = btlUnitCreateResourceFreePacket(MEMBER(u8 *, actionNode, BtlAction, unit));
                     *(s64 *)&((BtlPacket *)pkt)->actionUID = *(s64 *)base;
                     ((BtlPacket *)pkt)->delay = work->delay;
                     btlPacketEnqueue(pkt, 0);
@@ -1924,7 +1881,7 @@ void btlMainWinInit(u8 *phaseWork) {
             actionNode = *(u8* *)&((BtlAction *)actionNode)->next;
         }
     }
-    pkt = (u8 *)btlUnitCreateAnimPacket(MEMBER(BtlUnit *, base, BtlAction, unit) /* measured: BtlAction.unit typing gives 2692B, nd 1808. */, 0x15, 0, 1.0f, 2);
+    pkt = (u8 *)btlUnitCreateAnimPacket(MEMBER(BtlUnit *, base, BtlAction, unit), 0x15, 0, 1.0f, 2);
     ((BtlPacket *)pkt)->delay = work->delay;
     *(s64 *)&((BtlPacket *)pkt)->actionUID = *(s64 *)base;
     btlPacketEnqueue(pkt, 0);
@@ -1932,7 +1889,7 @@ void btlMainWinInit(u8 *phaseWork) {
         u8 *const callbackPacket = func_00194c90(btlMainIsNotWinPhase, phaseWork);
         btlPacketEnqueue(callbackPacket, 1);
         {
-            u8 *const transitionPacket = btlEffectCreateFormationPacket(*(s32 *)&((BtlBattleState *)iGpffffb3ac)->formations[47], MEMBER(s32, base, BtlAction, unit) /* measured: BtlAction.unit typing gives 2692B, nd 1808. */, 0, *(s64 *)&((BtlPacket *)callbackPacket)->uid, 0x34100);
+            u8 *const transitionPacket = btlEffectCreateFormationPacket(*(s32 *)&((BtlBattleState *)iGpffffb3ac)->formations[47], MEMBER(s32, base, BtlAction, unit), 0, *(s64 *)&((BtlPacket *)callbackPacket)->uid, 0x34100);
             s32 transitionDelay;
             if (work->delay > 2) {
                 transitionDelay = work->delay - 2;
@@ -1945,7 +1902,7 @@ void btlMainWinInit(u8 *phaseWork) {
             btlPacketEnqueue(transitionPacket, 2);
         }
         if (work->singleUnit == 1) {
-            unit = MEMBER(u8 *, base, BtlAction, unit) /* measured: BtlAction.unit typing gives 2692B, nd 1808. */;
+            unit = MEMBER(u8 *, base, BtlAction, unit);
             rotation.value = *(BtlCameraSequenceRotation *)&((BtlUnit *)unit)->rot;
         } else {
             rotation = *(struct CameraRotation *)D_0060A110;
@@ -1995,7 +1952,7 @@ void btlMainWinInit(u8 *phaseWork) {
                     *(s64 *)&((BtlPacket *)deadPacket)->dependencyUID = *(s64 *)&((BtlPacket *)dependencyPacket)->uid;
                     *(s64 *)&((BtlPacket *)deadPacket)->actionUID = *(s64 *)base;
                     btlPacketEnqueue(deadPacket, 0);
-                } else if (MEMBER(u8 *, base, BtlAction, unit) /* measured: BtlAction.unit typing gives 2700B, nd 1890. */ != node) {
+                } else if (MEMBER(u8 *, base, BtlAction, unit) != node) {
                     pkt2 = (u8 *)btlUnitCreateMovePacket((BtlUnit *)node, NULL, fGpffff82cc, 0x18);
                     ((BtlPacket *)pkt2)->dependencyKind = 4;
                     *(s64 *)&((BtlPacket *)pkt2)->dependencyUID = *(s64 *)&((BtlPacket *)dependencyPacket)->uid;
@@ -2028,7 +1985,7 @@ void btlMainWinInit(u8 *phaseWork) {
     {
         u8 *singleUnit = ((BtlBattleState *)iGpffffb3ac)->unitLists[1];
         while (singleUnit != 0) {
-            if (((((BtlUnit *)singleUnit)->flags3 & 8) != 0) && (MEMBER(u8 *, base, BtlAction, unit) /* measured: BtlAction.unit typing gives 2692B, nd 1808. */ != singleUnit)) {
+            if (((((BtlUnit *)singleUnit)->flags3 & 8) != 0) && (MEMBER(u8 *, base, BtlAction, unit) != singleUnit)) {
                 pkt = (u8 *)btlUnitCreateHidePacket((BtlUnit *)singleUnit);
                 ((BtlPacket *)pkt)->delay = work->delay;
                 *(s64 *)&((BtlPacket *)pkt)->actionUID = *(s64 *)base;
@@ -2047,7 +2004,6 @@ void btlMainWinInit(u8 *phaseWork) {
 /* Wait for the victory sequence and optional shuffle intro, allowing the configured input skip. */
 s32 btlMainWinUpdate(u8 *phaseWork)
 {
-    /* Historical whole-layout trial: 512B; remaining exceptions are measured per access below. */
     u8 *p;
     u16 limit;
     s32 hit;
@@ -2064,24 +2020,24 @@ s32 btlMainWinUpdate(u8 *phaseWork)
         ((BtlPacket *)work)->duration = 0xC;
         btlPacketEnqueue(work, 1);
         btlSoundStopBank3();
-        MEMBER(s32, p, BtlCameraSequenceWork, interrupted) /* measured: BtlCameraSequenceWork.interrupted typing gives 488B, nd 344. */ = 1;
+        MEMBER(s32, p, BtlCameraSequenceWork, interrupted) = 1;
     }
     if ((*(s32 *)&((BtlBattleState *)iGpffffb3ac)->flags & 0x20000000) != 0 &&
-        (MEMBER(s32, p, BtlCameraSequenceWork, frame) /* measured: BtlCameraSequenceWork.frame typing gives 488B, nd 346. */ == ((BtlCameraSequenceWork *)p)->soundFrame)) {
+        (MEMBER(s32, p, BtlCameraSequenceWork, frame) == ((BtlCameraSequenceWork *)p)->soundFrame)) {
         btlDamageStartFlash(((BtlBattleState *)iGpffffb3ac)->uiTask);
     }
     if ((((BtlBattleState *)iGpffffb3ac)->resultFlags & 1) == 0) {
         goto after_cac;
     }
-    limit = MEMBER(u16, p, BtlCameraSequenceWork, delay) /* measured: BtlCameraSequenceWork.delay typing gives 488B, nd 345. */;
-    hit = MEMBER(s32, p, BtlCameraSequenceWork, frame) /* measured: BtlCameraSequenceWork.frame typing gives 492B, nd 329. */ < limit;
+    limit = MEMBER(u16, p, BtlCameraSequenceWork, delay);
+    hit = MEMBER(s32, p, BtlCameraSequenceWork, frame) < limit;
     if (hit != 0) {
         goto after_cac;
     }
     if ((*(s32 *)&((BtlBattleState *)iGpffffb3ac)->flags & 0x20000000) != 0) {
         goto after_cac;
     }
-    if (MEMBER(s32, p, BtlCameraSequenceWork, frame) /* measured: BtlCameraSequenceWork.frame typing gives 492B, nd 329. */ == limit) {
+    if (MEMBER(s32, p, BtlCameraSequenceWork, frame) == limit) {
         btlEncounterSetReady(((BtlBattleState *)iGpffffb3ac)->uiTask);
         return 0;
     }
@@ -2091,8 +2047,8 @@ s32 btlMainWinUpdate(u8 *phaseWork)
 after_cac:
     if ((u32)btlCountUnitRecords() < 3) {
         if (((BtlCameraSequenceWork *)p)->interrupted == 0) {
-            hit = MEMBER(s32, p, BtlCameraSequenceWork, frame) /* measured: BtlCameraSequenceWork.frame typing gives 488B, nd 346. */;
-            hit = hit < (MEMBER(u16, p, BtlCameraSequenceWork, delay) /* measured: BtlCameraSequenceWork.delay typing gives 488B, nd 345. */ + ((BtlCameraSequenceWork *)p)->animationFrames);
+            hit = MEMBER(s32, p, BtlCameraSequenceWork, frame);
+            hit = hit < (MEMBER(u16, p, BtlCameraSequenceWork, delay) + ((BtlCameraSequenceWork *)p)->animationFrames);
             if (hit != 0) {
                 goto return_zero;
             }
@@ -2193,11 +2149,13 @@ done:
     return;
 }
 
+/* Run one frame of the battle fade-out phase, requesting the encounter finish and waiting on the
+ * shuffle task, encounter UI and screen fade as needed. Return 0xF once the phase can end,
+ * otherwise 0. */
 // FUN_001B57F0
 /* Wait for shuffle, encounter UI and fade completion before entering final cleanup. */
 s32 btlMainFadeOutUpdate(u8 *phaseWork)
 {
-    /* Historical whole-layout trial: 380B; finish-request exceptions are measured per access below. */
     if (*(u16 *)&((BtlBattleState *)iGpffffb3ac)->endState == 2) {
         goto state_two;
     }
@@ -2218,9 +2176,9 @@ s32 btlMainFadeOutUpdate(u8 *phaseWork)
     }
     btlEncounterSetFinish(((BtlBattleState *)iGpffffb3ac)->uiTask);
 set_status:
-    MEMBER(s32, phaseWork, BtlMainFadeOutWork, finishRequested) /* measured: BtlMainFadeOutWork.finishRequested typing gives 392B, nd 271. */ = 1;
+    MEMBER(s32, phaseWork, BtlMainFadeOutWork, finishRequested) = 1;
 check_status:
-    if (MEMBER(s32, phaseWork, BtlMainFadeOutWork, finishRequested) /* measured: BtlMainFadeOutWork.finishRequested typing gives 392B, nd 272. */ != 1) {
+    if (MEMBER(s32, phaseWork, BtlMainFadeOutWork, finishRequested) != 1) {
         goto return_zero;
     }
     if ((((BtlBattleState *)iGpffffb3ac)->resultFlags & 1) == 0) {
@@ -2257,13 +2215,11 @@ return_zero:
     return 0;
 }
 
-/* 952/960 bytes; forty resolved relocations and eight zero alignment bytes.
- * Preserve full-restoration precedence and signed percentage arithmetic.
- * Reload the battle context, unit list and final task after cleanup callbacks. */
+/* Full restoration takes precedence, percentages use signed arithmetic, and the battle context,
+ * unit list and final task are reloaded after cleanup callbacks. */
 // FUN_001B5970
 void btlMainEndInit(void)
 {
-    /* Historical whole-layout trial: 972B; remaining exceptions are measured per access below. */
     s32 restorePartySp;
     s32 restorePartyHp;
     s32 persona;
@@ -2286,15 +2242,15 @@ void btlMainEndInit(void)
 loop_16:
         if ((*(s32 *)&((BtlUnit *)unit)->datUnit != 0) &&
             (datCalcIsDead(*(s32 *)&((BtlUnit *)unit)->datUnit, 0) == 0)) {
-            if (datCalcHasSkill((u8 *)MEMBER(s32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 964B, nd 652. */, 0x224) != 0) {
-                datCalcSetHp(MEMBER(s32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 964B, nd 652. */, datCalcMaxHp(MEMBER(DatUnit *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */));
-                datCalcSetSp(MEMBER(s32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 964B, nd 652. */, datCalcMaxSp(MEMBER(DatUnit *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */));
-            } else if (datCalcHasSkill((u8 *)MEMBER(s32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 964B, nd 652. */, 0x223) != 0) {
-                datCalcAddHp((DatUnit *)MEMBER(s32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */, ((datCalcMaxHp(MEMBER(DatUnit *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */) & 0xFFFF) * 100) / 1250);
-                datCalcAddSp((DatUnit *)MEMBER(s32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */, ((datCalcMaxSp(MEMBER(DatUnit *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */) & 0xFFFF) * 100) / 1250);
+            if (datCalcHasSkill((u8 *)MEMBER(s32, unit, BtlUnit, datUnit), 0x224) != 0) {
+                datCalcSetHp(MEMBER(s32, unit, BtlUnit, datUnit), datCalcMaxHp(MEMBER(DatUnit *, unit, BtlUnit, datUnit)));
+                datCalcSetSp(MEMBER(s32, unit, BtlUnit, datUnit), datCalcMaxSp(MEMBER(DatUnit *, unit, BtlUnit, datUnit)));
+            } else if (datCalcHasSkill((u8 *)MEMBER(s32, unit, BtlUnit, datUnit), 0x223) != 0) {
+                datCalcAddHp((DatUnit *)MEMBER(s32, unit, BtlUnit, datUnit), ((datCalcMaxHp(MEMBER(DatUnit *, unit, BtlUnit, datUnit)) & 0xFFFF) * 100) / 1250);
+                datCalcAddSp((DatUnit *)MEMBER(s32, unit, BtlUnit, datUnit), ((datCalcMaxSp(MEMBER(DatUnit *, unit, BtlUnit, datUnit)) & 0xFFFF) * 100) / 1250);
             }
-            if (restorePartyHp != 0) datCalcAddHp((DatUnit *)MEMBER(s32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */, ((datCalcMaxHp(MEMBER(DatUnit *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */) & 0xFFFF) * 100) / 2000);
-            if (restorePartySp != 0) datCalcAddSp((DatUnit *)MEMBER(s32, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */, ((datCalcMaxSp(MEMBER(DatUnit *, unit, BtlUnit, datUnit) /* measured: BtlUnit.datUnit typing gives 964B, nd 650. */) & 0xFFFF) * 100) / 2000);
+            if (restorePartyHp != 0) datCalcAddHp((DatUnit *)MEMBER(s32, unit, BtlUnit, datUnit), ((datCalcMaxHp(MEMBER(DatUnit *, unit, BtlUnit, datUnit)) & 0xFFFF) * 100) / 2000);
+            if (restorePartySp != 0) datCalcAddSp((DatUnit *)MEMBER(s32, unit, BtlUnit, datUnit), ((datCalcMaxSp(MEMBER(DatUnit *, unit, BtlUnit, datUnit)) & 0xFFFF) * 100) / 2000);
         }
         unit = *(u8* *)&((BtlUnit *)unit)->nextUnit;
 loop_16_check:

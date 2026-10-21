@@ -22,17 +22,7 @@ extern u8 *D_008817EC[];
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027a400-0027a4b0 */
-
-/* measured: opt_propagation off probe for 002703d0 register setup. */
-/* measured: closes opt_propagation off probe for 002703d0. */
-/* measured: opt_rebuildconditionals off reproduces 002704f0 retail conditional-register schedule. */
-/* measured: closes opt_rebuildconditionals off for 002704f0. */
-/* measured: opt_propagation off probe for 00270780 family add */
-/* measured: close opt_propagation off probe for 00270780 family add */
-/* measured: opt_propagation off probe for 00270a80 addu order */
-/* measured: close opt_propagation off probe for 00270a80 */
-// Intent: Sets the given flag on list entries whose key falls in a run from index to count [inferred]
+/* Sets the given flag on list entries whose key falls in the run from firstLine to lastLine. */
 // FUN_0027A400
 void itfMesListSetRangeFlag(run, firstLine, lastLine, value)
 u8 *run;
@@ -85,14 +75,14 @@ done:
     return;
 }
 
-// Forwards to itfMesListSetColor; entry used by the window procedure [inferred].
+// Forwards to itfMesListSetColor; entry used by the window procedure.
 // FUN_0027A490
 void itfMesListSetColorEntry(void)
 {
     itfMesListSetColor();
 }
 
-// Forwards to itfMesListSetRangeFlag; entry used by the window procedure [inferred].
+// Forwards to itfMesListSetRangeFlag; entry used by the window procedure.
 // FUN_0027A4B0
 void itfMesListSetRangeFlagEntry(void)
 {

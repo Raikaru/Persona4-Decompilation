@@ -80,7 +80,6 @@ extern P4_95730_Vec3 D_0060A100;
 extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
 
 
-
 extern u8 iGpffffa4d8;
 extern void btlCameraSetUnitSlotValue(u8 *unit, s32 slotIndex, s32 slotValue);
 extern void btlTargetRemoveRadiusNode(u8 *unit);
@@ -107,8 +106,6 @@ extern void btlUnitApplyModelState(u8 *unit, s32 mode);
 extern u8 *btlSoundGetCharacterBank(u8 *unit);
 
 
-
-
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
@@ -124,42 +121,25 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 0019d670-0019db40 */
-
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
+/* measured: optimization_level 1 keeps retail's loop initialisation order with the index and value
+ * locals declared before the loop; -O2 reorders it. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* Measured: 1164 instruction bytes in the 1168-byte window, three resolved
- * relocations and a four-byte zero tail. This callback uses the packet creator's
- * u32 (void *) contract. Modes 1..4 initialize every timing value; the retail
- * constructor callers use modes 3 or 4. The packet is 20 bytes.
- * Disabling propagation locally retains the alpha result's memory/merge
- * lifetime. Publication remains the actual four-byte color-by-value operation. */
+/* measured: propagation is disabled so the alpha result stays in memory across the merge, as in
+ * retail. */
 #pragma push
 #pragma pop
-/* Retail reloads the 1/255 colour scale (0x3B808081, written here as a
- * literal) for every factor; with default optimisation b210 does the same.
- * `v41` and `chk` are function-scope locals so they keep retail's saved
- * registers. On the `i == 2 && alpha < 0xFE` path retail compares 0xE8
- * against the `mode` left from an earlier entry (0x0019CDE0); the C reads
- * `mode` uninitialised there in the same way. */
+/* Retail reloads the 1/255 colour scale for every factor, and on the i == 2 && alpha < 0xFE path
+ * reads mode uninitialised; the C does the same. */
 #pragma push
 #pragma pop
 /* Unlink and release all four genus lists, including camera-slot ownership. */
 // FUN_0019D670
 void btlUnitFreeRemovedUnits(void)
 {
-    /* measured: repeated typed list-link reads retain field addresses across
-     * callbacks; the four MEMBER reloads preserve byte aliasing. */
+    /* List links are reloaded after each callback because the callbacks may change them. */
     u8 *unit;
     u8 *nextUnit;
     u32 genusIndex;
@@ -196,15 +176,14 @@ void btlUnitFreeRemovedUnits(void)
     }
 }
 
-/* measured: plain-C switch reconstruction reproduces the 488-byte object against the 496-byte retail window; the jump-table base register remains the residual. Committed at nd 61. */
-/* Enable one model presentation mode; modes 1..4 affect draw/look/sound state,
- * while mode 6 marks the scene resource. */
+/* Enable one model presentation mode; modes 1..4 affect draw/look/sound state, while mode 6 marks
+ * the scene resource. */
 // FUN_0019D7A0
 void btlUnitApplyModelState(u8 *unit, s32 mode)
 {
     BtlUnit *typedUnit = (BtlUnit *)unit;
-    /* measured: repeated typed layerHandle loads hoist unit+0xA00 into
-     * a saved register; a separate typed unit pointer preserves the remaining reloads. */
+    /* Typed layerHandle loads would hoist the address into a saved register, so only the separate
+     * typed pointer is used for the other reloads. */
     s32 stateFlags;
     u16 sceneDrawId;
     u16 selectedMode;
@@ -275,8 +254,8 @@ void btlUnitApplyModelState(u8 *unit, s32 mode)
 void btlUnitClearModelState(u8 *unit, s32 mode)
 {
     BtlUnit *typedUnit = (BtlUnit *)unit;
-    /* measured: repeated typed layerHandle loads hoist unit+0xA00 into
-     * a saved register; a separate typed unit pointer preserves the remaining reloads. */
+    /* Typed layerHandle loads would hoist the address into a saved register, so only the separate
+     * typed pointer is used for the other reloads. */
     s32 lookFlags;
     u16 sceneDrawId;
     u32 selectedMode;
@@ -328,20 +307,12 @@ void btlUnitClearModelState(u8 *unit, s32 mode)
     }
 }
 
-/* measured: object 812B/window 816B, nd 0. The mode dispatch is an explicit goto
-   chain (`== 0x11` -> case11, `!= 0` -> def, fall to case0; a switch sorts the
-   zero test first and drops the `b default`). func_00232710 is called with two
-   arguments through an unprototyped block-scope extern; func_0019efe0 needs its
-   real prototype at block scope (it is defined later in the unit). The scale
-   multiplies are inline `*(f32 *)(target + 0x80) * *(f32 *)(target + 0x2C)` so the
-   0x80 load precedes the 0x2C load. */
-/* Resolve a fixed or unit-relative look point for an idle, loaded model. */
+/* Mode dispatch is an explicit goto chain because a switch would test zero first and drop the
+ * default branch. */
 // FUN_0019DB40
 void btlUnitUpdateLookAtTarget(u8 *unit)
 {
     BtlUnit *typedUnit = (BtlUnit *)unit;
-    /* measured: repeated typed model/look-state addresses add saved registers;
-     * the corresponding flags, handle, mode, id and data reloads stay byte-addressed. */
     extern void mdlSetLookAtTargetPoint(void *model, void *target);
     extern s32 mdlComputeIndexedAttachMatrix(void *model, s32 index, void *destination);
     extern f32 DAT_007613f8;

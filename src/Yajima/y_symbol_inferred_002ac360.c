@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/Yajima/y_symbol.c); members 002ac360-002ac3c0 */
 
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -13,7 +12,7 @@
 extern u16 *D_00764658;
 #pragma push
 #pragma no_branch_likely off
-// Intent: Clear the SMAP reveal bitmap (24 halfwords) [inferred]
+// Clear the SMAP reveal bitmap (24 halfwords).
 // FUN_002AC360
 void smapClearRevealTable(void) {
     s16 i;
@@ -28,7 +27,7 @@ void smapClearRevealTable(void) {
 
 #pragma push
 #pragma no_branch_likely off
-// Intent: Return a pointer to the SMAP reveal bitmap [inferred]
+// Return a pointer to the SMAP reveal bitmap.
 // FUN_002AC3B0
 u32 smapRevealTablePtr(void) {
     return (u32)D_00764658;
@@ -37,7 +36,7 @@ u32 smapRevealTablePtr(void) {
 
 #pragma push
 #pragma no_branch_likely off
-// Intent: Test one SMAP reveal bit: bit index arg0 in row arg1 [inferred]
+// Test one SMAP reveal bit: bit column in the given row.
 // FUN_002AC3C0
 s64 smapRevealTestBit(s32 column, s32 row) {
     s32 bitIndex;

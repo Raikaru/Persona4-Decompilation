@@ -1,4 +1,4 @@
-/* Original translation unit sdkPrimitive.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sdkPrimitive.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "type.h"
 #include "primitive_point_buffer.h"
@@ -49,11 +49,8 @@ extern f32 iGpffff81d0;
 
 /* Queues one flat rectangle: packs the colour, rectangle, depth and save-state flag into a 0x1C-byte packet, builds a queue node with it, and submits the node to the sdk queue. */
 // FUN_0045DA40
-/* Parameter order taken from the MATCHed caller func_0027d660 in
-   src/promoted/itfMsgProcedure_Window.c: b210 emits call-argument setup in
-   source order, and that caller only matches with the float third.  The EABI
-   keeps integer and float arguments in separate register files, so this
-   spelling is the same ABI and leaves this body byte-exact. */
+/* Parameter order follows the caller func_0027d660, which passes the float third; the EABI uses
+ * separate integer and float registers, so the ABI is unchanged. */
 void PrimQueueRectangle(const PrimitiveRectangleColor *colors, const PrimitiveRectangleWords *positions, f32 depth, s32 preserveState, void *queue) {
     PrimitiveRectangleWords pos;
     PrimitiveRectanglePacket packet;
@@ -104,10 +101,9 @@ void PrimDrawRectangle(u8 *colors, u8 *positions, f32 depth, s32 preserveState, 
 }
 
 
-/* Builds count transformed PrimVertex rows from float positions and packed colour bytes, scaling each point about the base position, rotating and offsetting it in 2D, then converting its colour bytes to float. */
-/* Measured: 664/672 bytes, six resolved relocations and eight zero alignment bytes.
- * Keep both coordinate subtractions before the in-place scale multiplications;
- * the base position and unsigned color channels retain their actual layouts. */
+/* Builds count transformed PrimVertex rows from float positions and packed colour bytes, scaling
+ * each point about the base position, rotating and offsetting it in 2D, then converting its colour
+ * bytes to float. Both coordinate subtractions happen before the in-place scale multiplications. */
 // FUN_0045DD30
 void PrimBuildTransformedVertices(PrimVertex *out, const u8 *colors, const void *positions,
                   f32 depth, u32 count, s32 offsetX, s32 offsetY,
@@ -329,12 +325,11 @@ void PrimDrawTransformed(const void *colors, const void *positions, f32 depth, u
 }
 
 
-/* Packed colors are four-byte rows. The queued header keeps positions untyped;
-   the typed casts below describe the two-float coordinate rows copied into it. */
-/* Native b210 O2: 564/576 bytes, 14 resolved relocations, 12 zero tail bytes.
- * Keep the raw allocation lifetime separate from its packed-color header view.
- * See docs/probe_archive/Primitive_batch_pair_20260923.md. */
-/* Queues a batch of count points: copies the positions and packed colours into one PrimBatch allocation, applies the rotation, offset and scale to the positions, and queues PrimBatchExecute on queue. */
+/* Packed colors are four-byte rows. The queued header keeps positions untyped; the typed casts
+ * below describe the two-float coordinate rows copied into it. The raw allocation lifetime is kept
+ * separate from its packed-color header view. Queues a batch of count points: copies the positions
+ * and packed colours into one PrimBatch allocation, applies the rotation, offset and scale to the
+ * positions, and queues PrimBatchExecute on queue. */
 // FUN_0045E8E0
 void PrimQueueBatch(void *colors, void *positions, f32 depth, s32 count,
                   s32 primitiveType, s32 preserveState, s32 offsetX, s16 offsetY,
@@ -395,11 +390,8 @@ void PrimQueueBatch(void *colors, void *positions, f32 depth, s32 count,
 }
 
 
-/* Alpha-enabled twin of PrimQueueBatch. */
-/* Native b210 O2: 572/576 bytes, 14 resolved relocations, 4 zero tail bytes.
- * Keep the raw allocation lifetime separate from its packed-color header view.
- * See docs/probe_archive/Primitive_batch_pair_20260923.md. */
-/* Queues the same batch as PrimQueueBatch with the alpha flag set, so PrimBatchExecute sets the alpha bit around its submit. */
+/* Alpha-enabled twin of PrimQueueBatch: queues the same batch with the alpha flag set, so
+ * PrimBatchExecute sets the alpha bit around its submit. */
 // FUN_0045EB20
 void PrimQueueBatchAlpha(void *colors, void *positions, f32 depth, s32 count,
                   s32 primitiveType, s32 preserveState, s16 offsetX, s16 offsetY,

@@ -22,26 +22,21 @@ typedef struct {
 extern Code1_0049Color iGpffffbb64;
 
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 00492100-00492100 */
-
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* Kind-11 Sway update. See docs/probe_archive/sway-update-20261005 for
- * the actual-provider domain, source measurements and independent review. */
-/* Spawn and update sway particles with randomized motion, floor bounces, key sampling and optional trails. */
-/* measured: baseline removal and a structured primary loop still differ (best isolated nd 391 bytes); retain both toggles. */
+/* Spawn and update sway particles with randomized motion, floor bounces, key sampling and optional
+ * trails. */
 // FUN_00492100
 #include "sway_particle_internal.h"
-/* measured: b210 -O2 needs independent value propagation and loop-invariant
- * constant materialization for the retail register and instruction schedule. */
+/* measured: retail schedule needs value propagation off and loop-invariant constants hoisted. */
 #pragma push
-/* measured: EffSwayParticleUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps values in their own registers instead of propagating copies. */
 #pragma opt_propagation off
-/* measured: EffSwayParticleUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists loop-invariant constants out of the particle loop. */
 #pragma opt_loop_invariants on
 void EffSwayParticleUpdate(u8 *emitterBytes)
 {

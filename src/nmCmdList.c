@@ -1,5 +1,4 @@
 #include "nm_message_record.h"
-/* Source unit: src/nmCmdList_002baa90.c */
 #include "include_asm.h"
 #include "type.h"
 #include "message_handle.h"
@@ -33,7 +32,6 @@ void nmMesWindowInitRecord(int recordAddress)
 
   u32 *recordWords;
 
-  
 
   recordWords = (u32 *)recordAddress;
 
@@ -105,7 +103,6 @@ void nmMesWindowSetCurrentFlag(u8 cursor)
 
   u8 *record;
 
-  
 
   record = nmMesWindowCurrent();
 
@@ -172,7 +169,6 @@ s32 nmMesWindowCurrentAnimFlag(void)
 
   u8 *record;
 
-  
 
   record = nmMesWindowCurrent();
 
@@ -210,7 +206,6 @@ u32 nmMesWindowCloseCurrent(int release)
 
   int *recordWords;
 
-  
 
   record = nmMesWindowCurrent();
 
@@ -262,7 +257,7 @@ u32 nmMesWindowCloseCurrent(int release)
 #pragma push
 
 
-// measured target CSE probe
+// measured: retail's subexpression reuse in this function needs optimization level 1.
 #pragma optimization_level 1
 /* Stop a slot window and clear its command state, optionally releasing the message. */
 // FUN_002BB290
@@ -296,7 +291,7 @@ s32 nmMesWindowCloseSlot(s64 slotIndex, s32 release)
     ((NmMesWindowRecord *)*wordSlot)->state = 0;
     return 1;
 }
-// measured target CSE probe
+// measured: retail returns to the unit's default optimization level 2 here.
 #pragma optimization_level 2
 /* Release and clear the current window while preserving the command record. */
 // FUN_002BB380
@@ -310,7 +305,6 @@ u32 nmMesWindowReleaseCurrent(void)
 
   int *recordWords;
 
-  
 
   record = nmMesWindowCurrent();
 
@@ -413,7 +407,6 @@ u32 nmMesWindowLatchAnimAux(void)
   int animation;
   u8 *current;
 
-  
 
   record = nmMesWindowCurrent();
 
@@ -487,7 +480,6 @@ void nmMesWindowSetCurrentString(s32 variable,void *text)
 
   u8 *record;
 
-  
 
   record = nmMesWindowCurrent();
 
@@ -518,7 +510,6 @@ void nmMesWindowSetCurrentRunning(int running)
 
   u32 *recordWords;
 
-  
 
   recordAddress = (u32)nmMesWindowCurrent();
 
@@ -622,7 +613,6 @@ void nmMesWindowInstallHandle(int index,u8 *message)
 
   u32 handle;
 
-  
 
   handle = itfMesWindowInstall(message);
 

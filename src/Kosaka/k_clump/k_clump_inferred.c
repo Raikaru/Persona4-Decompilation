@@ -161,8 +161,6 @@ extern f32 fGpffff81c4;
 extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 00462230-004623a0 */
-
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
     s32 displayFrame;              /* 0x04: copied from frameNumber by provider */
@@ -235,12 +233,11 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
-// measured: opt_propagation off preserves the callback table pointer across jal calls while probing movieNativeSkyDraw.
-/* measured: movieNativeSkyDraw MATCH -> MISMATCH without this pragma. */
+// measured: retail keeps the callback table pointer live across calls instead of propagating it in
+// movieNativeSkyDraw.
 #pragma opt_propagation off
-/* Draw the sky clump directly or through its material buckets, temporarily enabling environment mapping. */
-/* measured: typing the remaining model-flag/bucket reads or bucket-payload store loses MATCH; retain their
- * cross-callback byte aliasing. */
+/* Draw the sky clump directly or through its material buckets, temporarily enabling environment
+ * mapping. */
 // FUN_00462230
 void movieNativeSkyDraw(u8 *bucket)
 {
@@ -283,10 +280,8 @@ void movieNativeSkyDraw(u8 *bucket)
     }
 }
 
-// measured: closes opt_propagation around movieNativeSkyDraw.
-/* Walks the ordering-table bucket list, calling each node's start callback and then the callback tables D_00887308..D_00887314 for each entry. */
-/* measured: typing the remaining scalar payload/callback-data loads individually loses MATCH; pointer
- * payloads, command, flags, and callbacks stay typed. */
+// Walks the ordering-table bucket list, calling each node's start callback and then the callback
+// tables D_00887308..D_00887314 for each entry.
 // FUN_004623A0
 void sdkOtFlushBuckets(u8 *firstBucket)
 {

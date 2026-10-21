@@ -13,15 +13,8 @@ extern s32 D_00745C6C;
 
 extern s32 D_0074613C;
 
-/* Open declaration question (2026-08-09): func_0052c890 candidates all emit
- * sq-style saves at frame 0x40 while retail uses sd saves at frame 0x20.
- * The scalar-only body removed aggregates, arrays, by-value structs, and
- * vector types; deleting either added callee prototype independently did not
- * change the result. The same unexplained inflation appears at
- * func_0050d088 (0x30 vs 0x20) and func_005249b0 (0x30 vs 0x20).
- * This is anomalous, not normal MWCCPS2 behavior: among retail functions
- * saving $ra, 3161 already-MATCHED and 4690 unmatched functions use sd, while
- * exactly one function in the image uses sq $ra. */
+/* func_0052c890, func_0050d088 and func_005249b0 still build with larger frames and sq saves where
+ * retail uses sd saves; cause unknown. */
 
 typedef void (*Code1B9Callback)(s32 first, s32 second, void *data);
 typedef struct {
@@ -29,10 +22,6 @@ typedef struct {
     s32 second;
     s32 count;
 } Code1B9Work;
-/* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
-
-/* Source unit: src/promoted/code1_0052.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0052.c; members 0052d9a0-0052d9a0 */
 
 extern s32 *func_00528c30(void);
 extern void func_0052c870(s32 first);
@@ -42,27 +31,6 @@ typedef struct {
     s64 max;
     s32 count;
 } RunningStat;
-/* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
-/* measured: b210 O2 emits lui/lw/jr/nop (v0 base, unfilled return delay
- * slot); retail is lui $v1 / jr $ra / lw $v0-in-delay-slot / nop. #pragma
- * schedule on is load-bearing for the delay-slot fill; load-address color
- * stays $v0 vs retail $v1 (nd 2, allocator floor). NONMATCHING */
-/* measured: b210 O2 emits lui/addiu/jr/nop (unfilled return delay slot);
- * retail is lui $v0 / jr $ra / addiu $v0-in-delay-slot / nop. #pragma
- * schedule on is load-bearing for the delay-slot fill. */
-/* measured: closes the schedule-on segment-return bracket through func_00528c30; explicit schedule off restores the following code's baseline state. */
-/* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
-/* measured: b210 O2 emits lui/lw/jr/nop (v0 base, unfilled return delay
- * slot); retail is lui $v1 / jr $ra / lw $v0-in-delay-slot / nop. #pragma
- * schedule on is load-bearing for the delay-slot fill; load-address color
- * stays $v0 vs retail $v1 (nd 2, allocator floor). NONMATCHING */
-/* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
-/* measured: b210 O2 emits lui/lw/jr/nop (v0 base, unfilled return delay
- * slot); retail is lui $v1 / jr $ra / lw $v0-in-delay-slot / nop. #pragma
- * schedule on is load-bearing for the delay-slot fill; load-address color
- * stays $v0 vs retail $v1 (nd 2, allocator floor). NONMATCHING */
-/* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
-/* measured: closes the schedule-on segment-return bracket through func_0052c870; explicit schedule off restores the following code's baseline state. */
 /* Accumulate one signed 64-bit sample and update the extrema and sample count. */
 // FUN_0052D9A0
 void RunningStatAdd(RunningStat *stats, s64 value)

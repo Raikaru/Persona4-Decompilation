@@ -1,6 +1,5 @@
 #include "message_window_internal.h"
 #include "shd_sprite_pack.h"
-/* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/itfMsgProcedure_Window.c); members 0027bec0-0027bf30 */
 
 #include "include_asm.h"
 #include "type.h"
@@ -28,17 +27,14 @@ s32 itfMsgWindowCanDraw(s32 handle)
     }
     return 0;
 }
-// Intent: Returns the window procedure registered for a kind [inferred]
+// Returns the window procedure registered for a kind.
 // FUN_0027BF10
 s32 itfMesWindowProcedureForKind(s32 kind)
 {
     return D_0063BF80[kind];
 }
-/* The renderer receives a color snapshot and a rectangle value. The
- * rectangle literal retains its own temporary; clear cursors and counts
- * have separate lifetimes. Native b210: 2992/2992 bytes, no differences.
- * Evidence: build/first-party-finish-20260929/worker5/func_0027bf30. */
-// Intent: Draws the calendar screen: month and day text, tile backdrop and sky render states (msgCal resources) [inferred]
+/* Draws the calendar screen: month and day text, tile backdrop and sky render states from the
+ * msgCal resources. The renderer receives a color snapshot and a rectangle value. */
 // FUN_0027BF30
 void calDrawScreen(u8 *unusedTask, MsgProcWindowEntry *entry)
 {

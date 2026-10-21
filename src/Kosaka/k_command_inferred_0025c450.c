@@ -34,13 +34,7 @@ extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 ra
                            f32 angle, f32 depth, s32 preserveState);
 
 
-
-
-
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 0025c450-0025c600 */
-
+/* Script command that returns the calendar day entry for the current date and time slot. */
 // FUN_0025C450
 s32 K_Cmd_DAY_ENTRY_BY_PHASE(void) {
     s16 dateIndex;
@@ -50,7 +44,8 @@ s32 K_Cmd_DAY_ENTRY_BY_PHASE(void) {
     return 1;
 }
 
-// Intent: Common script command CHK_DAYS (p4flow Common 0x0037): checks the current date against month and day [inferred]
+// Common script command CHK_DAYS (p4flow Common 0x0037): checks the current date against a month
+// and day.
 // FUN_0025C4B0
 s32 scrCommonChkDays(void) {
     s32 month;

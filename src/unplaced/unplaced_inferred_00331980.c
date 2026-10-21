@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00331980-00331f90 */
 
 #include "fcl_object_internal.h"
 #include "member_access.h"
@@ -69,11 +68,10 @@ s32 fclScriptSetFlagOnButton(void) {
 /* Choose shop dialogue from first-visit, community-gift and date-gated records, then wait for the message or material-talk task. */
 #pragma push
 #pragma opt_loop_invariants on
-/* measured: cached table base and pointer-first scans do not match; baseline retains 133 differing words. */
+/* measured: retail hoists the table base out of the scan loops, so loop invariants are on. */
 // FUN_00331A20
 s32 weaponShopTalkUpdate(u8 *task)
 {
-    /* measured: remaining talk/task fields preserve b210 reload and state-update ordering; individual typed substitutions lose MATCH. */
     s8 *work;
     s8 i;
     s8 j;

@@ -48,19 +48,14 @@ extern f32 fGpffff8044;
 
 extern void (*jtbl_008873EC[])(void *);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 0048f5f0-0048f5f0 */
-
 extern f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration);
 extern void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition);
 extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
 extern void EffMotionEmitterUpdate(u8 *emitterData);
 extern void mdlEffectUpdateOrbitEmitter(u8 *emitterData);
 extern void EffConeAngleEmitterUpdate(u8 *emitterData);
-/* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
- * eight zero alignment bytes. IDA retains the result that Ghidra drops:
- * retail leaves the copied quadword in v0 through return. Preserve that
- * live-state; the current C callers discard it. The four hardware vf0 stores
- * produce (0,0,0,1), not a zero quadword. */
+/* measured: retail leaves the copied quadword in the return register; the four hardware-zero vector
+ * stores produce (0,0,0,1), not zero. */
 #pragma push
 #pragma pop
 #pragma push
@@ -69,70 +64,34 @@ extern void EffConeAngleEmitterUpdate(u8 *emitterData);
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_propagation off keeps `alloc` live in $s1 across all three
-   allocations instead of re-materialising the table address at the first use. */
-/* measured: closes the propagation bracket; the file default is on. */
-    /* measured: O1 probe for initial flag and aggregate register colours. */
-    /* measured: closes O1 probe for initial flag and aggregate register colours. */
-/* measured: opening optimization_level 1 for the parked 00486970 body. */
-/* measured: closes optimization_level 1 for the parked 00486970 body. */
-/* Measured with b210 -O2: keeping the trace/diagonal stages and the scaled
-   root as distinct lifetimes reproduces the scalar calculation. Propagation
-   and common-subexpression elimination otherwise merge the identity
-   constants and discard the root copy before register coalescing. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off tested for target subtraction scheduling. */
-/* measured: restore opt_propagation after func_0048aff0. */
 #pragma push
-/* measured: split the two counter webs, but preserve the native-asm cursor. */
+/* measured: keeps the two counters as separate variables, as retail does. */
 #pragma pop
-/* Measured: these scoped settings preserve the recovered wave update
- * evaluation order and the complete retail 2652-byte executable body. */
+/* measured: these settings keep retail's evaluation order in the wave update. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* Ported from the matched sibling func_0048d8c0: function-scope u8
- * initialPreroll, `!(x <= 0)` first rand-scale arms, shift-based particle
- * index, `angleMode != 2` first, snapshot pointer, stack vectors declared from
- * the highest frame slot down, and the parameters quads copied through $2.
- * The loop constants are assigned after the preroll in retail's hoist order.
- * b210 colours the saved FPRs from the highest-numbered local down, each
- * taking the lowest free register, and numbers locals by declaration: so
- * `a` (retail $f28) is declared first, then eF0val, eECval, `c` ($f25,
- * which also carries the preroll sample and the else-branch angle), and the
- * constants one..half ($f24-$f20). */
+/* Same shape as sibling func_0048d8c0: loop constants are assigned after the preroll in retail's
+ * hoist order, and locals are declared in retail's register order. */
 #pragma push
 #pragma pop
-/* Taken from the matched sibling EffMotionEmitterUpdate: the loop constants are
- * locals assigned after the preroll in retail's hoist order (one, orbit,
- * zero, half, two, tilt, angle, -1) and declared in its FPR order. `c`
- * carries the first, fifth and sixth scale (retail $f30) and `a` the second
- * and third ($f31). The 0x140 vector exists only for its retail w=0 store.
- * The parameters[0] snapshot at 0x0048D96C is an lq/sq that names $2, as in
- * func_00485630; the $2 def also frees $v0 for retail's emissionDuration/angleMode
- * spill stores. */
+/* Same shape as sibling EffMotionEmitterUpdate; the 0x140 vector exists only for its retail w=0
+ * store. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* Bezier emitter update. The 76-byte work record separates control points,
- * offsets and scalar state; its length union keeps the hardware-Q bits.
- * Matched by applying the EffConeAngleEmitterUpdate family shape: stack objects
- * declared in retail address order, the preroll-elapsed float first among
- * the FPR locals, one `angle` local for the orbit angle, the six blends and
- * the progress fraction, (s32)/(f32) preroll in prerollScale/scale locals,
- * blend vectors loaded before the qmtc2 bridge, each speed-integral's linear
- * term formed before the half-weighted square, and the else-branch elapsed
- * declared before the clamped distance. */
+/* Bezier emitter update. The 76-byte work record separates control points, offsets and scalar
+ * state; its length union keeps the hardware-Q bits. */
 #pragma push
-/* measured: EffBezierEmitterUpdate MATCH -> MISMATCH without this pragma. */
-/* measured: baseline C nd 2205B; adjacent-local declaration probe nd 2205B; retain settings for owner MATCH. */
+/* measured: EffBezierEmitterUpdate only matches retail with copy propagation disabled. */
 #pragma opt_propagation off
-/* measured: EffBezierEmitterUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: retail code for this function needs loop-invariant hoisting on. */
 #pragma opt_loop_invariants on
 // FUN_0048F5F0
 void EffBezierEmitterUpdate(u8 *emitterData)
@@ -647,7 +606,6 @@ main_check:
         goto main_body;
     }
 }
-
 
 
 #pragma pop

@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0013ad40-0013f620 */
 
 /* Unit optimizer settings; measured function exceptions remain scoped below. */
 #pragma opt_loop_invariants off
@@ -11,8 +10,8 @@
 #include "sdk_snd_internal.h"
 #include "shd_misc_internal.h"
 #include "datPersona_internal.h"
-/* measured: plain base + offset changes eight menu callers by 1-8 bytes;
- * the shared offset-first addition preserves all nineteen owner MATCHes. */
+/* measured: menu callers need the shared offset-first address addition; a plain base + offset
+ * changes their code. */
 #include "byte_address_internal.h"
 extern s32 radarSkillEffectMissing(s16, s16, s32);
 extern s32 cmpSkillApplySelected(s16, s16, s32, u8 *);
@@ -212,9 +211,10 @@ typedef struct {
 
 #pragma push
 #pragma optimization_level 2
-/* measured: baseline typed, MEMBER and address-snapshot forms sink the last sprite load; nd 99 bytes. */
+/* measured: without these settings the last sprite load sinks below where retail loads it. */
 #pragma opt_propagation off
-// Intent: Draw one radar entry row from the first group (slots 5 and 1) or the second group (slots 0x1C and 0x18) [inferred]
+// Draws one radar entry row from the first group (slots 5 and 1) or the second group (slots 0x1C
+// and 0x18).
 // FUN_0013AD40
 void radarDrawEntryRowGroup(u8 *work, s32 rowIndex, s32 groupIndex)
 {
@@ -330,12 +330,11 @@ void radarDrawEntryRowGroup(u8 *work, s32 rowIndex, s32 groupIndex)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Draw a sprite pair from the second sprite table at the given position, 340 units apart, with the given colour [inferred]
+// Draws a sprite pair from the second sprite table at the given position, 340 units apart, in the
+// given colour.
 // FUN_0013B370
-/* The call consumes a complete position and RGBA packet. Keep explicit
-   views of their argument storage: b210 otherwise hoists the Y load before
-   the RGB snapshots. All 176 instruction bytes and 42 sibling images match. */
-/* measured: baseline component, storage-pointer and pointer-handle forms reorder argument loads; best nd 12 bytes. */
+/* measured: without copy propagation off, the compiler hoists the Y position load ahead of the RGB
+ * colour reads, unlike retail. */
 #pragma opt_propagation off
 void radarDrawSecondSpritePair(u8 *work, Vec2f position, PackedColor4 color)
 {
@@ -361,10 +360,8 @@ void radarDrawSecondSpritePair(u8 *work, Vec2f position, PackedColor4 color)
 
 #pragma push
 #pragma optimization_level 2
-/* 1480/1488 bytes; fourteen resolved relocations and eight zero tail bytes.
- * The skill renderer uses complete position/color objects and retains the
- * original Y component and sprite cursor through the draw pairs. */
-// Intent: Draw one skill card: the background sprites, the bars and the value text, at the given position and alpha [inferred]
+/* Draws one skill card (background sprites, bars and value text) at the given position and alpha,
+ * keeping the original Y and sprite cursor across draw pairs. */
 // FUN_0013B420
 void radarDrawSkillCard(void *context, Vec2f inputPosition, s32 inputAlpha, void *entry)
 {
@@ -532,11 +529,11 @@ static inline s32 radarNextGroupStart(u8 *work, s32 total, s32 count, s32 wrap)
 
 #pragma push
 #pragma optimization_level 2
-/* measured: baseline sum order, narrow locals and MEMBER/address forms leave load or addu order different; best nd 1 byte. */
+/* measured: without these settings the load and add order differs from retail. */
 #pragma opt_propagation off
-// Intent: Advance the group selection to the neighbour chosen by the button bits, and update the two group windows [inferred]
+// Advance the group selection to the neighbour chosen by the button bits, and update the two group
+// windows.
 // FUN_0013B9F0
-/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 s32 radarAdvanceGroupSelection(u8 *work)
 {
     s32 count;
@@ -599,9 +596,9 @@ void radarResetIndicator(u8 *);
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Item-use menu state machine: step the item selection, apply the chosen item to its recipients, and return the menu's result [inferred]
+// Item-use menu state machine: step the item selection, apply the chosen item to its recipients,
+// and return the menu's result.
 // FUN_0013BCF0
-/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 s32 radarItemMenuUpdate(u32 *state, s32 *active, u8 *work) {
     RadarItemMenuWork *itemMenu = (RadarItemMenuWork *)work;
     extern s32 radarPushHistoryValue(s32 menuAddress, s32 selectionIndex, s32 selection);
@@ -794,7 +791,8 @@ void radarPushSlotState(u8 *);
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Handle a selected entry: when its type is active, set the state by type (0 becomes 7, 1 or 2 become 9) and play the cue; otherwise play cue 8 [inferred]
+// Handle a selected entry: when its type is active, set the state by type (0 becomes 7, 1 or 2
+// become 9) and play the cue; otherwise play cue 8.
 // FUN_0013C5A0
 void radarHandleEntrySelect(s32 *state, u8 *work) {
     u8 *entry;
@@ -824,7 +822,7 @@ void radarHandleEntrySelect(s32 *state, u8 *work) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Return whether the type of the entry's item is active [inferred]
+// Return whether the type of the entry's item is active.
 // FUN_0013C6D0
 s32 radarEntryTypeIsActive(s16 item) {
     return datIsSkillAvailable(datEntryAt(item)->effect) != 0;
@@ -838,9 +836,9 @@ s32 radarWideEntriesCoverValue(u8 *);
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Transfer menu state machine: step the party-change and unit-transfer states, and return the menu's result [inferred]
+// Transfer menu state machine: step the party-change and unit-transfer states, and return the
+// menu's result.
 // FUN_0013CAA0
-/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 s32 radarTransferMenuUpdate(u32 *state, s32 *active, u8 *work) {
     RadarEquipmentMenuWork *equipmentMenu = (RadarEquipmentMenuWork *)work;
     u8 listState[0x30];
@@ -1058,9 +1056,9 @@ void radarRandomizeEntries(u8 *);
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Apply the selected item to the chosen recipients, consume one use, and update the row; return the resulting state [inferred]
+// Apply the selected item to the chosen recipients, consume one use, and update the row; return the
+// resulting state.
 // FUN_0013C700
-/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 s32 radarApplyItemStep(s16 source, s16 recipientId, u8 *work)
 {
     RadarItemMenuWork *itemMenu = (RadarItemMenuWork *)work;
@@ -1145,7 +1143,7 @@ s32 radarApplyItemStep(s16 source, s16 recipientId, u8 *work)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Return 1 when the skill effect for the recipient is not yet applied [inferred]
+// Return 1 when the skill effect for the recipient is not yet applied.
 // FUN_0013CA60
 s32 radarSkillEffectMissing(s16 source, s16 recipient, s32 effect) {
     s32 missing = 0;
@@ -1159,7 +1157,8 @@ s32 radarSkillEffectMissing(s16 source, s16 recipient, s32 effect) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Open the pick list when it has entries: set state 10 and initialise its groups; return 1 when opened [inferred]
+// Open the pick list when it has entries: set state 10 and initialise its groups; return 1 when
+// opened.
 // FUN_0013D470
 s32 radarBeginPickList(u8 *work, s32 *state) {
     u8 listState[0x28];
@@ -1190,9 +1189,9 @@ s32 radarBeginPickList(u8 *work, s32 *state) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Transfer one unit of the selected entry to the target entry, refresh the rows, and step the cursor; return 1 when a transfer happened [inferred]
+// Transfer one unit of the selected entry to the target entry, refresh the rows, and step the
+// cursor; return 1 when a transfer happened.
 // FUN_0013D5D0
-/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 s32 radarTransferSelectedUnit(u8 *work) {
     RadarEquipmentMenuWork *equipmentMenu = (RadarEquipmentMenuWork *)work;
     struct {
@@ -1242,9 +1241,8 @@ s32 radarTransferSelectedUnit(u8 *work) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Set or clear the persona highlight flags and position for mode 0 (set) or 1 (clear) [inferred]
+// Set or clear the persona highlight flags and position for mode 0 (set) or 1 (clear).
 // FUN_0013D7D0
-/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 void radarSetPersonaHighlight(u8 *work, s32 mode) {
     RadarPersonaMenuWork *personaMenu = (RadarPersonaMenuWork *)work;
     RadarPositionWords highlightPosition;
@@ -1271,9 +1269,9 @@ void radarSetPersonaHighlight(u8 *work, s32 mode) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Persona menu state machine: step the persona highlight and display states, and return the menu's result [inferred]
+// Persona menu state machine: step the persona highlight and display states, and return the menu's
+// result.
 // FUN_0013D8B0
-/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 s32 radarPersonaMenuUpdate(u32 *state, s32 *active, u8 *work) {
     RadarPersonaMenuWork *personaMenu = (RadarPersonaMenuWork *)work;
     extern void radarBeginRecipientPick(u8 *work, s32 *state);
@@ -1604,9 +1602,9 @@ s32 radarPersonaMenuUpdate(u32 *state, s32 *active, u8 *work) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Open the recipient pick display for the chosen entry: set state 8 and begin the display for one or two picks [inferred]
+// Open the recipient pick display for the chosen entry: set state 8 and begin the display for one
+// or two picks.
 // FUN_0013E7C0
-/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 void radarBeginRecipientPick(u8 *work, s32 *state) {
     RadarPersonaMenuWork *personaMenu = (RadarPersonaMenuWork *)work;
     u8 listState[0x28];
@@ -1632,9 +1630,8 @@ void radarBeginRecipientPick(u8 *work, s32 *state) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Open the character pick display for the chosen entry, and return 1 when a pick list was opened [inferred]
+// Open the character pick display for the chosen entry, and return 1 when a pick list was opened.
 // FUN_0013E8E0
-/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 s32 radarBeginCharacterPick(u8 *work, s32 *state) {
     u8 listState[0x28];
     s32 listResult;
@@ -1648,7 +1645,6 @@ s32 radarBeginCharacterPick(u8 *work, s32 *state) {
     if (listResult > 0) {
         cmpPersonaSetSelection(work, 0, ((SdkListState *)(listState))->row);
         *state = 0xB;
-        /* Measured: access-site, cursor-local and array row loads change alias reloads (227-229 differing bytes). */
         characterId = character = ((RadarPersonaMenuWork *)(byteAddressAdd(MEMBER(s32, listState, SdkListState, row) * sizeof(u16), work)))->characters[0];
         if (listResult == 1) {
             shdPersonaBeginDisplay(((RadarPersonaMenuWork *)work)->personaDisplay, characterId, (s32)datPersonaGetRecord(character), 0);
@@ -1663,9 +1659,9 @@ s32 radarBeginCharacterPick(u8 *work, s32 *state) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Recipient menu state machine: step the recipient selection and entry action states, and return the menu's result [inferred]
+// Recipient menu state machine: step the recipient selection and entry action states, and return
+// the menu's result.
 // FUN_0013EA20
-/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 s32 radarRecipientMenuUpdate(u32 *state, s32 *active, u8 *work) {
     RadarSkillMenuWork *skillMenu = (RadarSkillMenuWork *)work;
     extern void cmpSkillMenuInit(u8 *work);
@@ -1940,9 +1936,9 @@ s32 radarRecipientMenuUpdate(u32 *state, s32 *active, u8 *work) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Handle the entry action after its check: the type zero path sets state 7, and the type 1 or 2 path sets state 9 [inferred]
+// Handle the entry action after its check: the type zero path sets state 7, and the type 1 or 2
+// path sets state 9.
 // FUN_0013F4D0
-/* Keep the original byte cursor alongside typed object access for retail alias behavior. */
 void radarHandleEntryAction(s32 *state, s16 character, s32 recipient, u8 *work) {
     s32 skillIndex;
     u16 targetType;
@@ -1975,7 +1971,7 @@ void radarHandleEntryAction(s32 *state, s16 character, s32 recipient, u8 *work) 
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Return 1 when the entry's type is valid and the threshold check does not block it [inferred]
+// Return 1 when the entry's type is valid and the threshold check does not block it.
 // FUN_0013F620
 s32 radarEntryIsAllowed(s16 character, s32 skillIndex, u8 *work) {
     s32 allowed;

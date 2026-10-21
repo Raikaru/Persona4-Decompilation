@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00189600-0018bf50 */
 
 #include "field_transition_internal.h"
 #include "sdk_lbox_internal.h"
@@ -36,9 +35,6 @@ typedef struct FldLmapCameraWork {
     s32 mode;
     s32 preset;
 } FldLmapCameraWork;
-
-
-
 
 
 #include "scene_event_internal.h"
@@ -95,7 +91,6 @@ extern u8 *iGpffff9db0;
 // FUN_00189600
 void FldLmapCameraMoveTo(u8 *task, s32 mode, s32 preset, f32 speed)
 {
-    /* Separate preset/global and matrix aliases retain their measured access widths. */
     struct Vec3 {
         f32 x;
         f32 y;
@@ -162,7 +157,7 @@ void FldLmapCameraMoveTo(u8 *task, s32 mode, s32 preset, f32 speed)
 #pragma vu0_mmi_reg_binding off
 /* Establish the sky/panel render-state preset before queued primitives draw. */
 // FUN_00189870
-/* measured: subscript/address-form table bases rematerialize without propagation off (44 differing words). */
+/* measured: retail loads the callback table base once and reuses it for every call. */
 #pragma opt_propagation off
 void FldSkyApplyDefaultPreset(void)
 {
@@ -186,10 +181,8 @@ void FldSkyApplyDefaultPreset(void)
 #pragma vu0_mmi_reg_binding off
 /* Animate panel entry and alternating text slots, then queue their quads and labels. */
 // FUN_00189940
-/* Measured: 1348 executable bytes, 26 resolved relocations, 12 zero tail bytes.
- * Preserve integer-to-float conversions and reloads across rendering callbacks.
- * Indexed addresses stay integer-valued until their final pointer conversion. */
-/* measured: literal and explicitly staged red retain in-loop constants without loop invariants (16 differing words). */
+/* measured: retail keeps the red value and other constants inside the loop instead of hoisting
+ * them, so loop invariants are disabled here. */
 #pragma opt_loop_invariants on
 s32 FldPanel2dUpdate(u8 *task)
 {
@@ -382,7 +375,6 @@ void FldPanel2dSelectEntry(s32 entryIndex)
     s32 *entry;
     s32 index;
     u8 *text;
-    /* Integer-indexed panel/frame addresses preserve the measured reload ordering. */
     u8 *panel;
     s32 slot;
     u8 *selectedText;
@@ -481,7 +473,7 @@ s32 FldNpcControlTaskCreate(s32 parent, s32 actor)
         return 0;
     taskHandle = (s32)kwlnTaskCreateChild((void *)((u8 *)parent), (const void *)(&D_005F5350), 0xF, 0, 0, FldNpcControlUpdate, FldNpcControlDestroy, (u8 *)(work));
     ((FldNpcControlWork *)work)->actor = actor;
-    /* The view float at +0x80 is copied without interpreting its camera-specific meaning. */
+    /* The view's unk80 float is copied as-is; its camera-specific meaning is unknown. */
     ((FldNpcControlWork *)work)->cameraHeight = ((KwlnView *)((u8 *)(uintptr_t)kwlnGetCamera()))->unk80;
     return taskHandle;
 }
@@ -509,20 +501,16 @@ s32 FldNpcControlReady(u8 *task)
 #pragma optimization_level 2
 #pragma enable_vu0_registers off
 #pragma vu0_mmi_reg_binding off
-/* Shared animation contracts: CSE retains the common transition constant.
- * The O1 profile still preserves the retail FPU accumulator order. */
-/* Compare normalized actor/player headings; select a turn animation when outside tolerance. */
+/* Compare normalized actor and player headings; select a turn animation when outside tolerance. */
 // FUN_0018BC20
-/* measured: optimization_level 1 preserves retail's FPU scheduling for this
-   vector normalize; -O2 reorders it into a mismatching form. */
+/* measured: retail's FPU order for this vector normalize only comes out at optimization level 1. */
 #pragma optimization_level 1
 #pragma push
-/* measured: staged/direct animation calls without CSE each retain one differing constant-load instruction. */
+/* measured: retail loads the shared animation transition constant only once. */
 #pragma opt_common_subs on
 void FldNpcControlFacePlayer(u8 *task)
 {
     FldNpcControlWork *controlWork;
-    /* Separate preset/global and matrix aliases retain their measured access widths. */
     struct Vec3 {
         f32 x;
         f32 y;
@@ -596,12 +584,11 @@ void FldNpcControlFacePlayer(u8 *task)
 /* Restore the saved heading, using the turn animation only when outside tolerance. */
 // FUN_0018BDD0
 #pragma push
-/* measured: staged/direct animation calls without CSE each retain one differing constant-load instruction. */
+/* measured: retail loads the shared animation transition constant only once. */
 #pragma opt_common_subs on
 void FldNpcControlTurnBack(u8 *task)
 {
     FldNpcControlWork *controlWork;
-    /* Aggregate heading copies and actor model pointers retain their measured access widths. */
     struct Direction {
         f32 x;
         f32 y;

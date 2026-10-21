@@ -1,11 +1,7 @@
 #include "member_access.h"
 #include "mt_scene_internal.h"
-/* Source unit: "k_shadow.c" (bare __FILE__ string; span 0x0017B510..0x0017CCC0). */
-/* Prologue is the minimal set found by delta-debugging the committed code1 prologue
-   against the span (measured: all 14 functions MATCH). The full prologue ICEs in
-   InterferenceGraph.c line 400 while compiling FldShadow_CreateCaster. The trigger is not
-   isolated to one declaration: removing any kept declaration breaks compile or match,
-   so the whole minimal set is required. */
+/* Original translation unit k_shadow.c (from __FILE__ strings). This include/extern prologue is a
+ * minimal required set; the full prologue crashes the compiler on FldShadow_CreateCaster. */
 #include "sdk_task_registration.h"
 extern u8 D_005F18C0[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -67,7 +63,6 @@ typedef struct FldShadowDrawQueue
 
 /* Advance caster setup, then queue the projection or mirrored-model commands. */
 // FUN_0017ACC0
-/* measured: typed caster/geometry aliases preserve all setup field accesses and whole-file MATCH. */
 s32 FldShadow_StepCasterSetup(u8 *task)
 {
     extern s32 mdlPrepareModel(u8 *model);
@@ -263,8 +258,6 @@ s32 FldShadow_StepCasterSetup(u8 *task)
 }
 /* Release each mode-specific camera, raster, projection buffer, and ring allocation. */
 // FUN_0017B350
-/* measured: initial task-work loads in access-site, typed-local, and indexed forms differ in five bytes.
- * MEMBER preserves that load; typed caster/camera aliases preserve every other access. */
 void FldShadow_ReleaseCaster(u8 *task)
 {
     u8 *camera;
@@ -330,15 +323,14 @@ extern u8 *func_003e84a0(void);
 extern f32 fabsf(f32 x);
 extern s32 FldShadow_StepCasterSetup(u8 *task);
 
-/* measured: b510 matches only with loop-invariant hoisting on and propagation off (14/14). */
-/* measured: baseline removal differs in 728 bytes; reuse named shadow alias; reread mode through caster field also differ. */
+/* measured: retail output needs loop-invariant hoisting on and copy propagation off for this
+ * function. */
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 /* Allocate a caster and initialize render-to-texture or ring resources for its mode. */
 // FUN_0017B510
-/* Measured: 1148 executable bytes, 48 resolved relocations, four zero
-   alignment bytes. Slot pointers retain the retail callback reloads. */
-/* measured: a typed caster alias preserves the ring-radius initialization and whole-file MATCH. */
+/* measured: retail reloads the slot callback pointers each time, and the ring-radius setup goes
+ * through a typed caster alias. */
 void *FldShadow_CreateCaster(u8 *parentTask, u16 resourceId, u16 requestedMode)
 {
     u8 *caster;
@@ -480,9 +472,8 @@ camera_registered:
 
     return task;
 }
-/* measured: the span functions after b510 match only with the default schedule restored (14/14). */
 #pragma opt_propagation on
-/* measured: restore loop-invariant hoisting off after b510 so the following span functions match (14/14). */
+/* measured: restores the unit setting after the preceding task setup function. */
 #pragma opt_loop_invariants off
 
 // FUN_0017B990
@@ -492,7 +483,6 @@ void FldShadow_SetCasterFlag(u8 *task, s32 disabled)
 }
 /* Resize the ring geometry, retaining its closing vertex and mode-dependent height. */
 // FUN_0017B9A0
-/* measured: a typed caster alias preserves the ring-pointer reloads and whole-file MATCH. */
 void FldShadow_SetRingParticles(u8 *task, f32 radius)
 {
     u8 *state;
@@ -556,7 +546,6 @@ void FldShadow_SaveFrameSlots(u8 *unused, u8 *state)
 }
 
 
-
 /* Restore the saved low-byte light flags after the shadow draw queue. */
 // FUN_0017BBE0
 void FldShadow_RestoreFrameSlots(u8 *unused, u8 *state)
@@ -574,14 +563,8 @@ void FldShadow_RestoreFrameSlots(u8 *unused, u8 *state)
     K_Clump_GetLightA();
 }
 
-/*
- * measured: 940/944 bytes, 29 resolved relocations, four zero alignment bytes.
- * Keep the frame-slot reload after camera callbacks, separate matrix-result
- * lifetime, and component-wise scaled increment's operand order.
- */
 /* Place the scene-resource shadow camera and save the model color before rendering. */
 // FUN_0017BC60
-/* measured: a typed resource alias preserves the task/model reloads and whole-file MATCH. */
 void FldShadow_UpdateSceneShadow(u8 *unused, u8 *state)
 {
     RwV3d position;
@@ -602,7 +585,7 @@ void FldShadow_UpdateSceneShadow(u8 *unused, u8 *state)
     height = ((FldShadowCaster *)data)->height;
     position = ((RwMatrixTag *)((u8 *)mdlGetMatrix(((ResrcRecord *)state)->modelHandle164)))->pos;
     if (((FldShadowCaster *)((u8 *)((KwlnTask *)((u8 *)record->handle224))->work))->state > 0) {
-        /* The resource basis is a RenderWare matrix with interleaved 16-byte axis slots at +0x190. */
+        /* The resource basis is a RenderWare matrix stored in the state at 0x190. */
         if (((ResrcRecord *)state)->unk28 & 0x80000000U) {
             frameSlot = (u8 **)&((RwCamera *)camera)->object.object.parent;
             frame = *frameSlot;
@@ -662,9 +645,6 @@ void FldShadow_UpdateSceneShadow(u8 *unused, u8 *state)
 }
 /* Restore scene-model color and finish the camera pass with three gradient strips. */
 // FUN_0017C010
-/* measured: 608/608 bytes and 29 resolved relocations. The shared draw
-   signature preserves both packet-end callbacks and the real provider. */
-/* measured: typed resource/camera aliases preserve the color restore and depth reads and whole-file MATCH. */
 void FldShadow_DrawBlobPacket(u8 *packet, s32 stateAddress, void *callbackSelf)
 {
     extern u32 K_FldShadow_Draw(f32, f32, f32, f32,
@@ -720,10 +700,8 @@ void FldShadow_DrawBlobPacket(u8 *packet, s32 stateAddress, void *callbackSelf)
 
 /* Place the model-resource shadow camera and temporarily disable its five item slots. */
 // FUN_0017C270
-/* measured: 1016/1024 bytes; 29 independently resolved relocations and eight
-   zero alignment bytes. Preserve the early camera/height/position snapshots
-   and the later frame, model and resource-chain reloads across callbacks. */
-/* measured: a typed resource alias preserves the task/model reloads and whole-file MATCH. */
+/* Camera, height and position are snapshotted early, while frame, model and resource-chain pointers
+ * are reloaded after callbacks. */
 void FldShadow_UpdateModelShadow(u8 *unused, u8 *state)
 {
     RwV3d position;
@@ -810,7 +788,6 @@ void FldShadow_UpdateModelShadow(u8 *unused, u8 *state)
 
 /* Restore model flags, item slots, and color, then finish the shadow camera pass. */
 // FUN_0017C670
-/* measured: typed resource/camera aliases preserve the model restore and depth reads and whole-file MATCH. */
 void FldShadow_DrawBlobModel(u8 *packet, s32 stateAddress, void *callbackSelf)
 {
     u8 *state = (u8 *)stateAddress;
@@ -871,10 +848,8 @@ void FldShadow_DrawBlobModel(u8 *packet, s32 stateAddress, void *callbackSelf)
 }
 
 
-
 /* Build and flush the shadow command queue for scene and model resource lists. */
 // FUN_0017C930
-/* measured: per-iteration resource aliases preserve the queued model/task reloads and whole-file MATCH. */
 s32 FldShadow_CasterStep(u8 *task)
 {
     extern u8 *MT_Scene_GetResListHead(s32);

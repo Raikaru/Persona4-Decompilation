@@ -218,7 +218,6 @@ typedef struct {
     u8 c1f;
 } Frame00121DE0;
 
-/* measured: closes the optimization_level bracket at the file's -O2 baseline (nd 0). */
 #pragma optimization_level 2
 
 /* Unit setting: propagation off; palette/title drawing and child-image drawing retain propagation. */
@@ -242,18 +241,13 @@ typedef struct {
     f32 f;
 } Code1GlobalPair12;
 
-/* Floor: 844 differing words (was 900), 967 of 964 instrs (+3, +0.3% well inside 3% band, 26 slack to 993 edge; was 993/+29 edge), 932 fnalign edits (was 1077). Surplus was 6 extra clamped float->u8 (cvt.w.s/mfc1 +12, c.ole/sub/bc1t +6, lui +6) from double-converting white via f intermediates + a2; fix is u32 r/g/b for retail's unsigned bltz/srl doubling, a0 as (s32)(f32)*(s32 *) for lwc1/cvt.s.w/cvt.w.s/mfc1, and 5 of 6 f intermediates folded to direct sums (first f0 double retained to center count). Cheap causes ruled out: all literals f-suffixed, 13 jals both with no __ soft-float relocs, no 2.0f in body (mul.s 3/3). Gate 8 inside 0 outside. Body also at docs/probe_archive/Lane0012_00124f70_body.c; production stays ASM. */
-/* measured 2026-09-18: reconstructed from bare marker (retail 0x00124F70, 3856B window, 964 instrs). v1c baseline 921 (Ghidra-direct, [6] frame exact at 0x360; [8] gave 0x370 at 922). v2 908 (-13: D_5530/40 array not scalar + 002aaf20 640/448 not 512/480,512/1216). v3 904 (-4: flag beqz polarity + col order + buffers address-ascending). v4 903 (-1: buffers descending, first-declared highest per micro stacktest2). v5 900 (-3: explicit p5234/5230/524C/5248/5244/5240/523C/5238 locals, first two spill to 0xA0/0xB0). Free pragmas tie/worse: loopinv 922 (+1), nounroll 921 tie, sched 921 tie, propoff 943 (+22), commonsubs 940 (+19). 7o eight skipped: body already in 7o form (bare decls + statement assigns, no Type name = ...; initialisers). Full proof in archive. */
-/* Title palettes contain six complete four-byte RGBA values. Native value
- * assignment through the byte-storage view preserves the copied object.
- * Measured: 3852/3856 bytes, with one zero alignment word. */
+/* Title palettes contain six complete four-byte RGBA values, copied through the byte-storage view. */
 
 typedef union { f32 value; u8 bytes[4]; } TitleDrawColor;
 typedef char TitleDrawColorSizeCheck[sizeof(TitleDrawColor) == 4 ? 1 : -1];
 
 
 extern void titleVisualSubmitRect(f32 x, f32 y, f32 depth, u8 *color, f32 width, f32 height, s32 flags, void *queue);
-
 
 
 /* Blend an unsigned palette channel toward its target and narrow to one byte. */
@@ -315,66 +309,12 @@ extern TitleRect D_005E5590;
 extern TitleRect D_005E55A0;
 
 
-/* 1288/1296 bytes (two words of padding); relocations: D_005E5590,
-   D_005E55A0, this function's literal pool at gp-0x7DD0..-0x7D64, and the
-   called functions.  The eight rings share one inline shape: size is
-   64 * scale, the position is the centre minus size, and b210 folds each
-   product and difference into the pool (radius, x, y, scale per ring) while
-   still converting the radius at run time.  The screen colour and the two
-   rectangles are copied into scratch locals declared ahead of their
-   sources, which is what fixes retail's frame slots (0x7C/0x60 above
-   0x78/0x74/0x70 and 0x50/0x40). */
-/* The caller passes 0.0f in $f12-$f14 ahead of the colour and task
-   (retail titleDrawTaskView); the three floats are unused here. */
-/* measured: archived build/func_001265a0_floor_v1.c (1791L m2c) + jtbl-bound fix cases 10-15 to tail per ELF jtbl_00746730 dump at file-off 0x6467B0 (16 entries 0:26660,1-2:26664,3:26688,4-5:2679C,6-7:29778,8-9:2A024,10-15:2A948 tail; sltiu 0xa->0x10 exact). Installed fnalign retail 4404/object 4404 (exact, 0.0%, 80 edits +124 reloc-only) via `python3 tools/fnalign.py src/promoted/code1_0012.c func_001265a0`; probe 3842 words via measure_guarded. Candidate-method fnalign (--candidate floor) reports retail 4400/object 3779 (-14.1%, 6325 edits) due to scratch-vs-real TU compilation difference (header/guard placement), not body quality; installed is exact. Call census: all 202 retail jals +14 jalr have counterparts (30x0045d6e0,22x0025f3f0,17x0044b7b0,14x003f6440/002aaf20/002aaac0,11x0048a000/00489f80,etc.). Loops: 40 retail backward branches (30x6-instr zeroing +8x8-instr bgtz copy +3 large 414/240/240 at 0x126D9C/0x12742C/0x129B0C) all present as draft loop_93/loop_128/loop_351 + 4-word do-whiles. Frame -0x6C0 exact, sltiu 0x10 exact. Residual 80 edits are lui symbol materialization (0x5e vs 0) + MMI lq/add_a.w vs plain + VU0 adda/madd + scheduling, no missing regions by address (no deletes in installed alignment). */
-/* gate: func_001265a0 is INSIDE the +-3% band at 4404 against retail 4404 (+0.0%, band
-   4272-4536), deficit 0, via --candidate measurement 2026-09-20.  Filled the 46-run
-   (0x12A794-0x12A84C) that deficit_scan named ABSENT: the empty-if at 0x12A7F4 is the
-   same defect as its 0x12A794 neighbour - retail's 0.25f normalization
-   ((f32)(0x20<<16)+0.25f*(f32)((0x20-0x24)<<16)-(f32)0x28), (s32) compare, recomputed $3
-   ((f32)$2+$f1), and 32.0f*((f32)$3/65535.0f)+327.0f madd for the first 0x10006
-   shdSpriteDrawNow call, which m2c had left as an empty if plus blend/0.0f args.  The 46
-   dissolves into small register-color replaces; deficit_scan now reports only CROSS runs
-   (2350 at 0x127930, 142 at 0x129E18, 48 at 0x12A6F8) with mtc1 +207/lui +108/sb +40.
-   Prior stamp described 4348/4400 -1.2% deficit 52 (15 color channels + quantized factor;
-   159-run and 104-run dissolved; 2350/142/46 phantoms + sb+40/lwc1+37/empty-if gaps) and
-   3779/-14.1% floor, kept for history.  Candidate fnalign is 6509 edits +15 reloc-only,
-   probe 3903 words (base 3899); installed TU stays 74 MATCH/8 ASM with func_0012d630
-   untouched.  The old 4404/4404 +0.0% 80-edit number came from running `fnalign.py
-   <file> <func>` with NO --candidate on this guarded floor, which compiles the
-   INCLUDE_ASM fallback and therefore aligns retail against itself; fnalign now refuses
-   that invocation outright and tests/test_fnalign.py pins it. */
-/* fix 2026-09-20: old 4404/4404 was two errors cancelling, not evidence the body was right. */
-/* Historical count-only experiments used the wrong alpha-scratch value for
- * temp_10. Retail 0x1291FC keeps 137.0f * scale in f2 while f0 converts alpha;
- * 0x129268 then converts f2 and narrows its signed integer to 16 bits. The
- * guarded source now preserves that independent value flow, not just width.
- * The adjacent scale uses separate mul.s/add.s rounding. Other upstream
- * ACC placeholders remain outside this bounded sprite-alpha repair. */
-/* measured 2026-09-29: canonical TitleRect payload reads compile the guarded
- * body to 17072/17616 bytes, nd 3941. Earlier scores above are historical;
- * this body remains assembly-backed.
-   2026-10-08: opt_lifetimes on lowers fnalign from 3558 to 3424 edits. */
-/* 2026-10-09: 3424 -> 3340 edits: m2c's expanded float-to-unsigned conversions are plain (u32) casts. Open, found by comparing the retail lui constants: the m2c body drops several sinf results and leaves `temp_f20 * temp_f21 +/- temp_f7 * temp_f8` placeholders where retail has adda/madd chains with constants such as 200 - 700 * (1 - (1 + sin) / 2) (0x00126C48). */
+/* The caller passes 0.0f for three unused float arguments ahead of the colour and task; the eight
+ * rings share one shape (size 64 scale, position centre minus size). */
 
 
-/* Matching notes for the title-screen draw:
- * - Rectangle and background-colour constants go through TitleRect /
- *   TitleDrawColor locals (retail stores each constant, then copies it);
- *   D_005E538C/D_005E53B4 are absolute arrays (lui/lw %lo).
- * - Task fields are TitleTaskView members so b210 does not hoist the
- *   address arithmetic; each (8,1)/(6,1) call pair uses an integer-cast
- *   fnTable so the table address stays in $s1.
- * - Palette glows follow titleDrawScene (titleCopySelect,
- *   titlePaletteChannel); alpha bytes convert float -> u8 inside the calls.
- * - Commutative FP orders come from reusing multi-definition floats
- *   (lerpT, temp_f2, temp_f13_28); 1 - t is a separate step.
- * - Range tests use retail's `> N - 1` / `> N` forms.
- * - The record-delta counter reuses temp_2 (dead there), so its live range is
- *   numbered after the hoisted 0xFFFFFF constant: retail's $s1/$s2.
- * - Record pointers 2-5 go through ((u8 *)((u32)(offset-first addu) + (u32)@1@)).
- */
-/* measured: baseline lifetimes gives nd8614; the attempted block-local counter is not accepted by b210 C. */
+/* measured: retail's register allocation for the title-screen draw needs opt_lifetimes on; a block-
+ * local counter is not accepted here. */
 #pragma opt_lifetimes on
 /* The scene table has a 0x28-byte stride; draw and update read the same rows. */
 typedef struct TitleRecordBlock {
@@ -436,11 +376,8 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
 
 void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 opacity, u8 *context);
 
-/* Render title scenes, animated logos, palette highlights and transition bars.
- * The draw queue supplies node+0x1C, then the task stored at node+0x10.
- * Only the task reaches the word-returning work accessor; the first payload
- * is a real, unused callback input. See Title_entry_contract_001265a0_20261003. */
-// Kept in bucket: diff 395 when moved; cause not diagnosed (uses static inline titleCopyRect and titleCopySelect).
+/* Renders title scenes, animated logos, palette highlights and transition bars. The draw queue
+ * passes an unused payload first, then the task, which alone reaches the work accessor. */
 // FUN_001265A0
 void titleDrawTaskView(void *unusedDrawData, void *task) {
     f32 sceneFade;
@@ -854,7 +791,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
                 RpSkyRenderStateSet(2, 0x48);
                 shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, 0xFFFFFFU, 0x2D, 0, 0, titleTask->sprites, 0);
             }
-            /* Retail colors at sp+0x684 and sp+0x688 are distinct four-byte objects. */
+            /* Retail keeps the two layer colours as separate four-byte objects. */
             layerClearByte = layerColorSource.bytes;
             layerClearCount = 4;
             if (layerClearByte != NULL) {
@@ -876,7 +813,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
             }
             titleDrawShadeBars(0.0f, 0.0f, 0.0f, 0xFF, (u8 *)workWords);
             if (frame >= 0xCD) {
-                /* Retail sp+0x67C is cleared bytewise before its independent value copy. */
+                /* Retail clears the overlay colour byte by byte before copying its value. */
                 overlayClearByte = firstOverlaySource.bytes;
                 overlayClearCount = 4;
                 if (overlayClearByte != NULL) {
@@ -1779,22 +1716,15 @@ static inline void titleQuaternionMatrix(Code12FrameMatrix *matrix, const Code12
     matrix->pos.z = 0.0f;
     matrix->flags = 3;
 }
-/* measured: removing propagation suppression gives nd1978; retain the callback's scoped setting. */
+/* measured: the callback needs propagation suppression to keep retail's value flow. */
 s32 fadeStatus(void);
 
 s32 taskLoadSlotModels(u8 *context);
 
 s32 titleMusicStreamStep(u8 *context);
 
-/* Native b210 O2: 3056/3056 bytes, 105 resolved relocations and the
- * complete 17-entry switch table at 0x00746770. Complete vector and
- * matrix objects retain the original stack transfers; reset-phase
- * models and the queued draw task have separate value lifetimes.
- * See docs/probe_archive/Menu_callback_0012aa70_20260923.md. */
-// Kept in bucket: diff 1978 when moved; cause not diagnosed (uses static inline titleQuaternionMatrix).
 /* Drive title loading, camera setup, input, configuration and exit fades. */
 // FUN_0012AA70
-/* Historical full-layout typing: 3056 -> 3072 bytes, normalized_diff 1475. Access-site and separate typed-local probes now keep every member matched. */
 
 
 s32 titleTaskUpdate(u8 *task)
@@ -2201,9 +2131,8 @@ void titleDrawChildImage(s32 unused, s32 task)
 }
 
 #pragma pop
-/* measured: invariant hoisting is redundant here; propagation suppression alone
-   keeps all 532 code bytes matched (both removed: nd246). */
-// Kept in bucket: diff 207 when moved; cause not diagnosed.
+/* measured: only copy propagation needs suppressing here; turning off invariant hoisting as well
+ * changes nothing. */
 typedef struct {
     Vec2f startPosition;
     Vec2f endPosition;
@@ -2240,7 +2169,6 @@ typedef char CampMenuWorkSize[(sizeof(CampMenuWork) == 0x2A4) ? 1 : -1];
 
 /* Create the title selector sprite banks and filter its visible options. */
 // FUN_0012D410
-/* Historical full-layout typing: 560/544 bytes, normalized_diff 255. Access-site probes now keep all matching members. */
 void titleSlotTableInit(u8 *menu)
 {
     u32 spritePack;
@@ -2322,18 +2250,12 @@ void titleSlotTableInit(u8 *menu)
     ((CampMenuWork *)(menu))->optionCount = optionCount;
     titleSlotSetMode(menu, 0);
 }
-/* The menu owns eleven complete tween records and three seven-sprite banks.
- * measured: native b210 -O2 emits 1348 exact bytes plus 12 zero alignment bytes.
- * Scoped propagation preserves the selected sprite/opacity snapshots and the
- * two metadata color loads before their zero-depth argument transfers.
- * See docs/probe_archive/Camp_renderer_0012d630_complete_20260922.md. */
+/* The menu owns eleven tween records and three seven-sprite banks; propagation suppression keeps
+ * the sprite/opacity snapshots and colour loads ahead of their argument transfers. */
 
 
-/* measured: delayed alpha loading still gives nd43 without propagation suppression. */
-// Kept in bucket: diff 43 when moved; cause not diagnosed.
 /* Advance title selector tweens and draw each visible option; return completion. */
 // FUN_0012D630
-/* Historical update-phase typing: 1364/1360 bytes, normalized_diff 979. The separate menuWork pointer preserves all frame accesses. */
 
 
 s32 titleSlotUpdateAndDraw(u8 *menu)
@@ -2476,15 +2398,13 @@ s32 titleSlotUpdateAndDraw(u8 *menu)
     return finished;
 }
 
-/* Empty optimizer probes left by moved functions were removed; no body uses them. */
 extern u8 D_005E58C0[];
 extern u8 D_005E59A0[];
 extern u8 D_005E5A80[];
 extern void titleLayoutSlots(u8 *menu);
 
-/* measured: propagation and constant extraction off preserve cached
- * opacity values and the independent animation-row evaluations. */
-/* measured: baseline constant extraction gives nd1452 even with propagation suppressed. */
+/* measured: constant extraction is off so retail's cached opacity values and separate per-row
+ * animation evaluations are kept. */
 #pragma push
 #pragma opt_pulloutconstants off
 /* The label renderer reads these fields at offsets 0x00..0x18. */
@@ -2511,12 +2431,10 @@ typedef struct {
     s32 rows;
 } CampGridCell;
 
-/* Draw the animated item list, selection, scrollbar, and background grid.
- * Native b210 -O2: 5148 executable bytes and four zero alignment bytes.
- * Preserve the independent position/opacity views across renderer calls. */
-// Kept in bucket: diff 1481 when moved; cause not diagnosed.
+/* Draw the animated item list, selection, scrollbar, and background grid. Position and opacity
+ * views stay independent across renderer calls. */
 // FUN_0012E9D0
-/* Historical full-layout typing: 5200/5152 bytes, normalized_diff 4107. A separate radarWork pointer keeps the remaining flag and selection accesses matched. */
+/* A separate radarWork pointer is used for the flag and selection accesses. */
 void radarDrawPanel(u8 *state)
 {
     extern void sdkRenderStateSetDefault(void);

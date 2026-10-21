@@ -20,8 +20,8 @@ typedef struct BtlPacket BtlPacket;
 #include "datCalc_internal.h"
 #include "btl_hud_internal.h"
 
-/* Unit settings: extract loop invariants throughout the panel and selection callbacks.
- * measured: all 81 functions MATCH with the sprite-grid and target-marking exceptions below. */
+/* measured: retail hoists loop invariants throughout the panel and selection callbacks, except for
+ * the sprite-grid and target-marking routines below. */
 #pragma opt_loop_invariants on
 
 typedef struct RwMatrix RwMatrix;
@@ -157,8 +157,6 @@ extern void btlPanelDrawSkyFrame(s32 unused, u8 *panel);
 extern void btlSelectionInitTransition(u8 *transition, s32 task);
 extern void btlSelectionDrawTargetFrame(u8 *unused, u8 *transition);
 extern u8 D_006253B0[];
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00202c60-0020bfd0 */
 
 extern void btlUiSetOrigin(u8 *work, f32 x, f32 y);
 extern void btlUiSetRenderStates(void);
@@ -316,16 +314,7 @@ extern void btlPanelMarkEntryTimed(s32 task);
 extern void btlPanelSetTarget(u8 *task, s32 unit);
 extern void btlSelectionSetRowIdle(u8 *row);
 extern u16 D_008C024E[];
-/* measured: caching D_00887300 in s0 reproduces retail's one-time
-   lui/addiu vtable materialization across these callback calls. */
-/* measured: close the vtable propagation probe and restore default state. */
-/* Keep the opacity base ahead of byte promotion, matching retail order. */
-/* Measured: 676/688 bytes, seven resolved relocations and twelve zero alignment bytes.
- * Snapshot inputs before providers; reload the skill fields and final output
- * metadata at their retail callback boundaries. */
-/* measured: opt_rebuildconditionals off tested for callback completion. */
-/* measured: restore conditional rebuilding after callback completion. */
-// Intent: initialise a selection block with its callbacks and owner. [inferred]
+/* Initialise a selection block with its callbacks and owner. */
 // FUN_00202C60
 void btlSelectionInit(u8 *selection, s16 pageSize, s16 count, void *initialize, void *handleInput, void *draw, void *saveCursor, u8 *owner) {
     memset(selection, 0, 0x34);
@@ -340,7 +329,7 @@ void btlSelectionInit(u8 *selection, s16 pageSize, s16 count, void *initialize, 
     btlSelectionSetRepeat(selection, NULL);
 }
 
-// Intent: recompute the visible selection window (first row and page) from the selected index. [inferred]
+// Recompute the visible selection window (first row and page) from the selected index.
 // FUN_00202D20
 void btlSelectionUpdateWindow(u8 *selection, s64 selectedIndex, s64 firstIndex)
 {
@@ -384,7 +373,7 @@ void btlSelectionUpdateWindow(u8 *selection, s64 selectedIndex, s64 firstIndex)
     ((BtlSelection *)selection)->selected = (u16)selectedIndex;
 }
 
-// Intent: set the key-repeat masks from a table or the default repeat values. [inferred]
+// Set the key-repeat masks from a table, or use the default repeat values.
 // FUN_00202E00
 void btlSelectionSetRepeat(u8 *selection, s16 *repeatMasks)
 {
@@ -398,16 +387,14 @@ void btlSelectionSetRepeat(u8 *selection, s16 *repeatMasks)
     ((BtlSelection *)selection)->nextPage = 0x2000;
 }
 
-// Intent: store the owner pointer of a selection block. [inferred]
+// Store the notify callback of a selection block.
 // FUN_00202E60
 void btlSelectionSetOwner(u8 *selection, void *callback)
 {
     ((BtlSelection *)selection)->notify = callback;
 }
 
-/* measured: btlSelectionReadInput MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd68; scoped locals, inverted if/else did not match (best nd68); retain opt_loop_invariants on. */
-// Intent: read the selection input and return the action code (1 to 4) or 0. [inferred]
+/* Reads the selection input and returns the action code (1 to 4), or 0 if there is none. */
 // FUN_00202E70
 s32 btlSelectionReadInput(u8 *input)
 {
@@ -571,7 +558,7 @@ s32 btlSelectionReadInput(u8 *input)
     return 0;
 }
 
-// Intent: start a callback list at the given node and run each node's init callback. [inferred]
+// Start a callback list at the given node and run each node's init callback.
 // FUN_00203360
 void btlListStart(u8 *list, u8 *head) {
     u8 *next;
@@ -590,9 +577,8 @@ void btlListStart(u8 *list, u8 *head) {
     }
 }
 
-// Intent: flush a callback list by running each node's exit callback and clearing the head. [inferred]
+// Flush a callback list by running each node's exit callback, then clear the head.
 // FUN_002033C0
-/* measured: access-site, typed-local and array forms lose MATCH for the 1 MEMBER access; other fields use typed aliases. */
 void btlListFlush(u8 *list) {
     u8 *next;
     u8 *node;
@@ -606,9 +592,8 @@ void btlListFlush(u8 *list) {
     ((BtlSelectionList *)list)->head = NULL;
 }
 
-// Intent: advance the callback list according to the node's result code (stay, push, pop). [inferred]
+// Advance the callback list according to the node's result code (stay, push, pop).
 // FUN_00203420
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
 s32 btlListStep(u8 *list)
 {
     BtlSelectionList *selectionList = (BtlSelectionList *)list;
@@ -667,9 +652,8 @@ s32 btlListStep(u8 *list)
     return result;
 }
 
-// Intent: run each list node's update callback with the list owner. [inferred]
+// Run each list node's draw callback with the list owner.
 // FUN_002035A0
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
 void btlListDispatchUpdate(u8 *list) {
     u8 *node;
 
@@ -680,9 +664,8 @@ void btlListDispatchUpdate(u8 *list) {
     }
 }
 
-// Intent: run each list node's optional callback with the list owner. [inferred]
+// Run each list node's optional notify callback with the list owner.
 // FUN_00203600
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
 void btlListDispatchNotify(u8 *list) {
     u8 *node;
 
@@ -696,8 +679,7 @@ void btlListDispatchNotify(u8 *list) {
     }
 }
 
-/* measured: callback materialisation residual remains. Committed at nd 73. */
-// Intent: initialise the battle panel task state and its selection block. [inferred]
+/* Initialises the battle panel task state and its selection block. */
 // FUN_00203670
 void btlPanelInit(s32 unused, s32 actionAddress)
 {
@@ -745,10 +727,8 @@ void btlPanelInit(s32 unused, s32 actionAddress)
     ((BtlPanelWork *)panel)->list.unk04 = 0;
 }
 
-/* This and the selection helpers take the caller's task explicitly. Retail
- * forwards that argument to the work getter; an empty C parameter list loses
- * the contract even when the argument register happens to retain the value. */
-// Intent: set the panel task state to active. [inferred]
+/* Sets the panel task state to active; like the selection helpers, it takes the caller's task
+ * explicitly and forwards it to the work getter. */
 // FUN_002037B0
 void btlPanelSetActive(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
@@ -758,7 +738,7 @@ void btlPanelSetActive(s32 task) {
     ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->state = 1;
 }
 
-// Intent: return the panel task state. [inferred]
+// Return the panel task state.
 // FUN_002037E0
 u16 btlPanelGetState(void) {
     return ((BtlPanelWork *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork())->panel)->state;
@@ -780,7 +760,7 @@ s32 btlPanelIsCommandSelectionActive(void)
     return (s32)(currentAddress == (s32)selectionAddress);
 }
 
-// Intent: report whether the panel task is ready (state below 2). [inferred]
+// Report whether the panel is ready (command frame below 2).
 // FUN_00203850
 s32 btlPanelIsReady(void)
 {
@@ -793,7 +773,7 @@ void btlPanelOnTargetAction(s32 unusedTask, s32 unusedAction)
 {
 }
 
-// Intent: set the panel task state to closing. [inferred]
+// Set the panel task state to closing.
 // FUN_00203890
 void btlPanelSetClosing(void) {
     u8 *taskWork;
@@ -802,9 +782,8 @@ void btlPanelSetClosing(void) {
     ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->state = 4;
 }
 
-// Intent: reset the panel task state, list and sub-task pointers. [inferred]
+// Reset the panel task state, list and sub-task pointers.
 // FUN_002038C0
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
 void btlPanelReset(s32 task) {
 
     u8 *panel = (u8 *)kwlnTaskGetWork((void *)task) + 0x9C;
@@ -821,11 +800,9 @@ void btlPanelReset(s32 task) {
     *(s16 *)panel = 0;
 }
 
-/* The outline and fill use separate initialization cursors and renderer
- * phases. Each fill edge writes a pair of adjacent 64-byte vertices. */
-/* measured: btlPanelDrawOutlineFill MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd2750; scoped locals did not match (best nd2750); retain opt_loop_invariants on. */
-// Intent: draw a 19-point curved panel outline and its fill quad with the given scale and colour. [inferred]
+/* Draws a 19-point curved panel outline and its fill quad with the given scale and colour. Outline
+ * and fill use separate init cursors and renderer phases; each fill edge writes two adjacent
+ * 64-byte vertices. */
 // FUN_00203930
 void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 b, s32 a)
 {
@@ -1136,15 +1113,11 @@ void btlPanelDrawOutlineFill(u8 *unused, f32 scaleX, f32 scaleY, u8 r, u8 g, u8 
     draw->draw(4, lo, 38);
 }
 
-/*
- * measured: 916/928 bytes, 15 resolved relocations, 12 zero alignment bytes.
- * The initialization loop covers 81 real vertex records; the four geometry
- * phases supply 77 vertices. Keep each quadrant cursor's separate lifetime.
- */
-// Intent: draw an 81-vertex radial disc with the given scale, depth and colour. [inferred]
+/* Draws an 81-vertex radial disc with the given scale, depth and colour; the four geometry phases
+ * supply 77 vertices, each quadrant cursor keeping a separate lifetime. */
 // FUN_00204690
-/* measured: btlPanelDrawCircle MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd693; scoped locals, explicit value caches did not match (best nd693); retain opt_loop_invariants on. */
+/* measured: retail hoists loop-invariant values out of the vertex loop, so opt_loop_invariants must
+ * stay on here. */
 void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color)
 {
     f32 vertices[81][16];
@@ -1215,11 +1188,10 @@ void btlPanelDrawCircle(u8 *unused, f32 scaleX, f32 scaleY, f32 depth, s32 color
     D_00887310[0](5, vertices, vertex);
 }
 
-/* measured: opt_propagation off probe for callback cache in func_00204a30. */
-/* measured: btlPanelDrawBackdrop MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd92; object/dispatch locals did not match (best nd92); retain opt_propagation off. */
+/* measured: retail keeps the callback table pointer cached instead of reloading it, which needs
+ * propagation disabled for btlPanelDrawBackdrop. */
 #pragma opt_propagation off
-// Intent: set up the sky render state and draw the backdrop disc. [inferred]
+// Set up the sky render state and draw the backdrop disc.
 // FUN_00204A30
 /* The rectangle wrapper consumes integer coordinate bits through its float-word interface; the
  * RGBA cast likewise passes four packed bytes without numeric conversion. */
@@ -1251,18 +1223,17 @@ void btlPanelDrawBackdrop(u8 *glyphs, f32 scaleX, f32 scaleY)
     base[0](8, 0);
 }
 
-/* measured: close callback cache probe for func_00204a30. */
-/* measured: btlPanelDrawBackdropGrid, btlPanelDrawFrame, btlSelectionDrawBar, btlSelectionDrawCommands, btlSelectionDrawCurrentLabel, btlSelectionDrawItemPanel, btlSelectionDrawList, btlSelectionDrawSkillPanel, btlSelectionDrawSlideIn, btlSelectionDrawSwapPanel, btlSelectionDrawTitle, btlSelectionHandleInput, btlSelectionHandleSkillInput, btlSelectionOpenSubList MATCH -> MISMATCH without this pragma. */
+/* measured: the battle selection and panel draw functions need propagation re-enabled here to
+ * reproduce retail code. */
 #pragma opt_propagation on
-/* 460/464 bytes; 13 resolved relocations; four zero alignment bytes.
- * Forward byte opacity and reload the render-state callback for every call. */
+/* Forward byte opacity and reload the render-state callback for every call. */
 #pragma push
-/* measured: btlPanelDrawSpriteGrid MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd306; scoped locals did not match (best nd306); retain opt_propagation off. */
+/* measured: copy propagation must stay off for btlPanelDrawSpriteGrid to keep retail's register
+ * reuse. */
 #pragma opt_propagation off
-/* measured: the unit's invariant hoisting changes 332 bytes in the sprite grid. */
+/* measured: retail does not hoist loop invariants out of the sprite grid loops. */
 #pragma opt_loop_invariants off
-// Intent: draw a 3 by 5 grid of sprite frames with the given opacity. [inferred]
+// Draw a 3 by 5 grid of sprite frames with the given opacity.
 // FUN_00204B80
 void btlPanelDrawSpriteGrid(u8 *glyphs, f32 unusedScaleX, f32 unusedScaleY, u8 opacity)
 {
@@ -1307,7 +1278,7 @@ void btlPanelDrawSpriteGrid(u8 *glyphs, f32 unusedScaleX, f32 unusedScaleY, u8 o
 }
 
 #pragma pop
-// Intent: clear the task's flag word and its active bit. [inferred]
+// Clear the panel's grid frame and its active bit.
 // FUN_00204D50
 void btlPanelClearFlag(s32 task)
 {
@@ -1319,7 +1290,7 @@ void btlPanelClearFlag(s32 task)
     ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->flags &= ~1;
 }
 
-// Intent: set the active bit of the task's state word. [inferred]
+// Set the active bit of the panel's flags.
 // FUN_00204D90
 void btlPanelSetFlag(void)
 {
@@ -1329,12 +1300,12 @@ void btlPanelSetFlag(void)
     ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->flags = ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->flags | 0x1;
 }
 
-// Intent: draw a rotated battle-panel strip with an optional transparent extension. [inferred]
+// Draw a rotated battle-panel strip with an optional transparent extension.
 // FUN_00204DC0
 /* Shared exception for the following strip and four entry renderers. */
 #pragma push
-/* measured: btlPanelDrawStrip MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd668; scoped locals did not match (best nd666); retain opt_propagation off. */
+/* measured: retail does not propagate copies in this strip renderer, and scoping the locals
+ * differently does not reproduce that. */
 #pragma opt_propagation off
 void btlPanelDrawStrip(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, s32 extend)
 {
@@ -1476,15 +1447,12 @@ void btlPanelDrawStrip(s32 index, f32 inputX, f32 inputY, f32 depth, f32 angle, 
     }
 }
 
-// Intent: draw one skill row (icon, name and cost digits) at the given position. [inferred]
+// Draw one skill row (icon, name and cost digits) at the given position.
 // FUN_00205170
-/* measured: btlPanelDrawSkillEntry MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd736; typed parameter cache, scoped locals, inverted if/else did not match (best nd736); retain opt_common_subs off. */
-/* Shared entry-renderer setting through btlPanelDrawPersonaName. */
+/* measured: the skill entry renderer needs common-subexpression optimization off to match retail;
+ * typed caches and reordered branches do not substitute. */
 #pragma opt_common_subs off
-/* measured: btlPanelDrawSkillEntry MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd736; typed parameter cache, scoped locals, inverted if/else did not match (best nd736); retain opt_propagation off. */
-/* measured: direct skill indexing changed two compared bytes; preserving the byte base matches. Raw reloads still lose MATCH. */
+/* Skill entries are indexed from a byte base pointer, not a typed array. */
 void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
 {
@@ -1575,21 +1543,18 @@ void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
     }
 }
 
-/* 888/896 bytes; twelve resolved relocations and eight zero alignment bytes.
- * Narrow the promoted row ID at helper boundaries. The four-byte color
- * has byte and packed-word views; reload the signed number after drawing. */
+/* Narrow the row ID at helper boundaries; the colour has byte and packed-word views, and the signed
+ * number is reloaded after drawing. */
 #pragma push
-/* measured: btlPanelDrawEntry MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd572; scoped locals, inverted if/else did not match (best nd572); retain opt_rebuildconditionals off. */
+/* measured: retail keeps the original conditional branch layout in btlPanelDrawEntry, which rebuilt
+ * conditionals would restructure. */
 #pragma opt_rebuildconditionals off
-/* measured: btlPanelDrawEntry MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd572; scoped locals, inverted if/else did not match (best nd572); retain opt_common_subs off. */
-/* measured: btlPanelDrawEntry MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd572; scoped locals, inverted if/else did not match (best nd572); retain opt_propagation off. */
-// Intent: draw one entry row (icon, name, digit and optional detail label). [inferred]
+/* measured: btlPanelDrawEntry only matches retail with common-subexpression and propagation
+ * optimizations off. Draws one entry row: icon, name, digit and optional detail label. */
+/* Draw one item row of the battle panel with its icon, name and two-digit quantity, and optionally
+ * its category label. The row is dimmed when highlighted is set. */
 // FUN_002055D0
-/* measured: independently typing the remaining item id/quantity indexing lost MATCH; retain the
- * shared byte offset and signed quantity load. */
+/* Item id and quantity share one byte offset; the quantity is loaded signed. */
 void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
 {
@@ -1673,13 +1638,7 @@ void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
 }
 
 #pragma pop
-/* 712/720 bytes; twelve resolved relocations; eight zero alignment bytes.
- * Keep the shared decimal divisor and the branch-local byte tones. */
-/* measured: btlPanelDrawPersonaLevel MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd128; scoped locals, inverted if/else did not match (best nd128); retain opt_common_subs off. */
-/* measured: btlPanelDrawPersonaLevel MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd128; scoped locals, inverted if/else did not match (best nd128); retain opt_propagation off. */
-// Intent: draw a persona row with its lead marker, level digits and name. [inferred]
+/* Draws a persona row with its lead marker, level digits and name. */
 // FUN_00205950
 void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
@@ -1738,17 +1697,15 @@ void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
     frFontClearFlagBits(0x40);
 }
 
-/* 468/480 bytes; eight resolved relocations; twelve zero alignment bytes.
- * Keep branch-local tones and the two-channel cache after text coordinates. */
+/* Keep branch-local tones and the two-channel cache after text coordinates. */
 #pragma push
-/* measured: btlPanelDrawPersonaName MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd269; object/dispatch locals, inverted if/else did not match (best nd98); retain opt_rebuildconditionals off. */
+/* measured: retail keeps the original if/else shape; btlPanelDrawPersonaName needs conditional
+ * rebuilding off. */
 #pragma opt_rebuildconditionals off
-/* measured: btlPanelDrawPersonaName MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd269; object/dispatch locals, inverted if/else did not match (best nd98); retain opt_common_subs off. */
-/* measured: btlPanelDrawPersonaName MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd269; object/dispatch locals, inverted if/else did not match (best nd98); retain opt_propagation off. */
-// Intent: draw a persona name and its two sprite marks. [inferred]
+/* measured: retail keeps the original branch layout and repeated loads in btlPanelDrawPersonaName,
+ * so common-subexpression and propagation passes stay off. */
+/* Draw the persona name for a panel slot, followed by a fixed mark sprite and the sprite for its AI
+ * tactic. */
 // FUN_00205C20
 void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
                    u8 opacity, s32 highlighted, s32 showDetail)
@@ -1789,13 +1746,12 @@ void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
 
 #pragma pop
 #pragma pop
-/* 488/496 bytes; seven resolved relocations; eight zero alignment bytes.
- * Preserve the two narrow tone assignments instead of rebuilding a merge. */
+/* Keep the two separate narrow tone assignments rather than a merged one. */
 #pragma push
-/* measured: btlPanelDrawListRow MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd279; scoped locals did not match (best nd279); retain opt_rebuildconditionals off. */
+/* measured: retail keeps the separate conditional branches, which rebuilding conditionals would
+ * merge. */
 #pragma opt_rebuildconditionals off
-// Intent: draw one list row with its marker sprites and optional text. [inferred]
+// Draw one list row with its marker sprites and optional text.
 // FUN_00205E00
 void btlPanelDrawListRow(u8 *panel, s32 index, f32 x, f32 y,
                    u8 opacity, s32 selected, s32 drawText)
@@ -1822,13 +1778,8 @@ void btlPanelDrawListRow(u8 *panel, s32 index, f32 x, f32 y,
 }
 
 #pragma pop
-/* Native b210 O2: 3548/3552 bytes; 28 resolved relocations and
- * four zero alignment bytes. Distinct literal/cached bounds and
- * successive coordinate work preserve the original evaluation
- * order. See docs/probe_archive/Battle_selection_00205ff0_20260923.md. */
-// Intent: draw the battle selection list, rows and highlight, through the render callback. [inferred]
+/* Draw the battle selection list, rows and highlight, through the render callback. */
 // FUN_00205FF0
-/* measured: access-site, typed-local and array forms lose MATCH for the 1 MEMBER access; other fields use typed aliases. */
 void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 scaleY, BtlSelectionDraw callback)
 {
     extern u32 kwlnTaskGetWork(void *task);
@@ -1847,10 +1798,8 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
     f32 upperEdgeY;
     f32 verticalWork;
     f32 horizontalWork;
-    /* These are successive real work values: the incoming scale is consumed
-     * before the selected-row displacement replaces it; the easing slope is
-     * consumed before progress and its rescaled opacity phase replace it.
-     * Keeping this declaration order reproduces the retail saved registers. */
+    /* Successive work values reuse locals: scale then row displacement, easing slope then progress
+     * and opacity phase; declaration order follows retail. */
     f32 scaleOrRowY;
     f32 easingWork;
     s32 showPrompt;
@@ -1858,10 +1807,8 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
     s32 sliding;
     s32 row;
     s32 count;
-    /* The rectangle is copied as four float-sized words by the primitive
-     * wrapper, then interpreted as signed integer coordinates by its builder.
-     * Both complete views cover the same sixteen-byte object. The twelve-byte
-     * gap preserves retail's color placement at sp+0xFC; it is never read. */
+    /* The rectangle is copied as float words and read as signed integer coordinates; the unused
+     * twelve-byte gap places the colors where retail does. */
     struct {
         union {
             s32 coordinates[4];
@@ -2107,10 +2054,7 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
     btlUiSetAlpha(glyphs, 0.0f);
 }
 
-/* 868/880 bytes; seventeen resolved relocations and twelve zero alignment
- * bytes. Retain the renderer base separately for each drawing phase and
- * the float values between the easing product and integer pixel origin. */
-// Intent: draw the selection panel's eased slide-in and its selection list. [inferred]
+/* Draws the selection panel's eased slide-in and its selection list. */
 // FUN_00206DD0
 void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
                    BtlSelectionDraw drawSelection)
@@ -2183,9 +2127,8 @@ void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
     btlUiDrawSpriteEntry(glyphs, 9, 0x33, (f32)0x19D, 412.0f);
 }
 
-/* 472/480 bytes; eight resolved relocations; eight zero alignment bytes.
- * Store each accepted signed item ID before its second quantity query. */
-// Intent: refresh the selection's skill and item lists from the unit and persona data. [inferred]
+/* Refresh the selection's skill and item lists from the unit and persona data, storing each
+ * accepted signed item ID before its second quantity query. */
 // FUN_00207140
 /* Saved cursors use the shared action target-block union and four typed cursor records. */
 void btlSelectionRefreshList(u16 *flags, u8 *work)
@@ -2232,15 +2175,10 @@ void btlSelectionRefreshList(u16 *flags, u8 *work)
     ((BtlPanelWork *)work)->itemCount = itemCount;
 }
 
-/* 2008/2016 bytes, with eight zero alignment bytes. The callback receives
-   the same integer work address passed by btlListStep; its local byte view
-   and unsigned party-count store preserve retail's register and store order.
-   See docs/probe_archive/Battle_menu_00207320_20260922.md. */
-/* measured: btlSelectionHandleInput MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd13; scoped locals, inverted if/else did not match (best nd13); retain opt_loop_invariants on. */
-// Intent: handle selection input and return the next panel state. [inferred]
+/* Handles selection input and returns the next panel state; the callback receives the same integer
+ * work address that btlListStep passed in. */
 // FUN_00207320
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
+/* measured: retail reads these fields through separate typed aliases with signed member types. */
 s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
 {
     BtlPanelWork *panelWork;
@@ -2444,9 +2382,8 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
     return 1;
 }
 
-// Intent: draw the growing command circles, enabled command rows and mode hints. [inferred]
+// Draws the growing command circles, the enabled command rows and the mode hints.
 // FUN_00207B00
-/* measured: access-site, typed-local and array forms lose MATCH for the 2 MEMBER accesses; other fields use typed aliases. */
 void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
 {
     extern u32 kwlnTaskGetWork(void *task);
@@ -2687,10 +2624,8 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
     }
 }
 
-/* measured: the float argument to PrimDrawFlatRectangle is 0.0f - retail only ever clears
-   $f12, and that hoisted zero is also the `<= 0.0f` compare operand and the
-   accumulator seed of the adda.s/madd.s (the old archive passed temp_f4, nd10). */
-// Intent: draw the selection's progress bar, scaled by the eased progress. [inferred]
+/* Draws the selection's progress bar scaled by the eased progress; the float argument to
+ * PrimDrawFlatRectangle is 0.0f, matching retail. */
 // FUN_00208870
 void btlSelectionDrawBar(u8 *unused, u8 *panel, f32 *origin)
 {
@@ -2726,9 +2661,10 @@ void btlSelectionDrawBar(u8 *unused, u8 *panel, f32 *origin)
     PrimDrawFlatRectangle((u8 *)&color, (f32 *)values, 0.0f, 0);
 }
 
-// Intent: save the selected row and page to the cursor record when the flag is set. [inferred]
+// Saves the selected row and page to the cursor record when flag 60 is set.
 // FUN_002089E0
-/* Saved cursors use the shared target-block union; measured: a separate panelWork alias preserves the parent-action reload. */
+/* Saved cursors use the shared target-block union; measured: a separate panelWork alias keeps
+ * retail's reload of the parent action. */
 void btlSelectionSaveCursor(u8 *selection, u8 *panel)
 {
     BtlPanelWork *panelWork = (BtlPanelWork *)panel;
@@ -2746,7 +2682,7 @@ void btlSelectionSaveCursor(u8 *selection, u8 *panel)
     ((s16 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors)[0] = ((BtlSelection *)selection)->first;
 }
 
-// Intent: reset the selection flags and cursor state to the top of the list. [inferred]
+// Resets the selection flags and cursor state to the top of the list.
 // FUN_00208A50
 /* Saved cursors use the shared action target-block union and four typed cursor records. */
 void btlSelectionResetState(u8 *selection, u8 *panel)
@@ -2768,11 +2704,10 @@ void btlSelectionResetState(u8 *selection, u8 *panel)
     ((BtlPanelWork *)panel)->detailFrame = 0;
 }
 
-/* 500/512 bytes; twelve zero alignment bytes.
- * The shared four-byte record type preserves the flags-table load order. */
-// Intent: handle the skill list input and return the next state (confirm, cancel or toggle). [inferred]
+/* Handles skill list input and returns the next state (confirm, cancel or toggle). */
 // FUN_00208B00
-/* measured: direct skill indexing changed two compared bytes; preserving the byte base matches. Separate panelWork aliases preserve the reloads. */
+/* measured: retail indexes skills from a byte base, and separate panelWork aliases keep retail's
+ * reloads. */
 u16 btlSelectionHandleSkillInput(u8 *selection, u8 *panel)
 {
     BtlPanelWork *panelWork = (BtlPanelWork *)panel;
@@ -2832,12 +2767,10 @@ u16 btlSelectionHandleSkillInput(u8 *selection, u8 *panel)
     return result;
 }
 
-/* 716/720 bytes; eighteen resolved relocations and four zero alignment bytes.
- * btlListDispatchUpdate forwards the signed state word at node+0x28. Convert that
- * real input to a pointer here; a pointer parameter swaps two entry moves. */
-// Intent: draw the skill panel and advance its slide-in timer. [inferred]
+/* Draws the skill panel and advances its slide-in timer. btlListDispatchUpdate passes the signed
+ * state word at node+0x28, so it arrives as s32 and is converted to a pointer here. */
 // FUN_00208D00
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
+/* measured: retail reads these fields through separate typed aliases with signed member types. */
 void btlSelectionDrawSkillPanel(u8 *selection, s32 panelAddress, f32 *originOrRenderer)
 {
 
@@ -2873,9 +2806,9 @@ void btlSelectionDrawSkillPanel(u8 *selection, s32 panelAddress, f32 *originOrRe
     }
 }
 
-// Intent: advance the selection's animation counters, clamped to their limits. [inferred]
+// Advances the selection's animation counters, clamped to their limits.
 // FUN_00208FD0
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
+/* measured: retail reads these fields through separate typed aliases with signed member types. */
 void btlSelectionStepAnim(u8 *selection, u8 *panel, f32 *origin)
 {
     BtlPanelWork *panelWork = (BtlPanelWork *)panel;
@@ -2919,9 +2852,10 @@ void btlSelectionStepAnim(u8 *selection, u8 *panel, f32 *origin)
     }
 }
 
-// Intent: save the selected row and page to the second cursor slot when the flag is set. [inferred]
+// Saves the selected row and page to the second cursor slot when flag 60 is set.
 // FUN_002090D0
-/* Saved cursors use the shared target-block union; measured: a separate panelWork alias preserves the parent-action reload. */
+/* Saved cursors use the shared target-block union; measured: a separate panelWork alias keeps
+ * retail's reload of the parent action. */
 void btlSelectionSaveCursorSecond(u8 *selection, u8 *panel)
 {
     BtlPanelWork *panelWork = (BtlPanelWork *)panel;
@@ -2939,7 +2873,7 @@ void btlSelectionSaveCursorSecond(u8 *selection, u8 *panel)
     ((s16 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors)[2] = ((BtlSelection *)selection)->first;
 }
 
-// Intent: reset the selection flags, page window and counters for the list. [inferred]
+// Resets the selection flags, page window and counters for the list.
 // FUN_00209140
 /* Saved cursors use the shared action target-block union and four typed cursor records. */
 void btlSelectionResetPageState(u8 *selection, u8 *panel)
@@ -2961,10 +2895,10 @@ void btlSelectionResetPageState(u8 *selection, u8 *panel)
     ((BtlPanelWork *)panel)->detailFrame = 0;
 }
 
-/* Reconstructed state dispatch and return width; candidate is byte-exact. */
-// Intent: handle the item list input and return the next state. [inferred]
+/* Handles the item list input and returns the next state. */
 // FUN_002091F0
-/* measured: direct item indexing changed two compared bytes; preserving the byte base matches. Separate panelWork aliases preserve the reloads. */
+/* measured: retail indexes items from a byte base, and separate panelWork aliases keep retail's
+ * reloads. */
 u16 btlSelectionHandleItemInput(u8 *selection, u8 *panel)
 {
     BtlPanelWork *panelWork = (BtlPanelWork *)panel;
@@ -3009,12 +2943,9 @@ u16 btlSelectionHandleItemInput(u8 *selection, u8 *panel)
     return result;
 }
 
-/* 716/720 bytes; eighteen resolved relocations and four zero alignment bytes.
- * btlListDispatchUpdate forwards the signed state word at node+0x28. Convert that
- * input locally; preserve the position and callback-table reloads. */
-// Intent: draw the item panel and advance its slide-in timer. [inferred]
+/* Draws the item panel and advances its slide-in timer. btlListDispatchUpdate passes the signed
+ * state word at node+0x28 as input. */
 // FUN_00209370
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
 void btlSelectionDrawItemPanel(u8 *selection, s32 panelAddress, f32 *originOrRenderer)
 {
 
@@ -3050,9 +2981,8 @@ void btlSelectionDrawItemPanel(u8 *selection, s32 panelAddress, f32 *originOrRen
     }
 }
 
-// Intent: advance the item list animation counters, clamped to their limits. [inferred]
+// Advances the item list animation counters, clamped to their limits.
 // FUN_00209640
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
 void btlSelectionStepItemAnim(u8 *selection, u8 *panel, f32 *origin)
 {
     BtlPanelWork *panelWork = (BtlPanelWork *)panel;
@@ -3097,9 +3027,9 @@ void btlSelectionStepItemAnim(u8 *selection, u8 *panel, f32 *origin)
     }
 }
 
-// Intent: save the selected row and page to the third cursor slot when the flag is set. [inferred]
+// Saves the selected row and page to the third cursor slot when flag 60 is set.
 // FUN_00209740
-/* Saved cursors use the shared target-block union; measured: a separate panelWork alias preserves the parent-action reload. */
+/* Saved cursors live in the shared target-block union of the parent action. */
 void btlSelectionSaveCursorThird(u8 *selection, u8 *panel)
 {
     BtlPanelWork *panelWork = (BtlPanelWork *)panel;
@@ -3117,9 +3047,8 @@ void btlSelectionSaveCursorThird(u8 *selection, u8 *panel)
     ((s16 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors)[4] = ((BtlSelection *)selection)->first;
 }
 
-// Intent: reset the sub-list window and counters when the sub-list is not active. [inferred]
+// Resets the sub-list window and counters when the sub-list is not active.
 // FUN_002097B0
-/* The shared target-block union and the previous-node comparison now both use matching access-site fields. */
 void btlSelectionResetSubListState(u8 *selection, u8 *panel)
 {
     u8 *cursor;
@@ -3141,9 +3070,8 @@ void btlSelectionResetSubListState(u8 *selection, u8 *panel)
     }
 }
 
-// Intent: handle the persona sub-list input and open the sub-list selection. [inferred]
+// Handles the persona sub-list input and opens the sub-list selection.
 // FUN_00209870
-/* measured: direct party-unit indexing changed two compared bytes; the typed byte-offset-helper result matches. */
 u16 btlSelectionOpenSubList(u8 *selection, s32 panelAddress, u8 **nextPanel)
 {
     u16 input;
@@ -3188,7 +3116,7 @@ done:
     return result;
 }
 
-// Intent: draw the title strip for the selection sub-list and advance its timers. [inferred]
+// Draws the title strip for the selection sub-list and advances its timers.
 // FUN_002099C0
 void btlSelectionDrawTitle(u8 *selection, u8 *panel, f32 *originOrRenderer)
 {
@@ -3211,9 +3139,8 @@ void btlSelectionDrawTitle(u8 *selection, u8 *panel, f32 *originOrRenderer)
     }
 }
 
-// Intent: draw the persona name list when the sub-list is open, and step its counters. [inferred]
+// Draws the persona name list when the sub-list is open and steps its counters.
 // FUN_00209BC0
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
 void btlSelectionDrawPersonaList(u8 *selection, u8 *panel, f32 *origin)
 {
     BtlPanelWork *panelWork = (BtlPanelWork *)panel;
@@ -3260,9 +3187,9 @@ void btlSelectionDrawPersonaList(u8 *selection, u8 *panel, f32 *origin)
     }
 }
 
-// Intent: save the selected row and page to the fourth cursor slot when the flag is set. [inferred]
+// Saves the selected row and page to the fourth cursor slot when flag 60 is set.
 // FUN_00209CD0
-/* Saved cursors use the shared target-block union; measured: a separate panelWork alias preserves the parent-action reload. */
+/* Saved cursors live in the shared target-block union of the parent action. */
 void btlSelectionSaveCursorFourth(u8 *selection, u8 *panel)
 {
     BtlPanelWork *panelWork = (BtlPanelWork *)panel;
@@ -3280,7 +3207,7 @@ void btlSelectionSaveCursorFourth(u8 *selection, u8 *panel)
     ((s16 *)((BtlAction *)(((BtlPanelWork *)panel)->action))->targetBlock.recovery.savedCursors)[6] = ((BtlSelection *)selection)->first;
 }
 
-// Intent: reset the sub-list cursor fields and window. [inferred]
+// Resets the sub-list cursor fields and window.
 // FUN_00209D40
 void btlSelectionResetSubList(u8 *selection, u8 *panel)
 {
@@ -3292,9 +3219,8 @@ void btlSelectionResetSubList(u8 *selection, u8 *panel)
     ((BtlPanelWork *)panel)->labelTitleFrame = 0;
 }
 
-// Intent: handle the sub-list input, store the chosen value and enqueue its packet. [inferred]
+// Handles the sub-list input, stores the chosen value and enqueues its packet.
 // FUN_00209DC0
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
 u16 btlSelectionConfirmSubList(u8 *selection, u8 *panel)
 {
     BtlSelection *selectionState = (BtlSelection *)selection;
@@ -3364,9 +3290,8 @@ void btlSelectionDrawSubList(void)
 {
 }
 
-// Intent: draw the current character label and advance its bounded panel timers. [inferred]
+// Draws the current character label and advances its bounded panel timers.
 // FUN_00209FA0
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
 void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
 {
     BtlPanelWork *panelWork;
@@ -3536,7 +3461,7 @@ void btlSelectionEndSubList(void)
 {
 }
 
-// Intent: reset the selection flags and window fields for the cursor state. [inferred]
+// Resets the selection flags and window fields for the cursor state.
 // FUN_0020A5D0
 void btlSelectionResetCursorState(u16 *selection, u8 *panel) {
     sdkSndStartStream(0, 0, 0, 3);
@@ -3548,12 +3473,10 @@ void btlSelectionResetCursorState(u16 *selection, u8 *panel) {
     ((BtlPanelWork *)panel)->detailFrame = 0;
 }
 
-// Intent: handle the swap input for the persona roster and start or finish the swap task. [inferred]
+// Handles the swap input for the persona roster and starts or finishes the swap task.
 // FUN_0020A640
-/* measured: 1064/1072 bytes; 35 independently resolved relocations and eight
-   zero alignment bytes. Separate stats/task snapshots preserve the retail
-   argument-load order without narrowing the persona lookup return type. */
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
+/* Separate stats and task snapshots and typed aliases keep retail's argument-load order without
+ * narrowing the persona lookup return type. */
 u16 btlSelectionHandleSwapInput(u8 *selection, u8 *panel)
 {
     BtlPanelWork *panelWork = (BtlPanelWork *)panel;
@@ -3663,11 +3586,8 @@ u16 btlSelectionHandleSwapInput(u8 *selection, u8 *panel)
     return result;
 }
 
-/* 508/512 bytes, 13 resolved relocations, four zero alignment bytes.
- * As in btlSelectionDrawTitle, reuse the consumed position view for the callback
- * table base; each state change still reloads the callback slot.
- */
-// Intent: draw the swap panel and advance its slide-in timer. [inferred]
+/* Draws the swap panel and advances its slide-in timer; the consumed position pointer is reused as
+ * the callback table base, as in btlSelectionDrawTitle. */
 // FUN_0020AA70
 void btlSelectionDrawSwapPanel(u8 *selection, u8 *panel, f32 *originOrRenderer)
 {
@@ -3690,9 +3610,8 @@ void btlSelectionDrawSwapPanel(u8 *selection, u8 *panel, f32 *originOrRenderer)
     }
 }
 
-// Intent: draw the persona level list and advance its timers. [inferred]
+// Draws the persona level list and advances its timers.
 // FUN_0020AC70
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
 void btlSelectionDrawLevelList(s32 selection, u8 *panel, f32 *origin)
 {
     BtlPanelWork *panelWork = (BtlPanelWork *)panel;
@@ -3743,7 +3662,7 @@ void btlSelectionEndSwapList(void)
 {
 }
 
-// Intent: initialise a panel work block, clearing it and setting its task pointer. [inferred]
+// Clears a panel work block and sets its task pointer.
 // FUN_0020AD80
 void btlPanelInitWork(u8 *panel, s32 task) {
     memset(panel, 0, 0x5B4);
@@ -3752,13 +3671,11 @@ void btlPanelInitWork(u8 *panel, s32 task) {
     ((BtlPanelWork *)panel)->personaSlot = -1;
 }
 
-/*
- * measured: 968/976 bytes, 11 resolved relocations, eight zero alignment bytes.
- * Preserve the 4,5,0 source case order and all reloads after callbacks.
- */
-// Intent: advance the panel's animation counters and low-HP pulse for one frame. [inferred]
+/* Advances the panel's animation counters and low-HP pulse for one frame. Keeps the 4,5,0 case
+ * order and reloads fields after callbacks, as retail does. */
 // FUN_0020ADD0
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
+/* measured: retail reads the panel fields through separate typed aliases with signed
+ * interpretations, not direct fields. */
 void btlPanelUpdate(void *panel)
 {
     BtlPanelWork *panelWork = (BtlPanelWork *)(panel);
@@ -3823,7 +3740,7 @@ void btlPanelUpdate(void *panel)
     }
 }
 
-// Intent: draw the panel frame, scaled outlines and the list dispatch when the panel is active. [inferred]
+// Draws the panel frame, scaled outlines and the list dispatch when the panel is active.
 // FUN_0020B1A0
 void btlPanelDrawFrame(s32 unused, u8 *panel)
 {
@@ -3879,9 +3796,10 @@ void btlPanelDrawFrame(s32 unused, u8 *panel)
     }
 }
 
-// Intent: draw the backdrop, the sprite grid and the notify dispatch when the panel is active. [inferred]
+// Draws the backdrop, the sprite grid and the notify dispatch when the panel is active.
 // FUN_0020B3A0
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
+/* measured: retail reads the panel fields through separate typed aliases with signed
+ * interpretations, not direct fields. */
 void btlPanelDrawBackdropGrid(s32 unused, u8 *panel)
 {
     BtlPanelWork *panelWork = (BtlPanelWork *)panel;
@@ -3940,10 +3858,8 @@ void btlPanelDrawDetail(void)
 }
 
 /* measured: opt_propagation off keeps D_00887300 cached across its callback sequence. */
-/* measured: btlPanelDrawSkyFrame MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd131; typed parameter cache did not match (best nd131); retain opt_propagation off. */
 #pragma opt_propagation off
-// Intent: set the sky render states and draw the sky frame when the panel is active. [inferred]
+// Sets the sky render states and draws the sky frame when the panel is active.
 // FUN_0020B5B0
 void btlPanelDrawSkyFrame(s32 unused, u8 *panel)
 {
@@ -3973,8 +3889,8 @@ void btlPanelDrawSkyFrame(s32 unused, u8 *panel)
     }
 }
 
-/* measured: restore opt_propagation after func_0020b5b0. */
-/* measured: btlSelectionMarkTargets, btlSelectionResetUnitFlags MATCH -> MISMATCH without this pragma. */
+/* measured: btlSelectionMarkTargets and btlSelectionResetUnitFlags need constant propagation
+ * enabled to match retail. */
 #pragma opt_propagation on
 extern u32 btlEffectCollectGenusMask(u8 *selection);
 extern u16 datGetSkillPropertyByte(s32 skillId);
@@ -3987,11 +3903,11 @@ extern void btlSelectionSetRowState(u8 *row, s16 state);
 extern void btlSelectionSetRowIdle(u8 *row);
 
 #pragma push
-/* measured: the unit's invariant hoisting changes two bytes in the target-marking loop. */
+/* measured: retail does not hoist loop invariants out of the target-marking loop. */
 #pragma opt_loop_invariants off
-// Intent: mark the targets for the selected skill, setting each unit's skill element and buff or ailment flags. [inferred]
+// Marks the targets for the selected skill, setting each unit's skill element and buff or ailment
+// flags.
 // FUN_0020B6D0
-/* measured: access-site, typed-local and array forms lose MATCH for the 1 MEMBER access; other fields use typed aliases. */
 void btlSelectionMarkTargets(s32 task, u8 *action, u8 *targets, s16 skill)
 {
     BtlUnit *battleUnit;
@@ -4102,14 +4018,14 @@ loop_condition:
 }
 #pragma pop
 
-// Intent: return the target mark stored in the selection task. [inferred]
+// Returns the target mark stored in the selection task.
 // FUN_0020BA00
 u16 btlSelectionGetTargetMark(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
     return ((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void *)task))->selection)->state;
 }
 
-// Intent: clear the target mark stored in the selection task. [inferred]
+// Clears the target mark stored in the selection task.
 // FUN_0020BA30
 void btlSelectionClearTargetMark(s32 task)
 {
@@ -4117,9 +4033,8 @@ void btlSelectionClearTargetMark(s32 task)
     ((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void *)task))->selection)->state = 0;
 }
 
-/* Both selection accessors return the formation entry read by 001d8bc0.
- * Their action callers consume this address, so the result must be explicit. */
-// Intent: return the formation entry for the selection task's current target. [inferred]
+/* Returns the formation entry for the selection task's current target; action callers use the
+ * returned address. */
 // FUN_0020BA60
 u32 btlSelectionGetFormationEntry(s32 task)
 {
@@ -4127,7 +4042,9 @@ u32 btlSelectionGetFormationEntry(s32 task)
     return btlFormationCurrentEntry(((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void *)task))->selection)->targets);
 }
 
-// Intent: return the formation entry for the selection task's current target (duplicate of btlSelectionGetFormationEntry). [inferred]
+// Duplicate of btlSelectionGetFormationEntry.
+/* Return the current formation entry for the targets of the selection task. This is identical to
+ * btlSelectionGetFormationEntry. */
 // FUN_0020BA90
 u32 btlSelectionGetFormationEntryAlt(s32 task)
 {
@@ -4135,11 +4052,10 @@ u32 btlSelectionGetFormationEntryAlt(s32 task)
     return btlFormationCurrentEntry(((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void *)task))->selection)->targets);
 }
 
-// Intent: clear the buff flag on every party unit and mark the selection task as ready. [inferred]
+// Clears the buff flag on every party unit and marks the selection task as ready.
 // FUN_0020BAC0
-/* measured: retail keeps the ~0x200 mask live in the loop preheader; plain -O2
-   rematerialises it inside the body (nd 41 -> byte-exact with the hoist). */
-/* measured: btlSelectionResetUnitFlags MATCH -> MISMATCH without this pragma. */
+/* measured: retail computes the ~0x200 mask once before the loop instead of recomputing it on every
+ * iteration. */
 void btlSelectionResetUnitFlags(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
     u8 *transition = (u8 *)kwlnTaskGetWork((void *)task) + 0x710;
@@ -4153,9 +4069,7 @@ void btlSelectionResetUnitFlags(s32 task) {
     ((BtlSelectionTransition *)transition)->state = 3;
 }
 
-/* measured: closes the hoist bracket opened above and restores the -O2
-   baseline for the rest of the file. */
-// Intent: initialise a transition block and record its task. [inferred]
+/* Initialise a transition block and record its task. */
 // FUN_0020BB20
 void btlSelectionInitTransition(u8 *transition, s32 task) {
     memset(transition, 0, 0x1C);
@@ -4163,11 +4077,9 @@ void btlSelectionInitTransition(u8 *transition, s32 task) {
     ((BtlSelectionTransition *)transition)->state = 3;
 }
 
-/* 512/512 bytes; seventeen fully resolved relocations.
- * The transition helpers explicitly forward their task to its work getter. */
-// Intent: advance a selection transition and commit the chosen target. [inferred]
+/* Advances a selection transition and commits the chosen target. The transition helpers explicitly
+ * forward their task to its work getter. */
 // FUN_0020BB70
-/* measured: access-site, typed-local and array forms lose MATCH for the 1 MEMBER access; other fields use typed aliases. */
 void btlSelectionUpdateTransition(u8 *transition)
 {
     BtlSelectionTransition *transitionState = (BtlSelectionTransition *)transition;
@@ -4213,9 +4125,10 @@ void btlSelectionUpdateTransition(u8 *transition)
     }
 }
 
-// Intent: draw the target frame for each unit in the current selection while the panel is active. [inferred]
+// Draws the target frame for each unit in the current selection while the panel is active.
 // FUN_0020BD70
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
+/* measured: retail reads the transition fields through separate typed aliases with signed
+ * interpretations, not direct fields. */
 void btlSelectionDrawTargetFrame(u8 *unused, u8 *transition)
 {
     BtlSelectionTransition *transitionState = (BtlSelectionTransition *)transition;
@@ -4281,7 +4194,7 @@ void btlSelectionDrawTargetFrame(u8 *unused, u8 *transition)
     }
 }
 
-// Intent: set the active bit on the selection task's flag word. [inferred]
+// Sets the active bit on the selection task's flag word.
 // FUN_0020BF60
 void btlSelectionSetTargetFlag(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
@@ -4291,7 +4204,7 @@ void btlSelectionSetTargetFlag(s32 task) {
     ((BtlSelectionTransition *)((BtlUiTaskWork *)taskWork)->selection)->flags |= 1;
 }
 
-// Intent: clear the active bit on the selection task's flag word. [inferred]
+// Clears the active bit on the selection task's flag word.
 // FUN_0020BF90
 void btlSelectionClearTargetFlag(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
@@ -4301,7 +4214,7 @@ void btlSelectionClearTargetFlag(s32 task) {
     ((BtlSelectionTransition *)((BtlUiTaskWork *)taskWork)->selection)->flags &= 0xFFFE;
 }
 
-// Intent: set a selection row's state and reset its counter. [inferred]
+// Sets a selection row's state and resets its counter.
 // FUN_0020BFC0
 void btlSelectionSetRowState(u8 *row, s16 state)
 {
@@ -4309,7 +4222,7 @@ void btlSelectionSetRowState(u8 *row, s16 state)
     ((BtlSelectionRow *)row)->counter = 0;
 }
 
-// Intent: reset a selection row's counter and mark it idle. [inferred]
+// Resets a selection row's idle frame and sets its counter to 1.
 // FUN_0020BFD0
 void btlSelectionSetRowIdle(u8 *row)
 {

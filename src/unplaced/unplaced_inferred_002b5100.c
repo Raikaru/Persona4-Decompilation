@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002b5100-002b5c60 */
 
 /* Unit optimizer settings shared by the neighboring functions. */
 #pragma opt_rebuildconditionals on
@@ -126,11 +125,10 @@ void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work)
 }
 
 
-
 /* Advance rectangle movement and alpha transitions, rebuild four projected vertices and queue their draw. */
 #pragma push
 #pragma opt_loop_invariants on
-/* measured: vertex cursor and explicit depth hoist leave differences; baseline retains 141 differing words. */
+/* measured: retail hoists loop-invariant loads out of the vertex loop, so loop invariants are on. */
 // FUN_002B52A0
 s32 fclFadeRectTaskUpdate(u8 *task)
 {

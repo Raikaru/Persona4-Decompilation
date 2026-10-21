@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0018e810-0018f390 */
 
 #include "field_transition_internal.h"
 #include "sdk_lbox_internal.h"
@@ -130,7 +129,7 @@ s32 FldMapTestUpdate(u8 *task)
     extern s32 iGpffffb240;
     extern void FldBoardGenerate(s32 mode, s32 seed, s32 unused);
     PanelColor color;
-    /* Entry-table bytes 8/9 and frame bytes 4A/4B retain their byte layout; meanings unproven. */
+    /* Entry-table bytes 8/9 and frame bytes 4A/4B are copied as bytes; their meaning is unknown. */
     u8 *work;
     s32 menuValue;
 
@@ -150,7 +149,6 @@ s32 FldMapTestUpdate(u8 *task)
         if (D_008C0240[0].trigger & 0x40) {
             switch (sdkLboxGetSelectedId((u8 *)((FldMapTestWork *)work)->menuTask)) {
             case 0:
-                /* Measured: adding a byte-pointer cast swaps addu operands; keep these column reads cast-free. */
                 ((FldFrame *)MT_Scene_GetFrameState())->unk48[2] =
                     *(((FldMapTestWork *)work)->entries +
                       *sdkLboxGetValuePtr(mapWork->menuTask, 3) * 0x10 + MEMBER_OFFSET(FldMapTestEntry, unk08));

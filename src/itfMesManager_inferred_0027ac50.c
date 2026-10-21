@@ -11,9 +11,7 @@ extern s32 D_0063BF80[];
 extern u16 D_008C024E[];
 
 
-
 extern s32 D_008815B0[];
-
 
 
 extern u16 D_008817E8[];
@@ -24,20 +22,8 @@ extern void itfMesWindowCommitSelection(u8 *window);
 extern u8 iGpffffa738;
 extern s8 D_0063BAB0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027ac50-0027ac50 */
-
 extern s32 itfMesWindowPollSelection(u8 *window);
-/* measured: opt_propagation off probe for 002703d0 register setup. */
-/* measured: closes opt_propagation off probe for 002703d0. */
-/* measured: opt_rebuildconditionals off reproduces 002704f0 retail conditional-register schedule. */
-/* measured: closes opt_rebuildconditionals off for 002704f0. */
-/* measured: opt_propagation off probe for 00270780 family add */
-/* measured: close opt_propagation off probe for 00270780 family add */
-/* measured: opt_propagation off probe for 00270a80 addu order */
-/* measured: close opt_propagation off probe for 00270a80 */
-// Intent: Runs the selected entry's command and releases its tag run when the selection commits [inferred]
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 1, 54, 219, 221; retain their original address/alias expressions. */
+/* Runs the selected entry's command and releases its tag run when the selection commits. */
 // FUN_0027AC50
 void itfMesWindowCommitSelection(u8 *window)
 {

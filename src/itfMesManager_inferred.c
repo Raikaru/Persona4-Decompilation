@@ -9,7 +9,6 @@ extern s32 D_0063BF80[];
 extern u16 D_008C024E[];
 
 
-
 extern s32 D_008815B0[];
 
 
@@ -22,16 +21,9 @@ extern s8 D_0063BAB0[];
 extern void itfMesWindowFree(s32 handle);
 
 
-
-
-
-
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 0027b690-0027b690 */
-
-/* measured: opt_loop_invariants off */
-// Intent: Frees every window in the window list (task destroy callback) [inferred]
+/* measured: opt_loop_invariants off Frees every window in the window list; used as a task destroy
+ * callback. */
+/* Free every message window in the manager's window list; used as a task destroy callback. */
 // FUN_0027B690
 void itfMesWindowFreeAll(u8 *unusedTask)
 {

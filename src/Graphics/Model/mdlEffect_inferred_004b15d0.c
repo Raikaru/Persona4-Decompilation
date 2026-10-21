@@ -30,10 +30,8 @@ typedef struct {
 } Code1_004bColor;
 extern Code1_004bColor iGpffffbb64;
 
-/* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
-   func_004bd628, func_004bd640, func_004bd658, func_004bd670,
-   func_004bd688, and func_004bd6a0.  Plain C cannot emit this ABI shape. */
-
+/* func_004bd628, func_004bd640, func_004bd658, func_004bd670, func_004bd688 and func_004bd6a0 are
+ * framed tail-jump wrappers that plain C cannot emit. */
 
 
 extern u8 D_0071465C[];
@@ -55,9 +53,6 @@ extern BtlShuffleRenderPrimitive D_00887310_abs[];
 extern void (*jtbl_008873EC[])(void *);
 /* The six framed tail-jump wrappers listed above are intentionally retained
    as assembly fallbacks; all ordinary small wrappers below are source-backed. */
-
-/* Source unit: src/promoted/code1_004b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b15d0-004b15d0 */
 
 /* Stop the camera-shake helper and clear the active effect-sequence flag. */
 // FUN_004B15D0

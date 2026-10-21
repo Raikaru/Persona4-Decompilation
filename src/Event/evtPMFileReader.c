@@ -1,7 +1,6 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Persona 4 USA decompilation - evtPMFileReader.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit evtPMFileReader.c (from __FILE__ assert strings). */
 #include "type.h"
 
 /* 0x40-byte task work, allocated by evtPMFileReaderCreate and released by
@@ -92,22 +91,8 @@ extern u8 D_0063CA20[];
 extern u8 D_0063CA50[];
 extern u8 D_0063CA70[];
 
-/* measured: nd 126. The two else-branch flag checks (case 2: `if (p->flag == 1)`
-   and case 4) emit `lw; addiu $v0,1; bne` in b210, but retail emits
-   `lw; xori $v0,$v0,1; sltiu $v0,$v0,1; beqz` (the boolean-then-test form).
-   Every spelling probed (==1 / !=1 / struct field / pointer cast / named local /
-   u8/u16/u32 types / switch on flag) folds to `beq`/`bne`, never the xori/sltiu
-   pair; the 4-byte residual from this floor propagates to every branch target
-   in the else-branch (nd 126). Same family as cmpConfig func_0035cb00's
-   documented sltu/xori booleanization floor. INCLUDE_ASM restored. */
-/* measured: matched by typing the context pointer as a byte pointer (the
-   u8 ** draft scaled every field offset by four), materialising the
-   `*(s32 *)(ctx + 4) == 1` tests as boolean values rather than branches,
-   restoring the empty `case 7` the second dispatch needs for its eight-
-   entry jump table, writing the cases in ascending order, taking the
-   format buffer through its small-data name, and giving evtPolygonMovieFormatNames
-   the pointer parameters its own body already requires. */
-// Intent: Reader task update: loads the movie's CD files (sections 0x0C..0x38) in stages and advances the reader state machine to done (state 7) [inferred]
+/* Reader task update: loads the movie's CD files in stages and advances the reader state machine to
+ * done (state 7). */
 // FUN_002938C0
 s32 evtPMFileReaderTaskUpdate(u8 *task) {
     s32 fileSize;
@@ -241,7 +226,8 @@ s32 evtPMFileReaderTaskUpdate(u8 *task) {
     return 0;
 }
 
-// Intent: Reader task destroy: destroys the CD requests and flags, frees the reader's sections and releases the work block [inferred]
+// Reader task destroy: destroys the CD requests and flags, frees the reader's sections and releases
+// the work block.
 // FUN_00293D30
 void evtPMFileReaderTaskDestroy(u8 *task) {
     EvtPMReader *reader;
@@ -306,7 +292,7 @@ s32 evtPMFileReaderCreate(s32 eventId, s32 variantId, s32 value, s32 useAllocate
     return (s32)kwlnTaskCreate((const void *)(D_0063CAA0), 0xF, 1, 1, evtPMFileReaderTaskUpdate, evtPMFileReaderTaskDestroy, (u8 *)(reader));
 }
 
-// Intent: Returns 1 when the reader task has finished loading (state 7) [inferred]
+// Returns 1 when the reader task has finished loading (state 7).
 // FUN_00293FC0
 s32 evtPMFileReaderIsDone(s32 task) {
     if (kwlnTaskIsLinked(task) == 0) {
@@ -318,7 +304,7 @@ s32 evtPMFileReaderIsDone(s32 task) {
     return 0;
 }
 
-// Intent: Returns the reader task's work block; asserts the task is linked [inferred]
+// Returns the reader task's work block; asserts the task is linked.
 // FUN_00294040
 u8 *evtPMFileReaderGetWork(s32 task) {
     if (kwlnTaskIsLinked(task) == 0) {
@@ -327,7 +313,8 @@ u8 *evtPMFileReaderGetWork(s32 task) {
     return (u8 *)kwlnTaskGetWork((void *)task);
 }
 
-// Intent: Returns the first kind-0 record of the reader's table through the output pointers, or 0 when none is found or the reader is not done [inferred]
+// Returns the first kind-0 record of the reader's table through the output pointers, or 0 when none
+// is found or the reader is not done.
 // FUN_002940A0
 s32 evtPMFileReaderGetFirstEntry(s32 task, s32 *firstValue, s32 *secondValue, s32 *byteValue, s32 *halfwordValue) {
     EvtPMScanContext tableContext;

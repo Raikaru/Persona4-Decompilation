@@ -38,13 +38,6 @@ extern u8 iGpffffa4d8;
 typedef int (*code)();
 
 
-
-
-
-
-
-
-
 typedef struct RwV3d RwV3d;
 struct RwV3d
 {
@@ -67,19 +60,12 @@ extern f32 fGpffff8030;
 extern f32 fGpffff803c;
 extern f32 fGpffff8110;
 
-/* Source unit: src/promoted/code1_001d.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d7a60-001d7a60 */
-
-/* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
-/* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
+/* measured: opt_propagation off keeps the loop mask computation in btlCameraFindFormationForCounts
+ * the way retail does it. */
 #pragma push
 #pragma pop
-/* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
-/* measured: restore optimization_level 2 after func_001d5990. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off is required for the default GP load/store register order. */
-/* measured: close opt_propagation after btlEffectFlagToColor. */
 /* Apply the requested fade mode and RGB channels, then report packet completion. */
 // FUN_001D7A60
 s32 btlEffectApplyFadeCustomColor(u8 *request) {

@@ -34,7 +34,6 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
 
 
-
 extern u8 D_0060AB08[];
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
@@ -51,16 +50,10 @@ extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
 
-
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
 extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
-
-
-
-
-
 
 
 extern s32 iGpffffb464;
@@ -69,8 +62,6 @@ extern u8 D_00624F50[];
 extern u8 D_00624F60[];
 extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f6090-001f6090 */
 
 extern s32 btlActionAnyTargetHitRowStatus(u8 *action);
 extern s32 btlActionSameGenusTargetsHaveDelta(u8 *action);
@@ -81,26 +72,12 @@ extern s32 btlTargetGroupStateMatches(u8 *context);
 extern void btlSoundCancelPlayback(void);
 #pragma push
 #pragma pop
-/* measured: invariant mask materialisation needs opt_loop_invariants on to
-   place the retail `lui` in the preheader. */
-/* measured: closes the invariant-hoist bracket for func_001f0af0. */
-/* measured: loop-invariant probe for func_001f0c50's shared true value. */
-/* measured: close opt_loop_invariants after func_001f0c50 probe. */
-/* measured: invariant mask materialisation needs opt_loop_invariants on to
-   place the retail `lui` in the preheader. */
-/* measured: closes the invariant-hoist bracket for func_001f0d30. */
-/* measured: opt_loop_invariants on preserves the nonzero-path constant and loop preheaders for func_001f0dd0. */
-/* measured: close opt_loop_invariants after func_001f0dd0. */
-/* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
-/* measured: close optimization_level 1 probe for func_001f0ff0. */
-/* measured: opt_loop_invariants on preserves target loop preheaders and state materialisation. */
-/* measured: close opt_loop_invariants after btlTargetGroupStateMatches probe. */
+/* measured: opt_loop_invariants must be on so retail hoists the mask and true-value constants into
+ * the loop preheaders. */
 #pragma push
-/* measured: normalized result/record snapshots need invariant motion for the retail 0x310 frame. */
 #pragma pop
-/* measured: opt_propagation off keeps the iGpffffb3b8 base load ahead of the
-   index arithmetic and the 0x70 field load in a temporary before its saved copy. */
-/* measured: restore propagation for the rest of the unit. */
+/* measured: propagation off keeps the global base load ahead of the index arithmetic and holds the
+ * field load in a temporary before it is saved. */
 #pragma push
 #pragma pop
 /* Cancel battle sound playback and complete the target callback. */

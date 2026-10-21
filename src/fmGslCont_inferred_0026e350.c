@@ -11,7 +11,7 @@
 #include "primitive_point_buffer.h"
 #include "scene_event_internal.h"
 
-/* Unit settings: propagation off and common subexpressions on; mode probes retain their levels. */
+/* Unit settings: propagation off and common subexpressions on. */
 #pragma opt_propagation off
 #pragma opt_common_subs on
 extern s32 iGpffffb4bc; /* deferred layout pending */
@@ -59,12 +59,9 @@ typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 
 
-
 extern u8 D_00637420[];
 
 extern s32 datEntryGetFlags(s16 itemId);
-
-
 
 
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -95,56 +92,21 @@ extern void frFontUpdateTextWork(u8 *context);
 extern void frFontLayoutSlotText(s32 index, u8 *context);
 extern u8 iGpffffa734;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0026; members 0026e350-0026f860 */
-
 extern s32 MT_SceneManager_TaskUpdate(u8 *unusedTask);
 extern s32 mtSceneUnitDepthCompare(u8 **left, u8 **right);
 extern f32 D_007612C4;
-/* Three trail-segment layouts (arg4 0/1/2). The 0xC0-byte point tables are
- * struct copies; each loop's i = 0 precedes the invariant scale products,
- * which opt_loop_invariants hoists while the (s16) conversion of the second
- * product stays in the loop as in retail. The closing call's position
- * arguments are computed before its D_007612C4 products. shdSpriteDrawNowEx's
- * colour parameter is declared u32 here (H011): retail converts arg2 for each
- * call and keeps the per-case colour copies in $fp/$s7. */
-/* measured: optimization-level probe for 00263220 register colouring */
-/* measured: closes optimization-level probe for 00263220 */
-/* measured: opt_loop_invariants on hoists (u8)opacity into the sq/lq spill retail has (269 -> 253 words on the shape before the statement-ordered font word; off it stays inside the fade block). */
-/* The switch arms are in retail's jump-table order. Locals whose live ranges
- * are disjoint share one variable (temp_18_2/temp_3, temp_17_10/temp_16_2,
- * temp_19_2/temp_17_3, fadeAlpha/temp_17_9, temp_22/temp_17), as retail's
- * register reuse across the cases shows. In case 7's day loop the date is
- * `temp_20` and the `* 0x5E` column is `var_2`, both dead outside that loop:
- * retail's register numbering follows which variable each value lives in, and
- * these give the $s3/$s4/$s5 order of the product, date and font word. The
- * render-state table goes through a u32 local, both fade rectangles are
- * {x,y,w,h} structs copied into the 16-byte argument, the case-5 and case-7
- * fallback tails are separate copies, and `temp_3_2 > 1` gives the slti $at
- * form. opt_lifetimes on is measured (102 -> 85 edits without the other levers). */
-/* measured: opens optimization_level 1 to preserve retail's FPU term and accumulator order (nd 0). */
-/* measured: closes the optimization_level bracket (nd 0). */
-/* Copy complete table objects; renderer callbacks may change the item index. */
-/* measured: 1296B/1296B.  Scalar out-parameters and CefV3 locals give the
-   retail frame; the s8 count local and the named segment index give the
-   hoisted point base under opt_loop_invariants; the control-point counters
-   are block-scoped so the sampling counter k is coloured first. */
-/* measured: without it the point base is recomputed per iteration (271). */
-/* measured: optimization_level 1 register-coloring probe for func_0026db60. */
-/* measured: opt_propagation off probe for func_0026db60 loop test ordering. */
-/* measured: closes opt_propagation off probe for func_0026db60. */
-/* measured: closes optimization_level 1 register-coloring probe for func_0026db60. */
-/* measured: opt_propagation off probe for mtSceneUnitDepthCompare float load scheduling. */
-/* measured: closes opt_propagation off probe for mtSceneUnitDepthCompare. */
+/* measured: this opt_propagation setting reproduces retail's load scheduling. */
 #pragma push
 #pragma opt_propagation on
-// Intent: Return the pending-layout flag; frFontBeginDeferredLayout sets it and frFontResetPendingState clears it [inferred]
+// Return the pending-layout flag; frFontBeginDeferredLayout sets it and frFontResetPendingState
+// clears it.
 // FUN_0026E350
 s32 frFontGetPendingFlag(void)
 {
     return iGpffffb4bc;
 }
 
-// Intent: Map a data entry's flag bits to a glyph class index from 0 to 14 (default 13) [inferred]
+// Map a data entry's flag bits to a glyph class index from 0 to 14 (default 13).
 // FUN_0026E360
 s32 frFontDataEntryClass(s64 entryId) {
     s32 flags = datEntryGetFlags((s16) entryId);
@@ -189,8 +151,11 @@ s32 frFontDataEntryClass(s64 entryId) {
 }
 
 #pragma pop
-/* measured: opt_propagation off probe for func_0026e4c0 field-load order. */
-/* measured: func_0026e4c0 MATCH -> MISMATCH without this pragma. */
+/* measured: with opt_propagation off, frFontCommandSetPalette loads the operand fields in the same
+ * order retail does. */
+/* Font command handler that reads the two operand bytes from the text stream and sets the context
+ * palette from them. A high byte of 0xFF counts as zero, and nothing is done unless the font mode
+ * is 0. */
 // FUN_0026E4C0
 /* Decode the palette operand in layout mode; return zero to continue parsing. */
 s32 frFontCommandSetPalette(s32 command, u8 *context)
@@ -220,8 +185,8 @@ s32 frFontCommandSetPalette(s32 command, u8 *context)
     return 0;
 }
 
-/* measured: closing opt_propagation off probe for func_0026e4c0. */
-/* Accept the no-op dispatch entry after palette assignment; sample mode and continue command parsing. */
+/* Accept the no-op dispatch entry after palette assignment; sample mode and continue command
+ * parsing. */
 // FUN_0026E560
 /* Probe the current mode without stopping script parsing. */
 s32 frFontCommandPostPaletteNoop(void)
@@ -230,7 +195,9 @@ s32 frFontCommandPostPaletteNoop(void)
     return 0;
 }
 
-/* measured: opt_propagation off forces func_0026e590 field-load order. */
+/* measured: propagation off keeps retail's field-load order. */
+/* Decode a 16-bit operand from the font command stream and store it as the context's style. Does
+ * nothing outside mode 0. */
 // FUN_0026E590
 /* Decode the font style operand in layout mode. */
 s32 frFontCommandSetStyle(s32 command, u8 *context)
@@ -260,8 +227,9 @@ s32 frFontCommandSetStyle(s32 command, u8 *context)
     return 0;
 }
 
-/* measured: closing opt_propagation off for func_0026e590. */
-/* measured: opt_propagation off forces func_0026e630 field-load order. */
+/* measured: propagation is off so the fields load in the same order as retail. */
+/* Decode a 16-bit operand from the font command stream and store it as the context's intensity.
+ * Does nothing outside mode 0. */
 // FUN_0026E630
 /* Decode the intensity operand in layout mode. */
 s32 frFontCommandSetIntensity(s32 command, u8 *context)
@@ -291,8 +259,7 @@ s32 frFontCommandSetIntensity(s32 command, u8 *context)
     return 0;
 }
 
-/* measured: closing opt_propagation off for func_0026e630. */
-/* Accept the no-op dispatch entry after intensity assignment; sample mode and continue command parsing. */
+/* Handle a no-op font command by querying the current mode, then let command parsing continue. */
 // FUN_0026E6D0
 /* Probe the current mode without stopping script parsing. */
 s32 frFontCommandPostIntensityNoop(void)
@@ -306,8 +273,7 @@ s32 frFontCommandPostIntensityNoop(void)
 /* Decode the intensity and height operands in layout mode. */
 s32 frFontCommandSetIntensityAndHeight(s32 command, u8 *context)
 {
-    /* FrFontContext/FrFontTextRun offsets are proven in fr_font_objects.h;
-     * typed access changes MWCC alias scheduling here (measured MISMATCH). */
+    /* Raw offsets are used because typed FrFontContext access changes retail scheduling here. */
     s32 lowByte;
     s32 streamAddress;
     s32 streamOffset;
@@ -345,9 +311,9 @@ s32 frFontCommandSetIntensityAndHeight(s32 command, u8 *context)
     return 0;
 }
 
-/* measured: closing opt_propagation off for func_0026e700. */
-/* measured: named byte-pointer stream/position loads remove the position command's common-substitution override (MATCH). */
-/* measured: opt_propagation off preserves field-load order for func_0026e7f0. */
+/* measured: retail loads the context fields in source order, and propagation would reorder them. */
+/* Decode two 16-bit operands from the font command stream and set the context's x and y position
+ * from them, scaled to internal units. Applies only in modes 0 and 1. */
 // FUN_0026E7F0
 /* Decode and store position in horizontal sixteenths and vertical eighths. */
 s32 frFontCommandSetPosition(s32 command, u8 *context)
@@ -397,9 +363,9 @@ success:
     return 0;
 }
 
-/* measured: closing opt_common_subs off for func_0026e7f0. */
-/* measured: func_0026e910, func_0026e940, frFontBeginDeferredLayout, func_0026eba0, func_0026ebe0, func_0026ed00, func_0026ee00 MATCH -> MISMATCH without this pragma. */
-/* measured: closing opt_propagation off for func_0026e7f0. */
+/* measured: the functions that follow need the default optimizer settings restored here to match
+ * retail. */
+/* End the font command stream by setting the end-state bit, then return 1 to stop parsing. */
 // FUN_0026E910
 /* Mark script termination and stop parsing. */
 s32 frFontCommandEnd(void)
@@ -452,14 +418,12 @@ s32 frFontCommandSetWait(s32 command, u8 *context)
     return 0;
 }
 
-/* measured: closing opt_propagation off for func_0026e940. */
-/* measured: opt_propagation off preserves decode and state-store order for frFontBeginDeferredLayout. */
-// Intent: Start a deferred layout when data flag 0x3B is set: store the operand, set the pending flag and state bit 0x10 [inferred]
+/* Starts a deferred layout when data flag 0x3B is set: stores the operand, then sets the pending
+ * flag and state bit 0x10. */
 // FUN_0026EA50
 s32 frFontBeginDeferredLayout(s32 command, u8 *context)
 {
-    /* FrFontContext/FrFontTextRun offsets are proven in fr_font_objects.h;
-     * typed access changes MWCC alias scheduling here (measured MISMATCH). */
+    /* Raw offsets are used because typed FrFontContext access changes retail scheduling here. */
     s32 lowByte;
     s32 streamAddress;
     s32 streamOffset;
@@ -510,7 +474,7 @@ after_store:
     return 0;
 }
 
-/* measured: closing opt_propagation off for frFontBeginDeferredLayout. */
+/* Set font state bits 1 and 2 to end the current command and signal completion, then return 1. */
 // FUN_0026EBA0
 /* Set both termination state bits and stop parsing. */
 s32 frFontCommandEndAndSignal(void)
@@ -520,16 +484,14 @@ s32 frFontCommandEndAndSignal(void)
     return 1;
 }
 
-/* measured: opt_propagation off preserves target scan preheader ordering. */
-/* measured: opt_loop_invariants on hoists the decode mask assignment to the target preheader. */
-/* measured: func_0026ebe0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists the decode mask assignment into the scan loop preheader, which needs
+ * loop-invariant hoisting on with propagation off. */
 #pragma opt_loop_invariants on
 // FUN_0026EBE0
 /* Copy encoded text through the next newline and advance the stream. */
 s32 frFontCommandCopyLine(s32 command, u8 *context)
 {
-    /* FrFontContext/FrFontTextRun offsets are proven in fr_font_objects.h;
-     * typed access changes MWCC alias scheduling here (measured MISMATCH). */
+    /* Raw offsets are used because typed FrFontContext access changes retail scheduling here. */
     s32 byteIndex;
     s32 byteCount;
     s32 terminator;
@@ -575,14 +537,11 @@ scan_loop:
     return 0;
 }
 
-/* measured: closes the opt_loop_invariants and opt_propagation probes at the file baseline. */
-/* measured: opt_propagation off preserves decode and state-store order for func_0026ed00. */
 // FUN_0026ED00
 /* Store a wait duration, using 35 unless data flag 0x3A permits the operand. */
 s32 frFontCommandSetConditionalWait(s32 command, u8 *context)
 {
-    /* FrFontContext/FrFontTextRun offsets are proven in fr_font_objects.h;
-     * typed access changes MWCC alias scheduling here (measured MISMATCH). */
+    /* Raw offsets are used because typed FrFontContext access changes retail scheduling here. */
     s32 lowByte;
     s32 streamAddress;
     s32 streamOffset;
@@ -617,8 +576,7 @@ s32 frFontCommandSetConditionalWait(s32 command, u8 *context)
     return 0;
 }
 
-/* measured: closing opt_propagation off for func_0026ed00. */
-/* measured: opt_propagation off preserves decode and state-store order for func_0026ee00. */
+/* measured: opt_propagation off keeps retail's order of operand decoding and state stores. */
 // FUN_0026EE00
 /* Store a nonnegative decoded duration in layout mode. */
 s32 frFontCommandSetDuration(s32 command, u8 *context)
@@ -661,8 +619,7 @@ s32 frFontCommandSetDuration(s32 command, u8 *context)
     return 0;
 }
 
-/* measured: closing opt_propagation off for func_0026ee00. */
-// Intent: Reset the pending-layout flag and set the default values at +0xF and +0x1E [inferred]
+/* Resets the pending-layout flag and sets default intensity and height. */
 // FUN_0026EF00
 s32 frFontResetPendingState(s32 command, u8 *context)
 {
@@ -676,10 +633,9 @@ s32 frFontResetPendingState(s32 command, u8 *context)
 }
 
 #pragma push
-/* measured: opt_common_subs off reconstructs the retail packed-index sequence for func_0026ef60. */
-/* measured: func_0026ef60 MATCH -> MISMATCH without this pragma. */
+/* measured: opt_common_subs off reproduces the retail packed-index sequence for func_0026ef60. */
 #pragma opt_common_subs off
-/* measured: opt_propagation off reconstructs the retail field-load and byte-code sequence for func_0026ef60. */
+/* measured: retail reloads fields and decodes the byte code without propagating values. */
 // FUN_0026EF60
 /* Set a data flag using the decoded table selector and relative index. */
 s32 frFontSetDataFlagTable(s32 command, u8 *context)
@@ -750,11 +706,7 @@ s32 frFontSetDataFlagTable(s32 command, u8 *context)
     return 0;
 }
 
-/* measured: closing opt_propagation off for func_0026ef60. */
-/* measured: closing opt_common_subs off for func_0026ef60. */
-/* measured: opt_common_subs off reconstructs the retail packed-index sequence for frFontClearDataFlagTable. */
-/* measured: opt_propagation off reconstructs the retail field-load and byte-code sequence for frFontClearDataFlagTable. */
-// Intent: Clear a data flag at the base plus the table entry picked by the first operand [inferred]
+/* Clears a data flag at the base plus the table entry selected by the first operand. */
 // FUN_0026F0A0
 s32 frFontClearDataFlagTable(s32 command, u8 *context)
 {
@@ -825,13 +777,11 @@ s32 frFontClearDataFlagTable(s32 command, u8 *context)
 }
 #pragma pop
 
-/* measured: closing opt_propagation off for frFontClearDataFlagTable. */
-/* measured: frFontLayoutSlotIfBound MATCH -> MISMATCH without this pragma. */
+/* measured: frFontLayoutSlotIfBound only reproduces retail codegen with copy propagation turned
+ * back on after the previous function. */
 #pragma push
 #pragma opt_propagation on
-/* measured: closing opt_common_subs off for frFontClearDataFlagTable. */
-/* measured: frFontLayoutSlotIfBound MATCH -> MISMATCH without this pragma. */
-// Intent: When the slot for the decoded index is bound, update the text work and lay out that slot [inferred]
+/* When the slot for the decoded index is bound, update the text work and lay out that slot. */
 // FUN_0026F1E0
 s32 frFontLayoutSlotIfBound(s32 command, u32 contextAddress, s32 unused)
 {
@@ -869,15 +819,13 @@ s32 frFontLayoutSlotIfBound(s32 command, u32 contextAddress, s32 unused)
 }
 #pragma pop
 
-// Intent: Decode three operands; for a bound slot, lay out a glyph from the second operand, or the item name for the third [inferred]
+// Decodes three operands; for a bound slot, lays out a glyph from the second operand, or the item
+// name for the third.
 // FUN_0026F2C0
-/* measured: MWCCPS2 b210 -O2, 724B/window 736B, 16 relocations,
- * 12 zero alignment bytes. Ghidra/IDA and retail agree on the three-byte
- * glyph at sp+0x68: align the real buffer to eight, without enlarging it.
- * The scoped options preserve operand reloads and decode scheduling. */
+/* measured: the three-byte glyph buffer is aligned to eight; retail reloads operands instead of
+ * sharing them. */
 #pragma push
 #pragma opt_common_subs off
-/* measured: baseline, individual-toggle and named reload probes differ (best nd 225); retain both decode settings. */
 s32 frFontLayoutSlotCommand(s32 command, u8 *context)
 {
     s32 first;
@@ -988,9 +936,9 @@ s32 frFontLayoutSlotCommand(s32 command, u8 *context)
 }
 #pragma pop
 
-/* measured: optimization_level 0 probe for the retail redundant return branch. */
-/* measured: func_0026f5a0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps the redundant return branch, which only survives at optimization level 0. */
 #pragma optimization_level 0
+/* Check whether the font system is in control mode 2; always return 0 regardless of the result. */
 // FUN_0026F5A0
 /* Probe whether script execution is in mode two; always continue. */
 s32 frFontCommandCheckControlMode(void)
@@ -1001,15 +949,18 @@ s32 frFontCommandCheckControlMode(void)
     return 0;
 }
 
-/* measured: closes optimization_level 0 around func_0026f5a0. */
-/* measured: frFontRunCommunityCommand, frFontRunAudioCommand MATCH -> MISMATCH without this pragma. */
+/* measured: frFontRunCommunityCommand and frFontRunAudioCommand only match retail when built at
+ * optimization level 2. */
 #pragma optimization_level 2
-/* measured: opt_common_subs off preserves the per-decode pointer recompute for frFontRunCommunityCommand. */
-/* measured: opt_propagation off preserves the byte-decode temporary liveness for frFontRunCommunityCommand. */
+/* measured: retail recomputes the decode pointer per byte and keeps the byte-decode temporaries
+ * live. */
 #pragma push
 #pragma opt_common_subs off
-/* measured: baseline and first/all named reload probes differ (nd 350/301/350); retain common substitutions off. */
-// Intent: Run a community command in mode 3: set or clear the reversed flag, or add scaled points, for the current community [inferred]
+/* measured: retail recomputes the byte-decode reloads instead of sharing common subexpressions.
+ * Runs a community command in mode 3: sets or clears the reversed flag, or adds scaled points, for
+ * the current community. */
+/* In font mode 3, decode four operands from the command stream and run a community action: set a
+ * flag, set or clear the current community's reversed state, or add scaled points. */
 // FUN_0026F5E0
 s32 frFontRunCommunityCommand(s32 command, u8 *context)
 {
@@ -1116,16 +1067,10 @@ s32 frFontRunCommunityCommand(s32 command, u8 *context)
     return 0;
 }
 
-/* measured: closing opt_common_subs off for frFontRunCommunityCommand. */
-/* measured: closing opt_propagation off for frFontRunCommunityCommand. */
-/* measured: MWCCPS2 b210 -O2, 832B/window 832B, 16 relocations.
- * Ghidra gives the descending dispatch; IDA gives the 64-byte path buffer.
- * Named action/channel values survive their comparisons into case one.
- * The final switch preserves retail's explicit zero/default branches.
- * The sound provider narrows the fourth operand at its halfword store. */
-// Intent: Run an audio command in mode 1 when flag 0x3A is set: start a sound channel with formatted text or send the operands to the audio handler [inferred]
+/* Runs an audio command in mode 1 when flag 0x3A is set: starts a sound channel with formatted text
+ * (64-byte path buffer) or sends the operands to the audio handler. The final switch keeps retail's
+ * explicit zero and default branches. */
 // FUN_0026F860
-/* measured: baseline, individual-toggle and named reload probes differ (best nd 106); retain both decode settings. */
 #pragma opt_propagation off
 s32 frFontRunAudioCommand(s32 command, u8 *context)
 {

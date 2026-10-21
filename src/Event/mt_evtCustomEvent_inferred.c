@@ -22,11 +22,11 @@ extern char D_0063CB30[];
 extern char D_0063D050[];
 
 
-
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
 extern s32 kwlnTaskGetTaskByName(void *name);
-// lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
+// lint: allow H011 -- measured: func_00291a60 passes wide id args; a u16 prototype changes its
+// code.
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32, s32, s32,
                           s32);
@@ -45,22 +45,10 @@ extern u8 D_0063E810[];
 extern u16 D_008C024E[];
 extern s32 D_0063E830[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 00293710-00293710 */
-
 extern void mtMiscCollectType1Records(u8 *);
 extern void mtMiscCollectType2Records(u8 *);
-/* measured probe: preserve local constant with opt_propagation off. */
-/* measured probe: close opt_propagation bracket after func_00291530. */
-/* measured: opt_propagation off keeps `weapon` materialised between the index
-   shift and the base add (retail sll/andi/addu); with propagation on the CSE'd
-   address is finished before any argument. The index/five locals must stay
-   literal under this pragma or they take a sixth saved register. Attachment
-   helpers retain block-scoped u16 parameters for per-call masks. */
-/* measured: restore propagation for the rest of the unit. */
-/* measured probe: preserve the retail type constant and close bracket below. */
-/* measured probe: close opt_propagation bracket after func_00291810. */
-/* measured: O1 float-local register mapping probe for func_00293710. */
-/* measured: func_00293710 MATCH -> MISMATCH without this pragma. */
+/* measured: retail func_00293710 was compiled at optimization level 1; its float locals only get
+ * the retail register layout at O1. */
 #pragma optimization_level 1
 // Queue motion for resourceId with positionX/Y/Z and angle. When
 // the settings pointer is set, its four floats are stored and flag 0x2 is added.

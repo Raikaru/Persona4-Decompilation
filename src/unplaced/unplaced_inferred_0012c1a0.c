@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0012c1a0-0012c460 */
 
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -57,8 +56,6 @@ s32 titleSoundReapTask(s32 task)
 #pragma optimization_level 2
 /* Wait for sound slots, then run memcard slot creation and its result/retry windows. */
 // FUN_0012C220
-/* Earlier whole-layout TitleSoundWork access changed this callback (508/496 bytes);
- * access-site fields and a separate typed work pointer preserve the whole-file match. */
 s32 titleSoundStartStep(u8 *task) {
     s32 countdown;
     s32 result;

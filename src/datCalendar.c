@@ -1,4 +1,3 @@
-/* Source unit: src/datCalendar.c (clndGetMoonPhase) */
 #include "list_item_internal.h"
 #include "type.h"
 
@@ -8,13 +7,11 @@ extern s32 calDayOfYearFromMonthDay(s32 month, s32 day);
 extern s16 datGetDateIndex(void);
 
 
-
 // FUN_00110830
 u8 clndGetMoonPhase(s32 daysSinceApr5)
 {
     return D_0079B6D8[daysSinceApr5];
 }
-
 
 
 /* Test the current date against inclusive endpoints within the same year. */

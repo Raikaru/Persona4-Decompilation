@@ -1,7 +1,7 @@
 #include "include_asm.h"
 #include "member_access.h"
 #include "sdk_task_registration.h"
-/* Original translation unit btlShuffleResult.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit btlShuffleResult.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "btl_shuffle_draw_internal.h"
 #include "sdk_snd_internal.h"
@@ -123,13 +123,11 @@ extern s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *task);
 extern void datSetFlag(s32 flagId, s32 enabled);
 
 
-
-/* The list cursor uses the entry row and scroll values in states 2-4.
-   Keep the selected slot, display and mode as separate call inputs; measured
-   propagation-off code preserves the retail argument evaluation order. */
+/* The list cursor uses the entry row and scroll values in states 2-4; the selected slot, display
+ * and mode are passed as separate call inputs. */
 // FUN_00380EA0
 #pragma push
-/* measured: baseline nd1336; typed pointer reuse, typed parameter cache, scoped locals, inverted if/else did not match (best nd1336); retain opt_propagation off. */
+/* measured: retail evaluates call arguments in the order produced with copy propagation off. */
 #pragma opt_propagation off
 s32 btlShuffleResultOpen(u8 *work)
 {
@@ -197,7 +195,6 @@ s32 btlShuffleResultOpen(u8 *work)
         if (((BtlShuffleResultRoster *)state)->mode == 0) {
             if (D_008C024E[0] & 0x40) {
                 u8 *txt;
-                /* measured: typed roster-slot indexing changes the offset-first address operands at each retained site. */
                 txt = datPersonaGetRow(((DatPersonaRecord *)((u8 **)(state + 0x4C))[sum])->id);
                 nmMesWindowSetCurrentString(0, txt);
                 nmMesWindowShowCurrentRecord(4);
@@ -210,7 +207,6 @@ s32 btlShuffleResultOpen(u8 *work)
             } else if (D_008C024E[0] & 0x80) {
                 {
                     u8 **selected = (u8 **)(state + 0x4C) + sum;
-                    /* measured: access-site display casts change allocation; the roster alias preserves the reload. */
                     u8 *display = roster->display;
                     s32 displayMode = 1;
                     shdPersonaSetDisplayState(display, displayMode, (u32)*selected, 0);
@@ -407,12 +403,8 @@ s32 btlShuffleResultInit(u8 *work) {
     return 0;
 }
 
-/* Two levers, both recorded as impossible by the previous note: the counter
-   store lands before the compare mask because the compound assignment's VALUE
-   is used (see the measured comment at the site), and the single `return 0`
-   after the switch gives retail's one shared zero-return block placed last,
-   with the case bodies laid out in ascending declaration order. */
-/* Play the delayed result cue and clear non-selected cards before the closing message. */
+/* Play the delayed result cue and clear non-selected cards before the closing message. The single
+ * return 0 after the switch gives retail's one shared zero-return block, placed last. */
 // FUN_00381830
 s32 btlShuffleResultLayout(u8 *work)
 {
@@ -428,12 +420,9 @@ s32 btlShuffleResultLayout(u8 *work)
         *state = 1;
         /* fallthrough */
     case 1:
-        /* measured: the work alias preserves the initial frame load and the later typed increment. */
         if ((s32)resultWork->frames < 0xA) {
-            /* measured: the compound assignment's VALUE keeps the incremented
-               counter in one register, so b210 emits the sh before the andi
-               exactly as retail does; a separate `cnt = cnt + 1; store;` pair
-               masks first. */
+            /* Using the compound assignment's value stores the counter before masking it, as retail
+             * does. */
             bumped = (((BtlShuffleResultWork *)work)->frames += 1);
             if ((bumped & 0xFFFF) == 0xA) {
                 sdkSndStartStream(1, 1, 5, 0xC);
@@ -476,7 +465,6 @@ s32 btlShuffleResultLayout(u8 *work)
 }
 
 
-
 /* Start the selected card reveal, reset its view and finish the trail effects. */
 static inline void btlShuffleResultStartReveal(u8 *context)
 {
@@ -487,7 +475,6 @@ static inline void btlShuffleResultStartReveal(u8 *context)
     btlShuffleDrawViewReset(context);
     screen[0] = 316.0f;
     screen[1] = 211.0f;
-    /* measured: the dedicated drawing alias preserves MATCH where access-site casts change allocation. */
     btlShuffleCardScaleVec(context + drawing->revealCard * 0xFB0, &screen[0], 160.0f, (f32 *)&position);
     btlShuffleDrawMoveCard(context, ((BtlShuffleContext *)context)->revealCard, 0.0f, 0.0f, (f32 *)&position, (f32 *)&position);
     btlShuffleEffUpdate(drawing->trailTask);
@@ -610,8 +597,7 @@ s32 btlShuffleResultRun(u8 *work)
 {
     BtlShuffleResultWork *resultWork = (BtlShuffleResultWork *)work;
     BtlShuffleContext *drawing;
-    /* Capture the context and payload bases once. This local view scalarizes
-       to the retail saved-pointer lifetimes; it is not an external layout. */
+    /* Captures the context and payload bases once; this is a local view, not an external layout. */
     struct {
         u8 *context;
         ShuffleResultState *state;
@@ -644,7 +630,6 @@ s32 btlShuffleResultRun(u8 *work)
             result = btlShuffleDrawViewIsRunReady(((BtlShuffleContext *)view.context)->viewTask);
             if (result != 0) {
                 btlShuffleDrawSetPose(view.context, ((BtlShuffleContext *)view.context)->revealCard, 0, 0x14);
-                /* measured: the dedicated drawing alias preserves MATCH where access-site casts change allocation. */
                 drawing->flags = (u16)(((BtlShuffleContext *)view.context)->flags | 8);
                 view.state->phase = 3;
                 goto waitForCard;
@@ -884,7 +869,6 @@ s32 btlShuffleResultRun(u8 *work)
         result = btlShuffleSeqFlag(view.context);
         if (result != 0) {
             datSetFlag(0x1434, 1);
-            /* measured: an access-site message-resource cast changes one instruction byte; drawing preserves MATCH. */
             nmMesWindowOpenCurrent((u8 *)(drawing->textureBlobs[0]));
             view.state->phase = 4;
         }
@@ -918,7 +902,6 @@ s32 btlShuffleResultMenu(u8 *work) {
         btlShuffleDrawViewReset(context);
         pos[0] = 316.0f;
         pos[1] = 211.0f;
-        /* measured: the dedicated drawing alias preserves MATCH where access-site casts change allocation. */
         btlShuffleCardScaleVec(context + drawing->revealCard * 0xFB0, &pos[0], 160.0f, (f32 *)&outBuf.out[0]);
         btlShuffleDrawMoveCard(context, ((BtlShuffleContext *)context)->revealCard, 0.0f, 0.0f, (f32 *)&outBuf.out[0], (f32 *)&outBuf.out[0]);
         btlShuffleEffUpdate(drawing->trailTask);
@@ -1034,10 +1017,8 @@ s32 btlShuffleResultBonus(u8 *work, u8 *parentTask, s32 cardKind, u16 personaId,
     unit = btlShuffleGetDrawContext(parentTask);
     drawing = (BtlShuffleContext *)unit;
     *(u8 **)work = unit;
-    /* measured: typing this initial kind store grows Bonus from 2172 to 2184 bytes. */
     MEMBER(s32, work, BtlShuffleResultWork, cardKind) = cardKind;
     ((BtlShuffleResultWork *)work)->personaId = personaId;
-    /* measured: an access-site message-resource cast changes one instruction byte; drawing preserves MATCH. */
     nmMesWindowOpenCurrent((u8 *)(drawing->textureBlobs[0]));
     switch (((BtlShuffleResultWork *)work)->cardKind) {
     case -1:
@@ -1112,11 +1093,9 @@ s32 btlShuffleResultMain(u8 *work) {
     u16 count;
     u32 stage;
 
-    /* measured: access-site dispatch typing grows Main to 804 bytes; the resultWork alias preserves MATCH. */
     stage = (u32)resultWork->phase;
     switch (stage) {
     case 0:
-        /* measured: the work alias preserves the initial frame load and the later typed increment. */
         count = resultWork->frames;
         if ((s32)count < 0xA) {
             if (((((BtlShuffleResultWork *)work)->frames += 1) & 0xFFFF) == 0xA) {

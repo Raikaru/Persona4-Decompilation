@@ -25,16 +25,13 @@ typedef struct {
 extern Code1_0049Color iGpffffbb64;
 
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 00492b20-00492b20 */
-
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: b210 -O2 needs independent value propagation and loop-invariant
- * constant materialization for the retail register and instruction schedule. */
+/* measured: retail schedule needs value propagation off and loop-invariant constants hoisted. */
 #pragma push
 #pragma pop
 /* Allocate the emitter header, primary/trail samples, two parameter copies and kind-specific state. */

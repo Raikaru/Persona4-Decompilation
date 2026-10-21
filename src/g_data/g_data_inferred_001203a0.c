@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/g_data/g_data.c); members 001203a0-00120ae0 */
 
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -26,8 +25,6 @@ void drawNumberSprites(Vec2f position, f32 depth, PanelRgba color, u32 number, s
  * and shifts the gauges right, while fullName selects the complete name.
  * Only the low opacity byte is used; kind 3 raises the name by five pixels. */
 // FUN_001203A0
-/* measured: separate HP marker/gauge Y lifetimes keep all 1856 bytes matched
-   without lifetime splitting; the shared hpY form differs at 19 bytes. */
 void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaximum, s32 fullName)
 {
     extern u8 *resourceFindByName(char *name);

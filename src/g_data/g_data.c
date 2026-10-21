@@ -279,7 +279,6 @@ typedef struct DatPersonaFlags {
 } DatPersonaFlags;
 
 
-
 extern u32 datPersonaGetExp(int persona);
 
 extern void FUN_0043f9c8(void* destination, s32 value, u32 size);
@@ -287,7 +286,8 @@ extern void datBuildPersonaDisplayName(void);
 extern u8 DAT_007973a0[0x24];
 
 
-// Intent: copies one entry from the loaded table, with its record lists, into a new heap block and returns it.
+// Copies one entry from the loaded table, with its record lists, into a new heap block and returns
+// it.
 // FUN_00104900
 void* datCloneEntryBlock(s32 entryIndex)
 {
@@ -317,7 +317,7 @@ void datFreeBlock(s32 block)
     DAT_008873ec_abs[0](block);
 }
 
-// Intent: reads the g_data entry table from disc (H_Cdvd_ReadSync) and builds the in-memory copy at iGpffffb1ac.
+// Reads the g_data entry table from disc and builds the in-memory copy.
 // FUN_00104A60
 /* Counts and addresses share the on-disc header; integer address members preserve arithmetic load order. */
 void datLoadEntryTable(void)
@@ -354,7 +354,7 @@ void datLoadEntryTable(void)
     H_Cdvd_Destroy((struct HCdvd *)obj);
 }
 
-// Intent: points the entry table at the built-in copy D_0079BF00. Init calls it when the disc load fails.
+// Points the entry table at the built-in copy D_0079BF00; init calls it when the disc load fails.
 // FUN_00104C50
 void datEntryTableUseBuiltin(void)
 {
@@ -377,8 +377,8 @@ s32 datCalcGetLevelById(s32 unitId)
     }
 }
 
-/* Return the unit reader's value explicitly; both 108-byte bodies retain
- * their six relocations and four zero alignment bytes. */
+/* Return the HP of the unit with the given id, using the protagonist's unit for id 1 and the party
+ * slot unit otherwise. */
 // FUN_00104CE0
 u32 datCalcGetHpById(s16 unitId)
 {
@@ -406,8 +406,7 @@ u32 datCalcGetSpById(s16 unitId)
     }
 }
 
-/* Character selectors are signed halfwords. Canonical getter/setter
- * declarations preserve both 108-byte wrappers and their caller bodies. */
+/* Character selectors are signed halfwords. */
 // FUN_00104DC0
 u16 datCalcMaxHpById(s16 unitId)
 {
@@ -437,7 +436,8 @@ u16 datCalcMaxSpById(s16 unitId)
 
 /* Read category points from the protagonist or the party record selected by unit id. */
 // FUN_00104EA0
-/* Linker interior alias: D_00796D74 addresses the category halfwords inside 0x88-byte party slots. */
+/* D_00796D74 is a linker interior alias addressing the category halfwords inside 0x88-byte party
+ * slots. */
 s16 datGetCategoryValueById(s16 unitId, s16 category)
 {
     if (unitId == 1)
@@ -483,13 +483,14 @@ s16 datRankForPoints(s16 category, s16 points)
     }
 }
 
-/* Measured: 396B/400B, normalized_diff=0; four trailing zero bytes are padding.
- * The s32 carriers retain explicit signed-short wrapping without reusing the
- * comparison's narrowed temporary for subtraction. Scoped propagation preserves
- * the short progress stages; greater-than selects retail's AT comparison. */
+/* Signed-short wrapping is done explicitly in s32 temporaries; the greater-than comparison follows
+ * retail. */
 #pragma push
-/* measured: baseline propagation gives nd86; narrowed remaining/threshold gives nd87. */
+/* measured: retail keeps the short progress stages separate, which constant propagation would
+ * merge. */
 #pragma opt_propagation off
+/* Compute a category's rank progress from its accumulated points and the rank thresholds, then
+ * scale it as a percentage of scale. */
 // FUN_00105010
 s16 datCategoryRankProgress(s16 category, f32 scale)
 {
@@ -526,7 +527,8 @@ s16 datCategoryRankProgress(s16 category, f32 scale)
 
 /* Store category points in the protagonist or indexed party character record. */
 // FUN_001051A0
-/* Linker interior alias: D_00796D74 addresses the category halfwords inside 0x88-byte party slots. */
+/* D_00796D74 is a linker interior alias addressing the category halfwords inside 0x88-byte party
+ * slots. */
 void datSetCategoryValueById(s16 unitId, s16 category, s16 points)
 {
     if (unitId == 1)
@@ -573,10 +575,8 @@ u16 datGetPersonaIdByUnit(s16 unitId)
     }
 }
 
-/* Ported from the P3FES donor func_00177410, which carries opt_loop_invariants on
- * around this function to hoist the gGlobalWork base out of both copy loops.
- * Removing this loses func_0010d490 (MATCH nd0 -> MISMATCH nd59, size 200 -> 200)
- * - measured W161 (donor's own P3 measurement: nd89). */
+/* measured: loop invariants on hoists the gGlobalWork base out of both copy loops. Matches P3FES
+ * func_00177410. */
 
 #pragma opt_loop_invariants on
 extern u8 DAT_00796de0[];
@@ -587,14 +587,12 @@ extern u8 DAT_007973b2[];
 extern u32 DAT_00762ca0;
 
 
-
 // FUN_00105330
 /* Returns the active roster index and ignores its character selector. */
 s32 datGetActiveRosterIndex(s32 character)
 {
     return D_00797F88[0];
 }
-
 
 
 /* Apply the bad-status reader to the selected protagonist or party character. */
@@ -701,7 +699,8 @@ void datSetHeroLevel(s16 unitId, u8 value)
     }
 }
 
-// Intent: stores a unit's current HP (hero slot D_007973CC, party slots at +0x88 stride). The slot is the one datClampUnitHpSp writes.
+// Stores a unit's current HP in the hero slot or its 0x88-byte party slot, the same slot
+// datClampUnitHpSp writes.
 // FUN_001056E0
 void datSetUnitHp(s16 unitId, s16 hp)
 {
@@ -715,7 +714,8 @@ void datSetUnitHp(s16 unitId, s16 hp)
     }
 }
 
-// Intent: stores a unit's current SP (hero slot D_007973CE, party slots at +0x88 stride). The slot is the one datClampUnitHpSp writes.
+// Stores a unit's current SP in the hero slot or its 0x88-byte party slot, the same slot
+// datClampUnitHpSp writes.
 // FUN_00105730
 void datSetUnitSp(s16 unitId, s16 sp)
 {
@@ -729,7 +729,8 @@ void datSetUnitSp(s16 unitId, s16 sp)
     }
 }
 
-// Intent: clamps a unit's current HP and SP to its max HP and max SP (datCalcMaxHp / datCalcMaxSp). Writes the max back when the current value is larger.
+// Clamps a unit's current HP and SP to its max HP and max SP, writing the max back when the current
+// value is larger.
 // FUN_00105780
 void datClampUnitHpSp(s16 unitId)
 {
@@ -811,8 +812,8 @@ void datSetHeroExp(s16 unitId, u32 experience)
     }
 }
 
-/* 576/576 bytes; twenty-seven resolved relocations.
- * Independent byte counters retain both scans and the final experience reload. */
+/* Return how much experience the protagonist (unit 1) or the given persona still needs to reach the
+ * next level. Return 0 if it is already at the level cap. */
 // FUN_00105A50
 s32 datGetExperienceToNextLevel(s16 unitId)
 {
@@ -887,7 +888,8 @@ second_done:
 
 /* Store the trailing character halfword, selecting protagonist or party storage. */
 // FUN_00105C90
-/* Linker interior alias: D_00796D84 addresses the tail halfword inside each 0x88-byte party slot. */
+/* D_00796D84 is a linker interior alias pointing at the tail halfword inside each 0x88-byte party
+ * slot. */
 void datSetUnitRecordTailValue(s16 unitId, s16 value)
 {
     if (unitId == 1)
@@ -930,7 +932,8 @@ void datCalcClearBadStatusById(s16 unitId, u32 mask)
 
 /* Store an equipment ID in the selected character's equipment slot. */
 // FUN_00105DC0
-/* Linker interior alias: D_00796D8C addresses three equipment halfwords inside each 0x88-byte party slot. */
+/* D_00796D8C is a linker interior alias pointing at the three equipment halfwords inside each
+ * 0x88-byte party slot. */
 void datSetEquippedItemByUnit(s16 unitId, s16 slotIndex, s16 itemId)
 {
     if (unitId == 1)
@@ -965,13 +968,11 @@ u32 datGetMoney(void)
 }
 
 
-
 // FUN_00105EE0
 s16 datGetPartyId(s32 idx)
 {
     return D_00797560.partyIds[idx];
 }
-
 
 
 /* Return the signed tactic byte from the selected character record. */
@@ -1016,7 +1017,6 @@ void datSetPartyId(s32 idx, s16 pcId)
 }
 
 
-
 /* Add a signed amount to money and clamp the result to 0..9,999,999. */
 // FUN_00106020
 s32 datAddMoney(s32 delta)
@@ -1046,13 +1046,11 @@ s16 datGetDateIndex(void)
 }
 
 
-
 // FUN_001060C0
 u8 datGetTimeSlot(void)
 {
     return D_00797B7C[0];
 }
-
 
 
 // FUN_001060D0
@@ -1062,13 +1060,11 @@ s16 datGetPendingDateIndex(void)
 }
 
 
-
 // FUN_001060E0
 u8 datGetPendingTimeSlot(void)
 {
     return D_00797B86[0];
 }
-
 
 
 // FUN_001060F0
@@ -1165,7 +1161,6 @@ u32 datGetFlag(s32 bit)
 }
 
 
-
 /* Set or clear one checked global flag; flag 0x1576 also emits a diagnostic. */
 // FUN_00106390
 void datSetFlag(s32 flagId, s32 enabled)
@@ -1231,7 +1226,7 @@ void datSetScriptValue(s32 index, u32 value)
 
 /* Clear the first 127 script-value words, leaving the final word untouched. */
 // FUN_001065C0
-/* Linker interior alias: script words start at DAT_007973a0 + 0x40EC; retail clears only 127. */
+/* Retail clears only 127 of the script-value words. */
 void datClearScriptValues(void)
 {
     s32 i = 0;
@@ -1243,14 +1238,14 @@ void datClearScriptValues(void)
     }
 }
 
-// Intent: returns an item's stack count (byte at D_0079757A[id]). datItemSetCount writes the same table.
+// Returns an item's stack count; datItemSetCount writes the same table.
 // FUN_00106600
 s32 datItemCount(s16 itemId)
 {
     return D_0079757A[itemId];
 }
 
-// Intent: sets an item's stack count, clamped to 99 (0x63), in the D_0079757A table.
+// Sets an item's stack count, clamped to 99.
 // FUN_00106620
 /* Inventory and metadata queries share the signed halfword item ID. */
 void datItemSetCount(s16 itemId, s32 count)
@@ -1365,78 +1360,80 @@ u16 datEntryGetLastBandValue(s16 itemId)
     return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->lastBandValue;
 }
 
-// Intent: returns the skill id an item grants (u32 at +0x24 of the entry). datCalcSkillCost and PTDatCalcHasSkill compare the result with skill ids.
+// Returns the skill ID an item grants; datCalcSkillCost and PTDatCalcHasSkill compare it with skill
+// IDs.
 // FUN_001069A0
 u32 datItemGrantedSkill(s16 itemId)
 {
     return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->grantedSkill;
 }
 
-// Intent: returns the item value (u16 at +0x28). code1_0013 reads it as itemValue.
+// Returns the item value.
 // FUN_001069D0
 u16 datItemValue(s16 itemId)
 {
     return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->value;
 }
 
-// Intent: returns the accessory's damage percent (u16 at +0x2A). DCDamageAccessoryFraction uses it as the percentage.
+// Returns the accessory's damage percent, used by DCDamageAccessoryFraction.
 // FUN_00106A00
 u16 datItemAccessoryPercent(s16 itemId)
 {
     return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->accessoryPercent;
 }
 
-// Intent: returns the item's element (u16 at +0x2C). datCalcSkillElement and datCalcHitResult read it for the equipped item.
+// Returns the item's element, read by datCalcSkillElement and datCalcHitResult for the equipped
+// item.
 // FUN_00106A30
 u16 datItemElement(s16 itemId)
 {
     return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->element;
 }
 
-// Intent: returns the category bitmask (u32 at +0x30) that y_list.c tests against its filter.
+// Returns the category bitmask that y_list.c tests against its filter.
 // FUN_00106A60
 u32 datEntryCategoryMask(s16 itemId)
 {
     return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->categoryMask;
 }
 
-// Intent: returns the item's price (u32 at +0x34). fclItemShopDiscountedPrice subtracts the discount from it.
+// Returns the item's price; fclItemShopDiscountedPrice subtracts the discount from it.
 // FUN_00106A90
 u32 datItemPrice(s16 itemId)
 {
     return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->price;
 }
 
-// Intent: returns the calendar month (+0x38) an item is available from. Compared through func_002be100 with fclCalendarMonth.
+// Returns the calendar month an item becomes available, compared against fclCalendarMonth.
 // FUN_00106AC0
 s8 datItemAvailableMonth(s16 itemId)
 {
     return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->availableMonth;
 }
 
-// Intent: returns the calendar day (+0x39) an item is available from, paired with datItemAvailableMonth.
+// Returns the calendar day an item becomes available, paired with datItemAvailableMonth.
 // FUN_00106AF0
 s8 datItemAvailableDay(s16 itemId)
 {
     return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->availableDay;
 }
 
-// Intent: returns the first moon-phase gate word (+0x3C). Bits 8..19 are the phase key and the low byte is the second fclMoonPhaseAtLeast argument.
+// Returns the first moon-phase gate word: bits 8..19 are the phase key, the low byte is the second
+// fclMoonPhaseAtLeast argument.
 // FUN_00106B20
 u32 datItemMoonGateFirst(s16 itemId)
 {
     return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->firstMoonGate;
 }
 
-// Intent: returns the second moon-phase gate word (+0x40), with the same layout as datItemMoonGateFirst.
+// Returns the second moon-phase gate word, laid out like datItemMoonGateFirst.
 // FUN_00106B50
 u32 datItemMoonGateSecond(s16 itemId)
 {
     return ((GDataEntry*)((u8*)D_007242A0 + (s32)itemId * 68))->secondMoonGate;
 }
 
-/* The signed item ID selects a bank-relative metadata index. */
-// Intent: maps an item id to its offset within its 0x100-entry bank (ids 0x000..0x5FF).
+/* Maps a signed item id (0x000..0x5FF) to its index within its 0x100-entry bank. */
 // FUN_00106B80
 s64 datItemBankOffset(s16 encodedItemId)
 {
@@ -1462,15 +1459,12 @@ s64 datItemBankOffset(s16 encodedItemId)
 }
 
 
+// Matches P3FES comuTimerSequence. kwlnTaskGetWork is deliberately undeclared (implicit call, as in
+// P3FES) because a typed prototype adds zero-extensions retail lacks.
 
-// Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
-// kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
-// in the donor): a typed prototype makes mwcc emit zero-extension codegen
-// retail never has.
-
-/* measured: applying the mask to flags in a separate statement preserves the
-   early category-mask load under baseline propagation (nd22 -> MATCH). */
-// Intent: tests bit (arg1 + 4) of the 32-bit flag word at +0x30 of a g_data entry; callers are the equipment screen and the new-game script.
+/* measured: masking flags in a separate statement keeps retail's early categoryMask load. Tests bit
+ * (flagIndex + 4) of a g_data entry's categoryMask; used by the equipment screen and new-game
+ * script. */
 // FUN_00106C30
 s32 datEntryHasFlag(s16 itemId, s16 flagIndex)
 {
@@ -1499,7 +1493,8 @@ s32 datIdBand(s16 itemId)
 
 /* Read an equipment slot from the protagonist or selected party character. */
 // FUN_00106CD0
-/* Linker interior alias: D_00796D8C addresses three equipment halfwords inside each 0x88-byte party slot. */
+/* D_00796D8C is a linker interior alias pointing at the three equipment halfwords inside each
+ * 0x88-byte party slot. */
 s16 datGetEquippedItemByUnit(s16 unitId, s16 slotIndex)
 {
     if (unitId == 1)
@@ -1514,7 +1509,8 @@ s16 datGetEquippedItemByUnit(s16 unitId, s16 slotIndex)
 
 /* Assign the selected character's equipment slot without validating the item ID. */
 // FUN_00106D40
-/* Linker interior alias: D_00796D8C addresses three equipment halfwords inside each 0x88-byte party slot. */
+/* D_00796D8C is a linker interior alias pointing at the three equipment halfwords inside each
+ * 0x88-byte party slot. */
 void datAssignEquippedItem(s16 unitId, s16 slotIndex, s16 itemId)
 {
     if (unitId == 1)
@@ -1527,7 +1523,7 @@ void datAssignEquippedItem(s16 unitId, s16 slotIndex, s16 itemId)
     }
 }
 
-// Intent: destroy callback of the community task (cmmCommunity.c); frees the task's work block.
+// Destroy callback of the community task; frees the task's work block.
 // FUN_00108CB0
 void datFreeTaskWork(u8 *unusedTask)
 {
@@ -1536,7 +1532,6 @@ void datFreeTaskWork(u8 *unusedTask)
     work = kwlnTaskGetWork();
     DAT_008873ec_abs[0](work);
 }
-
 
 
 /* Destroy the named task hierarchy when the scheduler lookup succeeds. */
@@ -1553,7 +1548,6 @@ void datDestroyTaskByName(void)
 }
 
 
-
 // FUN_001090F0
 void datResetTotalBtl(void)
 {
@@ -1561,24 +1555,8 @@ void datResetTotalBtl(void)
 }
 
 
-
-/* measured: retail compiles the GS doubled-alpha loop with a single bltz and
-   one shared join (add.s $f1,$f1,$f0); mwcc b210 duplicates the whole loop
-   tail (join + increments + test) for the else path in every spelling, and
-   bloats the object past the 0x144 window. Tried: s32 value + >=0 (skill
-   recipe), (s16)/(s32) casts, f=f+f and *2.0f doubling, u32 shift cast -
-   best nd 37 with 188B object vs 144B window. Branch-duplication floor. */
-/* The old "branch-duplication floor" note here was wrong twice over. The
-   halve/convert/double branch around the accumulate is not something to write by
-   hand - it is b210's built-in UNSIGNED-to-float conversion, so `(f32)(u32)x` emits
-   the whole idiom with retail's shared tail. Hand-rolling the two arms is what
-   bloated the object to 188B against a 144B window (nd 37).
-   With the cast the size is exact and only the register roles differ: retail keeps
-   the counter in $a0 and the walking pointer in $a1. That is DECLARATION order -
-   declaring `u8 *p` before `s32 i` is byte-exact. Measured: the reverse order is
-   nd 7, an `i = 0` before the pointer setup is nd 12, index arithmetic without a
-   pointer local is nd 101, and fourteen allocation/loop pragmas all leave nd 7. */
-/* Sums the halfword at offset six in 21 sixteen-byte records and divides by 210. */
+/* Sums the value field of the 21 sixteen-byte score records and returns the total divided by 210;
+ * the (f32)(u32) cast gives retail's unsigned-to-float conversion. */
 // FUN_00109190
 f32 datGetAverageRecordScore(void) {
     f32 sum;
@@ -1595,14 +1573,11 @@ f32 datGetAverageRecordScore(void) {
 }
 
 
-
-
 // FUN_00109390
 u8 datPersonaGetLevel(int persona)
 {
     return ((DatPersonaRecord*)persona)->level;
 }
-
 
 
 /* Resolve the unit's persona record before reading its level byte. */
@@ -1614,14 +1589,13 @@ u8 datPersonaGetLevelByPcId(u16 pcId)
 }
 
 
-
-// Intent: returns the persona's current exp (u32 at +8 of the record). Callers use it as the exp base for the next-level and remaining-exp figures.
+// Returns the persona's current exp; callers use it as the base for next-level and remaining-exp
+// figures.
 // FUN_00109430
 u32 datPersonaGetExp(int persona)
 {
     return (u32)((DatPersonaRecord*)persona)->exp;
 }
-
 
 
 // FUN_00109440
@@ -1631,13 +1605,11 @@ u32 datPersonaGetExpToNextLevel(PersonaWork* persona)
 }
 
 
-
 // FUN_001094D0
 u16 *datPersonaGetSkills(DatPersonaRecord *persona)
 {
     return persona->skills;
 }
-
 
 
 /* Resolve the unit's persona record and return its eight-skill array. */
@@ -1650,7 +1622,6 @@ u16* datPersonaGetSkillsByPcId(u16 pcId)
 }
 
 
-
 /* Add a signed byte delta to one bonus stat in the resolved persona record. */
 // FUN_00109D80
 void datPersonaAddToBonusStatByPcId(u16 pcId, u16 statId, s8 amount)
@@ -1659,7 +1630,6 @@ void datPersonaAddToBonusStatByPcId(u16 pcId, u16 statId, s8 amount)
 
     persona->bonusStats[statId] += amount;
 }
-
 
 
 /* Reject level 99, otherwise compare experience against the next-level threshold. */
@@ -1671,7 +1641,6 @@ s32 datPersonaCanLevelUp(PersonaWork* persona)
     }
     return datPersonaGetExpForLevel(persona, persona->level + 1) <= persona->nextExp;
 }
-
 
 
 /* Append kind-one, unflagged skill records to the output skill list. */
@@ -1752,11 +1721,13 @@ void datSetHeroNameParts(u8* firstName, u8* lastName)
 
     datBuildPersonaDisplayName();
 }
-/* measured: see the annotation above the matching `on` pragma (func_0010d490). */
+/* measured: invariant hoisting is needed only for datSetHeroNameParts and is switched back off
+ * here. */
 #pragma opt_loop_invariants off
 
 
-
+/* Clear the name buffers, copy in the two stored name parts, and format them into the combined
+ * display name string. */
 // FUN_0010D560
 void datBuildPersonaDisplayName(void)
 {
@@ -1782,7 +1753,8 @@ u32 datPersonaDisplayName(s16 unitId)
     }
 }
 
-// Intent: returns name part 0 for a persona id. Id 1 is the hero's buffer; ids below 11 use the part-0 table; other ids use the display-name table.
+// Returns name part 0 for a persona id: id 1 is the hero's buffer, ids below 11 use the part-0
+// table, others the display-name table.
 // FUN_0010D660
 u32 datPersonaNamePart0(s16 unitId)
 {
@@ -1797,7 +1769,8 @@ u32 datPersonaNamePart0(s16 unitId)
     return D_005E4480[unitId];
 }
 
-// Intent: returns name part 1 for a persona id, with the same lookup as datPersonaNamePart0 over the part-1 table.
+// Returns name part 1 for a persona id, using the same lookup as datPersonaNamePart0 over the
+// part-1 table.
 // FUN_0010D6D0
 u32 datPersonaNamePart1(s16 unitId)
 {
@@ -1812,7 +1785,7 @@ u32 datPersonaNamePart1(s16 unitId)
     return D_005E4480[unitId];
 }
 
-// Intent: same body as datPersonaNamePart1 (a duplicate kept at its own address).
+// Same body as datPersonaNamePart1, kept at its own address.
 // FUN_0010D740
 u32 datPersonaNamePart1Alt(s16 unitId)
 {
@@ -1849,9 +1822,8 @@ extern s32 iGpffffb1b8;
 extern u8 *FldStepTable(void);
 extern s32 FldStepTableSize(void);
 
-/* The inferred nested metadata layout leaves one natural tail-padding byte.
- * Retail includes that byte in the character-wise summary checksum.
- * 3908/3920 bytes; 219 resolved relocations; 12 zero alignment bytes. */
+/* The metadata layout leaves one tail-padding byte, which retail includes in the character-wise
+ * summary checksum. */
 extern u8 *iGpffff9db0;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 FldStepIndex(void);
@@ -1877,7 +1849,8 @@ typedef char DatSaveMetadataSize[(sizeof(DatSaveMetadata) == 12) ? 1 : -1];
 typedef char DatSaveSummarySize[(sizeof(DatSaveSummary) == 52) ? 1 : -1];
 
 #pragma push
-/* measured: without invariant hoisting nd2451; updating total directly removes the propagation override. */
+/* measured: retail hoists loop invariants here; updating total directly also avoids the propagation
+ * override. */
 #pragma opt_loop_invariants on
 // FUN_0010D7C0
 u8 *datSaveBuildImage(s32 version, s32 *outSize, s32 compact)
@@ -2256,7 +2229,8 @@ s32 datSaveVerifyChecksum(s32 unusedVersion, u8 *image, s32 size)
     return 0;
 }
 
-/* 2480/2480 bytes; 106 fully resolved relocations. */
+/* Copy one tagged save-data section back into its global save buffer, ignoring it unless its length
+ * matches the size that tag expects. */
 // FUN_0010E9E0
 void datSaveRestoreSection(s32 unusedVersion, u32 tag, u32 length, u8* data)
 {
@@ -2466,8 +2440,8 @@ void datClearCollectionBitmap(void)
     }
 }
 
-/* Unsigned masks define bit 31 without changing either retail shift. */
-// Intent: sets bit (arg1 + arg0 * 8) in the bitmap D_0079BCD8. Pairs with datTestBitmapBit.
+/* Sets bit (bitIndex + entryIndex 8) in the bitmap D_0079BCD8; pairs with datTestBitmapBit.
+ * Unsigned masks allow bit 31. */
 // FUN_0010F3D0
 void datSetBitmapBit(u32 entryIndex, u32 bitIndex)
 {
@@ -2476,7 +2450,7 @@ void datSetBitmapBit(u32 entryIndex, u32 bitIndex)
     D_0079BCD8[bit >> 5] |= 1U << (bit & 0x1f);
 }
 
-// Intent: returns the state of bit (arg1 + arg0 * 8) in the bitmap D_0079BCD8. Reader for datSetBitmapBit.
+// Returns the state of bit (bitIndex + entryIndex 8) in the bitmap D_0079BCD8.
 // FUN_0010F420
 u32 datTestBitmapBit(u32 entryIndex, u32 bitIndex)
 {
@@ -2487,13 +2461,11 @@ u32 datTestBitmapBit(u32 entryIndex, u32 bitIndex)
 }
 
 
-
-/* measured: opt_loop_invariants on hoists the sllv constant 1 and keeps the
-   D_007973A0 base in $a3 like retail; without it mwcc rematerializes addiu
-   $v1,0,1 in the loop body (nd 18 -> 0). */
-/* measured: explicit mask local still gives nd33 without invariant hoisting. */
+/* measured: retail hoists the mask out of the loop. */
 #pragma opt_loop_invariants on
 
+/* Return the eight collection bits for the given entry index from the save state's collection
+ * bitfield, combined with OR. Each bit stays at its original position. */
 // FUN_0010F460
 /* Linker interior alias: the collection words start at DAT_007973a0 + 0x4938. */
 u32 datGetCollectionEntryBits(u16 entryIndex)
@@ -2812,8 +2784,8 @@ u8* datPersonaResolveRecord(u8* record)
 
 /* Initialize every nonzero persona id and seed cache entries allowed by metadata flags. */
 // FUN_0010FFA0
-/* Measured: seven id accesses change instructions with field, typed-local and array forms;
- * MEMBER preserves their byte-buffer base and halfword width. Other accesses use the real layouts. */
+/* Seven id accesses use a byte-buffer base with halfword width; the other accesses use the real
+ * layouts. */
 void datPersonaInitAllRecords(void) {
     u8 buf[0x30];
     u8 *base;

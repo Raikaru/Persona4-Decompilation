@@ -34,7 +34,6 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
 
 
-
 extern u8 D_0060AB08[];
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
@@ -59,10 +58,7 @@ extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
 
 
-
 extern s32 btlTargetClearFlaggedBuffs(u8 **actionPacket);
-
-
 
 
 extern s32 iGpffffb464;
@@ -72,8 +68,6 @@ extern u8 D_00624F60[];
 extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f3900-001f3900 */
-
 extern s32 btlActionAnyTargetHitRowStatus(u8 *action);
 extern s32 btlActionSameGenusTargetsHaveDelta(u8 *action);
 extern s32 btlActionAnyTargetClearsDeathStatus(u8 *action);
@@ -82,22 +76,11 @@ extern s32 btlActionHasNoTargetClass(u32 action);
 extern s32 btlTargetGroupStateMatches(u8 *context);
 #pragma push
 #pragma pop
-/* measured: invariant mask materialisation needs opt_loop_invariants on to
-   place the retail `lui` in the preheader. */
-/* measured: closes the invariant-hoist bracket for func_001f0af0. */
-/* measured: loop-invariant probe for func_001f0c50's shared true value. */
-/* measured: close opt_loop_invariants after func_001f0c50 probe. */
-/* measured: invariant mask materialisation needs opt_loop_invariants on to
-   place the retail `lui` in the preheader. */
-/* measured: closes the invariant-hoist bracket for func_001f0d30. */
-/* measured: opt_loop_invariants on preserves the nonzero-path constant and loop preheaders for func_001f0dd0. */
-/* measured: close opt_loop_invariants after func_001f0dd0. */
-/* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
-/* measured: close optimization_level 1 probe for func_001f0ff0. */
-/* measured: opt_loop_invariants on preserves target loop preheaders and state materialisation. */
-/* measured: close opt_loop_invariants after btlTargetGroupStateMatches probe. */
+/* measured: opt_loop_invariants on lets retail hoist the shared mask and true-value constants into
+ * loop preheaders. */
 #pragma push
-/* measured: normalized result/record snapshots need invariant motion for the retail 0x310 frame. */
+/* measured: retail keeps the result and record snapshots in separate locals of its large stack
+ * frame. */
 #pragma pop
 // FUN_001F3900
 /* Clear flagged buffs on the unit held by this action packet. */

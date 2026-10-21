@@ -153,29 +153,6 @@ extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 typedef struct FilerStat {
     u32 mode;
     u32 attr;
@@ -200,8 +177,6 @@ typedef struct FilerDirent {
     char name[256];
     u32 unknown;
 } FilerDirent;
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 004680c0-004680f0 */
 
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
@@ -275,11 +250,8 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
-/* Measured: 1252/1264 native bytes, 20 resolved relocations and twelve
- * zero alignment bytes; 57 neighboring functions and data preserved.
- * See docs/probe_archive/Filer_navigation_00467bd0_20260924.md. */
 #pragma push
-/* measured: share the checked path index and hoist the slash constant. */
+/* measured: retail shares the checked path index and hoists the slash constant. */
 #pragma pop
 /* FilerTable ends at +0x80F88; polling reads the following result flag/path. */
 typedef struct FilerWork {

@@ -63,7 +63,6 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-
 extern void MT_Scene_DestroyRes(u16 resTypeId);
 extern void mdlDestroyModelObject(void *model);
 extern void mdlSetColor(void *model, s32 *color);
@@ -75,8 +74,6 @@ extern f32 DAT_0076112c;
 
 
 extern void btlUnitClearModelState(u8 *unit, s32 mode);
-
-
 
 
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
@@ -92,38 +89,22 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 0019d3c0-0019d3c0 */
-
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
+/* measured: optimization_level 1, with the index and value locals declared before the loop, keeps
+ * retail's loop initialisation order; -O2 reorders it. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* Measured: 1164 instruction bytes in the 1168-byte window, three resolved
- * relocations and a four-byte zero tail. This callback uses the packet creator's
- * u32 (void *) contract. Modes 1..4 initialize every timing value; the retail
- * constructor callers use modes 3 or 4. The packet is 20 bytes.
- * Disabling propagation locally retains the alpha result's memory/merge
- * lifetime. Publication remains the actual four-byte color-by-value operation. */
+/* measured: propagation is disabled so the alpha result stays in memory across the merge, as in
+ * retail. */
 #pragma push
 #pragma pop
-/* Retail reloads the 1/255 colour scale (0x3B808081, written here as a
- * literal) for every factor; with default optimisation b210 does the same.
- * `v41` and `chk` are function-scope locals so they keep retail's saved
- * registers. On the `i == 2 && alpha < 0xFE` path retail compares 0xE8
- * against the `mode` left from an earlier entry (0x0019CDE0); the C reads
- * `mode` uninitialised there in the same way. */
+/* Retail reloads the 1/255 colour scale for every factor, and on the i == 2 && alpha < 0xFE path
+ * reads mode uninitialised; the C does the same. */
 #pragma push
 #pragma pop
-/* measured: typing the remaining model reloads/clear or scene-ID clear changes MATCH to MISMATCH. */
-/* Release the scene resource and destroy owned models; clear the model-present flag. */
+/* Release the scene resource and destroy owned models; clear the model-present flag. The remaining
+ * model reloads and scene-ID clear stay untyped because typed access changes codegen. */
 // FUN_0019D3C0
 void btlUnitReleaseModel(u8 *unit)
 {

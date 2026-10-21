@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/Kosaka/Field/k_sceneDraw.c); members 0028c3f0-0028c580 */
 
 #include "field_transition_internal.h"
 #include "include_asm.h"
@@ -96,17 +95,13 @@ found:
 #pragma pop
 
 #pragma push
-/* measured: propagation-off differs by 1795 bytes; pointer-led searches with both toggles off still differ by 1785 bytes. */
+/* measured: retail's code needs copy propagation on for this function. */
 #pragma opt_propagation on
-/* Retail keeps the three slot searches independent and restores defaults
- * through a shared return when no slot is selected. The complete matrix
- * layout and identity helper preserve retail's unwritten flags read and
- * reserved words; no host-C definedness is asserted for those reads.
- * Measured whole-owner b210 -O2: all 2372 live bytes match retail, with
- * 12 additional zero bytes in the retail alignment tail. */
-// Updates one scene light: computes its model and character matrices from the resource and its defaults [inferred].
+/* Updates one scene light: computes its model and character matrices from the resource and its
+ * defaults. The three slot searches stay independent, and defaults are restored through a shared
+ * return when no slot is selected. */
 // FUN_0028C580
-/* measured: hoisting-off differs by 1626 bytes; for-form and entry-pointer searches do not improve it. */
+/* measured: retail hoists loop-invariant code in this function. */
 #pragma opt_loop_invariants on
 void evtUpdateSceneLight(u8 *workBytes, u8 *resource, u8 *defaults)
 {

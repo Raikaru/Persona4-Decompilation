@@ -1,4 +1,3 @@
-/* Source unit: src/Kosaka/Field/k_fldFrame.c */
 #include "include_asm.h"
 #include "byte_address_internal.h"
 #include "type.h"
@@ -13,7 +12,7 @@
 
 /* Unit settings: propagation disabled and loop-invariant motion enabled. */
 #pragma opt_propagation off
-/* measured: unit loop-invariant motion plus the scoped exceptions retain all 16 owner MATCHes. */
+/* measured: the unit enables loop-invariant motion, with per-function exceptions scoped below. */
 #pragma opt_loop_invariants on
 
 typedef struct FldSelectionResource
@@ -36,7 +35,7 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 typedef struct RwFrame RwFrame;
 typedef struct RwMatrixTag RwMatrix;
 extern u8* iGpffff9db0;
-// lint: allow H011 -- measured: u16 prototype regresses FldFrame_RaycastFieldWorlds (andi on wide id args)
+// lint: allow H011 -- measured: a u16 prototype makes callers mask the wide id arguments.
 extern s32 MT_Scene_GetRes(s32 );
 extern u8* MT_Scene_GetResListHead(s32 );
 extern s32 FldMap_IsCurrentInEitherBand(void);
@@ -121,7 +120,7 @@ extern RpAtomic *func_00394e70(RpAtomic *atomic, RpIntersection *intersection,
 extern RpCollisionTriangle *FldFrame_CollectSphereHits(RpIntersection *intersection,
     RpCollisionTriangle *triangle, f32 callbackDistance, void *data);
 
-// 44 bytes. Callback state passed through RenderWare field raycasts.
+// Callback state passed through RenderWare field raycasts.
 typedef struct FldFrameRaycast
 {
     RwV3d* hitPointDst;    // 0x00
@@ -134,15 +133,11 @@ typedef struct FldFrameRaycast
 extern RpCollisionTriangle *FldFrame_RaycastTriangle(RpIntersection *intersection,
     RpCollisionTriangle *triangle, f32 fraction, void *data);
 
-// P3 counterpart fGpffff820c (gp -0x7DF4); P4 retail uses gp -0x7D4C,
-// i.e. absolute 0x007690f0 - 0x7d4c = 0x007613a4.
+// Retail gp-relative float at 0x007613a4; the P3 counterpart is fGpffff820c.
 extern f32 fGpffff82b4;
 extern void* FldFrame_RaycastWorldAtomics(void* collisionWorld, void* data);
 extern RpCollisionTriangle *FldFrame_RaycastTriangleLocal(RpIntersection *intersection,
     RpCollisionTriangle *triangle, f32 fraction, void *data);
-
-
-
 
 
 /* Project a point onto the segment, clamping to either endpoint. */
@@ -188,10 +183,8 @@ RwV3d* FldFrame_ClosestPointOnSegment(RwV3d* dst, const RwV3d* point,
 }
 
 
-
-/* Find an exactly equal normal in the collected world-space planes. */
-/* The collector normal array starts at +0x300; typed count access changed the inlined sphere callback by four bytes in verification. */
-/* Find an exactly equal collision normal in the byte-addressed collector. */
+/* Find an exactly equal normal in the collected world-space planes; the collector's normal array
+ * starts at offset 0x300. */
 static inline s32 fldFrameFindPlane(u8 *context, const RwV3d *normal)
 {
     s32 index;
@@ -209,11 +202,9 @@ static inline s32 fldFrameFindPlane(u8 *context, const RwV3d *normal)
     return -1;
 }
 
-/* measured: b210 -O2, 1112 executable bytes and eight retail zero bytes;
- * all three call relocations resolve. The shared plane search preserves the
- * separate failed-comparison and found-index exits. Edge records use the
- * collector base first; interior records retain their scaled-index order. */
-/* Byte-base count fallbacks preserve aliasing across the inlined collector search and triangle stores. */
+/* The shared plane search keeps separate failed-comparison and found-index exits; edge records use
+ * the collector base first, and interior records keep scaled-index order. Byte-base count fallbacks
+ * keep aliasing across the inlined collector search and triangle stores. */
 // FUN_00169320
 RpCollisionTriangle *FldFrame_SectorSphereHit(RpIntersection *intersection, RpWorldSector *sector,
                     RpCollisionTriangle *collision, f32 callbackDistance, void *data)
@@ -333,18 +324,13 @@ RpCollisionTriangle *FldFrame_SectorSphereHit(RpIntersection *intersection, RpWo
     }
     return collision;
 }
-/* Collect world-sphere contacts and remove inward motion from the displacement.
- * The complete work layout retains the shared collector and aligned query copies.
- * measured: b210 -O2 emits 680 bytes plus the eight-byte retail zero suffix.
- * Expression reuse fuses the staged projection; propagation-off retains its
- * component snapshots. Signed post-normalization scaling preserves the distance
- * address's separate lifetime. All addresses remain inside the complete work. */
-/* Distance cursors retain signed post-normalization scaling and the separate address lifetime documented above. */
+/* Collect world-sphere contacts and remove inward motion from the displacement. measured: retail
+ * keeps the distance cursor's signed post-normalization scaling and separate lifetime, and keeps
+ * component snapshots instead of reusing expressions. */
 // FUN_00169780
 #pragma push
-/* measured: unit loop-invariants-on changes this sweep by 469 normalized bytes. */
+/* measured: loop-invariant motion changes this sweep's code, so it is disabled here. */
 #pragma opt_loop_invariants off
-/* measured: baseline 22 differing words; block lifetimes did not match; retain scoped settings. */
 s32 FldFrame_SphereSweepWorld(void* collisionWorld, f32* origin, f32* vector, f32 radius)
 {
     FldFrameCollisionCollector *distanceRecord;
@@ -494,16 +480,10 @@ static inline s32 fldFrameFindLocalPlane(FldFrameCollisionCollector *collector, 
     return -1;
 }
 
-/* Transform an atomic triangle to world space and merge its nearest plane
- * contact into the shared collector. Existing edge contacts use the closest
- * edge point; new edge contacts retain the plane projection, as retail does.
- * measured: b210 -O2 emits 1668 bytes plus a 12-byte retail zero suffix.
- * Removing propagation-off changes eight words; removing loop-invariants-on
- * changes the vertex-pointer addition at +0xAC. The interior path uses
- * the offset helper for distance and flag addresses. */
-/* Collector byte cursors preserve the measured integer-domain address order for parallel point/normal/distance/flag arrays. */
+/* Transform an atomic triangle to world space and merge its nearest plane contact into the shared
+ * collector. Existing edge contacts use the closest edge point; new edge contacts keep the plane
+ * projection, as retail does. */
 // FUN_00169A30
-/* measured: baseline 14 differing words; block lifetimes did not match; retain scoped settings. */
 RpCollisionTriangle *FldFrame_CollectSphereHits(RpIntersection *intersection,
     RpCollisionTriangle *triangle, f32 callbackDistance, void *data)
 {
@@ -582,7 +562,6 @@ RpCollisionTriangle *FldFrame_CollectSphereHits(RpIntersection *intersection,
         count = collector->count;
         if (index >= 0)
         {
-        /* measured: plain collector addressing swaps the offset/base addu sources. */
             fbase = byteAddressAdd(4 * index, (u8 *)collector);
             fraction = (f32 *)(fbase + 0x600);
             if (distance < *fraction)
@@ -705,20 +684,12 @@ void* FldFrame_SphereAtomicCallback(void* collisionWorld, void* state)
 }
 
 
-
-/* The collector owns the complete intersection payload shared by both callback
- * modes. Each contact retains the normalized direction until its correction is
- * applied; the nested scopes keep those immutable components with that contact.
- * Measured with b210 -O2 and the scoped loop-invariant setting: 2124 bytes plus
- * four zero alignment bytes, with all code/data relocations resolved and all
- * fifteen sibling functions unchanged. The opposed-plane limit is -0.2f. */
-/* Remaining casts combine partial resource/model records with collector parallel-array cursors whose address lifetimes are documented above. */
+/* The collector holds the full intersection payload shared by both callback modes; each contact
+ * keeps its normalized direction until its correction is applied. The opposed-plane limit is -0.2f. */
 // FUN_0016A110
 #pragma push
-/* measured: unit propagation-off changes this raycast by 1238 normalized bytes;
- * retain propagation-on through the field-world selector as in the matched owner. */
+/* measured: retail code for this raycast needs propagation enabled. */
 #pragma opt_propagation on
-/* measured: baseline 424 differing words; typed access, block lifetimes did not match; retain scoped settings. */
 s32 FldFrame_RaycastFieldObjects(s32 collisionWorld, f32 *origin, f32 *vector, f32 fraction, s32 fieldId)
 {
     FldFrameCollisionCollector *distanceRecord;
@@ -1060,15 +1031,10 @@ s32 FldFrame_RaycastFieldWorlds(f32* origin, f32* vector, f32 fraction, s32 fiel
     return FldFrame_RaycastFieldObjects(collisionWorld, origin, vector, fraction, fieldId);
 }
 #pragma pop
-/* 1216/1216 bytes with all relocations resolved. The sphere query shares
- * the callback collector and retains each neighbor coordinate across both
- * table reads. Contact accumulation uses its own counter and accepted value.
- * Retail leaves direction and the unused sphere payload words unwritten;
- * see Retained_color_and_sphere_20260922_worker6.md for exact store coverage.
- * Both scoped settings are part of the retained b210 -O2 measurement. */
-/* Collector cursors retain separate neighbor-coordinate and contact-accumulator lifetimes; scene-resource tails remain partial layouts. */
+/* The sphere query shares the callback collector; retail leaves direction and the unused sphere
+ * payload words unwritten. Collector cursors keep separate neighbor-coordinate and contact-
+ * accumulator lifetimes. */
 // FUN_0016ABC0
-/* measured: baseline 236 differing words; load snapshots did not match; retain scoped settings. */
 s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
 {
     extern u8* MT_Scene_GetResListHead(s32 );
@@ -1230,8 +1196,7 @@ s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 ra
     return result;
 }
 
-/* 476/480 bytes; ten resolved relocations; four zero alignment bytes.
- * Write the preferred/fallback selection through the caller's real output. */
+/* Write the preferred/fallback selection through the caller's real output. */
 extern s32 FldFrame_CollideWorldSphere(void* collisionWorld, const RwV3d* point, f32 radius,
                          RwV3d* normal, RwV3d* vector);
 
@@ -1260,9 +1225,8 @@ static inline void fldFrameSelectWorld(FldSelectionResource* selected, void** ds
 /* Select the preferred collision world from the scene root or camera cell before collecting sphere contacts. */
 // FUN_0016B080
 #pragma push
-/* measured: unit propagation-off changes this selector by 223 normalized bytes. */
+/* measured: retail code for this selector needs propagation enabled. */
 #pragma opt_propagation on
-/* measured: baseline 23 differing words; block lifetimes did not match; retain scoped settings. */
 s32 FldFrame_CollideSphereSelected(const RwV3d* point, f32 radius, RwV3d* normal, RwV3d* vector)
 {
     s32 result;
@@ -1311,10 +1275,8 @@ s32 FldFrame_CollideSphereSelected(const RwV3d* point, f32 radius, RwV3d* normal
 }
 #pragma pop
 
-/* measured: propagation probe for FldFrame_RaycastSector register scheduling. */
 /* Intersect the query line with the world triangle plane and store its hit point. */
 // FUN_0016B260
-/* measured: baseline 33 differing words; load snapshots did not match; retain scoped settings. */
 RpCollisionTriangle *FldFrame_RaycastSector(RpIntersection *intersection,
                     RpWorldSector *sector, RpCollisionTriangle *collision,
                     f32 distance, void *data)
@@ -1402,7 +1364,6 @@ RpCollisionTriangle *FldFrame_RaycastTriangle(RpIntersection *intersection,
 }
 
 
-
 /* Retain the hit atomic and test its geometry against the stored line. */
 // FUN_0016B430
 void* FldFrame_RaycastWorldAtomics(void* collisionWorld, void* data)
@@ -1413,7 +1374,6 @@ void* FldFrame_RaycastWorldAtomics(void* collisionWorld, void* data)
                   FldFrame_RaycastTriangle, raycast);
     return collisionWorld;
 }
-
 
 
 /* Raycast every atomic in a clump and return whether any triangle was hit. */
@@ -1451,18 +1411,13 @@ u32 FldFrame_RaycastWorld(void* collisionWorld, const RwV3d* line,
 }
 
 
-
 #pragma push
-/* measured: the unit settings change this raycast by 397 normalized bytes;
- * retain its original propagation-on and loop-invariants-off settings. */
+/* measured: retail code for this raycast needs propagation on and loop-invariant motion off. */
 #pragma opt_propagation on
-/* measured: restores the loop setting from this raycast's original matching owner. */
+/* measured: retail's raycast needs loop-invariant hoisting turned off. */
 #pragma opt_loop_invariants off
-/* Snapshot both endpoints before any provider call. Grid lookup uses start X/Z;
-   the non-grid path reloads the root after the mode query. Branch-local full
-   raycast state reproduces all 560 retail bytes and 12 relocations without
-   artificial alignment. A hit writes all three destination components. */
-/* Remaining casts select world/atomic pointers from partially recovered scene resources; endpoint/query copies remain full aggregates. */
+/* Both endpoints are snapshotted before any provider call; grid lookup uses start X/Z, the non-grid
+ * path reloads the root after the mode query. A hit writes all three destination components. */
 // FUN_0016B540
 u32 FldFrame_RaycastSelectedWorld(const RwV3d* line, RwV3d* hitPointDst)
 {
@@ -1578,7 +1533,6 @@ RpCollisionTriangle *FldFrame_RaycastTriangleLocal(RpIntersection *intersection,
     }
     return triangle;
 }
-
 
 
 /* Retain the current atomic and dispatch its local raycast callback. */

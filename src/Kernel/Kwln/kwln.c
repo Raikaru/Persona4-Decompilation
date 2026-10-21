@@ -1,4 +1,3 @@
-/* Source unit: src/Kernel/Kwln/kwln_002519b0.c (1 function markers) */
 #include "type.h"
 
 extern void kwlnTaskGetWork(void* task);
@@ -12,8 +11,8 @@ extern void mcDrawDispatch(void* taskAddress);
 extern void pscModelDraw(void* model);
 
 
-
-// Intent: task callback that forwards its work pointer to kwlnTaskGetWork. Stored in a task node's +8 callback slot (comuTimerSequence_inferred_002519e0.c).
+// Task callback that forwards its work pointer to kwlnTaskGetWork; stored in a task node's callback
+// slot.
 // FUN_002519B0
 void kwlnTaskGetWorkCallback(void* node, void* work)
 {
@@ -21,8 +20,8 @@ void kwlnTaskGetWorkCallback(void* node, void* work)
 }
 
 
-
-// Intent: callback that forwards its work pointer to itfMesFlushPending. Stored in a manager node's +8 callback slot (itfMesManager_inferred_0027b5d0.c).
+// Callback that forwards its work pointer to itfMesFlushPending; stored in a manager node's
+// callback slot.
 // FUN_0027B5A0
 void itfMesFlushPendingCallback(void* node, void* work)
 {
@@ -30,8 +29,7 @@ void itfMesFlushPendingCallback(void* node, void* work)
 }
 
 
-
-// Intent: draw-node callback that forwards its work pointer to yTimeLimitDraw. Stored in the draw node's +8 slot.
+// Draw-node callback that forwards its work pointer to yTimeLimitDraw.
 // FUN_002A1EF0
 void yTimeLimitDrawCallback(void* node, void* work)
 {
@@ -39,8 +37,7 @@ void yTimeLimitDrawCallback(void* node, void* work)
 }
 
 
-
-// Intent: draw-node callback that forwards its work pointer to mcDrawDispatch. Stored in a draw work item's +8 slot (Kernel/mc.c).
+// Draw-node callback that forwards its work pointer to mcDrawDispatch.
 // FUN_002A6650
 void mcDrawDispatchCallback(void* node, void* work)
 {
@@ -48,8 +45,8 @@ void mcDrawDispatchCallback(void* node, void* work)
 }
 
 
-
-// Intent: draw-node callback that forwards its work pointer to pscModelDraw. Stored in a panel draw node's +8 slot (gc_model_inferred_00369470.c).
+// Draw-node callback that forwards its work pointer to pscModelDraw; stored in a panel draw node's
+// callback slot.
 // FUN_00369440
 void pscModelDrawCallback(void* node, void* work)
 {
@@ -68,7 +65,7 @@ extern s8 iGpffffba89;
 extern s8 iGpffffba8a;
 extern s8 iGpffffba8b;
 extern void (*D_008873FC[])(s32 param, u8* arg);
-// Intent: sets the four bytes of the kwln RGBA colour record (the one kwlnGetColorRgb returns).
+// Sets the four bytes of the kwln RGBA colour record that kwlnGetColorRgb returns.
 // FUN_00457140
 void kwlnSetColorRgba(u8 red, u8 green, u8 blue, u8 alpha)
 {
@@ -79,7 +76,7 @@ void kwlnSetColorRgba(u8 red, u8 green, u8 blue, u8 alpha)
 }
 
 
-// Intent: sets the four bytes of the kwln colour record that kwlnGetColorBytes returns.
+// Sets the four bytes of the kwln colour record that kwlnGetColorBytes returns.
 // FUN_00457170
 void kwlnSetColorBytes(s8 red, s8 green, s8 blue, s8 alpha)
 {

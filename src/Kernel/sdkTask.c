@@ -1,14 +1,14 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Original translation unit sdkTask.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sdkTask.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdk_pad_record.h"
 
-/* Unit settings: loop-invariant motion enabled; measured: all 23 owner functions remain MATCH. */
+/* measured: retail hoists loop-invariant values across this unit. */
 #pragma opt_loop_invariants on
 
 extern s32 func_003e1220(u32 a0, u32 a1, u32 a2, u32 a3, void* a4, u32 a5);
-/* GP-relative scalar at gp -0x45E8 (absolute 0x00764B08). */
+/* GP-relative scalar. */
 extern s32 iGpffffba18;
 extern u32 D_008BFFB0[];
 
@@ -33,7 +33,7 @@ struct KwlnTask
     struct KwlnTask* next;     /* 0x50 */
 };
 
-/* GP-relative list heads: gp -0x4614 (0x00764ADC), gp -0x4608 (0x00764AE8), gp -0x45FC (0x00764AF4). */
+/* GP-relative task list heads. */
 extern void* iGpffffb9ec;
 extern void* iGpffffb9f8;
 extern KwlnTask* iGpffffba04;
@@ -48,7 +48,7 @@ s32 kwlnTaskRunUpdate(KwlnTask* task);
 void kwlnTaskRunList(void);
 void kwlnTaskMoveToDying(KwlnTask* task);
 void kwlnTaskKillSiblingChain(KwlnTask* task);
-/* GP-relative current-task pointer at gp -0x45EC (absolute 0x00764B04). */
+/* GP-relative current-task pointer. */
 extern KwlnTask* iGpffffba14;
 extern void (*jtbl_008873FC[])();
 extern void kAssertFail(const void* file, u32 line);
@@ -67,18 +67,16 @@ extern u8 D_008BFF74[];
 extern u8 D_008C0240[];
 extern s32 D_008C02E0[];
 extern void* (*D_008873F8[])(s32, s32);
-/* GP-relative list tails and counts: tails gp-0x4610/0x45F8/0x4604,
- * counts gp-0x460C/0x45F4/0x4600 (absolute 0x00764AE0/0x00764AF8/0x00764AEC
- * and 0x00764AE4/0x00764AFC/0x00764AF0). */
+/* GP-relative task list tails and counts. */
 extern KwlnTask* iGpffffb9f0;
 extern s32 iGpffffb9f4;
 extern KwlnTask* iGpffffba08;
 extern s32 iGpffffba0c;
 extern KwlnTask* iGpffffb9fc;
 extern s32 iGpffffba00;
-/* GP-relative processing-task pointer at gp -0x45F0 (absolute 0x00764B00). */
+/* GP-relative processing-task pointer. */
 extern KwlnTask* iGpffffba10;
-/* GP-relative debug strings at gp -0x53A4/-0x53A0/-0x5398/-0x5390. */
+/* GP-relative debug strings. */
 extern char iGpffffac5c;
 extern char iGpffffac60;
 extern char iGpffffac68;
@@ -86,7 +84,6 @@ extern char iGpffffac70;
 
 
 extern KwlnTask* kwlnTaskGetTaskByName(const char* name);
-
 
 
 /* Unlink from the state-selected scheduler list, updating traversal and counts. */
@@ -317,10 +314,8 @@ err:
 
 /* Snapshot or mask input, invoke the update callback, and process its result. */
 // FUN_00451430
-/* measured: without opt_loop_invariants the D_008C0240 base address and the
- * 0x80 constant are rematerialized inside the init loop (nd 68); with it they
- * hoist to the preheader and the function matches byte-for-byte. */
-/* measured: baseline removal differs in 44 bytes; typed pad record cursor; pointer-induction pad initialization also differ. */
+/* measured: retail hoists the D_008C0240 base address and the 0x80 constant out of the init loop,
+ * which needs opt_loop_invariants. */
 s32 kwlnTaskRunUpdate(KwlnTask* task)
 {
     SdkTaskUpdate fn;
@@ -593,10 +588,8 @@ void kwlnTaskDumpNode(KwlnTask* task, s32 depth)
 
 /* Dump root hierarchies from the waiting, running, and dying lists. */
 // FUN_00451B70
-/* measured: without opt_loop_invariants the 0x20 constant and the D_008BFF70
- * base address are rematerialized inside the fill loop (nd 65); with it they
- * hoist to the preheader and the function matches byte-for-byte. */
-/* measured: baseline removal differs in 170 bytes; pointer fill loop; named fill byte outside loop also differ. */
+/* measured: loop-invariant hoisting is required so the fill byte 0x20 and the D_008BFF70 base are
+ * loaded once before the fill loop, as retail does. */
 void kwlnTaskDumpAll(void)
 {
     s32 i;
@@ -645,7 +638,6 @@ void kwlnTaskInitPool(s32 capacity)
 {
     iGpffffba18 = func_003e1220(0x54, capacity, 4, 1, D_008BFFB0, 0x41001);
 }
-
 
 
 /* Start expired waiting tasks, run updates, and finalize expired dying tasks. */
@@ -787,7 +779,6 @@ u8 kwlnTaskDestroyWithHierarchyByName(const char* name)
 }
 
 
-
 /* Request hierarchical destruction, or finalize a dying task whose delay expired. */
 // FUN_00452080
 u8 kwlnTaskDestroyWithHierarchy(KwlnTask* task)
@@ -896,10 +887,8 @@ s32 kwlnTaskGetState(void* task)
 }
 /* Search all scheduler lists by signed-character name sum, then exact spelling. */
 // FUN_00452380
-/* measured: without opt_loop_invariants the switch-case constants and the
- * three list heads are rematerialized inside the dispatch loop; with it they
- * hoist to the preheader and the function matches byte-for-byte. */
-/* measured: baseline removal differs in 134 bytes; if-else scheduler list selection; for-loop scheduler list traversal also differ. */
+/* measured: retail hoists the switch-case constants and the three list heads out of the dispatch
+ * loop, which needs opt_loop_invariants. */
 KwlnTask* kwlnTaskGetTaskByName(const char* name)
 {
     KwlnTask* node;
@@ -953,10 +942,8 @@ KwlnTask* kwlnTaskGetTaskByName(const char* name)
 
 /* Test membership in any of the three scheduler lists. */
 // FUN_00452490
-/* measured: without opt_loop_invariants the switch case constants are
- * rematerialized inside the loop (nd 25); with it they hoist to the
- * preheader and the function matches byte-for-byte. */
-/* measured: baseline removal differs in 90 bytes; if-else scheduler list selection; for-loop scheduler list traversal also differ. */
+/* measured: loop-invariant hoisting is needed so the switch case constants are loaded once before
+ * the loop, as retail does. */
 s32 kwlnTaskIsLinked(void* target)
 {
     s32 idx;
@@ -995,7 +982,7 @@ u32 kwlnTaskGetTimer(void* task)
     return ((KwlnTask*)task)->unk28;
 }
 
-/* Stores `value` in the task's +0x38 field. */
+/* Stores `value` in the task's work field. */
 // FUN_00452550
 void kwlnTaskSetValue38(KwlnTask* task, u32 value)
 {

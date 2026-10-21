@@ -3,14 +3,14 @@
 #include "effect_geometry_internal.h"
 #include "polygon_ring_internal.h"
 #include "rw_geometry_internal.h"
-/* Original translation unit effPolygonRing.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit effPolygonRing.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "include_asm.h"
 #include "member_access.h"
 
-/* Same spelling as mdlEffect.c: a 128-bit type makes mwcc emit the lq/sq
-   quadword copy retail uses, with no inline asm. */
+/* Same spelling as mdlEffect.c: a 128-bit type produces the lq/sq quadword copy retail uses,
+ * without inline asm. */
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 typedef struct {
@@ -65,11 +65,9 @@ extern f32 D_00713D18[];
 extern void RingInstanceAdvance(u8 *instance);
 
 
-
 // Creates a ring handle: a 4-byte handle plus geometry copies with per-vertex colour rows (minimum three segments).
 // FUN_00498DA0
 u8 *RingCreateHandle(u8 *parameters) {
-    /* Earlier whole-layout probe: normalized_diff 123; separate typed locals now preserve the original reload lifetimes. */
     u8 *handle;
     u8 *geometry;
     s32 rowCount;
@@ -86,10 +84,8 @@ u8 *RingCreateHandle(u8 *parameters) {
         kAssertFail(D_00713EF0, 0x3A);
     }
     if (((EffRingParameters *)parameters)->segments.count < 3) {
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         ringParameters->segments.count = 3;
     }
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     geometry = GeometryCreateStripGrid(ringParameters->segments.low, D_00713330, 4, 0x48);
     *(u32 *)handle = (u32)geometry;
     rowCount = ((EffGeometryBlock *)geometry)->vertexCount / 4;
@@ -117,15 +113,11 @@ void RingDestroyHandle(void **handle)
 }
 
 
-
-/* measured: b210 -O2 matches with signed vertex-count division, the
-   work/parameter/geometry load order, and propagation disabled for
-   the unsigned segment-count conversion. */
-// Rebuilds a ring circle: locks the geometry, samples cos and sin around the fade radius, writes the vertex rows, then unlocks.
+/* Rebuilds a ring circle: locks the geometry, samples cos and sin around the fade radius, writes
+ * the vertex rows, then unlocks. */
 // FUN_00498F10
 void RingRebuildCircle(u8 *instance)
 {
-    /* Earlier whole-layout probe: normalized_diff 462; separate typed locals now preserve the original reload lifetimes. */
     u_long128 direction;
     u_long128 innerRadiusVector;
     u_long128 middleRadiusVector;
@@ -179,7 +171,6 @@ void RingRebuildCircle(u8 *instance)
         vertexCount = ((EffGeometryBlock *)geometry)->vertexCount;
         rowCount = vertexCount / 4;
         RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry, 2);
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         vertices = (u8 *)((RpAtomic *)geometryBlock->atomic)->geometry->morphTarget->vertices;
         angle = 0.0f;
         segmentCount = (f32)((EffRingParameters *)parameters)->segments.count;
@@ -275,15 +266,12 @@ void RingRebuildCircle(u8 *instance)
     }
 }
 
-/* Ported from P3FES mdlEffect.c 0x00338360 (twin of RingUpdateRowColourAlt).
-   The VU0 colour-modulate block is genuine hardware asm (Category B) ported
-   as inline asm with the pointer passed via a "r" constraint, not a bare
-   addiu block. MATCH. */
-// Samples the ring colour fade and writes it to the row; when the row's flag is set, updates the geometry and visible flag.
+/* Matches P3FES func_00338360 (twin of RingUpdateRowColourAlt); the VU0 colour-modulate block is
+ * genuine hardware asm kept as inline asm. Samples the ring colour fade and writes it to the row;
+ * when the row's flag is set, updates the geometry and visible flag. */
 // FUN_004992A0
 void RingUpdateRowColour(u8 *instance)
 {
-  /* Earlier whole-layout probe: normalized_diff 160; color scratch still stores packed VU0 words. */
   u8 *ring;
   u8 *parameters;
   u16 *geometry;
@@ -355,7 +343,6 @@ void RingUpdateRowColour(u8 *instance)
       *(RwRGBA *)&((RpMaterial *)material)->color = *(RwRGBA *)&colourStack[12];
       colourStack[15] = 0xff;
     }
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     if (((RpMaterial *)geometryBlock->material)->color.c[3] != 0) {
       GeometryBlockSetFrameMatrixCombined(geometry, ring, ring + 0x10, ring + 0x20);
       if (((EffRingParameters *)parameters)->visible != 0) {
@@ -392,7 +379,6 @@ void RingWriteLineColour(u8 *instance) {
 // Creates a ring with a per-vertex random scale and a texture from the kind table.
 // FUN_00499510
 u8 *RingCreateRandomScaled(u8 *parameters) {
-    /* Earlier parameter-only probe: normalized_diff 286; separate typed locals now preserve the original reload lifetimes. */
     u8 *block;
     u8 *scales;
     u32 segmentCount;
@@ -407,10 +393,8 @@ u8 *RingCreateRandomScaled(u8 *parameters) {
     EffRingParameters *ringParameters = (EffRingParameters *)parameters;
 
     if (((EffRingParameters *)parameters)->segments.count < 3) {
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         ringParameters->segments.count = 3;
     }
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     segmentCount = ringParameters->segments.count;
     chkmemAllocSiteTag(D_00713EF0, 0x10F);
     scaleBytes = segmentCount * 4;
@@ -423,7 +407,7 @@ u8 *RingCreateRandomScaled(u8 *parameters) {
     ((EffRingRandomBlock *)block)->allocation = scales;
     memcpy(parameters + 0x5C, parameters, 0x5C);
     ((EffRingRandomBlock *)block)->sourceInstance = RingCreateKindInstance(1, parameters + 0x5C);
-    /* Typed pointer/integer stores, a typed local, and array form all reorder the following color loads (181 differing bytes). */
+    /* Typed stores, a typed local, or array form here reorder the following colour loads. */
     MEMBER(u32, block, EffRingRandomBlock, geometry) = (u32)GeometryCreateTableGrid(segmentCount & 0xFFFF, 2, 4, D_00713390, 0x48);
     colors = (u8 *)((RpAtomic *)((EffGeometryBlock *)((EffRingRandomBlock *)block)->geometry)->atomic)->geometry->colors;
     innerColor = ((EffRingParameters *)parameters)->innerColor;
@@ -454,18 +438,15 @@ void RingDestroyBlock(u8 *block)
 }
 
 
-
-/* measured: loop invariants hoist the vector-scratch bases. Keeping
-   the wrap stride at its use preserves its lifetime through the
-   FPU-to-VU bridge, which declares its actual scratch output. */
-// Rebuilds the ring strip vertices from the two geometry handles, locking and unlocking each geometry around the vertex loop.
+/* measured: loop invariants hoist the vector-scratch bases, and the wrap stride stays at its use so
+ * it lives through the FPU-to-VU bridge. Rebuilds ring strip vertices from both geometry handles,
+ * locking each around the vertex loop. */
 // FUN_00499730
-/* measured: baseline strip rebuild differs by 505 normalized bytes; retain scratch-base hoisting. */
+/* measured: retail hoists the scratch base out of the strip rebuild loop. */
 #pragma push
 #pragma opt_loop_invariants on
 void RingRebuildStrip(u8 *instance)
 {
-    /* Earlier whole-layout probe: normalized_diff 428; separate typed locals now preserve the original reload lifetimes. */
     u8 *block;
     u8 *sourceInstance;
     u8 **sourceHandle;
@@ -510,7 +491,6 @@ void RingRebuildStrip(u8 *instance)
         limit = ((EffRingParameters *)parameters)->segments.count;
         sourceGeometry = *sourceHandle;
         lastVertex = ((EffGeometryBlock *)sourceGeometry)->vertexCount - 1;
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         vertices = (u8 *)((RpAtomic *)geometryBlock->atomic)->geometry->morphTarget->vertices;
         sourceVertices = (u8 *)((RpAtomic *)((EffGeometryBlock *)sourceGeometry)->atomic)->geometry->morphTarget->vertices;
         if (((EffRingRandomParameters *)parameters)->skipVertices == 0) {
@@ -612,7 +592,6 @@ void RingRebuildStrip(u8 *instance)
 // FUN_00499A30
 void RingUpdateLineSegment(u8 *instance)
 {
-    /* Earlier whole-layout probe: normalized_diff 196; color scratch still stores packed VU0 words. */
     u8 *block;
     u8 *parameters;
     u8 *geometry;
@@ -684,7 +663,6 @@ void RingUpdateLineSegment(u8 *instance)
                 *(LineNovaColor *)&colourStack[12];
             colourStack[15] = 0xFF;
         }
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         if (((RpMaterial *)geometryBlock->material)->color.c[3] != 0) {
             ((EffRingInstance *)((EffRingRandomBlock *)block)->sourceInstance)->packedColor =
                 ((EffRingInstance *)instance)->packedColor;
@@ -728,7 +706,6 @@ void RingWriteLineColourAlt(u8 *instance) {
 // Creates a ring handle with geometry copies and per-vertex colour rows. Same body as RingCreateHandle.
 // FUN_00499CD0
 u8 *RingCreateHandleAlt(u8 *parameters) {
-    /* Earlier whole-layout probe: normalized_diff 123; separate typed locals now preserve the original reload lifetimes. */
     u8 *handle;
     u8 *geometry;
     s32 rowCount;
@@ -745,10 +722,8 @@ u8 *RingCreateHandleAlt(u8 *parameters) {
         kAssertFail(D_00713EF0, 0x1E7);
     }
     if (((EffRingParameters *)parameters)->segments.count < 3) {
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         ringParameters->segments.count = 3;
     }
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     geometry = GeometryCreateStripGrid(ringParameters->segments.low, D_00713330, 4, 0x48);
     *(u32 *)handle = (u32)geometry;
     rowCount = ((EffGeometryBlock *)geometry)->vertexCount / 4;
@@ -775,14 +750,11 @@ void RingDestroyHandleAlt(void **handle)
     jtbl_008873EC[0](handle);
 }
 
-/* measured: quadword locals retain the VU copy storage. Store each
-   trig result before the next call, and defer the middle-vector
-   store until the independent outer-vector multiply completes. */
-// Rebuilds a scaled ring circle: samples cos and sin around the fade radius and writes the vertex and colour rows.
+/* Rebuilds a scaled ring circle: samples cos and sin around the fade radius and writes the vertex
+ * and colour rows. */
 // FUN_00499E40
 void RingRebuildCircleScaled(u8 *instance)
 {
-    /* Earlier whole-layout probe: normalized_diff 434; separate typed locals now preserve the original reload lifetimes. */
     u8 *parameters;
     u8 *geometry;
     s32 age;
@@ -839,7 +811,6 @@ void RingRebuildCircleScaled(u8 *instance)
         vertexCount = ((EffGeometryBlock *)geometry)->vertexCount;
         rowCount = vertexCount / 4;
         RpGeometryLock(((RpAtomic *)((EffGeometryBlock *)geometry)->atomic)->geometry, 2);
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         vertices = (u8 *)((RpAtomic *)geometryBlock->atomic)->geometry->morphTarget->vertices;
         phase = 0.0f;
         segmentCount = (f32)((EffRingParameters *)parameters)->segments.count;
@@ -912,13 +883,11 @@ void RingRebuildCircleScaled(u8 *instance)
     }
 }
 
-/* Ported from P3FES mdlEffect.c 0x00338360 (twin of RingUpdateRowColour).
-   Same VU0 inline-asm + constraint-pointer shape as its twin. MATCH. */
-// Updates a ring row colour and geometry: the second caller's copy of RingUpdateRowColour.
+/* Updates a ring row colour and geometry: the second caller's copy of RingUpdateRowColour. Matches
+ * P3FES func_00338360. */
 // FUN_0049A1A0
 void RingUpdateRowColourAlt(u8 *instance)
 {
-  /* Earlier whole-layout probe: normalized_diff 160; color scratch still stores packed VU0 words. */
   u8 *ring;
   u8 *parameters;
   u16 *geometry;
@@ -990,7 +959,6 @@ void RingUpdateRowColourAlt(u8 *instance)
       *(RwRGBA *)&((RpMaterial *)material)->color = *(RwRGBA *)&colourStack[12];
       colourStack[15] = 0xff;
     }
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     if (((RpMaterial *)geometryBlock->material)->color.c[3] != 0) {
       GeometryBlockSetFrameMatrixCombined(geometry, ring, ring + 0x10, ring + 0x20);
       if (((EffRingParameters *)parameters)->visible != 0) {
@@ -1005,8 +973,8 @@ void RingUpdateRowColourAlt(u8 *instance)
 }
 // Creates a kind instance (kind below four): allocates the instance block, copies the kind's parameters and runs its init callback.
 // FUN_0049A370
-/* measured: opt_propagation off keeps the named D_00713CE0 pointer's
-   lui/addiu/lq sequence instead of folding the low half into lq. */
+/* measured: retail keeps a separate lui/addiu/lq sequence for the D_00713CE0 pointer instead of
+ * folding the low half into the load. */
 u8 *RingCreateKindInstance(u16 kind, u8 *parameters)
 {
     u8 *instance;

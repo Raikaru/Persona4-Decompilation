@@ -1,4 +1,3 @@
-/* Source unit: src/Kosaka/Field/k_sceneDraw.c */
 #include "sdk_lbox_internal.h"
 #include "include_asm.h"
 #include "type.h"
@@ -47,7 +46,6 @@ extern Resrc* resrcMngFindResById(ResrcManager* manager, u16 resourceId);
 #define SCENEDRAW_RESRC_FLAG_PERSONA 0x00010000
 
 
-
 extern u32 sdkLboxAddEntry(KwlnTask* task, const char* text);
 extern void sdkLboxSetText(KwlnTask* task, u32 id, const char* text);
 extern void sdkLboxSetRefValue(KwlnTask* task, u32 entryId, s32 value);
@@ -56,7 +54,6 @@ extern void sdkLboxSetIntRange(KwlnTask* task, u32 id, s32 value, s32 minValue,
 extern void sdkLboxSetFloatRange(KwlnTask* task, u32 entryId, s32 value, s32 minimum,
                           s32 maximum);
 extern void sdkLboxSetCallback(KwlnTask* task, u32 id, KWindowEntryCallback callback);
-
 
 
 /* Update visibility only when the requested scene resource exists. */
@@ -78,7 +75,6 @@ void SceneDraw_SetResVisible(u16 resTypeId, u32 visible)
         }
     }
 }
-
 
 
 /* Toggle custom lighting for character, NPC and alternate-model resources. */
@@ -129,7 +125,6 @@ void SceneDraw_SetCustomLight(u16 resTypeId, u32 customLight)
 }
 
 
-
 /* Toggle directional-only lighting for the three supported model resource kinds. */
 // FUN_0014A460
 void SceneDraw_SetDirectionalOnly(u16 resTypeId, u32 directionalOnly)
@@ -176,7 +171,6 @@ void SceneDraw_SetDirectionalOnly(u16 resTypeId, u32 directionalOnly)
         else res->flags &= ~SCENEDRAW_RESRC_FLAG_DIRECTIONAL_ONLY;
     }
 }
-
 
 
 /* Return the first light color for a supported model resource, or NULL. */
@@ -254,7 +248,6 @@ void* SceneDraw_GetLightMatrixA(u16 resTypeId)
     }
     return NULL;
 }
-
 
 
 /* Return the light tint for a supported model resource, or NULL. */
@@ -616,7 +609,6 @@ setFlags:
 }
 
 
-
 /* Toggle the persona draw flag when a scene manager exists; lookup is assumed valid. */
 // FUN_0014B150
 void SceneDraw_SetResPersona(u16 resTypeId, u32 persona)
@@ -645,13 +637,11 @@ setFlags:
 }
 
 
-
 // FUN_00470250
 KwlnTask* sdkLboxCreate(KwlnTask* parent, u32 width, u32 height)
 {
     return (KwlnTask*)sdkLboxCreateEx((u8*)parent, width, height, 0);
 }
-
 
 
 /* Populate listbox entries from typed descriptors and register optional entry callbacks. */

@@ -105,7 +105,6 @@ extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
 
 
-
 extern u8 *resrcMngCreateRes(s32 resManager, s32 resTypeId);
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
@@ -157,8 +156,6 @@ extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 
 
-
-
 typedef struct {
     u8 b0;
     u8 b1;
@@ -171,12 +168,6 @@ typedef FieldRgba8 Rgba8_0014;
 extern s32 RwMatrixUpdate();
 
 extern s32 D_007642F0;
-
-
-
-
-
-
 
 
 extern s32 iGpffff9dd0;
@@ -201,16 +192,8 @@ extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
 
 
-
-
-/* Camp display: grid, labels, radar and corner sprites.
- * The radar callees are declared here with u8 opacity parameters (H011):
- * retail narrows each radar alpha with its unsigned conversion and passes
- * it without another mask, while the matched definitions in this file keep
- * s32 because their own bodies use the full word.
- * `sprite` is one function-scope variable for the 0x1834 label sprite and
- * the corner sprite; b210 does not propagate it into the sdkSpriteDrawSized
- * call, so the label pointer is loaded before the stack argument. */
+/* Camp display: grid, labels, radar and corner sprites. Radar callees take u8 opacity because
+ * retail narrows each alpha before passing it. */
 #pragma push
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
@@ -241,23 +224,12 @@ extern f32 D_008872F8[];
 #pragma pop
 
 
-
-
-
-
-/* measured: closes the scoped optimization-level-1 probe. */
-
-
 #pragma push
 #pragma pop
 
 
-
 #pragma push
 #pragma pop
-
-/* Source unit: src/promoted/code1_0014.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001453a0-00145780 */
 
 /* Create the packed resource and initialize its model, camera or shadow handles. */
 // FUN_001453A0
@@ -317,7 +289,6 @@ s32 MT_Scene_CreateModelCharRes(u16 resourceId, void *model) {
 }
 
 /* Create the packed resource and initialize its model, camera or shadow handles. */
-/* measured: only the model reload needs MEMBER; access-site, typed-local and array forms grow this body from 336 to 344 bytes. */
 // FUN_00145540
 s32 MT_Scene_CreateModelCharShadowRes(u16 resourceId, u16 shadowModelId, void *model) {
     s8 zeroPosition[0xC];

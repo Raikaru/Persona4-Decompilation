@@ -51,7 +51,6 @@ extern u8 D_00714018[];
 extern u8 D_00714144[];
 
 
-
 extern u8 D_00714368[];
 extern f32 D_008872F8[];
  
@@ -68,7 +67,8 @@ extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
 
-// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes FlashQuadCopyAllocFromRecord MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
+// lint: allow H011 -- FlashQuadCopyAllocFromRecord depends on the caller's (u16, s32) shape; the
+// definition's (s32, void *) changes its codegen.
 
 extern u16 iGpffffbb90;
 extern f32 fGpffffbb74;
@@ -77,41 +77,22 @@ extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004adb50-004adb50 */
-
 extern s32 mdlEffectProjectBillboardQuad(u8 *parameters, u8 *vertices);
 extern void mdlEffectBuildRectQuad(u8 *parameters, u8 *vertices);
 extern void mdlEffectBuildOffsetQuad(u8 *parameters, u8 *vertices);
 extern void mdlEffectBuildDirectRectQuad(u8 *parameters, u8 *vertices);
 extern void mdlEffectUpdateAndDrawModelChildren(u8 *instance);
-/* measured: restores the file's O2 loop-invariant baseline. */
-/* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma push
 #pragma tailcall off
-/* measured: restore the enclosing options; owner verification is 92/92 MATCH. */
 #pragma pop
-/* measured: loop-invariant conversion preloads for func_004a7e30. */
-/* measured: close the loop-invariant bracket after func_004a7e30. */
-/* measured: loop-invariant conversion preloads for func_004a8250. */
-/* measured: close loop-invariant conversion scope for func_004a8250. */
-/* measured: loop-invariant conversion preloads for func_004a8440. */
-/* measured: close loop-invariant conversion scope for func_004a8440. */
-/* measured: loop-invariant conversion preloads for func_004a86c0. */
-/* measured: close loop-invariant conversion scope for func_004a86c0. */
-/* Measured: scoped propagation preserves constant-first model lookup arguments. */
+/* measured: retail preloads loop-invariant conversions in func_004a7e30, func_004a8250,
+ * func_004a8440 and func_004a86c0, and keeps constant-first model lookup arguments. */
 #pragma push
 #pragma pop
 /* Animate the source model and propagate its indexed transforms, sampled scale and color to child trees. */
 // FUN_004ADB50
-/* measured: object 816B/window 816B, nd 0. K&R definition so the unprototyped
-   caller func_004adfa0 stays byte-exact. The VU0 colour-pack island and the
-   `color = *(s32 *)&packedColor` read are the effModel.c EffModelUpdate idiom - reading
-   the packed word through its address is what makes b210 reload it into $s5
-   right after the island and, with it, rank the saved registers as retail does
-   (n $s4, instance $s3, objs $s2, count $s1, total $s0; a plain `color = packedColor`
-   read left the load floating and flipped the whole ranking). Locals in
-   declaration order; the loop is a goto loop with `objs++`; `zero` is a hoisted
-   0.0f local ($f20); `t = call / 10.0f; speed = t * field` for the mul.s order. */
+/* K&R definition because func_004adfa0 calls it unprototyped; reading color through its address
+ * keeps retail's reload and saved-register order. */
 void mdlEffectUpdateModelChildTransforms(instance)
 u8 *instance;
 {
@@ -221,7 +202,6 @@ u8 *instance;
 loop_body:
 
                 if (mdlCopyIndexedMatrix(((MdlEffectSpriteInstance *)instance)->model, i, frame) != 0) {
-                    /* measured: field, typed-local and array forms change whole-file codegen. */
                     pos[0] = MEMBER(f32, frame, RwMatrixTag, pos.x);
                     pos[1] = MEMBER(f32, frame, RwMatrixTag, pos.y);
                     pos[2] = MEMBER(f32, frame, RwMatrixTag, pos.z);

@@ -232,15 +232,11 @@ s32 sdkSndStartRequest(s32 channelIndex);
 extern s32 sdkSndStreamTaskUpdate(u8 *task);
 extern void sdkSndStreamTaskDestroy(u8 *task);
 
-/* ================================================================== */
-/* FUN_00458FA0                                                        */
-/* ================================================================== */
-
-// Intent: initialises the sound driver: the five channel records, their handles and buffers, and the default track table.
+// Initialises the sound driver: the five channel records, their handles and buffers, and the
+// default track table.
 // FUN_00458FA0
-/* measured: retail hoists the loop bases/0x134/-1 constants to the
-   preheaders; mwcc rematerialises them, so the scoped pragma is required. */
-/* measured: baseline removal differs by 69 words; a named channel pointer still fails (1316B versus 1312B). */
+/* measured: retail hoists the loop base addresses and the 0x134 and -1 constants into the loop
+ * preheaders, so loop-invariant hoisting must be on here. */
 #pragma opt_loop_invariants on
 void sdkSndInit(void)
 {
@@ -340,10 +336,10 @@ void sdkSndInit(void)
         D_008D2B90[j].previousMode = -1;
     }
 }
-/* measured: see the annotation above the matching `on` pragma (func_00458fa0). */
+/* measured: restores the unit setting after func_00458fa0. */
 #pragma opt_loop_invariants off
 
-// Intent: per-frame update of channels 1 to 4: advances each active channel's request state.
+// Per-frame update of channels 1 to 4: advances each active channel's request state.
 // FUN_004594C0
 void sdkSndUpdate(void)
 {
@@ -431,7 +427,7 @@ state_done:
     }
 }
 
-// Intent: stops channel 0 if it is active and clears its record. Returns 1.
+// Stops channel 0 if it is active and clears its record. Returns 1.
 // FUN_00459880
 s32 sdkSndStopMainChannel(void)
 {
@@ -444,10 +440,6 @@ s32 sdkSndStopMainChannel(void)
     }
     return 1;
 }
-
-/* ================================================================== */
-/* FUN_004598E0                                                        */
-/* ================================================================== */
 
 /* Set the main channel fade duration, stop playback and clear its active request. */
 // FUN_004598E0
@@ -464,11 +456,7 @@ s32 sdkSndStopChannel(s16 fadeFrames)
     return 1;
 }
 
-/* ================================================================== */
-/* FUN_00459950                                                        */
-/* ================================================================== */
-
-// Intent: sets channel 0's parameter word and the data pointer passed in.
+// Sets channel 0's parameter word and the data pointer passed in.
 // FUN_00459950
 void sdkSndSetMainChannelData(void *data)
 {
@@ -476,11 +464,7 @@ void sdkSndSetMainChannelData(void *data)
     func_004d8e38(CH_HANDLE(0), (s32)data);
 }
 
-/* ================================================================== */
-/* FUN_004599D0                                                        */
-/* ================================================================== */
-
-// Intent: stops the channel at the given index if it is active and clears its record. Returns 1.
+// Stops the channel at the given index if it is active and clears its record. Returns 1.
 // FUN_004599D0
 s32 sdkSndStopChannelSlot(s32 channelIndex)
 {
@@ -494,11 +478,7 @@ s32 sdkSndStopChannelSlot(s32 channelIndex)
     return 1;
 }
 
-/* ================================================================== */
-/* FUN_00459A60                                                        */
-/* ================================================================== */
-
-// Intent: starts a fade on channel 0 once, when it is active and not already fading. Returns 0.
+// Starts a fade on channel 0 once, when it is active and not already fading. Returns 0.
 // FUN_00459A60
 s32 sdkSndFadeMainChannel(void)
 {
@@ -511,20 +491,15 @@ s32 sdkSndFadeMainChannel(void)
     return 0;
 }
 
-/* ================================================================== */
-/* FUN_00459AD0                                                        */
-/* ================================================================== */
-
-/* MATCH: 2316B instructions plus one zero-tail word. Retail returns 1
-   on both exits; a void declaration incorrectly keeps v0 live backward
-   through call-free paths. Preserve the pre-destructor destination and
-   constructor-record address lifetimes with dead assignments disabled. */
+/* Retail returns 1 on both exits, so the return type is s32 rather than void. */
 #pragma push
-/* measured: baseline removal differs by 404 words; a cached constructor-record pointer also fails. */
+/* measured: retail keeps the dead stores to the path buffer and creation record, so dead-assignment
+ * removal is off. */
 #pragma opt_dead_assignments off
 typedef struct SndHandleRecord { s32 handle; u8 rest[0x130]; } SndHandleRecord;
 typedef struct SndCreateRecord { u32 words[10]; } SndCreateRecord;
-// Intent: starts the pending request for channelIndex (a stream open, a track or a handle create) according to its request mode. Returns 1.
+// Starts the pending request for channelIndex (a stream open, a track or a handle create) according
+// to its request mode. Returns 1.
 // FUN_00459AD0
 s32 sdkSndStartRequest(s32 channelIndex)
 {
@@ -795,14 +770,8 @@ s32 sdkSndPlayCue(s16 cueId)
     return 1;
 }
 
-/* ================================================================== */
-/* FUN_0045A570                                                        */
-/* ================================================================== */
-
-/* measured: 448/448B MATCH. Forward the raw slot word to readiness, narrow
-   only for table access, and retain the constant success return. A void
-   return changes register allocation (28 differing words). */
-// Intent: queues a request on slotIndex by storing its six data words and marking it queued. Returns 1.
+/* Queues a request on slotIndex by storing its six data words and marking it queued. Always returns
+ * 1; slotIndex is narrowed to s16 only for table indexing. */
 // FUN_0045A570
 s32 sdkSndQueueSlotRequest(s32 slotIndex, void *input, u32 inputSize, void *intermediate, u32 intermediateSize, void *output, u32 outputSize)
 {
@@ -827,11 +796,8 @@ s32 sdkSndQueueSlotRequest(s32 slotIndex, void *input, u32 inputSize, void *inte
     D_008D3ED0[(s16)slotIndex].data5 = outputSize;
     return 1;
 }
-/* ================================================================== */
-/* FUN_0045A730                                                        */
-/* ================================================================== */
 
-// Intent: sets the track id on slotIndex and marks it queued. Returns 1.
+// Sets the track id on slotIndex and marks it queued. Returns 1.
 // FUN_0045A730
 s32 sdkSndSetSlotTrack(s16 slotIndex, s16 trackId)
 {
@@ -858,10 +824,6 @@ s32 sdkSndSetSlotTrack(s16 slotIndex, s16 trackId)
     return 1;
 }
 
-/* ================================================================== */
-/* FUN_0045A8D0                                                        */
-/* ================================================================== */
-
 /* Apply the default fade duration before stopping and resetting an active channel. */
 // FUN_0045A8D0
 s32 sdkSndFadeOutChannel(s16 channelIndex)
@@ -880,11 +842,8 @@ s32 sdkSndFadeOutChannel(s16 channelIndex)
     return 1;
 }
 
-/* ================================================================== */
-/* FUN_0045A9A0                                                        */
-/* ================================================================== */
-
-// Intent: stops the channel at index arg0 if it is active and resets its record. Indexes of 5 or more are ignored. Returns 1.
+// Stops the channel at channelIndex if it is active and resets its record. Indexes of 5 or more are
+// ignored. Returns 1.
 // FUN_0045A9A0
 s32 sdkSndResetChannel(s16 channelIndex)
 {
@@ -907,10 +866,6 @@ s32 sdkSndResetChannel(s16 channelIndex)
     return 1;
 }
 
-/* ================================================================== */
-/* FUN_0045AA90                                                        */
-/* ================================================================== */
-
 /* Forward a stop request to the selected decode-slot stream. */
 // FUN_0045AA90
 s32 sdkSndStopStream(s16 index, s16 stream)
@@ -919,15 +874,8 @@ s32 sdkSndStopStream(s16 index, s16 stream)
     return 1;
 }
 
-/* ================================================================== */
-/* FUN_0045AAC0                                                        */
-/* ================================================================== */
-
-/* measured: found by tools/permute_sweep.py --engine ast at a 1200s budget;
-   earlier hand probes of direct-table, pointer-temporary, parameter-type,
-   remasked and pragma spellings all stalled at normalized_diff 7-12 on the
-   argument-materialization order. */
-/* Inherited matching-required source shape: retain its casts, comma expressions and reset carriers; only local names are recovered here. */
+/* The casts, comma expressions and reset variables are needed to get the retail argument evaluation
+ * order; only the local names were recovered. */
 // FUN_0045AAC0
 s32 sdkSndFadeOutChannelFrames(s16 channelIndex, s16 requestValue, s32 fadeFrames)
 {
@@ -997,10 +945,6 @@ s32 sdkSndStartSourceStream(s16 channelIndex, s32 source, s16 sourceAux)
     return 1;
 }
 
-/* ================================================================== */
-/* FUN_0045AC90                                                        */
-/* ================================================================== */
-
 /* Starts buffer request mode two, whose creation record selects one channel. */
 // FUN_0045AC90
 s32 sdkSndStartMonoBuffer(s16 channelIndex, s32 source, s32 sourceSize)
@@ -1018,10 +962,6 @@ s32 sdkSndStartMonoBuffer(s16 channelIndex, s32 source, s32 sourceSize)
     }
     return 1;
 }
-
-/* ================================================================== */
-/* FUN_0045AD50                                                        */
-/* ================================================================== */
 
 /* Starts buffer request mode four, whose creation record selects two channels. */
 // FUN_0045AD50
@@ -1041,10 +981,6 @@ s32 sdkSndStartStereoBuffer(s16 channelIndex, s32 source, s32 sourceSize)
     return 1;
 }
 
-/* ================================================================== */
-/* FUN_0045AE10                                                        */
-/* ================================================================== */
-
 /* Starts request mode five with a source value and cue index. */
 // FUN_0045AE10
 s32 sdkSndStartIndexedSource(s32 sourceAux, s32 channelIndex, s32 cueId)
@@ -1058,10 +994,6 @@ s32 sdkSndStartIndexedSource(s32 sourceAux, s32 channelIndex, s32 cueId)
     sdkSndStartRequest(channelIndex);
     return 1;
 }
-
-/* ================================================================== */
-/* FUN_0045AEB0                                                        */
-/* ================================================================== */
 
 /* Copy a path into the selected channel and start its file-backed request. */
 // FUN_0045AEB0
@@ -1082,9 +1014,6 @@ s32 sdkSndStartChannel(s16 channelIndex, const char * path)
     }
     return 1;
 }
-/* ================================================================== */
-/* FUN_0045AF60                                                        */
-/* ================================================================== */
 
 /* Forward the stream start parameters to the selected decode slot. */
 // FUN_0045AF60
@@ -1094,11 +1023,7 @@ s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags)
     return 1;
 }
 
-/* ================================================================== */
-/* FUN_0045AF90                                                        */
-/* ================================================================== */
-
-// Intent: returns 1 while channelIndex's handle is playing; the fourth channel never reports playing.
+// Returns 1 while channelIndex's handle is playing; the fourth channel never reports playing.
 // FUN_0045AF90
 s32 sdkSndIsChannelPlaying(s16 channelIndex)
 {
@@ -1120,11 +1045,8 @@ s32 sdkSndIsChannelPlaying(s16 channelIndex)
     return 0;
 }
 
-/* ================================================================== */
-/* FUN_0045B030                                                        */
-/* ================================================================== */
-
-// Intent: state machine of a stream-load task: opens the stream, waits for it to finish, and marks the task done or failed.
+// State machine of a stream-load task: opens the stream, waits for it to finish, and marks the task
+// done or failed.
 // FUN_0045B030
 s32 sdkSndStreamTaskUpdate(u8 *task)
 {
@@ -1167,12 +1089,8 @@ s32 sdkSndStreamTaskUpdate(u8 *task)
     }
     return 0;
 }
-/* ================================================================== */
-/* FUN_0045B120                                                        */
-/* ================================================================== */
 
-// Intent: destroy callback for a stream-load task: frees its handle and its work block.
-/* measured: direct typing of the final request clear loses MATCH; a local stream-work alias preserves that clear and the typed release. */
+// Destroy callback for a stream-load task: frees its handle and its work block.
 // FUN_0045B120
 void sdkSndStreamTaskDestroy(u8 *task)
 {
@@ -1189,11 +1107,8 @@ void sdkSndStreamTaskDestroy(u8 *task)
     jtbl_008873EC[0](w);
 }
 
-/* ================================================================== */
-/* FUN_0045B170                                                        */
-/* ================================================================== */
-
-// Intent: destroys the stream-load task and its hierarchy once it is done. Returns 1 when it destroyed the task.
+// Destroys the stream-load task and its hierarchy once it is done. Returns 1 when it destroyed the
+// task.
 // FUN_0045B170
 s32 sdkSndStreamTaskReap(void *task)
 {
@@ -1205,11 +1120,7 @@ s32 sdkSndStreamTaskReap(void *task)
     return 0;
 }
 
-/* ================================================================== */
-/* FUN_0045B1C0                                                        */
-/* ================================================================== */
-
-// Intent: creates a stream-load task under parent for the given stream and copies the path into its record.
+// Creates a stream-load task under parent for the given stream and copies the path into its record.
 // FUN_0045B1C0
 s32 sdkSndCreateStreamTask(void *parent, s32 stream, s32 callbackAddress, void *path)
 {
@@ -1233,10 +1144,6 @@ s32 sdkSndCreateStreamTask(void *parent, s32 stream, s32 callbackAddress, void *
     strcpy((s32)(p + 0x10), (s32)path);
     return h;
 }
-
-/* ================================================================== */
-/* FUN_0045B2E0                                                        */
-/* ================================================================== */
 
 /* Resolve a track path, select the stream request mode and start channel three. */
 // FUN_0045B2E0

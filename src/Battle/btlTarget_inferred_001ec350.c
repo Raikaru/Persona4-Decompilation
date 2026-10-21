@@ -32,9 +32,6 @@ extern f32 fGpffff8060;
 extern f32 D_00761438;
 
 
-
-
-
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
 extern f32 D_00881400[];
@@ -57,25 +54,17 @@ extern u8 D_00609E40[];
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001ec350-001ec350 */
-
 extern s32 btlAiGetGlobal(void);
 extern s32 btlAiSetGlobal(void);
 #pragma push
 #pragma pop
-/* measured probe: preserve the retail filter branch chain */
+/* measured: retail keeps the filter conditions as a separate branch chain. */
 #pragma push
-/* measured probe: close the filter branch chain */
 #pragma pop
-/* measured probe: preserve retail conditional branch shape */
 #pragma push
-/* measured probe: close conditional branch shape */
 #pragma pop
-/* measured: optimization_level 1 probe for retail GP-load scheduling. */
-/* measured: close optimization_level 1 probe for btlAiGetGlobal. */
-/* measured: opt_propagation off probe for e320 GP-load order. */
-/* measured: closes opt_propagation probe for btlAiSetGlobal. */
-/* 1468/1472 bytes; all four call relocations resolve exactly. */
+/* Normalize a four-component vector from source into destination and return its length. If the
+ * length is zero, destination is left unchanged. */
 // FUN_001EC350
 /* Normalize all four components; leave the destination untouched for zero length. */
 f32 btlTargetNormalizeVector(f32 *source, f32 *destination)

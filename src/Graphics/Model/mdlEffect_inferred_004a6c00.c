@@ -50,7 +50,6 @@ extern u8 D_00714018[];
 extern u8 D_00714144[];
 
 
-
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void memcpy(void *dst, void *src, u32 size);
 extern u8 D_00714368[];
@@ -69,7 +68,8 @@ extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
 
-// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes FlashQuadCopyAllocFromRecord MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
+// lint: allow H011 -- the caller's (u16, s32) prototype is needed to reproduce retail code for
+// FlashQuadCopyAllocFromRecord.
 
 extern u16 iGpffffbb90;
 extern f32 fGpffffbb74;
@@ -78,17 +78,8 @@ extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004a6c00-004a6c00 */
-
-/* measured: the sibling 004a3010 body matches this loop and byte-copy shape. */
-/* measured: closes the opt_loop_invariants scope for 004a1ca0 at the file baseline. */
-/* measured: loop-invariant hoisting recovers the shared fade constants and
-   replication strides. The 4-byte color assignment preserves retail's
-   load-all/store-all byte copy. Separate loop locals keep the saved-register
-   allocation exact. */
-/* measured: restores the file's O2 loop-invariant baseline. */
-/* measured: testing loop-invariant hoisting for the retail preheader. */
-/* measured: removal, named-integer for, and do/while probes mismatch (11-word removal residual from the -1 preheader). */
+/* measured: loop-invariant hoisting reproduces retail's shared fade constants, replication strides
+ * and the -1 fill loop preheader. */
 #pragma opt_loop_invariants on
 // Creates a grid-backed object from the 0x40-byte record at parameters, copied to +0x18: allocates the 0x5C object, builds a multi-part grid geometry at +0x58, and sets 0x34 sixteen-byte slots of its table to -1.
 // FUN_004A6C00
@@ -111,16 +102,12 @@ u8 *mdlEffectCreateGridForRecord(u8 *parameters)
     __asm__ volatile ("sqc2 vf0, 0(%0)" : : "r"(instance) : "memory");
     memcpy(instance + 0x18, parameters, 0x40);
     createdGeometry = GeometryCreateTableGridMultiPart(0xD, 4, 2, 4, D_00713408, 0x4C);
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     MEMBER(u16 *, instance, MdlEffectGridInstance, geometry) = createdGeometry;
     *createdGeometry = *createdGeometry & 0xFFFE;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     geometryWord = MEMBER(u16 *, instance, MdlEffectGridInstance, geometry);
     *geometryWord = *geometryWord & 0xFFFB;
     RpGeometryLock(
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         ((RpAtomic *)((EffGeometryBlock *)MEMBER(u8 *, instance, MdlEffectGridInstance, geometry))->atomic)->geometry, 8);
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     colors = (u8 *)((RpGeometry *)(u8 *)((RpAtomic *)((EffGeometryBlock *)MEMBER(u8 *, instance, MdlEffectGridInstance, geometry))->atomic)->geometry)->colors;
     geometryWord = (u16 *)(s32)-1;
     colorGroup = 0;

@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/cmmScript.c); members 0025ff60-0025ff60 */
 
 #include "include_asm.h"
 #include "type.h"

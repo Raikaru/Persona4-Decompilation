@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00379e90-0037bc80 */
 
 #include "include_asm.h"
 #include "type.h"
@@ -53,7 +52,6 @@ void btlShuffleInitSingleAxisPose(u8 *context, s32 cardIndex, f32 *output) {
 }
 
 /* Run the single-axis shuffle sequence; return one only after the terminal phase. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
 // FUN_00379F90
 /* Snapshot the unsigned spacing separately for entry and spin loops, without per-function optimizer settings. */
 s32 btlShuffleSeq1Run(u8 *context) {
@@ -421,8 +419,8 @@ extern void btlShuffleSeqReset(u8 *context);
 extern s32 btlShuffleSeqStateCheck(u8 *context);
 extern s32 btlShuffleSeqCardCount(u8 *context, s32 cardIndex);
 extern s32 btlShuffleSeqDispatch(u8 *context);
-/* Run the alternating-axis shuffle sequence, preserving deliberate fallthrough between completed phases. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
+/* Run the alternating-axis shuffle sequence, with deliberate fallthrough between completed phases.
+ * Separate typed alias pointers keep retail's field reload order. */
 // FUN_0037AD10
 /* Snapshot the unsigned spacing separately for entry and spin loops, without per-function optimizer settings. */
 s32 btlShuffleSeq2Run(u8 *context) {

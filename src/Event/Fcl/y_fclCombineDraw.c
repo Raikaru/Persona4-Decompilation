@@ -9,8 +9,7 @@
 #include "fcl_bounds_packet.h"
 #include "sdk_task_registration.h"
 #include "shdPersona_internal.h"
-/* Persona 4 USA decompilation - y_fclCombineDraw.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit y_fclCombineDraw.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdk_snd_internal.h"
 
@@ -24,8 +23,7 @@
 
 /* Unit settings: independent variable-lifetime optimization enabled. */
 #pragma opt_lifetimes on
-/* fclDrawTaskCreate allocates and clears exactly 0x14 bytes. The setters
-   below establish the selector, flag and extra-value offsets independently. */
+/* fclDrawTaskCreate allocates and clears 0x14 bytes for this work block. */
 typedef struct {
     s8 state;
     u8 pad01[3];
@@ -37,8 +35,8 @@ typedef struct {
     s32 extraValue;
 } FclPersonaDrawWork;
 
-/* The loader creator allocates 0x48 bytes; update/destroy establish each
-   request, resource and message-window slot without assuming asset contents. */
+/* Loader work block allocated as 0x48 bytes, holding sprite requests, resource directories and the
+ * message-window slot. */
 typedef struct {
     s8 state;
     u8 pad01[3];
@@ -88,7 +86,7 @@ typedef struct {
     u8 padF01[0xF];
 } FclCombineBallWork;
 
-/* The recovered model-work prefix reaches 0xF4; the selected-name path clears byte +1. */
+/* Model work is 0xF4 bytes; the selected-name path clears byte +1. */
 typedef struct {
     s8 state;
     u8 unk1;
@@ -126,16 +124,10 @@ typedef struct {
     u8 resource;
 } FclCombineChoice;
 
-/* MEMBER retains the original byte-base aliasing only at measured b210
-   culprits. Site, local-pointer and array-form probes are recorded per access
-   in build/readability_names/FullEvent16.culprits.tsv; all use real layouts. */
 
-
-
-/* Retail clears the eight-byte packet through a guarded byte loop rather than a
-   call, so the clear has to be inline here too. */
-/* Copy the two-coordinate position through its existing storage representation. */
-/* measured: direct struct assignments change both panel callers; cast expansions match but fail the typed-access quality gate. */
+/* Copy the two-coordinate position through its existing storage representation. measured: retail
+ * copies the position as one storage-typed block; direct struct assignment changes code in both
+ * panel callers. */
 static inline void fclCopyPositionStorage(void *out, const void *in)
 {
     *(FclVec2 *)out = *(const FclVec2 *)in;
@@ -156,14 +148,7 @@ static inline void fclClearEightBytes(u8 *p)
 }
 
 
-
-
-/* Colors use native four-byte values; byte-buffer drafts retain explicit
-   character access through fclWriteColorBytes. Position pairs use FclVec2.
-   Preserve lookup order, signed loop widths, and offset-first operandOrderAddUnsigned calls.
-   The earlier layout experiments and superseded floors are retained in
-   build/continuation-20260921/fcl-worker3/closure-003212e0/stage-final/
-   historical-conventions.txt and the recovery notes in docs/probe_archive. */
+/* Colors are native four-byte values and position pairs use FclVec2. */
 extern void chkmemAllocSiteTag(const void *file, u32 line);
 extern void *memset(void *dest, s32 value, s32 size);
 
@@ -371,13 +356,11 @@ s32 fclDrawIsActive(u8 *task) {
     return ((FclPersonaDrawWork *)((struct KwlnTask *)task)->work)->state < 6;
 }
 
-// Fcl draw get state: returns the state byte.
 // FUN_00314660
 s8 fclDrawGetState(u8 *task) {
     return ((FclPersonaDrawWork *)(((struct KwlnTask *)task)->work))->state;
 }
 
-// Fcl draw set state byte: writes the state byte.
 // FUN_00314670
 void fclDrawSetStateByte(u8 *task, s8 state) {
     ((FclPersonaDrawWork *)(((struct KwlnTask *)task)->work))->state = state;
@@ -400,14 +383,10 @@ void fclDrawSetHandleValue(u8 *task, u32 value) {
     shdPersonaSetHandleValue(((FclPersonaDrawWork *)(((struct KwlnTask *)task)->work))->personaHandle, value);
 }
 
-/* The stored selector is signed-byte state throughout the renderer/persona
-   pipeline. Reloading it at the call preserves the retail argument order.
-   Measured: 68 bytes in the 80-byte window, with zero instruction differences. */
-// Fcl draw slot mode: stores the value and mode, then sets the slot mode on the object.
+/* The stored selector is a signed byte; it is reloaded from the work block at the call. */
 // FUN_003146F0
 void fclDrawSetSlotMode(u8 *task, s32 value, s8 selector)
 {
-    /* measured: Value reload stays raw: its member substitution changes b210 codegen (nd 10). */
     u8 *obj;
 
     obj = ((struct KwlnTask *)task)->work;
@@ -417,22 +396,6 @@ void fclDrawSetSlotMode(u8 *task, s32 value, s8 selector)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Fcl draw set flag: stores the flag byte at +0xD.
 // FUN_00314740
 void fclDrawSetFlag(u8 *task, s8 flag) {
     ((FclPersonaDrawWork *)(((struct KwlnTask *)task)->work))->flag = flag;
@@ -441,7 +404,6 @@ void fclDrawSetFlag(u8 *task, s8 flag) {
 // Restore the retained origin and select the object's slide-out or close transition from visible.
 // FUN_00314750
 void fclDrawSetVisible(u8 *task, s8 visible) {
-    /* measured: The two post-origin handle reloads stay raw: member substitutions change b210 codegen (nd 84). */
     u8 *work;
     s64 originPacket;
     f32 *p;
@@ -462,28 +424,17 @@ u8 *fclDrawGetResource(u8 *task) {
     return (u8 *)((FclPersonaDrawWork *)((struct KwlnTask *)task)->work)->personaHandle;
 }
 
-/* measured: nd 0 (1800-byte object in the 1808-byte window, zero tail).
-   Recipe: the 14ef0 contract (s16 argument, s8 mode forwarded unconverted);
-   an s16 `base` spilled at 0xC0 with an s32 `order` copy in $s4; the 0x160
-   branch builds its points and colours inside the 77d0 arguments
-   (struct-return 2970). In the 0x174 row loop retail counts in the register
-   of the early resource id and carries each row resource in `base`'s web:
-   `for (id = 0, o2 = order + 4; ...) { r = id + 0x174; base = r; ... }`.
-   A fresh loop counter or resource local leaves a three-register rotation
-   (13 words) or is propagated away. opt_loop_invariants hoists the row
-   floats to the preheader. The row colour locals are assigned inside the
-   77d0 arguments only to give the colour temporaries their retail stack
-   homes (dropping them costs 8 words). */
+/* measured: retail counts the 0x174 row loop in the early resource id's register and carries each
+ * row resource in base; opt_loop_invariants hoists the row floats. */
 #pragma push
-/* measured: baseline C nd 601B; adjacent-local declaration probe nd 605B; retain settings for owner MATCH. */
+/* measured: retail's row layout needs loop-invariant hoisting with lifetimes off. */
 #pragma opt_loop_invariants on
-/* measured: unit lifetimes-on changes this row's owner comparison by 16 normalized bytes. */
+/* measured: retail does not split local lifetimes in this row function. */
 #pragma opt_lifetimes off
 // Draw a combine-list row's bars and label at position, retaining its sprite handle in work+0x258.
 // Kinds 0x174 and 0x160 add extra cells; kind 0x16C draws through fclCombineDrawListRowPlain at a fixed position.
 // FUN_003147E0
 void fclCombineDrawListRow(u8 *task, s8 row, FclVec2 position, s16 resource, s16 delay, s8 mode) {
-    /* measured: clipTasks member indexing changes b210 address codegen (nd 1); retain the byte-table base. */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -577,16 +528,10 @@ void fclCombineDrawListRow(u8 *task, s8 row, FclVec2 position, s16 resource, s16
     fclSpriteStartShowHide(resource, drawPosition8, resource, drawColor7, 152.0f, order + 4, mode, 3, 3, delay, fclCombineGetSpritePool());
 }
 #pragma pop
-/* measured: nd 0. Exact recipe: FclVec2 position parameter (spilled to 0xC8)
-   with s8 slot, s16 resource/argument and s8 mode parameters; `o2 = order + 2`
-   staged right after the first 7750 call; slot pointer spelled
-   `(u8 **)(t + 0x258) + slot`; each 81f0 lookup used directly as the store
-   base so 149.0f is materialized before its lookup; and the 77d0 prototype
-   carrying depth before order. See docs/probe_archive/FclDraw_00314ef0_20260925.md. */
-// Fcl combine list row, plain variant: the same row layout without the kind-specific cells; reached for kind 0x16C.
+/* Fcl combine list row, plain variant: the same row layout without the kind-specific cells; reached
+ * for kind 0x16C. */
 // FUN_00314EF0
 void fclCombineDrawListRowPlain(u8 *task, s8 row, FclVec2 position, s16 resource, s16 delay, s8 mode) {
-    /* measured: clipTasks member indexing changes b210 address codegen (nd 2); retain the byte-table base. */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -643,15 +588,10 @@ void fclCombineDrawListRowPlain(u8 *task, s8 row, FclVec2 position, s16 resource
     fclSpriteStartShowHide(resource, drawPosition4, resource, drawColor4, 148.0f, order + 4, mode, 3, 3, delay, fclCombineGetSpritePool());
 }
 
-/* measured: nd 0, object 740/window 752 (the final 12 retail bytes are zero
-   tail padding ignored by verify). Exact recipe: retain raw arg1 in s0, use a
-   u32 base for the normalized 16-bit index, and write the loop increment as
-   i = (s16)(i + 1); (((u32)t) + (index*2)) supplies the retail offset-first
-   c74 address. */
-// Fcl combine slot rows: draws the three slot rows at the base offset (fclCombineDrawListRow for each), then recolours the selected slot's sprites; the middle row uses 0x160 when flag 0x1305 is set.
+/* Draws the three slot rows at the base offset with fclCombineDrawListRow, then recolours the
+ * selected slot's sprites; the middle row uses 0x160 when flag 0x1305 is set. */
 // FUN_00315310
 void fclCombineDrawSlotRows(u8 *task, s64 delay) {
-    /* measured: Remaining slot-cursor reads and the conditional ID store change b210 codegen when typed (nd 286..468). */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -701,12 +641,9 @@ void fclCombineDrawSlotRows(u8 *task, s64 delay) {
     ((FclCombineRowSprite *)p)->color = drawColor5;
 }
 
-/* Point-by-value construction as in fclCombineDrawPersonaCard.  The row base pointers
-   are f32 tables cast to FclVec2 * (a direct FclVec2 extern folds the
-   first base into each load), fclSpriteCreate takes an s16 resource here, and
-   the then-branch's second table index is its own s16 (retail $s1) while
-   the else-branch reuses the first one ($s0). */
-// Create and tint the calendar detail sprites in mode 0; otherwise move the existing sprites out.
+/* Row base pointers are f32 tables cast to FclVec2 *, and fclSpriteCreate takes an s16 resource
+ * here. In mode 0, creates and tints the calendar detail sprites; otherwise moves the existing
+ * sprites out. */
 // FUN_00315600
 void fclCombineLayoutDetailSprites(u8 *task, s64 mode) {
     extern s64 datGetDateIndex(void);
@@ -811,11 +748,9 @@ void fclCombineLayoutDetailSprites(u8 *task, s64 mode) {
     }
 }
 
-/* Bounds and constructed positions are two-float values. The displacement
-   becomes live in each transition branch and remains shared by later rows.
-   MWCC b210 -O2 reproduces 2572/2576 bytes with every relocation resolved.
-   Evidence: docs/probe_archive/FclDraw_00316470_worker5_20260920.md. */
-// Lay out the frame, optional drawPlates sprites, header and count digits; mode 0 creates them.
+/* Bounds and constructed positions are two-float values; the displacement becomes live in each
+ * transition branch and is shared by later rows. Lay out the frame, optional drawPlates sprites,
+ * header and count digits; mode 0 creates them. */
 // FUN_00316470
 void fclCombineLayoutFrame(u8 *task, s64 drawPlates, s8 mode) {
     extern s32 datCalcGetLevelById(s32);
@@ -1093,7 +1028,6 @@ void fclCombineFadeCursorArrow(u8 *task, s64 mode, f32 offsetX) {
 // Recolor the current slot, step it for command 0/1, then apply the selected colors to the new slot.
 // FUN_00317410
 void fclCombineStepSlotSelection(u8 *task, s8 command) {
-    /* measured: Remaining slot-cursor/color-source member substitutions change b210 codegen (nd 8..843). */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -1185,7 +1119,6 @@ void fclCombineStepSlotSelection(u8 *task, s8 command) {
 // Draw entry from startPosition to endPosition at delay, depth and layer; the selected entry adds animated highlights.
 // FUN_00317900
 void fclCombineDrawEntryCell(u8 *task, FclVec2 startPosition, FclVec2 endPosition, s8 entry, s16 delay, s16 depth, s16 layer) {
-    /* measured: commandRows[commandCursor].id indexing changes b210 address codegen (nd 1); retain the ten-byte stride. */
     extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
     extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
     FclDrawColor drawColor1;
@@ -1312,10 +1245,9 @@ void fclCombineDrawEntryCell(u8 *task, FclVec2 startPosition, FclVec2 endPositio
     ((FclCombineRowSprite *)fclSpriteEntry(sprite))->color = drawColor7;
 }
 
-/* Each point is built inside the store that consumes it (fclMakeVec2 returns
-   by value), which gives retail's float saved-register order. See
-   docs/probe_archive/FclDraw_00318840_20260925.md. */
-// Move/show the selected row's entry highlight; otherwise restore the entry icon at depth and layer + 1.
+/* Each point is built inside the store that consumes it (fclMakeVec2 returns by value), matching
+ * retail's float saved-register order. Moves/shows the selected row's entry highlight; otherwise
+ * restores the entry icon at depth and layer + 1. */
 // FUN_00318840
 void fclCombineUpdateEntryHighlight(u8 *task, s8 row, s8 entry, s16 depth, s16 layer) {
     FclDrawColor drawColor1;
@@ -1432,16 +1364,11 @@ s32 fclCombineRowsBusy(u8 *task) {
     }
     return (s16)fclSpriteFlagBit(((FclCombineRowSprite *)fclSpriteEntry(0x1DC))->flags, 1) == 1;
 }
-/* Party row: points are built by value inside the consuming call, the
-   scale global is read once per first-row branch and reused, and y is a
-   named copy of the shifted row position (see
-   docs/probe_archive/FclDraw_003191c0_20260925.md). */
-// Draw the party row's icon, Persona, arcana, level and labels; mode 1 transitions existing sprites out.
+/* Draw the party row's icon, Persona, arcana, level and labels; mode 1 transitions existing sprites
+ * out. */
 // FUN_003191C0
 void fclCombinePartyRow(u8 *task, FclVec2 position, s32 row, s32 persona, s16 level, s16 delay, s8 mode, s8 rowCountLimit) {
-    /* measured: Remaining row-handle/cursor member substitutions change b210 codegen (nd 2..5043). */
-    /* Slot is s32 here, not the header's s8: fclCombinePartyRow passes an unnarrowed
-       value. Measured: the s8 prototype regresses this function to nd. */
+    /* Slot is s32 here, not the header's s8, because fclCombinePartyRow passes an unnarrowed value. */
     extern u8 *fclCombineSlotRecord(u8 *, s32);
     extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
     extern void fclCombineSetSprite(u8 *, FclVec2, s16, FclDrawColor, f32);
@@ -1704,13 +1631,12 @@ void fclCombinePartyRow(u8 *task, FclVec2 position, s32 row, s32 persona, s16 le
    The digit pair uses the shared native aggregate/depth contract. */
 // Fcl combine persona row: draws list row `row` at position (art, arcana, labels and level digits). checkAvailability == 1 reads the row's availability from the slot list; availability 2 adds the special-row backdrop and cursor sprites, and in mode 0 also creates the selection cursors (0x1C7, 0x2E8). Mode 1 transitions the existing sprites.
 // FUN_0031AC10
-/* measured: opt_lifetimes splits the two nonoverlapping transition-scale
-   lifetimes and restores the retail saved-register allocation. */
-/* measured: baseline C nd 74B; adjacent-local declaration probe nd 74B; retain settings for owner MATCH. */
-/* The name sits two pixels below rowY. The digit pair and special-row
-   backdrop retain rowY (retail keeps it unchanged in $f22). */
+/* measured: opt_lifetimes splits the two non-overlapping transition-scale lifetimes, which gives
+ * retail's saved-register allocation. The name sits two pixels below rowY; the digit pair and
+ * special-row backdrop use rowY unchanged. */
 void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row, s32 persona, s16 level, s16 delay, s8 mode, s8 checkAvailability, u8 alpha) {
-    /* Availability uses a byte-biased row pointer: keep row-first addition before the signed column read. */
+    /* Availability is read through a byte-biased row pointer, with the row added before the signed
+     * column read. */
     s16 digitRow;
     FclCombineRowWork *work;
     u8 *resource;
@@ -1879,7 +1805,6 @@ void fclCombineDrawPersonaRow(u8 *task, FclVec2 position, s8 selectedRow, s8 row
 }
 
 
-
 /* The coordinate pairs are FclVec2 values: fclMakeVec2 returns its point by
    value (hidden result pointer), so each point is built inside the call that
    consumes it.  Building both endpoints within one fclSpriteStartPositionAt call is what
@@ -2029,17 +1954,11 @@ void fclCombineDrawPersonaCardAlt(u8 *task, s16 slot, FclVec2 startPosition, Fcl
     }
 }
 
-/* Entry selection uses real color packets, signed-byte slots, and the
-   list row offset before each entry lookup. Preserving the byte-row
-   snapshot reproduces retail initialization order. The complete code
-   is 1980 bytes plus a four-byte zero tail, with 48 resolved relocations.
-   Evidence: docs/probe_archive/FclDraw_0031d630_worker4_20260920.md. */
-// Refresh slot's sprites, label and optional roster colors; firstSelectedSlot/secondSelectedSlot retain partner highlights.
+/* Selects a slot entry using packed color values, signed-byte slots and the list row offset. */
 // FUN_0031D630
-/* measured: baseline C nd 6B; adjacent-local declaration probe nd 16B; retain settings for owner MATCH. */
+/* measured: retail does not propagate copies in this function. */
 #pragma opt_propagation off
 void fclCombineSelectSlotEntry(u8 *task, s8 slot, s8 firstSelectedSlot, s64 secondSelectedSlot, s64 skipRoster) {
-    /* measured: Remaining row-task/color-source member substitutions change b210 codegen (nd 1..1159). */
     typedef union { FclDrawColor channels; u32 word; } PackedColor;
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
@@ -2151,14 +2070,10 @@ void fclCombineSelectSlotEntry(u8 *task, s8 slot, s8 firstSelectedSlot, s64 seco
 }
 
 #pragma opt_propagation on
-/* Selection colors retain nine constructor outputs and copy descriptor channels
-   after each lookup. Paired alpha stores share their assigned byte value.
-   MWCC b210 -O2 reproduces the complete 1328-byte window and 31 relocations.
-   Evidence: docs/probe_archive/FclDraw_0031ddf0_worker4_20260920.md. */
-// Apply selected or idle colors to slot and return its packed label color with the requested opacity.
+/* Apply selected or idle colors to slot and return its packed label color with the requested
+ * opacity. */
 // FUN_0031DDF0
 s32 fclCombineApplySlotState(u8 *task, s8 slot, s8 selected, u8 opacity) {
-    /* measured: Remaining color-source member substitutions change b210 byte-copy codegen (nd 8..728). */
     typedef union { FclDrawColor channels; u32 word; } PackedColor;
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
@@ -2237,7 +2152,6 @@ s32 fclCombineApplySlotState(u8 *task, s8 slot, s8 selected, u8 opacity) {
 // Flash slot's four sprites and descriptor pale yellow, enabling their color-transition flags.
 // FUN_0031E320
 void fclCombineFlashSlot(u8 *task, s8 slot) {
-    /* measured: The two descriptor-list member substitutions change b210 codegen (nd 122); packed calls read color storage. */
     s32 idx;
     s16 n1;
     s16 n2;
@@ -2282,17 +2196,8 @@ void fclCombineFlashSlot(u8 *task, s8 slot) {
 }
 
 
-
-/* measured: native-exact 5232/5232 bytes, 148 relocations resolved;
-   opt_lifetimes preserves the selector/handle register lifetimes.
-   Entry precondition: variant arg6 is 0..3. All 30 retail direct calls
-   supply constants in this domain (25 zero, two one, two two, one three);
-   the two forwarded selectors are constants one, not state-derived values.
-   Retail has no default resource: its saved $s6 is unspecified outside this
-   domain. See build/first-party-finish-20260929/FclFinish/
-   resume-header-call-domain.json and resume-e5-proof/receipt.json. */
-/* measured: baseline C nd 31B; adjacent-local declaration probe nd 41B; retain settings for owner MATCH. */
-// Draw slot-field chips and values at position with delay/mode; alternateSprites, narrowLayout and variant select the layout.
+/* Draw slot-field chips and values at position with delay/mode; alternateSprites, narrowLayout and
+ * variant select the layout. variant must be 0..3, as retail has no default case. */
 // FUN_0031E5B0
 void fclCombineDrawSlotFields(u8 *task, FclVec2 position, s16 delay, s8 mode, s32 alternateSprites, s32 narrowLayout, s32 variant) {
     FclDrawColor drawColor1;
@@ -2550,15 +2455,10 @@ void fclCombineDrawSlotFields(u8 *task, FclVec2 position, s16 delay, s8 mode, s3
 }
 
 #pragma push
-/* measured: unit lifetimes-on changes fclCombineDrawSlotLabels by 55 normalized bytes. */
+/* measured: retail does not split local lifetimes in fclCombineDrawSlotLabels. */
 #pragma opt_lifetimes off
-/* Point-by-value construction as in fclCombineDrawPersonaCard.  Reading the first x
-   through `*(f32 *)&arg1` makes the homed anchor addressable, so its halves
-   are reloaded after each call (retail's sp58/sp5C loads) instead of being
-   cached across the blocks.  Each block keeps its own node handle, which
-   gives retail's $s0/$s1/$s2 = arg2/arg3/handle colouring, and the
-   offset rows read arg1.y into a local before adding the offset. */
-// Fcl combine slot labels: creates the five label sprites of one slot at fixed offsets from position (0x27C, 0x289, and the 0x72, 0x2AF and 0x2B0 value labels), each fading in or out (mode 1) and sliding into place at the given delay.
+/* Point is built by value as in fclCombineDrawPersonaCard; reading the first x through *(f32
+ * *)&arg1 keeps the anchor addressable so retail reloads it after each call. */
 // FUN_0031FA20
 void fclCombineDrawSlotLabels(u8 *task, FclVec2 position, s16 delay, s8 mode) {
     extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
@@ -2663,24 +2563,8 @@ void fclCombineDrawSlotLabels(u8 *task, FclVec2 position, s16 delay, s8 mode) {
 }
 #pragma pop
 
-/* measured: nd 182-209 (4 attempts: FclVec2* base local 188, FclVec2* tbl+
-   draft shapes 191, u8* tbl draft-exact 182, draft-exact + inline casts 209;
-   the recorded nd-124 baseline did NOT reproduce with any spelling). Recipe B
-   re-test FAILED for D_00644CA0: the typed pointer local IS materialized into a
-   saved reg once (lui/addiu into $s0, matching retail's $16 hoist) but that one
-   fix is drowned by two fixed codegen defects that no spelling removes: (1) the
-   s64 arg1/arg2 parameters fed to the s32/s16 first params of 6c30/69f0/6a70
-   make mwcc b210 emit a dsll32/dsra32 normalization pair at EVERY call site
-   (retail passes the raw register, so the retail prototype must not have the
-   s32/s16 params the tree's shared externs declare — cannot be tested without
-   touching other matched callers); (2) storing the D_00643D70+idx*8 pointer
-   into a saved register emits another dsll32/dsra32 pair (retail's addu is
-   bare), from the s64 multiply intermediate. Plus the 2970-call arg-order
-   swap (address vs addiu a0) from the fclCombineCreateSlotIcons note. All bodies are
-   correct; object is 48-96B over window. Address-rematerialization + s64/s32
-   conversion floor. */
-/* measured: candidate archived at build/EFCL2_003205f0_body.c; object 964/window 896, normalized_diff 621. */
-// Fcl combine slot slide-in: starts the slide-in of the slot sprites for two slot resources, firstResource from the left (x - 200) and secondResource from the right; resource 0x92 also starts the 0x1E6 sprite.
+/* Starts the slot sprite slide-in for two slot resources: firstResource from the left (x - 200),
+ * secondResource from the right; resource 0x92 also starts sprite 0x1E6. */
 // FUN_003205F0
 void fclCombineSlideInSlotSprites(u8 *task, s16 firstResource, s16 secondResource) {
     extern void fclSpriteSetHidden(u8 *, u8);
@@ -2778,29 +2662,13 @@ void fclCombineCreateSlotIcons(u8 *task, s8 mode) {
     fclSpriteStartShowHide(0x1B2, drawPosition4, 0x1B2, drawColor4, 58.0f, 0xA9, mode, 6, 6, 0, fclCombineGetSpritePool());
 }
 
-/* The s16 row/column counters preserve retail's unextended Persona lookups.
- * Function-scope columnIndex and the second (s16)row use in the header delay
- * keep the body-local sign extensions separate from the loop-test values.
- * The traversal takes its own gridMode snapshot in the initializer, as in
- * matched 002eb270's left/right transition phases.
- * Measured 1 -> 0: the grid phase takes a signed wide renderedRow snapshot,
- * then narrows it once for word-sized indexing and delays. This is the same
- * wide-row idiom used by matched 003212e0. A short helper parameter either
- * folds that boundary or introduces a redundant sign extension.
- * The b210 capture keeps the two row webs through allocation (both s2).
- * Post-color CSE removes the grid's sext s2,s4,16, which duplicates the
- * loop-top conversion. No extra row update or reference is required.
- * fnalign: 471 exact instructions, 0x150 frame; the entry test reads v0 and
- * savedMode uses sw/lw at 0xD0. All repeated element lookups remain intact.
- */
-/* Retain the measured baseline's task-argument home reader. This is a
-   storage view, not a recovered game API or a new initialization phase. */
+/* The s16 row/column counters reproduce retail's Persona lookups without sign extension; the grid
+ * phase takes a signed wide row snapshot and narrows it once for word indexing. */
 
 
-/* Bias the row view by the column before applying its field displacement.
-   Direct array indexing reverses the final ADDU's operands in b210. */
-/* Clear the transition-start flag for one grid cell. */
-/* measured: direct indexed flag stores change owner instruction bytes at both remaining call sites. */
+/* Clear the transition-start flag for one grid cell, biasing the row view by the column before the
+ * field displacement. measured: retail adds the column to the row pointer first; direct indexed
+ * stores change the code at both call sites. */
 static inline void fclClearGridCellTransition(FclCombineGridRowStateView *rowState, s32 column)
 {
     FclCombineGridRowStateView *cellState = (FclCombineGridRowStateView *)((u8 *)rowState + column);
@@ -2920,8 +2788,8 @@ void fclCombineSetupPairGrid(u8 *task, s8 entryMode) {
         rowIndex = row;
         personaRowPosition = fclMakeVec2(16.0f, 128.0f);
         personaId = ((FclCombinePersonaHeader *)yListSlotEntry(0, row))->personaId;
-        /* The two entry lookups and the signed-byte count read are deliberate.
-           Keep the second (s16)row conversion in the delay expression. */
+        /* Retail looks up the entry twice and reads the count as a signed byte; the delay converts
+         * row to s16 again. */
         fclCombinePartyRow(task, personaRowPosition, (s8)row, personaId, ((FclCombinePersonaHeader *)yListSlotEntry(0, row))->level, (s16)(row * 2), 0, (listCountByte = *(s8 *)&((FclCombinePersonaListHeader *)yListSlotWork(0))->count));
         {
             s16 columnSprite = rowIndex + 0x25E;
@@ -2953,21 +2821,17 @@ void fclCombineSetupPairGrid(u8 *task, s8 entryMode) {
                           0xFF, 0xFF, 32.0f, 159.0f, 2, rowIndex, 0, 0);
         }
 
-        /* Phase 3: animate this grid row and clear its transition-state bytes.
-           These row-relative pointers intentionally retain the baseline's
-           distinct bases and scopes; they are not cached list-task values. */
+        /* Animate this grid row and clear its transition-state bytes. */
         fclAnimatePairGridRow(work, row, gridOffset, gridMode);
     }
 }
 
-/* Native color results preserve the initial copies and in-place recoloring.
-   Signed-short grid indices and byte alpha agree with the draw providers.
-   Exact code and caller closure: docs/probe_archive/FclDraw_003212e0_continuation_20260921.md. */
-// Fcl combine grid fade advance: sets the cell colours of the pair grid (the mode-1 call swaps the two cell colours), writes next_state into the task's state byte, and draws the row labels with the selected row in the dark colour.
+/* Sets the pair grid cell colours (mode 1 swaps the two cell colours), writes nextState into the
+ * task state byte, and draws row labels with the selected row dark. */
 // FUN_003212E0
 void fclCombineAdvanceGridFade(u8 *task, u8 nextState, s8 mode) {
-    /* measured: Remaining row-task member substitutions change b210 codegen (nd 752..766); keep row-biased cursors. */
-    /* Keep byte-biased row/cell pointers and offset-first availability reads; they index distinct parallel tables. */
+    /* Row and cell state are walked with byte-biased pointers into separate parallel tables rather
+     * than through typed row-task members. */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -3049,24 +2913,15 @@ void fclCombineAdvanceGridFade(u8 *task, u8 nextState, s8 mode) {
         }
     }
 }
-/* measured: nd 0 (1468-byte object in the 1472-byte window, zero tail).
-   Recipe: opt_loop_invariants hoists the inner-loop row offset (i * 12) and
-   spills it; the 6a70 delay is `order + 3` through the s16 prototype, so the
-   invariant sum is spilled raw and narrowed at each call. Points come from
-   the struct-return 2970 inside the consuming 83e0/69f0 calls; `r` is kept
-   alive into 69f0 so it takes $fp. Both loop counters are zeroed before the
-   statements that follow them (`i = 0` before `order`, `j = 0` before the
-   row pointer), which gives retail's saved-register assignment. The table
-   test reads `((s8 *)func_002e4870(0))[row + j + 0x14]` for row-first
-   addressing. The first two colours are named inside the 83e0 arguments
-   only to give their temporaries retail's stack homes (24 words without). */
+/* Loop-invariant hoisting spills the inner-loop row offset as retail does; both loop counters are
+ * zeroed before the statements that follow them. */
 #pragma push
-/* measured: baseline C nd 1080B; adjacent-local declaration probe nd 1080B; retain settings for owner MATCH. */
+/* measured: retail hoists and spills the inner-loop row offset, which needs loop-invariant
+ * optimization on. */
 #pragma opt_loop_invariants on
 // Fcl combine grid cell refresh: for each roster row, redraws the row's cells with colours taken from the selected row (0x11E) and the availability counts, and resets the row sprite and its column header at the given order.
 // FUN_003218A0
 void fclCombineRefreshGridCells(u8 *task, s16 delay) {
-    /* measured: Remaining row-task member substitutions change b210 codegen (nd 413..650); provider calls stay independent. */
     extern void fclSpriteStartPositionAt(s16, FclVec2, FclVec2, u32, u32, s16);
     extern void fclSpriteStartAlphaAt(s16, u8, u8, u8, s32, s16);
     FclDrawColor drawColor1;
@@ -3156,14 +3011,10 @@ static inline void fclShowCombineCursorArrows(u8 *work)
     fclSpriteSetHidden(((FclCombineWork *)work)->f290, 1);
 }
 
-/* measured: opt_lifetimes on keeps the independent nested counters live.
-   The unsigned row snapshot retains retail's separate signed re-extension.
-   Whole owner: 5484 bytes plus four zero tail bytes; 164 resolved relocations. */
-// Handle grid navigation and transitions: confirm enters selectedState, cancel enters cancelState, and mode selects the card path.
+/* Handle grid navigation and transitions: confirm enters selectedState, cancel enters cancelState,
+ * and mode selects the card path. */
 // FUN_00321E60
-/* measured: baseline C nd 241B; adjacent-local declaration probe nd 241B; retain settings for owner MATCH. */
 void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelState) {
-    /* measured: Remaining selection/row-task member substitutions change b210 codegen (nd 602..4002). */
     extern u16 D_008C027A[];
     extern u16 D_008C024E[];
     extern u16 D_008C024C[];
@@ -3420,24 +3271,11 @@ void fclCombineHandleGridInput(u8 *task, s64 mode, u8 selectedState, u8 cancelSt
 }
 
 
-// measured: nd N/A (draw-family, s64-param floor). 29x 6150 + 17x 2a60 + 12x 2970 + 8x 6a70 + 7x 6c30: same s64-arg normalization floor; externs locked by matched callers. s64-param-normalization floor.
-/* measured: probe_variants 366 differing words reloc-masked via `python3 tools/probe_variants.py src/Event/Fcl/y_fclCombineDraw.c func_003233d0 --candidate V9=/var/tmp/cold3233d0/v9.c`; fnalign retail 587 vs object 586 instrs (1 short, 0.17% within 3% rule, 53 edits +3 reloc-only) via `python3 tools/fnalign.py src/Event/Fcl/y_fclCombineDraw.c func_003233d0 --candidate /var/tmp/cold3233d0/v9.c --quiet`; live measure_guarded GUARDED_SCORE func_003233d0: 366. Prior file note nd N/A was bare INCLUDE_ASM with no banked body (no archive); this is the first banked floor since bare. */
-/* Walls (same rotation+scheduling as siblings 31d630/324680/32a960/23d00, now at 366): t in $s? vs retail $s1, i raw/norm rotation shifting every lb/lh base and loop slt; 0x6E stores retail sb $s4 + andi $s4 vs object addiu $v1,-1/-52 + sb (s8 -1/-52/0 wins over u8 0xFF/0xCC by 41, v2 458 vs v1 499); FP saved-reg $f20 vs $f14 + mov.s wall and conversion result $v1 vs $v0 + andi chain (explicit normal-first 2.1474836e9f > f + per-arm andi beats plain (u8)f 461 vs 458); lw scheduling + branch offsets. All logic matches: outer 10b5b0 loop with 31d630 call, three colour branches with FclByte4 chains, tail 2aa0 guarded + 275820 text call. */
-/* Repro: `python3 -E -s tools/m2c_decompile.py src/Event/Fcl/y_fclCombineDraw.c func_003233d0 -o /var/tmp/cold3233d0/m2c.c` (193 lines, (void*) + s8/s16 residues de-noised to (u8*) + (s8)/(s16) casts, FclByte4 groups per 31d630 lever, s16 i with (s16)i<(u16)10b5b0 loop, heap-to-heap FclByte4 chains per retail lw/sw, 2aa0 + guarded (u8)(s32)f normal-first idiom per y_CmbCardEff 00348330, 275820 text tail); `python3 -E -s tools/romwright_decompile.py func_003233d0 -o /var/tmp/cold3233d0/rom.c` (241 lines, (ulonglong) residues, same chains confirmed); probe V9 366 driven by fnalign edit script (count first: 586/587 exact, then shapes). */
-/* Rounds: v1 499 (u8 0x6E + a/b hoist + explicit guard, heap-to-heap u8 chains); v2 458 (-41 via s8 -1/-52/0 stores); v3 498 tie (inline a/b on u8 base, neutral); v4 430 (-28 via inline a/b on s8 base); v5 461 worse (plain (u8)f guard) + v6 506 worse (s32 i) batch; v7 430 tie (decl-order neutral) + v8 401 (-29 via tail id inline) batch; v9 366 (-35 via FclByte4 struct-assign for all heap colours, lw/sw) + v10 401 tie (s32 ba970 neutral) batch; v11/v12 366 tie (s32 ba970 + decl-order neutral) batch; v13 491 worse (u8 revert) + v14 407 worse (tail hoist revert) batch. Stopped after two consecutive non-lowering rounds (v11/v12 tie + v13/v14 worse). Banked v9 as guarded floor (exact count, compiles clean under -DNON_MATCHING). */
-/* MATCHED.  The whole 2352-byte window including all 59 relocations.  Three source facts
-   closed the last 366 words: the paired `+0x6E` selection flags are one chained assignment
-   (`*(u8 *)(A + 0x6E) = *(u8 *)(B + 0x6E) = 0xFF`) with the 0x270 slot written through the
-   0x27D one, not two separate stores; the three colours retain their byte/word
-   union representation and cross the call boundary as native FclDrawColor values;
-   and the height is converted to f32 before the second lookup, after which the opacity is
-   plain `(u8)f` - the hand-written 2.1474836e9f guard that had been carried from the
-   y_CmbCardEff idiom was the thing keeping it apart.  `fclCombineSelectSlotEntry`'s third formal is s8,
-   which retail callers load with `lb`; that declaration is now file-scope. */
-// Fcl combine roster selection refresh: for each roster row, refreshes the slot entry, then colours the selected row's sprites (selection flags and the 0x2A3 highlight) or the other rows' sprites, and flags the row's entries when their availability count is 2.
+// Fcl combine roster selection refresh: for each roster row, refreshes the slot entry, then colours
+// the selected row's sprites (selection flags and the 0x2A3 highlight) or the other rows' sprites.
+// Rows whose availability count is 2 get their entries flagged.
 // FUN_003233D0
 void fclCombineRefreshRosterSelection(u8 *task) {
-    /* measured: Remaining selection/availability/color member substitutions change b210 codegen (nd 8..1648). */
     typedef union { FclDrawColor channels; u32 word; } PackedColor;
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
@@ -3546,16 +3384,11 @@ void fclCombineRefreshRosterSelection(u8 *task) {
 }
 
 #pragma push
-/* measured: unit lifetimes-on changes fclCombineDrawSidePanels by 50 normalized bytes. */
+/* measured: with lifetime analysis on, the locals get different registers than retail uses. */
 #pragma opt_lifetimes off
-/* The mode is a signed byte across the title and row calls. Positions and
-   colors are native aggregates. `hidden` and `shown` are declared before
-   `res` and passed through `(s32)` conversions at every call. The repeated
-   conversion becomes one frontend temporary copied from each local inside
-   the later draw blocks. That copy use keeps both locals out of b210's
-   copy propagation, so they keep their low declared numbers and retail's
-   $s4/$s3 (see docs/matching.md, "Keep a load local alive"). */
-// Draw both slot lists and side panels with per-row delayStep; mode controls their entry/exit alpha.
+/* The hidden and shown locals are declared before res and passed through (s32) casts at every call
+ * on purpose; retail's code is shaped by those repeated conversions. Draws both slot lists and side
+ * panels with a per-row delayStep, and mode sets their entry/exit alpha. */
 // FUN_00323D00
 void fclCombineDrawSidePanels(u8 *task, s32 delayStep, s8 mode) {
     /* The count argument is specifically the signed low byte of the word-sized list count. */
@@ -3642,32 +3475,9 @@ void fclCombineDrawSidePanels(u8 *task, s32 delayStep, s8 mode) {
 }
 #pragma pop
 
-/* 00324410 body archived at build/WBFclCombineDraw_00324410_body.c.txt.
-   Best complete candidate measured nd 118, object 616/624 after changing only
-   fclSpriteReset's first parameter to s64 (the retained TU declaration);
-   baseline helper declaration scored nd 249, object 612/624. The candidate
-   matches the prologue, dispatch, all calls, and tail except for the FPU
-   materialization block at offsets 0x11C-0x12C: retail emits
-   [lwc1 y, lui 20.0f, mtc1, nop, add.s], while MWCC emits
-   [lui 20.0f, mtc1, lwc1, add.s]. The missing nop makes the object eight
-   bytes short and shifts the following branch/call rows. O1 (nd 421,
-   object 640/624) and schedule-on (nd 408, object 536/624) were ruled out;
-   ordinary source-order and pointer-pinning variants did not change nd 118.
-   Caller-side width was also measured: retail entry uses direct
-   daddu $s2,$a1 at 0x00324428 with no sign extension, but declaring arg1 s64
-   scored nd 399, object 648/624; the first residual moved to 0x6C, where
-   dsll32/dsra32 narrow arg1 for the still-s16 6150 call, and the same
-   narrowing recurs at later s16-helper calls. A combined caller/helper-width
-   probe (arg1 s64 plus s64 first params for 6150/68d0/69f0/6a70, with 6af0
-   left s16) scored nd 117, object 616/624; it left the 6af0 narrowing pair
-   at offsets 0x180/0x184. Widening 6af0 as well scored nd 249, object
-   612/624. The s16 definition and original helper declarations are therefore
-   retained; bare INCLUDE_ASM remains because nd 118 exceeds park threshold. */
-/* measured: candidate archived at build/EFCL2_00324410_body.c; object 616/window 624, normalized_diff 118. */
-// Advance sprite's side-panel cursor animation through start, wait and hide states for side.
 // FUN_00324410
 void fclCombineStepSidePanel(u8 *task, s16 sprite, s8 side) {
-    /* Cursor-state pointers retain the side-byte bias before the field displacement. */
+    /* Cursor-state pointers add the side byte before the field offset. */
     FclVec2 drawPosition1;
     FclVec2 drawPosition2;
     FclVec2 drawPosition3;
@@ -3713,27 +3523,10 @@ void fclCombineStepSidePanel(u8 *task, s16 sprite, s8 side) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-/* Keep the heap recoloring chain and the twelve right-hand rows explicit.
-   The actual signed-byte mode contract is shared by all called providers.
-   The second label loop reuses the row counter `i` under opt_lifetimes, so
-   its split lifetime is numbered after its sign-extended copy, and `on`/`off`
-   are passed as (s32) conversions so they stay locals (docs/matching.md,
-   "Keep a load local alive"); together they give retail's $s1/$s2/$s3. */
-/* measured: baseline C nd 18B; adjacent-local declaration probe nd 28B; retain settings for owner MATCH. */
-// Redraw the pair-grid frame, headers, lists and side panels for mode using delayStep between rows.
+/* Redraw the pair-grid frame, headers, lists and side panels for mode, using delayStep between
+ * rows. The on/off arguments are passed as (s32) casts so they stay locals. */
 // FUN_00324680
 void fclCombineDrawPairLayout(u8 *task, s32 delayStep, s8 mode) {
-    /* measured: The three color-source member substitutions change b210 byte-copy codegen (nd 8). */
     extern f32 D_006443D8[];
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
@@ -3911,11 +3704,8 @@ static inline void fclShowCursorArrow(s8 flag)
     fclSpriteStartAlphaAt(0x1E4, ((FclCombineRowSprite *)fclSpriteEntry(0x1E4))->alpha, 0, 0, 0xA, 0);
 }
 
-/* Every colour starts as a declaration initializer (temporary plus copy)
-   and is reassigned in place outside mode 2. One named point takes each
-   fclMakeVec2 result, and every other value is left to b210's CSE
-   (docs/probe_archive/FclDraw_00325450_20260925.md). */
-// Draw stage's banner tiles and marker; mode 0 also initializes the stage/window selection.
+/* Draw stage's banner tiles and marker; mode 0 also initializes the stage/window selection. Colours
+ * are declaration initializers, reassigned in place outside mode 2. */
 // FUN_00325450
 void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
     u8 *work = ((struct KwlnTask *)task)->work;
@@ -4311,15 +4101,11 @@ void fclCombineDrawStageBanner(u8 *task, s32 stage, s8 mode) {
     }
 }
 
-/* measured: the inline load/add boundary preserves the current-x load order
-   under baseline propagation; the helper needs no separate optimizer setting.
-   Exact owner and contract proof: docs/probe_archive/FclDraw_00329310_exact_row_packets_worker2_20260921.md. */
-/* Apply the table displacement at a byte offset to a row coordinate. */
-/* measured: expanding the table load and addition changes owner instruction bytes; retain the inline load/add boundary. */
+/* measured: retail keeps the table load and add as a separate inline step, which keeps the
+ * current-x load order; expanding it inline changes the caller's code. */
 static inline f32 fclRowAdjustedX(f32 x, const f32 *table, s32 offset)
 {
     const f32 *adjustment = (const f32 *)((const u8 *)table + offset);
-    /* measured: float-element indexing changes the inlined stage-tile body (nd 496, 1268/1248 bytes). */
     x += *adjustment;
     return x;
 }
@@ -4327,8 +4113,8 @@ static inline f32 fclRowAdjustedX(f32 x, const f32 *table, s32 offset)
 // Draw seven visible stage tiles and their shadows with duration and mode; later tiles add secondary pairs.
 // FUN_00329310
 void fclCombineDrawStageTiles(u8 *owner, s16 duration, s8 mode) {
-    /* measured: Float-element indexing changes b210 codegen (nd 701); retain the byte displacement. */
-    /* Table displacements are byte offsets; the stage/window bytes are outside the shared row-work prefix. */
+    /* Table offsets are in bytes, not float indices; the stage/window bytes lie outside the shared
+     * row-work prefix. */
     typedef union { FclDrawColor channels; u32 word; } PackedColor;
     PackedColor white;
     PackedColor dark;
@@ -4374,8 +4160,8 @@ void fclCombineDrawStageTiles(u8 *owner, s16 duration, s8 mode) {
         savedIndex = index;
         tableOffset = (s32)savedIndex * 4;
         savedColumn = column;
-        /* The typed element pointer is assigned inside the expression to retain
-           retail evaluation order; moving it before the call changes b210 code. */
+        /* The typed element pointer is assigned inside the expression to keep retail's evaluation
+         * order. */
         position = fclMakeVec2(baseX + (f32)((s32)savedColumn * 61) + *(columnAdjustment = (f32 *)((u8 *)D_007495C0 + tableOffset)), baseY);
         ((FclCombineRowSprite *)fclSpriteEntry(resource))->position = position;
         white.channels = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
@@ -4408,15 +4194,15 @@ void fclCombineDrawStageTiles(u8 *owner, s16 duration, s8 mode) {
         ++column;
     }
 }
-/* measured: MWCC b210 -O2 reproduces 1604/1616 bytes with 50 resolved
-   relocations and twelve zero alignment bytes. Real FclVec2 locals,
-   the float-first source contract and two-way selection preserve the
-   retail parameter and position lifetimes. Scoped opt_propagation off
-   keeps the shared bounds pointer through its constructor calls.
-   Evidence: build/first-party-finish-20260920/fcl-worker5. */
-// Slide the panel header from originX by slideOffset; variant chooses the label pair, and mode 0 creates the sprites.
+/* measured: opt_propagation off keeps the shared bounds pointer live across its constructor calls.
+ * Slides the panel header from originX by slideOffset; variant picks the label pair, mode 0 creates
+ * the sprites. */
+/* Slide the combine panel header sprites horizontally by slideOffset from originX, choosing the
+ * label pair by variant. Mode 0 creates the sprites and slides them in; any other mode slides the
+ * existing sprites out from where they are now. */
 // FUN_003297F0
-/* measured: baseline C nd 1168B; adjacent-local declaration probe nd 1168B; retain settings for owner MATCH. */
+/* measured: retail keeps the shared bounds pointer through the constructor calls, which needs
+ * propagation off. */
 #pragma opt_propagation off
 void fclCombineSlideInHeaderSprites(f32 originX, f32 slideOffset, u8 *task, s64 variant, s8 mode) {
     FclDrawColor drawColor1;
@@ -4520,21 +4306,14 @@ void fclCombineSlideInHeaderSprites(f32 originX, f32 slideOffset, u8 *task, s64 
 }
 
 #pragma opt_propagation on
-/* Both pointers denote FclVec2 storage. Keep the aggregate copy at the
-   storage interface: b210 loads both constructor-produced coordinates before
-   storing the retained origin. A typed-pointer or scalar copy changes that
-   native load/store order. */
+/* The aggregate FclVec2 copy loads both coordinates before storing the retained origin; a typed-
+ * pointer or scalar copy changes that order. */
 
 
-/* Native color results retain the initial copies and later recoloring.
-   The draw-call order is preserved.
-   measured: complete b210 -O2 proof in
-   build/first-party-continue-live/fcl/closure-00329e40/; 2840 executable bytes,
-   eight retail alignment zeros, all sibling functions and owned data preserved. */
-// Fcl combine header panel: draws the fixed header panel at (79, 97): a backing frame, the title sprites and two highlight rows whose x offset comes from the cursor byte at work+0x123 (step 0x101). delay and mode are passed through to every draw call.
+/* Draws the fixed header panel at (79, 97): backing frame, title sprites and two highlight rows
+ * offset by the cursor byte (step 0x101). delay and mode pass through to every draw call. */
 // FUN_00329E40
 void fclCombineDrawHeaderPanel(u8 *task, s16 delay, s8 mode) {
-    /* measured: The remaining header-selection member substitutions change b210 codegen (nd 2124). */
 
 
     FclVec2 origin;
@@ -4622,16 +4401,15 @@ void fclCombineDrawHeaderPanel(u8 *task, s16 delay, s8 mode) {
         fclSpriteSetFlag(0x2E3, 0xD, 0);
     }
 }
-/* measured: saved draw-contract recovery uses scoped opt_propagation off
-   with constructor-backed FclVec2 values and explicit x/y snapshots.
-   Provenance and current checks: docs/probe_archive/Recovered_FclDraw_0032a960_0032b000.md. */
-// Fcl combine panel border: mode 0 creates the border sprites and fades them in (dark bars at the top and bottom edges, two labels and two scaled corner sprites). Any other mode fades them out from their current alpha.
+/* measured: the draw routine needs opt_propagation off around it, with constructor-built FclVec2
+ * values and explicit x/y snapshots, to reproduce retail code. */
 // FUN_0032A960
 #pragma push
-/* measured: baseline C nd 1123B; adjacent-local declaration probe nd 1123B; retain settings for owner MATCH. */
+/* measured: retail keeps the constructor-backed positions unpropagated, which needs propagation
+ * off. */
 #pragma opt_propagation off
 void fclCombineDrawPanelBorder(u8 *task, s8 mode) {
-    /* Signed-byte alpha stores retain byte aliasing with the surrounding animation packet. */
+    /* Alpha is stored as a signed byte inside the surrounding animation packet. */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -4736,10 +4514,9 @@ void fclCombineDrawPanelBorder(u8 *task, s8 mode) {
     fclSpriteStartAlphaAt(0x2E3, ((FclCombineRowSprite *)fclSpriteEntry(0x2E3))->alpha, 0, 0, 0, 0);
 }
 #pragma pop
-/* measured: the existing position-storage copy loads both coordinates before
-   storing either, preserving owner MATCH under baseline propagation.
-   Provenance: docs/probe_archive/Recovered_FclDraw_0032a960_0032b000.md. */
-// Fcl combine counter: draws the counter value from func_00110140() as a bar (0x2CF) with two labels, the ones digit (0x2D0) always, the tens digit (0x2D1) from 10 up, and sprite 0x10D when the value is 100. mode 0 creates and fades in; any other mode fades out and repositions.
+/* Fcl combine counter: draws the counter value from func_00110140() as a bar (0x2CF) with two
+ * labels, the ones digit (0x2D0) always, the tens digit (0x2D1) from 10 up, and sprite 0x10D when
+ * the value is 100. mode 0 creates and fades in; any other mode fades out and repositions. */
 // FUN_0032B000
 void fclCombineDrawCounter(u8 *task, s8 mode) {
     /* The image halfword at offset 4 is accessed without changing the surrounding constructor packet lifetimes. */
@@ -4848,15 +4625,12 @@ void fclCombineDrawCounter(u8 *task, s8 mode) {
     }
 }
 
-/* measured: 596B/608B, exact emitted instructions and three zero-tail words.
-   The retail loop passes word-sized list indices; a narrowed call declaration
-   inserts two normalization instructions. Removing the unused expression that
-   read new_var/f20/f21 before initialization preserves every emitted word. */
-// Draw rowCount roster rows with per-row delayStep, then the frame/header and the current window indicators.
+/* Draw rowCount roster rows with per-row delayStep, then the frame/header and the current window
+ * indicators. The loop passes word-sized list indices. */
 // FUN_0032B770
 void fclCombineDrawRosterRows(u8 *task, s32 delayStep, s32 rowCount, s8 mode)
 {
-  /* Keep the addressable row-spacing snapshot and the byte-displaced scalar Y accumulator. */
+  /* Row spacing is read through an address snapshot and the Y accumulator through a byte offset. */
   float markY;
   f32 *rowStepAddress;
   FclVec2 drawPosition1;
@@ -4913,12 +4687,10 @@ void fclCombineDrawRosterRows(u8 *task, s32 delayStep, s32 rowCount, s8 mode)
   ((FclCombineRowSprite *)fclSpriteEntry(0xB5))->position.y = (rowStepOrY = markY);
 }
 
-/* The mode byte is passed unconverted to every callee, so each callee takes it as s8.
-   See docs/probe_archive/FclDraw_0032b9d0_20260925.md for the recipe. */
-// Draw rowCount windowed roster rows with delayStep and mode, highlighting the cursor and updating the header/counter.
+/* Draw rowCount windowed roster rows with delayStep and mode, highlighting the cursor and updating
+ * the header/counter. mode is passed to callees as s8. */
 // FUN_0032B9D0
 void fclCombineDrawRosterList(u8 *task, s32 delayStep, s32 rowCount, s8 mode) {
-    /* measured: Remaining task/cursor member substitutions change b210 codegen (nd 749..1257). */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -5001,19 +4773,12 @@ void fclCombineDrawRosterList(u8 *task, s32 delayStep, s32 rowCount, s8 mode) {
     fclCombineDrawCounter(task, mode);
 }
 
-/* Measured: this C body is byte-exact under scoped verify.py (obj 956/window
-   960, nd 0), but its switch emits one additional anonymous .rodata jump
-   table (the current object labels it @551) alongside retail's one named
-   six-entry table, jtbl_00749640. Retail func_0032c0c0 uses one jump table;
-   this body emits one semantically identical table, but retaining the retail
-   assembly table makes the linked TU contain an additional anonymous table.
-   The scoped verifier is exact; whole-TU linked layout remains unverified.
-   If tools/build.py reports its first linked-image difference inside the
-   y_fclCombineDraw address range, inspect this function first. */
-// Move the roster cursor for command, retaining the visible window and repositioning its two indicators.
+/* The switch emits an extra anonymous jump table next to retail's six-entry table, so a linked-
+ * image difference in this file likely starts here. Move the roster cursor for command, retaining
+ * the visible window and repositioning its two indicators. */
 // FUN_0032C0C0
 void fclCombineMoveRosterCursor(u8 *task, s64 command) {
-    /* measured: Remaining cursor members/field-address substitutions change b210 codegen (nd 165..600). */
+    /* measured: typing the remaining cursor fields as struct members changes the generated code. */
     f32 fdiff;
     f32 facc;
     s16 r;
@@ -5080,18 +4845,14 @@ typedef struct {
     u8 *model;
 } FclCombineModelWork;
 
-/* Retrieve the persona handle from the draw task work area. */
-/* measured: expanding the nested work/handle load changes owner instruction bytes at its remaining call site. */
+/* Retrieve the persona handle from the draw task work area. measured: inlining the nested
+ * work/handle load at the call site changes the caller's code. */
 static inline u8 *fclDrawPersonaTask(u8 *draw)
 {
     return (u8 *)((FclPersonaDrawWork *)((struct KwlnTask *)draw)->work)->personaHandle;
 }
 
-/* measured: MWCCPS2 b210 -O2, 472B/window 480B, 21 resolved relocations,
- * eight zero alignment bytes. Ghidra supplies the float constants; IDA
- * supplies the signed selection and two-word position packet. Typed work
- * views and the canonical message-queue pointer preserve argument order. */
-// Fcl combine selected name: draws the selected persona's name and arcana, and loads its model.
+/* Draws the selected persona's name and arcana, and loads its model. */
 // FUN_0032C480
 void fclCombineDrawSelectedName(u8 *task)
 {
@@ -5114,16 +4875,12 @@ void fclCombineDrawSelectedName(u8 *task)
     shdPersonaSetOpacity(fclDrawPersonaTask(obj->draw), 64000.0f);
 }
 
-/* The two panel columns retain constructor-backed positions and native
-   color packets. The upper row snapshots each cloned position before its
-   state change; the lower row reads the live position afterward.
-   measured: b210 -O2, 7944 executable bytes and eight retail alignment
-   zeros; complete owner and native proof in
-   build/cos20335-continuation/fcl-completion-worker16/32c660-review-v1. */
-// Fcl combine slot panel column: slides the panel of column slot (0 or 1; sprite bases 0x1CA and 0x2E4) in or out. mode 1 creates the sprites at origin plus travelDistance and slides them to shownPosition, then sets the two clip boxes from the work table. Any other mode slides them to origin, or to hiddenPosition when useHiddenPosition is set, and fades the frame sprites out.
+/* Slides column slot's panel (0 or 1) in when mode is 1, otherwise out to origin or hiddenPosition
+ * and fades its frame sprites. The upper row snapshots each position before its state change; the
+ * lower row reads it afterward. */
 // FUN_0032C660
 void fclCombineSlidePanelColumn(u8 *task, s32 slot, FclVec2 shownPosition, FclVec2 hiddenPosition, s32 mode, s32 useHiddenPosition) {
-    /* measured: clipTasks member indexing changes b210 address codegen (nd 2 for either clip); retain byte-table bases. */
+    /* measured: retail generates clipTasks addresses from byte-table bases, not member indexing. */
     f32 travelDistance = 600.0f;
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
@@ -5650,15 +5407,12 @@ void fclCombineSlidePanelColumn(u8 *task, s32 slot, FclVec2 shownPosition, FclVe
         sdkSpriteFreeNode(lowerClipResource);
     }
 }
-/* Each point is built inside its fclCombineDrawResourceAt call (fclMakeVec2 returns
-   it by value, so fclCombineDrawResourceAt now takes an FclVec2).  The two branches
-   keep their own row/count locals, which is what gives them retail's
-   different register colouring, and the else branch holds its text x in a
-   local (retail $f21) while its loop still spells 153.0f. */
-// Fcl combine detail panel: draws the text panel for the highlighted choice. When its table index (t+0x2D6 selecting an entry in t+0x2D4) is -1 it draws the empty-choice header and the entries flagged in t+0x2C4; otherwise it draws the entry's three info lines or its header, then the same flagged-entry list.
+/* Draws the detail panel for the highlighted combine choice: if its table index is -1, the empty-
+ * choice header and flagged entries; otherwise its three info lines or header, then the flagged
+ * entries. */
 // FUN_0032E570
 void fclCombineDrawDetailPanel(u8 *task) {
-    /* measured: Remaining side/flag member substitutions change b210 codegen (nd 2..2002); calendar records are typed. */
+    /* measured: typing the remaining side/flag fields as struct members changes the generated code. */
     extern u8 fclCalendarMonth(void);
     extern s32 fclCalendarDay(void);
     extern s64 calGetDayEntryForMonthDay(s32 month, s32 day);
@@ -5843,13 +5597,8 @@ void fclCombineDrawDetailFrame(u8 *task, s32 mode) {
     }
 }
 
-/* 1368/1376 bytes, 22 resolved relocations and eight zero alignment bytes.
-   Passing the actual two-float position by value reproduces the retail
-   ldr/ldl transfer. See docs/probe_archive/Match_next_0ec5899_Fcl_position.md.
-   Each row position is constructed into a compiler temporary (0xA0 down to
-   0x78) and copied into the table. The frame holds only five table entries
-   below those temporaries, although six rows are added when both flags are
-   set: retail's own latent overflow, reproduced as written. */
+/* The frame holds only five table entries, but six rows are added when both flags are set: a latent
+ * overflow in retail, kept as written. */
 typedef union {
     FclDrawColor channels;
     u32 bits;
@@ -5859,13 +5608,14 @@ typedef union {
 /* measured: expanding the offset-first selected-ID store changes owner instruction bytes at all six call sites. */
 static inline void fclStoreActionResource(s16 id, s32 offset, u8 *work)
 {
-    /* Offset-first row-ID stores preserve retail address operand order; offset is already a byte displacement. */
+    /* offset is already a byte displacement and is added before work. */
     ((FclCombineWork *)((u32)offset + (u32)work))->selectedIds[0] = id;
 }
 // Fcl combine action list: builds the action rows (sprite ids 0x169 and 0x16A, then 0x16B and 0x16C when flags 0x1305 and 0x1306 are set, then 0x16D and 0x16E), lays them out 34 units apart, draws them with fclCombineDrawListRow and sets the row colours. Flag 0x1306 also recolours sprites 0x200, 0x201, 0x16B and 0x301.
 // FUN_0032F4D0
 void fclCombineDrawActionList(u8 *task) {
-    /* measured: Remaining count/color-source member substitutions change b210 codegen (nd 8..1087). */
+    /* measured: typing the remaining count/color-source fields as struct members changes the
+     * generated code. */
     FclVec2 tbl[5];
     FclActionColor packedColor1;
     FclActionColor packedColor2;
@@ -5933,7 +5683,7 @@ void fclCombineDrawActionList(u8 *task) {
 // Fcl combine slot colours: sets the colours of the slot's two sprite pairs and the marker sprites.
 // FUN_0032FA30
 void fclCombineSetSlotColors(u8 *task, s16 slot, FclDrawColor barColor, FclDrawColor labelColor, FclDrawColor markerColor) {
-    /* measured: The remaining color-source member substitution changes b210 byte-copy codegen (nd 8). */
+    /* measured: retail copies the remaining color source byte by byte, not as a struct member. */
     u8 *work;
     u8 *p1;
     u8 *p2;
@@ -5961,15 +5711,13 @@ s8 fclCombineMapSlotKind(s8 kind) {
     return kind;
 }
 
-/* Grid rows retain typed position/color packets and acquire the text
-   resource before configuring it. Real scale values and signed-short
-   row conversions reproduce 1180 code bytes plus four retail zero bytes.
-   All 32 relocations resolve exactly; no target-owned data is emitted.
-   Evidence: docs/probe_archive/FclDraw_0032fbc0_worker4_20260920.md. */
-// Fcl combine grid rows: draws the roster grid: a slot-field header, then one party row per roster entry with its eight slot cells, and each row's marker sprite (0x25E + row), which fades in and slides to x = 0x14E + 23 * row.
+/* Draws the combine roster grid: a slot-field header, then one party row per roster entry with
+ * eight slot cells, and a marker sprite (0x25E + row) that fades in and slides to x = 0x14E + 23
+ * row. */
 // FUN_0032FBC0
 void fclCombineDrawGridRows(u8 *task) {
-    /* measured: Remaining row-task member substitutions change b210 codegen (nd 151..696); keep four-byte row bias. */
+    /* measured: retail reads the remaining row-task fields through a four-byte row bias, not struct
+     * members. */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclVec2 drawPosition1;
@@ -6042,15 +5790,12 @@ void fclCombineDrawGridRows(u8 *task) {
     }
 }
 
-/* Row selection preserves native color/position locals, signed-short
-   loop state, and the resource offset before each lookup. Depth precedes
-   draw order in the shared placement call. MWCC b210 reproduces all
-   1872 code bytes and the six-entry switch table after relocation.
-   Evidence: docs/probe_archive/FclDraw_00330060_continuation_20260921.md. */
-// Move the eight-entry grid cursor for command, redraw the six-row window highlights and reposition its indicators.
+/* Moves the eight-entry grid cursor for command, redraws the six-row window highlights and
+ * repositions its indicators. Depth precedes draw order in the shared placement call. */
 // FUN_00330060
 void fclCombineMoveGridCursor(u8 *task, s32 command) {
-    /* measured: Remaining cursor/color members/field-address substitutions change b210 codegen (nd 8..1342). */
+    /* measured: typing the remaining cursor/color fields as struct members changes the generated
+     * code. */
     FclDrawColor drawColor1;
     FclDrawColor drawColor2;
     FclDrawColor drawColor3;
@@ -6169,34 +5914,12 @@ void fclCombineMoveGridCursor(u8 *task, s32 command) {
     base = 52.0f + fv2;
     ((FclCombineRowSprite *)fclSpriteEntry(0xB5))->position.y = base;
 }
-/* measured: nd 4 (4 attempts: separate-u8 slots 371, FclByte4 groups 212,
-   s64 t17/t16 fix 185, t16 as s32 -> 4). MATCH-QUALITY: everything byte-
-   identical except 4 rows — the four +0x168 6150-arg sites emit
-   addu $v0,$s3,$v0 where retail has addu $v0,$v0,$s3 (scaled+base); the
-   (u8 *)(lh*2 + arg2) + 1 spelling still folds to base+scaled in mwcc b210
-   (the other ten sites' arg2 + lh*2 naturally emit base+scaled, matching).
-   Key measured spellings: 2a60 4-byte groups MUST be FclByte4 locals (plain
-   u8s alias and collapse the frame); heap stores as *(FclByte4 *)(p + 0x85)
-   struct assignments (batched lbu/sb, never field-wise which interleaves);
-   t17 (s8 load of obj+0x139) must be s64 so the (s16)t17-1 sequence emits
-   dsll32/dsra32 16 + addiu, and the case-0 t16 local must be s32 (s64 adds a
-   dsll32/dsra32 0 at the 2cb0 call); the switch is a plain 6-case switch
-   (cases 2/3 empty) reproducing the jtbl dispatch; the 0xA/0xB if/else-if
-   chain with the (s8)(obj+0x138)&1 / &2>>1 tests matches; case 1/4/5 inline
-   (s16)((s16)t17-1) expressions compute into the arg register with no
-   conversion. MATCHED this wave (was the 4-word addu-operand-order floor):
-   the fix was (1) the M2C draft's real param types — arg1 is s64 (switch on
-   (s8)arg1), arg2 is s32 (the D_00882FB0 table ADDRESS as an integer, NOT a
-   u8* pointer); (2) NO named lh local in the switch cases — retail reloads
-   ((FclCombineRowWork *)obj)->cursorRow at each use, inline it; (3) the lever-3 static inline
-   operandOrderAddUnsigned helper (offset-first) for the 4 +0x168 sites — ((arg2) + (lh*2))
-   emits addu $v0,$v0,$s3 (scaled+base) which the raw (u8*)(lh*2+arg2)+1
-   spelling never did; (4) hoisted s8 temp3 for the 0xA/0xB chain with ==1
-   tests. nd path 244->14->0. */
-// Restore the old choice colors, move the cursor for command through choiceTable, then highlight the new choice.
+/* Restore the old choice colors, move the cursor for command through choiceTable, then highlight
+ * the new choice. */
 // FUN_003307B0
 void fclCombineMoveChoiceCursor(u8 *task, s64 command, s32 choiceTable) {
-    /* measured: Remaining cursor/color member substitutions change b210 codegen (nd 8..1238); choice pairs are interleaved. */
+    /* measured: typing the remaining cursor/color fields as struct members changes the generated
+     * code; choice pairs are interleaved. */
     FclDrawColor drawColor1, drawColor2, drawColor3, drawColor4, drawColor5, drawColor6, drawColor7, drawColor8, drawColor9, drawColor10;
     u8 *obj = ((struct KwlnTask *)task)->work;
     s64 choiceCount = (s8)((FclCombineWork *)obj)->choiceCount;
@@ -6287,7 +6010,7 @@ void fclCombineDrawResourceAt(s32 resource, FclVec2 position, f32 depth, s32 col
 // Fcl combine CDVD task update: polls the disc load for the task and advances its load state.
 // FUN_00330F20
 s32 fclCombineCdvdTaskUpdate(u8 *task) {
-    /* measured: The eight zero-store member substitutions change b210 state-update codegen (nd 571..574). */
+    /* measured: typing the eight zero stores as struct members changes the state-update code. */
     s32 firstLoaded, secondLoaded, thirdLoaded, fourthLoaded;
     u8 *work;
 
@@ -6369,7 +6092,7 @@ s32 fclCombineCdvdTaskUpdate(u8 *task) {
 // Fcl combine CDVD task destroy: releases the sprites, the message window, and the CDVD handles.
 // FUN_003312E0
 void fclCombineCdvdTaskDestroy(u8 *task) {
-    /* measured: The final task-work member substitution changes b210 reload codegen (nd 5). */
+    /* measured: typing the final task-work access as a struct member changes reload code. */
     u8 *work;
 
     work = ((struct KwlnTask *)task)->work;

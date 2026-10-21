@@ -32,10 +32,8 @@ typedef struct {
 } Code1_004bColor;
 extern Code1_004bColor iGpffffbb64;
 
-/* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
-   func_004bd628, func_004bd640, func_004bd658, func_004bd670,
-   func_004bd688, and func_004bd6a0.  Plain C cannot emit this ABI shape. */
-
+/* func_004bd628, func_004bd640, func_004bd658, func_004bd670, func_004bd688 and func_004bd6a0 are
+ * framed tail-jump wrappers that plain C cannot emit. */
 
 
 extern u8 D_0071465C[];
@@ -58,19 +56,13 @@ extern void (*jtbl_008873EC[])(void *);
 /* The six framed tail-jump wrappers listed above are intentionally retained
    as assembly fallbacks; all ordinary small wrappers below are source-backed. */
 
-/* Source unit: src/promoted/code1_004b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b5340-004b5690 */
-
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-// Destroys a battle effect record: when the gate passes, calls the kind's table entry +0x08 callback with the value at +0x30, then frees the record.
-/* The handler-table address is built through two named locals on purpose:
-   retail adds the sub-table offset to the base, then the 0x1C-strided index,
-   then loads at displacement 0. Folding either step into the expression makes
-   b210 sink the offset into the load displacement and flip the addu operands
-   (nd 40-54). */
+// Destroys a battle effect record: if the gate passes, calls the kind's handler-table callback with
+// the value at +0x30, then frees the record. The table address is built through two locals because
+// retail adds the sub-table offset first, then the 0x1C-strided index.
 // FUN_004B5340
 void EffBattleDestroy(u8 *instance) {
     s32 tbl;
@@ -88,7 +80,8 @@ void EffBattleDestroy(u8 *instance) {
     jtbl_008873EC[0](instance);
 }
 
-// Creates a battle effect from a record: the kind at +0x2C and the texture at +0x38 are read directly, with no relative pointer. When table entry +0xC for the kind is empty, allocates the work block; when the gate passes, runs the entry's setup (result stored at work+0x30) and post callbacks.
+// Creates a battle effect from a record's kind and texture; if the kind has no fromRecord handler,
+// allocates work and runs the setup and post callbacks when the gate passes.
 // FUN_004B53C0
 void *EffBattleCreateFromRecord(void *opaqueSource)
 {
@@ -103,7 +96,6 @@ void *EffBattleCreateFromRecord(void *opaqueSource)
     void (*post)(u8 *);
     extern u8 *EffBattleAllocWork();
 
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     id = MEMBER(s32, instance, MdlEffectBattleInstance, kind);
     base = (s32)iGpffffbba0;
     off = (base, id * 0x1C);
@@ -134,7 +126,6 @@ void *EffBattleCreateFromRecord(void *opaqueSource)
                              (id, ((MdlEffectBattleInstance *)instance)->resource));
         {
             s32 idx2;
-            /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
             idx2 = MEMBER(s32, instance, MdlEffectBattleInstance, kind) * 0x1C;
             ((MdlEffectBattleInstance *)work)->work =
                 (*(s32 (**)(u8 *))((u8 *)(idx2 + (s32)iGpffffbba0 + 0xC)))(instance);
@@ -166,11 +157,8 @@ void mdlEffectInstanceStop(u8 *instance) {
 
 /* Run the kind advance callback when enabled, then increment the instance age. */
 // FUN_004B55A0
-/* The handler-table address is built through two named locals on purpose:
-   retail adds the sub-table offset to the base, then the 0x1C-strided index,
-   then loads at displacement 0. Folding either step into the expression makes
-   b210 sink the offset into the load displacement and flip the addu operands
-   (nd 40-54). */
+/* The handler-table address is built through two locals because retail adds the sub-table offset,
+ * then the 0x1C-strided index, then loads at displacement 0. */
 void mdlEffectInstanceAdvance(u8 *instance) {
     s32 tbl;
     s32 idx;
@@ -189,11 +177,8 @@ void mdlEffectInstanceAdvance(u8 *instance) {
 
 /* Run the kind update callback when the handler gate is enabled. */
 // FUN_004B5620
-/* The handler-table address is built through two named locals on purpose:
-   retail adds the sub-table offset to the base, then the 0x1C-strided index,
-   then loads at displacement 0. Folding either step into the expression makes
-   b210 sink the offset into the load displacement and flip the addu operands
-   (nd 40-54). */
+/* The handler-table address is built through two locals because retail adds the sub-table offset,
+ * then the 0x1C-strided index, then loads at displacement 0. */
 void mdlEffectInstanceUpdate(u8 *instance) {
     s32 tbl;
     s32 idx;

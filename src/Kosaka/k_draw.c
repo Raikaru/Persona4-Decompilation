@@ -217,10 +217,8 @@ void KDraw_SetSphereColor(u8 *task, u8 *color) {
     ((KDrawSphereWork *)p)->color = *(Rgba8 *)color;
 }
 
-/* measured: retail computes $a0 = arg1 + 4, reads both floats from arg1, then overwrites
-   $a1 with the gp address. mwcc b210 sets the integer arguments first, so it must copy
-   arg1 into $v0 to survive. Naming the floats or the pointer in locals first does not
-   change the order; both spellings give the identical nd 12. Evaluation-order floor. */
+/* Retail computes the position pointer and reads both floats before loading the color address; this
+ * argument order cannot be reproduced from C. */
 // FUN_0014D830
 void KDraw_DrawCylinder(u8 *queue, u8 *work)
 {

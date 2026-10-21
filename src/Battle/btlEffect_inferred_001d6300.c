@@ -52,11 +52,6 @@ extern u8 iGpffffa4d8;
 typedef int (*code)();
 
 
-
-
-
-
-
 extern void *btlPacketAlloc();
 
 
@@ -65,14 +60,8 @@ extern f32 fGpffff8030;
 extern f32 fGpffff803c;
 extern f32 fGpffff8110;
 
-/* Source unit: src/promoted/code1_001d.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d6300-001d6680 */
-
-/* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
-/* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
-/* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
-/* measured: restore optimization_level 2 after func_001d5990. */
-/* Reset elapsed time, copy formation defaults, hold the unit pending count, and reserve an effect node. */
+/* Reset elapsed time, copy formation defaults, hold the unit pending count, and reserve an effect
+ * node. */
 // FUN_001D6300
 void btlEffectPrepareFormationStep(u8 *work) {
     u8 *unit;
@@ -84,10 +73,9 @@ void btlEffectPrepareFormationStep(u8 *work) {
     *(s32 *)&((BtlEffectFormationStep *)work)->node = btlEffectAllocEntry(*(s32 *)&((BtlUnit *)((u8 *)(((BtlEffectFormationStep *)work)->unit)))->effectNodePool);
 }
 
-/* measured: opt_propagation off probe for btlEffectStepFormationPlacement argument setup and register coloring. */
 #pragma push
-/* measured: btlEffectStepFormationPlacement MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd12; typed pointer reuse, typed parameter cache, inverted if/else did not match (best nd12); retain opt_propagation off. */
+/* measured: with copy propagation on, the argument setup and register allocation for
+ * btlEffectStepFormationPlacement differ from retail. */
 #pragma opt_propagation off
 /* Create the formation entry on the first step, drive node fade flags, and abort at duration, UID, or index limits. */
 // FUN_001D6360
@@ -155,7 +143,6 @@ s32 btlEffectStepFormationPlacement(u8 *work)
     return 0;
 }
 
-/* measured: restore pragma state after btlEffectStepFormationPlacement. */
 #pragma pop
 /* Return the effect node, release the formation placement, and drop the unit pending-packet count. */
 // FUN_001D6570
@@ -189,10 +176,8 @@ u8 *btlEffectCreateFormationPacket(s32 formation, s32 unit, s32 duration, s64 ke
     return packet;
 }
 
-/* The 0x24-byte records built by btlEffectAllocNodePool store packed RGBA at +4
- * and a wrapping frame counter at +0xC. Fade-out wins over fade-in;
- * bit 0x40 freezes update/cleanup, not drawing.
- * Retail: 504/512B, 14 resolved relocations, eight zero tail bytes. */
+/* Node records store packed RGBA and a wrapping frame counter; fade-out wins over fade-in, and bit
+ * 0x40 freezes update/cleanup but not drawing. */
 // FUN_001D6680
 void btlEffectUpdateFadeNodes(void)
 {

@@ -1,6 +1,6 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Original translation unit effCrossfade.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit effCrossfade.c (from __FILE__ assert strings). */
 #include "type.h"
 
 /* The task owns a 0x40-byte work block; the embedded submission node starts
@@ -115,11 +115,7 @@ s32 CrossfadeUpdate(u8 *task) {
     return 0;
 }
 
-/* The store/mask order recorded here as a floor is source-drivable: using the
-   compound assignment's VALUE (see the measured comment at the site) puts the
-   sh before the andi. The single-case switch is still what gives the positive
-   beq to the out-of-line body. */
-// In state 3 advances the frame counter at +4 and moves to state 4 once it reaches the limit at +2.
+/* In state 3 advances the frame counter and moves to state 4 once it reaches the limit. */
 // FUN_004B30A0
 void CrossfadeAdvance(u8 *unusedTask, u8 *work)
 {
@@ -128,10 +124,8 @@ void CrossfadeAdvance(u8 *unusedTask, u8 *work)
     switch (((CrossfadeWork *)work)->state) {
     case 3:
         mdlEffectDrawCameraFade(work);
-        /* measured: using the compound assignment's VALUE keeps the nextFrame
-           counter in one register, so the sh lands before the compare mask
-           exactly as retail does; a separate increment-then-store pair masks
-           first. */
+        /* measured: retail stores the incremented frame before masking it for the compare, so the
+         * compound assignment's value is used. */
         nextFrame = (((CrossfadeWork *)work)->frame += 1);
         if ((s32)(nextFrame & 0xFFFF) >= (s32)((CrossfadeWork *)work)->frameLimit) {
             ((CrossfadeWork *)work)->state = 4;

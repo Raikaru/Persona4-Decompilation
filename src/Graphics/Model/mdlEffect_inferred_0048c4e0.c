@@ -46,16 +46,11 @@ extern f32 fGpffff8044;
 
 extern void (*jtbl_008873EC[])(void *);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 0048c4e0-0048c4e0 */
-
 extern f32 mdlEffectSampleScalarKeys(u8 *keys, s32 frame, s32 duration);
 extern void mdlEffectSampleKeyState(u8 *particle, u8 *parameters, s32 frame, u_long128 *previousPosition);
 extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
-/* measured: MWCCPS2 b210 -O2, 120B/window 128B, three relocations,
- * eight zero alignment bytes. IDA retains the result that Ghidra drops:
- * retail leaves the copied quadword in v0 through return. Preserve that
- * live-out; the current C callers discard it. The four hardware vf0 stores
- * produce (0,0,0,1), not a zero quadword. */
+/* measured: retail leaves the copied quadword as the return value, which callers discard; the vf0
+ * stores produce (0,0,0,1), not zero. */
 #pragma push
 #pragma pop
 #pragma push
@@ -64,40 +59,23 @@ extern void mdlEffectUpdateParticleTrail(u8 *emitter, u8 *particle);
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_propagation off keeps `alloc` live in $s1 across all three
-   allocations instead of re-materialising the table address at the first use. */
-/* measured: closes the propagation bracket; the file default is on. */
-    /* measured: O1 probe for initial flag and aggregate register colours. */
-    /* measured: closes O1 probe for initial flag and aggregate register colours. */
-/* measured: opening optimization_level 1 for the parked 00486970 body. */
-/* measured: closes optimization_level 1 for the parked 00486970 body. */
-/* Measured with b210 -O2: keeping the trace/diagonal stages and the scaled
-   root as distinct lifetimes reproduces the scalar calculation. Propagation
-   and common-subexpression elimination otherwise merge the identity
-   constants and discard the root copy before register coalescing. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off tested for target subtraction scheduling. */
-/* measured: restore opt_propagation after func_0048aff0. */
+/* measured: opt_propagation is turned off here so the subtractions are scheduled in retail order. */
 #pragma push
-/* measured: split the two counter webs, but preserve the native-asm cursor. */
+/* measured: keeps the two counters as separate variables while preserving the asm cursor. */
 #pragma pop
-/* Measured: these scoped settings preserve the recovered wave update
- * evaluation order and the complete retail 2652-byte executable body. */
+/* measured: these scoped settings keep retail's evaluation order for the wave update. */
 #pragma push
 #pragma pop
-/* Motion emitter: ordinary C emission, random and integration calculations;
- * VU instructions preserve the full hardware vector operations. The aligned
- * XYZ scale's complete object representation is described at its declaration.
- * Proof: docs/probe_archive/Motion_scale_0048c4e0_20261005/README.md.
- * Measured scopes preserve scalar operand lifetimes across RNG calls. */
-/* Emit radial-motion particles and integrate speed, acceleration, gravity and keyed appearance. */
+/* Emit radial-motion particles and integrate speed, acceleration, gravity and keyed appearance;
+ * scoped locals keep scalar operands live across RNG calls. */
 // FUN_0048C4E0
 #pragma push
-/* measured: EffMotionEmitterUpdate MATCH -> MISMATCH without this pragma. */
-/* measured: baseline C nd 1136B; adjacent-local declaration probe nd 1136B; retain settings for owner MATCH. */
+/* measured: retail code generation for EffMotionEmitterUpdate depends on these optimizer settings;
+ * the default settings produce different output. */
 #pragma opt_propagation off
-/* measured: EffMotionEmitterUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: retail's loop shape needs loop-invariant hoisting enabled. */
 #pragma opt_loop_invariants on
 void EffMotionEmitterUpdate(u8 *emitterData)
 {
@@ -119,7 +97,6 @@ void EffMotionEmitterUpdate(u8 *emitterData)
     u32 count;
     u32 flags;
     u8 *particle;
-    /* measured: angleScale retain array addressing for MATCH. */
     f32 *state;
     u8 *parameters;
     u8 *const emitter = emitterData;
@@ -396,7 +373,6 @@ main_check:
         goto main_body;
     }
 }
-
 
 
 #pragma pop

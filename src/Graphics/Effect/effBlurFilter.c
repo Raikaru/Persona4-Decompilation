@@ -1,6 +1,5 @@
 #include "include_asm.h"
-/* Persona 4 USA decompilation - effBlurFilter.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit effBlurFilter.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "effect_instance_internal.h"
 
@@ -227,9 +226,8 @@ typedef struct BlurFilterType {
     s32 dataBytes;
 } BlurFilterType;
 
-/* These linker labels point into descriptor columns, not separate
- * allocations. Each column repeats at the descriptor's 0x18-byte stride;
- * using its own alias preserves the retail symbol-relative load immediate. */
+/* These linker labels point into descriptor columns at the 0x18-byte stride; each gets its own
+ * alias so loads stay symbol-relative like retail. */
 typedef struct BlurFilterCallbackEntry {
     u32 callback;
     u8 pad04[0x14];
@@ -268,13 +266,8 @@ extern void effBlurFilterTickSlotsA(u8 *a, u8 *b);
 extern void effBlurFilterTickSlotsB(u8 *a, u8 *b);
 extern void effBlurFilterAdvanceSlots(u8 *a, u8 *b);
 
-/* measured: optimization_level 1 plus the swapped integer declaration order and
-   a block-local threshold produce object 488B/window 496B and only the two
-   zero-padding tail words differ in the standalone probe (nd 2). Compound
-   overflow masking keeps the OR/ANDI result in the retail destination
-   register; the candidate body follows the 004A8F90 sibling skeleton. */
-/* measured: effBlurFilterTickSlotsA O1 bracket, standalone probe object 488B/window 496B,
-   normalized_diff 2 (retail-only zero-padding tail). */
+/* measured: retail compiles this function at optimization level 1, and the overflow masking stays
+ * compound so its OR/AND result lands where retail puts it. */
 #pragma optimization_level 1
 // Ticks a blur slot table with the first alpha ramp (fGpffff8018 and fGpffff8020 constants).
 // FUN_004A8BB0
@@ -334,27 +327,13 @@ void effBlurFilterTickSlotsA(u8 *a, u8 *b) {
         slot = slot + 1;
     }
 }
-/* measured: closes effBlurFilterTickSlotsA O1 bracket; restore O2 for the next function. */
 #pragma optimization_level 2
 
 extern f32 cosf(f32 param);
 extern f32 fGpffff80f4;
 extern f32 fGpffff80cc;
-/* measured: re-measured this wave at nd 12 (6 rows, one block) with a full
-   candidate rebuilt from the m2c (int literals 810/650 -> addiu+mtc1+cvt,
-   reverse decl order t23..t1, chains written `t21 + (810 - t20 - t21) *
-   rand` with the product as the madd's fs operand). Chain 1, chain 2's
-   adda/madd, the 4th/5th madd sites and all stores match byte-for-byte.
-   Residual is exactly two coupled facts: (1) mwcc b210 CSEs fGpffff80cc*t20
-   across the `t21 = t21 + fcc*t20; t23 = 0.5f*t1 + fcc*t20;` pair - it
-   emits mul.s(prod); adda.s 0+prod; madd.s(0.5f,t1); add.s, where retail
-   mula-seeds 0.5f*t1 first, then mul.s(prod), add.s, madd.s(fcc,t20)
-   re-deriving the product; (2) the chain-2 sub-chain temps swap ($f1/$f2
-   vs retail $f2/$f1) as a knock-on of the CSE block's $f1 use. New
-   spellings this wave: f32 prod local (2 placements, nd 108-111), (f32)
-   cast on one product (folds, nd 12), &fGpffff80cc deref (nd 46). Both
-   statement orders tried. FMA-CSE fusion floor. */
-// Spawns one blur slot: random index, random jitter and sine/cosine offsets from the object parameters.
+/* Spawns one blur slot: random index, random jitter and sine/cosine offsets from the object
+ * parameters. */
 // FUN_004A8DA0
 void effBlurFilterSpawnSlot(u8 *object, u8 *slot) {
     f32 centerY;
@@ -389,12 +368,8 @@ void effBlurFilterSpawnSlot(u8 *object, u8 *slot) {
     ((BlurFilterQuad *)drawData)->unk28 = centerY + halfSize;
 }
 
-/* measured: cluster transfer from effBlurFilterTickSlotsA - changing only the assert
-   line to 575 and the recursive helper to effBlurFilterSpawnSlot preserves the exact
-   488B candidate body/window 496B with only the two retail zero-padding tail
-   words outside the standalone object (nd 2). */
-/* measured: effBlurFilterTickSlotsB O1 bracket, standalone probe object 488B/window 496B,
-   normalized_diff 2 (retail-only zero-padding tail). */
+/* measured: retail compiles this function at optimization level 1, the same as
+ * effBlurFilterTickSlotsA. */
 #pragma optimization_level 1
 // Ticks a blur slot table with the second alpha ramp (fGpffff8018 and fGpffff8010 constants).
 // FUN_004A8F90
@@ -454,7 +429,6 @@ void effBlurFilterTickSlotsB(u8 *a, u8 *b) {
         slot = slot + 1;
     }
 }
-/* measured: closes effBlurFilterTickSlotsB O1 bracket; restore O2 for the next function. */
 #pragma optimization_level 2
 // Advances a slot table in place with 13-word slots, fading alpha by the slot fraction.
 // FUN_004A9180
@@ -589,8 +563,8 @@ void effBlurFilterUpdateScreenRect(u8 *object) {
             :
             : "r"(&sampledColor), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-        /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
-           hoists the reload above the asm, so the read is volatile. */
+        /* measured: the inline COP2 asm writes this slot, so the read is volatile to stop the
+         * compiler hoisting the reload above the asm. */
         ((BlurFilterParameters *)base)->unk00.signedValue = *(volatile s32 *)&combinedColor;
         ((BlurFilterParameters *)base)->unk0C.scalar = 1.0f + fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
         ((BlurFilterParameters *)base)->unk08.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
@@ -709,8 +683,8 @@ void effBlurFilterUpdateRectFromScale(u8 *object) {
             :
             : "r"(&sampledColor), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
-           hoists the reload above the asm, so the read is volatile. */
+                /* measured: the inline COP2 asm writes this slot, so the read is volatile to stop
+                 * the compiler hoisting the reload above the asm. */
 ((BlurFilterParameters *)base)->unk04.signedValue = *(volatile s32 *)&combinedColor;
         ((BlurFilterParameters *)base)->unk10.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a) + 1.0f;
         ((BlurFilterParameters *)base)->unk0C.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
@@ -891,8 +865,8 @@ void effBlurFilterStepSlotsA(u8 *object) {
             :
             : "r"(&sampledColor), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
-           hoists the reload above the asm, so the read is volatile. */
+                /* measured: the inline COP2 asm writes this slot, so the read is volatile to stop
+                 * the compiler hoisting the reload above the asm. */
 ((BlurFilterParameters *)base)->unk0C.signedValue = *(volatile s32 *)&combinedColor;
         ((BlurFilterParameters *)base)->unk18.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
         ((BlurFilterParameters *)base)->unk14.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
@@ -1043,8 +1017,8 @@ void effBlurFilterStepSlotsC(u8 *object) {
             :
             : "r"(&sampledColor), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
-           hoists the reload above the asm, so the read is volatile. */
+                /* measured: the inline COP2 asm writes this slot, so the read is volatile to stop
+                 * the compiler hoisting the reload above the asm. */
 ((BlurFilterParameters *)base)->unk0C.signedValue = *(volatile s32 *)&combinedColor;
         ((BlurFilterParameters *)base)->unk1C.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
         ((BlurFilterParameters *)base)->unk14.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
@@ -1153,8 +1127,8 @@ void effBlurFilterUpdateScreenRectSimple(u8 *object) {
             :
             : "r"(&sampledColor), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
-           hoists the reload above the asm, so the read is volatile. */
+                /* measured: the inline COP2 store writes this slot, so the read is volatile to stop
+                 * the reload being hoisted above the asm. */
 ((BlurFilterParameters *)base)->unk00.signedValue = *(volatile s32 *)&combinedColor;
         ((BlurFilterParameters *)base)->unk0C.scalar = 1.0f + mdlEffectSampleScalarKeys(obj + 0x34, b, a);
         ((BlurFilterParameters *)base)->unk08.scalar = mdlEffectSampleScalarKeys(obj + 0x60, b, a);
@@ -1296,8 +1270,8 @@ void effBlurFilterStepSlotsB(u8 *object) {
             :
             : "r"(&sampledColor), "f"(scale)
             : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
-           hoists the reload above the asm, so the read is volatile. */
+                /* measured: the inline COP2 store writes this slot, so the read is volatile to stop
+                 * the reload being hoisted above the asm. */
 ((BlurFilterParameters *)base)->unk0C.signedValue = *(volatile s32 *)&combinedColor;
         ((BlurFilterParameters *)base)->unk18.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x34, b, a);
         ((BlurFilterParameters *)base)->unk14.scalar = fGpffff80f0 * mdlEffectSampleScalarKeys(obj + 0x60, b, a);
@@ -1407,8 +1381,8 @@ void effBlurFilterUpdateScreenRectFlagged(u8 *object) {
             :
             : "r"(&sampledColor), "f"(scale)
             : "$2", "$3", "$vf2", "$vf10", "$vf11", "memory");
-                /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
-           hoists the reload above the asm, so the read is volatile. */
+                /* measured: the inline COP2 store writes this slot, so the read is volatile to stop
+                 * the reload being hoisted above the asm. */
 ((BlurFilterParameters *)base)->unk00.signedValue = *(volatile s32 *)&combinedColor;
     } else {
         ((BlurFilterParameters *)base)->unk00.signedByte[3] = 0;
@@ -1520,8 +1494,8 @@ void effBlurFilterUpdateRectFromScaleAux(u8 *object) {
             :
             : "r"(&sampledColor), "f"(scale)
             : "$2", "$3", "$vf2", "$vf10", "$vf11", "memory");
-                /* measured: the inline COP2 ppacb store writes this slot; mwcc b210
-           hoists the reload above the asm, so the read is volatile. */
+                /* measured: the inline COP2 store writes this slot, so the read is volatile to stop
+                 * the reload being hoisted above the asm. */
 ((BlurFilterParameters *)base)->unk0C.signedValue = *(volatile s32 *)&combinedColor;
         ((BlurFilterParameters *)base)->unk10.signedValue = ((BlurFilterConfiguration *)obj)->resourceId.signedValue;
     } else {
@@ -1573,11 +1547,8 @@ void effBlurFilterDrawPassB(u8 *object) {
     }
 }
 
-/* measured: 372B/window 384B; only three zero-padding words remain.
-   As in effBlurFilterDirectCreate, the narrowed callback index and one-use header span
-   retain 0x60 in the saved constant register. This initializer receives
-   the copied-data pointer reloaded from the object, not initialData. */
-/* Creates a node whose initializer receives the node's own copy of the parameter block. */
+/* Creates a node whose initializer receives the node's own copy of the parameter block, reloaded
+ * from the object rather than initialData. */
 // FUN_004AAEE0
 u8 *effBlurFilterCopiedCreate(u32 type, const void *initialData)
 {
@@ -1590,7 +1561,7 @@ u8 *effBlurFilterCopiedCreate(u32 type, const void *initialData)
     s32 headerBytes = 0x60;
     BlurFilterNode *node;
 
-    /* A separate typed node preserves constructor allocation; access-site casts alone differed by 112 bytes. */
+    /* A separate typed node local keeps the retail constructor allocation sequence. */
     kind = type & 0xFFFF;
     dataSize = ((BlurFilterSizeEntry *)D_007143A4)[kind].dataBytes;
     if ((u32)dataSize + 0x60 >= 0x200U)
@@ -1617,16 +1588,6 @@ u8 *effBlurFilterCopiedCreate(u32 type, const void *initialData)
     node->owner = object;
     return object;
 }
-/* measured: re-measured this wave at nd 4 (2 rows) with a full candidate
-   body (separate obj/obj2 locals; rest of function byte-identical). The
-   only residual is the pre-jal arg-materialisation order: retail emits
-   `daddu $a0,$v0` (bare local) before `lhu $a1,0x1c($s1)` (load); mwcc
-   b210 always emits the load first — its complexity rule materialises
-   loaded/computed args early, bare locals late. Tried 8 prior spellings
-   plus this wave: load hoisted into a local pre-call, load before the
-   if-block (nd 24), obj2-first declaration order, s32 obj2 + cast,
-   nested-if, #pragma schedule on (nd 46) — all nd 4. Same shape as the
-   documented bpc 00245420 floor (retail move-before-load). */
 /* Rebuilds a node from a record's parameter block and attaches its texture sub-object. */
 // FUN_004AB060
 void *effBlurFilterCopiedInstantiate(void *object) {
@@ -1694,13 +1655,13 @@ void *effBlurFilterCopiedDuplicate(void *object) {
     return tmp;
 }
 
-/* Clears the step counter at +0x1C. */
+/* Clears the step counter (elapsed). */
 // FUN_004AB250
 void effBlurFilterCopiedResetCounter(void *object) {
     ((BlurFilterNode *)object)->elapsed = 0;
 }
 
-/* Runs the type's update handler, then increments the step counter at +0x1C. */
+/* Runs the type's update handler, then increments the step counter (elapsed). */
 // FUN_004AB260
 void effBlurFilterCopiedAdvance(void *object) {
     ((void (*)(void *))(((BlurFilterCallbackEntry *)D_00714398)[((BlurFilterNode *)object)->kind.signedValue].callback))(object);
@@ -1713,7 +1674,8 @@ void effBlurFilterCopiedDispatch(void *object) {
     ((void (*)(void *))(((BlurFilterCallbackEntry *)D_0071439C)[((BlurFilterNode *)object)->kind.signedValue].callback))(object);
 }
 
-/* When the step counter is positive, resets the sync words at +0x2C/+0x30 and passes the resolved entry to PrimAppendNode. */
+/* When the step counter is positive, clears nodeNext/nodePrevious and passes the resolved entry to
+ * PrimAppendNode. */
 // FUN_004AB300
 void effBlurFilterCopiedSync(u8 *object) {
     u8 *p;
@@ -1749,24 +1711,20 @@ s128 effBlurFilterCopiedStoreVector(void *object, const void *value) {
     return temp;
 }
 
-/* Stores an s32 at +0x10 of the node. */
+/* Stores the node's color word. */
 // FUN_004AB400
 void effBlurFilterCopiedSetCount(void *object, s32 value) {
     ((BlurFilterNode *)object)->color = value;
 }
 
-/* Stores an f32 at +0x14 of the node (1.0f from the constructor by default). */
+/* Stores the node's scale (1.0f from the constructor by default). */
 // FUN_004AB410
 void effBlurFilterCopiedSetScale(void *object, f32 value) {
     ((BlurFilterNode *)object)->scale.scalar = value;
 }
 
-/* measured: 372B/window 384B; only three zero-padding words remain.
-   Narrow the callback index with u16 and keep the one-use header span
-   named so b210 retains 0x60, not 0xFFFF, in the saved constant register.
-   The unsigned size assertion and allocation-before-size declaration
-   order preserve the remaining retail allocation and call sequence. */
-/* Creates a node whose initializer receives the caller's data pointer rather than a copy. */
+/* Creates a node whose initializer receives the caller's data pointer rather than a copy. The
+ * header size is kept in a named local so retail's constant 0x60 is preserved. */
 // FUN_004AB420
 u8 *effBlurFilterDirectCreate(u32 type, const void *initialData)
 {
@@ -1828,13 +1786,13 @@ void *effBlurFilterDirectDuplicate(void *object) {
     return tmp;
 }
 
-/* Clears the step counter at +0x1C. */
+/* Clears the step counter (elapsed). */
 // FUN_004AB790
 void effBlurFilterDirectResetCounter(void *object) {
     ((BlurFilterNode *)object)->elapsed = 0;
 }
 
-/* Runs the type's update handler, then increments the step counter at +0x1C. */
+/* Runs the type's update handler, then increments the step counter (elapsed). */
 // FUN_004AB7A0
 void effBlurFilterDirectAdvance(void *object) {
     ((void (*)(void *))(((BlurFilterCallbackEntry *)D_00714468)[((BlurFilterNode *)object)->kind.signedValue].callback))(object);
@@ -1847,7 +1805,8 @@ void effBlurFilterDirectDispatch(void *object) {
     ((void (*)(void *))(((BlurFilterCallbackEntry *)D_0071446C)[((BlurFilterNode *)object)->kind.signedValue].callback))(object);
 }
 
-/* When the step counter is positive, resets the sync words at +0x2C/+0x30 and passes the resolved entry to PrimAppendNode. */
+/* When the step counter is positive, clears the node links and passes the resolved entry to
+ * PrimAppendNode. */
 // FUN_004AB840
 void effBlurFilterDirectSync(u8 *object) {
     u8 *p;
@@ -1881,13 +1840,13 @@ s128 effBlurFilterDirectStoreVector(void *object, const void *value) {
     return temp;
 }
 
-/* Stores an s32 at +0x10 of the node. */
+/* Stores an s32 in the node's color field. */
 // FUN_004AB940
 void effBlurFilterDirectSetCount(void *object, s32 value) {
     ((BlurFilterNode *)object)->color = value;
 }
 
-/* Stores an f32 at +0x14 of the node (1.0f from the constructor by default). */
+/* Stores the node's scale (1.0f from the constructor by default). */
 // FUN_004AB950
 void effBlurFilterDirectSetScale(void *object, f32 value) {
     ((BlurFilterNode *)object)->scale.scalar = value;

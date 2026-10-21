@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 004b18e0-004b18e0 */
 
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"

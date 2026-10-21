@@ -26,11 +26,11 @@ extern char D_0063CB30[];
 extern char D_0063D050[];
 
 
-
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
 
-// lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
+// lint: allow H011 -- measured: a u16 prototype changes func_00291a60, which passes ids as full-
+// width args.
 extern void mdlDetachSlotModel(u8 *eventWork, s32 model, u8 *slotIndex, s32 entryIndex);
 extern u32 yTimeTrackAppendKey(s32 eventWork, s32 model, s32 slotIndex, s32 entryIndex,
                           s32 matrixIndex, f32, s32, s32,
@@ -49,13 +49,11 @@ extern u8 D_0063E810[];
 extern u16 D_008C024E[];
 extern s32 D_0063E830[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 00291530-00291810 */
-
 // Collects up to 10 type-1 entries of the current scene into the slot block:
 // ids from 0x7530, fields copied in order, count kept at +0x5D8.
 // FUN_00291530
-/* measured probe: preserve local constant with opt_propagation off. */
-/* measured: func_00291530 MATCH -> MISMATCH without this pragma. */
+/* measured: with constant propagation off, the local constant stays in a variable as it does in
+ * retail. */
 #pragma opt_propagation off
 void mtMiscCollectType1Records(u8 *eventWork)
 {
@@ -93,15 +91,11 @@ void mtMiscCollectType1Records(u8 *eventWork)
     func_00440b68(D_0063C8F0, ((EvtTypeOneRecords *)(eventWork + 0x5D8))->count);
 }
 
-/* measured probe: close opt_propagation bracket after func_00291530. */
-// Attach the model for slotIndex from the selected collection entry. Return 0
-// when the index is out of range or the matrix copy fails, 1 once attached.
+/* Attach the model for slotIndex from the selected collection entry. Return 0 when the index is out
+ * of range or the matrix copy fails, 1 once attached. */
 // FUN_002915F0
-/* measured: opt_propagation off keeps `weapon` materialised between the index
-   shift and the base add (retail sll/andi/addu); with propagation on the CSE'd
-   address is finished before any argument. The index/five locals must stay
-   literal under this pragma or they take a sixth saved register. Attachment
-   helpers retain block-scoped u16 parameters for per-call masks. */
+/* measured: propagation off keeps `weapon` computed between the index shift and base add, as retail
+ * does; index/five locals must stay literal. */
 s32 mtMiscAttachSlotModel(u8 *eventWork, u8 *model, s32 slotIndex, s32 entryIndex, s32 matrixIndex)
 {
     extern void mdlDetachSlotModel(u8 *model, s32 slotIndex);
@@ -151,9 +145,8 @@ s32 mtMiscAttachSlotModel(u8 *eventWork, u8 *model, s32 slotIndex, s32 entryInde
     return 1;
 }
 
-/* measured: restore propagation for the rest of the unit. */
-// Detach slotIndex when its attached flag and value are both set; out-of-range
-// slots and a null owner are ignored.
+/* Detach slotIndex when its attached flag and value are both set; out-of-range slots and a null
+ * owner are ignored. */
 // FUN_00291790
 void mtMiscDetachSlotModel(u8 *model, s32 slotIndex)
 {
@@ -176,7 +169,7 @@ void mtMiscDetachSlotModel(u8 *model, s32 slotIndex)
 // Type-2 counterpart of mtMiscCollectType1Records: up to 5 entries, ids from
 // 0x7918, collected into the block at +0x640, count reported by a debug print.
 // FUN_00291810
-/* measured probe: preserve the retail type constant and close bracket below. */
+/* measured: propagation off keeps the retail type constant. */
 void mtMiscCollectType2Records(u8 *eventWork)
 {
     s32 *type2Records;

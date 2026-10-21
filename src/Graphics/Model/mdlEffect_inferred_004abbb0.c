@@ -50,7 +50,6 @@ extern u8 D_00714018[];
 extern u8 D_00714144[];
 
 
-
 extern u8 D_00714368[];
 extern f32 D_008872F8[];
  
@@ -70,7 +69,7 @@ extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
 
-// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes FlashQuadCopyAllocFromRecord MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
+// lint: allow H011 -- retail's caller uses a (u16, s32) parameter shape, unlike the definition.
 
 extern u16 iGpffffbb90;
 extern f32 fGpffffbb74;
@@ -81,27 +80,15 @@ extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
 extern void *mdlCreateModelObjectFromMemory(u32 type, u16 id, void *memory, u32 size, u32 flags);
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004abbb0-004abd60 */
-
 extern s32 mdlEffectProjectBillboardQuad(u8 *parameters, u8 *vertices);
 extern void mdlEffectBuildRectQuad(u8 *parameters, u8 *vertices);
 extern void mdlEffectBuildOffsetQuad(u8 *parameters, u8 *vertices);
 extern void mdlEffectBuildDirectRectQuad(u8 *parameters, u8 *vertices);
-/* measured: restores the file's O2 loop-invariant baseline. */
-/* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma push
 #pragma tailcall off
-/* measured: restore the enclosing options; owner verification is 92/92 MATCH. */
 #pragma pop
-/* measured: loop-invariant conversion preloads for func_004a7e30. */
-/* measured: close the loop-invariant bracket after func_004a7e30. */
-/* measured: loop-invariant conversion preloads for func_004a8250. */
-/* measured: close loop-invariant conversion scope for func_004a8250. */
-/* measured: loop-invariant conversion preloads for func_004a8440. */
-/* measured: close loop-invariant conversion scope for func_004a8440. */
-/* measured: loop-invariant conversion preloads for func_004a86c0. */
-/* measured: close loop-invariant conversion scope for func_004a86c0. */
-/* Initialize the model transform and first animation layer, clear flag 2 and install the effect reset callback. */
+/* Initialize the model transform and first animation layer, clear flag 2 and install the effect
+ * reset callback. */
 // FUN_004ABBB0
 void EffModelInit(u8 *model)
 {

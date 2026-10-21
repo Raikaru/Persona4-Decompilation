@@ -42,9 +42,6 @@ extern f32 fGpffff8060;
 extern f32 D_00761438;
 
 
-
-
-
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
 extern f32 scrGetParamFloat(s32);
@@ -75,12 +72,10 @@ extern s32 btlEncounterFinishSetup(u8 *action);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001ea360-001ea8e0 */
-
 extern s32 btlCurrentUnitId(void);
 #pragma push
 #pragma pop
-/* AI script command 0x2106 (p4flow AI.json AI_FUNCTION_0106). */
+/* Set the current AI action's mode field to 5 and return 1 so the script continues. */
 // FUN_001EA360
 s32 btlEffectScriptSetActionMode5(void) {
     u8 *action;
@@ -90,7 +85,8 @@ s32 btlEffectScriptSetActionMode5(void) {
     return 1;
 }
 
-/* AI script command 0x2107 (p4flow AI.json AI_FUNCTION_0107). */
+/* Set the AI state's action mode to 1 using the slot index from parameter 0, and assert if that
+ * slot is not flagged as present. */
 // FUN_001EA390
 s32 btlEffectScriptSetActionModeWithSlot(void)
 {
@@ -107,7 +103,6 @@ s32 btlEffectScriptSetActionModeWithSlot(void)
     return 1;
 }
 
-/* AI script command 0x2103 (p4flow AI.json AI_FUNCTION_0103). */
 // FUN_001EA420
 s32 btlEffectScriptCheckUnitKindFlag20(void)
 {
@@ -116,17 +111,15 @@ s32 btlEffectScriptCheckUnitKindFlag20(void)
     return 1;
 }
 
-/* AI script command 0x2108 (p4flow AI.json AI_FUNCTION_0108). */
 // FUN_001EA470
 s32 btlEffectScriptGetStoredValueC34(void) {
     scrSetReturnInt(((BtlBattleState *)iGpffffb3ac)->bossPhase);
     return 1;
 }
 
-/* AI script command 0x210a (p4flow AI.json AI_FUNCTION_010A). */
 // FUN_001EA4A0
 s32 btlEffectScriptQueueFormationSequence(void) {
-    /* MEMBER preserves the measured sequence-callback load and comparison order. */
+    /* Retail loads and compares the sequence callback in this order. */
     s32 unit;
     s32 action;
 
@@ -153,7 +146,8 @@ done:
     return 1;
 }
 
-/* AI script command 0x20bb (p4flow AI.json AI_FUNCTION_00BB). */
+/* Finish the selected action's presentation, then queue a formation slot packet and a packet that
+ * sets camera state 0x21. */
 // FUN_001EA580
 s32 btlEffectScriptFinishWithCameraState21(void)
 {
@@ -163,7 +157,8 @@ s32 btlEffectScriptFinishWithCameraState21(void)
     return 1;
 }
 
-/* AI script command 0x20bc (p4flow AI.json AI_FUNCTION_00BC). */
+/* Finish the selected action's presentation, then queue a formation slot packet and a packet that
+ * sets camera state 0x2C. */
 // FUN_001EA5F0
 s32 btlEffectScriptFinishWithCameraState2C(void)
 {
@@ -173,7 +168,8 @@ s32 btlEffectScriptFinishWithCameraState2C(void)
     return 1;
 }
 
-/* AI script command 0x20bd (p4flow AI.json AI_FUNCTION_00BD). */
+/* Finish the selected action's presentation and queue a camera pose sequence. The two camera
+ * vectors and the duration come from the seven float script parameters. */
 // FUN_001EA660
 s32 btlEffectScriptFinishWithCameraMove(void)
 {
@@ -211,7 +207,8 @@ s32 btlEffectScriptFinishWithCameraMove(void)
     return 1;
 }
 
-/* AI script command 0x20be (p4flow AI.json AI_FUNCTION_00BE). */
+/* Read two camera vectors and a trailing value from the seven float script parameters and store
+ * them in the first camera vector globals. */
 // FUN_001EA780
 s32 btlEffectScriptStoreCameraVectorsA(void) {
     D_00881420[0] = scrGetParamFloat(0);
@@ -224,7 +221,8 @@ s32 btlEffectScriptStoreCameraVectorsA(void) {
     return 1;
 }
 
-/* AI script command 0x20bf (p4flow AI.json AI_FUNCTION_00BF). */
+/* Read seven float script parameters and store them as the second pair of camera position and
+ * target vectors plus the matching camera parameter in fGpffffb454. */
 // FUN_001EA830
 s32 btlEffectScriptStoreCameraVectorsB(void) {
     D_00881410[0] = scrGetParamFloat(0);
@@ -237,7 +235,9 @@ s32 btlEffectScriptStoreCameraVectorsB(void) {
     return 1;
 }
 
-/* AI script command 0x20c0 (p4flow AI.json AI_FUNCTION_00C0). */
+/* Finish the selected action's presentation, then queue a formation slot packet and a camera pose
+ * sequence that moves between the stored camera vectors. The duration comes from the first script
+ * parameter, given in frames. */
 // FUN_001EA8E0
 s32 btlEffectScriptFinishWithStoredCameraMove(void) {
     btlActionFinishPresentation((s32)(((BtlBattleState *)iGpffffb3ac)->selectedAction));

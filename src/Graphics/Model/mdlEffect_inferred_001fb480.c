@@ -35,7 +35,6 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *color, s32 blendMode, s32 testMode);
 
 
-
 extern u8 D_0060AB08[];
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
@@ -52,16 +51,10 @@ extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
 
-
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
 extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
-
-
-
-
-
 
 
 extern s32 iGpffffb464;
@@ -72,17 +65,9 @@ extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
 
-
-
 #pragma push
 #pragma pop
 
-
-
-
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001fb480-001fb480 */
 
 extern s32 btlActionHasNoTargetClass(u32 action);
 extern s32 btlSoundRollStatusCure(u8 *action);
@@ -94,59 +79,20 @@ extern s32 btlSoundPickPartnerReplyVoice(u8 *action, s32 variant);
 extern s32 btlSoundPickPartnerAssistVoice(u8 *action, s32 variant);
 extern s32 btlSoundPickRandomPartnerVoice(u8 *action);
 extern s32 btlVoiceIdPacketUpdate(u8 *context);
-/* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
-/* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_loop_invariants on hoists the loop's one constant before the entry test. */
-/* measured: close opt_loop_invariants after btlSoundRollStatusCure. */
-/* measured: every instruction matches and the object is exactly the 80-byte
-   window; the only residual is that retail materialises the shift constant
-   (`addiu $v1,$zero,1`) BEFORE the branch into the loop test while b210 puts
-   it after, which also shifts the back-edge displacement by one word (nd 9).
-   Measured identical at nd 9: an inline `1 << i`, a hoisted `one` local, and
-   an explicit goto loop with the test at the bottom. Preheader hoist-order
-   floor. Committed at nd 9. */
+/* measured: retail sets up the loop's shift constant before the branch into the loop test, which
+ * needs opt_loop_invariants on. */
 
 #pragma push
 #pragma pop
-/* measured: retail materialises this loop's invariant in the preheader; plain
-   -O2 rematerialises it in the body (nd 9 -> byte-exact with the hoist). */
-/* measured: closes the hoist bracket opened above and restores the -O2
-   baseline for the rest of the file. */
-/* measured: opt_rebuildconditionals off probe for btlSoundPickStatusTalkVoiceA final branch. */
-/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceA probe. */
-/* measured: opt_rebuildconditionals off preserves btlSoundPickStatusTalkVoiceB's positive flag branch. */
-/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceB. */
-/* measured: optimization_level 1 required for exact btlSoundAdvanceSlotQueue codegen. */
-/* measured: opt_loop_invariants off baseline for btlSoundAdvanceSlotQueue. */
-/* measured: restore optimization_level 2 after btlSoundAdvanceSlotQueue. */
-/* measured: opt_propagation off preserves btlSoundPickPartnerCallVoice's loop constants. */
-/* measured: close opt_propagation after btlSoundPickPartnerCallVoice probe. */
-/* measured: opt_propagation off preserves btlSoundPickPartnerReplyVoice's loop constants. */
-/* measured: close opt_propagation after btlSoundPickPartnerReplyVoice probe. */
-/* measured: opt_propagation off preserves btlSoundPickPartnerAssistVoice's loop constants. */
-/* measured: close opt_propagation after btlSoundPickPartnerAssistVoice probe. */
-/* measured: opt_propagation off tested for btlSoundPickRandomPartnerVoice; retains loop constants. */
-/* measured: close opt_propagation after btlSoundPickRandomPartnerVoice. */
-/* measured: opt_propagation off preserves 9ac0's explicit boolean branch. */
-/* measured: close opt_propagation after btlVoiceIdPacketUpdate probe. */
-/* Matched: the textured colour-quad Im2D upload (four 0x40-byte vertices).
-   Conventions follow the matched code1_004b func_004b2780 (640/448 display
-   scales, D_008872FC_abs depth, raw-offset stores) and the (f32)(u32)
-   byte-colour idiom.  Levers: `x = a + (-b) * c` contracts to
-   adda.s/madd.s; staging each negation as its own local emits lui + neg.s
-   instead of a folded negative constant; staging each display-field
-   conversion in a float local puts the lwc1 before the divide; the
-   float-first signature is ABI-identical to the draft's order and fixes
-   the mov.s materialisation order.  The opt_propagation-off bracket is
-   load-bearing: without it the D_00887300 base rematerialises per call
-   and the frame shrinks from 0x1A0 to 0x190. */
+/* measured: without opt_propagation off, retail's D_00887300 base is rematerialised per call and
+ * the stack frame shrinks. */
 #pragma push
-/* measured: func_001fb480 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline C nd 1322B; adjacent-local declaration probe nd 1322B; retain settings for owner MATCH. */
+/* measured: retail keeps copy propagation off here; with it on, the draw-buffer base is recomputed
+ * per call and the stack frame shrinks. */
 #pragma opt_propagation off
 /* Draws a display-buffer textured quad, using a centered scaled rectangle or the full screen. */
 /* Draws the display-buffer texture over the full screen or a centered scaled quad, tinted by RGBA. */

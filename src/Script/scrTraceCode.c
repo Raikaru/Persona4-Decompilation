@@ -1,4 +1,3 @@
-/* Source unit: src/Script/scrTraceCode_0029ad20.c */
 #include "include_asm.h"
 #include "type.h"
 #include "scr_internal.h"
@@ -14,7 +13,7 @@ typedef struct
     s32 paramCount;
 } ScrCmdEntry;
 
-/* 8 bytes; grouped command table (group = cmdIdx >> 12) */
+/* Grouped command table, indexed by cmdIdx >> 12. */
 typedef struct
 {
     ScrCmdEntry* cmds; // 0x00
@@ -29,7 +28,7 @@ typedef struct ScrCmdGroupCount {
 
 typedef u32 (*CodeFunc)(ScrScriptWork* scr);
 
-/* Opcode indices into D_0063E2B0 (sCodeFuncTable). Verified against docs/dispatch_tables.md. */
+/* Opcode indices into D_0063E2B0 (sCodeFuncTable). */
 enum ScrOpcode
 {
     SCR_OPCODE_PUSH_IMM_INT,          /* scrOpPushImmInt */
@@ -408,8 +407,6 @@ u32 scrOpPopLocalFloat(ScrScriptWork* scr)
 }
 
 
-
-
 /* Advance the program counter without changing the interpreter stack. */
 // FUN_0029AD20
 u32 scrOpNop(ScrScriptWork* scr)
@@ -419,10 +416,8 @@ u32 scrOpNop(ScrScriptWork* scr)
     return 1;
 }
 
-/* measured: common-subexpression override is redundant with the retained optimization_level 1; whole-file MATCH without it. */
-/* measured: optimization_level 1 is required for the exact object. Saved-local
-   declaration order, the reversed range-guard operands, and the integer-domain
-   second command-pointer sum reproduce retail register coloring and operand order. */
+/* measured: retail was built at optimization_level 1 here; higher levels reorder the saved locals
+ * and the range-guard operands. */
 #pragma optimization_level 1
 // FUN_0029AD40
 // Command call (ScrOperation call-command codefunc). The operand packs a command id:
@@ -449,7 +444,7 @@ u32 scrOpCallCommand(u8 *context)
     K_ASSERT(cmdId >= 0, 0x175);
     groupOffset = ((cmdId >> 12) & 0xFF) << 3;
     cmdId &= 0xFFF;
-    /* Linker interior alias: the count field (+4) of D_00748530[group]; preserve its zero-displacement load. */
+    /* D_00748534 is the count field of D_00748530[group], accessed through a linker alias. */
     K_ASSERT(((ScrCmdGroupCount *)((u8 *)D_00748534 + groupOffset))->count > cmdId, 0x176);
     cmdOffset = cmdId << 3;
     cmds = ((ScrCmdGroup *)((u8 *)D_00748530 + groupOffset))->cmds;
@@ -462,7 +457,7 @@ u32 scrOpCallCommand(u8 *context)
     if (result == 0) {
         return CODEFUNC_YIELD;
     }
-    /* integer-domain sum: keeps the second command-pointer computation of the retail object */
+    /* Retail recomputes the command entry pointer as an integer sum. */
     entry = (ScrCmdEntry *)((u8 *)((u32)cmdOffset + (u32)cmds));
     ctx->sp -= entry->paramCount;
     currPc = ctx->pc;
@@ -472,13 +467,12 @@ u32 scrOpCallCommand(u8 *context)
     }
     return CODEFUNC_NEXTINSTR;
 }
-/* measured: restores the default optimization level after the exact object. */
 #pragma optimization_level 2
-/* measured: restores common-subexpression optimization after the exact object. */
 #pragma opt_common_subs on
 
 
-
+/* Pop the return address off the script stack and resume after it, or stop the script if the stack
+ * is empty. */
 // FUN_0029AE90
 u32 scrOpReturn(ScrScriptWork* scr)
 {
@@ -782,8 +776,6 @@ void scrBinaryOp(ScrScriptWork* scr, u32 type)
 }
 
 
-
-
 /* Pop two numeric operands, push their sum with integer/float promotion, and advance execution. */
 // FUN_0029BEB0
 u32 CodeFunc_Add(ScrScriptWork* scr)
@@ -793,7 +785,6 @@ u32 CodeFunc_Add(ScrScriptWork* scr)
 
     return 1;
 }
-
 
 
 /* Pop the left operand first, subtract the next numeric operand, and push the promoted result. */
@@ -807,7 +798,6 @@ u32 CodeFunc_Sub(ScrScriptWork* scr)
 }
 
 
-
 // Multiplies the top two stack values (CodeFunc_Mul).
 // FUN_0029BF30
 u32 CodeFunc_Mul(ScrScriptWork* scr)
@@ -817,7 +807,6 @@ u32 CodeFunc_Mul(ScrScriptWork* scr)
 
     return 1;
 }
-
 
 
 /* Divide the first popped numeric operand by the second; the shared operator asserts a nonzero divisor. */
@@ -908,8 +897,6 @@ u32 CodeFunc_Not(ScrScriptWork* scr)
 }
 
 
-
-
 /* Consume both numeric operands and push integer truth for logical OR, without short-circuiting their pops. */
 // FUN_0029C550
 u32 CodeFunc_Or(ScrScriptWork* scr)
@@ -919,7 +906,6 @@ u32 CodeFunc_Or(ScrScriptWork* scr)
 
     return 1;
 }
-
 
 
 /* Consume both numeric operands and push integer truth for logical AND, without short-circuiting their pops. */
@@ -933,7 +919,6 @@ u32 CodeFunc_And(ScrScriptWork* scr)
 }
 
 
-
 /* Compare the two popped numeric operands for equality and push integer truth before advancing execution. */
 // FUN_0029C5D0
 u32 CodeFunc_Eq(ScrScriptWork* scr)
@@ -943,7 +928,6 @@ u32 CodeFunc_Eq(ScrScriptWork* scr)
 
     return 1;
 }
-
 
 
 /* Compare the two popped numeric operands for inequality and push integer truth before advancing execution. */
@@ -957,7 +941,6 @@ u32 CodeFunc_Neq(ScrScriptWork* scr)
 }
 
 
-
 /* Push integer truth when the first popped numeric operand is less than the second, then advance. */
 // FUN_0029C650
 u32 CodeFunc_S(ScrScriptWork* scr)
@@ -967,7 +950,6 @@ u32 CodeFunc_S(ScrScriptWork* scr)
 
     return 1;
 }
-
 
 
 /* Push integer truth when the first popped numeric operand is greater than the second, then advance. */
@@ -981,7 +963,6 @@ u32 CodeFunc_L(ScrScriptWork* scr)
 }
 
 
-
 /* Push integer truth when the first popped numeric operand is at most the second, then advance. */
 // FUN_0029C6D0
 u32 CodeFunc_SE(ScrScriptWork* scr)
@@ -991,7 +972,6 @@ u32 CodeFunc_SE(ScrScriptWork* scr)
 
     return 1;
 }
-
 
 
 /* Push integer truth when the first popped numeric operand is at least the second, then advance. */
@@ -1004,7 +984,8 @@ u32 CodeFunc_LE(ScrScriptWork* scr)
     return 1;
 }
 
-// Pops the top value; when it is zero, jumps to the label named by the instruction operand, else falls through (CodeFunc_JumpIfFalse) [inferred].
+// Pops the top value; when it is zero, jumps to the label named by the instruction operand,
+// otherwise falls through.
 // FUN_0029C750
 u32 CodeFunc_JumpIfFalse(ScrScriptWork* scr)
 {
