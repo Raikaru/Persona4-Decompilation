@@ -1,5 +1,5 @@
 #include "operand_order_internal.h"
-/* Original translation unit effPolygonThunder.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit effPolygonThunder.c (from __FILE__ assert strings). */
 #include "rw_geometry_internal.h"
 #include "polygon_thunder_internal.h"
 #include "include_asm.h"
@@ -21,9 +21,7 @@ extern char D_00713E50[];
 extern u32 D_00713E70[]; /* kind initializer callbacks, six-word stride */
 extern u32 D_00713E74[]; /* kind geometry constructors, six-word stride */
 extern u32 D_00713E84[]; /* parameter byte counts, six words per kind */
-/* iGpffff8044 is an anonymous gp-relative slot in retail (-0x7FBC($28)), not a
-   defined link symbol; the VU0 funcs load it via C so the verifier masks the
-   GPREL16 reloc. */
+/* iGpffff8044 is an anonymous gp-relative slot in retail, not a defined link symbol. */
 extern f32 iGpffff8044;
 extern u32 D_00713360[];
 extern u8 *GeometryCreateStripGrid(u16 rowCount, void *indices, s32 verticesPerRow, s32 flags);
@@ -40,18 +38,14 @@ extern void func_003e9cb0(void *frame, void *transform, s32 combine);
 extern void GeometryBlockBindResource(void *block, u16 resourceId);
 
 
-/* Native b210 O2: 1216/1216 bytes, eleven resolved relocations,
- * 0 zero alignment bytes. Recompute each sample fade and
- * copy complete four-byte colors into the five-color row.
- * See docs/probe_archive/Thunder_constructors_20260924.md. */
-// Creates a thunder bolt geometry: recalculates opacity per sample and writes five-colour rows.
+/* Creates a thunder bolt geometry, recomputing each sample's fade and copying complete four-byte
+ * colors into the five-color row. */
 // FUN_00495160
-/* measured: loop hoisting alone matches; lifetime splitting is unnecessary. */
+/* measured: retail hoists loop invariants here; separate local lifetimes are not needed. */
 #pragma push
 #pragma opt_loop_invariants on
 u8 *ThunderGeometryCreate(u8 *parameters)
 {
-    /* Earlier parameter-only probe: normalized_diff 767; separate typed locals now preserve the original reload lifetimes. */
     u32 rgb0;
     u32 rgb1;
     u32 rgb2;
@@ -85,7 +79,6 @@ u8 *ThunderGeometryCreate(u8 *parameters)
     }
     ((EffThunderList *)list)->entries = list + 4;
     if (settings->segments.value < 3) {
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         settings->segments.value = 3;
     }
     color0 = settings->centerColor;
@@ -98,14 +91,12 @@ u8 *ThunderGeometryCreate(u8 *parameters)
     alpha1 = color1 >> 24;
     alpha2 = color2 >> 24;
     entry = ((EffThunderList *)list)->entries;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     sampleTotal = (f32)(settings->segments.signedValue + 1);
     fadeStart = (s32)(settings->fadeStart * sampleTotal);
     endIndex = (s32)(settings->fadeEnd * sampleTotal);
     fadeEnd = (u32)endIndex;
     copyIndex = 0;
     while (copyIndex < copyCount) {
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         geometry = GeometryCreateStripGrid(settings->segments.low, D_00713360, 5, 0x48);
         ((EffThunderBolt *)entry)->geometry = geometry;
         sampleCount = ((EffGeometryBlock *)geometry)->vertexCount / 5;
@@ -142,7 +133,6 @@ u8 *ThunderGeometryCreate(u8 *parameters)
                 {
                     Color4 color1;
                     Color4 color0;
-                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                     color1 = colorRow->colors[1].rgba;
                     colorRow->colors[3].rgba = color1;
                     color0 = colorRow->colors[0].rgba;
@@ -189,23 +179,14 @@ void ThunderGeometryDestroy(u8 *effect)
 }
 
 
-/* Thunder bolt update. A live bolt rebuilds its strip: the first row is the
- * bolt cross-section from the forward/up cross products, and each further
- * row follows a sine-wave heading, rotated by effMiscAxisAngleVU and pushed along
- * the transformed forward axis with per-column drift. The two
- * 5-column loops use separate counters, as retail's $t2/$v0 show. FPR
- * declarations follow the order a regalloc_whatif.py replay derived.
- * effMiscAxisAngleVU is declared angle-first here: retail sets $f12 before $a0,
- * and b210 emits argument setup in declaration order (handoff 7a-bis). */
-
 // Rebuilds a live thunder bolt's strip: the first row across the travel direction, each further row along a sine-wave heading.
 // FUN_004956B0
-/* measured: baseline removal differs by 682 normalized bytes; lifetime splitting worsens allocation. */
+/* measured: retail hoists loop invariants here; splitting local lifetimes worsens register
+ * allocation. */
 #pragma push
 #pragma opt_loop_invariants on
 void ThunderBoltUpdateStrip(u8 *effect)
 {
-    /* Earlier whole-layout probe: normalized_diff 1277; separate typed locals now preserve the original reload lifetimes. */
     extern void mdlEffectCopyCameraOrigin(f32 *output);
     extern void effMiscBuildRotationVU(void);
     extern f32 sinf(f32 angle);
@@ -328,13 +309,10 @@ void ThunderBoltUpdateStrip(u8 *effect)
         offset = length;
         state = boltEntry->color.value;
         if ((state & 0xFF000000) > 0x40000000U) {
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             boltEntry->color.value = state + 0xC0000000;
         } else {
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             boltEntry->age = -1;
             if (respawnRange > 0) {
-                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                 boltEntry->age = boltEntry->age - effMiscRand(0) % respawnRange;
             }
             continue;
@@ -343,7 +321,6 @@ void ThunderBoltUpdateStrip(u8 *effect)
         geometryBlock = (EffGeometryBlock *)geometry;
         rowCount = geometryBlock->vertexCount / 5;
         RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 2);
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         vertices = (u8 *)((RpAtomic *)geometryBlock->atomic)->geometry->morphTarget->vertices;
         if ((effMiscRand(0) & 1) != 0) {
             amplitude = amplitude * negone;
@@ -590,8 +567,8 @@ void ThunderBoltWriteRows(u8 *effect)
                     :
                     : "r"(colorFactors)
                     : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                /* measured: mwcc b210 hoists the modulatedColor reload above the inline COP2
-                   store and serves a stale value, so the post-asm read is volatile. */
+                /* measured: the compiler moves the modulatedColor reload above the inline asm store
+                 * and reads a stale value, so the read is volatile. */
                 *(s32 *)materialColor = *(volatile s32 *)&modulatedColor;
                 if (materialColor[3] != 0xFF)
                 {
@@ -623,7 +600,6 @@ void ThunderBoltWriteRows(u8 *effect)
         }
     }
 }
-
 
 
 // Seeds the orbit radius and its per-frame step, then gives each orbit bolt a random negative counter.
@@ -667,18 +643,14 @@ void ThunderBoltInitFade(u8 *effect)
 }
 
 
-/* Native b210 O2: 1224/1232 bytes, eleven resolved relocations,
- * 8 zero alignment bytes. Recompute each sample fade and
- * copy complete four-byte colors into the five-color row.
- * See docs/probe_archive/Thunder_constructors_20260924.md. */
-// Creates orbit-bolt geometry with a 0x10-byte list header, 0x30-byte entries and per-sample opacity.
+/* Creates orbit-bolt geometry with a 0x10-byte list header and 0x30-byte entries, recomputing each
+ * sample's fade and copying whole four-byte colors into the five-color row. */
 // FUN_00496340
-/* measured: loop hoisting alone matches; lifetime splitting is unnecessary. */
+/* measured: retail needs loop-invariant hoisting here; lifetime splitting is not needed. */
 #pragma push
 #pragma opt_loop_invariants on
 u8 *ThunderGeometryCreatePadded(u8 *parameters)
 {
-    /* Earlier parameter-only probe: normalized_diff 762; separate typed locals now preserve the original reload lifetimes. */
     u32 rgb0;
     u32 rgb1;
     u32 rgb2;
@@ -713,7 +685,6 @@ u8 *ThunderGeometryCreatePadded(u8 *parameters)
     ((EffThunderOrbitList *)list)->entries = list + 0x10;
     ((EffThunderOrbitList *)list)->allocation = list;
     if (settings->segments.value < 3) {
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         settings->segments.value = 3;
     }
     color0 = settings->centerColor;
@@ -726,14 +697,12 @@ u8 *ThunderGeometryCreatePadded(u8 *parameters)
     alpha1 = color1 >> 24;
     alpha2 = color2 >> 24;
     entry = ((EffThunderOrbitList *)list)->entries;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     sampleTotal = (f32)(settings->segments.signedValue + 1);
     fadeStart = (s32)(settings->fadeStart * sampleTotal);
     endIndex = (s32)(settings->fadeEnd * sampleTotal);
     fadeEnd = (u32)endIndex;
     copyIndex = 0;
     while (copyIndex < copyCount) {
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         geometry = GeometryCreateStripGrid(settings->segments.low, D_00713360, 5, 0x48);
         ((EffThunderOrbitBolt *)entry)->geometry = geometry;
         sampleCount = ((EffGeometryBlock *)geometry)->vertexCount / 5;
@@ -770,7 +739,6 @@ u8 *ThunderGeometryCreatePadded(u8 *parameters)
                 {
                     Color4 color1;
                     Color4 color0;
-                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                     color1 = colorRow->colors[1].rgba;
                     colorRow->colors[3].rgba = color1;
                     color0 = colorRow->colors[0].rgba;
@@ -816,21 +784,16 @@ void ThunderPaddedGeometryDestroy(u8 *effect)
 }
 
 
-/* Orbiting thunder bolt update, the ThunderBoltUpdateStrip sibling. A bolt in its
- * spawn state picks an orbit and places its anchor through the VU0 matrix;
- * a live bolt advances the orbit, builds its first row across the travel
- * direction and steps each further row along the rotated travel vector,
- * whose length comes from VU0 vsqrt. The two 5-column loops use separate
- * counters. The spilled locals are declared in retail's spill-slot order.
- * effMiscAxisAngleVU is declared angle-first, as for ThunderBoltUpdateStrip. */
-// Updates the orbiting thunder bolt: a spawn-state bolt picks an orbit through the VU0 matrix, a live bolt advances the orbit and rebuilds its strip.
+/* Updates an orbiting thunder bolt: a spawn-state bolt picks an orbit and places its anchor through
+ * the VU0 matrix, while a live bolt advances the orbit and rebuilds its strip. Spilled locals
+ * follow retail's spill-slot order. */
 // FUN_004968A0
-/* measured: baseline removal differs by 800 normalized bytes; lifetime splitting worsens allocation. */
+/* measured: retail needs loop-invariant hoisting here; lifetime splitting makes register allocation
+ * worse. */
 #pragma push
 #pragma opt_loop_invariants on
 void ThunderOrbitBoltUpdateStrip(u8 *effect)
 {
-    /* Earlier whole-layout probe: normalized_diff 1868; separate typed locals now preserve the original reload lifetimes. */
     extern void mdlEffectCopyCameraOrigin(f32 *output);
     extern f32 sinf(f32 angle);
     extern f32 cosf(f32 angle);
@@ -972,12 +935,9 @@ void ThunderOrbitBoltUpdateStrip(u8 *effect)
                 boltEntry->height = ((EffThunderOrbitParameters *)parameters)->heightRange * effMiscRandFloat(0);
             }
             boltEntry->yaw = twoPi * (two * (effMiscRandFloat(0) - half));
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             effMiscRotateXVU(boltEntry->tilt);
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             effMiscRotateYVU(boltEntry->yaw);
             effMiscCombineRotationVU();
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             angle = boltEntry->angle;
             point.lane[0] = radius * cosf(angle);
             point.lane[1] = zero;
@@ -996,13 +956,10 @@ void ThunderOrbitBoltUpdateStrip(u8 *effect)
         }
         state = boltEntry->color.value;
         if ((state & 0xFF000000) > 0x40000000U) {
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             boltEntry->color.value = state + 0xC0000000;
         } else {
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             boltEntry->age = -1;
             if (respawnRange > 0) {
-                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                 boltEntry->age = boltEntry->age - effMiscRand(0) % respawnRange;
             }
             continue;
@@ -1011,7 +968,6 @@ void ThunderOrbitBoltUpdateStrip(u8 *effect)
         geometryBlock = (EffGeometryBlock *)geometry;
         rowCount = geometryBlock->vertexCount / 5;
         RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 2);
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         vertices = (u8 *)((RpAtomic *)geometryBlock->atomic)->geometry->morphTarget->vertices;
         if ((effMiscRand(0) & 1) != 0) {
             amplitude = amplitude * negone;
@@ -1032,7 +988,6 @@ void ThunderOrbitBoltUpdateStrip(u8 *effect)
         }
         drop = dropScale * (dropBase + dropRange * effMiscRandFloat(0));
         {
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             f32 t = (f32)(boltEntry->age + 1);
 
             orbit = t * (boltEntry->speed + half * (spin * t));
@@ -1324,8 +1279,8 @@ void ThunderOrbitBoltWriteRows(u8 *effect)
                     :
                     : "r"(colorFactors)
                     : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                /* measured: mwcc b210 hoists the modulatedColor reload above the inline COP2
-                   store and serves a stale value, so the post-asm read is volatile. */
+                /* measured: without volatile the compiler hoists the modulatedColor read above the
+                 * inline COP2 store and reads a stale value. */
                 *(s32 *)materialColor = *(volatile s32 *)&modulatedColor;
                 if (materialColor[3] != 0xFF)
                 {
@@ -1359,7 +1314,6 @@ void ThunderOrbitBoltWriteRows(u8 *effect)
 }
 
 
-
 // Initialises each paired thunder state word to a random negative value from -1 to -4.
 // FUN_004976D0
 void ThunderPairedInitStates(u8 *effect)
@@ -1380,18 +1334,15 @@ void ThunderPairedInitStates(u8 *effect)
 }
 
 
-/* Native b210 O2: 1280/1280 bytes and eleven resolved relocations.
- * Sample zero and odd samples calculate a new fade; the following even
- * sample reuses it. The five packed colors form one twenty-byte row.
- * See docs/probe_archive/Thunder_constructor_00497750_20260924.md. */
-// Creates a paired thunder geometry: makes the segment count odd, allocates the geometry copies and writes five-colour rows.
+/* Creates paired thunder geometry: forces an odd segment count, allocates the geometry copies and
+ * writes five-colour rows. Sample zero and odd samples compute a new fade; the following even
+ * sample reuses it. */
 // FUN_00497750
-/* measured: loop hoisting alone matches; lifetime splitting is unnecessary. */
+/* measured: retail needs loop-invariant hoisting here; lifetime splitting is not needed. */
 #pragma push
 #pragma opt_loop_invariants on
 u8 *ThunderPairedGeometryCreate(u8 *parameters)
 {
-    /* Earlier parameter-only probe: normalized_diff 804; separate typed locals now preserve the original reload lifetimes. */
     u32 rgb0;
     u32 rgb1;
     u32 rgb2;
@@ -1425,12 +1376,9 @@ u8 *ThunderPairedGeometryCreate(u8 *parameters)
     }
     ((EffThunderList *)list)->entries = list + 4;
     if (settings->segments.value < 3) {
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         settings->segments.value = 3;
     }
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     if ((settings->segments.value & 1) == 0) {
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         settings->segments.value += 1;
     }
     color0 = settings->centerColor;
@@ -1443,7 +1391,6 @@ u8 *ThunderPairedGeometryCreate(u8 *parameters)
     alpha1 = color1 >> 24;
     alpha2 = color2 >> 24;
     entry = ((EffThunderList *)list)->entries;
-    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
     sampleTotal = (f32)(settings->segments.signedValue + 1);
     fadeStart = (s32)(settings->fadeStart * sampleTotal);
     endIndex = (s32)(settings->fadeEnd * sampleTotal);
@@ -1452,7 +1399,6 @@ u8 *ThunderPairedGeometryCreate(u8 *parameters)
     fade = 0.0f;
     copyIndex = 0;
     while (copyIndex < copyCount) {
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         geometry = GeometryCreateStripGrid(settings->segments.low, D_00713360, 5, 0x48);
         ((EffThunderPairedBolt *)entry)->geometry = geometry;
         sampleCount = ((EffGeometryBlock *)geometry)->vertexCount / 5;
@@ -1491,7 +1437,6 @@ u8 *ThunderPairedGeometryCreate(u8 *parameters)
                 {
                     Color4 color1;
                     Color4 color0;
-                    /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                     color1 = colorRow->colors[1].rgba;
                     colorRow->colors[3].rgba = color1;
                     color0 = colorRow->colors[0].rgba;
@@ -1537,20 +1482,15 @@ void ThunderPairedGeometryDestroy(u8 *effect)
 }
 
 
-/* The row loop's two vector carries (tangent -> previousTangent,
- * nextPosition -> position) are lq/sq copies through $2, as in
- * func_00485630; the $2 clobber is what moves every pointer live across
- * them up one register in retail. `invalid` is assigned first in the
- * preheader because retail hoists the -1 before the float constants. */
-// Updates the paired thunder strip: a row loop carries the tangent and position vectors and rebuilds each row.
+/* Updates the paired thunder strip; the row loop carries tangent and position vectors as 128-bit
+ * copies, as in func_00485630. `invalid` is set first because retail hoists the -1. */
 // FUN_00497CE0
-/* measured: baseline removal differs by 77 normalized bytes; retain vector-carry propagation and hoisting settings. */
+/* measured: retail's vector carries need propagation off and loop-invariant hoisting on. */
 #pragma push
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 void ThunderPairedUpdateStrip(u8 *effect)
 {
-    /* Earlier whole-layout probe: normalized_diff 1305; separate typed locals now preserve the original reload lifetimes. */
     extern void mdlEffectCopyCameraOrigin(f32 *output);
     extern void effMiscBuildRotationVU(void);
     extern f32 sinf(f32 angle);
@@ -1683,13 +1623,10 @@ void ThunderPairedUpdateStrip(u8 *effect)
         }
         state = boltEntry->color.value;
         if ((state & 0xFF000000) > 0x40000000U) {
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             boltEntry->color.value = state + 0xC0000000;
         } else {
-            /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
             boltEntry->age = -1;
             if (respawnRange > 0) {
-                /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
                 boltEntry->age = boltEntry->age - effMiscRand(0) % respawnRange;
             }
             continue;
@@ -1698,7 +1635,6 @@ void ThunderPairedUpdateStrip(u8 *effect)
         geometryBlock = (EffGeometryBlock *)geometry;
         rowCount = (geometryBlock->vertexCount / 5) >> 1;
         RpGeometryLock(((RpAtomic *)geometryBlock->atomic)->geometry, 2);
-        /* measured: typing this access alone changes owner instructions (singleton MISMATCH). */
         vertices = (u8 *)((RpAtomic *)geometryBlock->atomic)->geometry->morphTarget->vertices;
         effectVuLoad10(&up);
         effectVuLoad11(&direction);
@@ -1813,14 +1749,16 @@ void ThunderPairedUpdateStrip(u8 *effect)
                 u_long128 *dst = (u_long128 *)&previousTangent;
                 u_long128 *src = (u_long128 *)&tangent;
 
-                /* lint: allow H009 -- retail copies this quad through $2 at 0x0049825C; b210 keeps $v0 live (user-approved 2026-10-09) */
+                /* lint: allow H009 -- retail copies this quad through register 2, which the
+                 * compiler would not choose itself. */
                 __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(src) : "$2", "memory");
             }
             {
                 u_long128 *dst = (u_long128 *)&position;
                 u_long128 *src = (u_long128 *)&nextPosition;
 
-                /* lint: allow H009 -- retail copies this quad through $2 at 0x00498268; b210 keeps $v0 live (user-approved 2026-10-09) */
+                /* lint: allow H009 -- retail copies this quad through register 2, which the
+                 * compiler would not choose itself. */
                 __asm__ volatile("lq $2, 0(%1)\n\tsq $2, 0(%0)" : : "r"(dst), "r"(src) : "$2", "memory");
             }
             effectVuLoad10(&position);
@@ -2074,8 +2012,8 @@ void ThunderPairedWriteRows(u8 *effect)
                     :
                     : "r"(colorFactors)
                     : "$2", "$vf2", "$vf10", "$vf11", "memory");
-                /* measured: mwcc b210 hoists the modulatedColor reload above the inline COP2
-                   store and serves a stale value, so the post-asm read is volatile. */
+                /* measured: the compiler would hoist the modulatedColor reload above the inline
+                 * COP2 store and read a stale value, so the read is volatile. */
                 *(s32 *)materialColor = *(volatile s32 *)&modulatedColor;
                 if (materialColor[3] != 0xFF)
                 {
@@ -2107,7 +2045,6 @@ void ThunderPairedWriteRows(u8 *effect)
         }
     }
 }
-
 
 
 // Allocates a thunder effect for a kind below five, copies its parameters and runs the kind initializer.

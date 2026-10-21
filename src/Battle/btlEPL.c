@@ -3,11 +3,11 @@
 #include "btl_motion_internal.h"
 #include "include_asm.h"
 #include "effect_instance_internal.h"
-/* Original translation unit btlEPL.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit btlEPL.c (from __FILE__ assert strings). */
 #include "type.h"
 
-/* Unit settings: hoist loop invariants and retain assignments in EPL fades.
- * measured: all 27 functions MATCH with these shared settings. */
+/* measured: retail hoists loop invariants and keeps redundant assignments throughout the EPL fade
+ * code. */
 #pragma opt_loop_invariants on
 #pragma opt_dead_assignments off
 
@@ -158,18 +158,15 @@ typedef struct BtlEplUnit
 } BtlEplUnit;
 extern BtlEplUnit *D_00881440_abs[];
 
-/* measured: opt_loop_invariants on keeps the table base and the constant 1 hoisted above the
-   scan loop as retail; a `for` form of the scan loop mismatched at `cmp 8`, so the goto
-   ladder stays. The mode-1 blocks are `var = 1; if (slot == arg0) { t = var; } else
-   { var = 0; t = var; } return (s8)t;` - the copy at the join keeps the then-branch as
-   retail's `b join` trampoline (the plain if/else folds to xor/sltiu under rebuildconditionals,
-   which must stay off for these two blocks). */
-/* Accept all units, masked explicit slots, or the requested same-kind anchor group.
- * Kind 1 selects only its anchor; kind 2 selects every unit of that kind. */
+/* measured: loop-invariant hoisting keeps the table base and constant 1 above the scan loop as
+ * retail; the goto ladder and mode-1 join copy reproduce retail's branch shape. */
+/* Return whether the unit matches the selection: all units, a masked explicit slot, or the anchor
+ * group of the same kind. Kind 1 matches only the anchor itself and kind 2 matches every unit of
+ * that kind. */
 // FUN_001FC300
-/* Selection predicate for EPL unit loops; see BtlEplSelect.
- * measured: loop-invariant hoisting and the mode-1 branch form are justified above. */
-/* measured: structured selection scanning retains 71 baseline words; either selection toggle alone differs. */
+/* Selection predicate for EPL unit loops; see BtlEplSelect. measured: retail keeps the structured
+ * selection scan without rebuilt conditionals; loop-invariant hoisting and the mode-1 branch form
+ * follow retail. */
 #pragma opt_rebuildconditionals off
 static s64 btlEplUnitIsSelected(BtlEplUnit *unit, BtlEplSelect *select)
 {
@@ -247,7 +244,6 @@ block_9:
     }
     return 0;
 }
-/* measured: restore rebuildconditionals after btlEplUnitIsSelected. */
 #pragma opt_rebuildconditionals on
 /* Allocate owned model-ID work from kind-3 source data; other kinds retain a zero handle. */
 // FUN_001FC4A0
@@ -302,12 +298,9 @@ typedef struct BtlEplUnitParam
 } BtlEplUnitParam;
 
 
-/* measured: opt_dead_assignments off keeps the four colour conversions ahead of
-   the blend products (217 words without it); opt_loop_invariants on hoists the
-   mode byte and 1 - scale above the unit loop in retail order. */
-/* Fade selected units' normalized colors and position against the EPL model, preserving the distinct fade-in and fade-out snapshots. */
+/* Fade the selected units' colours and positions against the EPL model, keeping separate fade-in
+ * and fade-out snapshots. */
 // FUN_001FC630
-/* measured: typed effect aliases and cached fade complements retain 341 or more baseline words; either toggle alone differs. */
 void btlEplStepUnitFadeInOut(u8 *effect)
 {
     u32 count;
@@ -462,12 +455,12 @@ typedef struct BtlEplFade2Param
     BtlEplRgba color[2]; // 0x08
 } BtlEplFade2Param;
 
-/* measured: opt_dead_assignments off keeps the colour conversions where the
-   source puts them (first pair converted up front, second pair converted and
-   scaled per component); 189 words without it. */
-/* Blend the two scene color vectors through the requested fade-in/out interval, saving endpoints at each transition. */
+/* measured: opt_dead_assignments off keeps the colour conversions where the source puts them: the
+ * first pair up front, the second pair per component. Blend the two scene color vectors through the
+ * requested fade-in/out interval, saving endpoints at each transition. */
+/* Fade the two scene colour vectors toward the effect's configured colour pair over the fade-in
+ * interval and back over the fade-out interval, saving the starting colours when the effect begins. */
 // FUN_001FCEB0
-/* measured: typed effect aliases and separate second-vector products retain 259 or more baseline words. */
 void btlEplStepColorPairFade(u8 *effect)
 {
     u32 count;
@@ -614,15 +607,9 @@ typedef struct BtlEplUnitRgbaParam
     BtlEplSelect select;  // 0x0C, read by btlEplUnitIsSelected
 } BtlEplUnitRgbaParam;
 
-/* Fade-in/out alone initialize and consume the scale complement.
- * The fade-out arm converts two complete normalized RGBA values and computes
- * all four blended outputs before storing any byte. These real value
- * lifetimes reproduce retail's FPR allocation and native operation order.
- * Measured b210: 2172/2176 bytes, four retail-zero tail bytes,
- * 22 resolved target relocations and all 26 sibling functions unchanged. */
-/* Fade selected units' packed RGBA channels, rounding normalized results back to bytes and setting their explicit-color flag. */
+/* Only fade-in/out initialize and use the scale complement; fade-out converts both RGBA values and
+ * computes all four blended outputs before storing any byte. */
 // FUN_001FD790
-/* measured: typed effect aliases and scalar blend arrays retain 377 baseline words; either toggle alone differs. */
 void btlEplStepUnitRgbaFade(u8 *effect)
 {
     u32 count;
@@ -759,11 +746,10 @@ void btlEplFreeColorValueTarget(void *work) {
     jtbl_008873EC[0](work);
 }
 
-/* measured: opt_dead_assignments off keeps the second pair's blend unfused
-   like the first (138 words without it). */
-/* Fade the resource color value and target vectors after applying the scene color multipliers. */
+/* measured: with dead-assignment optimization off, the second color pair's blend stays unfused like
+ * the first. Fades the resource color value and target vectors after applying scene color
+ * multipliers. */
 // FUN_001FE090
-/* measured: typed effect aliases and separate second-vector products retain 138 or more baseline words. */
 void btlEplStepColorValueTargetFade(u8 *effect)
 {
     u32 count;
@@ -1102,11 +1088,8 @@ typedef struct BtlEplLightTarget
 
 extern BtlEplMatrix D_00922C60;
 
-/* measured: opt_dead_assignments off keeps the colour conversions where the
-   source puts them, as in btlEplStepColorPairFade. */
 /* Fade both light color vectors and, when available, publish the transformed EPL model matrix. */
 // FUN_001FF490
-/* measured: typed effect aliases and separate second-vector products retain 298 baseline words. */
 void btlEplStepLightFadeInOut(u8 *effect)
 {
     u32 count;

@@ -1,4 +1,4 @@
-/* Original translation unit y_fclCombineEvent.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit y_fclCombineEvent.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -48,7 +48,7 @@ extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern void fieldSceneUnload(void);
 
 
-/* Register the combine-event controller and retain its signed mode byte. */
+/* Register the combine-event controller and store its signed mode byte. */
 // FUN_0033DC90
 void fclCombineEventTaskCreate(u8 *parentTask, s8 mode)
 {

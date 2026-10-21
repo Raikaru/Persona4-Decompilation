@@ -22,7 +22,6 @@ extern void taskRecordSetPosition(s32 task, s64 packedPosition);
 extern s32 iGpffffb480;
 
 
-
 void fadeBegin(void);
 s32 fadeIsIdle(void);
 
@@ -48,13 +47,6 @@ extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 ra
                            f32 angle, f32 depth, s32 preserveState);
 
 
-
-
-
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 0025d150-0025d850 */
-
 /* Each copied persona-template entry contains two halfwords; the second is
  * passed to datPersonaLoadRecord as its template identifier. */
 typedef struct PersonaTemplateEntry { u16 unk00, templateId; } PersonaTemplateEntry;
@@ -68,9 +60,8 @@ s32 scrCommonSetItemCount(void) {
     return 1;
 }
 
-/* measured probe: opt_propagation off tests d1b0 saved-register colouring. */
-// Intent: Common script command PARTY_IN (p4flow Common 0x0038): adds a character to a party slot if absent [inferred]
-/* Keep existing party members; fill the first empty slot or replace the final slot. */
+/* Common script command PARTY_IN: adds a character to the party if absent, filling the first empty
+ * slot or replacing the final slot. */
 // FUN_0025D1B0
 s32 scrCommonPartyIn(void) {
     s32 emptySlotIndex;
@@ -114,9 +105,7 @@ block_4:
     return 1;
 }
 
-/* measured probe: restore opt_propagation after d1b0. */
-// Intent: Common script command PARTY_OUT (p4flow Common 0x0039): clears the party slot holding a character [inferred]
-/* Remove every party slot holding the requested member. */
+/* Common script command PARTY_OUT: removes every party slot holding the requested member. */
 // FUN_0025D2D0
 s32 scrCommonPartyOut(void) {
     s16 memberId;
@@ -295,14 +284,8 @@ s32 K_Cmd_TASK_DESTROY(void) {
     return 0;
 }
 
-/* `x > 0xA` here, not the equivalent `x >= 0xB`: b210 compiles `>= K` by
-   materialising the comparison into $v0, and `> K-1` by branching through the
-   assembler temp as retail does (slti $at,$v0,0xB / bnez $at). Identical
-   semantics, different branch form - this was the whole nd-2 residual. Found by
-   permute_ast (MATCH at 113 compiles) and reduced with permute_min; the winner
-   had rewritten the constant as `> (0xB & 0xFFFF) - 1`, which is the same thing.
-   Un-chaining the && and negating the inner test do NOT help - both stay nd 2. */
-/* Begin fading on command frame ten and wait until the fade controller becomes idle. */
+/* Written as `> 0xA`, not `>= 0xB`: the two compile to different branch forms, and retail uses the
+ * `>` one. Begin fading on command frame ten and wait until the fade controller becomes idle. */
 // FUN_0025D7E0
 s32 K_Cmd_FADE_BEGIN_WAIT(void) {
     if (scrGetCmdTimer() == 0xA) {

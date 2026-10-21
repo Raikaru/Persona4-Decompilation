@@ -228,11 +228,8 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 
 
-
 #pragma push
 #pragma pop
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00456c30-00456c60 */
 
 extern s32 H_Cdvd_FileOpen(s32 unusedContext, u8 *slot, u8 *name, s32 openMode);
 extern void H_Cdvd_FileClose(u8 *slot);
@@ -240,7 +237,7 @@ extern void H_Cdvd_FileClose(u8 *slot);
 #pragma pop
 #pragma push
 #pragma pop
-// Intent: file-context path accessor. Returns the shared path buffer that open and close use.
+// File-context path accessor; returns the shared path buffer that open and close use.
 // FUN_00456C30
 u8 *H_Cdvd_FileContextPath(void)
 {
@@ -248,9 +245,10 @@ u8 *H_Cdvd_FileContextPath(void)
     return (u8 *)&iGpffffad88;
 }
 
-/* measured: baseline nd149; advancing a typed-size entry cursor gives nd241. */
+/* measured: retail does not propagate copies in the entry setup loop. */
 #pragma opt_propagation off
-// Intent: creates a file device with `arg0` entries of `arg2` bytes each, starting at `arg1`, and registers its callbacks. Returns the device record.
+// Creates a file device with slotCount entries of bufferSize bytes each, starting at buffer, and
+// registers its callbacks. Returns the device record.
 // FUN_00456C60
 u8 *H_Cdvd_CreateFileDevice(s32 slotCount, u8 *buffer, s32 bufferSize, s32 deviceFlags, s32 deviceId) {
     s32 index;

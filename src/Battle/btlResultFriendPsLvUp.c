@@ -1,7 +1,7 @@
 #include "byte_address_internal.h"
 #include "include_asm.h"
 #include "member_access.h"
-/* Original translation unit btlResultFriendPsLvUp.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit btlResultFriendPsLvUp.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "datPersona_internal.h"
 #include "btl_result_ui_internal.h"
@@ -24,11 +24,8 @@ extern void shdPersonaStartSlideIn(u8 *task);
 extern void shdPersonaSetPersonaId(u8 *task, s32 personaId);
 extern u32 datGetFlag(s32 bit);
 extern void datSetFlag(s32 flagId, s32 enabled);
-/* This unit's view of the window helper takes the 16-bit display id as u16.
-   The definition (shdPersona.c) and its other callers use s32; retail
-   compiled each unit separately, and only a u16 parameter here emits the id
-   load after the window-pointer argument, as at 00223b5c. A conversion
-   argument is always evaluated first (docs/matching.md). */
+/* This unit declares the display id as u16 (the definition uses s32); retail compiled units
+ * separately and loads the id after the window pointer. */
 extern void shdPersonaSetDisplayState(u8 *task, u16 inputCategory, u32 personaAddress, s8 cursor);
 extern u8 *H_Cdvd_GetArchiveEntry(u8 *request, s32 entryIndex, s32 *size);
 extern u8 *shdPersonaLevelUpCreate(s32 inputParentTask, s32 personaTask, u8 *inputLearnList, s32 messageResource, s32 extraMessage, s32 *messages);
@@ -46,7 +43,6 @@ extern u8 D_005E4810[];
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern u8 D_00629720[];
-
 
 
 /* Map supported party IDs to the base voice-cue group, asserting on an unsupported party ID. */
@@ -75,28 +71,16 @@ s32 btlResultFriendPsCheck(s64 partyId)
     }
 }
 
-/* Defined guarded recovery: 1320 executable bytes and eight zero alignment
- * bytes. The current C candidate retains 53 instruction-word differences;
- * production remains ASM. Contracts, lifecycle and complete-owner receipts:
- * build/cos20814/resume-results19/REPORT.md.
- * The task constructor allocates 0x4C bytes. Its scan index stays in 0..4;
- * reaching the selected path assigns the persona pointer during this call.
- * Re-read index and parent fields across calls as the retail body does. */
+/* The task allocates 0x4C bytes; the scan index stays in 0..4, and index and parent fields are re-
+ * read across calls as retail does. */
 
 /* Addresses in the target's 32-bit work allocation are computed as unsigned
  * byte offsets before conversion to a live record pointer. */
 
 
-/* r and base are declared after the loop counter. The first two stores
-   through r in the opening state form the address as (u32)r + offset. That
-   repeated conversion is copied from r inside the switch, which keeps r a
-   local at its declared number (docs/matching.md, "Keep a load local
-   alive"). The (u32)base argument of byteAddressAdd keeps base alive
-   the same way, giving retail's $s3/$s2 for r/base. */
 // FUN_002239A0
 /* Apply friend-persona experience, expose learned-skill flags, and sequence the persona level-up
- * windows. The summary alias preserves callback-visible state/window reloads; previews retain their
- * canonical 0x88-byte stride and the measured skill read uses MEMBER. */
+ * windows. Previews use a 0x88-byte stride. */
 s32 btlResultFriendPsUpdate(u8 *sdkTaskBytes)
 {
     s32 taskAddress = (s32)sdkTaskBytes;

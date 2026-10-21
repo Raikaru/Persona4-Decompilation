@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Event/Fcl/fclBankManager.c; members 002746c0-002746c0 */
 
 #include "include_asm.h"
 #include "type.h"

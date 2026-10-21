@@ -2,8 +2,6 @@
 #include "type.h"
 #include "datScript_internal.h"
 #include "datPersona_internal.h"
-/* Ported from Persona 3 FES datScript.c (FUN_0030fc40/FUN_0030fdf0/
-   FUN_003111f0/FUN_00311250 counterparts), adapted to the P4 build. */
 
 extern char D_00635980[];          /* "datScript.c" assert file name */
 extern void kAssertFail(const char* file, u32 line);
@@ -53,20 +51,12 @@ s32 datScriptRunCalc(u32 calculationKind, u16* sourceUnit, u16* targetUnit, u16 
     return D_00881468[0];
 }
 
-/* MATCHED: three shapes carried the 34-arm dispatch.  The level-difference
-   and parameter tables are typed arrays - `((f32 *)(DAT_007644E8 + 0x18))[i]`,
-   not `((BtlBattleState *)DAT_0076449c)->escapeCount` - which is what puts the base load ahead of the
-   index extension.  The three ids that fall back to 100 are a switch, not an
-   `||` chain, so the last compare stays a `beq` with an explicit branch to the
-   default arm instead of being inverted.  And every clamp is written `>` a
-   literal rather than `>=` its successor: `if (tier > 9)` and `if (step > 6)`
-   keep the compared value in $v0 with the test in $at, where the `>=` form
-   moves it to $v1.  The count divisions are compound (`step /= 3`), which
-   extends once instead of truncating and re-extending. */
-/* Evaluate a floating-point formula term from the current command context; unsupported terms assert. */
+/* Evaluate a floating-point formula term, such as level, HP, SP or affinity, for the current
+ * attacker or target in the command context. Assert on unsupported terms. */
 // FUN_00245030
 
-/* The skill bytes +0x12/+0x16 follow DatSkillEntry; retain the byte-table ABI because datCalc_internal.h also declares incompatible accessor contracts. The battle-global +0xC58/+0xC5E fields have no complete owning layout here. */
+/* Skill bytes 0x12 and 0x16 follow DatSkillEntry; the battle-global fields at 0xC58 and 0xC5E have
+ * no known owning layout. */
 f32 datScriptCalcFloat(u32 term, s32 parameter)
 {
     f32 result;
@@ -309,9 +299,10 @@ f32 datScriptCalcFloat(u32 term, s32 parameter)
     return result;
 }
 
-/* measured: removing this pragma takes func_00246450 nd 0 -> nd 16 (object 36 -> 28, window 48). */
+/* measured: retail compiles this setter at optimization level 1. */
 #pragma push
 #pragma optimization_level 1
+/* Store the script result value and set the flag marking that a result is available. */
 // FUN_00246450
 void datScriptSetResult(s32 value)
 {

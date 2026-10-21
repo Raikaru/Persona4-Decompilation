@@ -1,7 +1,4 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from shared TU with static helper; members 001b0d00-001b1450 */
 
-/* Grouped verified Persona 4 source units. */
-/* The original guards were independently verified before grouping. */
 #include "include_asm.h"
 #include "member_access.h"
 #include "type.h"
@@ -11,7 +8,6 @@
 extern s32 iGpffffb3ac;
 /* Canonical grouped function declarations. */
 static u32 btlOrderRemoveAction(BtlAction** actions, u32 capacity, BtlAction* action);
-/* Source unit: src/Battle/btlOrder_001b0d00.c */
 
 extern s32 btlActionQueueMoveToBack(u8 *action);
 // FUN_001B0D00
@@ -73,7 +69,6 @@ s32 btlOrderRemoveActionAll(u8 *action)
 void btlOrderQueueAction(u8 *action)
 {
     u8 *queuedAction;
-    /* MEMBER retains byte-base aliasing only at the measured action-flag store. */
     u8 *battle;
 
     queuedAction = action;
@@ -100,7 +95,6 @@ done:
 /* Route pending follow-ups through the queue, otherwise select the current action. */
 void btlOrderSetCurrentAction(u8 *action)
 {
-    /* MEMBER retains byte-base aliasing only at the measured action-flag store. */
     u8 *battle;
     if ((((BtlAction *)(action))->flags & 4) != 0) {
         btlOrderQueueAction(action);

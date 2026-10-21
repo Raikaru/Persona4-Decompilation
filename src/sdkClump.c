@@ -1,4 +1,4 @@
-/* Original translation unit sdkClump.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sdkClump.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "type.h"
 #include "Kosaka/k_clump_internal.h"
@@ -59,18 +59,14 @@ void *sdkClumpCollectAtomic(void *atomic, void *clump) {
     geometryAddress = (s32)((struct RpAtomic *)atomic)->geometry;
     if (geometryAddress != 0) {
         func_003c21e0((void *)geometryAddress, sdkClumpCollectMaterialFlags, materialInfo);
-        /* measured: value-member typing swaps two argument loads (8 bytes); a named field address preserves the unsigned word alias. */
         sdkClumpAddAtomicCategory(clump, *(u32 *)&((SdkClumpMaterialInfo *)materialInfo)->category, atomic, ((SdkClumpMaterialInfo *)materialInfo)->hasSpecialData);
     }
     return atomic;
 }
 
 
-/* measured: direct table references plus opt_loop_invariants reproduce both
-   retail table-base preheaders and both loop bodies exactly (nd 15 -> 0).
-   Committed at nd 0. */
-/* measured: opt_loop_invariants probe for the retail base preheader. */
-/* measured: baseline removal differs by 15 words; scoped/shared table pointers and category snapshots leave at least 5. */
+/* measured: loop-invariant hoisting is needed so retail's table base addresses are loaded once
+ * before both loops. */
 #pragma opt_loop_invariants on
 /* Keeps the highest table-ranked material category and records the optional user-data flag. */
 // FUN_00462960
@@ -102,7 +98,7 @@ s32 sdkClumpCollectMaterialFlags(s32 materialAddress, void *materialInfo) {
     }
     return materialAddress;
 }
-/* measured: closes the opt_loop_invariants probe. */
+/* measured: restores the unit setting after the preceding material-address function. */
 #pragma opt_loop_invariants off
 
 

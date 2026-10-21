@@ -75,16 +75,10 @@ extern u8 D_00624B22[];
 extern s32 btlCurrentUnitId(void);
 
 
-
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
 extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
-
-
-
-
-
 
 
 extern s32 iGpffffb464;
@@ -93,8 +87,6 @@ extern u8 D_00624F50[];
 extern u8 D_00624F60[];
 extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f42a0-001f5ed0 */
 
 extern s32 btlActionAnyTargetHitRowStatus(u8 *action);
 extern s32 btlActionSameGenusTargetsHaveDelta(u8 *action);
@@ -108,28 +100,12 @@ extern u32 datCalcIsLowHp(s32 unit);
 extern u8 *btlActionFindByUnit(s32 unit);
 #pragma push
 #pragma pop
-/* measured: invariant mask materialisation needs opt_loop_invariants on to
-   place the retail `lui` in the preheader. */
-/* measured: closes the invariant-hoist bracket for func_001f0af0. */
-/* measured: loop-invariant probe for func_001f0c50's shared true value. */
-/* measured: close opt_loop_invariants after func_001f0c50 probe. */
-/* measured: invariant mask materialisation needs opt_loop_invariants on to
-   place the retail `lui` in the preheader. */
-/* measured: closes the invariant-hoist bracket for func_001f0d30. */
-/* measured: opt_loop_invariants on preserves the nonzero-path constant and loop preheaders for func_001f0dd0. */
-/* measured: close opt_loop_invariants after func_001f0dd0. */
-/* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
-/* measured: close optimization_level 1 probe for func_001f0ff0. */
-/* measured: opt_loop_invariants on preserves target loop preheaders and state materialisation. */
-/* measured: close opt_loop_invariants after btlTargetGroupStateMatches probe. */
+/* measured: loop-invariant motion is needed so retail materialises the mask constant and shared
+ * state values in the loop preheaders. */
 #pragma push
-/* measured: normalized result/record snapshots need invariant motion for the retail 0x310 frame. */
 #pragma pop
-/* measured: opt_propagation off keeps the iGpffffb3b8 base load ahead of the
-   index arithmetic and the 0x70 field load in a temporary before its saved copy. */
-/* measured: restore propagation for the rest of the unit. */
-/* Return the current-actor message only for the selected action. */
-/* Cast the selected-action pointer to the integer callback argument domain. */
+/* measured: propagation off keeps the battle-state base load ahead of the index arithmetic, as
+ * retail does. Returns the current-actor message only for the selected action. */
 // FUN_001F42A0
 s32 btlActionGetCurrentActorMsgCode(s32 context) {
     if (((s32)(((BtlBattleState *)(iGpffffb3ac))->selectedAction)) != context) {
@@ -196,7 +172,6 @@ s32 btlActionGetUnableToRecoverMsgCode(u8 *action)
 }
 
 /* Select a character message tier only while enemies remain. */
-/* Measured site/local/stride unit reloads changed MATCH; MEMBER names the action field. */
 // FUN_001F4430
 s32 btlActionGetCharacterLevelMsg(u8 *action, s32 tier) {
     s32 messageOffset;
@@ -362,7 +337,6 @@ s32 btlActionGetWeaknessMsgCode(u8 *action)
 }
 
 /* Choose a character/tier message, with optional thirty-percent special-bank rolls. */
-/* Measured singleton site/local/stride unit reloads changed MATCH; MEMBER preserves those reloads. */
 // FUN_001F4810
 s32 btlActionPickMsgCodeByRoll(u8 *action, s32 flags, s32 tier) {
     s32 messageOffset;
@@ -561,7 +535,6 @@ s32 btlActionGetLowHpMsgCode(u8 *action)
 }
 
 /* Choose the character message bank according to the battle flag and current actor id. */
-/* Measured site/local/stride forms of the first unit load changed MATCH; MEMBER retains the sequence. */
 // FUN_001F4CE0
 s32 btlActionGetDefeatMsgCode(u8 *action)
 {
@@ -624,15 +597,7 @@ low_switch_4ce0:
     }
 }
 
-/* Native b210 -O2 recovery: 1876 bytes plus 12 zero tail bytes.
-   Each selected field has its own uintptr_t address, derived from that
-   field's array base. The byte offset stays live across the previous-code
-   check; the actor address is formed after recording the selected code.
-   This preserves both addiu/LH-at-zero pairs and the signed actor guard.
-   The owned nine-entry switch table resolves to retail at 0x00747500.
-   See docs/probe_archive/BattleAction_20260922_resume.md. */
 /* Collect party status/buff and enemy-count messages, then pick a non-repeated candidate. */
-/* Measured site/local/stride unit snapshots changed MATCH; MEMBER retains loads around query callbacks. */
 // FUN_001F4E50
 s64 btlActionPickRandomStatusMsg(u8 *context) {
     struct ActionMessageChoice {
@@ -824,8 +789,8 @@ s64 btlActionPickRandomStatusMsg(u8 *context) {
     return selectedCode;
 }
 
-/* Select an ailment message for the selected action while its pending kind is 0xB. */
-/* Measured site/local/stride DatUnit reloads changed MATCH after the first status query. */
+/* Select an ailment message for the selected action while its pending kind is 0xB. Retail reloads
+ * the DatUnit after the first status query. */
 // FUN_001F55B0
 s32 btlActionGetPendingMsgCode(u8 *context)
 {
@@ -1074,14 +1039,13 @@ void btlActionCheckStepTrigger(s32 context)
     }
 }
 
-/* measured: 708/720B MATCH; the remaining 12 bytes are zero tail padding.
-   Paired group statistics stay in FPRs and preserve the retail operation
-   tree and unsigned conversions without additional storage. */
-/* Roll and clamp a group-stat ratio, then derive the step-trigger interval from it. */
+/* The paired group statistics are kept in float registers with no extra storage, which preserves
+ * retail's operation order and unsigned conversions. Roll and clamp a group-stat ratio, then derive
+ * the step-trigger interval from it. */
 // FUN_001F5BD0
 #pragma push
-/* measured: btlActionRollGroupRatio MATCH -> MISMATCH without this pragma. */
-/* measured: baseline leaves seven reordered mask/setup words; operand reversal and a u16 mask do not match. */
+/* measured: without propagation, retail's ordering of the mask and setup instructions is
+ * reproduced. */
 #pragma opt_propagation off
 void btlActionRollGroupRatio(s32 context)
 {
@@ -1139,7 +1103,6 @@ s32 btlActionIsPendingBit(s32 context) {
 }
 
 /* Cache target callback dispatch and optionally wait until its message playback has finished. */
-/* Measured site/local/stride cached-result accesses changed MATCH; MEMBER preserves callback-crossing aliasing. */
 // FUN_001F5ED0
 s32 btlActionCachedDispatch(u8 *context)
 {

@@ -1,6 +1,6 @@
 #include "operand_order_internal.h"
 #include "include_asm.h"
-/* Original translation unit effPolygonWind.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit effPolygonWind.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "rw_geometry_internal.h"
@@ -145,7 +145,8 @@ extern u_long128 D_00713CE0;
 
 extern void kAssertFail(void *, s32);
 extern s32 mdlEffectSamplePackedColor(u8 *, u8 *, s32, s32);
-/* lint-allow: declared with no parameters and called with four. The definition in mdlEffect.c takes one; the one-argument form moved the codegen of all three call sites (verify MISMATCH 3). */
+/* lint-allow: declared without parameters and called with four; the real one-argument prototype in
+ * mdlEffect.c changes codegen at all three call sites. */
 extern void mdlEffectApplyCombinedGeometryMatrix();
 extern void mdlEffectAppendGeometryPrimitive();
 extern void memset(void *, s32, s32);
@@ -170,7 +171,6 @@ extern char D_00714110[];
 // FUN_004A20B0
 u8 *FunnelWindAllocBlock(u8 *config, s32 texture)
 {
-    /* Earlier whole-layout trial: 235 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u8 *work;
     s32 size;
     WindConfig *settings;
@@ -187,10 +187,8 @@ u8 *FunnelWindAllocBlock(u8 *config, s32 texture)
     allocation->particles.bytes = work + 0xC;
     allocation->allocation.bytes = work;
     if (settings->segments.word < 3U) {
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         settings->segments.word = 3U;
     }
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     allocation->instance.bytes = GeometryCreateStripGridMultiPart(settings->particleCount.half, settings->segments.half, (s32)(u32)D_00713330, 4, 0x4C);
     if (texture == 0) {
         mdlEffectSetGeometryTexture(allocation->instance.pointer, TnSlotObject(0x14));
@@ -205,7 +203,6 @@ u8 *FunnelWindAllocBlock(u8 *config, s32 texture)
 // FUN_004A21E0
 u8 *FunnelWindAllocFromParent(u8 *parent)
 {
-    /* Earlier whole-layout trial: 71 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u8 *parentBlock;
     u8 *config;
     u8 *work;
@@ -226,7 +223,6 @@ u8 *FunnelWindAllocFromParent(u8 *parent)
     allocation->particles.bytes = work + 0xC;
     allocation->allocation.bytes = work;
     if (settings->segments.word < 3U) {
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         settings->segments.word = 3U;
     }
     allocation->instance.bytes = mdlEffectCloneMultipartGeometry(((WindBlock *)parentBlock)->instance.bytes);
@@ -245,22 +241,15 @@ void FunnelWindFreeBlock(u8 *effect) {
 }
 
 #pragma push
-/* measured: unit loop-invariants-on changes FunnelWindUpdateStrip by 852 normalized
- * bytes and FunnelWindPackColors by 669; retain their shared loop-invariants-off region. */
+/* measured: retail built FunnelWindUpdateStrip and FunnelWindPackColors with loop-invariant
+ * hoisting off. */
 #pragma opt_loop_invariants off
-/* Funnel wind strip update, the SpiralWindUpdateStrip sibling without the VU0 matrix:
- * each sample sits on a ring of radius base + swell * (s - centre)^2 at a
- * rising height, and the strip is widened along the normalised ring offset.
- * One float local carries the spawn start, every spawn interpolation weight
- * and the cosine; another carries the end weight and the swell term, as
- * retail's shared $f20/$f23 show. FPR declarations follow the order a
- * regalloc_whatif.py replay of the captured colouring derived; the spilled
- * locals are declared in retail's spill-slot order. */
-// Updates the funnel wind strip: the ring point gives a direction that is widened along the normalised ring offset.
+/* Funnel wind strip update, the SpiralWindUpdateStrip sibling without the VU0 matrix: each sample
+ * sits on a ring of radius base + swell (s - centre)^2 at a rising height, and the strip is widened
+ * along the normalised ring offset. */
 // FUN_004A2310
 void FunnelWindUpdateStrip(u8 *effect)
 {
-    /* Earlier whole-layout trial: 1693 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     EffectVuVector point;
     EffectVuVector normal;
     f32 width;
@@ -332,7 +321,6 @@ void FunnelWindUpdateStrip(u8 *effect)
     respawn = ((WindConfig *)config)->respawn;
     accel = ((WindConfig *)config)->unkF4;
     RpGeometryLock(((RpAtomic *)geometryInstance->atomic)->geometry, 0xFF2);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     geometry = (u8*)((RpAtomic *)geometryInstance->atomic)->geometry;
     vertices = (u8*)((RpMorphTarget *)(u8 *)((RpGeometry *)geometry)->morphTarget)->vertices;
     texCoords = (u8 *)((RpGeometry *)geometry)->texCoords[0];
@@ -383,9 +371,7 @@ void FunnelWindUpdateStrip(u8 *effect)
             if (spawnAll != 0) {
                 entry->age.word = effMiscRand(0) % lifetime;
                 t = (f32)entry->age.signedWord;
-                /* measured: this access-site member conversion makes the owning function MISMATCH. */
                 entry->unk10 = entry->unk10 + entry->unk14 * t;
-                /* measured: this access-site member conversion makes the owning function MISMATCH. */
                 entry->unk8 = entry->unk8 + entry->unkC * t;
             } else {
                 entry->age.word = 0;
@@ -667,13 +653,11 @@ void FunnelWindPackColors(u8 *effect)
 }
 #pragma pop
 
-/* measured: without #pragma opt_loop_invariants on, mwcc rematerializes the
- * 0xFF/0xFE/-1 constants inside the loop instead of hoisting them to the
- * preheader (and hoists the p11 load that retail re-issues per iteration);
- * with it the loop matches retail exactly. */
-// Updates the funnel entries in a per-entry loop (0x30 stride).
+/* measured: opt_loop_invariants keeps the 0xFF/0xFE/-1 constants hoisted out of the loop, as in
+ * retail. Updates the funnel entries in a loop with a 0x30 stride. */
+/* Apply the shared wind colour to each particle's material, keeping its alpha below 0xFF, and reset
+ * every particle's age to -1. */
 // FUN_004A3010
-/* measured: baseline C nd 120B; adjacent-local declaration probe nd 120B; retain settings for owner MATCH. */
 void FunnelWindUpdateEntries(u8 *effect)
 {
     u8 *block;
@@ -706,12 +690,10 @@ void FunnelWindUpdateEntries(u8 *effect)
 
 // Initialises the falling funnel entries from the config (0x30 stride).
 // FUN_004A30E0
-/* Reusing configOrCopyIndex as the replica index after its last dereference preserves the
- * retail saved-register allocation for the replication loop. */
-/* measured: baseline C nd 439B; adjacent-local declaration probe nd 439B; retain settings for owner MATCH. */
+/* Reusing configOrCopyIndex as the replica index after its last dereference keeps retail's saved-
+ * register allocation for the replication loop. */
 void FallingFunnelWindInitEntries(u8 *block, u8 *configOrCopyIndex)
 {
-    /* Earlier whole-layout trial: 214 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u8 *colors;
     WindBlock *windBlock = (WindBlock *)block;
     WindStripColors *colorRow;
@@ -741,7 +723,6 @@ void FallingFunnelWindInitEntries(u8 *block, u8 *configOrCopyIndex)
     particleCount = ((WindConfig *)configOrCopyIndex)->particleCount.word;
     if (particleCount != 0) {
         RpGeometryLock((RpGeometry *)((u8*)((RpAtomic *)((WindGeometryInstance *)windBlock->instance.bytes)->atomic)->geometry), 0xFF8);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         geometry = (u8*)((RpAtomic *)((WindGeometryInstance *)windBlock->instance.bytes)->atomic)->geometry;
         colorsBase = (u8 *)((RpGeometry *)geometry)->colors;
         colors = colorsBase;
@@ -773,7 +754,6 @@ void FallingFunnelWindInitEntries(u8 *block, u8 *configOrCopyIndex)
             scaledAlpha = scale * opacity;
             alpha = (u32)scaledAlpha;
             colorRow->colors[1].signedWord = (alpha << 24) | 0xFFFFFF;
-            /* measured: this access-site member conversion makes the owning function MISMATCH. */
             colorRow->colors[2].color = colorRow->colors[1].color;
             colorRow->colors[3].signedWord = 0xFFFFFF;
             colors += 0x10;
@@ -803,7 +783,6 @@ void FallingFunnelWindInitEntries(u8 *block, u8 *configOrCopyIndex)
 // FUN_004A33E0
 u8 *FallingFunnelWindAllocBlock(u8 *config, s32 texture)
 {
-    /* Earlier whole-layout trial: 238 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u8 *work;
     s32 size;
     WindConfig *settings;
@@ -820,10 +799,8 @@ u8 *FallingFunnelWindAllocBlock(u8 *config, s32 texture)
     allocation->particles.bytes = work + 0xC;
     allocation->allocation.bytes = work;
     if (settings->segments.word < 3U) {
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         settings->segments.word = 3U;
     }
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     allocation->instance.bytes = GeometryCreateStripGridMultiPart(settings->particleCount.half, settings->segments.half, (s32)(u32)D_00713330, 4, 0x4C);
     if (texture == 0) {
         mdlEffectSetGeometryTexture(allocation->instance.pointer, TnSlotObject(0x14));
@@ -838,7 +815,6 @@ u8 *FallingFunnelWindAllocBlock(u8 *config, s32 texture)
 // FUN_004A3510
 u8 *FallingFunnelWindAllocFromParent(u8 *parent)
 {
-    /* Earlier whole-layout trial: 71 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u8 *parentBlock;
     u8 *config;
     u8 *work;
@@ -859,7 +835,6 @@ u8 *FallingFunnelWindAllocFromParent(u8 *parent)
     allocation->particles.bytes = work + 0xC;
     allocation->allocation.bytes = work;
     if (settings->segments.word < 3U) {
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         settings->segments.word = 3U;
     }
     allocation->instance.bytes = mdlEffectCloneMultipartGeometry(((WindBlock *)parentBlock)->instance.bytes);
@@ -877,21 +852,14 @@ void FallingFunnelWindFreeBlock(u8 *effect) {
     D_008873ec[0](((WindBlock *)block)->allocation.pointer);
 }
 
-/* Falling funnel wind strip, the FunnelWindUpdateStrip sibling with a call-free inner
- * loop: the ring point for the current and the next state gives a normalised
- * direction, crossed with the radial axis and scaled to the strip width; the
- * loop then steps the centre along that direction. Loop invariants hoist the
- * bridge addresses as retail does. The particle state is signed so its -1/-2
- * markers stay in the loop body, and operandOrderAddFloat keeps the (p8 + pC) operand order
- * that retail evaluates before the bulge term. FPR declarations follow the
- * order a regalloc_whatif.py replay of the captured colouring derived. */
+/* Sibling of FunnelWindUpdateStrip with a call-free inner loop; the particle state is signed so its
+ * -1/-2 markers stay in the loop body. */
 
-/* measured: baseline C nd 258B; adjacent-local declaration probe nd 257B; retain settings for owner MATCH. */
-// Updates the falling funnel wind strip: a call-free inner loop steps the centre along the normalised direction.
+/* Updates the falling funnel wind strip: a call-free inner loop steps the centre along the
+ * normalised direction. */
 // FUN_004A3640
 void FallingFunnelWindUpdateStrip(u8 *effect)
 {
-    /* Earlier whole-layout trial: 1760 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     EffectVuVector point;
     EffectVuVector direction;
     f32 t;
@@ -961,7 +929,6 @@ void FallingFunnelWindUpdateStrip(u8 *effect)
     accel = ((WindConfig *)config)->unkD8;
     gravity = ((WindConfig *)config)->unkE4;
     RpGeometryLock(((RpAtomic *)geometryInstance->atomic)->geometry, 0xFF2);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     geometry = (u8*)((RpAtomic *)geometryInstance->atomic)->geometry;
     vertices = (u8*)((RpMorphTarget *)(u8 *)((RpGeometry *)geometry)->morphTarget)->vertices;
     texCoords = (u8 *)((RpGeometry *)geometry)->texCoords[0];
@@ -1013,11 +980,8 @@ body:
             if (spawnAll != 0) {
                 entry->age.word = effMiscRand(0) % lifetime;
                 t = (f32)entry->age.signedWord;
-                /* measured: this access-site member conversion makes the owning function MISMATCH. */
                 entry->unk14 = entry->unk14 + entry->unk10 * t;
-                /* measured: this access-site member conversion makes the owning function MISMATCH. */
                 entry->unk14 = entry->unk14 - half * (t * (gravity * t));
-                /* measured: this access-site member conversion makes the owning function MISMATCH. */
                 entry->unk8 = entry->unk8 + entry->unkC * t;
             } else {
                 entry->age.word = 0;
@@ -1068,7 +1032,6 @@ body:
             effectVuLoad11(&point);
             __asm__ volatile("vmove.xyzw $vf12, $vf11" : : : "$vf12");
             height = (height + entry->unk10) - gravity * end;
-            /* measured: this access-site member conversion makes the owning function MISMATCH. */
             base = operandOrderAddFloat(entry->unk8, entry->unkC) + swell * (((one + end) / (f32)lifetime - centre) * ((one + end) / (f32)lifetime - centre));
             point.lane[0] = c * base;
             point.lane[1] = height;
@@ -1157,7 +1120,7 @@ check:
     }
 }
 #pragma push
-/* measured: unit loop-invariants-on changes FallingFunnelWindPackColors by 669 normalized bytes. */
+/* measured: retail does not hoist loop invariants in FallingFunnelWindPackColors. */
 #pragma opt_loop_invariants off
 // Packs the falling funnel vertex colours from the inner and outer colour words.
 // FUN_004A4000
@@ -1321,13 +1284,11 @@ void FallingFunnelWindPackColors(u8 *effect)
 }
 #pragma pop
 
-/* measured: same loop-shape as FunnelWindUpdateEntries; without #pragma
- * opt_loop_invariants on, mwcc rematerializes the 0xFF/0xFE/-1 constants
- * inside the loop instead of hoisting them to the preheader; with it the
- * loop matches retail exactly (0x2C stride variant). */
-// Updates the falling funnel entries in a per-entry loop (0x2C stride variant).
+/* measured: without opt_loop_invariants, the 0xFF/0xFE/-1 constants are recomputed inside the loop
+ * instead of hoisted out as retail does. Updates falling funnel entries (0x2C stride). */
+/* Write the current material color into each particle's geometry material and mark every particle's
+ * age as -1. If the color's alpha is 0xFF, it is temporarily set to 0xFE for the write. */
 // FUN_004A4380
-/* measured: baseline C nd 120B; adjacent-local declaration probe nd 120B; retain settings for owner MATCH. */
 void FallingFunnelWindUpdateEntries(u8 *effect)
 {
     u8 *block;
@@ -1358,36 +1319,11 @@ void FallingFunnelWindUpdateEntries(u8 *effect)
     }
 }
 
-/* measured: structure converges exactly onto retail's shape (preheader
-   hoists, both loops, conversion blocks) but mwcc b210 keeps the
-   negative-conversion `or` result in the SECOND operand's register
-   (`or $t1,$t2,$t1`) where retail keeps the FIRST (`or $t2,$t2,$t1`) at
-   both conversion sites (4 words) — same coalescing floor as
-   func_004A30E0 (exhaustively documented there). Also a second floor:
-   the 2^31 clamp emits `c.olt.s $f0,$f1; bc1t->else` for every spelling
-   tried (const-first, m2c-inverted, +opt_propagation off which was
-   worse, nd 94) vs retail's `c.ole.s $f1,$f0; bc1t->then`. Attempts:
-   inline u32 cast nd 181 (mwcc recursively re-applies its sign idiom to
-   the inner cast), named s32 intermediate nd 161, s32 loop counter
-   nd 47 (converged), probe batch best nd 48. */
-/* 74 -> 66 (2026-09-18): the hand-written float-to-unsigned conversion(s)
-   replaced by the plain cast.  b210 generates the same compare / subtract /
-   or-0x80000000 sequence for the cast and colours its temporaries the way
-   retail does; the m2c-expanded copy colours them the other way.  Same lever
-   as func_00348330 in src/promoted/y_CmbCardEff.c. */
-/* measured: live object 824B/window 832B, normalized_diff 67 (installed guard below; replaces bare ASM). Recovery: XWND skeleton fixed to compile ((u32) 3rd f810 args per file convention) plus #pragma opt_loop_invariants on (128 -> 67, the file's own 004a4380/004a3010 idiom). Open walls: saved-register rotation (args $s0/$s1 vs $s3/$s4 class), or-dest regs ($t3 vs $t2 at both conversion sites), 2^31 clamp compare form. Ruled out: s32 loop counters (tie alone and on loopinv base), or-operand commutation (tie), (u32)(s32) conversion two-step (160). Prior in-file note's nd47 batch is not on disk; closest reproduced here is 67. Banked as floor. */
-/* The earlier floors above are superseded by the identical retail initializer
-   at 004a1d70. Distinct unsigned row/replication counters and sizes reproduce
-   the entire stream with the native geometry/copy interfaces: 824/832 bytes,
-   four resolved calls and eight zero alignment bytes. This initializes the
-   first color/UV strip, then duplicates it for the remaining meshes.
-   See docs/probe_archive/Wind_004a4450_shared_initializer.md. */
-/* measured: baseline C nd 469B; adjacent-local declaration probe nd 469B; retain settings for owner MATCH. */
-// Initialises the spiral wind entries from the config (0x2C stride).
+/* Initialises the spiral wind entries from the config (0x2C stride): fills the first color/UV
+ * strip, then duplicates it for the remaining meshes. Identical to the initializer at 004a1d70. */
 // FUN_004A4450
 void SpiralWindInitEntries(u8 *block, u8 *config)
 {
-    /* Earlier whole-layout trial: 260 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u32 meshCount;
     u8 *geometry;
     u8 *colors;
@@ -1413,7 +1349,6 @@ void SpiralWindInitEntries(u8 *block, u8 *config)
     if (meshCount != 0) {
         geometry = (u8*)((RpAtomic *)((WindGeometryInstance *)windBlock->instance.bytes)->atomic)->geometry;
         RpGeometryLock((RpGeometry *)(geometry), 0xFF8);
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         geometry = (u8*)((RpAtomic *)((WindGeometryInstance *)windBlock->instance.bytes)->atomic)->geometry;
         colorsBase = (u8 *)((RpGeometry *)geometry)->colors;
         colors = colorsBase;
@@ -1437,7 +1372,6 @@ void SpiralWindInitEntries(u8 *block, u8 *config)
             }
             colorRow->colors[0].word = 0xFFFFFF;
             colorRow->colors[1].word = ((u32)(opacity * 255.0f) << 24) | 0xFFFFFF;
-            /* measured: this access-site member conversion makes the owning function MISMATCH. */
             colorRow->colors[2].color = colorRow->colors[1].color;
             colorRow->colors[3].word = 0xFFFFFF;
             colors += 0x10;
@@ -1458,7 +1392,6 @@ void SpiralWindInitEntries(u8 *block, u8 *config)
             texCoords += texCoordBytes;
             copies += 1;
         }
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         model = windBlock->instance.halves;
         geometry = (u8*)((RpAtomic *)((WindGeometryInstance *)(u8 *)model)->atomic)->geometry;
         func_003c22f0((RpGeometry *)(geometry));
@@ -1472,7 +1405,6 @@ void SpiralWindInitEntries(u8 *block, u8 *config)
 // FUN_004A4790
 u8 *SpiralWindAllocBlock(u8 *config, s32 texture)
 {
-    /* Earlier whole-layout trial: 240 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u8 *work;
     s32 size;
     WindConfig *settings;
@@ -1489,10 +1421,8 @@ u8 *SpiralWindAllocBlock(u8 *config, s32 texture)
     allocation->particles.bytes = work + 0xC;
     allocation->allocation.bytes = work;
     if (settings->segments.word < 3U) {
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         settings->segments.word = 3U;
     }
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     allocation->instance.bytes = GeometryCreateStripGridMultiPart(settings->particleCount.half, settings->segments.half, (s32)(u32)D_00713330, 4, 0x4C);
     if (texture == 0) {
         mdlEffectSetGeometryTexture(allocation->instance.pointer, TnSlotObject(0x14));
@@ -1507,7 +1437,6 @@ u8 *SpiralWindAllocBlock(u8 *config, s32 texture)
 // FUN_004A48D0
 u8 *SpiralWindAllocFromParent(u8 *parent)
 {
-    /* Earlier whole-layout trial: 67 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     u8 *parentBlock;
     u8 *config;
     u8 *work;
@@ -1528,7 +1457,6 @@ u8 *SpiralWindAllocFromParent(u8 *parent)
     allocation->particles.bytes = work + 0xC;
     allocation->allocation.bytes = work;
     if (settings->segments.word < 3U) {
-        /* measured: this access-site member conversion makes the owning function MISMATCH. */
         settings->segments.word = 3U;
     }
     allocation->instance.bytes = mdlEffectCloneMultipartGeometry(((WindBlock *)parentBlock)->instance.bytes);
@@ -1547,21 +1475,13 @@ void SpiralWindFreeBlock(u8 *effect) {
 }
 
 #pragma push
-/* measured: unit loop-invariants-on changes SpiralWindUpdateStrip by 801 normalized
- * bytes and SpiralWindPackColors by 669; retain their shared loop-invariants-off region. */
+/* measured: retail does not hoist loop invariants in SpiralWindUpdateStrip or SpiralWindPackColors. */
 #pragma opt_loop_invariants off
-/* Spiral wind strip update. Each live particle samples sampleCount points on a
- * circle (cosf/sinf), transforms them by the VU0 matrix set up by
- * effMiscRotateXVU, effMiscRotateYVU and effMiscCombineRotationVU, and widens the strip along the normalised cross
- * product; the results pass through D_00713D10 as in effLineNova. The FPU
- * constants are named locals assigned in retail's preheader order, and the
- * FPR locals are declared in the order regalloc_whatif.py derived from the
- * captured colouring (start/end/t, then width..radius). */
-// Updates the spiral wind strip: samples the spiral ring through the VU0 matrix and widens the strip along the normalised cross product.
+/* Updates the spiral wind strip: each live particle samples points on a circle, transforms them by
+ * the VU0 rotation matrix, and widens the strip along the normalised cross product. */
 // FUN_004A4A10
 void SpiralWindUpdateStrip(u8 *effect)
 {
-    /* Earlier whole-layout trial: 1484 differing bytes; separate typed locals now preserve the original cursor lifetimes. */
     EffectVuVector point;
     f32 sampleScale;
     f32 one;
@@ -1629,7 +1549,6 @@ void SpiralWindUpdateStrip(u8 *effect)
     respawn = ((WindConfig *)config)->respawn;
     accel = ((WindConfig *)config)->unkD4;
     RpGeometryLock(((RpAtomic *)geometryInstance->atomic)->geometry, 0xFF2);
-    /* measured: this access-site member conversion makes the owning function MISMATCH. */
     geometry = (u8*)((RpAtomic *)geometryInstance->atomic)->geometry;
     vertices = (u8*)((RpMorphTarget *)(u8 *)((RpGeometry *)geometry)->morphTarget)->vertices;
     texCoords = (u8 *)((RpGeometry *)geometry)->texCoords[0];
@@ -1676,7 +1595,6 @@ void SpiralWindUpdateStrip(u8 *effect)
             if (spawnAll != 0) {
                 entry->age.word = effMiscRand(0) % lifetime;
                 t = (f32)entry->age.signedWord;
-                /* measured: this access-site member conversion makes the owning function MISMATCH. */
                 entry->unk10 = entry->unk10 + entry->unk14 * t;
             } else {
                 entry->age.word = 0;
@@ -1963,14 +1881,8 @@ void SpiralWindPackColors(u8 *effect)
 }
 #pragma pop
 
-/* measured: same loop-shape as FunnelWindUpdateEntries; without #pragma
- * opt_loop_invariants on, mwcc rematerializes the 0xFF/0xFE/-1 constants
- * inside the loop instead of hoisting them to the preheader; with it the
- * loop matches retail exactly (0x2C stride variant). */
-
 // Allocates a wind entry from the kind table (kind below 4), copying the kind's stride-0x1C record.
 // FUN_004A5630
-/* measured: baseline C nd 46B; adjacent-local declaration probe nd 46B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 void *WindAllocKindEntry(s32 kind, void *parameters)
 {

@@ -31,7 +31,6 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
 
 
-
 extern u8 D_0060AB08[];
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
@@ -48,16 +47,10 @@ extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
 
-
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
 extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
-
-
-
-
-
 
 
 extern s32 iGpffffb464;
@@ -68,40 +61,22 @@ extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
 
-
-
 #pragma push
 #pragma pop
-
-
-
-
 
 
 extern s32 btlSoundPickStatusTalkVoiceA(u8 *action);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001fc270-001fc270 */
-
 extern s32 func_001f0ff0(u32);
-/* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
-/* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: every instruction matches and the object is exactly the 80-byte
-   window; the only residual is that retail materialises the shift constant
-   (`addiu $v1,$zero,1`) BEFORE the branch into the loop test while b210 puts
-   it after, which also shifts the back-edge displacement by one word (nd 9).
-   Measured identical at nd 9: an inline `1 << i`, a hoisted `one` local, and
-   an explicit goto loop with the test at the bottom. Preheader hoist-order
-   floor. Committed at nd 9. */
+/* measured: retail loads the shift constant before branching into the loop test; no source form
+ * tried puts it there. */
 
 #pragma push
 #pragma pop
-/* measured: closes the hoist bracket opened above and restores the -O2
-   baseline for the rest of the file. */
-/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceA probe. */
 #pragma push
 #pragma pop
 #pragma push

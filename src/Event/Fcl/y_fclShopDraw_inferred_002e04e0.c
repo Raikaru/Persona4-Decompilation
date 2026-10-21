@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/Event/Fcl/y_fclShopDraw.c); members 002e04e0-002e0da0 */
 
 #include "list_item_internal.h"
 #include "fcl_scale_transition.h"
@@ -12,7 +11,7 @@
 #include "fr_font_internal.h"
 #include "fcl_object_internal.h"
 #include "datPersona_internal.h"
-/* List-manager payload pointer: allocator func_002e1db0 stores allocation +0x28 here. */
+/* List-manager payload pointer: nmListAllocManager stores the allocation's payload address here. */
 typedef struct NmlistManager {
     u8 pad00[0x24];
     u8 *data;
@@ -85,12 +84,8 @@ void fclObjStartAlpha(u8 *task, u8 startAlpha, u8 endAlpha, u8 mode, s32 duratio
 
 /* Apply the same reveal-scale endpoints to both axes. */
 // FUN_002E0690
-/* Parameter order taken from the caller at fclShopSlideInFromRight in
-   src/Event/Fcl/y_fclShopDraw.c: b210 emits argument setup in source order, and
-   retail emits `mov.s $f13, $f12` between `lw $a0` and `move $a1`, which only
-   happens when the two floats are arguments 2 and 3.  The EABI assigns integer
-   and float arguments to their own register files, so this order compiles to
-   the same object as the ints-first spelling (measured: identical bytes). */
+/* Float parameters come before the int ones to follow the caller fclShopSlideInFromRight; the EABI
+ * puts ints and floats in separate registers either way. */
 void fclObjStartUniformRevealScale(u8 *task, f32 startScale, f32 endScale, u32 mode, u32 duration, s64 delay)
 {
     fclSpriteStartRevealScale(fclObjSprite(task), startScale, endScale, startScale, endScale, mode, duration, (s16)delay);
@@ -104,7 +99,6 @@ void fclObjStartRevealScale(u8 *task, f32 startX, f32 endX, f32 startY, f32 endY
 }
 
 #pragma push
-/* measured: baseline C nd 19B; adjacent-local declaration probe nd 28B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 /* Slide by half the sprite height while fading and revealing vertically; show selects the upward fade-in path. */
 // FUN_002E0700

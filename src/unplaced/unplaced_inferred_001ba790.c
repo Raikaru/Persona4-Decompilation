@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 001ba790-001ba790 */
 
 #include "list_item_internal.h"
 #include "rw_geometry_internal.h"

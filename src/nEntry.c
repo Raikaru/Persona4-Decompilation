@@ -21,8 +21,8 @@ extern u8 D_0063E8F0[];
 extern s32 D_00764630;
 extern s32 timeLimitEntryUpdate(u8 *task);
 
-/* timeLimitTaskCreate allocates and clears 0x18 bytes. The entry task owns
- * the sprite request and waits for the child display task before exiting. */
+/* Work block allocated by timeLimitTaskCreate; the entry task owns the sprite request and waits for
+ * the child display task before exiting. */
 typedef struct TimeLimitEntryWork {
     s32 state;
     s32 unk04;
@@ -34,12 +34,8 @@ typedef struct TimeLimitEntryWork {
 
 /* Load the timer sprite, start its display task, and finish after that child exits. */
 // FUN_002A2420
-/* Case values decoded from jtbl_007486C0 with tools/jtbl.py: a 0/1/2/3/5/6
-   state machine with case 4 and the out-of-range default both falling to the
-   shared `return 0`, declared in that object order.
-   Two prototypes had to be widened for this: kwlnTaskCreateChild's `init` callback
-   returns s32 (retail's func_002a2420 leaves 0 or -1 in $v0 and the window
-   manager takes it), and yTimeLimitTaskUpdate is one of those callbacks. */
+/* State machine with states 0/1/2/3/5/6; state 4 and out-of-range values fall to the shared return
+ * 0. */
 s32 timeLimitEntryUpdate(u8 *task) {
     TimeLimitEntryWork *work;
     u8 *childWork;
@@ -106,7 +102,8 @@ void timeLimitEntryDestroy(u8 *task)
     jtbl_008873EC[0](work);
 }
 
-// Intent: Create the time limit task as a child of the given parent, with its update and destroy callbacks [inferred]
+// Creates the time limit task as a child of the given parent, with its update and destroy
+// callbacks.
 // FUN_002A2650
 s32 timeLimitTaskCreate(u8 *parent)
 {

@@ -153,8 +153,6 @@ extern f32 fGpffff81c4;
 extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 00467880-00467880 */
-
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
     s32 displayFrame;              /* 0x04: copied from frameNumber by provider */
@@ -227,12 +225,9 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
-/* 512/512 bytes; ten fully resolved relocations.
- * A real interrupt-state local retains the retail spill under register pressure. */
 // FUN_00467880
-/* Draw the current directory page, selection highlight and proportional scrollbar. */
-/* FilerDrawPacket bit casts expose packed position/color words, not pointers. */
-/* measured: honest void *table plus explicit function-pointer casts; object 848B/window 848B/nd 0; no H001 waiver. */
+/* Draw the current directory page, selection highlight and proportional scrollbar. FilerDrawPacket
+ * bit casts expose packed position/color words, not pointers. */
 void filerDrawDirectory(u8 *directory)
 {
     FilerTable *directoryState = (FilerTable *)directory;

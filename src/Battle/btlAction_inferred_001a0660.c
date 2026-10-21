@@ -12,7 +12,6 @@
 typedef struct BtlPacket BtlPacket;
 typedef struct BtlTarget BtlTarget;
 
-/* Existing byte-view callers use these adapters to the provider definitions. */
 extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 command, u32 argument, u32 extraArgument, u32 flags);
 extern void btlActionSetStateWithDelay(BtlAction *action, u16 state, u16 delay);
 extern BtlPacket *btlUnitCreateRotatePacket(BtlUnit *unit, const RwV3d *rot, u32 flags);
@@ -20,9 +19,6 @@ extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
 extern BtlPacket *btlPacketCreateEffectCounter(s32 effect, s32 limit);
 extern u8 *iGpffffb3cc;
 extern f32 D_005F6D20[];
-
-
-
 
 
 extern u8 *D_0076449C;
@@ -36,11 +32,6 @@ s32 btlEffectFindUnitMatchingCallback(u8 *action, s32 conditionValue, s32 sideMa
 
 extern f32 D_0076144C;
 
-/* Source unit: src/promoted/code1_001a.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001a.c; members 001a0660-001a0660 */
-
-/* measured: loop-invariant probe for 001A0140 preheader materialization. */
-/* measured: close loop-invariant probe for 001A0140. */
 /* Empty state-table callback; this state needs no work in this phase. */
 // FUN_001A0660
 void btlActionStandbyInit(void)

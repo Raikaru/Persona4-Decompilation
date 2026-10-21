@@ -23,11 +23,10 @@ extern char D_0063CB30[];
 extern char D_0063D050[];
 
 
-
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
 extern void calendarSetMode(s32 mode);
-// lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
+// lint: allow H011 -- a u16 prototype breaks func_00291a60, which passes wide id args.
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32 farg0, s32, s32,
                           s32);
@@ -45,19 +44,12 @@ extern u16 D_008C024E[];
 extern s32 D_0063E830[];
 
 
-
 extern void mtMiscCollectType1Records(u8 *eventWork);
-/* measured probe: close opt_propagation bracket after func_00291530. */
-
-
-
 
 
 #pragma push
 
 #pragma pop
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 00299e60-00299ea0 */
 
 // FUN_00299E60
 s32 K_Cmd_DATE_DISP(void) {

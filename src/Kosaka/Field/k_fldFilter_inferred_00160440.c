@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Kosaka/Field/k_fldFilter.c; members 00160440-00160880 */
 
 #include "mt_scene_internal.h"
 #include "field_event_internal.h"
@@ -60,7 +59,7 @@ void FldAuxBufferRelease(void)
 /* Initialize the seven-by-eight screen grid of four-vertex filter quads. */
 /* Quad depth is captured from the camera near plane before any vertex store. */
 // FUN_001604A0
-/* measured: baseline 57 differing words; block lifetimes did not match; retain scoped settings. */
+/* measured: retail's register lifetimes need these scoped optimizer settings. */
 #pragma opt_loop_invariants on
 #pragma opt_propagation off
 void K_FldFilter_InitQuads(u8 *camera)
@@ -113,8 +112,8 @@ void K_FldFilter_InitQuads(u8 *camera)
 }
 #pragma pop
 
-/* Load the complete filter table and initialize its screen-space quad geometry. */
-/* The CDVD request's +0x110 word is the loaded file buffer, not a filter-entry field. */
+/* Load the complete filter table and initialize its screen-space quad geometry. The CDVD request's
+ * loaded-file-buffer word is not a filter-entry field. */
 // FUN_001605A0
 void FldFilterLoadFile(void)
 {
@@ -135,7 +134,7 @@ void FldFilterLoadFile(void)
 #pragma push
 /* Set the filter draw states and choose the GS alpha mode from the active table entry. */
 // FUN_00160680
-/* measured: baseline 72 differing words; table access forms did not match; retain scoped settings. */
+/* measured: retail's draw-state table access needs propagation off. */
 #pragma opt_propagation off
 void FldFilterResetRenderState(void)
 {
@@ -171,7 +170,7 @@ void FldFilterResetRenderState(void)
 #pragma push
 /* Apply the packed environment color when environment-color rendering is enabled. */
 // FUN_001607E0
-/* measured: baseline 33 differing words; block lifetimes, table access forms did not match; retain scoped settings. */
+/* measured: retail's draw-state table access needs propagation off. */
 #pragma opt_propagation off
 void FldFilterApplyColour(void)
 {
@@ -191,33 +190,8 @@ void FldFilterApplyColour(void)
 }
 #pragma pop
 
-/* measured: 655wd via probe_variants (fnalign retail 760 vs object 779, +19 +2.5% inside 3% gate, 527 edits +8 reloc); opt_common_subs off 677->655 load-bearing; opt_loop_invariants on 677->699 regress, opt_unroll_loops off/schedule off tie at 677, direct subscript ((s32*)P)[j+N] 655->687 regress so materialized p=base+row+j*4 kept, decl swaps i/j and curOff/prevOff tie at 655; residual is saved-reg coloring + FPU lerp/madd ordering + lbu/sb scheduling, time-boxed per batch recipe. */
-/* 2026-09-19: materialisation-surplus removal per assignment (over by 19): lui audit retail {0x3f80:3, 0x7e:1, 0x79:2, 0x16:2} vs object {0x3f80:6, 0:5} => +3 float 1.0f (blend<1.0f, 1.0f/D_007643B4, nb>1.0f, =1.0f, 1.0f-b, b<1.0f; retail keeps 1.0f in reg, CSE-off reloads each). Frame retail -0x1f0 vs object -0x200 (+16 from colsA+colsB both live). Removed #pragma opt_common_subs off/on (CSE on): fnalign retail 760 vs object 754 (-6, -0.8%; stripped 758 vs 754 -4), lui {0x3f80:3} exact, frame -0x1f0 exact, words 677 (+22), edits 518 +11 reloc. Count lands inside gate with surplus gone; words cost accepted per assignment. */
-/* measured 00160880 (owner, 2026-09-19): fnalign **518 -> 516 edits**, count
-   754 -> 752 against retail 758, by turning one constant-bound `for` loop into
-   the `do { } while` retail emits.  A `for (i = <const>; i < <const>; i++)` compiles
-   with a guard before the first iteration; retail has none, because the loop provably
-   runs at least once and the original source said so.
-   This is the same lever as the `loop_N:` goto sweep but reaches ordinary `for` loops,
-   which that sweep could not see.  Across the 40 floors with the most constant-bound
-   loops, 21 improved and 19 had no loop that helped - and only ONE loop per function
-   was ever the right one, so each loop is measured separately rather than converting
-   them all.
-   2026-10-08: opt_lifetimes on lowers fnalign from 506 to 502 edits. */
-/* 2026-10-09: a declaration-order hill climb (build/declclimb.py) lowers fnalign from 502 to 401 edits.
- * 2026-10-09: 401 -> 387: the colour buffers are cleared through a guarded
- * count-down byte loop (inline helper), as retail does.
- * 2026-10-09: 387 -> 383: body taken from the parallel cos/finish-first-party-20261009 worktree.
- * 379: range tests in retail's slti $at form.
- * 376: conversion lever (j:(0, 1)).
- * fnalign 376 -> 115: rewritten from retail: globals read at use (base per column, brightness after the four byte extractions, blend test and alpha re-read), per-word extraction order with the brightness adds after, i/j loops test-first, element pointers in the vertex loops.
- * j declared before i (retail i in $s0, j in $s1).
- * all clamps spelled `> 255` (retail tests through $at).
- * blend row offset uses (u32)j * 4 (retail recomputes it; the s32 form is CSE'd with the current row's).
- * current-row base held as an integer (u32) so the row offset is the first addu operand, as retail.
- * blend row reads the base word as u32 (retail reloads it there instead of reusing the current-row base).
- */
-/* Clear the sixteen-byte color scratch buffer when it is present. */
+/* measured: retail clears the sixteen-byte color scratch buffer with a guarded count-down byte
+ * loop, so it is kept as an inline helper. */
 static inline void fldFilterClearColorBytes(u8 *p)
 {
     s32 n = 16;
@@ -231,19 +205,18 @@ static inline void fldFilterClearColorBytes(u8 *p)
     }
 }
 
-/* Keep the state-word read at the join after updating the previous state. */
-/* Read the previous crossfade state through its original word pointer. */
-/* measured: expansion reuses the preceding state word instead of retaining the retail reload and load order. */
+/* measured: reading the previous state word through this inline wrapper keeps retail's reload after
+ * the state update; inlining it reuses the earlier value. */
 static inline s32 fldFilterPreviousState(const s32 *state)
 {
     return *state;
 }
 
-// Intent: Advance the colour cross-fade from the previous state table to the current one by one step, writing blended vertex colours for seven rows of eight [inferred]
-/* Current/previous cursors advance one packed color per column and 0x24 bytes per row.
- * Their colors[0..1][0..1] fields therefore select the four corners at (i, j). */
+// Advances the colour cross-fade from the previous state table to the current one by one step,
+// writing blended vertex colours for seven rows of eight. The current and previous cursors advance
+// one packed colour per column and 0x24 bytes per row, so colors[0..1][0..1] select the four
+// corners at (i, j).
 // FUN_00160880
-/* measured: removing the local propagation, invariant and lifetime toggles preserves whole-unit MATCH. */
 void FldColorCrossfadeStep(void)
 {
     FldFilterEntry *currentColors;

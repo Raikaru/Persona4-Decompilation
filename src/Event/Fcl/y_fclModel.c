@@ -1,5 +1,5 @@
 #include "model_motion_internal.h"
-/* Original translation unit y_fclModel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit y_fclModel.c (from __FILE__ assert strings). */
 #include "fcl_color.h"
 #include "cmb_card_eff.h"
 #include "include_asm.h"
@@ -122,24 +122,10 @@ typedef struct DatEntryBlock {
 } DatEntryBlock;
 
 
-/* Apply camera-relative model transforms, lighting and view offsets for context;
-   save the previous state first. The task parameter is unused.
-   measured with opt_propagation off, which keeps the D_ constant loads in `ld`/`lwc1`
-   order and keeps the constant/temporary statements where they are written:
-   - the model table entry is read three ways: byte-offset arithmetic for the first entry
-     (base load after the shift), `tbl[id].field` struct indexing where retail loads the
-     base first, and `base + 0x12` materialised before the second pointer add for the
-     quaternion index;
-   - the camera vectors are 4-float struct copies (batched lwc1/swc1) and the frame-locals are
-     declared in retail's stack order (win, pad, mat, tmpA, colA, colB, matQ, matB, quat);
-   - the quaternion-to-matrix products are named temporaries in retail's evaluation order
-     (`qx*qx + qy*qy + ...` is emitted as mula qy, madda qx); 255.0f and 1.0f are loaded at
-     their first use, as retail does;
-   - RwMatrixRotate is (matrix, axis, angle, combineOp); the argument order decides which
-     of the angle load and the combine-op immediate is emitted first. */
+/* Apply camera-relative model transforms, lighting and view offsets for context, saving the
+ * previous state first. The task parameter is unused. */
 // FUN_00349440
 #pragma push
-/* measured: baseline C nd 415B; adjacent-local declaration probe nd 415B; retain settings for owner MATCH. */
 #pragma opt_propagation off
 void fclModelBeginDraw(u8 *task, u8 *context)
 {
@@ -183,9 +169,8 @@ void fclModelBeginDraw(u8 *task, u8 *context)
     FclModelWork *modelWork;
     u8 *parent;
     (void)task;
-    /* measured: the earlier whole-body typing grew 1860B to 1900B. Grouped
-       per-access probes now preserve MATCH by mixing access-site fields with
-       modelWork; keep both pointer forms and their declaration order. */
+    /* measured: retail's code needs both the raw obj pointer and modelWork, with accesses mixed
+     * between them. */
     obj = context;
     modelWork = (FclModelWork *)obj;
     {
@@ -333,8 +318,8 @@ void fclModelBeginDraw(u8 *task, u8 *context)
             u16 idx2 = modelWork->modelId;
             s32 off2 = (s32)idx2 << 5;
             u8 *base = (u8 *)&modelWork->entries->quatIdx;
-            /* Recover the containing entry from its quatIdx field cursor;
-               retail materializes the field address before adding the stride. */
+            /* Recover the containing entry from its quatIdx field address; retail forms the field
+             * address before adding the stride. */
             s16 qidx = ((FclModelEntry *)(base + off2 - MEMBER_OFFSET(FclModelEntry, quatIdx)))->quatIdx;
             if (qidx == -1) {
                 memcpy((u8 *)&quat, modelWork->quaternion, 16);
@@ -411,17 +396,9 @@ void fclModelRestoreDrawState(u8 *task, u8 *context)
     }
 }
 
-/* Load and animate a fusion model, coordinate its sprites, queue bracketed draw
-   callbacks, and release owned resources on request. Layout notes measured against retail:
-   - the two draw calls take FclDrawColor by value and their colours are locals filled by
-     fclMakeDrawColor struct returns; declaring the locals in this order (pos0, pos1, color1,
-     color0, colorTmp) reproduces retail's stack slots 0x38/0x28/0x4C/0x48/0x44;
-   - the second colour is copied from colorTmp through an FclDrawColor cast (a plain
-     struct assignment becomes a word copy, retail copies bytes);
-   - the case-3 state switch keeps an explicit `!= 4` guard (retail compares 4 first, then
-     dispatches 3..0; a fifth case would make b210 emit a jump table);
-   - the model-id colour picks are an if chain in retail order (0x59, 0xA, 0x5F);
-   - the animation table at obj+0x10 is an array of 0x20-byte entries indexed by model id. */
+/* Load and animate a fusion model, coordinate its sprites, queue bracketed draw callbacks, and
+ * release owned resources on request. Colour locals are declared in retail stack order, and the
+ * second colour is copied through a cast so it is copied byte by byte. */
 // FUN_00349C50
 s32 cmbEffModelUpdate(u8 *task)
 {
@@ -432,9 +409,6 @@ s32 cmbEffModelUpdate(u8 *task)
     FclDrawColor colorTmp;
     u8 *obj;
     FclModelWork *modelWork;
-    /* measured: the earlier whole-body typing grew 2096B to 2176B. Grouped
-       access-site probes plus the modelWork alias now type every field and
-       preserve MATCH, including model completion and primitive queue nodes. */
     obj = ((SdkTask *)task)->work;
     modelWork = (FclModelWork *)obj;
     switch (((FclModelWork *)obj)->state) {
@@ -636,8 +610,6 @@ void cmbEffModelDestroy(u8 *task)
     u8 *entryBlock;
     SdkTask *modelTask = (SdkTask *)task;
 
-    /* measured: using an access-site cast for both task work loads changes
-       two words; the modelTask alias preserves the second load and MATCH. */
     work = ((SdkTask *)task)->work;
     model = ((FclModelWork *)work)->model;
     if (model != NULL) {
@@ -650,50 +622,8 @@ void cmbEffModelDestroy(u8 *task)
     jtbl_008873EC[0](modelTask->work);
 }
 
-/* measured: retail loads the {s64 @0x50, f32 @0x58} and {s64 @0x40, f32 @0x48}
-   pairs as ld+lwc1 (load-both-then-store-both). A struct copy of {s64,f32}
-   (16B padded) makes b210 copy both fields as 8-byte integer ld/sd (nd 4);
-   field-by-field assignment copies the float correctly but interleaves
-   load-store-load-store instead of load-load-store-store (nd 9); #pragma
-   pack(4) splits the s64 into two lwc1 (nd 70). Mixed s64+f32 struct-copy
-   grouping is a b210 floor. */
-/* measured: reconstructed from scratch (this function had no note). Now nd 5,
-   of which 2 words are window padding, so THREE real words remain -- all in
-   the second 12-byte vector copy, where retail loads `ld` then `lwc1` and b210
-   emits them the other way round.
-
-   What got it here, in order of effect: (1) copy each 12-byte vector as an
-   explicit s64 + f32 pair, NOT as a {s64; f32} struct assignment -- the struct
-   pads to 16 and copies the tail as a second ld/sd (nd 22); (2) load both
-   halves into temps before storing either, which is the load-both-then-
-   store-both shape retail uses, and it fixes the FIRST copy (10 -> 5);
-   (3) declaration order `handle, entry, mem` -- with `mem` first the whole
-   function rotates $s0/$s1/$s2 against retail (26 vs 10).
-
-   Measured and rejected: separate temps for the second copy (8, worse than
-   reusing them); a {s64; f32} struct (22). The two callbacks need casts
-   because cmbEffModelUpdate and cmbEffModelDestroy are declared returning s32/int.
-   Body kept below so the last three words can be attacked without redoing
-/* SOLVED by tools/permute.py after this was documented at nd 5 following five
-   hand attempts. The permuter found the two pragmas; everything else below is
-   the hand-built body it started from.
-
-   measured: optimization_level 1 is load-bearing -- with it removed the
-   function goes straight back to MISMATCH. `tailcall on` pairs with it. The
-   permuter also proposed s32 copies of both parameters; those were noise and
-   are dropped, the function still matches without them.
-
-   Keep the 12-byte vector copies as an explicit s64 + f32 pair: a {s64; f32}
-   struct assignment pads to 16 and copies the tail as a second ld/sd (nd 22),
-   and both callbacks need casts because cmbEffModelUpdate and cmbEffModelDestroy are
-/* SOLVED by tools/permute.py after this was documented at nd 5 following five
-   hand attempts. Keep the 12-byte vector copies as an explicit s64 + f32 pair:
-   a {s64; f32} struct assignment pads to 16 and copies the tail as a second
-   ld/sd (nd 22). Both callbacks need casts because cmbEffModelUpdate and
-   cmbEffModelDestroy are declared returning s32/int. The permuter also proposed
-   s32 copies of both parameters; those were noise and are dropped.
-   measured: optimization_level 1 is load-bearing here -- removing it puts the
-   function straight back to MISMATCH -- and `tailcall on` pairs with it. */
+/* measured: optimization_level 1 with tailcall on gives retail's load-both-then-store-both copy of
+ * each 12-byte vector as an s64 + f32 pair; a struct copy pads to 16. */
 #pragma optimization_level 1
 #pragma tailcall on
 /* Create the model effect controller and initialize its rotated base matrix. */
@@ -709,9 +639,8 @@ s32 fclModelEffectCreate(s32 parentTask, s32 entryId)
     s64 xy;
     f32 z;
 
-    /* measured: the 12-byte vectors are copied as an explicit s64 + f32 pair so
-       b210 emits retail's ld/sd plus lwc1/swc1; a {s64; f32} struct assignment
-       pads to 16 and copies the tail as a second ld/sd. */
+    /* The 12-byte vectors are copied as an 8-byte plus 4-byte pair, because a struct assignment
+     * pads to 16 bytes and copies a second doubleword. */
     xy = *(s64 *)&D_0064A6B0[0];
     z = *(f32 *)&D_0064A6B0[8];
     *(s64 *)&translation[0] = xy;
@@ -736,8 +665,6 @@ s32 fclModelEffectCreate(s32 parentTask, s32 entryId)
     RwMatrixTranslate((u8 *)&((FclModelWork *)mem)->matrix, &translation[0], 2);
     return handle;
 }
-/* measured: closes the optimization_level 1 + tailcall scope opened above for
-   func_0034a4f0; -O2 with tailcall off is the documented baseline. */
 #pragma tailcall off
 #pragma optimization_level 2
 #pragma tailcall off

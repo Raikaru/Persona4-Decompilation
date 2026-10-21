@@ -31,9 +31,6 @@ extern f32 fGpffff8060;
 extern f32 D_00761438;
 
 
-
-
-
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
 extern f32 D_00881400[];
@@ -56,28 +53,17 @@ extern u8 D_00609E40[];
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001ed060-001ed060 */
-
 extern s32 btlAiGetGlobal(void);
 extern s32 btlAiSetGlobal(void);
 extern void btlTargetInitSpring(u8 *, f32);
 #pragma push
 #pragma pop
-/* measured probe: preserve the retail filter branch chain */
 #pragma push
-/* measured probe: close the filter branch chain */
 #pragma pop
-/* measured probe: preserve retail conditional branch shape */
 #pragma push
-/* measured probe: close conditional branch shape */
 #pragma pop
-/* measured: optimization_level 1 probe for retail GP-load scheduling. */
-/* measured: close optimization_level 1 probe for btlAiGetGlobal. */
-/* measured: opt_propagation off probe for e320 GP-load order. */
-/* measured: closes opt_propagation probe for btlAiSetGlobal. */
-/* 1468/1472 bytes; all four call relocations resolve exactly. */
-/* measured: third 001ec5e0 probe tests opt_propagation off for FPU-zero placement. */
-/* measured: closes opt_propagation probe for btlTargetInitSpring. */
+/* Return whether the segment between two route points crosses any obstacle edge or any active
+ * corner link in the battle navigation data. */
 // FUN_001ED060
 /* Reject obstacle-edge crossings and active corner-link crossings; shared endpoints are exempt. */
 int btlTargetCheckObstacleCrossings(float *first, float *second)

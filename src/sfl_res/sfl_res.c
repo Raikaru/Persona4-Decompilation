@@ -1,4 +1,3 @@
-/* Source unit: src/sfl_res/sfl_res_0036b5a0.c (1 function markers) */
 #include "include_asm.h"
 #include "type.h"
 
@@ -24,7 +23,6 @@ typedef struct SflResource {
 } SflResource;
 
 
-
 /* Copy the resource's second three-component vector from the caller. */
 // FUN_0036B5A0
 void sflResSetSecondaryVector(void* work, const f32* value)
@@ -33,14 +31,12 @@ void sflResSetSecondaryVector(void* work, const f32* value)
 }
 
 
-
 /* Copy the resource's first three-component vector from the caller. */
 // FUN_0036B5C0
 void sflResSetPrimaryVector(void* work, const f32* value)
 {
     ((SflResource*)work)->unk20 = *(const Vec3*)value;
 }
-
 
 
 /* Return the resource's second three-component vector through value. */

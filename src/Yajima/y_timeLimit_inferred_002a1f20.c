@@ -43,8 +43,6 @@ extern u16 D_008C027A[];
 extern s8 iGpffffb54c;
 
 
-
-
 struct RwMatrixTag;
 extern void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s32 centerX, s16 centerY,
@@ -78,7 +76,6 @@ extern void yTimeNameDrawReveal(u8 *task, s32 stage);
 extern s32 strncmp(void *, void *, s32);
 
 
-
 extern void yTimeNameDrawKeyboard(u8 *task);
 
 
@@ -87,21 +84,14 @@ extern void yTimeNameDrawKeyboard(u8 *task);
  * State preceding the background tween is outside this renderer's view. */
 
 
-
-
-
 #pragma push
 
 extern s32 yTimeNameConfirm(u8 *task);
 #pragma pop
 extern s32 yTimeNameRevealRows(u8 *task);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a1f20-002a2310 */
-
-/* measured: closes opt_propagation around func_002a1c80. */
-/* measured: closes opt_common_subs around func_002a1c80. */
-/* measured: closes no_branch_likely around func_002a1c80. */
-// Intent: per-frame task update. Queues a draw node (yTimeLimitDrawCallback) while the track is active; returns -1 once the track is done.
+/* Per-frame task update: queues a draw node (yTimeLimitDrawCallback) while the track is active and
+ * returns -1 once the track is done. */
 // FUN_002A1F20
 s32 yTimeLimitTaskUpdate(u8 *task) {
     u8 *drawNode;
@@ -118,12 +108,11 @@ success:
     return 0;
 }
 
-/* measured: opt_loop_invariants on hoists the case-zero store constant into the
-   preheader, matching retail's li $v1 before the loop-entry branch. */
-/* measured: func_002a1fa0 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline invariant motion gives nd263 and grows the body to 896/880 bytes. */
+/* measured: loop-invariant motion hoists the case-zero store constant above the loop entry, as
+ * retail does. */
 #pragma opt_loop_invariants on
-// Intent: draws the time-limit overlay for a work item (background rectangle, then the state machine that paints each track).
+// Draws the time-limit overlay: background rectangle, then the state machine that paints each
+// track.
 // FUN_002A1FA0
 s32 yTimeLimitDraw(u8 *task) {
 
@@ -257,8 +246,7 @@ block_39:
     return 0;
 }
 
-/* measured: closes opt_loop_invariants around func_002a1fa0. */
-// Intent: destructor for the time-limit task. Frees its work block through the free table.
+/* Destructor for the time-limit task; frees its work block through the free table. */
 // FUN_002A2310
 void yTimeLimitTaskDestroy(u8 *task) {
     jtbl_008873EC[0](((KwlnTask *)task)->work);

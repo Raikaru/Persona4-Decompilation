@@ -1,4 +1,3 @@
-/* Source unit: src/Main/Social/gc_model_0036abd0.c (1 function markers) */
 #include "type.h"
 
 typedef struct PanelVec3 {
@@ -68,8 +67,8 @@ extern void func_00410520(u32 primitive, void* indices, u32 count);
 extern void func_004104d0(void);
 
 
-
-// Intent: Builds a panel's model matrix: aspect-corrected scale, a rotation from its quaternion, the translation, and the optional model transform [inferred]
+// Builds a panel's model matrix: aspect-corrected scale, quaternion rotation, translation, and the
+// optional model transform.
 // FUN_0036ABD0
 void pscBuildModelMatrix(PanelMatrix* output, const PanelTransform* transform)
 {
@@ -149,8 +148,8 @@ void pscBuildModelMatrix(PanelMatrix* output, const PanelTransform* transform)
 }
 
 
-
-// Intent: Copies a colour into the panel and sets its dirty flag (bit 2) so the colours are rewritten on the next draw [inferred]
+// Copies a colour into the panel and sets dirty flag bit 2 so colours are rewritten on the next
+// draw.
 // FUN_0036ADC0
 void pscPanelSetColor(void* work, const u8* color)
 {
@@ -172,7 +171,7 @@ void pscPanelSetColor(void* work, const u8* color)
     panel->flags |= 4;
 }
 
-// Intent: Writes one RGBA colour into the panel's four vertex colour blocks [inferred]
+// Writes one RGBA colour into the panel's four vertex colour blocks.
 // FUN_0036AE00
 void pscPanelWriteVertexColors(void* work, const u8* color)
 {
@@ -196,7 +195,8 @@ void pscPanelWriteVertexColors(void* work, const u8* color)
     panel[0x7b] = color[3];
 }
 
-// Intent: Draws a panel's grid: copies the eight corner vertices (rotating them 180 degrees when flag bit 0 is set), then draws the 0x138-index triangle list [inferred]
+// Draws a panel's grid: copies eight corner vertices (rotated 180 degrees when flag bit 0 is set),
+// then draws the 0x138-index triangle list.
 // FUN_0036B470
 void pscPanelDrawGrid(u32* work, const f32* vertices)
 {

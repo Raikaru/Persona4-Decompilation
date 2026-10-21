@@ -1,4 +1,3 @@
-/* Source unit: src/Kosaka/Field/k_fldFilter.c */
 #include "type.h"
 #include "Kosaka/k_fldFilter_internal.h"
 
@@ -9,7 +8,6 @@ extern s32 D_007643A8;
 extern s32 D_007643AC;
 extern f32 D_007643B0;
 extern f32 D_007643B4;
-
 
 
 /* Select a filter entry and render type; zero duration completes the crossfade immediately. */

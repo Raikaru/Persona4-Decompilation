@@ -1,7 +1,6 @@
 #include "mt_scene_internal.h"
 /* Whole-file translation unit: src/Event/mt_misc.c */
 
-/* Source unit: src/Event/mt_misc_00290ec0.c */
 #include "type.h"
 #include "scene_event_internal.h"
 #include "evt_effect_internal.h"
@@ -20,8 +19,6 @@ extern int sdkSndFadeOutChannelFrames();
 extern int sdkSndResetChannel();
 
 
-/* opt_loop_invariants on: measured nd 124 -> 0, object 292/304 -> 292/304. */
-
 /* Append a direct resource-data entry to the effect table and advance its count. */
 // FUN_00290EC0
 void mtMiscAppendEntry(int tableAddress, u32 resourceData)
@@ -39,7 +36,6 @@ void mtMiscAppendEntry(int tableAddress, u32 resourceData)
 
     return;
 }
-
 
 
 /* Replace a slot resource with the object created from the selected effect entry. */
@@ -82,7 +78,6 @@ void mtMiscSetSlotRes(int tableAddress, int slotIndex, int entryIndex, u64 creat
 }
 
 
-
 /* Return the slot resource id, or zero for an unavailable slot or scene. */
 // FUN_00291360
 s32 mtMiscGetSlotRes(int tableAddress, int slotIndex)
@@ -101,7 +96,6 @@ s32 mtMiscGetSlotRes(int tableAddress, int slotIndex)
 
     return ((EvtEffectTable *)((u8 *)((int)slotIndex * 2) + tableAddress))->slots[0];
 }
-
 
 
 /* Destroy the selected slot resource, if present, and clear its resource id. */
@@ -129,8 +123,7 @@ void mtMiscClearSlotRes(int tableAddress, int slotIndex)
 }
 
 
-
-// Intent: Destroys every slot resource of the table and clears the slots [inferred]
+// Destroys every slot resource of the table and clears the slots.
 // FUN_00291470
 void mtMiscClearAllSlotRes(int tableAddress)
 {
@@ -157,7 +150,6 @@ void mtMiscClearAllSlotRes(int tableAddress)
 }
 
 
-
 /* Play the cue on the sound system; the command result is always zero. */
 // FUN_00298100
 u64 mtMiscPlayCue(s16 cueId)
@@ -166,7 +158,6 @@ u64 mtMiscPlayCue(s16 cueId)
 
     return 0;
 }
-
 
 
 /* Stop a channel by fading over fadeFrames, or reset it immediately for zero. */

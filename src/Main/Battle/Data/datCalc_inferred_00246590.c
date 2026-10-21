@@ -13,9 +13,6 @@ extern f32 D_00761260;
 extern f32 fGpffff811c;
 
 
-
-/* Source unit: src/promoted/code1_0024.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 00246590-00246590 */
 /* Model-neck-test task destruction hook; retail performs no cleanup in this callback. */
 // FUN_00246590
 void mdlNeckTestDestroyNoop(u8 *unusedTask)

@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0020e010-0020ff00 */
 
 #include "btl_skill_target_internal.h"
 #include "member_access.h"
@@ -107,7 +106,7 @@ typedef struct BtlPanelGaugeState {
 #pragma opt_propagation on
 #pragma opt_rebuildconditionals on
 #pragma opt_loop_invariants off
-// Intent: update a unit's target flag and dispatch the target draw for its mode. [inferred]
+// Update a unit's target flag and dispatch the target draw for its mode.
 // FUN_0020E010
 void btlSelectionDispatchTargetMode(s32 mode, u8 *row, u8 *unit)
 {
@@ -174,7 +173,7 @@ flags_done:
     }
 }
 
-// Intent: swap the row state between two selection rows and copy the position. [inferred]
+// Swap the row state between two selection rows and copy the position.
 // FUN_0020E1D0
 void btlSelectionSwapRowState(u8 *from, u8 *to) {
     ((BtlSelectionRow *)from)->frame = 0;
@@ -190,11 +189,10 @@ void btlSelectionSwapRowState(u8 *from, u8 *to) {
     ((BtlSelectionRow *)to)->position = ((BtlSelectionRow *)from)->position;
 }
 
-// Intent: queue a new entry at the head of the selection entry list. [inferred]
+// Queue a new entry at the head of the selection entry list.
 // FUN_0020E250
 void btlSelectionPushEntry(u8 *task, s32 unitHandle, s32 *entryData, f32 *position, u16 flags)
 {
-    /* MEMBER names the measured entry/output fields without changing MWCC byte-base aliasing. */
     u8 *state;
     u8 **list;
     u8 *entry;
@@ -246,13 +244,13 @@ void btlSelectionPushEntry(u8 *task, s32 unitHandle, s32 *entryData, f32 *positi
     }
 }
 
-// Intent: flush the selection entry list. [inferred]
+// Flush the selection entry list.
 // FUN_0020E3F0
 void btlSelectionFlushEntries() {
     btlEntryListFlush((u8 *)kwlnTaskGetWork() + 0x75C);
 }
 
-// Intent: draw an integer value as sprite glyphs, optionally right-aligned. [inferred]
+// Draw an integer value as sprite glyphs, optionally right-aligned.
 // FUN_0020E420
 void btlSelectionDrawValue(u8 *drawWork, f32 x, f32 y, s32 value, s32 rightAligned, u32 packedColor)
 {
@@ -295,7 +293,7 @@ void btlSelectionDrawValue(u8 *drawWork, f32 x, f32 y, s32 value, s32 rightAlign
     }
 }
 
-// Intent: map a linear progress value through an optional sine or cosine ease. [inferred]
+// Map a linear progress value through an optional sine or cosine ease.
 // FUN_0020E5C0
 f32 btlSelectionEaseCurve(s32 frame, s32 start, s32 end, s32 curve)
 {
@@ -323,17 +321,12 @@ done:
     return progress;
 }
 
-/*
- * measured: 964/976 bytes, three resolved calls, twelve zero alignment bytes.
- * The zero-duration ramp follows 0020E5C0 and the adjacent 0020F4D0 spelling;
- * its division is unreachable. Preserve the frame snapshot and flag reload.
- */
-// Intent: step the slide transition frame and draw its panel elements. [inferred]
+/* Steps the slide transition frame and draws its panel elements. The division in the zero-duration
+ * ramp is never reached. */
 // FUN_0020E690
 void btlTransitionStepSlide(u8 *task, u8 *transition, u8 *panel,
                    f32 x, f32 y, s32 color, u8 *output)
 {
-    /* MEMBER names the measured entry/output fields without changing MWCC byte-base aliasing. */
     Vec2f position;
     s32 frame;
     f32 fade;
@@ -377,12 +370,8 @@ void btlTransitionStepSlide(u8 *task, u8 *transition, u8 *panel,
     }
 }
 
-/*
- * measured: 1192/1200 bytes, eight resolved calls, eight zero alignment bytes.
- * Keep the alternating fade/y stages: expression propagation otherwise fuses
- * the slide arithmetic or reverses its floating-point operand order.
- */
-// Intent: step the stretch transition frame and draw its panel elements. [inferred]
+/* Steps the stretch transition frame and draws its panel elements; the fade and y stages alternate
+ * so the slide arithmetic keeps its floating-point operand order. */
 // FUN_0020EA60
 void btlTransitionStepStretch(u8 *task, u8 *transition, u8 *panel, u8 *output)
 {
@@ -440,9 +429,8 @@ void btlTransitionStepStretch(u8 *task, u8 *transition, u8 *panel, u8 *output)
     }
 }
 
-// Intent: step the expansion transition frame and draw its panel elements. [inferred]
+// Step the expansion transition frame and draw its panel elements.
 // FUN_0020EF10
-/* Retail-exact: 1460 bytes, 7 call relocations, 12 zero alignment bytes. */
 void btlTransitionStepExpand(u8 *task, u8 *transition, u8 *panel, u8 *output)
 {
     /* The damage-state task member supplies the owning HUD context. */
@@ -507,7 +495,7 @@ void btlTransitionStepExpand(u8 *task, u8 *transition, u8 *panel, u8 *output)
     }
 }
 
-// Intent: step the pulse transition frame and draw its ring. [inferred]
+// Step the pulse transition frame and draw its ring.
 // FUN_0020F4D0
 void btlTransitionStepPulse(u8 *task, u8 *transition, f32 x, f32 y)
 {
@@ -559,7 +547,7 @@ void btlTransitionStepPulse(u8 *task, u8 *transition, f32 x, f32 y)
 extern f32 fGpffff8210;
 f32 btlUiSpriteWidth(u8 *work, s32 slot, s32 segment);
 f32 btlUiSpriteHeight(u8 *work, s32 slot, s32 segment);
-// Intent: draw one indexed panel sprite at its corner with its colour and visible state. [inferred]
+// Draw one indexed panel sprite at its corner with its colour and visible state.
 // FUN_0020F730
 void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
 {
@@ -626,7 +614,8 @@ void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
         height = btlUiSpriteHeight(work, 10, sprite);
         adjustmentY = (f32)flipY * height;
         adjustmentY = adjustmentY / scaleY;
-        /* measured: three-row array storage changes 47 bytes; preserve the Y-origin sub-object base. */
+        /* measured: retail addresses the Y origin through its sub-object base, not a three-row
+         * array. */
         offsetY = ((BtlPanelCoordinate *)((u8 *)&offsets[0].y.fromY + rowOffset))->value;
         drawY = scaleY * (drawY * (offsetY + adjustmentY));
         btlUiSetOrigin(work,
@@ -643,9 +632,8 @@ void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index)
     }
 }
 
-// Intent: draw the panel gauge ring and fill for the given extent. [inferred]
+// Draw the panel gauge ring and fill for the given extent.
 // FUN_0020FA70
-/* Retail-exact: 1156 bytes, 24 relocations, 12 zero alignment bytes. */
 void btlPanelDrawGauge(u8 *work, u8 *state)
 {
     extern void btlPanelDrawIndexed(u8 *work, u8 *state, s32 packedColor, s32 index);
@@ -707,9 +695,8 @@ void btlPanelDrawGauge(u8 *work, u8 *state)
     btlUiSetFactorXY(work, 1.0f, 1.0f);
 }
 
-/* Advance the transition frame before its timed drawing phases. The corner
- * opacity is narrowed to one byte before packing the vertex color. */
-// Intent: step the multi-phase transition frame and draw its bands and glyphs. [inferred]
+/* Steps the multi-phase transition frame and draws its bands and glyphs. The corner opacity is
+ * narrowed to one byte before the vertex color is packed. */
 // FUN_0020FF00
 void btlTransitionDrawFrame(u8 *glyphs, u8 *transition)
 {

@@ -1,6 +1,5 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Source unit: src/cutinDraw_00120bc0.c */
 #include "type.h"
 #include "kwln_task_internal.h"
 #include "effect_update_internal.h"
@@ -35,7 +34,6 @@ void chkmemAllocSiteTag();
 
 s32 cutinDrawTaskUpdate(u8 *task);
 void cutinDrawTaskDestroy(u8 *task);
-
 
 
 /* The constructor allocates 0x2C bytes; the update and destructor share these offsets. */
@@ -73,7 +71,6 @@ s32 cutinDrawTaskUpdate(u8 *task)
     s32 state;
     u8 *work;
 
-    /* CutinDrawWork offsets are proven below; member access changed retail scheduling (four bytes). */
     work = ((struct KwlnTask *)task)->work;
     effectWork = (CutinDrawWork *)work;
     cutinWork = (CutinDrawWork *)work;
@@ -124,7 +121,6 @@ s32 cutinDrawTaskUpdate(u8 *task)
 }
 
 
-
 /* Destroy the cutin effect and directory before freeing the task work. */
 // FUN_00120DB0
 void cutinDrawTaskDestroy(u8 *task)
@@ -143,29 +139,8 @@ void cutinDrawTaskDestroy(u8 *task)
 }
 
 
-
-// REACHABLE BUT NOT WITH HONEST SOURCE. tools/permute_ast.py cracks this in 28
-// compiles (~15s), reproducibly:
-//
-//   python tools/permute_ast.py src/cutinDraw.c cutinDrawTaskCreate --time 900 --seed 5
-//
-// after activating the body below. Verified MATCH at 180B. The winning form needs
-// an empty `if (arg1) { }`, `hi` typed `unsigned int` rather than s16, and the lo
-// load taken through a named `s16 *` temp. Four reductions toward clean C were
-// measured and all fall back to MISMATCH: dropping the s16* temp, dropping the u8*
-// store temp, dropping the empty if, and a hand-written clean version carrying the
-// u32 type plus both pointer temps. Only the s16* temp is defensible source; the
-// empty if is dead code, so the raw winner is not committable under the
-// source-honesty policy. The nd-4 body below stays -- its residual is the two
-// halfword loads assigned to swapped registers ($a0/$v1 against 0x1c/0x1e).
-// Anyone reducing this further should start from the permuter output, not by hand.
-/* Retail splits arg1 into halves through the STACK, not with a shift: the value is
-   copied to a local before the first call and the two s16 halves are then read back
-   through its address. Two things here look redundant and are load-bearing - the
-   `result` scratch that feeds `lo`, and the `if (result == 0) return 0;` ahead of the
-   final `return result;`. Removing either scores nd 17, measured. Recovered with
-   permute_ast + permute_min; the reduction needed no dead code, so it cleaned up to
-   ordinary C (renames and cast tidying verified byte-identical). */
+// Retail splits packedIds into halves through a stack copy rather than a shift; the result scratch
+// feeding lo and the early zero return are both required.
 // FUN_00120E20
 s32 cutinDrawTaskCreate(s32 unused, s32 packedIds)
 {

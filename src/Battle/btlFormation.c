@@ -1,7 +1,6 @@
 #include "btl_unit_internal.h"
 #include "btl_formation_attach_internal.h"
 #include "datCalc_internal.h"
-/* Source unit: src/Battle/btlFormation_001d1eb0.c */
 #include "include_asm.h"
 #include "type.h"
 #include "effect_instance_internal.h"
@@ -74,7 +73,7 @@ typedef struct BtlFormationDescriptor
     s32 unk0C;
 } BtlFormationDescriptor;
 
-/* The opaque unit span at +0xA04 ends with the effect-pool key at +0xA08. */
+/* The opaque unit span before effectKey ends with the effect-pool key. */
 typedef struct BtlFormationUnitResources
 {
     u8 pad00[4];
@@ -107,11 +106,9 @@ typedef struct BtlFormationWork
     u32 items;
 } BtlFormationWork;
 
-// P3 counterpart fGpffff8398 (gp -0x7C68); P4 retail uses gp -0x7CAC,
-// i.e. absolute 0x007690f0 - 0x7cac = 0x00761444.
+// Counterpart of P3 global fGpffff8398.
 extern float fGpffff8354;
-// P3 counterpart fGpffff839c (gp -0x7C64); P4 retail uses gp -0x7EE4,
-// i.e. absolute 0x007690f0 - 0x7ee4 = 0x0076120c.
+// Matches P3FES fGpffff839c; in P4 retail this float is at 0x0076120c.
 extern float fGpffff811c;
 extern u32 strlen(const char *text);
 extern char *strcpy(char *destination, const char *source);
@@ -127,7 +124,7 @@ extern void btlFormationSetPlacement(u32 formation);
 extern void btlFormationRefresh(u32 *work);
 extern u32 btlFormationIsReady(u32 *work);
 
-extern /* measured: baseline propagation matches the unchanged predicate. */
+extern /* measured: retail keeps the predicate's propagated value unchanged. */
 u8 btlFormationHasEntry(u32 *work);
 extern void btlFormationRelease(u32 *work);
 
@@ -172,18 +169,16 @@ static inline f32 btlFormationGetScaledRadius(const u8 *unit)
     f32 scale = ((const BtlUnit *)unit)->scale;
     return ((const BtlUnit *)unit)->sphereRadius * scale;
 }
-/* Native b210 O2: 3668/3680 bytes, 73 resolved relocations and
- * twelve zero alignment bytes. Preserve the original target/companion
- * geometry and phase-specific vector lifetimes. See
- * docs/probe_archive/Formation_001d1f30_20260923.md. */
+/* Keep the original target/companion geometry and phase-specific vector lifetimes. */
 #pragma push
-/* measured: baseline nd884; scoped locals, inverted if/else did not match (best nd884); retain opt_propagation off. */
+/* measured: retail does not propagate copies here; scoped locals and reordered branches do not
+ * reproduce it. */
 #pragma opt_propagation off
-/* measured: baseline nd884; scoped locals, inverted if/else did not match (best nd884); retain opt_lifetimes on. */
+/* measured: retail's vector lifetimes require lifetime-based register allocation. */
 #pragma opt_lifetimes on
 /* Place the actor, companion and selected groups using their world-space bounds. */
 // FUN_001D1F30
-/* measured: typed actor/action aliases and indexed target records preserve the original load order and MATCH. */
+/* Typed actor/action aliases and indexed target records reproduce the original load order. */
 u32 btlFormationPlaceUnits(u32 *work)
 {
     BtlAction *actionState;
@@ -616,12 +611,10 @@ void btlFormationEnterTurn(u32 *work)
 {
     ((BtlUnit *)work[0])->pendingPacketCount = ((BtlUnit *)work[0])->pendingPacketCount + 1;
 }
-/* Native b210 O2: 444/448 bytes, ten resolved calls and four zero
- * alignment bytes. Packet storage remains unsigned; the action helpers
- * receive its signed interpretation. See
- * docs/probe_archive/Formation_callback_001d2e20_20260924.md. */
+/* Packet storage stays unsigned; the action helpers receive its signed interpretation. */
 #pragma push
-/* measured: baseline nd268; object/dispatch locals did not match (best nd268); retain opt_propagation off. */
+/* measured: retail does not propagate copies in this callback; local restructuring does not
+ * reproduce it. */
 #pragma opt_propagation off
 extern s32 btlUnitOpeningMotionMode(s32, u8 *, s16, s32);
 extern s32 btlTargetCanSelectEntry(u8 *, s16, s32);
@@ -949,9 +942,8 @@ BtlPacket *btlFormationCreateReturnPacket(u16 flags)
     *(u16 *)work = flags;
     return (BtlPacket *)packet;
 }
-/* measured: opt_propagation off required for func_001d3950 (nd 0; default nd 7). */
+/* measured: retail does not propagate copies in this function. */
 #pragma push
-/* measured: baseline nd8; scoped locals, inverted if/else did not match (best nd8); retain opt_propagation off. */
 #pragma opt_propagation off
 /* Put living party units on the 25-unit grid, reserving the active actor's default slot. */
 // FUN_001D3950
@@ -1031,7 +1023,6 @@ u32 btlFormationAdvanceSlot(u8 **actionWork)
     }
     return 1;
 }
-/* measured: restore pragma state after func_001d3950. */
 #pragma pop
 /* Create packet 0xB06 to assign grid slots around the supplied action. */
 // FUN_001D3B50
@@ -1153,8 +1144,7 @@ void btlFormationSetPlacement(u32 formation)
 
 /* Copy two resource blocks and replace file offsets/references with live cloned or built effects. */
 // FUN_001D3EA0
-/* measured: direct stores grew to 348 bytes in the 336-byte window; placing the
- * resourceEntry alias after the original declarations preserves MATCH. */
+/* Declaring the resourceEntry alias after the original declarations keeps retail's store sequence. */
 void btlFormationCopyRecord(int destination, u32 source)
 {
 
@@ -1430,10 +1420,11 @@ void btlFormationRefresh(u32 *work)
 }
 /* Advance effect timing by two and create the runtime formation entry before fading it out. */
 // FUN_001D6010
-/* measured: opt_propagation off preserves func_001d6010's index-before-value argument-load order (MATCH nd0). */
-/* measured: baseline nd6; scoped locals, explicit value caches, pointer iteration did not match (best nd6); retain opt_propagation off. */
+/* measured: propagation off keeps retail's order of loading the index argument before the value
+ * argument. */
 #pragma opt_propagation off
-/* measured: separate typed aliases and signed member interpretations preserve MATCH where direct fields did not. */
+/* Separate typed aliases and signed member reads reproduce retail where direct field access does
+ * not. */
 u32 btlFormationIsReady(u32 *work)
 {
     BtlFormationEffectWork *effectWork = (BtlFormationEffectWork *)work;
@@ -1484,10 +1475,9 @@ u32 btlFormationIsReady(u32 *work)
     }
     return 0;
 }
-/* measured: opt_propagation on closes the func_001d6010 bracket. */
 #pragma opt_propagation on
-// measured: #pragma opt_propagation off preserves retail's index-before-value argument-load order; plain C without it emits the two loads in the opposite order. Object 112B, retail window 112B, normalized_diff 0.
-// Committed at nd 0.
+// measured: opt_propagation off keeps retail's index-before-value argument-load order; plain C
+// loads them in the opposite order.
 // FUN_001D6170
 /* Report when the elapsed two-frame count reaches the selected resource duration. */
 /* The index & 0 address term preserves the existing index-before-value evaluation shape under

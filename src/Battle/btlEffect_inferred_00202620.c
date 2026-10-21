@@ -20,10 +20,8 @@ typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
 
-
 extern void btlPacketIncUnitCounter(u8 *work);
 extern void btlPacketDecUnitCounter(u8 *work);
-
 
 
 extern f32 fGpffff815c;
@@ -32,9 +30,6 @@ extern f32 fGpffff83b0;
 extern u8 *D_0076449C;
 extern s32 iGpffffb448;
 extern s32 D_0062656C[];
-
-
-
 
 
 extern s32 btlPacketSetHpRatio(u8 **work);
@@ -83,31 +78,22 @@ extern u8 D_00795080[];
 
 extern u8 D_006253B0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00202620-00202720 */
-
 extern void btlPacketIncUnitCounter(u8 *work);
 extern void btlPacketDecUnitCounter(u8 *work);
-/* measured: caching D_00887300 in s0 reproduces retail's one-time
-   lui/addiu vtable materialization across these callback calls. */
-/* measured: close the vtable propagation probe and restore default state. */
-/* Keep the opacity base ahead of byte promotion, matching retail order. */
+/* measured: retail loads the vtable address once across these callback calls and computes the
+ * opacity base before byte promotion. */
 #pragma push
 #pragma pop
-/* Measured: 676/688 bytes, seven resolved relocations and twelve zero alignment bytes.
- * Snapshot inputs before providers; reload the skill fields and final output
- * metadata at their retail callback boundaries. */
 #pragma push
 #pragma pop
-/* measured: opt_rebuildconditionals off tested for callback completion. */
-/* measured: restore conditional rebuilding after callback completion. */
-// Intent: second increment callback for the unit counter (same body as btlPacketIncUnitCounter). [inferred]
+/* Second increment callback for the unit counter; same body as btlPacketIncUnitCounter. */
 // FUN_00202620
 void btlPacketIncUnitCounterAlt(u8 *work)
 {
     ((BtlUnit *)((BtlHpRatioWork *)work)->unit)->pendingPacketCount = ((BtlUnit *)((BtlHpRatioWork *)work)->unit)->pendingPacketCount + 1;
 }
 
-// Intent: packet callback; sets the HP ratio from the current HP and resets the marker fields. [inferred]
+// Packet callback; sets the HP ratio from the current HP and resets the marker fields.
 // FUN_00202640
 s32 btlPacketSetHpRatio(u8 **work)
 {
@@ -117,7 +103,6 @@ s32 btlPacketSetHpRatio(u8 **work)
 
     unit = *work;
     hp = (f32)(u32)datCalcGetHp((s32)((BtlUnit *)unit)->datUnit);
-    /* measured: access-site, typed-local and array datUnit loads produce 228 rather than 224 bytes. */
     maximumHp = (f32)(u32)datCalcMaxHp(MEMBER(s32, unit, BtlUnit, datUnit));
     ((BtlUnit *)unit)->hpRatio = hp / maximumHp;
     ((BtlUnit *)unit)->hpGauge.bits = (s32)0xBF800000;
@@ -125,7 +110,8 @@ s32 btlPacketSetHpRatio(u8 **work)
     return 1;
 }
 
-// Intent: second decrement callback for the unit counter (same body as btlPacketDecUnitCounter). [inferred]
+// Second decrement callback for the unit's pending packet count; same body as
+// btlPacketDecUnitCounter.
 // FUN_00202720
 void btlPacketDecUnitCounterAlt(u8 *work)
 {

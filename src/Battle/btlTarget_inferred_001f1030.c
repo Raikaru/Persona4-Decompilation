@@ -44,7 +44,6 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
 
 
-
 extern u32 datCalcRandomBelow();
 extern s32 datCalcEnemyExp(s32 unit);
 extern s32 datCalcEnemyMoney(s32 unit);
@@ -74,19 +73,12 @@ extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
 
 
-
-
-
-
-
 extern s32 iGpffffb464;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00624F50[];
 extern u8 D_00624F60[];
 extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f1030-001f2f90 */
 
 extern s64 btlTargetSkillEffectCode(s32 skill);
 extern s32 btlActionAnyTargetHitRowStatus(u8 *action);
@@ -112,20 +104,8 @@ static inline s32 btlTargetAnySpecialHit(u8 *action, s32 count)
 }
 #pragma push
 #pragma pop
-/* measured: invariant mask materialisation needs opt_loop_invariants on to
-   place the retail `lui` in the preheader. */
-/* measured: closes the invariant-hoist bracket for func_001f0af0. */
-/* measured: loop-invariant probe for func_001f0c50's shared true value. */
-/* measured: close opt_loop_invariants after func_001f0c50 probe. */
-/* measured: invariant mask materialisation needs opt_loop_invariants on to
-   place the retail `lui` in the preheader. */
-/* measured: closes the invariant-hoist bracket for func_001f0d30. */
-/* measured: opt_loop_invariants on preserves the nonzero-path constant and loop preheaders for func_001f0dd0. */
-/* measured: close opt_loop_invariants after func_001f0dd0. */
-/* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
-/* measured: close optimization_level 1 probe for func_001f0ff0. */
-/* measured: opt_loop_invariants on preserves target loop preheaders and state materialisation. */
-/* measured: btlTargetGroupStateMatches MATCH -> MISMATCH without this pragma. */
+/* measured: loop-invariant hoisting keeps the target loop preheaders and state setup where retail
+ * places them. */
 #pragma opt_loop_invariants on
 /* Check the selected targets against the actor group, including confusion and hit-row flags. */
 /* Selected targets are the twelve pointer slots in the shared action layout. */
@@ -198,8 +178,8 @@ many_test:
     return 1;
 }
 
-/* measured: close opt_loop_invariants after btlTargetGroupStateMatches probe. */
-/* Return whether this skill-table entry uses the selectable damage class. */
+/* Return whether the skill-table entry for the given index has its type byte set to 1, meaning it
+ * uses the selectable damage class. */
 // FUN_001F11E0
 s32 btlTargetIsEntryActive(s16 context) {
     u8 *base;
@@ -229,7 +209,6 @@ s32 btlTargetCanSelectEntry(u8 *context, s16 value, s32 option)
 }
 
 /* Choose the target reaction from a hit record, outcome, and defeat override. */
-/* Measured site/local/stride unit reloads changed MATCH; MEMBER preserves their aliasing. */
 // FUN_001F12B0
 s8 btlTargetClassifyTargetResult(u8 *action, u8 *hitResult, s32 hitOutcome, s32 unusedSubresult, s32 defeated)
 {
@@ -302,12 +281,11 @@ s8 btlTargetClassifyTargetResult(u8 *action, u8 *hitResult, s32 hitOutcome, s32 
 }
 
 #pragma push
-/* measured: normalized result/record snapshots need invariant motion for the retail 0x310 frame. */
-/* measured: btlTargetResolveSelectedSkill MATCH -> MISMATCH without this pragma. */
-/* measured: baseline removal leaves 795 words different; an indexed skill row and MEMBER attacker reload do not close it. */
+/* measured: the result and record snapshots need invariant motion to reproduce the retail 0x310
+ * stack frame. */
 #pragma opt_propagation off
-/* measured: btlTargetResolveSelectedSkill MATCH -> MISMATCH without this pragma. */
-/* measured: isolated removal leaves 4559 differing bytes; the indexed skill-row source has the same residual. */
+/* measured: btlTargetResolveSelectedSkill needs constants left in place inside the loop to match
+ * retail code generation. */
 #pragma opt_pulloutconstants off
 /* Resolve the selected skill, recording damage, reactions and party follow-ups.
  * Byte/halfword snapshots separate the calculation and record-copy phases. */
@@ -324,7 +302,8 @@ void btlTargetResolveSelectedSkill(u8 *context)
     extern void btlTargetSpecialHitNoop(u8 *, u8 *, s32);
     /* lint: allow H011 -- this call supplies a u16 code; the callee dispatches only its low 16 bits. */
     extern s32 btlConditionMessageId(u16);
-    /* lint: allow H011 -- retail explicitly loads flags into $a2; the callee leaves that argument unused. */
+    /* lint: allow H011 -- retail explicitly passes flags as the third argument; the callee leaves
+     * it unused. */
     extern s32 btlBuffMaskCheckEntries(u8 *, s32, s32);
     /* lint: allow H011 -- retail passes flags as the third argument; the callee leaves it unused. */
     extern s32 btlBuffMaskCheckUnit(u8 *, s32, s32);
@@ -445,7 +424,8 @@ void btlTargetResolveSelectedSkill(u8 *context)
             }
         }
     }
-    // Persona-owned unit (state 1) using a skill type it cannot use: scale = scale * r, where r = res[+0x2C] / (persona table[+0x14] / 100) clamped to [fGpffff80d4, fGpffff812c]; [inferred].
+    // A persona-owned unit using a disallowed skill type multiplies scale by its unit scale over
+    // scalePercent/100, clamped to the two float limits.
     if (((BtlUnit *)MEMBER(u8 *, context, BtlAction, unit))->genus == 1 && datCalcSkillTypeAllowed(id, 1) == 0) {
         u8 *res = (u8 *)((BtlAction *)context)->unit;
         s32 personaOffset = ((BtlUnit *)res)->charId * 0xE8;
@@ -940,12 +920,7 @@ finished:
 }
 
 #pragma pop
-/* measured: the second loop's slot index is `(u16)emptyIndex * 4` (its own mask, not CSE'd
-   with the loop test's `& 0xFFFF`) while the stored count is `(emptyIndex & 0xFFFF) + 1`
-   (CSE'd with the test, retail's $a0); the counter store address is offset-first
-   integer arithmetic `slotOffset + (u32)D_0076449C`. */
 /* Account for a defeated enemy once, accumulating rewards and merging up to three drop ids. */
-/* Measured site/local/stride forms changed MATCH for the retained MEMBER reward and unit accesses. */
 // FUN_001F2CC0
 void btlTargetRecordDefeatReward(u8 *action)
 {

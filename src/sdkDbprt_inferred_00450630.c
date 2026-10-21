@@ -154,8 +154,6 @@ extern u8 D_008D1C90[];
 extern u8 D_008D1C98[];
 extern u8 D_008D1CD4[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00450630-00450e80 */
-
 typedef struct {
     f32 x;
     f32 y;
@@ -192,13 +190,10 @@ typedef struct Code45Im2DVertex {
 
 
 #pragma push
-/* measured: baseline removal differs by 31 words; per-loop near-depth snapshots also fail. */
+/* measured: retail hoists the near depth out of the vertex initialization loops. */
 #pragma opt_loop_invariants on
-/* Native b210 O2: 1044/1056 bytes, sixteen resolved relocations and
- * twelve zero alignment bytes. Preserve the explicit vertex pointer
- * in each initialization loop and copy the panel extent before adding
- * its border. See docs/probe_archive/Debug_overlay_00450630_20260924.md. */
-/* Draws the enabled debug overlay panel and its buffered text rows. */
+/* Draws the enabled debug overlay panel and its buffered text rows. Each initialization loop keeps
+ * an explicit vertex pointer, and the panel extent is copied before its border is added. */
 // FUN_00450630
 void sdkDbprtDrawOverlay(void)
 {
@@ -327,13 +322,10 @@ void sdkDbprtDrawOverlay(void)
 
 #pragma pop
 #pragma push
-/* measured: baseline removal differs by 182 words; a pre-loop depth snapshot also fails. */
+/* measured: retail hoists the depth value out of the glyph loop. */
 #pragma opt_loop_invariants on
-/* Native b210 O2: 884/896 bytes, eight fully resolved relocations and
- * twelve zero alignment bytes. Color and position use their complete
- * packed-value ABI; both variadic callers retain identical native code.
- * See docs/probe_archive/Debug_immediate_text_00450a50_20260924.md. */
-/* Draws an immediate string using packed color, position and depth values. */
+/* Draws an immediate string using packed color, position and depth values; both variadic callers
+ * pass the complete packed-value arguments. */
 // FUN_00450A50
 void sdkDbprtDrawText(PackedColor4 color, PackedVec2f position, f32 depth, void *characters)
 {
@@ -428,8 +420,6 @@ void sdkDbprtDrawText(PackedColor4 color, PackedVec2f position, f32 depth, void 
 }
 
 #pragma pop
-/* Measured: 164/176 bytes, three resolved relocations and 12 zero tail bytes.
- * O1 preserves the compiler-reported variadic argument-count branch. */
 /* Formats an immediate string and draws it with the default packed color. */
 // FUN_00450DD0
 void sdkDbprtPrint(PackedVec2f position, f32 z, const void *format, ...)
@@ -448,10 +438,8 @@ void sdkDbprtPrint(PackedVec2f position, f32 z, const void *format, ...)
     sdkDbprtDrawText(scale.color, position, z, buffer);
 }
 
-/* measured: restore O2 after func_00450dd0. */
-/* Measured: 156/160 bytes, two resolved relocations and four zero tail bytes.
- * Color and position aggregates use the compiler's real variadic save area. */
-/* Formats and draws an immediate string using the supplied packed color. */
+/* Color and position aggregates use the compiler's real variadic save area. Formats and draws an
+ * immediate string using the supplied packed color. */
 // FUN_00450E80
 void sdkDbprtPrintColor(PackedColor4 color, PackedVec2f position, f32 z,
                    const void *format, ...)

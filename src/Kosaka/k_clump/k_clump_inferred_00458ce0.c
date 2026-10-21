@@ -211,8 +211,6 @@ typedef struct Code45Im2DVertex {
     f32 pad2;
 } Code45Im2DVertex;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00458ce0-00458ce0 */
-
 extern void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp);
 /* Scale a material's surface properties by data's x/y/z, clamped to 1. The first call
    saves the original ambient/specular/diffuse in a three-float user-data array so that

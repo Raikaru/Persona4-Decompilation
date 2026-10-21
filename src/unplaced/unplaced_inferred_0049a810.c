@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0049a810-0049a810 */
 
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
@@ -8,10 +7,10 @@
 #include "particle_spawn_internal.h"
 #include "effect_vu0_internal.h"
 #pragma push
-/* measured: propagation/common-subexpression toggles are redundant; while/for without hoisting leave -1 inside the loop (17-word removal residual). */
+/* measured: retail hoists the -1 inactive marker out of the clear loop. */
 #pragma opt_loop_invariants on
-/* Clear wind geometry vertices and mark each six-word entry inactive before rebuilding. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
+/* Clear wind geometry vertices and mark each six-word entry inactive before rebuilding. measured:
+ * retail reloads fields through separate typed alias pointers, not through casts at each access. */
 // FUN_0049A810
 void mdlEffectWindClearGeometry(u8 *instance)
 {

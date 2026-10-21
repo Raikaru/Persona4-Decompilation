@@ -62,9 +62,6 @@ extern f32 fGpffff8030;
 extern f32 fGpffff803c;
 extern f32 fGpffff8110;
 
-/* Source unit: src/promoted/code1_001d.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d1310-001d1cc0 */
-
 
 /* Count living enemies into three radius/height capacity bands plus a total. */
 // FUN_001D1310
@@ -103,7 +100,6 @@ void btlCameraCountUnitsByBand(u16 *counts) {
     }
 }
 
-/* measured: typed formation-array indexing retains MATCH with the surrounding propagation setting. */
 /* Return the first fitting formation row, or the final row if no capacities fit. */
 // FUN_001D14B0
 s32 btlCameraFindFormationForCounts(u8 *counts)
@@ -140,8 +136,6 @@ test:
     return 0x18;
 }
 
-/* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
-/* measured: btlCameraAssignFormationSlots MATCH -> MISMATCH without this pragma. */
 #pragma opt_propagation on
 /* Write the party or enemy occupancy slot selected by unit genus. */
 // FUN_001D1540
@@ -159,11 +153,8 @@ void btlCameraSetUnitSlotValue(u8 *unit, s32 slotIndex, s32 slotValue) {
     }
 }
 
-/* measured: 212B/224B, all four relocations resolved; twelve zero-tail bytes.
-   The four output counters are a complete helper buffer. A two-halfword
-   cursor keeps induction and explicitly narrowed selection in retail's
-   distinct registers without adding stack storage. */
-/* Realign units and select the first formation capacity triple fitting the living counts. */
+/* Realign units and select the first formation capacity triple fitting the living counts. The index
+ * and selection share a cursor struct so retail keeps them in separate registers. */
 // FUN_001D15A0
 s16 btlCameraSelectFormationIndex(void)
 {
@@ -203,16 +194,15 @@ done:
 }
 
 #pragma push
-/* measured: named unit members retain 218 baseline words; either lifetime/hoisting setting alone also differs. */
+/* measured: retail needs loop-invariant hoisting and lifetime analysis both enabled; either one
+ * alone differs. */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
-/* Assign party/enemy formation slots, optionally snap positions, then face
- * each side toward the other. MWCC b210: 1592 bytes and eight zero tail bytes.
- * The capacity scan has five candidates; 5 denotes no fitting candidate. */
+/* Assign party/enemy formation slots, optionally snap positions, then face each side toward the
+ * other. The capacity scan has five candidates; 5 means none fit. */
 // FUN_001D1680
 void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     RwV3d position;
     RwV3d actorCenter;
@@ -389,7 +379,6 @@ void btlCameraAssignFormationSlots(s32 applyPositions, s32 unused)
 s32 btlCameraNudgeUnitPair(u8 *work)
 {
     /* Motion record 0xA supplies its signed Z bound for separation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct Frame {
         f32 value40;

@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Battle/battle.c; members 00103510-001048c0 */
 
 #include "sdk_dbprt.h"
 #include "include_asm.h"
@@ -67,12 +66,8 @@ extern s32 fclBankTaskUpdate(u8 *task);
 extern void fclBankTaskDestroy(u8 *task);
 extern s32 kwlnGetCamera(void);
 extern u8 D_005DD680[];
-/* RenderWare keeps its engine instance in the `ourGlobals` array
-   (retail 0x008872E0) and reaches device state through
-   RWSRCGLOBAL(dOpenDevice): the near Z is at +0x18, the render-state and
-   Im2D entry points from +0x20.  The prefix of RwGlobals/RwDevice from
-   rwplcore.h is what makes a member access address it absolutely with the
-   %lo folded into the load, which is retail's loop shape. */
+/* Prefix of RenderWare's RwGlobals/RwDevice so device fields like the near Z and render-state entry
+ * points are addressed absolutely. */
 typedef struct {
     f32 gammaCorrection;
     void *fpSystem;
@@ -172,7 +167,7 @@ extern u8 *PrimQueueDrawPrimitive(void *inputList, s32 primitive, void *vertices
 extern u8 iGpffff85d0;
 #pragma push
 #pragma tailcall off
-// Intent: Start the time limit task under the root with no parent [inferred]
+// Start the time limit task under the root with no parent.
 // FUN_00103510
 void timeLimitStart(void) {
     timeLimitTaskCreate(0);
@@ -181,7 +176,7 @@ void timeLimitStart(void) {
 
 #pragma push
 #pragma tailcall off
-// Intent: Report whether the time limit task is running [inferred]
+// Report whether the time limit task is running.
 // FUN_00103540
 s32 timeLimitIsActive(void) {
     return timeLimitTaskExists() != 0;
@@ -190,7 +185,7 @@ s32 timeLimitIsActive(void) {
 
 #pragma push
 #pragma tailcall off
-// Intent: Stop the time limit task and its hierarchy [inferred]
+// Stop the time limit task and its hierarchy.
 // FUN_00103570
 void timeLimitStop(void) {
     timeLimitTaskDestroy();
@@ -205,7 +200,7 @@ void fclBankNoop(void) {}
 
 #pragma push
 #pragma tailcall off
-// Intent: Apply the base render states for a bank slot's sky layer [inferred]
+// Apply the base render states for a bank slot's sky layer.
 // FUN_001035A0
 void fclBankRenderStateBase(void) {
     D_00887300[0](1, 0);
@@ -216,7 +211,7 @@ void fclBankRenderStateBase(void) {
 
 #pragma push
 #pragma tailcall off
-// Intent: Apply the full render states for a bank slot's sky layer, including the interpolation mode [inferred]
+// Apply the full render states for a bank slot's sky layer, including the interpolation mode.
 // FUN_00103600
 void fclBankRenderStateFull(void)
 {
@@ -236,8 +231,8 @@ void fclBankRenderStateFull(void)
 
 #pragma push
 #pragma tailcall off
-// Intent: Bank task update: run the state machine for the slot's current state [inferred]
-/* Primitive-node and camera byte-pointer APIs have no shared complete layout here; retain their ABI offsets. */
+// Bank task update: runs the state machine for the slot's current state. Primitive-node and camera
+// byte-pointer APIs keep their ABI offsets because no complete shared layout exists.
 // FUN_001036D0
 s32 fclBankTaskUpdate(u8 *task) {
     FclBankDrawWork *stateFields;
@@ -367,8 +362,7 @@ loop2_check:
 
 #pragma push
 #pragma tailcall off
-// Intent: Bank task destroy: free the slot's batch nodes and release its task memory [inferred]
-/* Typed task work accesses changed codegen (nd5); retain task work +0x38 and node pointers +4/+8. */
+// Bank task destroy: frees the slot's two batch nodes and releases the task's work memory.
 // FUN_00103980
 void fclBankTaskDestroy(u8 *task) {
     u8 *state;
@@ -382,7 +376,7 @@ void fclBankTaskDestroy(u8 *task) {
 
 #pragma push
 #pragma tailcall off
-// Intent: Create the bank task with its update and destroy callbacks [inferred]
+// Create the bank task with its update and destroy callbacks.
 // FUN_001039E0
 void fclBankTaskCreate(void) {
     chkmemAllocSiteTag(D_005DD600, 0xBD);
@@ -392,8 +386,8 @@ void fclBankTaskCreate(void) {
 
 #pragma push
 #pragma tailcall off
-// Intent: Reset the bank slot table's per-slot flags and counters [inferred]
-/* Keep the linker-visible interior table aliases and their byte stride; rebasing them changes relocation targets. */
+// Reset the bank slot table's per-slot flags and counters. The interior table aliases and their
+// byte stride stay as they are because rebasing them changes relocation targets.
 // FUN_00103A60
 void fclBankTableReset(void)
 {
@@ -412,7 +406,7 @@ void fclBankTableReset(void)
 
 #pragma push
 #pragma tailcall off
-// Intent: Register the bank resource tables and load each of the two bank slots [inferred]
+// Register the bank resource tables and load each of the two bank slots.
 // FUN_00103B00
 void fclBankTableInit(void) {
     extern u8 D_00796460[];
@@ -443,9 +437,8 @@ struct RwTexture;
 
 #pragma push
 #pragma tailcall off
-// Intent: Load a bank slot's resources from its archive entries and register them [inferred]
-/* Texture and primitive-array cursor casts preserve external resource pointer interfaces. */
-/* Typed display-slot accesses changed codegen (nd432); retain the 0x370-byte slot layout: state +0, textures +0x14, archive +0x24, request +0x48. */
+// Load a bank slot's resources from its archive entries and register them. The slot is a raw
+// 0x370-byte layout: state, textures, archive, request.
 // FUN_00103C40
 void fclBankSlotLoad(u8 *slot)
 {
@@ -560,9 +553,8 @@ void fclBankSlotLoad(u8 *slot)
 
 #pragma push
 #pragma tailcall off
-// Intent: Advance a bank slot's loading and display state each step [inferred]
-/* Camera access and biased vertex cursors retain byte addressing where the external layout is incomplete. */
-/* Typed vertex/display accesses changed codegen (nd1156); retain 0x40-byte vertices at +0x160/+0x260 and display fields at their measured offsets. */
+// Advances a bank slot's loading and display state each step. Camera, vertex (0x40-byte vertices at
+// 0x160/0x260) and display fields use byte offsets because typed access changed codegen.
 // FUN_00103F00
 void fclBankSlotUpdate(u8 *display)
 {
@@ -734,8 +726,8 @@ void fclBankSlotUpdate(u8 *display)
 
 #pragma push
 #pragma tailcall off
-// Intent: Mark a bank slot as finished (state 5) [inferred]
-/* The state table is an interior linker alias with a 0x370-byte display stride. */
+// Marks a bank slot as finished (state 5); the state table is an interior linker alias with a
+// 0x370-byte display stride.
 // FUN_001044D0
 void fclBankMarkDone(s64 bank) {
     ((FclBankDisplay *)D_00796700)[(s16)bank].state = 5;
@@ -744,8 +736,8 @@ void fclBankMarkDone(s64 bank) {
 
 #pragma push
 #pragma tailcall off
-// Intent: Configure a bank slot from a three-id descriptor, looking up its table entry; default 0x3E when not found [inferred]
-/* Alias-relative member access preserves the independently linked column bases. */
+// Configures a bank slot from a three-id descriptor by looking up its table entry, defaulting to
+// 0x3E when not found.
 // FUN_00104510
 void fclBankSlotConfigure(s16 bank, s16 firstId, s16 secondId, s16 thirdId)
 {
@@ -798,8 +790,8 @@ void fclBankSlotConfigure(s16 bank, s16 firstId, s16 secondId, s16 thirdId)
 
 #pragma push
 #pragma tailcall off
-// Intent: Set the alpha byte of a bank slot [inferred]
-/* Alpha is a byte sub-object at an independently linked interior alias. */
+// Set the alpha byte of a bank slot; alpha is a byte field reached through its own linked interior
+// alias.
 // FUN_00104770
 void fclBankSetAlpha(s64 bank, u8 alpha) {
     ((FclBankChannel *)((u8 *)D_0079671F + (((s16)bank) * 0x370)))->intensity = alpha;
@@ -808,8 +800,8 @@ void fclBankSetAlpha(s64 bank, u8 alpha) {
 
 #pragma push
 #pragma tailcall off
-// Intent: Set a bank slot's active flag; when set, reset its phase and timers [inferred]
-/* State sub-objects keep their original alias-relative display-slot stride. */
+// Set a bank slot's active flag; when set, reset its phase and timers. State sub-objects keep their
+// original alias-relative display-slot stride.
 // FUN_001047B0
 void fclBankSetActive(s64 bank, s32 active) {
     s32 offset;
@@ -826,7 +818,7 @@ void fclBankSetActive(s64 bank, s32 active) {
 
 #pragma push
 #pragma tailcall off
-// Intent: Resume a waiting bank slot (state 3 to 4) [inferred]
+// Resume a waiting bank slot (state 3 to 4).
 // FUN_00104830
 void fclBankResume(s64 bank) {
     s16 *entry;
@@ -840,7 +832,7 @@ void fclBankResume(s64 bank) {
 
 #pragma push
 #pragma tailcall off
-// Intent: Return a pointer to the bank slot's position fields [inferred]
+// Return a pointer to the bank slot's position fields.
 // FUN_00104880
 u8 *fclBankGetPositionPtr(s64 bank) {
     return D_00796700 + ((s16)bank * 0x370) + 0xC;
@@ -849,8 +841,8 @@ u8 *fclBankGetPositionPtr(s64 bank) {
 
 #pragma push
 #pragma tailcall off
-// Intent: Report whether a bank slot is waiting (state 3) [inferred]
-/* The state table is an interior linker alias with a 0x370-byte display stride. */
+// Reports whether a bank slot is waiting (state 3); the state table is an interior linker alias
+// indexed by display entry.
 // FUN_001048C0
 s32 fclBankIsWaiting(s64 bank) {
     return ((FclBankDisplay *)D_00796700)[(s16)bank].state == 3;

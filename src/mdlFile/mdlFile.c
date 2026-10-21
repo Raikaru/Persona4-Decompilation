@@ -1,4 +1,3 @@
-/* Source unit: src/mdlFile/mdlFile_001fc2c0.c (1 function markers) */
 #include "type.h"
 extern u32 DAT_00881440_abs[];
 extern u32 DAT_00881444_abs[];
@@ -45,8 +44,6 @@ typedef struct MdlCallbackState {
 } MdlCallbackState;
 
 
-
-
 /* Publish the paired file-state words without changing the adjacent triple. */
 // FUN_001FC2C0
 void mdlSetFileStatePair(u32 first, u32 second)
@@ -54,8 +51,6 @@ void mdlSetFileStatePair(u32 first, u32 second)
     DAT_00881440_abs[0] = first;
     DAT_00881444_abs[0] = second;
 }
-
-
 
 
 /* Publish the three-word file state independently of the paired state. */
@@ -68,7 +63,6 @@ void mdlSetFileStateTriple(u32 first, u32 second, u32 third)
 }
 
 
-
 // FUN_0047DE90
 /* Dereferences the resource pointer then returns the first word of its payload. */
 u32 mdlReadResourceHeaderWord(u32* resource)
@@ -77,8 +71,7 @@ u32 mdlReadResourceHeaderWord(u32* resource)
 }
 
 
-
-// Copies the 16-byte value at +0x40, the position (callers use its first three floats), into output and returns it.
+// Copies the 16-byte position (callers use its first three floats) into output and returns it.
 // FUN_004866E0
 u_long128 mdlEffectGetPositionVec(int object, u32 *output)
 {
@@ -88,8 +81,8 @@ u_long128 mdlEffectGetPositionVec(int object, u32 *output)
 }
 
 
-
-// Copies the 16-byte value at +0x50, the orientation vector that mdlEffectBuildObjectMatrix passes to mdlEffectBuildBasisRows, into output and returns it.
+// Copies the 16-byte orientation vector used by mdlEffectBuildObjectMatrix into output and returns
+// it.
 // FUN_004866F0
 u_long128 mdlEffectGetOrientationVec(int object, u32 *output)
 {
@@ -99,14 +92,12 @@ u_long128 mdlEffectGetOrientationVec(int object, u32 *output)
 }
 
 
-
-// Returns the packed colour word at +0x64. mdlEffectGetPackedColor reads it through this accessor.
+// Returns the packed colour word; mdlEffectGetPackedColor reads it through this accessor.
 // FUN_00486700
 u32 mdlEffectGetPackedColorWord(void* object)
 {
     return ((MdlEffectObject*)object)->packedColor;
 }
-
 
 
 // FUN_00489F40
@@ -115,7 +106,6 @@ void mdlSetObjectHeaderValue(void* object, u32 value)
 {
     ((MdlCallbackObject*)object)->unk04 = value;
 }
-
 
 
 /* Invoke the selected pre-callback, increment the count, then invoke its object callback when positive. */
@@ -135,7 +125,6 @@ void mdlAdvanceObjectCallback(int object)
         D_00713e80[callbackObject->callbackIndex].callback(object);
     }
 }
-
 
 
 /* Advance the alternate callback state's count between its two callback stages. */

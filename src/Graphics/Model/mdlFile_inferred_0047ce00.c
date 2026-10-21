@@ -19,9 +19,7 @@ extern u8 D_00922C50[];
 extern u8 DAT_00922c30_abs[];
 
 
-
 struct MdlFlags78ec0;
-
 
 
 extern s32 func_003e2e40(s32 model, s32 *typeCallback);
@@ -37,10 +35,8 @@ extern f32 fGpffffbb48;
 extern f32 fGpffffbb50;
 extern f32 fGpffffbb54;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0047; members 0047ce00-0047d170 */
-
-/* Advances the load state byte at +0x3C of the aux block at +0x30C: waits for the file, reads its tables, runs the material and texture steps, then frees the file. Returns 1 when done, 0 while a step is pending. */
-/* Advance the auxiliary resource loader through read, chunk setup, dependency polling and temporary-resource release. */
+/* Advances the auxiliary block's load state: waits for the file, reads its tables, runs the
+ * material and texture steps, then frees the file. Returns 1 when done, 0 while a step is pending. */
 // FUN_0047CE00
 s32 mdlAdvanceAuxLoad(u8 *model)
 {

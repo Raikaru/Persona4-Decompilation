@@ -13,7 +13,7 @@ typedef struct RwV3d
     f32 z;
 } RwV3d;
 
-// 64 bytes. Layout from P3FES include/rw/rwplcore.h.
+// Layout from P3FES RenderWare rwplcore.h.
 typedef struct RwMatrix
 {
     RwV3d right;   // 0x00
@@ -47,8 +47,6 @@ extern f32 fGpffff8044;
 
 extern void (*jtbl_008873EC[])(void *);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 004843f0-004843f0 */
-
 /* Upload a texture stream, assign it to every material, then drop the upload reference. */
 // FUN_004843F0
 void mdlEffectUploadGeometryTexture(u8 *geometry, s32 stream) {
@@ -71,6 +69,5 @@ loop_004843f0_check:
     }
     func_003ef3a0((void *)texture);
 }
-
 
 

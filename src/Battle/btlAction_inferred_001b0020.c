@@ -1,6 +1,4 @@
 #include "member_access.h"
-/* Measured alias-sensitive fields use MEMBER; typed access-site, local-pointer
- * and applicable array forms are recorded in FullBattle2.culprits.tsv. */
 #include "btl_character_camera_internal.h"
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
@@ -104,11 +102,8 @@ typedef struct BtlEncounterEntry {
     u16 flags;
 } BtlEncounterEntry;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001b0020-001b07c0 */
-
-/* 564/576 bytes; sixteen resolved relocations; twelve zero alignment bytes.
- * Named unsigned address terms retain table ordering without signed overflow. */
-/* measured: func_001b0020 MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps unpropagated unsigned address terms, which preserves table ordering
+ * without signed overflow. */
 #pragma opt_propagation off
 // FUN_001B0020
 /* Return a surviving, non-active unit to its anchor unless another return sequence owns the camera. */
@@ -180,7 +175,6 @@ void btlActionEndHomeInit(u8 *action)
 /* After movement completes, restore the anchor direction and enter the idle action state. */
 void btlActionEndHomeUpdate(u8 *action)
 {
-    /* Typed action/unit/packet fields changed MWCC codegen (168B trial); retain the proven byte offsets for MATCH. */
     f32 direction[3];
     u8 *packet;
 
@@ -199,7 +193,6 @@ void btlActionEndHomeUpdate(u8 *action)
 /* Remove the defeated action from orders; clear party buffs or queue enemy removal effects. */
 void btlActionDeadInit(u8 *action)
 {
-    /* Typed action/unit/packet fields changed MWCC codegen (360B trial); retain the proven byte offsets for MATCH. */
     u8 *unit;
     u8 genus;
     u8 *packet;
@@ -241,7 +234,6 @@ void btlActionDeadInit(u8 *action)
 /* Wait for revival of retained units, otherwise transition defeated enemies to exit. */
 void btlActionDeadUpdate(u8 *action)
 {
-    /* Typed action/unit/packet fields changed MWCC codegen (316B trial); retain the proven byte offsets for MATCH. */
     u8 genus;
     u8 *unit;
 
@@ -292,19 +284,15 @@ void btlActionExitInit(u8 *action)
     }
 }
 
-/* Retail allocates the scan as found=v1, base=v0, i=a3. The second scan walks
-   a `table` copy of `base`; that copy use keeps `base` a declared local
-   instead of folding into its gp load temporary. `found` declared first and
-   `base` second give retail's v1/v0 pair. In the owner, the measured
-   `opt_common_subs off` keeps the scan's offset and table reloads separate. */
+/* The second scan walks a table copy of base, which keeps base a separate local; common-
+ * subexpression elimination is off so offset and table reloads stay separate. */
 #pragma push
-/* measured: typed argument aliases and named member reads retain 95 or more baseline words. */
+/* measured: retail reloads the encounter offset and table separately instead of sharing them. */
 #pragma opt_common_subs off
 // FUN_001B05D0
 /* Wait for unit packets, release encounter references and the unit, then mark the action for deletion. */
 void btlActionExitUpdate(u8 *action)
 {
-    /* Typed encounter-slot indexing changed codegen (500B trial); retain offset-first C74/C94 table reads. */
     u8 *found;
     u8 *base;
     u8 *unit;

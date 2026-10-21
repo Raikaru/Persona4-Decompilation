@@ -32,10 +32,8 @@ typedef struct {
 extern Code1_004bColor iGpffffbb64;
 extern void memcpy(void *sourceBytes, void *sequenceId, s32 firstValue);
 
-/* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
-   func_004bd628, func_004bd640, func_004bd658, func_004bd670,
-   func_004bd688, and func_004bd6a0.  Plain C cannot emit this ABI shape. */
-
+/* func_004bd628, func_004bd640, func_004bd658, func_004bd670, func_004bd688 and func_004bd6a0 are
+ * framed tail-jump wrappers that plain C cannot emit. */
 
 
 extern u8 D_0071465C[];
@@ -65,9 +63,6 @@ extern BtlShuffleRenderPrimitive D_00887310_abs[];
 extern void (*jtbl_008873EC[])(void *);
 /* The six framed tail-jump wrappers listed above are intentionally retained
    as assembly fallbacks; all ordinary small wrappers below are source-backed. */
-
-/* Source unit: src/promoted/code1_004b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004b1680-004b16c0 */
 
 /* Store the sequence request arguments, clear its phase and mark the sequence active. */
 // FUN_004B1680
@@ -109,10 +104,8 @@ void *mdlEffectCreateScreenSprite(void *opaqueSource) {
     }
     memcpy(instance + 0xC, parameters, 0x98);
     geometry = (u16 *)GeometryCreateTableGrid(1, 2, 4, D_00713408, 0x4C);
-    /* The constructor stores a halfword-addressable geometry pointer in the byte-shaped shared geometry slot. */
     MEMBER(u16 *, instance, MdlEffectScreenSprite, geometry) = geometry;
     *geometry = *geometry & 0xFFFB;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     colors = (u8 *)((RpAtomic *)((EffGeometryBlock *)MEMBER(u8 *, instance, MdlEffectScreenSprite, geometry))->atomic)->geometry;
     colors = (u8 *)((RpGeometry *)colors)->colors;
     ((s32 *)colors)[0] = -1;

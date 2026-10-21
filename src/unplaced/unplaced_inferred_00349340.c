@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00349340-00349380 */
 
 #include "nline_vertex_internal.h"
 #include "include_asm.h"

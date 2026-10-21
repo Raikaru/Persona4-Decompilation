@@ -1,4 +1,4 @@
-/* Original translation unit sdkListState.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sdkListState.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "include_asm.h"
 
@@ -26,8 +26,7 @@ extern u16 D_008C027A[];
 extern u32 D_007105E8[];
 
 
-
-// Intent: zeroes the 0x2C-byte list state and sets its visible row count (arg1) and item count (arg2).
+// Zeroes the list state and sets its visible row count and item count.
 // FUN_004535C0
 void sdkListStateInit(u8* state, s32 value, s32 itemCount)
 {
@@ -41,8 +40,8 @@ void sdkListStateInit(u8* state, s32 value, s32 itemCount)
     sdkListStateConfigure(state, value, itemCount, 0, 0);
 }
 
-// Intent: fully configures the list state: visible rows, item count, cursor and scroll offset, then sets the active and refresh flags.
-/* measured: access-site state fields lose MATCH; a typed local state alias retains all original instructions. */
+// Fully configures the list state (visible rows, item count, cursor, scroll offset), then sets the
+// active and refresh flags. Fields are read through a typed local alias.
 // FUN_00453670
 void sdkListStateConfigure(u8* state, s32 value, s32 itemCount, s32 cursor, s32 scroll)
 {
@@ -67,7 +66,7 @@ void sdkListStateConfigure(u8* state, s32 value, s32 itemCount, s32 cursor, s32 
     sdkListStateSetRefresh(state, 1);
 }
 
-// Intent: sets or clears the active flag (bit 1) of the list state.
+// Sets or clears the active flag (bit 1) of the list state.
 // FUN_00453760
 void sdkListStateSetActive(u8* state, s32 value)
 {
@@ -81,7 +80,7 @@ void sdkListStateSetActive(u8* state, s32 value)
     }
 }
 
-// Intent: sets or clears the refresh flag (bit 2) that the input handler reads.
+// Sets or clears the refresh flag (bit 2) that the input handler reads.
 // FUN_004537E0
 void sdkListStateSetRefresh(u8* state, s32 value)
 {
@@ -95,7 +94,7 @@ void sdkListStateSetRefresh(u8* state, s32 value)
     }
 }
 
-// Intent: stores the four primary button masks at +0x04..+0x0A.
+// Stores the four primary button masks.
 // FUN_00453860
 void sdkListStateSetPrimaryMasks(u8* state, s32 value, s32 itemCount, s32 cursor, s32 scroll)
 {
@@ -108,7 +107,7 @@ void sdkListStateSetPrimaryMasks(u8* state, s32 value, s32 itemCount, s32 cursor
     ((SdkListState *)state)->primaryRepeatBack = scroll;
 }
 
-// Intent: stores the four secondary button masks at +0x0C..+0x12.
+// Stores the four secondary button masks.
 // FUN_004538E0
 void sdkListStateSetSecondaryMasks(u8* state, s32 value, s32 itemCount, s32 cursor, s32 scroll)
 {
@@ -121,7 +120,8 @@ void sdkListStateSetSecondaryMasks(u8* state, s32 value, s32 itemCount, s32 curs
     ((SdkListState *)state)->secondaryRepeatBack = scroll;
 }
 
-// Intent: reads the pressed-button masks and moves the cursor. Returns 1 or 2 for a forward or back step, 3 or 4 for the other two directions, 0 when nothing moved.
+// Reads the pressed-button masks and moves the cursor; returns 1 or 2 for forward/back, 3 or 4 for
+// the other directions, 0 if nothing moved.
 // FUN_00453960
 s32 sdkListStateHandleInput(u8* state)
 {
@@ -190,7 +190,7 @@ done:
     return result;
 }
 
-// Intent: appends one item by raising the count by one.
+// Appends one item by raising the count by one.
 // FUN_00453C80
 void sdkListStateAddItem(u8* state)
 {
@@ -199,8 +199,8 @@ void sdkListStateAddItem(u8* state)
     }
     sdkListStateSetCount(state, ((SdkListState *)state)->itemCount + 1);
 }
-// Intent: sets the item count; if the count shrinks, re-seeks the cursor inside the new range.
-/* measured: access-site state fields lose MATCH; a typed local state alias retains all original instructions. */
+// Sets the item count; if the count shrinks, re-seeks the cursor inside the new range. The typed
+// local alias of state reproduces retail's instruction sequence.
 // FUN_00453CE0
 void sdkListStateSetCount(u8* state, s32 value)
 {
@@ -217,8 +217,7 @@ void sdkListStateSetCount(u8* state, s32 value)
 }
 
 
-
-// Intent: returns the scroll offset (+0x28).
+// Returns the scroll offset.
 // FUN_00453D70
 s32 sdkListStateGetScroll(u8* state)
 {
@@ -229,8 +228,7 @@ s32 sdkListStateGetScroll(u8* state)
 }
 
 
-
-// Intent: returns the cursor's offset within the visible window (+0x24).
+// Returns the cursor's offset within the visible window.
 // FUN_00453DC0
 s32 sdkListStateGetCursor(u8* state)
 {
@@ -241,8 +239,7 @@ s32 sdkListStateGetCursor(u8* state)
 }
 
 
-
-// Intent: returns the item count (+0x20).
+// Returns the item count.
 // FUN_00453E10
 s32 sdkListStateGetCount(u8* state)
 {
@@ -253,8 +250,7 @@ s32 sdkListStateGetCount(u8* state)
 }
 
 
-
-// Intent: returns the visible row count (+0x14).
+// Returns the visible row count.
 // FUN_00453E60
 s32 sdkListStateGetVisible(u8* state)
 {
@@ -264,8 +260,8 @@ s32 sdkListStateGetVisible(u8* state)
     return ((SdkListState *)state)->visibleRows;
 }
 
-// Intent: moves the cursor to the given item index, clamped to the valid range, and recomputes the scroll offset.
-/* measured: access-site state fields lose MATCH; a typed local state alias retains all original instructions. */
+// Moves the cursor to the given item index, clamped to the valid range, and recomputes the scroll
+// offset. Fields are read through a typed local alias rather than casts at each access.
 // FUN_00453EB0
 s32 sdkListStateSeek(u8* state, s32 value)
 {
@@ -305,7 +301,7 @@ s32 sdkListStateSeek(u8* state, s32 value)
     return 1;
 }
 
-// Intent: sets the visible row count (+0x14).
+// Sets the visible row count.
 // FUN_00453FA0
 void sdkListStateSetVisible(u8* state, s32 value)
 {
@@ -315,7 +311,7 @@ void sdkListStateSetVisible(u8* state, s32 value)
     ((SdkListState *)state)->visibleRows = value;
 }
 
-// Intent: sets the rows reserved at the top (+0x18) that the cursor cannot use.
+// Sets the rows reserved at the top that the cursor cannot use.
 // FUN_00453FF0
 void sdkListStateSetReservedRows(u8* state, s32 value)
 {
@@ -325,7 +321,7 @@ void sdkListStateSetReservedRows(u8* state, s32 value)
     ((SdkListState *)state)->reservedRows = value;
 }
 
-// Intent: sets the clamp flag (bit 0) so the cursor stops at the ends instead of wrapping.
+// Sets the clamp flag (bit 0) so the cursor stops at the ends instead of wrapping.
 // FUN_00454040
 void sdkListStateEnableClamp(u8* state)
 {
@@ -335,7 +331,7 @@ void sdkListStateEnableClamp(u8* state)
     ((SdkListState *)state)->flags |= 1;
 }
 
-// Intent: clears the clamp flag (bit 0) so the cursor wraps at the ends.
+// Clears the clamp flag (bit 0) so the cursor wraps at the ends.
 // FUN_00454090
 void sdkListStateDisableClamp(u8* state)
 {
@@ -345,8 +341,8 @@ void sdkListStateDisableClamp(u8* state)
     ((SdkListState *)state)->flags &= ~1;
 }
 
-// Intent: steps the cursor forward one row, scrolling when it reaches the bottom of the window. Returns 1 when it moved.
-/* measured: access-site state fields lose MATCH; a typed local state alias retains all original instructions. */
+// Steps the cursor forward one row, scrolling when it reaches the bottom of the window. Returns 1
+// when it moved.
 // FUN_004540E0
 s32 sdkListStateStepForward(u8* state)
 {
@@ -407,8 +403,8 @@ s32 sdkListStateStepForward(u8* state)
 done:
     return 1;
 }
-// Intent: steps the cursor back one row, scrolling when it reaches the top of the window. Returns 1 when it moved.
-/* measured: access-site state fields lose MATCH; a typed local state alias retains all original instructions. */
+// Steps the cursor back one row, scrolling when it reaches the top of the window. Returns 1 when it
+// moved.
 // FUN_00454250
 s32 sdkListStateStepBack(u8* state)
 {

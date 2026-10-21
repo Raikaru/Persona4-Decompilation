@@ -47,12 +47,9 @@ extern f32 fGpffff8044;
 
 extern void (*jtbl_008873EC[])(void *);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00481d80-00481e30 */
-
 extern void mdlEffectSelectResourceEntry(u8 *player, s32 entryIndex);
 extern u8 *mdlEffectLoadTrackResource(s32 *source);
 /* Resolves a track resource, allocates its 0x14-byte track states, and initializes playback. */
-/* Resolves a track resource and allocates initialized playback states with a 0x14-byte stride. */
 // FUN_00481D80
 u8 *mdlEffectCreateTrackInstance(s32 source) {
     s32 allocationSize;

@@ -1,6 +1,5 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Source unit: src/cldScheduler.c */
 #include "type.h"
 #include "h_cdvd_internal.h"
 
@@ -46,7 +45,6 @@ extern s32 cldSchedulerTaskUpdate(u8 *task);
 extern void cldSchedulerTaskDestroy(u8 *unusedTask);
 
 
-
 /* Allocate the monthly schedule script buffer and reset the scheduler work. */
 // FUN_0025FF90
 void cldSchedulerInit(void)
@@ -61,12 +59,9 @@ void cldSchedulerInit(void)
 }
 
 
-
-/* The six eight-byte period labels generate the retail paired-byte copy.
- * Keep propagation off here to retain the post-copy byte conversion. */
 /* Load the current month, run its date/time procedure, then await completion. */
 // FUN_00260020
-/* measured: baseline removal leaves nd411 in period-label conversion and lifetimes; retain propagation off. */
+/* measured: propagation off keeps retail's byte conversion after the copy in the period-label code. */
 #pragma opt_propagation off
 s32 cldSchedulerTaskUpdate(u8 *task)
 {
@@ -213,12 +208,10 @@ s32 cldSchedulerTaskUpdate(u8 *task)
 #pragma opt_propagation on
 
 
-
 // FUN_00260440
 void cldSchedulerTaskDestroy(u8 *unusedTask)
 {
 }
-
 
 
 /* Replace the live scheduler task using the shared three-word work block. */

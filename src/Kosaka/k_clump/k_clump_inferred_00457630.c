@@ -218,18 +218,14 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 
 
-
 #pragma push
 #pragma pop
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00457630-00457630 */
 
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_propagation off preserves the retail global-load destination register. */
-/* measured: K_ClumpLookAtBasis MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps the global load in its own destination instead of propagating it. */
 #pragma opt_propagation off
 /* Build an orthonormal frame from position, target, and an optional reference-up vector. */
 /* RwFrame modelling matrix starts at +0x10 (rw/core/baframe.h). */

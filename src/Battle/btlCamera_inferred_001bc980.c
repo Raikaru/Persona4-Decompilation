@@ -91,28 +91,19 @@ void mdlEffectSetSequenceRequest(s32 sequence, s16 sequenceId, s32 firstValue, s
 #pragma push
 #pragma pop
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001b; members 001bc980-001bd530 */
-
 extern s32 btlActionGetQueueSecond(void);
 extern void mdlBlendTranslationRotation(f32 *result, f32 *from, f32 *to, f32 blend);
-/* Index the twelve-entry action target list using its proven pointer stride. */
-/* Read an action target for camera visibility geometry. */
-/* measured: keeps target-index load scheduling and the complete geometry instruction sequence; btlCameraSetupActionGeometry plain expansion differs 448 byte(s). */
+/* Reads an action target for camera visibility geometry from the twelve-entry action target list. */
 static inline u8 *btlCameraGetVisibilityTarget(u8 *action, u16 index)
 {
     return ((BtlAction *)action)->targets[index];
 }
 struct RwV3d;
-/* measured: opt_rebuildconditionals off for func_001b19c0 branch-fed scalar. */
-/* measured: close opt_rebuildconditionals off for func_001b19c0. */
-/* measured: scoped opt_lifetimes on with these disjoint work-pointer
- * lifetimes reproduces the complete 4156-byte retail body; all 122 owner
- * siblings, allocated data and 122 exact-position references are preserved.
- * The separate retained-height caller-domain proof remains required. */
+/* measured: retail keeps the branch-fed scalar in func_001b19c0 unrebuilt, and its work pointers
+ * have disjoint lifetimes, so opt_lifetimes is on. */
 #pragma push
 #pragma pop
-/* 744/752 bytes; twenty resolved relocations; eight zero alignment bytes.
- * Keep full-width dependency snapshots and branch-materialized final mode. */
+/* Keeps full-width dependency snapshots and a branch-materialized final mode. */
 #pragma push
 #pragma pop
 #pragma push
@@ -229,7 +220,7 @@ u8 *btlCameraCreatePacketCommand(s32 value, s16 option, s32 first, s32 second) {
 }
 
 #pragma push
-/* measured: cached alpha mode and typed/narrow target cursors retain 306 or more baseline words. */
+/* measured: loop-invariant hoisting is needed for retail's target cursor and alpha mode loads. */
 #pragma opt_loop_invariants on
 /* Set visibility and fade flags from action membership and the horizontal camera corridor; mode bits select exclusions. */
 // FUN_001BCD40
@@ -375,12 +366,8 @@ void btlCameraSetupActionGeometry(u8 *action, u8 *first, f32 *second, f32 radius
 }
 #pragma pop
 
-/* measured: disabling propagation preserves retail's independent outer-index
-   materialisation after the preheader branch. */
-/* measured: disabling common-subexpression folding preserves retail's second
-   masked loop-counter use. */
-/* measured: btlCameraClearAllUnitFlags MATCH -> MISMATCH without this pragma. */
-/* measured: named unit members retain 26 baseline words in the clear scan and 69 in the range scan. */
+/* measured: retail recomputes the outer index after the preheader branch and reuses the masked loop
+ * counter a second time instead of folding it. */
 #pragma opt_common_subs off
 /* Clear the low camera visibility flags on both battle-side unit lists. */
 // FUN_001BD300
@@ -406,9 +393,6 @@ outer_check:
     if ((sideIndex & 0xFFFF) < 2) goto outer_body;
 }
 
-/* measured: closes opt_common_subs for the following translation-unit code. */
-/* measured: closes opt_propagation for the following translation-unit code. */
-/* measured: opt_common_subs off preserves the retail per-use masked index. */
 /* Mark eligible units within their scaled radius plus 200 units of the camera modelling position. */
 // FUN_001BD390
 void btlCameraUpdateUnitInRangeFlags(void)
@@ -455,8 +439,8 @@ outer_check:
     if ((counter & 0xFFFF) < 2) goto outer_body;
 }
 
-/* measured: restore common-subexpression optimization after btlCameraUpdateUnitInRangeFlags. */
-/* measured: btlCameraMarkUnitFramed MATCH -> MISMATCH without this pragma. */
+/* measured: common-subexpression optimization goes back on here because btlCameraMarkUnitFramed
+ * only matches retail with it enabled. */
 #pragma opt_common_subs on
 // FUN_001BD4F0
 /* Mark the unit framed/visible and clear the alternate visibility flag. */

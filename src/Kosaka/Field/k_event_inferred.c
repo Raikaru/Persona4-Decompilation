@@ -109,7 +109,6 @@ extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
 
 
-
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
 extern u8 D_005EF8D0[];
@@ -172,14 +171,12 @@ typedef FieldRgba8 Rgba8_0014;
 extern s32 D_007642F0;
 
 
-
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *, u8 *);
 extern void FldEventDrawMarker(u8 *, u8 *);
 
 
 extern u8 *MT_Scene_GetResListHead(s32 );
-
 
 
 extern s32 iGpffff9dd0;
@@ -206,15 +203,8 @@ extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
 
 
-
-/* Camp display: grid, labels, radar and corner sprites.
- * The radar callees are declared here with u8 opacity parameters (H011):
- * retail narrows each radar alpha with its unsigned conversion and passes
- * it without another mask, while the matched definitions in this file keep
- * s32 because their own bodies use the full word.
- * `sprite` is one function-scope variable for the 0x1834 label sprite and
- * the corner sprite; b210 does not propagate it into the sdkSpriteDrawSized
- * call, so the label pointer is loaded before the stack argument. */
+/* Camp display: grid, labels, radar and corner sprites. Radar callees take u8 opacity because
+ * retail narrows each alpha without masking it again. */
 #pragma push
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
@@ -246,59 +236,17 @@ extern s32 datCalcGetLevelById(s32 unitId);
 #pragma pop
 
 
-
-
-
-
-/* measured: closes the scoped optimization-level-1 probe. */
+#pragma push
+#pragma pop
 
 
 #pragma push
 #pragma pop
 
 
-
 #pragma push
 #pragma pop
 
-
-
-
-
-
-
-
-
-#pragma push
-#pragma pop
-
-
-
-
-
-
-
-
-
-/* measured: opt_rebuildconditionals off is scoped to resrcMngResetRenderSlots. */
-
-/* measured: closes opt_rebuildconditionals for resrcMngResetRenderSlots. */
-
-/* measured: opt_rebuildconditionals off is scoped to resrcMngSetDrawEnabled. */
-
-/* measured: closes loop-invariant constants probe for resrcMngSetDrawEnabled. */
-/* measured: closes opt_rebuildconditionals for resrcMngSetDrawEnabled. */
-
-/* measured: opt_rebuildconditionals off is scoped to FldMap_IsCurrentInEitherBand. */
-
-/* measured: closes opt_rebuildconditionals for FldMap_IsCurrentInEitherBand. */
-
-/* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
-
-/* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
-
-/* Source unit: src/promoted/code1_0014.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 0014c540-0014d4e0 */
 
 /* Eight region entries use the same 0x168-byte placement stride. */
 typedef struct FldEventRegion {
@@ -328,7 +276,6 @@ static inline void fldGridMark(s32 x, s32 y)
     (((cellX) == (x) && (cellY) == (y)) || ((cellX) == (x) + 1 && (cellY) == (y)) ||                      \
      ((cellX) == (x) && (cellY) == (y) + 1) || ((cellX) == (x) + 1 && (cellY) == (y) + 1))
 /* Find the closest actor inside the distance/FOV limits with an unobstructed raised sight line. */
-/* MEMBER preserves the measured model-handle reloads that typed pointer/array forms merge or reschedule. */
 // FUN_0014C540
 u8 *FldEvent_FindNearestVisibleActor(u8 *actor, f32 maxDistance, f32 fieldOfView) {
     f32 distance;
@@ -371,14 +318,14 @@ loop_body_0014c540:
             entry = D_007E8020_abs + (u32)i;
             candidateX = ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)((FldEventActor *)(*entry))->model)))->pos.x;
             stack.diffB0[0] = candidateX -
-                              ((RwMatrixTag *)((u8 *)mdlGetMatrix(MEMBER(void *, sourceActor, FldEventActor, model))))->pos.x; /* measured: FldEventActor.model: local instruction mismatch; MEMBER retains reload behavior. */
+                              ((RwMatrixTag *)((u8 *)mdlGetMatrix(MEMBER(void *, sourceActor, FldEventActor, model))))->pos.x;
             candidateY = ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)((FldEventActor *)(*entry))->model)))->pos.y;
             stack.diffB0[1] = candidateY -
-                              ((RwMatrixTag *)((u8 *)mdlGetMatrix(MEMBER(void *, sourceActor, FldEventActor, model))))->pos.y; /* measured: FldEventActor.model: local instruction mismatch; MEMBER retains reload behavior. */
+                              ((RwMatrixTag *)((u8 *)mdlGetMatrix(MEMBER(void *, sourceActor, FldEventActor, model))))->pos.y;
             candidateZ = ((RwMatrixTag *)((u8 *)mdlGetMatrix((void *)((FldEventActor *)(*entry))->model)))->pos.z;
             stack.diffB0[2] = candidateZ -
-                              ((RwMatrixTag *)((u8 *)mdlGetMatrix(MEMBER(void *, sourceActor, FldEventActor, model))))->pos.z; /* measured: FldEventActor.model: local instruction mismatch; MEMBER retains reload behavior. */
-            selfMatrix = (u8 *)mdlGetMatrix(MEMBER(void *, sourceActor, FldEventActor, model)); /* measured: FldEventActor.model: local instruction mismatch; MEMBER retains reload behavior. */
+                              ((RwMatrixTag *)((u8 *)mdlGetMatrix(MEMBER(void *, sourceActor, FldEventActor, model))))->pos.z;
+            selfMatrix = (u8 *)mdlGetMatrix(MEMBER(void *, sourceActor, FldEventActor, model));
             selfPosition = ((RwMatrixTag *)(selfMatrix))->pos;
             stack.v80 = selfPosition;
             candidateMatrix = (u8 *)mdlGetMatrix((void *)((FldEventActor *)(*entry))->model);
@@ -403,8 +350,8 @@ loop_test_0014c540:
     return result;
 }
 
-/* measured probe: optimization_level 1 on c780. */
-/* Average levels across active party entries; the first entry queries its unit level instead of its cached level. */
+/* Average levels across active party entries; the first entry queries its unit level instead of its
+ * cached level. */
 // FUN_0014C780
 s32 FldEvent_AverageEntryValue(void) {
     s32 index;
@@ -442,7 +389,6 @@ loop_test_0014c780:
     return sum / count;
 }
 
-/* measured: restore optimization_level 2 after FldEvent_AverageEntryValue. */
 /* Return the first region actor that passes the sight-line query. */
 // FUN_0014C850
 s32 *FldEvent_FindFirstRegionActor(u8 *actor, f32 distance, f32 fieldOfView) {
@@ -480,15 +426,8 @@ void FldEvent_BeginGridScan(void) {
 }
 
 #pragma push
-/* measured: byte-exact (354/354 instructions, 0 differing words).  The three
-   occupancy scans are block-scoped so each `clear` flag lives where retail
-   keeps it ($v0 reusing the test's 1, $s6 across the list walk's calls, $t2).
-   The grid is a u16 row array: `D_007D24B0[y + 1]` folds to the symbol+2
-   base retail uses for the final mark.  The mark's bits are `(u16)(1U << x)`
-   so they are not CSE'd with the signed occupancy test's `1 << x`.
-   opt_loop_invariants hoists 600.0f/1200.0f, x+1/y+1 and the table bases. */
-/* measured: FldEvent_NextGridCell MATCH -> MISMATCH without this pragma. */
-/* measured: baseline removal differs in 1109 bytes; float grid constants cached outside scans; typed region scan indexing also differ. */
+/* measured: retail hoists the 600.0f/1200.0f grid constants, x+1/y+1 and the table bases out of the
+ * occupancy scans. */
 #pragma opt_loop_invariants on
 /* Scan eligible cells, excluding region actors, model resources and saved NPC origins in each two-by-two footprint. */
 // FUN_0014C960
@@ -506,7 +445,8 @@ s32 FldEvent_NextGridCell(s32 *columnOut, s32 *rowOut)
         row = &D_007D24B0[y];
         for (; x < 0x10; x++) {
             cellOffset = x << 4;
-            /* measured: typed cell cursors swap addu operands at five loads (nd10); named offsets retain pointer-add order. */
+            /* measured: named offsets keep retail's pointer-add operand order; typed cell cursors
+             * swap it. */
             if (*(MT_Scene_GetFrameState() + rowOffset + cellOffset + MEMBER_OFFSET(FldFrame, cells[0][0].occupied)) != 1) {
                 continue;
             }
@@ -554,7 +494,7 @@ s32 FldEvent_NextGridCell(s32 *columnOut, s32 *rowOut)
                 clear = 1;
                 for (obj = MT_Scene_GetResListHead(3); obj != NULL; obj = (u8 *)((ResrcRecord *)(obj))->next) {
                     cellX = (s32)((600.0f + ((RwMatrixTag *)((u8 *)mdlGetMatrix(((ResrcRecord *)(obj))->modelHandle164)))->pos.x) / 1200.0f);
-                    cellY = (s32)((600.0f + ((RwMatrixTag *)((u8 *)mdlGetMatrix(MEMBER(void *, obj, ResrcRecord, modelHandle164))))->pos.z) / 1200.0f); /* measured: ResrcRecord.modelHandle164: local nd690; MEMBER retains reload behavior. */
+                    cellY = (s32)((600.0f + ((RwMatrixTag *)((u8 *)mdlGetMatrix(MEMBER(void *, obj, ResrcRecord, modelHandle164))))->pos.z) / 1200.0f);
                     if (FLD_GRID_HITS(cellX, cellY, x, y)) {
                         fldGridMark(x, y);
                         clear = 0;
@@ -602,8 +542,8 @@ s32 FldEvent_NextGridCell(s32 *columnOut, s32 *rowOut)
 }
 
 #pragma pop
-/* measured probe: opt_loop_invariants on hoists the 600.0f/1200.0f constants. */
-/* measured: FldEvent_GetGridCellEntry MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists the 600.0f/1200.0f constants out of the loop, which needs loop-invariant
+ * hoisting enabled. */
 #pragma opt_loop_invariants on
 /* Find a resource whose rounded grid position overlaps the requested two-by-two cell. */
 /* Type-15 resources use the placement interpretation of the shared resource tail. */
@@ -636,9 +576,8 @@ loop_test_0014cef0:
     return NULL;
 }
 
-/* measured: restore opt_loop_invariants off after FldEvent_GetGridCellEntry. */
-/* Resolve the containing cell and test whether a placed model overlaps its two-by-two footprint. */
-/* Neighbor probes deliberately address preceding cells to resolve the origin of a multi-cell resource. */
+/* Resolve the containing cell and test whether a placed model overlaps its two-by-two footprint;
+ * neighbor lookups check preceding cells to find a multi-cell resource's origin. */
 // FUN_0014CFD0
 s32 FldEvent_IsCellOccupied(u8 *position)
 {
@@ -689,7 +628,7 @@ loop_body_0014cfd0:
                        ((RwMatrixTag *)((u8 *)mdlGetMatrix(((ResrcRecord *)(entry))->modelHandle164)))->pos.x) /
                       1200.0f);
     objectZ = (s32)((600.0f +
-                    ((RwMatrixTag *)((u8 *)mdlGetMatrix(MEMBER(void *, entry, ResrcRecord, modelHandle164))))->pos.z) / /* measured: ResrcRecord.modelHandle164: local nd197; MEMBER retains reload behavior. */
+                    ((RwMatrixTag *)((u8 *)mdlGetMatrix(MEMBER(void *, entry, ResrcRecord, modelHandle164))))->pos.z) /
                    1200.0f);
     if (((objectX == cellX) && (objectZ == cellZ)) ||
         ((objectX == (cellX + 1)) && (objectZ == cellZ)) ||
@@ -706,7 +645,6 @@ loop_test_0014cfd0:
 }
 
 /* Draw the sampled curve segments and color-coded control points for a queued marker. */
-/* Segment count and curve MEMBER accesses preserve the measured reloads across sampling and drawing calls. */
 // FUN_0014D290
 void FldEventDrawMarker(u8 *queueNode, u8 *curve)
 {
@@ -734,13 +672,13 @@ void FldEventDrawMarker(u8 *queueNode, u8 *curve)
     f32 inverseSegmentCount;
 
     segmentIndex = 0;
-    while (segmentIndex < MEMBER(s32, curve, FldEventMarker, segmentCount)) { /* measured: FldEventMarker.segmentCount: local nd325; MEMBER retains reload behavior. */
-        segmentCount = MEMBER(s32, curve, FldEventMarker, segmentCount); /* measured: FldEventMarker.segmentCount: local nd325; MEMBER retains reload behavior. */
+    while (segmentIndex < MEMBER(s32, curve, FldEventMarker, segmentCount)) {
+        segmentCount = MEMBER(s32, curve, FldEventMarker, segmentCount);
         func_003bb5b0(((FldEventMarker *)(curve))->curve, 0xA, segmentStart, 0,
                       (1.0f / (f32)segmentCount) * (f32)segmentIndex);
         segmentCountFloat = (f32)((FldEventMarker *)curve)->segmentCount;
         inverseSegmentCount = (1.0f / (segmentCountFloat));
-        func_003bb5b0(MEMBER(u8 *, curve, FldEventMarker, curve), 0xA, segmentEnd, 0, /* measured: FldEventMarker.curve: local nd327; MEMBER retains reload behavior. */
+        func_003bb5b0(MEMBER(u8 *, curve, FldEventMarker, curve), 0xA, segmentEnd, 0,
                       inverseSegmentCount * (f32)(segmentIndex + 1));
         primLine3D(segmentStart, segmentEnd, curve + 8, 1);
         segmentIndex += 1;
@@ -749,12 +687,12 @@ void FldEventDrawMarker(u8 *queueNode, u8 *curve)
     while (pointIndex < func_003bb330(((FldEventMarker *)(curve))->curve)) {
         if (pointIndex == 1) {
             *(f32 *)&pointColor = D_005EFBB8[0];
-        } else if (pointIndex == (func_003bb330(MEMBER(u8 *, curve, FldEventMarker, curve))) - 2) { /* measured: FldEventMarker.curve: local nd327; MEMBER retains reload behavior. */
+        } else if (pointIndex == (func_003bb330(MEMBER(u8 *, curve, FldEventMarker, curve))) - 2) {
             pointColor = *(P4Bytes0014 *)D_005EFBBC;
         } else {
             pointColor = *(P4Bytes0014 *)D_005EFBC0;
         }
-        func_003bb3a0(MEMBER(u8 *, curve, FldEventMarker, curve), pointIndex, segmentStart); /* measured: FldEventMarker.curve: local nd327; MEMBER retains reload behavior. */
+        func_003bb3a0(MEMBER(u8 *, curve, FldEventMarker, curve), pointIndex, segmentStart);
         primSphereLine3D((u8 *)segmentStart, 5.0f, (u8 *)&pointColor, 1);
         pointIndex += 1;
     }

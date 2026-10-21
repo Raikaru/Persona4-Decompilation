@@ -150,8 +150,6 @@ extern f32 fGpffff81c4;
 extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 00462bf0-00462df0 */
-
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
     s32 displayFrame;              /* 0x04: copied from frameNumber by provider */
@@ -239,11 +237,8 @@ typedef struct HMaestroListSet {
     s32 unk04;
     HMaestroListLink lists[9];
 } HMaestroListSet;
-/* Free every node in each list, then free the containing list set.
- * Keep raw head accesses: typed union heads merge reloads across free and lose MATCH.
- * The nine heads are +8..+0x28 and each node links at +0x24. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 45, 78, 110, 143, 176, 209, 242, 275, 308, 355, 356, 358, 359, 360, 361, 362, 363, 364; retain their original address/alias expressions. */
+/* Free every node in each of the nine lists, then free the list set. Raw head accesses are kept
+ * because typed heads merge reloads across the free calls. */
 // FUN_00462BF0
 void hMaestroFreeListSet(u8 *listSet)
 {

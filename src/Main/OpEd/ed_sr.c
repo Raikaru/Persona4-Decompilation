@@ -1,6 +1,6 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Original translation unit ed_sr.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit ed_sr.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 #include "scr_internal.h"
@@ -57,12 +57,9 @@ extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 /* Window callbacks (defined below in this file / in this TU). */
 
 
-
-// Intent: Step the end-scene state machine: wait, start playback, fade out and finish [inferred]
-/* Poll resource readiness, start staff playback, and fade out after the scroll and player have both ended. */
+// Steps the end-scene state machine: wait for resources, start staff playback, then fade out once
+// the scroll and player have both ended.
 // FUN_0038EE40
-/* Initial whole-layout typing changed b210 address materialization; the per-access
- * forms below were measured independently against the whole translation unit. */
 void edSrStep(void) {
     EdSrWork *staffWork;
     s32 v;
@@ -113,7 +110,7 @@ void edSrStep(void) {
     }
 }
 
-// Intent: Start playback: create the player when the flag asks for it and enter the fade-in state [inferred]
+// Starts playback, creating the player when flag 0x1472 asks for it, and enters the fade-in state.
 // FUN_0038F010
 void edSrStartPlayback(void) {
     s32 *p;
@@ -135,9 +132,8 @@ void edSrStartPlayback(void) {
     ((EdSrWork *)p)->state = 2;
 }
 
-// Intent: Queued overlay draw: draw the scroll lines while the work is active [inferred]
+// Queued overlay draw: draws the scroll lines while the work is active.
 // FUN_0038F0B0
-/* measured: a byte-addressed callback-table base retains the retail hoist with baseline propagation enabled. */
 void edSrOverlayDraw(void) {
     u8 *base;
     s32 previousFogState;
@@ -155,7 +151,7 @@ void edSrOverlayDraw(void) {
 }
 #pragma opt_propagation on
 
-// Intent: End-scene task update: step the state machine and return 0 while it is active [inferred]
+// End-scene task update: steps the state machine and returns 0 while it is active.
 // FUN_0038F160
 s32 edSrTaskUpdate(u8 *unusedTask) {
     edSrStep();
@@ -168,7 +164,7 @@ s32 edSrTaskUpdate(u8 *unusedTask) {
     return -1;
 }
 
-// Intent: Overlay task update: queue the overlay draw callback for this task [inferred]
+// Overlay task update: queues the overlay draw callback for this task.
 // FUN_0038F1C0
 s32 edSrOverlayTaskUpdate(u8 *task) {
     u8 *work;
@@ -182,7 +178,7 @@ s32 edSrOverlayTaskUpdate(u8 *task) {
     return 0;
 }
 
-// Intent: End-scene task destroy: release the scroll records and the resource, then run the teardown handler [inferred]
+// End-scene task destroy: releases the scroll records and resource, then runs the teardown handler.
 // FUN_0038F220
 void edSrTaskDestroy(u8 *task) {
     if (iGpffffb5b8 == NULL) {
@@ -193,13 +189,9 @@ void edSrTaskDestroy(u8 *task) {
     jtbl_008873EC[0](*(void * *)&((KwlnTask *)task)->work);
 }
 
-// Intent: Common script command 0x6A, CALL_STAFF_ROLL (0 params): starts the end-credits scene; returns 1 once the command timer is past 0xA and the task is gone.
-// Index: Common table group 0 base 0x63D070; entry 0x63D3C0 = (0x63D3C0 - 0x63D070) / 8 = 0x6A.
-// Library: p4flow Common.json 0x006A = CALL_STAFF_ROLL.
-/* Create the staff-roll work and task pair at command frame ten, then wait for the main task to disappear. */
+// Common script command 0x6A, CALL_STAFF_ROLL (no params): creates the staff-roll work and task at
+// command frame ten, then returns 1 once the task is gone.
 // FUN_0038F290
-/* Initial whole-layout typing changed b210 address materialization; the per-access
- * forms below were measured independently against the whole translation unit. */
 s32 K_Cmd_CALL_STAFF_ROLL(void) {
     s32 state;
     u8 *w;

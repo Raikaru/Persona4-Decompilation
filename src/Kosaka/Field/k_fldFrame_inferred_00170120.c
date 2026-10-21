@@ -42,11 +42,8 @@ extern s32 FldCharacterAnimSelect(void);
 extern s32 FldRoomIsListed(u16 field, u16 room);
 extern u32 RpRandom(void);
 extern s32 FldStepIndex(void);
-/* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
-   before the two lhu loads and $a3 (a) after them, which is the default-
-   promotion order of an old-style call with a u16 local for b and an explicit
-   (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
-   loads (nd4). Sole caller in this unit. */
+/* Left unprototyped because retail masks the arguments in old-style default-promotion order;
+ * Cmd_PickEncounter is the only caller. */
 extern s32 iGpffffb284;
 extern s32 iGpffffb300;
 extern s32 iGpffffb304;
@@ -70,7 +67,6 @@ extern f32 iGpffff8304;
 extern char D_005E5850[];
 extern f32 iGpffff82fc;
 extern u8 D_00794E70[];
-
 
 
 extern s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, void *intersection,
@@ -102,31 +98,6 @@ extern u8 *D_007643D0;
 extern FieldRenderStateSetFunction D_00887300[];
 extern s32 iGpffffba48;
 
-
-
-
-
-/* measured: ONE real defect, and it is the `slt $at` family. Retail emits
-   `slti $at,$v0,4; bnez $at` where b210 emits `slti $v0,$v0,4; bnez $v0`,
-   reusing the dead call result as the comparison destination. obj 92B vs
-   window 96B, so the reported count also includes one padding word.
-   `#pragma schedule off` and hoisting the call result into a local both leave
-   it unchanged.
-
-   Do NOT record this as a blanket floor. A census of the retail image shows the
-   $at form in 276 first-party functions that ALREADY MATCH, so it is reachable
-   from C -- it appears when the comparison feeds a short-circuit `&&`/`||`
-   chain, or when its source register is still live afterwards (see the matched
-   datCalc func_00231ef0: `if (arg1 > 99 && !(*(u16 *)arg0 & 4))` compiles to
-   `andi $v1; slti $at,$v1,0x64; bnez $at`). What is NOT reachable is this
-   shape: a single bare comparison on a dead call result, where b210 always
-   recycles the source register. 359 of the remaining first-party ASM functions
-   contain an $at comparison, so the distinction is worth knowing before writing
-/* SOLVED by tools/permute.py; this previously carried a `slt $at` floor note
-   and sat under #ifdef NON_MATCHING. The permuter found the shape from the
-   preserved body. */
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0017; members 00170120-00170120 */
 
 /* Select one of idle animations 6..8 for character type 1 in eligible rooms/steps;
  * otherwise retain animation 1. The preliminary selector call is preserved. */

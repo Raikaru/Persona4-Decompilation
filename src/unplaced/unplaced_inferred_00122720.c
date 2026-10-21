@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00122720-00122860 */
 
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -17,11 +16,8 @@ extern s32 iGpffffb1cc;
 #pragma opt_propagation on
 /* Report fade progress: 0 transitioning, 2 held, or 1 inactive/child-waiting. */
 // FUN_00122720
-/* The case values come from decoding the jump table at 0x007466C0 with
-   tools/jtbl.py: entry 0 returns 1, entries 1/2/4/5 share one body returning
-   0, entry 3 returns 2, and anything >= 6 falls through to the default 1.
-   The labels are declared in that object order because b210 lays case bodies
-   out in declaration order. */
+/* Jump table: state 0 returns 1, states 1/2/4/5 return 0, state 3 returns 2, anything else returns
+ * 1; labels follow retail body order. */
 s32 fadeStatus(void) {
     CalendarFade *state;
 

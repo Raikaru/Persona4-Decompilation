@@ -16,15 +16,12 @@
 
 typedef struct RwMatrix RwMatrix;
 
-/* FldCameraTaskCreate allocates 0x2d8 bytes; curve setup bounds keys at 32.
- * Snapshot capture/apply establish the vector and distance fields below.
- * Shifted scalar/vector cursors read segmentLength[index] and slotVector[index]
- * through the corresponding zero-index member where byte-base aliasing matters. */
-/* Adjacent frame/debug handles share their scalar ABI storage with pointers. */
+/* FldCameraTaskCreate allocates 0x2d8 bytes and curve setup caps keys at 32. Adjacent frame/debug
+ * handles share scalar storage with pointers. */
 typedef union FldCameraHandleSlot { u8 *pointer; s32 value; void *task; } FldCameraHandleSlot;
-/* Eight two-word records transfer one 64-byte matrix without changing load order. */
+/* Eight two-word records copy one 64-byte matrix. */
 typedef struct FldCameraMatrixPair { s32 first; s32 second; } FldCameraMatrixPair;
-/* This linker interior alias starts at the button word of each 0x4A-byte pad record. */
+/* Each record starts at the button word of a 0x4A-byte pad record. */
 typedef struct FldCameraPadRecord { u16 buttons; u8 pad02[0x48]; } FldCameraPadRecord;
 /* Matrix snapshots are copied as sixteen words, retaining the SDK flag/pad bits. */
 typedef struct FldCameraMatrix { u32 words[16]; } FldCameraMatrix;
@@ -187,8 +184,6 @@ extern u8 iGpffff9f10;
 extern u8 D_005F13A0[];
 
 
-
-
 extern s32 FldFrame_RaycastFieldWorlds(RwV3d *origin, RwV3d *vector, f32 fraction,
                          u16 fieldId);
 
@@ -245,8 +240,6 @@ typedef struct FldCameraSnapshotScratch
     u32 reserved6c; /* Cleared and copied with the seven-quadword snapshot. */
 } __attribute__((aligned(16))) FldCameraSnapshotScratch;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0016; members 0016b8a0-0016ffd0 */
-
 extern s32 FldEnemyLoadTable(u8 *file);
 extern void FldPartyModelRelease(s32 slot);
 extern s32 FldDayEventActive(void);
@@ -260,7 +253,7 @@ typedef struct FldRaySelectionResource
     u32 unknown10;
     void *preferred;
     u8 pad18[0xA08];
-    u8 *cameraPath; /* 0xA20: curve passed to func_003bb330/func_003bb5b0. */
+    u8 *cameraPath; /* Curve passed to func_003bb330/func_003bb5b0. */
 } FldRaySelectionResource;
 /* Choose the preferred world or fallback; same preferred/fallback rule as fldFrameSelectWorld. */
 static inline void fldRaySelectWorld(const FldRaySelectionResource *selected, void **destination)
@@ -280,34 +273,8 @@ extern u8 D_008C025F[];
 extern f32 fGpffff8300;
 extern f32 func_0044b920(f32 value);
 extern f32 sqrtf(f32 x);
-/* Build a 7-by-8 grid of 80-by-64 quads, snapshotting depth before any stores.
-   measured: natural vertex assignment order, invariant hoisting and disabled
-   propagation preserve retail's coordinate preparation and float registers.
-   Object 252B/window 256B; exact instructions and a four-byte zero tail. */
-/* measured: restore propagation and invariant baselines after the exact grid. */
-/* measured: closing the single-function address-hoist bracket. */
-/* measured: opt_propagation off preserves the render-state table base across calls. */
-/* measured: closes the function-scoped opt_propagation probe. */
-/* Matched full 759-instruction retail body.  The state accessor preserves the
- * read before the row-offset calculations across the branch join. */
-/* measured: opt_propagation off probe for retail field-load order in FldEnemyLoadTable */
-/* measured: opt_propagation on closes the FldEnemyLoadTable load-order probe */
-/* measured: opt_propagation off preserves the retail recomputed index and live register set in FldPartyModelRelease. */
-/* measured: closes the opt_propagation bracket for FldPartyModelRelease. */
-/* measured: direct global address expressions preserve retail bases while
-   opt_loop_invariants hoists the stride (nd 14 -> 0). */
-/* measured: direct global address expression preserves retail base/stride
-   register assignment while loop invariants hoist the stride (nd 0). */
-/* measured: closes the loop-invariant scope at the file baseline. */
-/* measured: direct global address expression preserves retail base/stride
-   register assignment while loop invariants hoist the stride (nd 0). */
-/* measured: closes the loop-invariant scope at the file baseline. */
-/* measured: optimization_level 1 reproduces FldDayEventActive's register coloring. */
-/* measured: restore baseline optimization level after FldDayEventActive. */
-/* Four real ray/intersection pairs keep each enumeration's callback state.
- * The resource selector shares the existing field selector's output contract.
- * Measured: 1324 retail instruction bytes and four zero alignment bytes. */
-/* Find the nearest field-world ray hit, checking neighboring grid cells before fallback models. */
+/* Find the nearest field-world ray hit, checking neighboring grid cells before fallback models;
+ * four ray/intersection pairs keep each enumeration's callback state. */
 // FUN_0016B8A0
 s32 FldFrame_RaycastField(const RwV3d *line, RwV3d *hitPointDst)
 {
@@ -485,18 +452,8 @@ query_complete:
     return result;
 }
 
-/* Camera follow: cylindrical target correction, waypoint interpolation,
- * wall projection and collision-constrained chase easing.
- *
- * measured 2026-10-13: fnalign 39 -> 16 (dbff44d7) -> 0; 2320 instructions,
- * frame 0x360. O3's early copy coalescer plus CSE off preserves the declared
- * sqrt/zero webs. Real phase snapshots replace the sharing normally supplied
- * by CSE; partial products and explicit affine addends retain the shared zero
- * in the retail MULA/ADDA/MADD sequences. Aggregate decomposition stays off
- * for the stack-vector ld/sd copies. The final 16 edits were genuine vector
- * argument bindings and helper-pointer snapshots, not a compiler floor.
- * See the comments at the call-crossing coordinate snapshots for stale reads.
- */
+/* Camera follow: cylindrical target correction, waypoint interpolation, wall projection and
+ * collision-constrained chase easing. */
 // FUN_0016BDD0
 extern RwMatrix *RwMatrixRotate(RwMatrix *matrix, const RwV3d *axis, f32 angle, s32 op);
 extern u8 *func_003e9680(u8 *frame);
@@ -534,32 +491,23 @@ extern void mdlSetAlphaBlend(void *);
 extern void mdlClearAlphaBlend(void *);
 
 
-
 extern f32 D_00756500[];
 extern f32 D_00756510[];
 extern f32 D_00756520[];
-/* measured: scope the 39 -> 0 camera reconstruction to this function. */
 #pragma push
-/* measured: O3 early copy coalescing retains the declared f32 webs. */
-/* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: O3 early copy coalescing keeps the declared f32 locals as separate variables, as retail
+ * does. */
 #pragma optimization_level 3
-/* measured: the O3 profile preserves retail's unscheduled delay slots. */
-/* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: scheduling off keeps retail's unscheduled delay slots in FldCameraTaskUpdate. */
 #pragma schedule off
-/* measured: keep loop-invariant motion off in the 39 -> 0 profile. */
-/* measured: keep loop rotation off in the 39 -> 0 profile. */
-/* measured: retain framed calls in the 39 -> 0 O3 profile. */
+/* measured: retail leaves loop-invariant code in place, does not rotate loops, and keeps framed
+ * calls instead of tail calls. */
 #pragma tailcall off
-/* measured: CSE off prevents the sqrt and zero copies from folding into late temps. */
-/* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
-/* measured: decomposition off recovers the retail stack-vector ld/sd copies. */
-/* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: CSE off keeps the sqrt and zero copies out of late temps; decomposition off keeps
+ * retail's stack-vector ld/sd copies. */
 #pragma opt_decomposeaggregates off
-/* measured: retain the existing per-role lifetime splitting (39 -> 0). */
-/* measured: propagation off preserves the real phase-value bindings. */
-/* measured: FldCameraTaskUpdate MATCH -> MISMATCH without this pragma. */
-/* measured: pullout off keeps the 55.0f and phase constants at their retail uses. */
-/* measured: baseline 2191 differing words; typed access, block lifetimes did not match; retain scoped settings. */
+/* measured: common-subexpression and propagation off keep retail's per-role lifetimes, phase-value
+ * bindings, and the 55.0f and phase constants at their uses. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
 s32 FldCameraTaskUpdate(u8 *task)
@@ -774,7 +722,6 @@ s32 FldCameraTaskUpdate(u8 *task)
             func_003e99a0((void *)(u32)((RwObject *)(followCameraHandle))->parent);
             func_003e9830(((FldCameraData *)cameraData)->parentFrame,((FldCameraData *)cameraData)->targetFrame);
             followCameraHandle = (s32)kwlnGetCamera();
-            /* Previous measurement: typing this access changed b210 output (normalized_diff 6); the access form below preserves MATCH. */
             func_003e9830(((FldCameraData *)cameraData)->targetFrame,MEMBER(s32, followCameraHandle, RwObject, parent));
           }
         }
@@ -789,7 +736,6 @@ s32 FldCameraTaskUpdate(u8 *task)
             func_003e99a0(detachedFrame);
           }
           followCameraHandle = (s32)kwlnGetCamera();
-          /* Previous measurement: typing this access changed b210 output (normalized_diff 6); the access form below preserves MATCH. */
           func_003e9830(((FldCameraData *)cameraData)->parentFrame,MEMBER(s32, followCameraHandle, RwObject, parent));
         }
         targetX0 = (followTarget.x += ((FldCameraData *)cameraData)->offset.x);
@@ -924,7 +870,6 @@ s32 FldCameraTaskUpdate(u8 *task)
         if (pathRadius34 < pathDistance) {
           f32 lengthRatio;
           pathLengthOffset = pathSegment * 4;
-          /* Previous measurement: typing this access changed b210 output (normalized_diff 2); the access form below preserves MATCH. */
           lengthRatio = (pathDistance - pathRadius34) / ((FldCameraData *)(pathLengthOffset + (u32)cameraData))[0].segmentLength[0];
           timeCorrection = lengthRatio * keyTimeStep;
           if (!(pathDirectionDot <= 0.0f)) {
@@ -1090,7 +1035,6 @@ s32 FldCameraTaskUpdate(u8 *task)
           func_003e99a0((void *)(u32)((RwObject *)(orbitHandleOrResult))->parent);
           func_003e9830(((FldCameraData *)cameraData)->parentFrame,((FldCameraData *)cameraData)->targetFrame);
           orbitHandleOrResult = (s32)kwlnGetCamera();
-          /* Previous measurement: typing this access changed b210 output (normalized_diff 6); the access form below preserves MATCH. */
           func_003e9830(((FldCameraData *)cameraData)->targetFrame,MEMBER(s32, orbitHandleOrResult, RwObject, parent));
         }
         targetX6 = (orbitTarget.x += ((FldCameraData *)cameraData)->offset.x);
@@ -1584,8 +1528,6 @@ s32 FldCameraTaskUpdate(u8 *task)
         ((FldCameraData *)cameraData)->faded = 0;
         goto LAB_0016e0c0;
       case 7:
-        /* measured: direct vector/array/union storage removes two copy instructions (nd1379);
-         * the access-site position union preserves the original snapshot transfer. */
         FldFrameTask_GetPosition((u8 *)&chaseTargetPosition[0],(u8 *)((ResrcRecord *)(((FldCameraData *)cameraData)->targetResource))->handle220);
         chaseTarget = ((FldCameraPosition *)chaseTargetPosition)->vector;
         chaseRecord = (f32 *)FldCameraGetRecord(task);
@@ -1596,7 +1538,6 @@ s32 FldCameraTaskUpdate(u8 *task)
           func_003e99a0((void *)(u32)((RwObject *)(chaseFrameHandle))->parent);
           func_003e9830(((FldCameraData *)cameraData)->parentFrame,((FldCameraData *)cameraData)->targetFrame);
           chaseFrameHandle = (s32)kwlnGetCamera();
-          /* Previous measurement: typing this access changed b210 output (normalized_diff 6); the access form below preserves MATCH. */
           func_003e9830(((FldCameraData *)cameraData)->targetFrame,MEMBER(s32, chaseFrameHandle, RwObject, parent));
         }
         targetX7 = (chaseTarget.x += ((FldCameraData *)cameraData)->offset.x);
@@ -1788,24 +1729,20 @@ LAB_0016e0c0:
   return 0;
 }
 
-/* measured: restore the surrounding translation-unit settings. */
 #pragma pop
 /* Detach camera frames, restore the parent hierarchy and release the three matrix buffers. */
 // FUN_0016E210
 void FldCameraTaskDestroy(u8 *task) {
     u8 *cameraData;
 
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 5); the access form below preserves MATCH. */
     cameraData = MEMBER(u8 *, task, FldCameraTask, data);
     if ((s32)((RwObject *)((u8 *)((RwObject *)kwlnGetCamera())->parent))->parent != 0) {
         func_003e99a0(((RwObject *)(kwlnGetCamera()))->parent);
     }
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 135); the access form below preserves MATCH. */
     if ((s32)((RwObject *)(MEMBER(u8 *, cameraData, FldCameraData, targetFrame)))->parent != 0) {
         func_003e99a0((void *)((FldCameraData *)cameraData)->targetFrame);
     }
     func_003e9390((void *)((FldCameraData *)cameraData)->targetFrame);
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 6); the access form below preserves MATCH. */
     func_003e9830(((FldCameraData *)cameraData)->parentFrame, MEMBER(s32, kwlnGetCamera(), RwObject, parent));
     func_003e0f40(((FldCameraData *)cameraData)->slotBuffer);
     func_003e0f40(((FldCameraData *)cameraData)->matrix);
@@ -1813,13 +1750,14 @@ void FldCameraTaskDestroy(u8 *task) {
     (*DAT_008873EC)(((FldCameraTask *)task)->data);
 }
 
-/* measured: opt_common_subs off preserves the retail per-call table address
-   materialization and five-register frame in FldCameraTaskCreate. */
-/* Allocate the 0x2d8 camera payload, its frame/matrix buffers and optional path debug helpers. */
+/* measured: retail reloads the table address on every call and uses a five-register frame in
+ * FldCameraTaskCreate. */
+/* Create the field camera task with its target and parent frames and its matrix buffers. If the
+ * scene has a camera path, also add debug draw helpers for it. */
 // FUN_0016E2E0
 #pragma push
-/* measured: FldCameraTaskCreate MATCH -> MISMATCH without this pragma. */
-/* measured: baseline 22 differing words; typed access, block lifetimes did not match; retain scoped settings. */
+/* measured: retail does not reuse common subexpressions in this function, so common-subexpression
+ * elimination stays off. */
 #pragma opt_common_subs off
 s32 FldCameraTaskCreate(s32 parentTask)
 {
@@ -1840,7 +1778,6 @@ s32 FldCameraTaskCreate(s32 parentTask)
     taskHandle = (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_005F16B0), 0x11, 0, 0, FldCameraTaskUpdate, FldCameraTaskDestroy, (u8 *)(cameraData));
     slot = cameraData + 0xC;
     targetFrame = (u8 *)func_003e9320();
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 2..266); the access form below preserves MATCH. */
     ((FldCameraHandleSlot *)(slot))->pointer = targetFrame;
     if (targetFrame == NULL) {
         kwlnTaskDestroyWithHierarchy(taskHandle);
@@ -1849,17 +1786,13 @@ s32 FldCameraTaskCreate(s32 parentTask)
     func_003e9df0(targetFrame);
     slot = cameraData + 0x10;
     parentFrame = (u8 *)((RwObject *)((u8 *)((RwObject *)kwlnGetCamera())->parent))->parent;
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 2..266); the access form below preserves MATCH. */
     ((FldCameraHandleSlot *)(slot))->pointer = parentFrame;
     if (parentFrame != NULL) {
         func_003e99a0(((RwObject *)(kwlnGetCamera()))->parent);
         otherSlot = cameraData + 0xC;
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 362); the access form below preserves MATCH. */
         func_003e9830(((FldCameraHandleSlot *)(slot))->value,
                       ((FldCameraData *)cameraData)->targetFrame);
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 363); the access form below preserves MATCH. */
         func_003e9830(((FldCameraHandleSlot *)(otherSlot))->value,
-                      /* Previous measurement: typing this access changed b210 output (normalized_diff 6); the access form below preserves MATCH. */
                       MEMBER(s32, kwlnGetCamera(), RwObject, parent));
     } else {
         kAssertFail(D_005F1698, 0x4F6);
@@ -1871,24 +1804,18 @@ s32 FldCameraTaskCreate(s32 parentTask)
     pathHandle = (s32)((FldRaySelectionResource *)((u8 *)((FieldSceneState *)iGpffff9db0)->templates[0].resource))->cameraPath;
     if (pathHandle != 0) {
         groupSlot = cameraData + 0x2CC;
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 371); the access form below preserves MATCH. */
         ((FldCameraHandleSlot *)(groupSlot))->value = KDraw_CreateGroupTask(taskHandle, pathHandle,
                                               D_007948D0);
         otherSlot = cameraData + 0x2D0;
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 363); the access form below preserves MATCH. */
         ((FldCameraHandleSlot *)(otherSlot))->value = KDraw_CreateSphereTask(taskHandle,
                                               D_007948D0);
         slot = cameraData + 0x2D4;
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 362); the access form below preserves MATCH. */
         ((FldCameraHandleSlot *)(slot))->value = KDraw_CreateSphereTask(taskHandle,
                                               D_007948D0);
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 371); the access form below preserves MATCH. */
         KDraw_SetGroupColor(((FldCameraHandleSlot *)(groupSlot))->task,
                       (u8 *)&iGpffff9f00 + 0x30);
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 364); the access form below preserves MATCH. */
         KDraw_SetSphereColor(((FldCameraHandleSlot *)(otherSlot))->task,
                       (u8 *)&iGpffff9f00 + 0x30);
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 3); the access form below preserves MATCH. */
         KDraw_SetSphereColor(((FldCameraHandleSlot *)(slot))->task,
                       (u8 *)&iGpffff9f00 + 0x34);
     }
@@ -1920,12 +1847,8 @@ s32 FldFrame_GetStatus(u8 *task)
 
 /* Switch camera mode; initialize curve segment lengths or snapshot chase/orbit distance. */
 // FUN_0016E590
-/* measured: object 804B/window 816B, nd 0. The 3/4 test is two separate compares
-   (goto body / goto skip; `== 3 || == 4` folds to sltiu). The count guard is
-   `> 0x20` for the $at slti form. Locals in stack order: difference, previousPoint, currentPoint, then
-   the two 64-byte matrix copies (case 6 at sp+0x70, case 7 at sp+0x30), each a
-   two-word copy loop from func_00457120()->frame + 0x10; `previousPoint = currentPoint` is the
-   RwV3d struct copy (ld/sd + lwc1/swc1). */
+/* The mode 3/4 test is two separate gotos rather than one combined compare, and locals are declared
+ * in retail stack order. */
 void FldCameraAdvanceCurve(u8 *task, s32 mode)
 {
     extern s32 func_003bb330(u8 *task);
@@ -1945,7 +1868,6 @@ void FldCameraAdvanceCurve(u8 *task, s32 mode)
     u8 *copyDestination;
 
     work = ((FldCameraTask *)task)->data;
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 556); the access form below preserves MATCH. */
     MEMBER(s32, work, FldCameraData, mode) = mode;
     if (mode == 3) {
         goto body;
@@ -1957,9 +1879,7 @@ body:
     {
         if ((s32)((FldRaySelectionResource *)((u8 *)((FieldSceneState *)iGpffff9db0)->templates[0].resource))->cameraPath != 0) {
             func_003e9df0(((RwObject *)(kwlnGetCamera()))->parent);
-            /* Previous measurement: typing this access changed b210 output (normalized_diff 584); the access form below preserves MATCH. */
             MEMBER(s32, work, FldCameraData, keyCount) = func_003bb330(((FldRaySelectionResource *)((u8 *)((FieldSceneState *)iGpffff9db0)->templates[0].resource))->cameraPath);
-            /* Previous measurement: typing this access changed b210 output (normalized_diff 584); the access form below preserves MATCH. */
             if (MEMBER(s32, work, FldCameraData, keyCount) > 0x20) {
                 kAssertFail(D_005F1698, 0x557);
             }
@@ -1984,7 +1904,6 @@ body:
             if ((s32)((RwObject *)((u8 *)((FldCameraData *)work)->targetFrame))->parent != 0) {
                 func_003e99a0((void *)((FldCameraData *)work)->targetFrame);
             }
-            /* Previous measurement: typing this access changed b210 output (normalized_diff 6); the access form below preserves MATCH. */
             func_003e9830(((FldCameraData *)work)->parentFrame, MEMBER(s32, kwlnGetCamera(), RwObject, parent));
         }
     }
@@ -2016,9 +1935,8 @@ u8 *FldCameraGetRecord(u8 *task)
     return (u8 *)((FldCameraData *)(((FldCameraTask *)task)->data))->targetFrame + 0x40;
 }
 
-/* measured: opt_propagation off preserves the retail early a1 pointer
-   materialization in FldCameraSetDistance. */
-/* measured: FldCameraSetDistance MATCH -> MISMATCH without this pragma. */
+/* measured: retail sets up the second-argument pointer early in FldCameraSetDistance, which copy
+ * propagation would otherwise delay. */
 #pragma opt_propagation off
 /* Apply an angular camera adjustment in modes 0, 6 and 7 while looking at the zero target. */
 // FUN_0016E8E0
@@ -2047,7 +1965,6 @@ void FldCameraSetDistance(u8 *task, f32 angle)
     }
 process:
     cameraFrame = (u8 *)((RwObject *)(kwlnGetCamera(mode)))->parent;
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 72); the access form below preserves MATCH. */
     orientationFrame = (RwFrame *)cameraFrame;
     rotation.position = orientationFrame->modelling.pos;
     clearCursor = &rotation.zeroPosition[0];
@@ -2072,7 +1989,7 @@ done:
     ;
 }
 
-/* measured: closes opt_propagation off for FldCameraSetDistance. */
+/* Copy the given vector into the camera task's view offset. */
 // FUN_0016E9F0
 void FldFrame_SetViewOffset(u8 *task, u8 *value)
 {
@@ -2109,11 +2026,8 @@ void FldFrame_BindTypedRes(u8 *task, u16 resourceKey)
 
 /* Mark a signed-byte camera key slot valid and copy its three-component vector. */
 // FUN_0016EAA0
-/* The scaled offset is named in an s32 local and the base added TO it so the
-   final addu comes out `index + base` as retail has it; folding the multiply
-   into the pointer expression emits `base + index` (nd 1). The three floats
-   are one RwV3d assignment because retail loads all three before storing
-   any. */
+/* The scaled offset is a separate s32 local with the base added to it, giving retail's operand
+ * order; the RwV3d assignment loads all three floats before storing. */
 void FldFrame_SetSlotVector(u8 *task, s32 slotIndex, RwV3d *vector) {
     u8 *base;
     s32 index;
@@ -2123,7 +2037,6 @@ void FldFrame_SetSlotVector(u8 *task, s32 slotIndex, RwV3d *vector) {
     index = (s8)slotIndex;
     base[index + 0xE8] = 1;
     offset = index * 12;
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 1); the access form below preserves MATCH. */
     ((FldCameraData *)(offset + (s32)base))[0].slotVector[0] = *vector;
 }
 
@@ -2133,7 +2046,6 @@ s32 FldFrame_GetSlotBuffer(u8 *task)
     return ((FldCameraData *)((FldCameraTask *)task)->data)->slotBuffer;
 }
 
-/* measured: opt_propagation off preserves global initialization ordering in FldCameraUpdateLookAt. */
 /* Rebuild look-at orientation for follow modes or the mode-2 target frame. */
 // FUN_0016EB00
 void FldCameraUpdateLookAt(u8 *task)
@@ -2152,7 +2064,6 @@ void FldCameraUpdateLookAt(u8 *task)
     f32 axisZ;
     u32 mode;
 
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 5); the access form below preserves MATCH. */
     cameraTask = (FldCameraTask *)task;
     mode = (u32)((FldCameraData *)(cameraTask->data))->mode;
     switch (mode) {
@@ -2164,7 +2075,6 @@ void FldCameraUpdateLookAt(u8 *task)
             (((FldCameraData *)(((FldCameraTask *)(((FldFrame *)frameOrAxis)->cameraTask))->data))->mode == 6) ||
             (((FldCameraData *)(((FldCameraTask *)(((FldFrame *)frameOrAxis)->cameraTask))->data))->mode == 7)) {
             cameraFrame = (u8 *)((RwObject *)(kwlnGetCamera()))->parent;
-            /* Previous measurement: typing this access changed b210 output (normalized_diff 76); the access form below preserves MATCH. */
             orientationFrame = (RwFrame *)cameraFrame;
     rotation.position = orientationFrame->modelling.pos;
             clearCursor = &rotation.zeroPosition[0];
@@ -2200,7 +2110,6 @@ void FldCameraUpdateLookAt(u8 *task)
     }
 }
 
-/* measured: restore opt_propagation after FldCameraUpdateLookAt. */
 /* Reposition the mode-6 orbit camera along its normalized negative forward axis. */
 // FUN_0016EC90
 void FldCameraUpdateOrbit(u8 *task)
@@ -2231,7 +2140,8 @@ void FldCameraUpdateOrbit(u8 *task)
         copySource = cameraFrame + 0x10;
         copyDestination = (u8 *)((FldCameraData *)cameraData)->matrix;
         copyRemaining = 8;
-        /* measured: a typed whole-matrix copy gives normalized_diff 222; retain the native word-pair cursor. */
+        /* The matrix is copied as word pairs, as retail does, rather than by whole-matrix struct
+         * assignment. */
         do {
             firstWord = ((FldCameraMatrixPair *)(copySource))->first;
             secondWord = ((FldCameraMatrixPair *)(copySource))->second;
@@ -2241,7 +2151,6 @@ void FldCameraUpdateOrbit(u8 *task)
             ((FldCameraMatrixPair *)(copyDestination))->second = secondWord;
             copyDestination += 8;
         } while (copyRemaining > 0);
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 178); the access form below preserves MATCH. */
         sourceMatrix = MEMBER(u8 *, cameraData, FldCameraData, matrix);
         *(RwV3d *)&push[0] = *(RwV3d *)&((RwMatrixTag *)(sourceMatrix))->at;
         RwV3dNormalize((RwV3d *)&push[0], (const RwV3d *)&push[0]);
@@ -2256,7 +2165,6 @@ void FldCameraUpdateOrbit(u8 *task)
         push[1] = negativeY * distance;
         push[2] = negativeZ * distance;
         ((FldCameraData *)cameraData)->currentDistance = distance;
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 178); the access form below preserves MATCH. */
         RwMatrixTranslate(MEMBER(u8 *, cameraData, FldCameraData, matrix), &push[0], 0);
         positionMatrix = (u8 *)((FldCameraData *)cameraData)->matrix;
         *(RwV3d *)&cameraPosition[0] = *(RwV3d *)&((RwMatrixTag *)(positionMatrix))->pos;
@@ -2265,8 +2173,7 @@ void FldCameraUpdateOrbit(u8 *task)
     }
 }
 
-/* measured: opt_propagation off probe for retail pre-call address order. */
-/* Apply an initial camera angle followed by sine-eased incremental rotation until duration expires. */
+/* Apply an initial camera angle, then sine-eased incremental rotation until the duration expires. */
 // FUN_0016EE00
 s32 FldFrame_RotateTaskUpdate(u8 *task)
 {
@@ -2309,7 +2216,6 @@ s32 FldFrame_RotateTaskUpdate(u8 *task)
             goto skip_process0;
 process0:
         initialFrame = (u8 *)((RwObject *)(kwlnGetCamera()))->parent;
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 72); the access form below preserves MATCH. */
         initialOrientationFrame = (RwFrame *)initialFrame;
     rotation.initialPosition = initialOrientationFrame->modelling.pos;
         clearInitial = &rotation.initialZero[0];
@@ -2334,10 +2240,8 @@ skip_process0:
         ((FldCameraRotation *)rotationData)->state += 1;
         /* fallthrough */
     case 1:
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 288); the access form below preserves MATCH. */
         elapsedRotation = (FldCameraRotation *)rotationData;
     elapsed = elapsedRotation->elapsed;
-        /* Previous measurement: typing this access changed b210 output (normalized_diff 287); the access form below preserves MATCH. */
         durationRotation = (FldCameraRotation *)rotationData;
     if (elapsed < durationRotation->duration) {
             ((FldCameraRotation *)rotationData)->elapsed = elapsed + 1;
@@ -2356,7 +2260,6 @@ skip_process0:
                     goto skip_process1;
 process1:
                 stepFrame = (u8 *)((RwObject *)(kwlnGetCamera()))->parent;
-                /* Previous measurement: typing this access changed b210 output (normalized_diff 72); the access form below preserves MATCH. */
                 stepOrientationFrame = (RwFrame *)stepFrame;
     rotation.stepPosition = stepOrientationFrame->modelling.pos;
                 clearStep = &rotation.stepZero[0];
@@ -2394,8 +2297,8 @@ done:
     }
 }
 
-/* measured: closing opt_propagation off probe for FldFrame_RotateTaskUpdate. */
-/* measured: FldFrame_RotateTaskCreate, FldFrameRotateTaskCreate MATCH -> MISMATCH without this pragma. */
+/* measured: propagation goes back on here because only FldFrame_RotateTaskUpdate needs it off;
+ * FldFrame_RotateTaskCreate needs it on to compile like retail. */
 #pragma opt_propagation on
 // FUN_0016F100
 void FldFrame_RotateTaskDestroy(u8 *task)
@@ -2404,7 +2307,6 @@ void FldFrame_RotateTaskDestroy(u8 *task)
 }
 
 /* measured: opt_loop_invariants on reproduces FldFrame_RotateTaskCreate's retail loop schedule. */
-/* measured: FldFrame_RotateTaskCreate MATCH -> MISMATCH without this pragma. */
 #pragma opt_loop_invariants on
 /* Create a timed rotation toward the player yaw, optionally adding a relative angle. */
 // FUN_0016F130
@@ -2464,10 +2366,8 @@ u8 *FldFrame_RotateTaskCreate(u8 *parentTask, s32 duration, s32 relativeAngle)
     return result;
 }
 
-/* measured: close opt_loop_invariants scope after FldFrame_RotateTaskCreate. */
-/* measured: opt_loop_invariants on reproduces FldFrameRotateTaskCreate's loop schedule
-   and FPU register allocation. */
-/* Create a timed rotation toward an absolute yaw using the shorter angular difference. */
+/* Create a child task that rotates the camera over a set duration toward an absolute yaw, picking
+ * whichever direction is the shorter turn. */
 // FUN_0016F3B0
 u8 *FldFrameRotateTaskCreate(u8 *parentTask, s32 duration, s32 absoluteAngle)
 {
@@ -2521,12 +2421,8 @@ u8 *FldFrameRotateTaskCreate(u8 *parentTask, s32 duration, s32 absoluteAngle)
     return result;
 }
 
-/* measured: FldEventSnapshotCapture compiles to object 276B against the 288B retail
-   window (normalized_diff 0; trailing zero padding is normalized). */
-/* Capture camera matrix, FOV, mode and follow parameters as a seven-quadword snapshot. */
 // FUN_0016F630
-/* measured: optimization_level 1 reproduces FldEventSnapshotCapture register allocation. */
-/* measured: FldEventSnapshotCapture MATCH -> MISMATCH without this pragma. */
+/* measured: optimization_level 1 reproduces retail's register allocation for the snapshot copy. */
 #pragma optimization_level 1
 void FldEventSnapshotCapture(FldEventSnapshot *destination, u8 *task)
 {
@@ -2579,12 +2475,11 @@ void FldEventSnapshotCapture(FldEventSnapshot *destination, u8 *task)
     } while (quadwordsRemaining > 0);
 }
 
-/* measured: restore baseline optimization level after FldEventSnapshotCapture. */
-/* measured: FldCameraApplyRecord, FldEvent_GetStickHeading, FldCharacterAnimSelect, FldMoveAnimPrimary, FldMoveAnimSecondary MATCH -> MISMATCH without this pragma. */
+/* measured: the following camera, stick-heading and move-animation functions only reproduce retail
+ * code at optimization level 2. */
 #pragma optimization_level 2
-/* measured: FldCameraApplyRecord compiles to object 348B against the 352B retail
-   window (normalized_diff 0; pointer-typed hoist fixes final-call setup). */
-/* Restore camera matrix/FOV and follow parameters, then rebuild mode-specific orientation. */
+/* Restore the camera's FOV, matrix and follow parameters from a saved record, then rebuild the
+ * orientation for the current camera mode. */
 // FUN_0016F750
 void FldCameraApplyRecord(u8 *task, u8 *record)
 {
@@ -2593,22 +2488,17 @@ void FldCameraApplyRecord(u8 *task, u8 *record)
     u32 mode;
     u16 recordMode;
 
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 233); the access form below preserves MATCH. */
     cameraData = MEMBER(u8 *, task, FldCameraTask, data);
     K_View_SetFov(kwlnGetCamera(), ((FldCameraSnapshotScratch *)record)->fov);
     func_003e9cb0(((RwObject *)(kwlnGetCamera()))->parent, record, 0);
     recordMode = (u16)((FldCameraSnapshotScratch *)record)->mode;
     FldCameraAdvanceCurve(task, recordMode);
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 233); the access form below preserves MATCH. */
     frameOrCamera = MEMBER(u8 *, task, FldCameraTask, data);
     ((FldCameraData *)(frameOrCamera))->offset = *(RwV3d *)&((FldCameraSnapshotScratch *)record)->offsetX;
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 233); the access form below preserves MATCH. */
     ((FldCameraData *)(MEMBER(u8 *, task, FldCameraTask, data)))->radius = ((FldCameraSnapshotScratch *)record)->radius;
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 233); the access form below preserves MATCH. */
     ((FldCameraData *)(MEMBER(u8 *, task, FldCameraTask, data)))->height = ((FldCameraSnapshotScratch *)record)->height;
     ((FldCameraData *)cameraData)->desiredDistance = ((FldCameraSnapshotScratch *)record)->distance;
     ((FldCameraData *)(cameraData))->anchor = *(RwV3d *)&((FldCameraSnapshotScratch *)record)->targetX;
-    /* Previous measurement: typing this access changed b210 output (normalized_diff 233); the access form below preserves MATCH. */
     mode = (u32)((u32)((FldCameraData *)(MEMBER(u8 *, task, FldCameraTask, data)))->mode);
     switch (mode) {
     case 0:
@@ -2639,10 +2529,9 @@ void FldCameraApplyRecord(u8 *task, u8 *record)
 
 /* Compute a 0..360-degree stick heading with a 48-unit deadzone and D-pad overrides. */
 // FUN_0016F8B0
-// MATCH: 1100B/1104B, 13 resolved relocations, four zero tail bytes.
 f32 FldEvent_GetStickHeading(s32 padIndex, s32 stickIndex)
 {
-    /* The typed interior alias starts at each pad record's button word, with a 0x4A-byte stride. */
+    /* Pad records are 0x4A bytes apart; this view starts at each record's button word. */
     RwV3d normalized;
     RwV3d input;
     u8 *clear;

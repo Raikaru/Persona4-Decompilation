@@ -95,7 +95,6 @@ extern u8 *(*D_008873E8[])(s32 arg0, s32 arg1);
    order has to come from an inline's parameter list. */
 
 
-
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
@@ -103,10 +102,8 @@ extern void mdlLookAtSetupSetRange(void *model, float pitchLimit, float yawLimit
 extern f32 DAT_0076112c;
 
 
-
 extern u8 *btlUnitCreate(s32 genus);
 extern void btlUnitInitFromRecord(u8 *unit, s32 characterId);
-
 
 
 extern s32 datPersonaNamePart1(s16 unitId);
@@ -129,8 +126,8 @@ extern s32 datCalcEnemyHasExtendedFlag(u8 *unit);
 extern void btlUnitInitChild(u8 *unit, u16 characterId);
 extern void btlUnitApplyBodySizeScale(u8 *unit);
 
-/* Initialize the child unit from its resolved persona character identifier. */
-/* measured: keeps the persona-id lhu before the unit-argument move; the direct call reverses those two instructions. */
+/* Initialize the child unit from its resolved persona character identifier. measured: retail loads
+ * the persona id before moving the unit argument; a direct call swaps that order. */
 static inline void btlUnitInitChildOrdered(u16 characterId, u8 *unit)
 {
     btlUnitInitChild(unit, characterId);
@@ -148,29 +145,6 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 0019e9f0-0019ff60 */
-
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
-/* Measured: 1164 instruction bytes in the 1168-byte window, three resolved
- * relocations and a four-byte zero tail. This callback uses the packet creator's
- * u32 (void *) contract. Modes 1..4 initialize every timing value; the retail
- * constructor callers use modes 3 or 4. The packet is 20 bytes.
- * Disabling propagation locally retains the alpha result's memory/merge
- * lifetime. Publication remains the actual four-byte color-by-value operation. */
-/* Retail reloads the 1/255 colour scale (0x3B808081, written here as a
- * literal) for every factor; with default optimisation b210 does the same.
- * `v41` and `chk` are function-scope locals so they keep retail's saved
- * registers. On the `i == 2 && alpha < 0xFE` path retail compares 0xE8
- * against the `mode` left from an earlier entry (0x0019CDE0); the C reads
- * `mode` uninitialised there in the same way. */
-/* measured: opt_propagation off plus named call_angle locals preserve retail's stack reloads before mdlLookAtSetupSetRange. */
 // FUN_0019E9F0
 u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 sideFlags)
 {
@@ -193,8 +167,6 @@ u8 *btlUnitCreateLookAtSidePacket(u8 *unit, s16 sideFlags)
 void btlUnitInitFromRecord(u8 *unit, s32 characterId)
 {
     BtlUnit *typedUnit = (BtlUnit *)unit;
-    /* measured: repeated typed datUnit loads hoist unit+0xA64;
-     * subsequent data-pointer reloads preserve byte aliasing. */
     /* Initialize visual scale, bounds and motion rows from the genus-specific record. */
     extern void btlUiInitSpritePair(u8 *task, u8 *work);
     u8 *data;
@@ -324,9 +296,8 @@ u8 *btlUnitGetRecordPtr(u8 *unit, s32 motion)
 // FUN_0019EF30
 void btlUnitInitChild(u8 *unit, u16 characterId) {
     BtlUnit *typedUnit = (BtlUnit *)unit;
-    /* measured: typed childUnit reloads hoist unit+0xA0C and change five words;
-     * retain the post-allocation byte-addressed accesses. */
-    /* Create the optional child unit lazily, then initialize its character record. */
+    /* Create the optional child unit lazily, then initialize its character record. childUnit is
+     * read through casts because a plain typed read gets hoisted above the allocation. */
     extern void btlUnitInitFromRecord(u8 *unit, u16 characterId);
     if (*(u8 **)&((BtlUnit *)unit)->childUnit == NULL) {
         *(u8 * *)&typedUnit->childUnit = btlUnitCreate(2);
@@ -334,8 +305,8 @@ void btlUnitInitChild(u8 *unit, u16 characterId) {
     btlUnitInitFromRecord(*(u8 * *)&typedUnit->childUnit, characterId);
 }
 
-/* measured: baseline has four setup words different; typed list indexing and base-first address forms still reorder the GP load. */
-/* measured: func_0019ef90 MATCH -> MISMATCH without this pragma. */
+/* measured: with propagation on, the global-pointer load gets reordered in the list setup; typed
+ * indexing does not fix it. */
 // FUN_0019EF90
 #pragma opt_propagation off
 u8 *btlUnitFindInSideById(s32 genus, s32 characterId)
@@ -359,8 +330,7 @@ u8 *btlUnitFindInSideById(s32 genus, s32 characterId)
     return NULL;
 }
 
-/* measured: closes opt_propagation around ef90. */
-/* measured: func_0019f050, func_0019f0f0, func_0019f5f0 MATCH -> MISMATCH without this pragma. */
+/* measured: the following functions only compile like retail with propagation turned back on here. */
 #pragma opt_propagation on
 // FUN_0019EFE0
 u8 *btlUnitFindById(s32 unitId)
@@ -451,13 +421,14 @@ s32 btlUnitGetDataRowAlt(u8 *unit)
     return result;
 }
 
-/* measured: baseline leaves 225 differing words; isolated propagation/common-subexpression/rebuild removals also fail. */
+/* measured: retail's body-size code needs propagation, conditional rebuilding and common
+ * subexpressions all off together. */
 #pragma push
-/* measured: func_0019f1d0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps intermediate values in memory, which needs propagation off. */
 #pragma opt_propagation off
-/* measured: func_0019f1d0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps the original conditional branch layout. */
 #pragma opt_rebuildconditionals off
-/* measured: func_0019f1d0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail recomputes repeated subexpressions. */
 #pragma opt_common_subs off
 // FUN_0019F1D0
 void btlUnitApplyBodySizeScale(u8 *unit)
@@ -588,9 +559,9 @@ void btlUnitApplyBodySizeScale(u8 *unit)
 // FUN_0019F5F0
 u8 *btlActionCreateWork(s32 genus, u16 characterId, u16 *unitData)
 {
-    /* measured: repeated typed action flags retain action+0x1A in a temporary;
-     * later flag accesses preserve the original byte-addressed shape. */
-    /* Create and enqueue a party or enemy action with its unit and encounter flags. */
+    /* Action flags are accessed by byte offset because typed field access keeps a temporary that
+     * retail does not. Create and enqueue a party or enemy action with its unit and encounter
+     * flags. */
     s32 unitGenus;
     s32 partyFlags;
     s32 partyFlagsWithForty;
@@ -683,8 +654,6 @@ u8 *btlActionCreateWork(s32 genus, u16 characterId, u16 *unitData)
 s32 btlUnitIdleAnimTick(u8 *action)
 {
     BtlAction *typedAction = (BtlAction *)action;
-    /* measured: repeated typed timer/unit accesses save action+0x24/+0x30
-     * in extra registers (436B versus the 416B window); retain those reloads. */
     /* Count down an idle animation delay, refusing unavailable or nonresting units. */
     s32 remainingFrames;
     u16 *unitData;
@@ -760,8 +729,6 @@ void btlUnitTickIdleAnims(void)
 void btlUnitRequestLookAtOthers(u8 *excludedAction)
 {
     BtlUnit *typedUnit;
-    /* measured: repeated typed datUnit loads retain unit+0xA64 across calls;
-     * subsequent data-pointer reloads remain byte-addressed. */
     /* Request look-at packets for eligible party actions except the supplied action. */
     f32 anchorPosition[3];
     u16 state;
@@ -803,18 +770,14 @@ void btlUnitNoop(void) {
     /* Empty retail hook; no side effects. */
 }
 
-/* measured: baseline leaves 30 differing words; indexed skill/enemy table accesses retain the same setup-order residual. */
+/* measured: retail's skill/enemy table setup order needs propagation off. */
 #pragma push
-/* measured: func_0019fc70 MATCH -> MISMATCH without this pragma. */
+/* measured: retail's table loads are only reproduced with opt_propagation off. */
 #pragma opt_propagation off
 // FUN_0019FC70
 s32 btlActionSkillReachesTargets(u8 *action)
 {
     BtlAction *typedAction = (BtlAction *)action;
-    /* measured: repeated typed unit loads save action+0x30 in s2
-     * (508B versus the 496B window); retain the later unit reload. */
-    /* measured: early returns replace the shared return blocks and give nd 283
-     * (484B in the 496B window); retain the explicit dispatch/return branches. */
     /* Check target classification and per-character attack/skill exclusions. */
     u16 skillId;
     u16 characterId;
@@ -886,8 +849,6 @@ result_zero_0019fc70:
     return 0;
 }
 
-/* measured: baseline leaves 13 differing words; indexed skill/enemy records still reorder the table loads. */
-/* measured: func_0019fe60 MATCH -> MISMATCH without this pragma. */
 // FUN_0019FE60
 s32 btlUnitIsUnavailable(u8 *action, s32 skillId, s32 allowStatus)
 {
@@ -931,16 +892,12 @@ s32 btlUnitIsUnavailable(u8 *action, s32 skillId, s32 allowStatus)
     return 0;
 }
 
-/* measured: closes opt_propagation around func_0019fe60. */
-/* measured: func_0019ff60 MATCH -> MISMATCH without this pragma. */
 #pragma pop
 // FUN_0019FF60
 s32 btlActionCanFollowUpAfterEnemiesDown(u8 *action)
 {
     BtlUnit *typedUnit;
     BtlAction *typedSelectedAction;
-    /* measured: repeated typed unit/datUnit loads retain +0x30/+0xA64
-     * across calls (492B versus the 480B window); retain those reloads. */
     /* Collect available party follow-up actions when every surviving enemy is DOWN. */
     u8 *selectedAction;
     u8 *entry;

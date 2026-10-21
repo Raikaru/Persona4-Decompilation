@@ -87,11 +87,12 @@ RESIDUE_NAME = re.compile(
     r")\b"
 )
 
-# Prose worth counting: a comment that is not a marker, a pragma justification we
-# already lint for, or a bare address restatement.
+# Prose worth counting: a comment that is not a marker, a lint waiver
+# (`measured: ...`, `lint: allow ...`), or empty comment punctuation.
 NOISE_COMMENT = re.compile(
     r"^\s*(?://\s*FUN_[0-9A-Fa-f]{8}|/\*+\s*\*/|\*+/?|//+)\s*$"
 )
+WAIVER_COMMENT = re.compile(r"^\s*(?://+|/\*+)\s*(?:measured\b|lint:\s*allow\b)", re.IGNORECASE)
 
 
 def is_trivial(body: str) -> bool:
@@ -107,9 +108,16 @@ def is_trivial(body: str) -> bool:
 
 def has_prose(before: list[str], body: str) -> bool:
     """Is there a human sentence attached to this function?"""
+    in_waiver = False
     for line in list(before) + body.splitlines():
         stripped = line.strip()
+        if in_waiver:
+            in_waiver = "*/" not in stripped
+            continue
         if not ("//" in stripped or "/*" in stripped or stripped.startswith("*")):
+            continue
+        if WAIVER_COMMENT.match(stripped):
+            in_waiver = stripped.startswith("/*") and "*/" not in stripped
             continue
         if NOISE_COMMENT.match(stripped):
             continue

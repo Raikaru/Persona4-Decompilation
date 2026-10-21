@@ -1,6 +1,6 @@
 /* Whole-file translation unit: src/Graphics/primitive.c */
 
-/* Source unit: src/Graphics/primitive_0045f0b0.c (donor P3 0x00358a30 primQuad3D) */
+/* Matches P3FES primQuad3D. */
 #include "include_asm.h"
 #include "type.h"
 
@@ -27,7 +27,6 @@ typedef struct
     f32 a;
 } RwRGBAReal;
 
-// 64 bytes
 typedef struct
 {
     RwV3d right;   // 0x00
@@ -40,7 +39,6 @@ typedef struct
     u32 pad3;      // 0x3c
 } RwMatrix;
 
-// 64 bytes
 typedef struct
 {
     RwV3d scrVertex;   // 0x00
@@ -139,14 +137,12 @@ extern RwGlobals rwGlobals;
 
 #define PRIM_RENDERSTATE_COUNT 6
 
-// 8 bytes
 typedef struct
 {
     RwRenderState renderState; // 0x00
     u32 val;                   // 0x04
 } PrimRenderState;
 
-// retail data at 0x00712490
 static const PrimRenderState sRenderStates[PRIM_RENDERSTATE_COUNT] =
 {
     {rwRENDERSTATEFOGENABLE, 0},
@@ -157,14 +153,10 @@ static const PrimRenderState sRenderStates[PRIM_RENDERSTATE_COUNT] =
     {rwRENDERSTATEZWRITEENABLE, 0}
 };
 
-// rwGlobals.device fields at their P4 retail addresses
-// (see RwGlobals/RwDevice layout above)
-
 extern RwCamera* kwlnGetCamera(void);           // kwlnGetMainCamera
 extern RwV3d* func_003e42a0(RwV3d* out, const RwV3d* in, const RwMatrix* matrix); // RwV3dTransformPoint
 extern int RpSkyRenderStateSet(int nState, void* pParam); // RpSkyRenderStateSet
 
-// 36 bytes
 typedef struct
 {
     RwV3d objVertex; // 0x00
@@ -228,15 +220,13 @@ do                                                              \
 
 typedef int (*RwRenderStateSetFunc)(RwRenderState renderState, void* val);
 
-// rwGlobals.device fields at their P4 retail addresses
 extern RwRenderStateSetFunc D_00887300[4];      // device.setRenderState
 extern RwRenderStateGetFunc D_00887304[4];      // device.getRenderState
 extern void* func_00410420(RwIm3DVertex* pVerts, u32 numVerts, RwMatrix* ltm, u32 flags); // RwIm3DTransform
 extern int func_00410930(int vert1, int vert2); // RwIm3DRenderLine
 
-// retail data at 0x007124d0
-/* Allocator diagnostics in sdkPrimitive.c refer to this filename through
- * the retail address alias D_007124C0. It is part of this unit's constant data. */
+// Allocator diagnostics in sdkPrimitive.c refer to this filename through the retail alias
+// D_007124C0; it belongs to this unit's constant data.
 const char primSourceFileName[] = "sdkPrimitive.c";
 
 static const RwV3d sAxisDirs[3] =
@@ -246,7 +236,6 @@ static const RwV3d sAxisDirs[3] =
     {0.0f, 0.0f, 1.0f}  // Z
 };
 
-// retail data at 0x007124f8
 static const RwRGBA sAxisColors[3] =
 {
     {255, 0, 0, 255}, // X (red)
@@ -254,7 +243,6 @@ static const RwRGBA sAxisColors[3] =
     {0, 255, 0, 255}  // Z (green)
 };
 extern void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color, u32 saveAndRestoreRenderState);
-
 
 
 extern RwMatrix* RwMatrixScale(RwMatrix* matrix, const RwV3d* scale, int combineOp);
@@ -288,7 +276,6 @@ typedef struct RtAnimAnimation {
     void *customData;
 } RtAnimAnimation;
 
-// retail data at 0x00761118 (gp-relative float, P3 name fGpffff8028)
 extern float fGpffff8028;
 extern f32 func_0044b920(f32 value); // P3 FUN_0052e9e8 (acosf)
 extern f32 sinf(f32 angle);   // P3 FUN_0052e878 (sinf)
@@ -334,7 +321,6 @@ extern void* PrimDeserializeEntries(void* stream, void* animation);
 extern s32 PrimSerializeEntries(const void* animation, void* stream);
 extern s32 PrimEntryTableBytes(void* animation);
 extern s32 func_003d5000(PrimDesc* desc); // Registers a 0x30-byte RtAnim scheme.
-
 
 
 /* Project a camera-facing square centered at pos, clipping it to the near/far planes. */
@@ -445,7 +431,6 @@ void primQuad3D(const RwV3d* pos, const RwRGBA* col, f32 size, u32 saveAndRestor
 }
 
 
-
 /* RwMatrixSetIdentity updates identity.flags in place. Retail reads the
  * automatic flags word at 0045f89c with no earlier producer; the C reads the
  * uninitialised field exactly as retail does. */
@@ -495,7 +480,6 @@ void primLine3D(const RwV3d* startPos, const RwV3d* endPos, const RwRGBA* color,
         }
     }
 }
-
 
 
 /* Draw the transformed X/Y/Z basis using the unit's fixed axis colors. */
@@ -548,14 +532,10 @@ void primAxisLine3D(const RwMatrix* mat, f32 length, u32 saveAndRestoreRenderSta
 }
 
 
-
 /* Writes one interpolation frame into a RwMatrix result: values[0..2] become the translation and matrix flag bit 0x20000 is cleared. */
 // FUN_00480940
-/* REPLACE is the opaque RenderWare output-storage contract: the SDK guide
- * and its UV-animation example permit a raw local destination. The retail
- * Scale provider still reads its flags word; its preserved bits are killed
- * by AND with matrix.flags (3) in Multiply. This recovers the game caller,
- * not globally defined provider C. See the 00480940 SDK-boundary record. */
+/* Uses a raw local RwMatrix as the REPLACE destination, which RenderWare permits; stale flag bits
+ * are masked off in the multiply. */
 void PrimInterpToMatrix(void* result, void* frame)
 {
     PrimInterpData* input = frame;
@@ -612,7 +592,6 @@ void PrimInterpToMatrix(void* result, void* frame)
 }
 
 
-
 /* Blends two interpolation frames at weight param_1: the second quaternion is flipped into the first's hemisphere, the quaternion uses slerp weights when the frames are far apart and a linear blend otherwise, and the six values blend linearly. */
 // FUN_00480AA0
 void PrimInterpSlerp(void* destination, void* startFrame, void* endFrame, f32 weight)
@@ -663,7 +642,6 @@ void PrimInterpSlerp(void* destination, void* startFrame, void* endFrame, f32 we
 }
 
 
-
 /* Interpolates two frames at time param_1: the weight is (time - start) / (end - start) on the frames' time fields, then PrimInterpSlerp blends them and the value30 fields are multiplied. */
 // FUN_00480CD0
 void PrimInterpByTime(void* destination, void* startFrame, void* endFrame, f32 time, void* customData)
@@ -681,7 +659,6 @@ void PrimInterpByTime(void* destination, void* startFrame, void* endFrame, f32 t
     PrimInterpSlerp(out, (void*)first, (void*)second, t);
     out->value30 = first->value30 * second->value30;
 }
-
 
 
 /* Writes the entry table to the sink: for each 0x34-byte entry, the 0x30-byte body and a 4-byte offset from the table base are written; returns 0 on the first failed write and 1 otherwise. */
@@ -711,7 +688,6 @@ s32 PrimSerializeEntries(const void* animation, void* stream)
 }
 
 
-
 /* Reads the entry table back from the source: for each entry, reads the 0x30-byte body and the 4-byte offset and rebases the entry pointer onto the table base; returns NULL when a read fails, else arg1. */
 // FUN_00480E20
 void *PrimDeserializeEntries(void *stream, void *animation)
@@ -736,18 +712,16 @@ void *PrimDeserializeEntries(void *stream, void *animation)
     }
     return animation;
 }
-/* Returns the byte size of the entry table: its count (+4) times the 0x34-byte entry size. */
+/* Returns the byte size of the entry table: its frame count times the 0x34-byte entry size. */
 // FUN_00480F00
 s32 PrimEntryTableBytes(void* animation)
 {
     return ((const RtAnimAnimation *)animation)->numFrames * 0x34;
 }
-/* Stores the difference of two frames in out: the quaternion becomes the product of the inverse of in's quaternion and out's saved quaternion, and in's six values are subtracted from out's. */
-/* A reciprocal does not exist for a zero-norm source quaternion, and the
- * stream reader does not reject that input. Retail computes the product with
- * `inverse` on every path; on nonpositive norm its components have no
- * producer (no store before the reads at 00480fa0). The C keeps that exact
- * dataflow: `inverse` is read uninitialised on that path, as in retail. */
+/* Stores the difference of two frames in out: the quaternion becomes the product of the inverse of
+ * in's quaternion and out's saved quaternion, and in's six values are subtracted from out's. For a
+ * zero-norm source quaternion, retail leaves `inverse` unset and reads it anyway; the C does the
+ * same. */
 // FUN_00480F20
 void PrimInterpDelta(void *destination, void *source)
 {

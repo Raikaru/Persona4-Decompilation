@@ -2,7 +2,7 @@
 #include "effect_vu0_internal.h"
 #include "rw_geometry_internal.h"
 #include "effect_geometry_internal.h"
-/* Original translation unit effLineNova.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit effLineNova.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "include_asm.h"
@@ -207,21 +207,11 @@ typedef struct LineNovaMatrix {
     f32 yTranslation; /* +0x34 */
 } LineNovaMatrix;
 
-/* measured: retail colors the 7 loop-carried temps count2=$a3 v8=$t0 v6=$a2
-   v5=$a1 v4=$a0 v3=$v1 i=$t1; mwcc b210 colors count2=$a1 v8=$a3 v6=$a0
-   v5=$t1 v4=$v1 v3=$t0 i=$a2 (nd 20, all rows pure register renaming; object
-   is otherwise byte-identical incl. hoisted count2 reload before the chain,
-   the `(u32)x << 8 >> 8` dsll32/dsrl32 byte extraction, and the i++,v8+=0x18
-   increment order). Tried declaration orders, s32/u32 counter+count2,
-   raw-memory loop bound (mwcc rematerializes at loop bottom instead of
-   hoisting to the preheader), loads-before-calls (adds a 4th saved reg),
-   u64 shift spellings (all add sext+canonicalize pairs). Saved-register
-   rotation floor family. */
-// Creates a line-nova instance: a block for n entries, a geometry copy, then the colour rows.
+/* Creates a line-nova instance: a block for n entries, a geometry copy, then the colour rows. */
 // FUN_004B32F0
 u8 *LineNovaCreate(u8 *config)
 {
-    /* Access-site typing differed by 216 normalized bytes; separate typed locals preserve the original cursor lifetimes. */
+    /* Separate typed locals keep the original cursor lifetimes. */
     s32 particleCount;
     u8 *state;
     u16 *geometryBlock;
@@ -280,7 +270,7 @@ void LineNovaDestroy(u8 *state) {
 // Reseeds the eight-byte particle records: random 16-bit position, alpha byte and scale, then resets the delay from the emitter.
 // FUN_004B3470
 void LineNovaReseedParticles(u8 *effect) {
-    /* Access-site typing differed by 51 normalized bytes; separate typed locals preserve the original cursor lifetimes. */
+    /* Separate typed locals keep the original cursor lifetimes. */
     u8 *state;
     u8 *config;
     u32 count;
@@ -343,8 +333,6 @@ void LineNovaReseedParticles(u8 *effect) {
 }
 
 
-
-
 /* Project a camera-relative displacement using depth and the screen scale. */
 static inline f32 novaCameraOffset(f32 center, const f32 *scale, f32 depth, f32 screen, f32 origin)
 {
@@ -354,22 +342,18 @@ static inline f32 novaCameraOffset(f32 center, const f32 *scale, f32 depth, f32 
     return difference * factor / screen;
 }
 
-/* Eight-byte particles follow the four camera corners; the VU computes the
- * edge length, normalized cross product and six real XYZ vertices. Both
- * VU0 bridges that retail writes through $v0 (the colour unpack and the
- * edge-length cfc2/mtc1) name $2: the retail call result moves to $v1 before
- * the first unpack, and no loop invariant takes $v0. The call's last two
- * arguments are (s32) conversions so they load before the first two; the
- * screen products use operandOrderMultiply for retail's operand order. */
+/* Eight-byte particles follow the four camera corners; the VU computes edge length, normalized
+ * cross product and six XYZ vertices. The sampler's last two arguments are (s32) conversions so
+ * they load first. */
 #pragma push
-/* measured: baseline C nd 1287B; adjacent-local declaration probe nd 1287B; retain settings for owner MATCH. */
+/* measured: retail's scheduling needs dead assignments kept and loop invariants hoisted. */
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
 // Builds the eight-byte camera-corner particle quads (see the note above).
 // FUN_004B36B0
 void LineNovaUpdateCameraQuads(u8 *unused, u8 *effect)
 {
-    /* Access-site typing differed by 1103 normalized bytes; separate typed locals preserve the original cursor lifetimes. */
+    /* Separate typed locals keep the original cursor lifetimes. */
 
     extern s32 mdlEffectSamplePackedColor(u8 *, u8 *, s32, s32);
     extern u8 *kwlnGetCamera(void);
@@ -694,7 +678,7 @@ void LineNovaUseVertexUpdate(u8 *effect) {
 // FUN_004B3ED0
 u8 *LineNovaCreateAlpha(u8 *config)
 {
-    /* Access-site typing differed by 474 normalized bytes; separate typed locals preserve the original cursor lifetimes. */
+    /* Separate typed locals keep the original cursor lifetimes. */
     f32 firstScaledAlpha;
     f32 secondScaledAlpha;
     f32 alphaScale;
@@ -776,7 +760,7 @@ void LineNovaDestroyAlt(u8 *state) {
 // Reseeds the six-byte vertex records: three random 16-bit components, then resets the delay from the emitter.
 // FUN_004B41C0
 void LineNovaReseedVertices(u8 *effect) {
-    /* Access-site typing differed by 51 normalized bytes; separate typed locals preserve the original cursor lifetimes. */
+    /* Separate typed locals keep the original cursor lifetimes. */
     u8 *state;
     u8 *config;
     u32 count;
@@ -833,21 +817,17 @@ void LineNovaReseedVertices(u8 *effect) {
     }
 }
 
-/* Six-byte particles place six XYZ vertices between the projected endpoints.
- * The rotation axis is twelve bytes, with both source parts loaded first.
- * As in LineNovaUpdateCameraQuads: (s32) conversions on the last two sampler arguments,
- * effectVuUnpackColor10V0 for the $v0 colour transfers, and the vertex pointer
- * declared after the loop counter. The Y camera offset forms its depth factor
- * before the 224 difference, unlike the X call through novaCameraOffset. */
+/* Six-byte particles place six XYZ vertices between the projected endpoints; the Y camera offset
+ * forms its depth factor before the 224 difference. */
 #pragma push
-/* measured: baseline C nd 722B; adjacent-local declaration probe nd 722B; retain settings for owner MATCH. */
+/* measured: retail's scheduling needs dead assignments kept and loop invariants hoisted. */
 #pragma opt_dead_assignments off
 #pragma opt_loop_invariants on
 // Places six XYZ vertices per particle between the projected endpoints (the six-byte particle update).
 // FUN_004B4430
 void LineNovaUpdateVertices(u8 *unused, u8 *effect)
 {
-    /* Access-site typing differed by 1470 normalized bytes; separate typed locals preserve the original cursor lifetimes. */
+    /* Separate typed locals keep the original cursor lifetimes. */
 
     extern s32 mdlEffectSamplePackedColor(u8 *, u8 *, s32, s32);
     extern u8 *kwlnGetCamera(void);
@@ -1052,8 +1032,6 @@ vertices[17] = *(f32 *)D_00713D18;
     func_003e9cb0(geometryBlock->frame, transform, 0);
 }
 #pragma pop
-
-
 
 
 // Binds the line-nova resource for its kind; same body as LineNovaBindResource.

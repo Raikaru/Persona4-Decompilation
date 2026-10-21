@@ -62,16 +62,10 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-
-
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
-
-
-
-
 
 
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
@@ -86,23 +80,16 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 001990d0-001990d0 */
-
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off is scoped to func_001990d0. */
-/* measured: func_001990d0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail does not propagate copies in this function, so the motion lookup keeps its
+ * separate loads. */
 #pragma opt_propagation off
-/* measured: access-site typing of the later genus reload changes MATCH to MISMATCH; a distinct typed unit alias preserves it. */
-/* Resolve a genus-specific motion, including the formation override and special walking substitution. */
+/* measured: the later genus reload must go through a separate typed unit alias rather than a cast
+ * at the access site. Resolve a genus-specific motion, including the formation override and special
+ * walking substitution. */
+/* Map a motion to its genus-specific motion ID. Formation units check their slot override first,
+ * and character 1 swaps in motion 0x1C for motion 1 while state flag 0x100 is set. */
 // FUN_001990D0
 s64 btlUnitGetMotionId(u8 *unit, u16 motion)
 {

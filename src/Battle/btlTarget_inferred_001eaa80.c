@@ -49,9 +49,6 @@ extern f32 fGpffff8060;
 extern f32 D_00761438;
 
 
-
-
-
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
 extern f32 scrGetParamFloat(s32);
@@ -79,13 +76,11 @@ extern u8 *btlFormationGetRecord(s32);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001eaa80-001eb110 */
-
 extern void btlTargetEndDamagePhase(void);
 extern s32 btlTargetCanControlDamagePhase(void);
 #pragma push
 #pragma pop
-/* AI script command 0x20c2 (p4flow AI.json AI_FUNCTION_00C2). */
+/* Set flag 0x2000 on the battle state if the current target can control the damage phase. */
 // FUN_001EAA80
 s32 btlEffectScriptSetBattleFlag2000(void) {
     if (btlTargetCanControlDamagePhase() == 1) {
@@ -94,7 +89,8 @@ s32 btlEffectScriptSetBattleFlag2000(void) {
     return 1;
 }
 
-/* AI script command 0x20c3 (p4flow AI.json AI_FUNCTION_00C3). */
+/* Clear flag 0x2000 on the battle state and end the damage phase if the current target can control
+ * it. */
 // FUN_001EAAC0
 s32 btlEffectScriptClearBattleFlag2000(void)
 {
@@ -108,7 +104,8 @@ s32 btlEffectScriptClearBattleFlag2000(void)
     return 1;
 }
 
-/* AI script command 0x20c4 (p4flow AI.json AI_FUNCTION_00C4). */
+/* Clear the retracted state of the battle UI task's encounter entry, then mark it as the damage
+ * source if the target can control the damage phase. */
 // FUN_001EAB10
 s32 btlEffectScriptSetDamageSourceOn(void) {
     btlEncounterEntryClearRetracted(((BtlBattleState *)iGpffffb3ac)->uiTask);
@@ -118,7 +115,8 @@ s32 btlEffectScriptSetDamageSourceOn(void) {
     return 1;
 }
 
-/* AI script command 0x20c5 (p4flow AI.json AI_FUNCTION_00C5). */
+/* Mark the battle UI task's encounter entry as retracted and, when the target is allowed to control
+ * the damage phase, clear its damage source. */
 // FUN_001EAB60
 s32 btlEffectScriptSetDamageSourceOff(void) {
     btlEncounterEntrySetRetracted(((BtlBattleState *)iGpffffb3ac)->uiTask);
@@ -128,7 +126,8 @@ s32 btlEffectScriptSetDamageSourceOff(void) {
     return 1;
 }
 
-/* AI script command 0x20c8 (p4flow AI.json AI_FUNCTION_00C8). */
+/* Return true to the script when the active action's unit matches the requested side (genus) and
+ * character ID. A side value other than 0 or 1 skips the side check. */
 // FUN_001EABC0
 s32 btlEffectScriptCheckSideAndId(void) {
     u8 *p = btlActionGetActiveOrQueueFront();
@@ -156,9 +155,8 @@ s32 btlEffectScriptCheckSideAndId(void) {
 
 /* Queue both formation moves for the first eligible enemy, falling back to the acting unit. */
 // FUN_001EACA0
-/* measured probe: preserve the retail filter branch chain */
+/* measured: retail keeps the filter conditions as a separate branch chain. */
 #pragma push
-/* AI script command 0x20fb (p4flow AI.json AI_FUNCTION_00FB). */
 s32 btlEffectScriptFormationMoveUnit(void) {
     extern s32 btlFormationAllocWork(u32);
     extern void btlFormationCopyRecord(u8 *, u8 *);
@@ -213,9 +211,9 @@ selected:
     return 1;
 }
 
-/* measured probe: close the filter branch chain */
 #pragma pop
-/* AI script command 0x20fc (p4flow AI.json AI_FUNCTION_00FC). */
+/* Return 1 when neither the first nor the second UID in the target formation packets has a unit
+ * record, and 0 otherwise. */
 // FUN_001EAE30
 s32 btlEffectScriptNoHitRecorded(void) {
     s64 mask;
@@ -228,7 +226,8 @@ s32 btlEffectScriptNoHitRecorded(void) {
     return hit ^ 1;
 }
 
-/* AI script command 0x20fd (p4flow AI.json AI_FUNCTION_00FD). */
+/* Find the unit with the given ID on the chosen side and play the requested motion on it with the
+ * script-supplied options. */
 // FUN_001EAEC0
 s32 btlEffectScriptApplyToSideUnit(void)
 {
@@ -260,10 +259,10 @@ s32 btlEffectScriptApplyToSideUnit(void)
 
 /* Set one indexed side-list unit position and update its rounded grid coordinates. */
 #pragma push
-/* measured: baseline and if/else nd93, switch selection nd101; retain the explicit branch shape. */
+/* measured: retail keeps the explicit if/else branch shape; a switch or rebuilt conditionals
+ * produce different code. */
 #pragma opt_rebuildconditionals off
 // FUN_001EAFB0
-/* AI script command 0x20fe (p4flow AI.json AI_FUNCTION_00FE). */
 s32 btlEffectScriptSetUnitPositionByIndex(void) {
     extern void btlTargetPositionToCell();
     extern void btlUnitSetPos();
@@ -307,7 +306,7 @@ done:
 }
 
 #pragma pop
-/* AI script command 0x20ff (p4flow AI.json AI_FUNCTION_00FF). */
+/* Finish the selected action's presentation, then queue a formation slot packet with a delay of 3. */
 // FUN_001EB0B0
 s32 btlEffectScriptFinishPresentation(void) {
     u8 *o;
@@ -319,7 +318,8 @@ s32 btlEffectScriptFinishPresentation(void) {
     return 1;
 }
 
-/* AI script command 0x210b (p4flow AI.json AI_FUNCTION_010B). */
+/* AI script command that queues a battle event packet: kind 0 queues a boss step-end BGM packet,
+ * and kind 1 queues a sound stream packet built from the given stream id. */
 // FUN_001EB110
 s32 btlEffectScriptEnqueueEventPacket(void) {
     u8 path[0x200];

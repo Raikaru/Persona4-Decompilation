@@ -26,13 +26,7 @@ extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 ra
                            f32 angle, f32 depth, s32 preserveState);
 
 
-
-
-
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 0025c730-0025c730 */
-
+/* Spawn a resource icon task for the resource ID and icon ID given as script parameters. */
 // FUN_0025C730
 s32 scrCommonCheckResSlot(void) {
     s32 resourceId;

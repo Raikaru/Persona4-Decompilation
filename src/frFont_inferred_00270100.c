@@ -40,13 +40,9 @@ extern void frFontExCopyString(void *src, void *dst, s32 maxlen);
 extern s8 D_0063BAB0[];
 extern s32 cmmCommunityGetCurrentId(void);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0027; members 00270100-00270f50 */
-
-/* Decode and queue a bank request, deriving its state from calendar flags when unspecified. */
-/* Context +0x10/+0x18 are stream/position; keep pointer-typed raw reads:
- * the canonical s32 fields merge operand reloads and lose the measured retail match. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 119, 123, 139, 172, 181, 183, 188, 190, 200, 202, 213, 241, 267, 269, 274, 277, 340, 341, 469, 470, 471; retain their original address/alias expressions. */
+/* Decode and queue a bank request, deriving its state from calendar flags when unspecified. The
+ * context's stream and position fields stay as raw pointer-typed reads because typed fields merge
+ * reloads. */
 // FUN_00270100
 s32 frFontQueueBankRequestCommand(s32 unusedCommand, u8 *context)
 {
@@ -180,12 +176,8 @@ s32 frFontSettleBankRequestCommand(void)
     return 0;
 }
 
-/* measured: opt_propagation off probe for 002703d0 register setup. */
-/* Decode the resource and value operands and spawn the corresponding scene icon task. */
-/* Context +0x10/+0x18 are stream/position; keep pointer-typed raw reads:
- * the canonical s32 fields merge operand reloads and lose the measured retail match. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 119, 123, 139, 181, 183, 188, 190, 200, 202, 213, 274, 277, 470, 471; retain their original address/alias expressions. */
+/* Decode the resource and value operands and spawn the corresponding scene icon task. Context
+ * stream and position fields stay raw pointer reads because retail reloads each operand. */
 // FUN_002703D0
 s32 frFontSpawnResourceIconCommand(s32 unusedCommand, u8 *context)
 {
@@ -244,14 +236,13 @@ s32 frFontSpawnResourceIconCommand(s32 unusedCommand, u8 *context)
     return 0;
 }
 
-/* measured: closes opt_propagation off probe for 002703d0. */
-/* measured: opt_rebuildconditionals off reproduces 002704f0 retail conditional-register schedule. */
-/* measured: func_002704f0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps the unrebuilt conditional-branch schedule in
+ * frFontSetResourceMotionCommand, which needs opt_rebuildconditionals off. */
 #pragma opt_rebuildconditionals off
-/* Context +0x10/+0x18 are stream/position; keep pointer-typed raw reads:
- * the canonical s32 fields merge operand reloads and lose the measured retail match. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 119, 123, 139, 143, 150, 172, 181, 183, 188, 190, 200, 202, 211, 213, 214, 236, 238, 241, 267, 269, 274, 277, 340, 341, 469, 470, 471; retain their original address/alias expressions. */
+/* measured: context stream (+0x10) and position (+0x18) stay raw pointer reads because typed s32
+ * fields merge the operand reloads retail repeats. */
+/* Decode the request key, motion, second key and frame operands from the font command stream and
+ * apply them as a resource motion. Does nothing when the font mode is nonzero. */
 // FUN_002704F0
 s32 frFontSetResourceMotionCommand(s32 unusedCommand, u8 *context)
 {
@@ -377,8 +368,7 @@ s32 frFontSetResourceMotionCommand(s32 unusedCommand, u8 *context)
     return 0;
 }
 
-/* measured: closes opt_rebuildconditionals off for 002704f0. */
-// Intent: re-lays out the text work with no string while the frFont mode is 0.
+/* Re-lays out the text work with no string while the frFont mode is 0. */
 // FUN_002706F0
 s32 itfMesRefreshText(u8 *unusedCommand, u8 *context)
 {
@@ -398,10 +388,9 @@ s32 frFontCheckModeCommand(void)
     return 0;
 }
 
-/* measured: opt_propagation off probe for 00270780 family add */
-/* measured: itfMesSetSlotNameText MATCH -> MISMATCH without this pragma. */
+/* measured: retail code for itfMesSetSlotNameText is built without copy propagation. */
 #pragma opt_propagation off
-// Intent: lays out the name of the active slot in the current group.
+// Lays out the name of the active slot in the current group.
 // FUN_00270780
 s32 itfMesSetSlotNameText(s32 unusedCommand, u8 *context) {
     u8 nameBuffer[0x20];
@@ -435,8 +424,7 @@ s32 itfMesSetSlotNameText(s32 unusedCommand, u8 *context) {
     return 0;
 }
 
-/* measured: close opt_propagation off probe for 00270780 family add */
-// Intent: lays out the first calendar field (month) as text in the text work.
+/* Lays out the first calendar field (month) as text in the text work. */
 // FUN_00270870
 s32 itfMesSetMonthText(s32 unusedCommand, u8 *context)
 {
@@ -453,7 +441,7 @@ s32 itfMesSetMonthText(s32 unusedCommand, u8 *context)
     return 0;
 }
 
-// Intent: lays out the second calendar field (day) as text in the text work.
+// Lays out the day as text in the text work.
 // FUN_00270910
 s32 itfMesSetDayText(s32 unusedCommand, u8 *context)
 {
@@ -470,7 +458,7 @@ s32 itfMesSetDayText(s32 unusedCommand, u8 *context)
     return 0;
 }
 
-// Intent: copies the weekday name from the table at D_0063BAB0 into the text work.
+// Copies the weekday name from the table at D_0063BAB0 into the text work.
 // FUN_002709B0
 s32 itfMesSetWeekdayText(s32 unusedCommand, u8 *context)
 {
@@ -507,8 +495,7 @@ s32 itfMesSetWeekdayText(s32 unusedCommand, u8 *context)
     return 0;
 }
 
-/* measured: opt_propagation off probe for 00270a80 addu order */
-// Intent: lays out a community name; the current community is used when the key is 0.
+/* Lays out a community name; the current community is used when the key is 0. */
 // FUN_00270A80
 s32 itfMesSetCommunityNameText(s32 unusedCommand, u8 *context) {
     u8 nameBuffer[0x40];
@@ -546,14 +533,11 @@ s32 itfMesSetCommunityNameText(s32 unusedCommand, u8 *context) {
     return 0;
 }
 
-/* measured: close opt_propagation off probe for 00270a80 */
-/* measured: cmmCommunityClearBrokenCurrent, cmmCommunityClearReverseCurrent, cmmCommunitySetBrokenCurrent, cmmCommunitySetReverseCurrent, cmmCommunityScriptAddPoints MATCH -> MISMATCH without this pragma. */
+/* measured: the community broken/reverse setters and cmmCommunityScriptAddPoints need propagation
+ * re-enabled to reproduce retail's operand reloads. */
 #pragma opt_propagation on
-// Intent: script command that adds points to a community; the current community is used when the id is 0.
-/* Context +0x10/+0x18 are stream/position; keep pointer-typed raw reads:
- * the canonical s32 fields merge operand reloads and lose the measured retail match. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 119, 123, 139, 181, 183, 188, 190, 200, 202, 213, 274, 277, 470, 471; retain their original address/alias expressions. */
+// Script command that adds points to a community; uses the current community when the id is 0.
+// Stream and position are read through raw pointers because typed fields change the output.
 // FUN_00270B80
 s32 cmmCommunityScriptAddPoints(s32 unusedCommand, u8 *context)
 {
@@ -609,11 +593,9 @@ s32 cmmCommunityScriptAddPoints(s32 unusedCommand, u8 *context)
     return 0;
 }
 
-// Intent: script command that adds points only when the community record exists.
-/* Context +0x10/+0x18 are stream/position; keep pointer-typed raw reads:
- * the canonical s32 fields merge operand reloads and lose the measured retail match. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 119, 123, 139, 172, 181, 183, 188, 190, 200, 202, 213, 241, 267, 269, 274, 277, 340, 341, 469, 470, 471; retain their original address/alias expressions. */
+// Script command that adds points only when the community record exists. Context stream/position
+// fields are read through pointer-typed raw accesses, since the s32 fields merge operand reloads.
+// The remaining raw address expressions are intentional.
 // FUN_00270CA0
 s32 cmmCommunityScriptAddPointsChecked(s32 unusedCommand, u8 *context)
 {
@@ -622,7 +604,7 @@ s32 cmmCommunityScriptAddPointsChecked(s32 unusedCommand, u8 *context)
     FrFontContext *positionFieldsReload;
     FrFontContext *streamFieldsReload;
 
-    extern s32 cmmCommunityHasRecord(u16 communityId); /* lint: allow H011 -- measured: the u16 prototype reproduces retail's narrowing at this call; s32 gives nd 44 on cmmCommunityScriptAddPointsChecked */
+    extern s32 cmmCommunityHasRecord(u16 communityId); /* lint: allow H011 -- the u16 prototype reproduces retail's narrowing of the id at this call. */
     extern s32 cmmCommunityAddPoints(s32 communityId, s32 points, s32 resourceId);
     s32 second;
     s32 first;
@@ -698,7 +680,7 @@ s32 cmmCommunityScriptAddPointsChecked(s32 unusedCommand, u8 *context)
     return 0;
 }
 
-// Intent: Sets the reverse flag on the current community entry unless the font is in a mode that blocks it [inferred]
+// Sets the reverse flag on the current community entry unless the font is in a mode that blocks it.
 // FUN_00270E30
 s32 cmmCommunitySetReverseCurrent(void) {
     s32 communityId;
@@ -713,7 +695,7 @@ s32 cmmCommunitySetReverseCurrent(void) {
     return 0;
 }
 
-// Intent: Clears the reverse flag on the current community entry unless the font is in a blocking mode [inferred]
+// Clears the reverse flag on the current community entry unless the font is in a blocking mode.
 // FUN_00270E90
 s32 cmmCommunityClearReverseCurrent(void) {
     s32 communityId;
@@ -728,7 +710,7 @@ s32 cmmCommunityClearReverseCurrent(void) {
     return 0;
 }
 
-// Intent: Sets the broken flag on the current community entry unless the font is in a blocking mode [inferred]
+// Sets the broken flag on the current community entry unless the font is in a blocking mode.
 // FUN_00270EF0
 s32 cmmCommunitySetBrokenCurrent(void) {
     s32 communityId;
@@ -743,7 +725,7 @@ s32 cmmCommunitySetBrokenCurrent(void) {
     return 0;
 }
 
-// Intent: Clears the broken flag on the current community entry unless the font is in a blocking mode [inferred]
+// Clears the broken flag on the current community entry unless the font is in a blocking mode.
 // FUN_00270F50
 s32 cmmCommunityClearBrokenCurrent(void) {
     s32 communityId;

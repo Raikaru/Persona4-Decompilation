@@ -38,7 +38,6 @@ extern s32 (*D_00624FF0[])(u8 *, s32, s32);
 extern s32 sdkSndIsChannelPlaying(s32);
 
 
-
 extern u32 datCalcRandomBelow();
 extern u8 D_0060AB08[];
 extern u8 D_0060AC00[];
@@ -65,9 +64,7 @@ extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
 
 
-
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
-
 
 
 extern s32 btlSoundMarkSlotReady(u8 **);
@@ -85,52 +82,24 @@ extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
 
-
-
 #pragma push
 #pragma pop
 
-
-
-
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f8380-001f9650 */
 
 extern s32 btlActionHasNoTargetClass(u32);
 extern s32 btlSoundRollStatusCure(u8 *);
 extern s32 btlSoundPickStatusTalkVoiceA(u8 *);
 extern s32 btlSoundPickStatusTalkVoiceB(u8 *);
 extern void btlSoundAdvanceSlotQueue(void);
-/* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
-/* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_loop_invariants on hoists the loop's one constant before the entry test. */
-/* measured: close opt_loop_invariants after btlSoundRollStatusCure. */
-/* measured: every instruction matches and the object is exactly the 80-byte
-   window; the only residual is that retail materialises the shift constant
-   (`addiu $v1,$zero,1`) BEFORE the branch into the loop test while b210 puts
-   it after, which also shifts the back-edge displacement by one word (nd 9).
-   Measured identical at nd 9: an inline `1 << i`, a hoisted `one` local, and
-   an explicit goto loop with the test at the bottom. Preheader hoist-order
-   floor. Committed at nd 9. */
+/* measured: retail sets up the loop's shift constant before the entry test, so opt_loop_invariants
+ * is enabled for btlSoundRollStatusCure. */
 
 #pragma push
 #pragma pop
-/* measured: retail materialises this loop's invariant in the preheader; plain
-   -O2 rematerialises it in the body (nd 9 -> byte-exact with the hoist). */
-/* measured: closes the hoist bracket opened above and restores the -O2
-   baseline for the rest of the file. */
-/* measured: opt_rebuildconditionals off probe for btlSoundPickStatusTalkVoiceA final branch. */
-/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceA probe. */
-/* measured: opt_rebuildconditionals off preserves btlSoundPickStatusTalkVoiceB's positive flag branch. */
-/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceB. */
-/* measured: optimization_level 1 required for exact btlSoundAdvanceSlotQueue codegen. */
-/* measured: opt_loop_invariants off baseline for btlSoundAdvanceSlotQueue. */
-/* measured: restore optimization_level 2 after btlSoundAdvanceSlotQueue. */
 /* Set model flag 0x40 only for a unit with an active model. */
 // FUN_001F8380
 s32 btlSoundMarkSlotReady(u8 **work)
@@ -274,7 +243,6 @@ void btlSoundStopBank3(void) {
 s32 btlSoundGetPersonaVoiceIndex(u8 *action, s32 voiceIndex)
 {
     BtlAction *actionState = (BtlAction *)(action);
-    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     s32 personaId;
     u8 *unit;
 
@@ -320,7 +288,6 @@ s32 btlSoundGetPersonaVoiceIndex(u8 *action, s32 voiceIndex)
 s32 btlSoundGetSlotVoiceIndex(u8 *action, s32 slot)
 {
     BtlAction *actionState = (BtlAction *)(action);
-    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     u8 *unit;
 
     unit = (u8 *)(((BtlAction *)action)->unit);
@@ -353,7 +320,6 @@ s32 btlSoundGetSlotVoiceIndex(u8 *action, s32 slot)
 s32 btlSoundPickActionVoice(u8 *action)
 {
     BtlAction *actionState = (BtlAction *)(action);
-    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     extern s32 btlEncounterIsBoss(void);
     s32 voiceBase;
     s32 voice;
@@ -525,9 +491,8 @@ s32 btlSoundPickStartVoice(u8 *action)
     return value + datCalcRandomBelow(3);
 }
 
-/* measured: opt_propagation off preserves btlSoundPickPartnerCallVoice's loop constants. */
-/* measured: btlSoundPickPartnerCallVoice MATCH -> MISMATCH without this pragma. */
-/* Unit-region setting: propagation remains off for the following nine neighboring voice selectors. */
+/* measured: with propagation off, retail keeps btlSoundPickPartnerCallVoice's loop constants in
+ * their own locals instead of folding them. */
 #pragma opt_propagation off
 /* Select the unit-relative voice variant after excluding enemy and selected actors. */
 // FUN_001F8EA0
@@ -561,9 +526,11 @@ done:
     return value + D_00624FC0[((BtlUnit *)work)->charId];
 }
 
-/* measured: close opt_propagation after btlSoundPickPartnerCallVoice probe. */
-/* measured: opt_propagation off preserves btlSoundPickPartnerReplyVoice's loop constants. */
-/* Select the unit-relative voice variant after excluding enemy and selected actors. */
+/* measured: with propagation off, retail keeps btlSoundPickPartnerReplyVoice's loop constants in
+ * place instead of folding them. Select the unit-relative voice variant after excluding enemy and
+ * selected actors. */
+/* Return the partner reply voice for the given variant, offset by the unit's character base, or -1
+ * for enemy units and the selected action. */
 // FUN_001F8F40
 s32 btlSoundPickPartnerReplyVoice(u8 *action, s32 variant)
 {
@@ -594,9 +561,11 @@ s32 btlSoundPickPartnerReplyVoice(u8 *action, s32 variant)
     return value + D_00624FC0[((BtlUnit *)work)->charId];
 }
 
-/* measured: close opt_propagation after btlSoundPickPartnerReplyVoice probe. */
-/* measured: opt_propagation off preserves btlSoundPickPartnerAssistVoice's loop constants. */
-/* Select the unit-relative voice variant after excluding enemy and selected actors. */
+/* measured: opt_propagation off keeps the loop constants in btlSoundPickPartnerAssistVoice as
+ * retail has them. Select the unit-relative voice variant after excluding enemy and selected
+ * actors. */
+/* Return the partner assist voice for the given variant, offset by the unit's character base, or -1
+ * for enemy units and the selected action. */
 // FUN_001F8FE0
 s32 btlSoundPickPartnerAssistVoice(u8 *action, s32 variant)
 {
@@ -627,7 +596,6 @@ s32 btlSoundPickPartnerAssistVoice(u8 *action, s32 variant)
     return value + D_00624FC0[((BtlUnit *)work)->charId];
 }
 
-/* measured: close opt_propagation after btlSoundPickPartnerAssistVoice probe. */
 /* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
 // FUN_001F9080
 s32 btlSoundPickGuardVoice(u8 *action) {
@@ -643,14 +611,13 @@ s32 btlSoundPickGuardVoice(u8 *action) {
     return D_00624FC0[((BtlUnit *)p)->charId] + 0x45;
 }
 
-/* measured: opt_propagation off tested for btlSoundPickRandomPartnerVoice; retains loop constants. */
-/* Choose a living eligible party partner while channel three is idle, then select its voice variant. */
+/* Choose a living eligible party partner while channel three is idle, then select its voice
+ * variant. */
 // FUN_001F90E0
 s32 btlSoundPickRandomPartnerVoice(u8 *action)
 {
     BtlUnit *unitState;
     BtlAction *actionState = (BtlAction *)(action);
-    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     s32 voiceBase;
     s32 count;
     u8 *candidate;
@@ -709,13 +676,12 @@ s32 btlSoundPickRandomPartnerVoice(u8 *action)
     return voiceBase + datCalcRandomBelow(3, unitId, voiceOffset);
 }
 
-/* measured: close opt_propagation after btlSoundPickRandomPartnerVoice. */
-/* Return a unit-relative voice index, or -1 when the actor is not eligible for this cue. */
+/* Return a random one of three status cue voices for the acting unit, or -1 when the battle flag is
+ * set, the unit is an enemy or the selected action, or it has a blocking bad status. */
 // FUN_001F92C0
 s32 btlSoundPickStatusCueVoice(u8 *action)
 {
     BtlAction *actionState = (BtlAction *)(action);
-    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     s32 value;
 
     if (((s32)(((BtlBattleState *)iGpffffb3ac)->flags) & 0x200000) != 0) {
@@ -740,7 +706,6 @@ s32 btlSoundPickStatusCueVoice(u8 *action)
 s32 btlSoundPickHpTierVoice(u8 *action)
 {
     BtlAction *actionState = (BtlAction *)(action);
-    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     s32 type;
     s32 value;
 
@@ -780,7 +745,6 @@ s32 btlSoundPickHpTierVoice(u8 *action)
 s32 btlSoundPickGroupVoice(u8 *action)
 {
     BtlAction *actionState = (BtlAction *)(action);
-    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     s32 value;
 
     if (((s32)(((BtlBattleState *)iGpffffb3ac)->flags) & 0x200000) != 0) {
@@ -805,7 +769,6 @@ s32 btlSoundPickGroupVoice(u8 *action)
 s32 btlSoundPickKnockVoice(u8 *action)
 {
     BtlAction *actionState = (BtlAction *)(action);
-    /* measured: access-site typing changes reloads; per-object typed aliases retain the retail sequence. */
     s32 value;
 
     if (((BtlUnit *)((u8 *)(((BtlAction *)action)->unit)))->genus != 0) {

@@ -24,11 +24,10 @@ extern char D_0063D050[];
 extern void kwlnTaskDestroyWithHierarchy(s32 task);
 
 
-
 extern s32 D_0063CB50[];
 extern u8 D_0063CFA0[];
 extern s32 kwlnTaskGetTaskByName(void *name);
-// lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
+// lint: allow H011 -- a u16 prototype changes code for func_00291a60's wide id arguments.
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32 farg0, s32, s32,
                           s32);
@@ -45,25 +44,10 @@ extern u8 D_0063E810[];
 extern u16 D_008C024E[];
 extern s32 D_0063E830[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 00298d30-00298d70 */
-
 extern void mtMiscCollectType1Records(u8 *eventWork);
 extern void mtMiscCollectType2Records(u8 *eventWork);
-/* measured probe: preserve local constant with opt_propagation off. */
-/* measured probe: close opt_propagation bracket after func_00291530. */
-/* measured: opt_propagation off keeps `weapon` materialised between the index
-   shift and the base add (retail sll/andi/addu); with propagation on the CSE'd
-   address is finished before any argument. The index/five locals must stay
-   literal under this pragma or they take a sixth saved register. Attachment
-   helpers retain block-scoped u16 parameters for per-call masks. */
-/* measured: restore propagation for the rest of the unit. */
-/* measured probe: preserve the retail type constant and close bracket below. */
-/* measured probe: close opt_propagation bracket after func_00291810. */
-/* measured: O1 float-local register mapping probe for func_00293710. */
-/* measured: closes O1 float-local register mapping probe for func_00293710. */
-/* Each filtered scan owns its resource and index. With opt_lifetimes on,
- * those local scopes reproduce all 6312 retail code bytes; the 6320-byte
- * function window ends in eight zero alignment bytes. */
+/* measured: opt_propagation off keeps the weapon address materialised between the index shift and
+ * base add, as retail does; index locals stay literal to avoid a sixth saved register. */
 #pragma push
 #pragma pop
 // Destroys the task (with its children) whose name is D_0063CFA0. Returns 1.

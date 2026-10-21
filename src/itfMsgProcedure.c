@@ -7,10 +7,8 @@
 extern void kAssertFail(const void *file, u32 line);
 extern char D_0063BF60[];
 
-/* Read one of the four procedure parameters for a window handle. */
-/* measured: direct procedure.parameters[index] changes addu order (nd 2); typing the retained element cursor preserves the indexed access. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 2; retain their original address/alias expressions. */
+/* Read one of the four procedure parameters for a window handle; raw address expressions are kept
+ * because typed array indexing changes the address arithmetic order. */
 // FUN_0027B6E0
 s32 itfMesWindowGetProcedureParam(s32 handle, s32 index)
 {
@@ -27,9 +25,6 @@ s32 itfMesWindowGetProcedureParam(s32 handle, s32 index)
 }
 
 /* Write one of the four procedure parameters for a window handle. */
-/* measured: direct procedure.parameters[index] changes addu order (nd 2); typing the retained element cursor preserves the indexed access. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 2; retain their original address/alias expressions. */
 // FUN_0027B750
 void itfMesWindowSetProcedureParam(s32 handle, s32 index, s32 value)
 {

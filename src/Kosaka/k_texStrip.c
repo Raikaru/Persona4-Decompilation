@@ -2,7 +2,7 @@
 #include "include_asm.h"
 #include "Kosaka/k_clump_property_internal.h"
 #include "sdk_task_registration.h"
-/* Original translation unit k_texStrip.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit k_texStrip.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "kwln_task_internal.h"
 #include "h_cdvd_internal.h"
@@ -97,29 +97,9 @@ s32 K_TexStripBuildUpdate(u8 *task);
 s32 K_TexStripRecordCount(u8 *input, void *outputPath);
 s32 K_TexStripLoadUpdate(u8 *task);
 
-/* Source unit: src/promoted/k_texStrip.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/k_texStrip.c; members 00190680-00191d90 */
-
-// measured: nd 115 after 4 attempts (best). Spill-slot rule as K_TexStripRecordCount:
-// func_003df3c0 writes four signed header words in spill.s. Switch `case 0x16 / case 0xF0F000E0 /
-// default` compiles the dispatch comparison in the correct order (0xF0F000E0 first, then 0x16)
-// and matches retail exactly. Residual nd 115 is dominated by register allocation: retail keeps
-// sp60/sp64/sp68 (the 0x14-byte func_003e2910 buffer + sp64/sp68) on the STACK at 0x60/0x64/
-// 0x68, but mwcc promotes sp64/sp68 to $s5/$s6 (sp68 folded with `sll $s6,2` / `addu $s0,$s6,$s6`)
-// adding a 5th/6th saved reg, so the whole allocation shifts (retail wants var_16->$s0, arg1/
-// temp_2->$s1, temp_18->$s2, temp_19->$s3, var_20->$s4). Making sp60/sp64/sp68 overlap via a
-// 5-word array (nd 138) or a 3-field struct (nd 141) is worse. Core regs are otherwise right.
-// QTEX lane: plain-C candidate object 668/window 672; baseline fndiff was nd 20
-// (six differing instruction words plus one zero-padding tail word), with both
-// func_003deff0 calls materializing move $a0 before the spill.s[0]/spill.s[1] loads.
-// The targeted `(u32)` casts on spill.s[0] and spill.s[1] at both calls produce nd 0.
-// s32 sp[2], the 16-byte spill union, and buffer[5] reproduce the 0xA0 frame and saved-register
-// coloring. Shared-callee probe: retail func_003deff0 first-uses a0 as a forwarded
-// pointer, saves a1/a2, and masks a3/t0, proving five args `(void *,s32,s32,s32,s32)`;
-// existing calls already pass all five, so no prototype change was needed.
-/* Both build/load creators allocate 0xe74 bytes. Directory reads start at
- * 0x08, their name at 0x48; the three 256-entry tables and counters below are
- * addressed by both update paths. Handles retain the existing 32-bit storage. */
+// Both build/load creators allocate 0xe74 bytes. Directory reads start at 0x08 and the name at
+// 0x48; both update paths use the three 256-entry tables and counters. Handles stay in 32-bit
+// storage.
 typedef struct TexStripWork
 {
     s32 state;
@@ -223,13 +203,11 @@ loop_check:
     return dictionary;
 }
 
-/* Look up the texture name, detach and insert it when absent, then report
-   the lookup result. Pointer-typed lookup/print arguments and disabled CSE
-   preserve retail's first-argument-before-name-address materialization.
-   measured: object 196B/window 208B; exact instructions, 12B zero tail. */
-/* measured: K_TexStripNameInsert MATCH -> MISMATCH without this pragma. */
-/* measured: baseline removal differs in 145 bytes; cache texture name; early-return already-present name also differ. */
+/* measured: disabling common subexpressions keeps retail loading the first argument before the
+ * texture name address. Looks up the name, then detaches and inserts the texture if it is absent. */
 #pragma opt_common_subs off
+/* Add the texture to the dictionary if no texture with its name is in there yet, logging the
+ * result, and return the texture. */
 // FUN_00190920
 s32 K_TexStripNameInsert(s32 texture, s32 dictionary) {
     if (func_003ef650((void *)dictionary, (char *)texture + 0x10) == 0) {
@@ -245,16 +223,12 @@ s32 K_TexStripNameInsert(s32 texture, s32 dictionary) {
     return texture;
 }
 
-/* measured: restore CSE after the exact 00190920 call sequence. */
-/* measured: K_TexStripApplyNames, K_TexStripBuildUpdate, K_TexStripRecordCount, K_TexStripLoadUpdate MATCH -> MISMATCH without this pragma. */
+/* measured: common subexpression elimination is turned back on after the 00190920 call sequence;
+ * the following texture-strip functions need it enabled to reproduce retail. */
 #pragma opt_common_subs on
-// measured: candidate frame, spill arrays, saved-register order, switch/goto layout, and
-// shared-callee five-argument signature reached object 532/window 544 with normalized_diff 10.
-// fndiff isolated the residual to func_003deff0 setup: retail loads spill.s[0] and spill.s[1]
-// into $a1/$a2 before moving temp_19 into $a0, while b210 materializes the first argument
-// first. Casting those two stack values to u32 reproduces the retail order and closes this
-// function (normalized_diff 0).
-/* Merge texture dictionaries into the resource stream while copying all other chunks. */
+// Casting spill.s[0] and spill.s[1] to u32 makes them load before temp_19 in the func_003deff0
+// call, as in retail. Merge texture dictionaries into the resource stream while copying all other
+// chunks.
 // FUN_001909F0
 void K_TexStripApplyNames(u8 *input, void *outputPath, u8 *workData) {
     s32 inputBuffer[2];
@@ -313,14 +287,11 @@ loop_check:
     }
 }
 
-/* measured: complete file-stat records, per-state loop lifetimes, and live
-   resource reloads reproduce retail. See docs/probe_archive/
-   TexStrip_00190c10_20261005.md for owner and relocation evidence. */
 /* Enumerate resource files, collect texture/file IDs, and write stripped assets plus a manifest. */
 // FUN_00190C10
 #pragma push
-/* measured: K_TexStripBuildUpdate MATCH -> MISMATCH without this pragma. */
-/* measured: baseline removal differs in 1173 bytes; counted file-extension scan; scope resource-loop index also differ. */
+/* measured: loop-invariant hoisting is needed for retail's file-extension scan and resource-loop
+ * index code. */
 #pragma opt_loop_invariants on
 s32 K_TexStripBuildUpdate(u8 *task)
 {
@@ -546,8 +517,6 @@ s32 K_TexStripBuildUpdate(u8 *task)
 #pragma pop
 /* Close the directory iterator before releasing the build task work. */
 // FUN_001915C0
-/* measured: access-site, typed-local, and indexed initial task-work loads differ in five bytes.
- * The directory field and final task-slot reload remain typed. */
 void K_TexStripBuildTaskDestroy(u8 *task)
 {
     s32 directory;
@@ -575,13 +544,8 @@ s32 K_TexStripBuildTaskCreate(void)
     return (s32)kwlnTaskCreateChild((void *)(0), (const void *)(D_005F63E0), 0xF, 0, 0, K_TexStripBuildUpdate, K_TexStripBuildTaskDestroy, (u8 *)(mem));
 }
 
-// measured: MATCH (object 420/window 432). The four func_003df3c0 spill slots
-// use a 16-byte union: producer &spill.s[0], signed reads spill.s[1..3],
-// and unsigned allocation length spill.u[1]. The stack slots at 0x50-0x5C
-// and retail saved-register allocation are unchanged.
-// The `(u32)` casts on spill.s[0] and spill.s[1] in func_003deff0 reproduce retail's
-// argument-materialization order (loads before the first-argument move).
-/* Copy a resource stream and retain the texture dictionary chunk handle. */
+// Copy a resource stream and retain the texture dictionary chunk handle. The chunk union gives
+// signed reads and an unsigned allocation length from the same stack slots.
 // FUN_001916A0
 s32 K_TexStripRecordCount(u8 *input, void *outputPath)
 {
@@ -720,8 +684,6 @@ s32 K_TexStripLoadUpdate(u8 *task)
 
 /* Close any directory handle before freeing load-task work. */
 // FUN_00191B70
-/* measured: access-site, typed-local, and indexed initial task-work loads differ in five bytes.
- * The directory field and final task-slot reload remain typed. */
 void K_TexStripLoadDestroy(u8 *task)
 {
     s32 directory;

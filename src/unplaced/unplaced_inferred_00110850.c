@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00110850-001113b0 */
 
 #include "list_item_internal.h"
 #include "include_asm.h"
@@ -7,8 +6,8 @@
 #include "fr_font_internal.h"
 extern void datSaveRestoreImage(s32, u8 *, s32);
 extern s32 iGpffffb1b4;
-extern u8 iGpffff9bb8[8]; /* Default surname at gp - 0x6448. */
-extern u8 iGpffff9bc0[8]; /* Default given name at gp - 0x6440. */
+extern u8 iGpffff9bb8[8]; /* Default surname. */
+extern u8 iGpffff9bc0[8]; /* Default given name. */
 extern s32 D_005E45E0[];
 extern s8 D_005E3A02[];
 extern s8 D_005E3A04[];
@@ -35,16 +34,14 @@ extern s32 datGetFlag(s32 );
 extern s8 calendarGetValueLowByte(void);
 extern s16 calendarStateDaysSinceApr5(void);
 extern s16 calendarStatePeriod(void);
-/* Calendar tables use six-byte rows and separate linker aliases for each
- * column. Keep byte arithmetic here: the scoped no-propagation helpers retain
- * the measured address materialization, and the alias bases must not move. */
+/* Calendar tables use six-byte rows with a separate linker alias for each column. */
 typedef struct CalendarDayColumn {
     union { u16 packed; u8 bytes[2]; } value;
     u8 pad2[4];
 } CalendarDayColumn;
 
-/* Add a day-row displacement to the calendar table alias address. */
-/* measured: removing the stored offset changes table-address calculation instruction bytes. */
+/* Add a day-row displacement to the calendar table alias address. measured: retail computes the
+ * table address through a stored copy of the offset. */
 static inline s32 calendarAddDayOffset(s32 offset, s32 base)
 {
     s32 value;
@@ -53,8 +50,7 @@ static inline s32 calendarAddDayOffset(s32 offset, s32 base)
     return base + value;
 }
 
-/* Load a calendar byte with signed extension to the calendar result width. */
-/* measured: plain signed-byte loads change calendar load/extension instruction bytes. */
+/* measured: retail sign-extends the calendar byte to 64 bits through this wrapper. */
 static inline s64 calendarLoadSignedByte(s8 *ptr)
 {
     s64 value;
@@ -69,7 +65,8 @@ static inline s64 calendarLoadSignedByte(s8 *ptr)
 #pragma opt_propagation on
 #pragma opt_common_subs on
 #pragma opt_rebuildconditionals on
-// Intent: Return a day-table value for day arg0 and phase arg1: a flag-based result for today's date, else the byte from the day table [inferred]
+// Return a day-table value for a day and phase: a flag-based result for today's date, else the byte
+// from the day table.
 // FUN_00110850
 s64 calGetDayTableValue(s32 day, u32 phase)
 {
@@ -116,11 +113,11 @@ block_12:
     return (s64) ((s64) *((u8 *)(phaseOffset + dayAddress)) << 0x38) >> 0x38;
 }
 
-/* measured: baseline differs by 27 bytes; indexed signed-byte access and propagation-only probes still differ. */
 #pragma push
 #pragma opt_propagation off
 #pragma opt_common_subs off
-// Intent: Return the day-table entry for a day and phase: the override value when one is set, else the stored byte [inferred]
+// Return the day-table entry for a day and phase: the override value when one is set, else the
+// stored byte.
 // FUN_00110960
 s64 calGetDayEntryByPhase(s32 day, u32 phase)
 {
@@ -178,11 +175,10 @@ static inline s64 calendarOverrideValue(s32 date, s32 phase)
 
 s32 calDayOfYearFromMonthDay(s32 month, s32 day);
 
-/* measured: baseline differs by 145 bytes; table-alias indexing and propagation-only probes still differ. */
 #pragma push
 #pragma opt_propagation off
 #pragma opt_common_subs off
-// Intent: Return the day-table entry for a month and day, choosing phase 3 or 4 from the day-of-year test [inferred]
+// Return the day-table entry for a month and day, choosing phase 3 or 4 from the day-of-year test.
 // FUN_00110A60
 s64 calGetDayEntryForMonthDay(s32 month, s32 day)
 {
@@ -211,7 +207,7 @@ s64 calGetDayEntryForMonthDay(s32 month, s32 day)
 }
 #pragma pop
 
-// Intent: Return the packed 16-bit day entry for day arg0, combining two byte table values [inferred]
+// Return the packed 16-bit day entry for a day, combining two byte table values.
 // FUN_00110C50
 s32 calGetPackedDayEntry(s32 day, s32 referenceDay)
 {
@@ -248,7 +244,7 @@ s32 calGetPackedDayEntry(s32 day, s32 referenceDay)
     return ((firstValue & 0xFFFF) + ((secondValue & 0xFFFF) * 0x10)) & 0xFFFF;
 }
 
-// Intent: Return whether the day table has an entry for day day [inferred]
+// Return whether the day table has an entry for the day.
 // FUN_00110D30
 s32 calHasDayEntry(s32 day)
 {
@@ -257,7 +253,8 @@ s32 calHasDayEntry(s32 day)
 
 s32 calDayOfYearFromMonthDay(s32 day, s32 );
 
-// Intent: Return flag 1 when day-of-year day is in Apr 1 to Jun 12 or on or after Oct 10, and flag 2 when the day table has an entry for the current day [inferred]
+// Return flag 1 when the day of year is in Apr 1 to Jun 12 or on/after Oct 10, and flag 2 when
+// today has a day-table entry.
 // FUN_00110D60
 s32 calGetDayWindowFlags(s32 day)
 {
@@ -298,14 +295,14 @@ block_10:
     return flags;
 }
 
-// Intent: Set the state-image pending flag that calRestoreStateImage reads [inferred]
+// Set the state-image pending flag that calRestoreStateImage reads.
 // FUN_00110E70
 void calSetStateImagePending(s32 pending)
 {
     iGpffffb1b4 = pending;
 }
 
-// Intent: Capture the current save state into the state buffer and mark it pending [inferred]
+// Capture the current save state into the state buffer and mark it pending.
 // FUN_00110E80
 void calCaptureStateImage(void) {
     s32 imageSize;
@@ -320,10 +317,10 @@ void calCaptureStateImage(void) {
     iGpffffb1b4 = 1;
 }
 
-/* measured: baseline differs by two argument-order words; typed buffer access and local-lifetime probes still differ. */
+/* measured: retail needs propagation off here to get its argument order. */
 #pragma push
 #pragma opt_propagation off
-// Intent: Restore the captured state image when one is pending, then clear the pending flag [inferred]
+// Restore the captured state image when one is pending, then clear the pending flag.
 // FUN_00110F00
 s32 calRestoreStateImage(void)
 {
@@ -356,7 +353,7 @@ s32 calRestoreStateImage(void)
 }
 #pragma pop
 
-// Intent: Destroy the scheduler, then run the two cleanup calls with arguments (1, 1) and (0x1B, 0, 0, 8) [inferred]
+/* Destroy the scheduler, start a fade transition, and request the follow-up sequence. */
 // FUN_00110FC0
 void sdlSchedulerTeardown(void) {
     sdlSchedulerDestroy();
@@ -364,7 +361,7 @@ void sdlSchedulerTeardown(void) {
     sequenceRequest(0x1B, 0, 0, 8);
 }
 
-// Intent: Release the active script-process handle if one exists; kwln registers it as a callback [inferred]
+// Release the active script-process handle if one exists; kwln registers this as a callback.
 // FUN_00111010
 void scrReleaseActiveHandle(void)
 {
@@ -375,7 +372,8 @@ void scrReleaseActiveHandle(void)
     }
 }
 
-// Intent: Set the six default day flags (0x39 to 0x3E) and clear the saved mask when arg0 is nonzero [inferred]
+// Set the six default day flags (0x39 to 0x3E) and clear the saved mask when clearSavedMask is
+// nonzero.
 // FUN_00111050
 void calSetDefaultDayFlags(s32 clearSavedMask)
 {
@@ -390,7 +388,7 @@ void calSetDefaultDayFlags(s32 clearSavedMask)
     }
 }
 
-// Intent: Read the six day flags in the flag table into a six-bit mask [inferred]
+/* Return a six-bit mask with one bit set for each day flag in D_005E4610 that is on. */
 // FUN_001110E0
 s32 calReadDayFlagMask(void) {
     u32 flagIndex;
@@ -405,7 +403,7 @@ s32 calReadDayFlagMask(void) {
     return mask;
 }
 
-// Intent: Write each of the six day flags from the matching bit of a six-bit mask [inferred]
+/* Set or clear each of the six day flags in D_005E4610 from the matching bit of mask. */
 // FUN_00111160
 void calWriteDayFlagMask(s32 mask)
 {
@@ -420,7 +418,7 @@ void calWriteDayFlagMask(s32 mask)
     }
 }
 
-// Intent: Read the six day flags into a mask, mark it valid with bit 31, and store it as the saved mask [inferred]
+// Read the six day flags into a mask, mark it valid with bit 31, and store it as the saved mask.
 // FUN_00111200
 s32 calCaptureDayFlagMask(void)
 {
@@ -439,7 +437,8 @@ s32 calCaptureDayFlagMask(void)
     return result;
 }
 
-// Intent: Restore the six day flags from the saved mask when it is valid, else from the defaults, then clear the saved mask [inferred]
+// Restore the six day flags from the saved mask when it is valid, else from the defaults, then
+// clear the saved mask.
 // FUN_00111290
 void calRestoreDayFlagMask(void)
 {
@@ -468,10 +467,8 @@ void calRestoreDayFlagMask(void)
 
 void datSetStateTableEntry(s32 , u8 );
 
-/* Measured: 1032 bytes, 58 resolved relocations, eight zero alignment bytes.
- * Default names are separate eight-byte objects. Keep each table's base
- * with the trailing halfword offsets and reload maxima after Persona setup. */
-// Intent: Reset unit, roster, party, time and community state to the new-game defaults [inferred]
+/* Reset unit, roster, party, time and community state to new-game defaults; default names are
+ * separate eight-byte objects and maxima are reloaded after Persona setup. */
 // FUN_001113B0
 void datInitDefaultGameState(void)
 {
@@ -576,7 +573,7 @@ loop_3_check:
     i = 1;
     goto loop_4_check;
 loop_4:
-    /* Three halfwords per unit; retain the measured trailing offsets. */
+    /* Three halfwords per unit, read at negative offsets from a one-past cursor. */
     p = (u8 *)D_005E4650 + i * 6;
     datAssignEquippedItem((s16)i, 0, ((s16 *)p)[-3]);
     datAssignEquippedItem((s16)i, 1, ((s16 *)p)[-2]);

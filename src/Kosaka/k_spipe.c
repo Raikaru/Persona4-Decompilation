@@ -1,4 +1,3 @@
-/* Source unit: src/Kosaka/k_spipe_00178c20.c */
 #include "include_asm.h"
 #include "type.h"
 #include "field_shadow_internal.h"
@@ -145,7 +144,6 @@ typedef struct FldShadowAtomicContext
 } FldShadowAtomicContext;
 
 
-
 /* RenderWare immediate-mode interfaces used by both projection callbacks. */
 struct RwMatrixTag;
 struct _RxObjSpace3DVertex;
@@ -218,7 +216,6 @@ u32 K_FldShadow_Draw(f32 xLeft, f32 yTop,
 }
 
 
-
 /* Detach and destroy the camera frame and Z raster, leaving the color raster owned by its caller. */
 // FUN_001790A0
 void FldShadow_DestroyCamera(RwCamera* camera)
@@ -253,7 +250,6 @@ void FldShadow_DestroyCamera(RwCamera* camera)
 }
 
 
-
 /* Sum atomic radii and retain the center/atomic selected by the running-radius comparison. */
 // FUN_00179130
 void* FldShadow_AccumulateAtomicBounds(void* atomic, void* data)
@@ -275,10 +271,8 @@ void* FldShadow_AccumulateAtomicBounds(void* atomic, void* data)
 }
 
 
-
-/* measured: MATCH nd0 obj1668/win1680 (12B 3-word zero tail only); V12 u32 c0/c1/c2; MAC dot mula/madda/madd + 1.5f mul+add unfused + adda/msub color exact. */
-/* Cull backfaces/outside triangles, project UVs, and emit three alpha-modulated vertices.
- * Flush at 600 vertices; the 1.5-unit normal offset displaces output from collision surfaces. */
+/* Cull backfaces/outside triangles, project UVs, and emit three alpha-modulated vertices. Flush at
+ * 600 vertices; the 1.5-unit normal offset displaces output from collision surfaces. */
 // FUN_001791D0
 struct RpCollisionTriangle* FldShadow_ProjectTriangle(
     struct RpIntersection* intersection, struct RpWorldSector* sector,

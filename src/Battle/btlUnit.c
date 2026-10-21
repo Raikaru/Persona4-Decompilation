@@ -22,7 +22,7 @@ typedef struct BtlUnitBoundsFilters {
 
 extern u16 btlFindFreeCharResId(void);
 
-extern void mdlDestroyModelObject(); /* old-style: retail jals with $a1 still holding the compared coordinate */
+extern void mdlDestroyModelObject(); /* old-style: retail calls this with the second argument still holding the compared coordinate. */
 extern void *mdlFindModelObject(u32 type, u16 id, u32 flags);
 extern void *mdlCreateModelObjectFromResource(u32 type, u16 id, void *resourceOrModel, u32 flags);
 extern u32 *mdlCloneModelObject(u8 *source);
@@ -53,8 +53,7 @@ extern f32 D_007614c0;
 #define BTLUNIT_FLAG2_DIRTY (1 << 2)
 #define BTLUNIT_FLAG3_NOROT (1 << 13)
 #define BTLUNIT_FLAG3_MODEL_HIDDEN (1 << 12)
-/* Unit kind stored at +0xA2 and passed to btlUnitCreate: 0 party, 1 enemy,
- * 2 child unit created by btlUnitInitChild. */
+/* Unit kind passed to btlUnitCreate: 0 party, 1 enemy, 2 child unit created by btlUnitInitChild. */
 #define BTLUNIT_KIND_CHILD 2
 
 extern RwV3d D_0060A0F0;
@@ -196,9 +195,6 @@ void btlUnitGetAnimBoundsWorldCenterTowardUnit(u8 *context, s32 value, u8 *optio
     out->y = work.transformed.y + ((BtlUnit *)context)->pos.y;
     out->z = work.transformed.z + ((BtlUnit *)context)->pos.z;
 }
-/* measured: plain-C aggregate reconstruction reproduces every retail
-   instruction; the object is 324B against the 336B window, with three retail
-   trailing nop words left as window padding. */
 /* Use the attached model center when available, otherwise transform the unit sphere center. */
 // FUN_00195D50
 void btlUnitGetAttachedSphereCenter(u8 *context, u8 *value)
@@ -242,7 +238,6 @@ void btlUnitGetAttachedSphereCenter(u8 *context, u8 *value)
 }
 
 /* Compute a filtered group center, vertical extents, and enclosing horizontal radius. */
-/* measured: three filter/data-unit accesses changed MATCH as fields, typed aliases, and indexed fields; MEMBER preserves those reloads. */
 // FUN_00196040
 f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
                   f32 *outTop, f32 *outBottom, u32 options)
@@ -436,8 +431,8 @@ f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter,
         *outBottom = bottom;
     return radius;
 }
-/* Advance the XZ route and rotate toward the next point, respecting stopping distance and rotation locks. */
-/* measured: access-site fields moved some movement-state instructions; separate typed aliases retain the byte-identical route and facing update. */
+/* Advance the XZ route and rotate toward the next point, respecting stopping distance and rotation
+ * locks. */
 // FUN_00196610
 u32 btlUnitUpdateFollowPath(u8 *context)
 {
@@ -847,11 +842,7 @@ struct BtlUnitPacketAnim
     u16 mode;
 };
 
-/* measured: plain-C reconstruction matches the 640B retail window with
-   normalized_diff 0; a named u8 boolean plus zero-guard reproduces retail's
-   sltu/bnez tail layout. */
 /* Face or follow another unit, optionally using its grid-space sphere center. */
-/* measured: separate typed aliases preserve the packet/unit reloads that moved instructions with access-site fields. */
 // FUN_00198050
 s32 btlUnitRotateTowardUnitPacketUpdate(u8 *packetData)
 {
@@ -1001,7 +992,6 @@ u32 btlUnitSetLookAtRanges(void* work);
 void btlUnitReleasePendingLookAtRef(BtlUnitPacketCountRef* context);
 
 /* Retain the unit and reuse or start loading the requested model resource. */
-/* measured: separate typed packet/unit aliases preserve the reloads that moved instructions with access-site fields. */
 // FUN_0019ACD0
 void btlUnitModelLoadPacketInit(u8 *packetData)
 {
@@ -1050,17 +1040,9 @@ void btlUnitModelLoadPacketInit(u8 *packetData)
     }
 }
 
-/* 1796/1808 bytes (three words of padding). The unit's model is loaded or
-   adopted, its resource ids and material flags are applied, then its motion
-   frame, scale and quaternion rotation are pushed to the model. Levers: the
-   rotation is RtQuatUnitConvertToMatrix written out (all nine products
-   first); the frame argument is `(u16)(cond ? frame : 0)` so the mask sits
-   at the merge; the percentage scale goes through a `speed` local set to
-   1.0f, which keeps retail's `mul.s` by one; the character table offset goes
-   through the offset-first add helper; both tail switches are switches. */
-/* Finish model loading, apply resource/material state, initialize motion, and publish the unit transform. */
-/* measured: packet aliases and the named model/resource layouts preserve the reloads that moved instructions with access-site fields. */
-/* The constructor names +0x08 motion; these callbacks interpret that halfword as model flags. */
+/* Finish model loading, apply resource ids and material flags, initialize motion, and push frame,
+ * scale and quaternion rotation to the model. The constructor's +0x08 motion halfword is read here
+ * as model flags. */
 // FUN_0019AE20
 s32 btlUnitModelMotionPacketUpdate(u8 *packetData) {
     BtlUnitModelLoadPacket *packetDataFields = (BtlUnitModelLoadPacket *)packetData;
@@ -1378,12 +1360,8 @@ void btlUnitGetSphereWorldCenter(BtlUnit* unit, RwV3d* dst)
     dst->z = rotatedCenter.z + unit->pos.z;
 }
 
-/* Same rotation and scale as btlUnitGetSphereWorldCenter, but the x/z
- * position comes from the grid cell fields (unk_94/unk_96, 25 units per
- * cell, -0x6d6 origin) instead of pos.x/pos.z. The two formulas are
- * near-duplicates; the battle target/group and camera callers want the grid
- * position. */
-/* Transform the sphere center using grid coordinates instead of the world XZ position. */
+/* Same rotation and scale as btlUnitGetSphereWorldCenter, but x/z come from the grid cell fields
+ * (unk_94/unk_96, 25 units per cell, -0x6d6 origin) instead of pos.x/pos.z. */
 // FUN_001958F0
 void btlUnitGetGridSphereCenter(BtlUnit* unit, RwV3d* dst)
 {
@@ -1539,7 +1517,6 @@ void btlUnitHoldPendingLookAtUnits(BtlUnitPacketTwoUnits* packet)
 }
 
 /* Configure look-at ranges and target ids for one unit or the requested party/enemy lists. */
-/* measured: typed aliases retain the packet/model-state reloads across callbacks that moved instructions with access-site fields. */
 // FUN_0019E220
 u32 btlUnitLookAtUnitPacketUpdate(u8* packet)
 {

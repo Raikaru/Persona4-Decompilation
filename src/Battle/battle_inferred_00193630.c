@@ -92,10 +92,6 @@ extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
 
 
-
-
-
-
 extern s32 iGpffffb444;
 
 extern void (*jtbl_008873EC[])(void *arg0);
@@ -108,14 +104,6 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00193630-00193730 */
-
-/* measured: opt_propagation off is scoped to func_001927c0. */
-/* measured: closes opt_propagation around func_001927c0. */
-/* measured: opt_propagation off is scoped to func_001928c0. */
-/* measured: opt_loop_invariants on is scoped to func_001928c0. */
-/* measured: closes opt_loop_invariants around func_001928c0. */
-/* measured: closes opt_propagation around func_001928c0. */
 /* Set a character record class from the two AI script integer parameters. */
 // FUN_00193630
 s32 btlScriptSetUnitClass(void) {

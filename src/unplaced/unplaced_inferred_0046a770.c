@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0046a770-0046ab40 */
 
 #include "include_asm.h"
 #include "sdk_dbprt.h"
@@ -62,9 +61,8 @@ extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 /* Search the linked resource list for an exact name; return NULL when the name is absent. */
 // FUN_0046A770
-/* The list walk is written with an explicit goto loop: retail tests the
-   cursor at the TOP of the loop and both early exits are out of line, which
-   the natural `while (p != NULL)` form does not reproduce (nd 57). */
+/* Written as a goto loop because retail tests the cursor at the loop top with both early exits out
+ * of line. */
 u8 *resourceFindByName(char *name) {
     u8 *p;
 
@@ -81,15 +79,11 @@ loop:
 }
 
 #pragma push
-/* measured: baseline wrap constants yield 864/848 bytes; while-range and named-limit forms still differ. */
+/* measured: retail hoists the angle wrap constants out of the point loop. */
 #pragma opt_loop_invariants on
-/* measured: b210 -O2 emits 844/848 native bytes with all nineteen
- * relocations resolved and four zero alignment bytes. Keep the negated
- * upper-limit result separate from its branch and the Y subtotal separate
- * from the attachment-table load. Loop invariants retain the retail wrap
- * constants; see docs/probe_archive/Sprite_attachment_0046a7f0_20260924.md. */
-/* Rotate four attachment points when needed, then add attachment and resource-segment positions. */
-/* measured: a dedicated attachment alias preserves index reloads; resource-table loads retain MEMBER byte-base aliasing. */
+/* measured: loop invariants keep retail's wrap constants, and the negated upper limit and Y
+ * subtotal stay separate from their uses. Rotates four attachment points if needed, then adds
+ * attachment and resource-segment positions. */
 // FUN_0046A7F0
 void sdkSpriteTransformPoints(u8 *attachment, u8 *points)
 {

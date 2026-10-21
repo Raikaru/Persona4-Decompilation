@@ -1,4 +1,4 @@
-/* Original translation unit mdlSE.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit mdlSE.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "type.h"
 #include "mdl_file_internal.h"
@@ -60,8 +60,7 @@ extern u32 RpRandom(void);
 extern s32 mdlSeAcquireSlot(u32 type, u16 id);
 
 
-
-/* Allocates a 40-byte sound record: flag word 1 at +8, the type and id at +0xC and +0xE, and the kind at +0x10. */
+/* Allocates a 40-byte sound record with references set to 1 and the type, id and kind filled in. */
 // FUN_0047DEA0
 void *mdlSeCreateRecord(u32 type, u16 id, s32 kind)
 {
@@ -77,13 +76,14 @@ void *mdlSeCreateRecord(u32 type, u16 id, s32 kind)
     return record;
 }
 
-/* Acquires one of three sound slots for (type, id): reuses a slot already holding it, else takes the first slot whose model is not loaded, else evicts the slot with the smallest tick. Returns slot + 3. */
-/* Measured: 420 instruction bytes plus 12 retail zero-tail bytes, nd 0.
-   CSE-off retains repeated slot addresses and index masks. Propagation-off
-   preserves the shared sentinel and distinct eviction-loop lifetimes. */
+/* Acquires one of three sound slots for (type, id): reuses a slot already holding it, else takes
+ * the first slot whose model is not loaded, else evicts the slot with the smallest tick. Returns
+ * slot + 3. measured: CSE off keeps the repeated slot addresses and index masks; propagation off
+ * keeps the shared sentinel and separate eviction-loop lifetimes. */
 // FUN_0047DF40
 #pragma push
-/* measured: baseline removal differs in 203 bytes; typed slot cursor; reread tick through table alias also differ. */
+/* measured: retail recomputes slot addresses and index masks and keeps the eviction-loop values
+ * separate. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
 s32 mdlSeAcquireSlot(u32 type, u16 id)
@@ -138,34 +138,19 @@ s32 mdlSeAcquireSlot(u32 type, u16 id)
     byteOffset = selectedSlot * 8;
     iGpffffbb40 = (u32)iGpffffbb40 + 1;
     ((MdlSeSlot *)((s32)D_00922C10 + byteOffset))->signedTick = iGpffffbb40;
-    /* Keep linker-visible interior aliases for type/id rather than repointing relocations to D_00922C10. */
+    /* The type and id are written through D_00922C14 and D_00922C16, which point into the slot
+     * table at D_00922C10. */
     ((MdlSeSlotIdentifier *)((s32)D_00922C14 + byteOffset))->value = type;
     ((MdlSeSlotIdentifier *)((s32)D_00922C16 + byteOffset))->value = id;
     return selectedSlot + 3;
 }
 #pragma pop
 
-/* Fills the playback state of one sound entry from its 12-byte (column, row) cell: returns 0 for out-of-range or empty cells, otherwise 1 after writing the mode, selected variant, value and packed flags. */
-/* MATCH.  Three things had to be right at once and the old nd-160
-   "saved-register rotation" note was a consequence of missing all three, not
-   a wall: `opt_loop_invariants on` (166 -> 10 differing words, and the whole
-   $s0-$s5 rotation the old note described collapses with it); `s8 sb[4]`
-   rather than `u8`, which is retail's `lb $v0, 0x7c($v0)`; and the cell
-   address computed as a column offset that is then rebased, which is the
-   only spelling measured that emits retail's `col*12` into $a0 ahead of the
-   base load - eight other spellings (temps in either declaration order,
-   `col*12`/`(col*3)*4`, a `(u8(*)[8][12])` grid, a 12-byte struct row base,
-   `&base[row*96+col*12]`, explicit parentheses, add-assignment, and hoisting
-   the multiply above the bound check) all left the multiply sunk past the
-   base load at 8-12 words.  The single-use temp is what propagation folds
-   into the address tree and reorders; assigning through `entry` gives it two
-   defs and pins it.  The previous body also fabricated a five-argument call
-   to func_003b7060 - it is the no-argument RNG every other caller in the
-   tree uses, and the file's extern is corrected here - read `entry[c1]`
-   where retail reads `entry[(u16)i]`, and invented a `default: = 3` arm the
-   switch does not have. */
+/* Fills the playback state of one sound entry from its 12-byte (column, row) cell: returns 0 for
+ * out-of-range or empty cells, otherwise 1 after writing the mode, selected variant, value and
+ * packed flags. func_003b7060 is the no-argument RNG. */
 // FUN_0047E0F0
-/* measured: baseline removal differs in 18 bytes; typed cell reads; for-loop variant scan also differ. */
+/* measured: retail hoists loop-invariant cell addressing out of the variant scan. */
 #pragma opt_loop_invariants on
 s32 mdlSeFillEntryState(u8 *state, s32 column, s32 rowIndex, u16 baseSlot)
 {
@@ -234,8 +219,6 @@ s32 mdlSeFillEntryState(u8 *state, s32 column, s32 rowIndex, u16 baseSlot)
         }
         ((MdlMotionState *)state)->requestValue = **(s32 **)state;
     }
-    /* measured: retaining the cell pointer preserves the five flags reloads;
-     * access-site casts alone change the whole-file instruction comparison. */
     flags = cell->flags;
     if (flags != -1) {
         owner = *(u8 **)state;
@@ -278,7 +261,6 @@ s32 mdlSeFillEntryState(u8 *state, s32 column, s32 rowIndex, u16 baseSlot)
 #pragma opt_loop_invariants off
 
 
-
 /* Reports that no sound is loaded for (type, id); the retail body is a constant zero. */
 // FUN_0047E440
 s32 mdlSeIsLoaded(u32 type, u16 id) {
@@ -286,10 +268,9 @@ s32 mdlSeIsLoaded(u32 type, u16 id) {
 }
 
 
-/* Starts loading a sound record into owner: mode 1 copies one payload into a fresh buffer; mode 2 splits the payload into three header-prefixed chunks and hands them to the stream player. */
-/* measured: the record advance is a signed `(size + 0x3F) / 64 * 64`
-   (retail addiu $v1 / sra $v0 / bgez fix-up); hand-written shifts with an
-   explicit negative branch were the archived nd 5 "register-class" residual. */
+/* Starts loading a sound record into owner: mode 1 copies one payload into a fresh buffer; mode 2
+ * splits the payload into three header-prefixed chunks and hands them to the stream player. The
+ * record advance is a signed (size + 0x3F) / 64 64, not hand-written shifts. */
 // FUN_0047E450
 void mdlSeRequestLoad(void **owner, u32 type, u16 id, s32 source, u32 size)
 {
@@ -373,11 +354,9 @@ void mdlSeRequestLoad(void **owner, u32 type, u16 id, s32 source, u32 size)
 }
 
 
-/* measured: 840B/window 848B; only two zero-padding words remain.
-   Inlining the shared copy operation separates its local lifetimes from
-   the callback and reproduces the retail saved-register allocation.
-   Bank sizes stay unsigned for the consumer's argument-load ordering. */
-/* Copy a completed asynchronous request into newly allocated sound-record storage. */
+/* measured: inlining the shared copy keeps its locals separate from the callback, matching retail
+ * register allocation; bank sizes stay unsigned for argument-load order. Copy a completed
+ * asynchronous request into newly allocated sound-record storage. */
 static inline void mdlSeCopyLoadedRequest(void **owner, s32 requestIndex)
 {
     void *node;

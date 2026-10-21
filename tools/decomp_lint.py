@@ -16,7 +16,8 @@ bounded ordinary register plumbing. M001 validates function markers, M003 catche
 lost its NONMATCHING tag. P001
 checks only real pragma push/pop stacks, not on/off settings.
 
-WAIVERS must occur in lexical comments. Nearby comments (up to three lines)
+WAIVERS must occur in lexical comments. Nearby comments (up to three lines;
+a contiguous run of `#pragma` lines does not count and shares one waiver)
 or annotations immediately above a function marker (up to six lines) may
 waive advisory rules with `measured` or `lint: allow CODE`. Integrity rules
 require a rule-specific reason: `lint: allow H009 -- unsupported wrapper`
@@ -261,13 +262,20 @@ def waived(src, idx, code):
 
 
 def _scan_waiver(src, idx, code, depth):
-    for j in range(idx - 1, max(-1, idx - depth - 1), -1):
+    # A contiguous run of `#pragma` lines shares the waiver above it, so the
+    # run's lines neither stop the scan nor count against the depth.
+    j, seen = idx - 1, 0
+    while j >= 0 and seen < depth:
         if MARKER_LINE_RE.match(src.line_comments[j]) or re.search(r"[{}]", src.code[j]):
             break
         if _comment_waives(src.comments[j], code):
             return True
-        if src.code[j].strip():
+        statement = src.code[j].strip()
+        if statement and not statement.startswith("#pragma"):
             break
+        if not statement:
+            seen += 1
+        j -= 1
     return False
 
 

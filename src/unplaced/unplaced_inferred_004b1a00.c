@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 004b1a00-004b1a00 */
 
 #include "effect_geometry_internal.h"
 #include "rw_geometry_internal.h"
@@ -14,8 +13,8 @@ extern s32 mdlEffectShareTrackInstance(s32 source);
 extern void mdlEffectReleaseTrackInstance(s32 instance);
 extern void TlpRelease(s32 work);
 extern s32 TlpAddRef(s32 work);
-/* Replace the screen sprite track resource, or reference the source TLP when no track is present. */
-/* measured: dedicated typed aliases preserve the retail reload schedule where access-site-only typing does not. */
+/* Replace the screen sprite track resource, or reference the source TLP when no track is present.
+ * The typed alias locals keep retail's reload order. */
 // FUN_004B1A00
 void mdlEffectScreenSpriteCopyResource(u8 *destination, u8 *source) {
     MdlEffectScreenSprite *destinationFields = (MdlEffectScreenSprite *)(destination);

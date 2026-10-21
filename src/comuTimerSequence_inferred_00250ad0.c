@@ -17,8 +17,6 @@ extern char D_00635C60[];
 extern s32 iGpffffb480;
 
 
-
-
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];
@@ -30,15 +28,7 @@ extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 ra
                            f32 angle, f32 depth, s32 preserveState);
 
 
-
-
-
-
 /* Whole units of `range` covered by the random fraction `unit`. */
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0025; members 00250ad0-002518d0 */
-
 
 
 /* Animate and draw one rank-up sparkle; return nonzero after its fade or burst finishes. */
@@ -47,7 +37,7 @@ s32 cmmRankUpStepSparkle(s32 *sparkle, u8 *card)
 {
     CmmRankUpCardTask *cardWork = (CmmRankUpCardTask *)card;
 
-    /* Sparkle records have 0x20-byte stride, flags at +0, position at +4/+8 and timers at +0xC..0x18; typing changed MWCC scheduling. */
+    /* Sparkle records are 0x20 bytes: flags, position, then timers. */
     extern s32 shdSpriteDrawNowEx(f32 x, f32 y, f32 depth, s32 color, u8 alpha, s32 entryId, s32 entryOffset, u8 * pack, s32 flags, s16 width, s16 height, f32 rotation, f32 scaleX, f32 scaleY);
     extern u32 RpRandom(void);
     extern f32 sinf(f32 sparkle);
@@ -193,7 +183,7 @@ done:
 /* Step all three sparkle pools and clear the active bit when a sparkle finishes. */
 // FUN_002516F0
 void cmmRankUpStepSparklePools(u8 *work, u8 *card) {
-    /* Sparkle records have 0x20-byte stride, flags at +0, position at +4/+8 and timers at +0xC..0x18; typing changed MWCC scheduling. */
+    /* Sparkle records are 0x20 bytes: flags, position, then timers. */
     s32 firstIndex;
     s32 *secondSparkle;
     s32 *thirdSparkle;
@@ -245,7 +235,7 @@ loop_17_test:
 /* Request fade-out (bit 3) on active sparkles in the first two pools. */
 // FUN_00251850
 void cmmRankUpFadeSparklePools(u8 *work) {
-    /* Sparkle records have 0x20-byte stride, flags at +0, position at +4/+8 and timers at +0xC..0x18; typing changed MWCC scheduling. */
+    /* Sparkle records are 0x20 bytes: flags, position, then timers. */
     s32 firstIndex;
     u8 *firstSparkle;
     u8 *secondSparkle;

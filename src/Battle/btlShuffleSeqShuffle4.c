@@ -1,6 +1,5 @@
 #include "include_asm.h"
-/* Persona 4 USA decompilation - btlShuffleSeqShuffle4.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit btlShuffleSeqShuffle4.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 #include "sdk_snd_internal.h"
@@ -71,10 +70,8 @@ extern f32 iGpffff83f4;
 extern f32 iGpffff83e8;
 extern f32 iGpffff83ec;
 
-/* 824/832 bytes; 19 resolved relocations; eight zero alignment bytes.
- * Promoted byte snapshots preserve signed inclusive spans; u16 casts retain
- * retail truncation before the count checks and mode dispatch. */
-/* Choose the grid attempt limit and initial held-card count for this difficulty. */
+/* u16 casts keep retail truncation before the count checks and mode dispatch. Choose the grid
+ * attempt limit and initial held-card count for this difficulty. */
 // FUN_0037C720
 void btlShuffleSeq4Init(u8 *context) {
     BtlShuffleContext *shuffleContext = (BtlShuffleContext *)(context);
@@ -103,7 +100,6 @@ void btlShuffleSeq4Init(u8 *context) {
     attemptSpan = maxAttempts - minAttempts + 1;
     attemptValue = (f32)attemptSpan * attemptFraction + (f32)minAttempts;
     attemptLimit = (u16)attemptValue;
-    /* measured: access-site casts change allocation; separate object aliases retain retail codegen. */
     gridState->attemptLimit = attemptLimit;
     if (((BtlShuffleGridState *)base)->attemptLimit > 0x10) {
         kAssertFail(&D_0064EB20[0], 0x32);
@@ -142,22 +138,14 @@ void btlShuffleSeq4Init(u8 *context) {
     }
 }
 
-/* Screen position of slot `arg1` for the layout size n returned by func_00378530 (6, 8, 10, 12,
-   14 or 16 slots), written to arg2.  measured against retail:
-   - retail builds the position in a two-float stack local (0x48($sp)) and copies it to arg2 at
-     the join; a struct local plus a struct copy-out reproduces the 0x50 frame (a plain f32[2] is
-     promoted to FPRs, and writing arg2 directly leaves a 0x40 frame);
-   - in the arms that convert arg1 directly retail loads 80.0f before the int-to-float
-     conversion.  Under opt_propagation off a named `step` local is loaded where it is written,
-     which reproduces that order; the arms that convert `arg1 - k` keep the inline constant;
-   - opt_propagation off would otherwise share the `arg0 + 0x1F2FC` address between its two uses
-     (retail rebuilds it with lui/addu each time); spelling the second use as a word index off
-     0x1F2F8 keeps them separate. */
+/* Screen position of slot slotIndex for the layout size returned by btlShuffleDrawTableLookup (6 to
+ * 16 slots), built in a struct local and copied to screen. */
 typedef struct ShuffleSlotPos { f32 x; f32 y; } ShuffleSlotPos;
 
 // FUN_0037CA60
 #pragma push
-/* measured: baseline nd175; typed pointer reuse, typed parameter cache, scoped locals, inverted if/else did not match (best nd175); retain opt_propagation off. */
+/* measured: retail loads the step constant before the int-to-float conversion and rebuilds the
+ * table address at each use. */
 #pragma opt_propagation off
 void btlShuffleSeq4Layout(u8 *context, s32 slotIndex, f32 *screen) {
     ShuffleSlotPos pos;
@@ -335,7 +323,6 @@ void btlShuffleSeq4Step(u8 *context) {
     if (((BtlShuffleContext *)context)->pattern != 3) {
         kAssertFail(&D_0064EB20[0], 0x1A6);
     }
-    /* measured: access-site casts change allocation; separate object aliases retain retail codegen. */
     cur = gridState->cursor;
     btlShuffleCalcUpdateSpeed(context + cur * 0xE8 + 0x1D6B8, (f32 *)&position);
     if (D_008C027A[0] & 0x1000) {
@@ -406,12 +393,8 @@ void btlShuffleSeq4Move(u8 *context, s32 cardIndex, u16 startFrame, u16 endFrame
 }
 
 
-
-// measured: plain C reproduces the shuffle loop and frame; only the commutative multiply operand order differs at two instructions (normalized_diff 2), with object 540B versus retail window 544B. Parked because nd <= 25.
-// Committed at nd 2.
-// measured: explicit `(f32)` cast on the right multiply operand preserves retail's mul.s operand order; object 540B, retail window 544B, normalized_diff 0.
-// Verified live MATCH.
-/* Shuffle complete card records with a descending Fisher-Yates pass. */
+// Shuffle complete card records with a descending Fisher-Yates pass. An explicit (f32) cast on the
+// right multiply operand keeps retail's operand order.
 // FUN_0037D840
 void btlShuffleSeq4Shuffle(u8 *context) {
     u8 buf[0xFB0];
@@ -428,7 +411,6 @@ void btlShuffleSeq4Shuffle(u8 *context) {
     f32 randomValue;
     f32 randomFraction;
 
-    /* measured: access-site casts change allocation; separate object aliases retain retail codegen. */
     if (MEMBER(s32, context, BtlShuffleContext, pattern) != 3) {
         kAssertFail(&D_0064EB20[0], 0x23B);
     }
@@ -486,12 +468,9 @@ void btlShuffleSeq4Shuffle(u8 *context) {
     }
 }
 
-/* Deal state machine for the fourth shuffle layout, the twin of the three in
-   code1_0037.c.  Releasing a held card and drawing a free card are inline
-   helpers that retail expands in place.  The frame arguments of the card
-   animation setters are u16 throughout, so the (u16) conversions happen at
-   each call.  measured: 4904B of code in the 4912B window (two zero words). */
-/* Animate a held card back to the grid and clear its selected-slot flags. */
+/* Deal state machine for the fourth shuffle layout, the twin of the three in code1_0037.c. Card
+ * release and free-card draw are inline helpers that retail expands in place; animation frame
+ * arguments are u16. Animate a held card back to the grid and clear its selected-slot flags. */
 static inline void btlShuffleGridRelease(u8 *context, s32 card, u16 frames)
 {
     u8 *base = context + 0x1F1D0;
@@ -525,7 +504,6 @@ static inline u16 btlShuffleGridPickFree(u8 *context)
     s32 n;
     u16 c;
 
-    /* measured: access-site casts change allocation; separate object aliases retain retail codegen. */
     n = btlShuffleDrawTableLookup(((BtlShuffleContext *)context)->cardCount, MEMBER(s32, context, BtlShuffleContext, pattern));
     do {
         c = n * ((f32)(RpRandom() & 0xFFF) / 4096.0f);
@@ -533,9 +511,8 @@ static inline u16 btlShuffleGridPickFree(u8 *context)
     return c;
 }
 
-/* measured: without loop-invariant hoisting the pick loop keeps its work base
-   in the loop body (674 differing words). */
-/* measured: baseline nd2272; typed pointer reuse, typed parameter cache, scoped locals, inverted if/else did not match (best nd2272); retain opt_loop_invariants on. */
+/* measured: loop-invariant hoisting must be on so the pick loop's work base is computed outside the
+ * loop body as in retail. */
 #pragma opt_loop_invariants on
 /* Run the grid reveal, two-card matching and result sequence. */
 // FUN_0037DA60
@@ -560,12 +537,12 @@ s32 btlShuffleSeq4Run(u8 *context)
     u16 limit;
     u16 speed;
 
-    /* measured: access-site casts change allocation; separate object aliases retain retail codegen. */
     scale = 1.0f - (0.5f * (f32)(shuffleContext->cardCount - 3)) / 5.0f;
     sbase = context + 0x1F1D0;
     gridState = (BtlShuffleGridState *)sbase;
     total = btlShuffleDrawTableLookup(shuffleContext->cardCount, ((BtlShuffleContext *)context)->pattern);
-    /* measured: typing only this dispatch read shrinks Run to 4684 bytes and changes its allocation; stores remain typed. */
+    /* The phase dispatch reads through shuffleContext while the phase stores go through the cast
+     * context; retail's register allocation depends on this split. */
     switch (shuffleContext->phase) {
     case 0:
         if (btlShuffleSeqPick(context, ((BtlShuffleContext *)context)->cardCount) == 0) {

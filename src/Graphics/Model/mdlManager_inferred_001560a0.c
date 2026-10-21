@@ -1,5 +1,4 @@
 #include "byte_address_internal.h"
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Battle/battle.c; members 001560a0-0015c730 */
 
 #include "mt_scene_internal.h"
 #include "field_transition_internal.h"
@@ -44,8 +43,7 @@ typedef struct FldTileTemplateSet {
     s8 templates[10];
 } FldTileTemplateSet;
 
-/* Allocated as 0x48 bytes by FldStepTaskCreate. Keep byte-pointer locals
- * where their address-expression shape is recorded in the matching notes. */
+/* Allocated as 0x48 bytes by FldStepTaskCreate. */
 typedef struct FldStepWork {
     s32 state;
     union { s32 stepIndex; u32 unsignedStepIndex; };
@@ -211,8 +209,8 @@ extern s32 FldMap_IsCurrentInEitherBand(void);
 extern void FldFrame_SetStateFlags(s32 task, s32 value);
 extern void MT_Scene_ReleaseWork(s32 task);
 extern void mdlDestroyModelObject(s32 model);
-/* measured: byteAddressAdd retains offset-first addu operands at two board
- * scans and the preload-task lookup; all other address sums expand directly. */
+/* measured: retail adds the offset first at two board scans and the preload-task lookup, so
+ * byteAddressAdd is used there. */
 
 
 extern u8 *MT_Scene_GetResListHead(s32 resourceType);
@@ -249,8 +247,8 @@ extern s32 FldCellFindPlacement(void *templateData, u32 *outX, u32 *outY);
 extern void FldCellPlaceShape(u8 *shape, u16 x0, u16 y0, s16 kind);
 extern void FldCellFloodFill(s32 x, s32 y, s32 incoming, s32 depth,
                           s32 limit, s32 *foundTypeTwo, s32 *foundHighType);
-/* Place the selected special tile using its direction and narrowed cell coordinates. */
-/* measured: direct dispatch changes nine bytes of the spread routine through argument-load/register ordering. */
+/* Place the selected special tile using its direction and narrowed cell coordinates. measured:
+ * calling FldCellPlaceShape directly changes argument load order in the spread routine. */
 static inline void fldPlaceSpecialShape(u8 specialDirection, s32 x, s32 y,
                                         u8 *tile)
 {
@@ -263,7 +261,8 @@ extern void (*jtbl_008873EC[])(void *);
 /* Unit settings shared by the surrounding scene, board and step routines. */
 #pragma opt_loop_invariants on
 #pragma opt_propagation on
-// Intent: Store three values into the task's work block, clear two halfwords, start the step and set the state to 0x11 [inferred]
+// Stores three values into the task's work block, clears two halfwords, starts the step and sets
+// the state to 0x11.
 // FUN_001560A0
 void MT_Scene_BeginValueStep(u8 *task, u16 firstValue, u16 secondValue, u16 thirdValue) {
     u8 *workBlock;
@@ -278,7 +277,7 @@ void MT_Scene_BeginValueStep(u8 *task, u16 firstValue, u16 secondValue, u16 thir
     ((FldRootWork *)workBlock)->state = 0x11;
 }
 
-// Intent: Set the work block's value at +0x8 after the subsystem reset call [inferred]
+// Sets the work block's workValue after the subsystem reset call.
 // FUN_001560F0
 void MT_Scene_SetWorkValue(u8 *task, s32 value) {
     u8 *p;
@@ -290,7 +289,7 @@ void MT_Scene_SetWorkValue(u8 *task, s32 value) {
     }
 }
 
-// Intent: Report whether a field-load task has reached its finished state (state 13 or later); a null task is treated as done [inferred]
+// Reports whether a field-load task has reached state 13 or later; a null task counts as done.
 // FUN_00156140
 s32 FldLoadTaskIsDone(u8 *task)
 {
@@ -300,21 +299,21 @@ s32 FldLoadTaskIsDone(u8 *task)
     return ((FldRootWork *)((SdkTask *)task)->work)->state >= 0xD;
 }
 
-// Intent: Return the field id requested by a field-load task [inferred]
+// Returns the field id requested by a field-load task.
 // FUN_00156170
 s32 FldLoadTaskFieldId(u8 *task)
 {
     return ((FldRootWork *)((SdkTask *)task)->work)->fieldId;
 }
 
-// Intent: Return the room id requested by a field-load task [inferred]
+// Returns the room id requested by a field-load task.
 // FUN_00156180
 s32 FldLoadTaskRoomId(u8 *task)
 {
     return ((FldRootWork *)((SdkTask *)task)->work)->roomId;
 }
 
-// Intent: Return the map state requested by a field-load task [inferred]
+// Returns the map state requested by a field-load task.
 // FUN_00156190
 s32 FldLoadTaskMapState(u8 *task)
 {
@@ -337,9 +336,11 @@ typedef struct FldLoadWork {
 void MT_Scene_ApplyCameraParams(void);
 
 #pragma push
-/* measured: direct calls, unsigned sizes and typed/MEMBER loads leave two argument-load words different with propagation on. */
+/* measured: with propagation on, retail's argument loads come out in a different form, so
+ * propagation is off. */
 #pragma opt_propagation off
-// Intent: Field-load task state machine: open the primary file, load the map and environment, run the scene load and apply the camera parameters; returns -1 when finished [inferred]
+// Field-load task state machine: opens the primary file, loads map and environment, runs the scene
+// load and applies camera parameters; returns -1 when finished.
 // FUN_001561A0
 s32 FldLoadTaskUpdate(u8 *task)
 {
@@ -507,7 +508,8 @@ void fldLoadTaskOnDestroy(u8 *unusedTask)
 {
 }
 
-// Intent: Create a field-load task under the given parent, store its request fields and open the primary file [inferred]
+// Creates a field-load task under the given parent, stores its request fields and opens the primary
+// file.
 // FUN_00156640
 s32 FldLoadTaskCreate(u8 *parent, s32 fieldId, s32 roomId, s16 mapState, s16 environmentState,
                   s32 mode, s32 storyGroup, s32 storyEntry)
@@ -529,7 +531,8 @@ s32 FldLoadTaskCreate(u8 *parent, s32 fieldId, s32 roomId, s16 mapState, s16 env
     return loadTask;
 }
 
-// Intent: Unload the previous field scene for the task's request; a second unload runs for the listed map states [inferred]
+// Unloads the previous field scene for the task's request; a second unload runs for the listed map
+// states.
 // FUN_00156750
 void FldLoadTaskUnloadScene(u8 *task)
 {
@@ -556,9 +559,8 @@ static inline u32 fldTileRotateNibble(u32 bits, s32 turns)
     return (shifted & 0xF) | (shifted >> 4);
 }
 
-/* Measured with configured b210 -O2: all 1264 bytes match retail.
- * Each saved pair is the actual record displaced by its rotation cycle. */
-// Intent: Rotate the field tile's attribute pairs by the direction mask, displacing each saved pair along its rotation cycle [inferred]
+/* Rotates the field tile's attribute pairs by the direction mask; each saved pair is the actual
+ * record displaced along its rotation cycle. */
 // FUN_00156800
 void FldTileRotateAttributes(void *templateData, u32 directionMask)
 {
@@ -600,7 +602,8 @@ void FldTileRotateAttributes(void *templateData, u32 directionMask)
             break;
         }
     }
-    /* measured: typed width reloads grow this rotation from 1264B to 1268B. */
+    /* measured: retail reads the width once into a local instead of reloading it through the typed
+     * struct. */
     width = tile[1];
     if (width != 1 || ((FldTileTemplate *)tile)->height != 1) {
         if (width == 2 && ((FldTileTemplate *)tile)->height == 2) {
@@ -724,7 +727,8 @@ void FldTileRotateAttributes(void *templateData, u32 directionMask)
     }
 }
 
-// Intent: Search the board for a free placement of the shape that matches its rule, returning 1 with its origin in the out-params when one exists [inferred]
+// Searches the board for a free placement matching the shape's rule; returns 1 with its origin in
+// the out-params when one exists.
 // FUN_00156CF0
 s32 FldCellFindPlacement(void *templateData, u32 *outX, u32 *outY)
 {
@@ -746,7 +750,6 @@ s32 FldCellFindPlacement(void *templateData, u32 *outX, u32 *outY)
     u8 cell;
 
     shape = (u8 *)templateData;
-    /* measured: typed dimension reloads grow placement from 1560B to 1584B. */
     for (i = 0, y = *outY; i < shape[2]; i++, y--) {
         for (j = 0, x = *outX; j < shape[1]; j++, x--) {
             for (r = 0; r < 5; r++) {
@@ -852,10 +855,11 @@ fits:
 }
 
 #pragma push
-/* measured: mask/occupied scalar forms need propagation off; CSE removal grows the body by 112 bytes. */
+/* measured: the mask and occupied scalars need propagation and common-subexpression elimination off
+ * to keep retail's reloads. */
 #pragma opt_propagation off
 #pragma opt_common_subs off
-// Intent: Place a shape on the field grid at the given cell with its kind, marking the cells it occupies [inferred]
+// Place a shape on the field grid at the given cell with its kind, marking the cells it occupies.
 // FUN_00157310
 void FldCellPlaceShape(u8 *shape, u16 x0, u16 y0, s16 kind)
 {
@@ -941,9 +945,8 @@ void FldCellPlaceShape(u8 *shape, u16 x0, u16 y0, s16 kind)
 }
 #pragma pop
 
-/* Measured: 684/688 bytes, 12 resolved call relocations and four zero tail bytes.
- * Capture exits before output writes; reload categories after earlier recursion. */
-// Intent: Flood-fill outward from a field cell through its neighbours within the depth limit, recording the cells reached [inferred]
+/* Flood-fills outward from a field cell through its neighbours within the depth limit, recording
+ * the cell types reached; exits are read before outputs are written. */
 // FUN_00157700
 void FldCellFloodFill(s32 x, s32 y, s32 incoming, s32 depth,
                   s32 limit, s32 *foundTypeTwo, s32 *foundHighType)
@@ -992,9 +995,10 @@ void FldCellFloodFill(s32 x, s32 y, s32 incoming, s32 depth,
 }
 
 #pragma push
-/* measured: direct and staged direction/coordinate forms leave three argument-load words different with propagation on. */
+/* measured: retail reloads the direction and coordinate arguments, which needs propagation off. */
 #pragma opt_propagation off
-// Intent: Spread a tile template from a field cell into a neighbouring cell, choosing a direction at random and copying its attributes [inferred]
+// Spread a tile template from a field cell into a neighbouring cell, choosing a direction at random
+// and copying its attributes.
 // FUN_001579B0
 void FldCellSpreadToNeighbour(s32 column, s32 row, s32 sourceColumn, s32 sourceRow)
 {
@@ -1291,9 +1295,10 @@ y_test:
 #pragma pop
 
 #pragma push
-/* measured: for/labelled border loops and byte/s32 border values still rematerialize constants with propagation on. */
+/* measured: with propagation on, the border loops rematerialize constants that retail does not. */
 #pragma opt_propagation off
-// Intent: Generate the field board: reseed the RNG and fill the board walls and tile states by the given mode [inferred]
+// Generate the field board: reseed the RNG and fill the board walls and tile states by the given
+// mode.
 // FUN_001582F0
 void FldBoardGenerate(s32 mode, s32 seed, s32 unused)
 {
@@ -1532,7 +1537,8 @@ typedef struct RuntimeVec3 { f32 x; f32 y; f32 z; } RuntimeVec3;
 
 #pragma push
 #pragma optimization_level 1
-// Intent: Create the resources for one field cell from its kind: model, point and field resources in the active band [inferred]
+// Create the resources for one field cell from its kind: model, point and field resources in the
+// active band.
 // FUN_001587D0
 void FldCellCreateResources(u16 parentId, u32 column, u32 row)
 {
@@ -1975,9 +1981,10 @@ void FldCellCreateResources(u16 parentId, u32 column, u32 row)
 #pragma pop
 
 #pragma push
-/* measured: cast/mask and for/labelled loops hoist the row conversion and add a saved register without this setting. */
+/* measured: retail does not hoist the row conversion out of the loop or use an extra saved
+ * register. */
 #pragma opt_loop_invariants off
-// Intent: Create the resources for every cell of the 16 by 24 field grid [inferred]
+// Create the resources for every cell of the 16 by 24 field grid.
 // FUN_001599D0
 void FldCellCreateGrid(void)
 {
@@ -2007,16 +2014,11 @@ loop_5_test:
 }
 #pragma pop
 
-// Intent: Per-frame update for the step task: dispatches on the task's state and sets up its model objects and records [inferred]
+// Per-frame update for the step task: dispatches on the task's state and sets up its model objects
+// and records.
 // FUN_00159A60
-/* measured: object 748B/window 752B, nd 0. Shape: the case-1 conditions are nested
-   ifs that fall out to `break` (every early exit shares the single `return 0` after
-   the switch; `default:` is the last label so the out-of-range jump lands there
-   too). The two record-address forms differ: the flag read is `base = ...;
-   (u8 *)(idx * 0x10) + (s32)base` (base loaded first, addu idx,base) and `rec`
-   is the same cast form inline (idx loaded first). FldRootCreate's 4th parameter
-   is s32 at block scope so the u16 load is a conversion materialised before $a0.
-   Zeroing loop: u32 counter for bnez. */
+/* Case-1 conditions fall out to break so every early exit shares the single return 0 after the
+ * switch. */
 s32 FldStepTaskUpdate(u8 *task)
 {
     extern s32 FldRootCreate(u8 *parent, u16 field, u16 room, s32 entry, s16 spawn, s16 direction, s32 sceneFlags, u8 loadMode, s64 secondaryMode, s64 transitionValue, s64 eventId, s64 eventMajor, s64 eventMinor, s64 eventFlags);
@@ -2038,7 +2040,6 @@ s32 FldStepTaskUpdate(u8 *task)
     u8 *base;
     FldStepWork *stepWork;
 
-    /* measured: retain a typed work pointer for handle and flag accesses. */
     work = ((SdkTask *)task)->work;
     stepWork = (FldStepWork *)work;
     FldStepUpdateBandRes();
@@ -2114,7 +2115,7 @@ s32 FldStepTaskUpdate(u8 *task)
     return 0;
 }
 
-// Intent: Destroy the step task: clear the step records and run the state destroy hook from the hook table [inferred]
+// Destroy the step task: clear the step records and run the state destroy hook from the hook table.
 // FUN_00159D50
 void FldStepTaskDestroy(u8 *task)
 {
@@ -2128,7 +2129,6 @@ void FldStepTaskDestroy(u8 *task)
     u8 *scriptData;
     SdkTask *stepTask = (SdkTask *)task;
 
-    /* measured: retain the typed task pointer across destruction callbacks. */
     workBlock = stepTask->work;
     if (FldMap_IsCurrentInEitherBand() == 1) {
         fldStepSaveBoard(((FldStepWork *)workBlock)->stepIndex);
@@ -2168,7 +2168,8 @@ loop_14_test:
     jtbl_008873EC[0](stepTask->work);
 }
 
-// Intent: Create the step task under the given parent with its update and destroy callbacks, store its two parameters and clear flag 0xC25 [inferred]
+// Create the step task under the given parent with its update and destroy callbacks, store its two
+// parameters and clear flag 0xC25.
 // FUN_00159E90
 s32 FldStepTaskCreate(s32 parent, s32 stepIndex, s32 entryValue) {
     s32 taskResult;
@@ -2186,7 +2187,8 @@ s32 FldStepTaskCreate(s32 parent, s32 stepIndex, s32 entryValue) {
     return taskResult;
 }
 
-// Intent: Advance the step counter by the argument and reset the step state; when the step lands on a different entry, the grid entries are freed [inferred]
+// Advance the step counter by the argument and reset the step state; when the step lands on a
+// different entry, the grid entries are freed.
 // FUN_00159F70
 void FldStepAdvance(s32 stepDelta)
 {
@@ -2230,14 +2232,13 @@ void FldStepAdvance(s32 stepDelta)
                 index += 1;
             }
         }
-        /* measured: retained typed work preserves the final index update. */
         stepWork->stepIndex += stepDelta;
         MT_Scene_SetWorkValue(((FldStepWork *)state)->rootPointer, 1);
         *(s32 *)state = 5;
     }
 }
 
-// Intent: Return the current step entry address, or 0 when there is no step task [inferred]
+// Return the current step entry address, or 0 when there is no step task.
 // FUN_0015A0C0
 s32 FldStepEntry(void)
 {
@@ -2278,7 +2279,7 @@ s32 FldStepGetScriptSize(void)
     return ((FldStepWork *)((SdkTask *)work)->work)->scriptSize;
 }
 
-// Intent: Return the step counter, or 0 when there is no step task [inferred]
+// Return the step counter, or 0 when there is no step task.
 // FUN_0015A160
 s32 FldStepIndex(void)
 {
@@ -2291,7 +2292,7 @@ s32 FldStepIndex(void)
     return ((FldStepWork *)((SdkTask *)work)->work)->stepIndex;
 }
 
-// Intent: Report whether the flag for the current step band (0x11 to 0x17) is set [inferred]
+// Report whether the flag for the current step band (0x11 to 0x17) is set.
 // FUN_0015A190
 s32 FldStepBandFlagSet(void)
 {
@@ -2403,7 +2404,7 @@ void fldBoardGetOccupiedCenter(RwV3d *center)
     *center = out;
 }
 
-// Intent: Set the step's present flag from the argument pointer, using the step work block's sub-block [inferred]
+// Set the step's present flag from the argument, using the step work block's panel task.
 // FUN_0015A520
 void FldStepSetPresentFlag(s32 present)
 {
@@ -2419,7 +2420,7 @@ void FldStepSetPresentFlag(s32 present)
     }
 }
 
-// Intent: Return 0 when the current step value is a band boundary (0 to 5, or 0x14 to 0x8C), otherwise 1 [inferred]
+// Return 0 when the current step value is a band boundary (0 to 5, or 0x14 to 0x8C), otherwise 1.
 // FUN_0015A560
 s32 FldStepNotAtBoundary(void) {
     s32 result;
@@ -2443,7 +2444,7 @@ s32 FldStepNotAtBoundary(void) {
     return result;
 }
 
-// Intent: Clear the step table and fill the two index tables with 0xFF [inferred]
+// Clear the step table and fill the two index tables with 0xFF.
 // FUN_0015A630
 void FldStepResetTables(void) {
     memset(D_007D3E10, 0, 0xF8FC);
@@ -2451,14 +2452,13 @@ void FldStepResetTables(void) {
     memset(D_007E36F8, 0xFF, 0x14);
 }
 
-// Intent: Return the step table address [inferred]
+// Return the step table address.
 // FUN_0015A690
 u8 *FldStepTable(void)
 {
     return D_007D3E10;
 }
 
-// Intent: Return the step table size in bytes [inferred]
 // FUN_0015A6A0
 s32 FldStepTableSize(void)
 {
@@ -2467,7 +2467,7 @@ s32 FldStepTableSize(void)
 
 /* The saved-board and file-loader run uses conditional rebuilding. */
 #pragma opt_rebuildconditionals on
-// Intent: Look up the step band of the argument in the threshold table and return 1 when the table entry flag is set [inferred]
+// Look up the step's band in the threshold table and return 1 when that entry's flag is set.
 // FUN_0015A6B0
 s32 FldStepTableEntryFlag(s32 stepIndex)
 {
@@ -2498,7 +2498,7 @@ done:
     return result;
 }
 
-// Intent: Return the value for the step argument from the second table by its band; 0xFF before the first band [inferred]
+// Return the second table's value for the step's band; 0xFF before the first band.
 // FUN_0015A740
 u8 FldStepBandValue(s32 stepIndex) {
     s32 i = 0;
@@ -2617,7 +2617,8 @@ slot_test:
     return 0;
 }
 
-// Intent: Copy one table entry from the frame state's work block into the step table, if the table marks the band as active [inferred]
+// Copy one entry from the frame state's work block into the step table if the band is marked
+// active.
 // FUN_0015AB20
 s32 FldStepCopyTableEntry(s32 stepIndex, s32 column, s32 row) {
     s16 threshold;
@@ -2649,9 +2650,8 @@ done:
         work = (u8 *)MT_Scene_GetFrameState();
         work += row << 8;
         work += column << 4;
-        /* D_007D3E2B is the first saved-cell attribute byte; retain its linker-visible interior alias. */
-        /* measured: flattening the whole byte index reassociates the address sum
-         * and changes eight instruction words; keep the native row cursor. */
+        /* D_007D3E2B is the first saved-cell attribute byte; the row offset is added separately
+         * from the column index. */
         ((u8 *)(D_007D3E2B + mapIndex * 0xC00 +
                 (row << 7)))[column << 3] = ((FldFrameCell *)(work + 0x54))->unk0B;
         return 1;
@@ -2853,7 +2853,8 @@ fail:
     return 0;
 }
 
-// Intent: Refresh the visibility of the band's resource list from each entry's grid cell and the frame state flags [inferred]
+// Refresh visibility of the band's resource list from each entry's grid cell and the frame state
+// flags.
 // FUN_0015B240
 void FldStepRefreshBandResVisibility(void)
 {
@@ -2875,7 +2876,7 @@ body:
             cellColumn = (s32)((((RwMatrixTag *)mdlGetMatrix(((SceneFieldModelResource *)entry)->modelAddress))->pos.x +
                              600.0f) /
                             1200.0f);
-            /* measured: retain the typed resource for callback handle reads. */
+            /* measured: retail reads the model handle through the typed resource pointer. */
             cellRow = (s32)((((RwMatrixTag *)mdlGetMatrix(modelResource->modelAddress))->pos.z +
                              600.0f) /
                             1200.0f);
@@ -2900,14 +2901,9 @@ body:
         }
 }
 
-/* Configured b210 -O2 matches 1780 code bytes and the 12-byte zero tail.
- * For kinds 7/8, axis mask 0xA and depth zero, retail extends the north
- * or south limit without writing next_depth (0015B5DC and 0015B8C0).
- * Calls at 0015B654/0015B938 consume that retained or unwritten value.
- * Preserve this original omission; no default depth or unreachable-path
- * claim is introduced. This is configured-native reconstruction, not a
- * claim of portable defined behavior on the omitted-assignment path. */
-// Intent: Flood-fill the cells reachable from a field cell in each direction up to the per-direction limits, setting the visibility of their resources [inferred]
+/* Flood-fills cells reachable from a field cell in each direction up to the per-direction limits
+ * and sets their resources visible. Retail leaves next_depth unwritten for kinds 7/8 with axis mask
+ * 0xA at depth zero; this omission is preserved. */
 // FUN_0015B3E0
 void FldCellFloodFillDirected(s32 column, s32 row, u8 incoming, u8 limitedDirections, s32 axisMask, s32 depth, u8 limit, s32 *visibleCount)
 {
@@ -2993,7 +2989,8 @@ void FldCellFloodFillDirected(s32 column, s32 row, u8 incoming, u8 limitedDirect
     }
 }
 
-// Intent: Update the band's resource lists each step: position the tile and rotate the resources by the frame angle, and show or hide them by band [inferred]
+// Each step, position the tile, rotate band resources by the frame angle, and show or hide them by
+// band.
 // FUN_0015BAE0
 void FldStepUpdateBandRes(void)
 {
@@ -3020,7 +3017,8 @@ void FldStepUpdateBandRes(void)
     if (FldMap_IsCurrentInEitherBand() != 0) {
         if (playerResource != NULL) {
             tileColumn = FldFrameTask_GetTileX(((ResrcRecord *)playerResource)->handle220);
-            /* measured: retain the typed player resource for the second read. */
+            /* measured: retail reads the second tile coordinate through the typed player resource
+             * pointer. */
             tileRow = FldFrameTask_GetTileZ(player->handle220);
             goto clear_test;
 clear_body:
@@ -3154,7 +3152,7 @@ array_b_test:
     }
 }
 
-// Intent: Return the preload file-load task at the given index (0 or 1) from the step work block [inferred]
+// Return preload file-load task 0 or 1 from the step work block.
 // FUN_0015C1E0
 s32 FldStepFileTask(s32 index)
 {
@@ -3170,7 +3168,8 @@ s32 FldStepFileTask(s32 index)
     return ((FldStepWork *)p)->preloadTasks[0];
 }
 
-// Intent: Start the step preload: when no preload is active and the step block has no file tasks, open the preload file [inferred]
+// Start the step preload: open the preload file when none is active and the step block has no file
+// tasks.
 // FUN_0015C210
 void FldStepPreloadBegin(void) {
     if (D_00764334 == NULL) {
@@ -3186,7 +3185,8 @@ void FldStepPreloadBegin(void) {
     iGpffffb218 = H_Cdvd_AcquireDirectory(D_005F06C0, 1);
 }
 
-// Intent: Once the preload file is loaded, create its two file-load tasks; returns 1 when nothing is left to wait for [inferred]
+// Once the preload file is loaded, create its two file-load tasks; returns 1 when nothing is left
+// to wait for.
 // FUN_0015C280
 s32 FldStepPreloadCreateTasks(void) {
     u8 *workBlock;
@@ -3204,7 +3204,7 @@ s32 FldStepPreloadCreateTasks(void) {
     if (H_Cdvd_IsFileLoaded(iGpffffb218) == 0) {
         return 0;
     }
-    /* measured: retained typed work keeps both readiness loads MATCH. */
+    /* measured: retail reads both task slots through the typed work pointer. */
     if (stepWork->preloadTasks[0] == 0) {
         ((FldStepWork *)workBlock)->preloadTasks[0] =
             FldRc_CreateFileLoadTask(iGpffffb244, D_005F06E0, 0x1E, iGpffffb218);
@@ -3216,7 +3216,8 @@ s32 FldStepPreloadCreateTasks(void) {
     return 1;
 }
 
-// Intent: Return 0 while either preload file task is still loading; otherwise destroy the preload handle and return 1 [inferred]
+// Return 0 while either preload task is still loading; otherwise destroy the preload handle and
+// return 1.
 // FUN_0015C360
 s32 FldStepPreloadFinish(void) {
     u8 *workBlock;
@@ -3245,7 +3246,7 @@ s32 FldStepPreloadFinish(void) {
     return 1;
 }
 
-// Intent: Open the step data file when the step block has no buffer yet; returns the open result or 0 [inferred]
+// Open the step data file when the step block has no buffer yet; returns the open result or 0.
 // FUN_0015C440
 s32 FldStepOpenDataFile(void)
 {
@@ -3261,7 +3262,8 @@ s32 FldStepOpenDataFile(void)
     return r;
 }
 
-// Intent: Once the handle's file is loaded, copy its data into a new buffer in the step block, destroy the handle and return 1; 0 while loading [inferred]
+// Once loaded, copy the handle's file into a new step-block buffer, destroy the handle and return
+// 1; return 0 while loading.
 // FUN_0015C4B0
 s32 FldStepCopyLoadedFile(u8 *handle) {
     u8 *workBlock;
@@ -3281,10 +3283,10 @@ s32 FldStepCopyLoadedFile(u8 *handle) {
     if (H_Cdvd_IsFileLoaded() != 0) {
         chkmemAllocSiteTag(D_005F05E8, 0xC30);
         size = ((HCdvdRequest *)handle)->signedSize;
-        /* measured: retained typed work keeps the allocated buffer store MATCH. */
+        /* measured: retail stores the allocated buffer through the typed work pointer. */
         stepWork->scriptData =
             (u8 *)D_008873F4[0](1, size, 0x40000);
-        /* measured: retained typed request preserves post-allocation size reads. */
+        /* measured: retail rereads the size from the request after the allocation call. */
         ((FldStepWork *)workBlock)->scriptSize = request->signedSize;
         size = request->signedSize;
         copyDst = stepWork->scriptData;
@@ -3296,7 +3298,7 @@ s32 FldStepCopyLoadedFile(u8 *handle) {
     return 0;
 }
 
-// Intent: Format a numbered file path from the argument and open it [inferred]
+// Format a numbered file path from the id and open it.
 // FUN_0015C590
 void FldStepLoadNumberedFile(s32 id) {
     u8 path[0x80];
@@ -3306,7 +3308,7 @@ void FldStepLoadNumberedFile(s32 id) {
     H_Cdvd_AcquireDirectory(path, 0);
 }
 
-// Intent: Return 1 when the id is zero or its file is loaded [inferred]
+// Return 1 when the id is zero or its file is loaded.
 // FUN_0015C5F0
 s32 FldStepLoadIdIsDone(s32 id)
 {
@@ -3323,7 +3325,7 @@ s32 fldStepLoadHandleAlwaysReady(u8 *unusedHandle)
     return 1;
 }
 
-// Intent: Format a file path from the two ids; return NULL when the file is missing, otherwise open it [inferred]
+// Format a file path from the two ids; return NULL if the file is missing, otherwise open it.
 // FUN_0015C640
 u8 *FldStepLoadFilePair(s32 fieldId, s32 roomId) {
     u8 directory[0x80];
@@ -3338,7 +3340,7 @@ u8 *FldStepLoadFilePair(s32 fieldId, s32 roomId) {
     return (u8 *)H_Cdvd_AcquireDirectory(path, 0);
 }
 
-// Intent: Return 1 for a null handle or when its file is loaded [inferred]
+// Return 1 for a null handle or when its file is loaded.
 // FUN_0015C6F0
 s32 FldStepLoadHandleIsDone(u8 *handle)
 {
@@ -3348,7 +3350,6 @@ s32 FldStepLoadHandleIsDone(u8 *handle)
     return H_Cdvd_IsFileLoaded(handle) != 0;
 }
 
-// Intent: Destroy a file-load handle [inferred]
 // FUN_0015C730
 void FldStepLoadHandleDestroy(u8 *handle)
 {

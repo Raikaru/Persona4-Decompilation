@@ -1,7 +1,5 @@
 #include "include_asm.h"
-/* Persona 4 USA decompilation - btlShuffleSeqShuffle5.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
-/* Recovered functions retain the retail card-row state machine and layouts. */
+/* Original translation unit btlShuffleSeqShuffle5.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 
@@ -32,7 +30,7 @@ extern void btlShuffleDrawViewClearGlow(u8 *drawWork);
 extern void btlShuffleDrawViewEndPatternFade(u8 *drawWork);
 extern void btlShuffleDrawCardEndSelection(u8 *drawWork);
 extern void btlShuffleDrawViewEndFrameFade(u8 *drawWork);
-extern /* measured: both row-match checks also match with surrounding loop-invariant extraction enabled. */
+extern
 s32 btlShuffleSeq5Check(u8 *context);
 extern s32 btlShuffleSeq5Check2(u8 *context);
 extern void btlShuffleSeqSetMode(u8 *context, s32 cardIndex, s32 frames);
@@ -67,10 +65,8 @@ typedef struct {
     s32 words[0x3EC];
 } ShuffleCardRecord;
 
-/* measured: 1260B in the 1264B window. Swapping whole 0xFB0-byte card
-   records emits retail's word-pair copy loops, and indexing the deck as
-   cards[rowStart + k] under loop-invariant hoisting reproduces retail's
-   row-product-then-counter preheader order. */
+/* measured: retail swaps whole card records with word-pair copy loops and hoists the row product
+ * ahead of the loop counter. */
 #pragma opt_loop_invariants on
 /* Shuffle repeated row pairs together for small decks, or each independent row for larger decks. */
 // FUN_0037EF40
@@ -91,7 +87,6 @@ void btlShuffleSeq5Shuffle(u8 *context) {
     if (((BtlShuffleContext *)context)->pattern != 4) {
         kAssertFail(&D_0064EB40[0], 0xBD);
     }
-    /* measured: the typed context alias preserves the original loop allocation. */
     n = shuffleContext->cardCount;
     if (n < 6) {
         for (i = 0; i < 6; i += 2) {
@@ -202,11 +197,8 @@ s32 btlShuffleSeq5Check2(u8 *context)
     return hasMatch;
 }
 
-/* Three-row shuffle state machine. Row population and continuous motion use
-   separate vector objects; smaller decks repeat their cards to fill a row.
-   Measured in the whole owner with b210 -O2: 4760 bytes, exact retail words.
-   Lifetime splitting preserves the independent state-machine phases, while
-   loop-invariant hoisting retains the row products and vector addresses. */
+/* Three-row shuffle state machine. Row population and continuous motion use separate vector
+ * objects, and smaller decks repeat their cards to fill a row. */
 #pragma push
 
 /* Return the stop flag for one of the three valid shuffle rows. */
@@ -243,7 +235,7 @@ static inline s32 btlShuffleMovingRowSize(s32 count)
     return count < 6 ? count * 2 : count;
 }
 
-/* measured: baseline nd147; typed pointer reuse, typed parameter cache, scoped locals, inverted if/else did not match (best nd147); retain opt_lifetimes on. */
+/* measured: retail keeps the state machine's phases in separately allocated lifetimes. */
 #pragma opt_lifetimes on
 /* Run the three moving rows, stopping them on input and resolving matching card groups. */
 // FUN_0037F6E0
@@ -276,7 +268,6 @@ s32 btlShuffleSeq5Run(u8 *work)
     u16 input;
 
     state = work + 0x1F1D0;
-    /* measured: the typed context alias preserves the original loop allocation. */
     initialCount = shuffleContext->cardCount;
     if (initialCount < 6) {
         rowSize = initialCount * 2;
@@ -285,7 +276,8 @@ s32 btlShuffleSeq5Run(u8 *work)
     }
     total = btlShuffleDrawTableLookup(initialCount, ((BtlShuffleContext *)work)->pattern);
     speed = ((BtlShuffleRowState *)state)->frames;
-    /* measured: typing this dispatch read shrinks Run to 4592 bytes; all phase stores remain typed. */
+    /* The phase dispatch reads through shuffleContext while all phase stores go through the cast
+     * context; retail's register allocation depends on this split. */
     switch (shuffleContext->phase) {
     case 0:
         if (btlShuffleSeqPick(work, ((BtlShuffleContext *)work)->cardCount) == 0) {

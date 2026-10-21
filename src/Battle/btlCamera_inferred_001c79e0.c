@@ -113,38 +113,18 @@ extern f32 D_00607E3C[];
 extern RwV3d *RtQuatTransformVectors(RwV3d *first, const RwV3d *second, s32 third, const RtQuat *fourth);
 
 
-/* P3 btlCameraFrameActionSide (002a6ee0, donor NONMATCHING), adapted to P4; b210 -O2: 1208 bytes plus 8 retail zero bytes. */
+/* Adapted from P3 btlCameraFrameActionSide (002a6ee0). */
 
-
-/* Source unit: src/promoted/code1_001c.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001c.c; members 001c79e0-001c9820 */
 
 /* Empty update callback for OVERLIMIT (state 32) in the retail camera table at 0x005F74C0. */
 // FUN_001C79E0
 void btlCameraOverlimitUpdate(void) {}
 
-/* MATCH.  The last two words were the order of two operand loads feeding one
-   add: retail loads the position Y coordinate into $f1 before the direction Y
-   coordinate into $f0, this body did the reverse.  Snapshotting the position
-   Y into an ordinary float local immediately before the first Y output, and
-   using it in both Y expressions, gives retail's order - retail reuses that
-   value in the final height calculation, which is why it loads it first.
-   The position of the snapshot is the whole trick: taken before the X output
-   it scores 5, and before the position X update 20, which is why the earlier
-   pass recorded "hoisting pos138[1] into a local (5)" and concluded the load
-   pair was a scheduler coin-flip.  It was not.
-   Also measured at 2 and byte-identical on the way here: `schedule off`,
-   `opt_loop_invariants on`, `opt_unroll_loops off`, an explicit `tmpMul`
-   temporary, a reassociated `dir128[1] * var_f20 + pos138[1]`, and fully
-   parenthesised operands.  Worse: reordering the three `outC0[i]` assignments
-   (17 and 8), splitting the add into `= pos; += dir * f` (40), `schedule on`
-   (388), `peephole off` (402), `opt_propagation off` (397),
-   `opt_common_subs off` (401). */
-/* Frame a target according to death, guarding, low HP and status, or frame the group. */
+/* Position Y is snapshotted into a local before the first Y output because retail loads it first
+ * and reuses it in the final height calculation. */
 // FUN_001C79F0
 void btlCameraFrameStatus(u8 *camera, s32 unused)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     struct Frame {
         u8 mat60[0x40];
@@ -305,14 +285,11 @@ void btlCameraFrameStatus(u8 *camera, s32 unused)
     }
 }
 
-/* Interpolate the group and target orientations using a complete
- * quaternion cache and four complete poses. Position weights remain
- * distinct from the sine-adjusted quaternion weights.
- * b210 -O2: 2012 exact bytes and four zero alignment bytes. */
+/* Interpolate the group and target orientations using a quaternion cache and four poses; position
+ * weights stay separate from the sine-adjusted quaternion weights. */
 // FUN_001C80F0
 void btlCameraFrameSideView(u8 *camera, s32 immediate)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     f32 top;
     RwV3d direction;
@@ -556,8 +533,8 @@ s32 btlCameraFindOccluder(u8 *unit, s32 *rectangle, f32 *depth, u8 *cameraMatrix
 // FUN_001C8B00
 void btlCameraUpdateOcclusion(u8 *camera)
 {
-    /* Keep the external SDK camera handle byte-addressed at its frame-pointer ABI boundary. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
+    /* The external SDK camera handle stays byte-addressed because it crosses the frame-pointer ABI
+     * boundary. */
 
     struct Frame {
         s32 value60;
@@ -632,7 +609,6 @@ outer_test:
     }
 }
 
-/* measured: optimization_level 1 probe for c8cf0 argument order. */
 /* Cache target classification and genus mask, then clear the previously framed action. */
 // FUN_001C8CF0
 void btlCameraReleaseOcclusion(u8 *camera)
@@ -651,12 +627,10 @@ void btlCameraReleaseOcclusion(u8 *camera)
     ((BtlCameraStatusWork *)(camera + 0x100))->action = NULL;
 }
 
-/* measured: close optimization_level after c8cf0. */
 /* Reframe when the formation target changes, optionally updating occluding units first. */
 // FUN_001C8D50
 void btlCameraUpdateFrame(u8 *camera)
 {
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     s32 flag;
     u16 mode;
@@ -702,14 +676,12 @@ void btlCameraUpdateFrame(u8 *camera)
     }
 }
 
-/* Produce current and adjusted poses with a limited quaternion angle.
- * The interpolation cache and all vectors are complete objects.
- * b210 -O2:2228 exact bytes and12 zero alignment bytes. */
+/* Produce current and adjusted poses with a limited quaternion angle. */
 // FUN_001C8E90
 void btlCameraBuildPosePair(u8 *camera, P4CameraFrame *first, P4CameraFrame *second)
 {
-    /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
+    /* Target storage is reused by AI commands, so each access keeps its own word or pointer
+     * interpretation. */
 
     f32 xz[2];
     RwV3d alternateEye;
@@ -945,7 +917,6 @@ void btlCameraFrameAim(u8 *camera)
 void btlCameraSetLimitFrame(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide)
 {
     /* Target storage is reused by AI commands; retain each access's word or pointer interpretation. */
-    /* measured: direct fields, typed pointer locals and array forms change MWCC bytes at MEMBER sites; see FullBattle4.culprits.tsv. */
 
     RwV3d actorCenter;
     RwV3d targetCenter;

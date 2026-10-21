@@ -9,8 +9,6 @@
 #include "ed_staff_internal.h"
 
 
-
-
 extern u8 *D_007246AC;
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_0064ECA0[];
@@ -37,28 +35,17 @@ extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y,
                           u16 scaleX, u16 scaleY, f32 angle, s16 pivotX,
                           s16 pivotY);
 
-/* Source unit: src/promoted/code1_0038.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0038.c; members 0038f400-0038f400 */
-
 extern void btlShuffleInitWaveStrips(u8 *drawWork);
 extern s32 (*D_00887300[])(RwRenderState state, void *value);
 extern s32 (*D_00887310[])(s32, void *, s32);
-/* measured: opt_rebuildconditionals off preserves the retail positive branch. */
-/* measured: restore conditional rebuilding after this function. */
-/* measured: opt_loop_invariants on hoists the conversion constants into the retail preheader. */
-/* measured: restore loop-invariant optimization after func_00389cb0. */
-/* Measured: 904/912 bytes, eleven resolved relocations and eight zero
- * alignment bytes. D_00761490 is the retail scalar 0xBD872B00, not the
- * rounded -0.066f literal; keep the five-frame and 300-frame reloads. */
+/* D_00761490 holds the retail scalar 0xBD872B00, not the rounded -0.066f literal; the five-frame
+ * and 300-frame reloads are retail behaviour. */
 #pragma push
 #pragma pop
-// Intent: Build an EffectStateHeader from a parameter table: entry table, string block and data block [inferred]
-/* Allocate an effect header and relocate its string entries into copied string and data blocks. */
+// Allocate an effect header and relocate its string entries into copied string and data blocks.
 // FUN_0038F400
 extern u8 D_0064F240[];
 extern void *memcpy(void *dst, const void *src, u32 size);
-/* The earlier whole-layout attempt added a shift (404/400 bytes); isolated
- * entry-array indexing below was remeasured and retains the retail code. */
 EffectStateHeader *edResBuildEffectHeader(const u32 *parameters)
 {
     u32 size;

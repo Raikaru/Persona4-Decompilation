@@ -1,4 +1,3 @@
-/* Source unit: src/Yajima/y_misc_0027be60.c */
 #include "type.h"
 #include "message_procedure_api.h"
 
@@ -10,11 +9,10 @@ typedef struct ItfMesWindowSubTableEntry {
 } ItfMesWindowSubTableEntry;
 
 
-
 #pragma push
 
 
-// Intent: returns the sub-table pointer (+0x18) of a message window's sub-table entry.
+// Returns the data pointer of a message window's sub-table entry.
 // FUN_0027BE60
 void *itfMesWindowSubTablePtr(s32 handle)
 
@@ -22,7 +20,6 @@ void *itfMesWindowSubTablePtr(s32 handle)
 
   s32 entryAddress;
 
-  
 
   entryAddress = itfMesWindowGetSubTable(handle);
 

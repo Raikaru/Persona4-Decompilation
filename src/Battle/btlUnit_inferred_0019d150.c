@@ -69,17 +69,13 @@ extern u8 *(*D_008873E8[])(s32 data, s32 value);
 extern void memset(void *data, s32 value, s32 option);
 
 
-
-
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
 
 
-
 extern u8 *btlUnitCreate(s32 genus);
-
 
 
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
@@ -96,34 +92,14 @@ extern u32 iGpffffa0a8;
 extern void mdlQueueModelForDraw(void *queue, void *model);
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 0019d150-0019d210 */
-
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
+/* measured: optimization_level 1, with the index and value locals declared before the loop, keeps
+ * retail's loop initialisation order; -O2 reorders it. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* Measured: 1164 instruction bytes in the 1168-byte window, three resolved
- * relocations and a four-byte zero tail. This callback uses the packet creator's
- * u32 (void *) contract. Modes 1..4 initialize every timing value; the retail
- * constructor callers use modes 3 or 4. The packet is 20 bytes.
- * Disabling propagation locally retains the alpha result's memory/merge
- * lifetime. Publication remains the actual four-byte color-by-value operation. */
 #pragma push
 #pragma pop
-/* Retail reloads the 1/255 colour scale (0x3B808081, written here as a
- * literal) for every factor; with default optimisation b210 does the same.
- * `v41` and `chk` are function-scope locals so they keep retail's saved
- * registers. On the `i == 2 && alpha < 0xFE` path retail compares 0xE8
- * against the `mode` left from an earlier entry (0x0019CDE0); the C reads
- * `mode` uninitialised there in the same way. */
 #pragma push
 #pragma pop
 /* Queue visible, nontransparent models unless their model flags suppress drawing. */
@@ -150,7 +126,6 @@ void btlUnitQueueAllModelsForDraw(void)
     }
 }
 
-/* measured: typing the remaining genus/camera-slot accesses loses MATCH; list address helpers preserve retail operand order. */
 /* Allocate a 0xA70-byte unit, initialize movement/model state, and append it to its genus list. */
 // FUN_0019D210
 u8 *btlUnitCreate(s32 genus)

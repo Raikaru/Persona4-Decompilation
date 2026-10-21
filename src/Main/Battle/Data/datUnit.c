@@ -1,16 +1,12 @@
 #include "include_asm.h"
-/* Original translation unit datUnit.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit datUnit.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "datUnit_internal.h"
 #include "dat_enemy_internal.h"
 
 extern void (*jtbl_008873EC[])(void *);
 
-/* Ported from the P3FES donor src/Main/Battle/Data/datUnit.c (verified MATCH
- * there for 7 of 8 functions); adapted to the P4 build: assert lines
- * (0x1B/0x3F/0x64/0x65/0x75/0x86/0x87/0x93/0xB9/0xD3/0xDA/0xFE) and file
- * string D_00635928, DatUnit stride 0x30 (P3: 0x2C), enemy-table stride
- * 0x3C (P3: 0x3E), chkmemAllocSiteTag location calls, jtbl_008873E8 malloc. */
+/* P4 uses a 0x30-byte DatUnit stride and a 0x3C-byte enemy-table stride. */
 
 
 typedef struct EncountTblEntry
@@ -53,12 +49,14 @@ DatUnitPc* datUnitCreatePc(u16 pcId)
     return pc;
 }
 
-/* measured: canonical iGpffffb414 GP symbol and explicit offset local produce the retail global-load ordering and exact 368-byte object. */
-/* measured: baseline differs by 5 words; loop-local and function-local encounter pointers leave nd13/nd12; retain hoisting. */
+/* measured: retail hoists the encounter-row pointer out of the loop and loads the GP global first,
+ * so loop-invariant hoisting stays on here. */
 #pragma opt_loop_invariants on
+/* Allocate an enemy unit group for the given encounter id, counting the non-empty enemy slots in
+ * its encounter table entry and initializing a unit for each one. */
 // FUN_00231630
-/* Preserve the measured cursor arithmetic while naming the enemy and encounter row members. */
-/* Allocate a six-slot enemy group and initialize the nonempty IDs from the five-entry encounter row. */
+/* Allocate a six-slot enemy group and initialize the nonempty IDs from the five-entry encounter
+ * row. */
 DatUnitEc* datUnitCreateEncounterGroup(u16 encountId)
 {
     u32 count;
@@ -201,13 +199,12 @@ u32 datUnitGroupIsDefeated(DatUnitGenusBase* genusBase)
     return 1;
 }
 
-/* measured: retail hoists the 0x1F6/0x1F7/0x1F8 skill constants into the
- * loop preheader and keeps id*0x3C live across the flag tests; without
- * opt_loop_invariants MWCC rematerializes them inside the loop. */
-/* measured: baseline differs by 19 words; named skill constants and equivalent comparisons leave nd159; retain hoisting. */
+/* measured: retail hoists the 0x1F6/0x1F7/0x1F8 skill constants out of the loop and keeps id*0x3C
+ * live across the flag tests. */
 #pragma opt_loop_invariants on
+/* Initialize a party or enemy unit of the given genus and id, loading level, HP, SP and status
+ * flags from the enemy table for enemies, then clearing all buff levels. */
 // FUN_00231AF0
-/* Preserve the measured cursor arithmetic while naming the enemy and encounter row members. */
 /* Initialize PC flags or copy enemy defaults, clear all buff levels and set both unit IDs. */
 u32 datUnitInit(DatUnit* unit, u8 genus, u16 id)
 {

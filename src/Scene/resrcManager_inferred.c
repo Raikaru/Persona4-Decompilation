@@ -107,7 +107,6 @@ extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
 
 
-
 extern u8 *resrcMngFindResById(u8 *manager, u16 resourceId);
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
@@ -175,8 +174,6 @@ extern s32 resrcMngRenderTask(u8 *unusedTask);
 extern void FldShadow_SpawnCasterTask(u8 *parentTask);
 
 
-
-
 typedef struct {
     u8 b0;
     u8 b1;
@@ -188,7 +185,6 @@ typedef FieldRgba8 Rgba8_0014;
 
 
 extern s32 D_007642F0;
-
 
 
 extern u8 *PrimAllocQueueNode(void);
@@ -230,16 +226,8 @@ extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
 
 
-
-
-/* Camp display: grid, labels, radar and corner sprites.
- * The radar callees are declared here with u8 opacity parameters (H011):
- * retail narrows each radar alpha with its unsigned conversion and passes
- * it without another mask, while the matched definitions in this file keep
- * s32 because their own bodies use the full word.
- * `sprite` is one function-scope variable for the 0x1834 label sprite and
- * the corner sprite; b210 does not propagate it into the sdkSpriteDrawSized
- * call, so the label pointer is loaded before the stack argument. */
+/* Camp display: grid, labels, radar and corner sprites. Radar callees take u8 opacity because
+ * retail passes the narrowed alpha without masking it again. */
 #pragma push
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
@@ -270,27 +258,15 @@ extern f32 D_008872F8[];
 #pragma pop
 
 
-
-
-
-
-/* measured: closes the scoped optimization-level-1 probe. */
+#pragma push
+#pragma pop
 
 
 #pragma push
 #pragma pop
 
-
-
-#pragma push
-#pragma pop
-
-/* Source unit: src/promoted/code1_0014.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 00147530-0014a000 */
-
-/* measured: O1 probe for 00146630 register allocation and short tail. */
-/* measured: schedule-off probe for 46630 branch delay slots. */
-/* measured: closes schedule-off probe for 46630. */
+/* Look up a resource by its packed ID, walking the manager's list for the type encoded in the ID.
+ * Return NULL if the type is out of range or no match is found. */
 // FUN_00147530
 /* Validate the packed type, then search its linked resource list for the complete type/id. */
 u8 *resrcMngFindResById(u8 *manager, u16 resourceId) {
@@ -318,8 +294,8 @@ u8 *resrcMngFindResById(u8 *manager, u16 resourceId) {
 
 /* Count the resources in a valid per-type linked list; out-of-range types return zero. */
 // FUN_001475C0
-/* Ported from P3FES resrcMngGetTotalResInList: P4 uses a 0x16-entry list
-   table and the list link remains at offset 0x138. */
+/* Matches P3FES resrcMngGetTotalResInList; P4 has 0x16 list heads and the list link stays at offset
+ * 0x138. */
 u32 resrcMngGetTotalResInList(u8 *resLists, u8 resType)
 {
     u32 total;
@@ -342,9 +318,12 @@ u8 *resrcMngGetTableEntry(s32 curveKind) {
     return D_005EFAA0 + curveKind * 0x10;
 }
 
-/* measured probe: opt_propagation off for 00147640 float ordering. */
-/* measured: resrcMngRenderCameraFog MATCH -> MISMATCH without this pragma. */
+/* measured: copy propagation must be off to keep retail's float load ordering in
+ * resrcMngRenderCameraFog. */
 #pragma opt_propagation off
+/* Begin the camera update, save the colors of lights A and B and light B's frame matrix into
+ * savedState, attach light C to the world, and apply the override light colors and transform if one
+ * is set. Then end the camera update and enable fog render states when fog is on. */
 // FUN_00147640
 /* Save primary/secondary lighting and install field lighting plus the configured fog render states. */
 void resrcMngRenderCameraFog(u8 *unusedQueue, u8 *savedState) {
@@ -419,7 +398,8 @@ void resrcMngRenderCameraFog(u8 *unusedQueue, u8 *savedState) {
     }
 }
 
-/* measured probe: restore opt_propagation after 00147640. */
+/* Begin the camera update, detach light C from the world, and if a color override was active,
+ * restore lights A and B and light B's frame from savedState before ending the camera update. */
 // FUN_00147830
 /* Restore saved primary/secondary lighting after the field-light pass. */
 void resrcMngRenderCamera(u8 *unusedQueue, u8 *savedState) {
@@ -436,7 +416,8 @@ void resrcMngRenderCamera(u8 *unusedQueue, u8 *savedState) {
     func_003e8120(((u8 *)(u32)kwlnGetCamera()));
 }
 
-/* measured probe: opt_propagation off for 00147910 float and vtable order. */
+/* Save the colours of the three clump lights and the frame data of lights B and C into savedState,
+ * then set the camera fade render states when a fade is active. */
 // FUN_00147910
 /* Save all three light colors and both matrices, then configure fog and the fade draw pass. */
 void resrcMngRenderCameraFade(u8 *unusedQueue, u8 *savedState) {
@@ -525,7 +506,8 @@ void resrcMngRenderCameraFade(u8 *unusedQueue, u8 *savedState) {
     D_00887300[0](0x14, 2);
 }
 
-/* measured probe: restore opt_propagation after 00147910. */
+/* Save the state of the three clump lights and the frames of lights B and C into savedState while
+ * the camera is bound. */
 // FUN_00147AE0
 /* Restore all three light colors and both saved light matrices. */
 void resrcMngRenderCameraPair(u8 *unusedQueue, u8 *savedState) {
@@ -605,8 +587,8 @@ void resrcMngRenderAttachedAlt(u8 *unusedQueue, u8 *resource) {
     func_003e8120(((u8 *)(u32)kwlnGetCamera()));
 }
 
-/* measured probe: opt_propagation off preserves 00148000 vector coloring. */
-/* Compare character-model camera distances, truncating their floating-point difference to a signed integer. */
+/* Compare character-model camera distances, truncating their floating-point difference to a signed
+ * integer. */
 // FUN_00148000
 s32 resrcMngCompareDistanceArrA(const void *left, const void *right) {
     u8 *const *leftEntry = (u8 *const *)left;
@@ -654,9 +636,8 @@ s32 resrcMngCompareDistanceArrA(const void *left, const void *right) {
     return (s32)(distanceOrCameraZ - RwV3dLength(frame.rightDelta));
 }
 
-/* measured: closes opt_propagation off for resrcMngCompareDistanceArrA. */
-/* measured: opt_propagation off preserves 00148140 vector coloring. */
-/* Compare NPC-model camera distances, truncating their floating-point difference to a signed integer. */
+/* Compare two resource records by their models' distance from the camera, returning the difference
+ * truncated to an integer. */
 // FUN_00148140
 s32 resrcMngCompareDistanceArrB(const void *left, const void *right) {
     u8 *const *leftEntry = (u8 *const *)left;
@@ -704,21 +685,15 @@ s32 resrcMngCompareDistanceArrB(const void *left, const void *right) {
     return (s32)(distanceOrCameraZ - RwV3dLength(frame.rightDelta));
 }
 
-/* measured: closes opt_propagation off for resrcMngCompareDistanceArrB. */
-/* measured: resrcMngRenderTask, resrcMngSetDrawEnabled MATCH -> MISMATCH without this pragma. */
+/* measured: resrcMngRenderTask and resrcMngSetDrawEnabled need constant propagation back on to
+ * match retail code generation. */
 #pragma opt_propagation on
-/* Recovered render passes preserve callback-time resource reloads and
-   complete position-vector copies. The two tail k-loops share
-   function-scope `k`/`j` (declared k first) under `opt_lifetimes on`, so
-   IRO_SplitLifetimes numbers each loop's counters after the hoisted
-   `&arrB[k]` temporaries. The first tail loop walks its attachments through
-   `cur = (u8 *)ent`; that copy keeps `ent = &arrB[k]` a declared local, which
-   is retail's $s4. See docs/probe_archive/RenderQueue_00148280_worker1_20261005.md. */
+/* Render passes reload resources after each callback and copy whole position vectors. Both tail
+ * loops share function-scope k and j, matching retail's counter registers. */
 #pragma push
-/* measured: resrcMngRenderTask MATCH -> MISMATCH without this pragma. */
-/* measured: baseline loop/lifetime removal gives nd86; per-pass attachment counters leave nd81; retain both settings. */
+/* measured: retail's render task needs loop-invariant hoisting enabled here. */
 #pragma opt_loop_invariants on
-/* measured: resrcMngRenderTask MATCH -> MISMATCH without this pragma. */
+/* measured: retail's register lifetimes in the render-pass loops need this setting. */
 #pragma opt_lifetimes on
 /* Queue kind-specific model and lighting passes, sorting characters and translucent NPCs when enabled. */
 // FUN_00148280
@@ -762,7 +737,8 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
     extern u8 D_007D2350[];
     extern u8 D_007D2400[];
     u8 **sortedEntry;
-    /* Measured: keep byte cursors alongside typed locals; access-site-only typing retains member addresses across callbacks. */
+    /* Byte cursors are kept alongside typed locals so member addresses are not held across
+     * callbacks. */
     ResrcRecord *fieldRecord, *fieldModelRecord, *npcRecord, *resourceRecord;
     u8 *characters[64];
     u8 *translucentNpcs[64];
@@ -1189,8 +1165,8 @@ s32 resrcMngRenderTask(u8 *unusedTask) {
 }
 
 #pragma pop
-/* The incoming parent is forwarded to the task allocator, which attaches
-   the new task when it is non-null. The constructor remains 96/96 bytes. */
+/* The incoming parent is forwarded to the task allocator, which attaches the new task when it is
+ * non-null. */
 // FUN_00149620
 u8 *resrcMngSpawnRenderTask(u8 *parentTask) {
     u8 *task;
@@ -1215,12 +1191,8 @@ void resrcMngSelectDrawSet(s32 alternate) {
     iGpffff9dd0 = 0x1D;
 }
 
-/* Applies the four color factors to scene resources, camera clear color
-   and fog color. Keep the four-byte color snapshot and unsigned
-   float conversions before each upper clamp. Native b210 -O2:
-   1504/1504 bytes, all relocations exact, no padding or inline asm.
-   See Retained_color_and_sphere_20260922_worker6.md. */
-/* Scale resource, camera-clear and fog colors, clamping unsigned channel products at 255. */
+/* Applies the four color factors to scene resources, camera clear color and fog color, clamping
+ * unsigned channel products at 255. */
 // FUN_001496C0
 void resrcMngApplyColorFactors(void *value) {
     const u8 *factors;
@@ -1363,7 +1335,6 @@ void resrcMngSetEnvIntensity(s32 value)
     FldFilterSetIntensity(((SceneContext *)D_00762EA0)->environment, value);
 }
 
-/* measured: opt_rebuildconditionals off is scoped to resrcMngResetRenderSlots. */
 // FUN_00149EA0
 /* Reset field lighting colors and rotate the default light transform around Y then X. */
 void resrcMngResetRenderSlots(void)
@@ -1429,11 +1400,8 @@ void resrcMngResetRenderSlots(void)
     RwMatrixRotate(matrix, &axisWords[0], 2, -45.0f);
 }
 
-/* measured: closes opt_rebuildconditionals for resrcMngResetRenderSlots. */
-/* measured: opt_rebuildconditionals off is scoped to resrcMngSetDrawEnabled. */
-/* measured: loop-invariant constants probe for resrcMngSetDrawEnabled. */
-/* measured: resrcMngSetDrawEnabled MATCH -> MISMATCH without this pragma. */
-/* measured: baseline removal gives nd96; equivalent structured list loops leave nd95; retain hoisting. */
+/* measured: retail hoists loop-invariant constants out of the resource list loops in
+ * resrcMngSetDrawEnabled. */
 #pragma opt_loop_invariants on
 // FUN_0014A000
 /* Set the draw-active bit on field resources and optionally field-model resources. */

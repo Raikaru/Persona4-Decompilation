@@ -1,7 +1,5 @@
 #include "btl_effect_internal.h"
 #include "btl_target_state_packet_internal.h"
-/* Grouped verified Persona 4 source units. */
-/* The original guards were independently verified before grouping. */
 #include "include_asm.h"
 #include "type.h"
 
@@ -16,13 +14,8 @@ extern u8* btlFormationAllocEntry(u8* table, s32 tableIndex, s32 unit, s32 targe
 extern void mdlEffectDestroyWithNodes(u32 effect);
 extern void mdlDestroyModelObject(u32 model);
 
-/* Source unit: src/btlFormation/btlFormation_001d4120.c (8 function markers) */
-
-/* Source unit: src/btlFormation/btlFormation_grouped.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/btlFormation/btlFormation_grouped.c; members 001d7140-001d7140 */
-
-/* measured: live MATCH, object 372B/window 384B, normalized_diff 0; integer-domain global base plus source-driven addu operand order. */
-/* Rebuild dirty visible placements from the selected formation slot, then apply visibility flags and packed color. */
+/* Rebuild dirty visible placements from the selected formation slot, then apply visibility flags
+ * and packed color. */
 // FUN_001D7140
 void btlEffectRefreshPlacementState(u8* placement)
 {

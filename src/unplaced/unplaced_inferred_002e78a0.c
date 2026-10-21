@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002e78a0-002e82b0 */
 
 /* Unit optimizer settings shared by the neighboring functions. */
 #pragma opt_loop_invariants off
@@ -273,8 +272,8 @@ done:
 // FUN_002E82B0
 void fclCombineMenuDestroy(u8 *task)
 {
-    /* measured: remaining header-task entries preserve b210 loop index/address scheduling; typed substitution loses MATCH. */
-    /* measured: remaining combine task accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
+    /* measured: the remaining header-task and combine-task accesses stay untyped because typed
+     * fields change how retail schedules the loop index and reloads. */
     s8 yListSlotRelease(s8 list);
     s32 kwlnTaskDestroyWithHierarchy(struct KwlnTask *task);
     s16 i;

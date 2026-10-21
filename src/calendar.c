@@ -1,6 +1,6 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Original translation unit calendar.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit calendar.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "shd_misc_internal.h"
 #include "kwln_task_internal.h"
@@ -50,7 +50,6 @@ extern void PrimDrawFlatRectangle(void *colorData, void *rectangleData, f32 dept
 extern s32 iGpffff9c54;
 extern const char *D_005E5010[];
 extern u8 D_005E5028[];
-
 
 
 /* Opens the calendar view and clears the mode flag D_007242B8. */
@@ -186,10 +185,8 @@ void calendarInputRelease(u8 *task)
     jtbl_008873EC[0](work);
 }
 
-/* Draw task update: draws the calendar grid and day numbers for the current date. */
-/* Measured: 688 bytes and 17 resolved relocations. Packed positions retain
- * both coordinate components; the formatter consumes a genuine vararg list.
- * Keep the loop bound live and reuse the selected row offset across queries. */
+/* Draw task update: draws the calendar grid and day numbers for the current date. Packed positions
+ * keep both coordinates, and the formatter takes a real vararg list. */
 // FUN_00121690
 s32 calendarDraw(u8 *unusedTask)
 {

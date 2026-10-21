@@ -2,7 +2,7 @@
 #include "rw_geometry_internal.h"
 #include "eff_geometry_block_internal.h"
 #include "include_asm.h"
-/* Original translation unit effGeometry.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit effGeometry.c (from __FILE__ assert strings). */
 #include "type.h"
 /* RenderWare's public RwFrame typedef carries the SDK's 16-byte alignment. */
 typedef struct RwFrame RwFrame __attribute__((aligned(16)));
@@ -52,7 +52,7 @@ typedef struct RwV3d
     f32 z;
 } RwV3d;
 
-// 64 bytes. Layout from P3FES include/rw/rwplcore.h.
+// 64 bytes; layout from P3FES rwplcore.h.
 typedef struct RwMatrix
 {
     RwV3d right;   // 0x00
@@ -71,9 +71,8 @@ typedef struct RwSphere
     f32 radius;
 } RwSphere;
 
-/* Partial RpGeometry and RpMorphTarget layouts. The true RenderWare types are in include/rw/inc/rpworld.h,
- * but that header needs system includes this toolchain does not provide, so these declarations keep only
- * the offsets this TU reads. RpGeometry starts with an 8-byte RwObject. */
+/* Partial RpGeometry and RpMorphTarget layouts holding only the fields this file reads; RpGeometry
+ * starts with an 8-byte RwObject. */
 typedef struct RpMorphTarget {
     u8 field_0x00[0x4];
     RwSphere boundingSphere;         /* +0x4 */
@@ -156,7 +155,6 @@ void func_003e9cb0(void *frame, void *transform, u32 combine);
 
 void GeometryMatrixBuildCombined(RwMatrix *matrix, RwV3d *translation, void *basis, RwV3d *scale);
 extern u8 *GeometryCreateMultiPart(s32 partCount, s32 verticesPerPart, s32 trianglesPerPart, s32 flags);
-
 
 
 // Single-part block: an atomic, geometry with object vertices and value triangles, flags options, a frame and a default bounding sphere.
@@ -304,7 +302,7 @@ u8 *GeometryCreateTableGrid(s32 rowCount, s32 trianglesPerRow, s32 verticesPerRo
 // Creates a type-3 resource atomic and its frame; flag 0x80000 also installs the default plugin colour.
 // FUN_004830F0
 u8 *GeometryCreateAtomicFromResource(u16 resourceId, s32 flags) {
-    /* A separate typed local preserves MWCC's atomic-link reloads; access-site casts alone change allocation. */
+    /* A separate typed local keeps retail's reloads of the atomic link. */
     u8 *block;
     s32 frame;
     EffGeometryBlock *geometryBlock;
@@ -410,7 +408,7 @@ void GeometryBlockDestroy(void *block) {
     jtbl_008873EC[0](block);
 }
 
-// Clears the binding words at +0x18/+0x1C and binds resource value through the resource table.
+// Clears the node links (nodeNext/nodePrevious) and appends the block to the resource's node list.
 // FUN_00483490
 void GeometryBlockBindResource(u8 *block, s32 resourceId) {
     s32 nodeList = TnGetOffset1C(resourceId);
@@ -424,7 +422,8 @@ void GeometryBlockBindResource(u8 *block, s32 resourceId) {
 // FUN_004834E0
 void GeometryBlockSetPartState(u8 *block, s32 state) {
     EffGeometryBlock *geometryBlock = (EffGeometryBlock *)block;
-    /* Keep the byte cursor and typed local distinct: access-site casts change allocation across calls. */
+    /* The byte cursor and typed local stay distinct so register allocation across calls follows
+     * retail. */
     if (((EffGeometryBlock *)block)->kindData.half[0] & 2) {
         switch (state & 0xFFFF) {
         case 0:
@@ -456,7 +455,8 @@ void GeometryBlockSetPartState(u8 *block, s32 state) {
     }
 }
 
-// Builds the matrix with GeometryMatrixBuild and sets it on the block's frame; the local prototype declares no arguments, so the call's arguments are not verified.
+// Builds the matrix with GeometryMatrixBuild and sets it on the block's frame; the local prototype
+// declares no arguments.
 // FUN_00483660
 void GeometryBlockSetFrameMatrix(u8 *block)
 {
@@ -468,8 +468,8 @@ void GeometryBlockSetFrameMatrix(u8 *block)
 }
 
 
-
-// Builds the matrix with GeometryMatrixBuildCombined and sets it on the block's frame; the local prototype declares no arguments, so the call's arguments are not verified.
+// Builds the matrix with GeometryMatrixBuildCombined and sets it on the block's frame; the local
+// prototype declares no arguments.
 // FUN_004836B0
 void GeometryBlockSetFrameMatrixCombined(u8 *block)
 {
@@ -479,7 +479,6 @@ void GeometryBlockSetFrameMatrixCombined(u8 *block)
     GeometryMatrixBuildCombined(&matrix);
     func_003e9cb0(((EffGeometryBlock *)block)->frameData.pointer, &matrix, 0);
 }
-
 
 
 // Transform: copies the source matrix or the identity, applies scale scalar when it is not 1.0, then translates by value.
@@ -549,7 +548,7 @@ void GeometryMatrixBuildCombined(RwMatrix *matrix, RwV3d *translation, void *bas
         mdlEffectBuildBasisRows(&out, basis);
         RwMatrixMultiply(matrix, &m, &out);
     } else {
-        /* Keep the eight word-pair copy: scalarizing this 64-byte matrix can change MWCC code generation. */
+        /* The 64-byte matrix is copied as eight word pairs, the same way retail does it. */
         s32 *sourceWords = (s32 *)&m;
         s32 *destinationWords;
         s32 pairCount;
@@ -722,12 +721,8 @@ u8 *GeometryCreateTableGridMultiPart(s32 partCount, s32 rowCount, s32 trianglesP
     return result;
 }
 
-/* measured floor: retail keeps rowCount=$s1, partCount=$s2, indices=$s0 and masks the rowCount
-   check into $v0; mwcc b210 hoists rowCount&0xFFFF into $s0 (rotating the arg
-   registers to partCount=$s3, rowCount=$s0, indices=$s2) regardless of declaration order
-   or type-mismatch on the check. Tried 3 declaration orders, pre-hoisting and
-   type-mismatch, nd 110. */
-// Multi-part strip grid: partCount parts, rowCount rows and verticesPerRow vertices per row, triangles from the u16 table trianglesPerRow, flags indices.
+/* Multi-part strip grid: partCount parts, rowCount rows and verticesPerRow vertices per row,
+ * triangles from the u16 table trianglesPerRow, flags indices. */
 // FUN_00483E10
 u8 *GeometryCreateStripGridMultiPart(s32 partCount, s32 rowCount, s32 indices, s32 verticesPerRow, s32 flags) {
     s32 segmentCount;

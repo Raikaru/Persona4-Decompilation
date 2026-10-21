@@ -48,7 +48,6 @@ extern u8 D_00714018[];
 extern u8 D_00714144[];
 
 
-
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void memcpy(void *dst, void *src, u32 size);
 extern u8 D_00714368[];
@@ -71,7 +70,8 @@ extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
 
-// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes FlashQuadCopyAllocFromRecord MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
+// lint: allow H011 -- the caller's (u16, s32) prototype is needed to reproduce retail code for
+// FlashQuadCopyAllocFromRecord.
 
 extern u16 iGpffffbb90;
 extern f32 fGpffffbb74;
@@ -80,16 +80,9 @@ extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004a5bb0-004a5bb0 */
-
-/* measured: the sibling 004a3010 body matches this loop and byte-copy shape. */
-/* measured: closes the opt_loop_invariants scope for 004a1ca0 at the file baseline. */
-/* measured: loop-invariant hoisting recovers the shared fade constants and
-   replication strides. The 4-byte color assignment preserves retail's
-   load-all/store-all byte copy. Separate loop locals keep the saved-register
-   allocation exact. */
-/* measured: restores the file's O2 loop-invariant baseline. */
-// Allocates and zero-initialises a 0xD4-byte instance with -1 at +0x24 and 1.0 at +0x20. A NULL source returns that blank instance; otherwise it builds a geometry table, copies the 0x98-byte record from the resolved source, and dispatches on the kind at +0x1C.
+/* Allocates and zero-initialises a 0xD4-byte instance with -1 at +0x24 and 1.0 at +0x20. A NULL
+ * source returns that blank instance; otherwise it builds a geometry table, copies the 0x98-byte
+ * record from the resolved source, and dispatches on the kind at +0x1C. */
 // FUN_004A5BB0
 void *mdlEffectCreateInstance(void *source)
 {

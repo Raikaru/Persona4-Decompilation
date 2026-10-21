@@ -1,5 +1,5 @@
 #include "include_asm.h"
-/* Original translation unit evtPolygonMovie.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit evtPolygonMovie.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "scene_event_internal.h"
 #include "evt_movie_internal.h"
@@ -33,12 +33,8 @@ extern s128 D_0063C720[]; /* default secondary section, 0x54 bytes */
 extern s128 D_0063C780; /* default overlay-section header, 0x20 bytes */
 extern s128 D_0063C790;
 
-/* Without opt_loop_invariants the two lerp loops allocate the s2 value into
-   $f0 (sub.s $f1,$f0,$f2, mtc1 $0,$f0 re-materialized inside the loop, madd.s
-   result in $f0) vs retail's $f1 with the mtc1 hoisted to the preheader;
-   expression variants (temps, product-first, (int)-cast addressing) never
-   moved the allocation. measured: pragma on nd ~110 -> 0. */
-/* measured: baseline 83 differing words; short component counter 101, separate blend product 83. */
+/* measured: retail hoists the blend float load out of the pose loop, which needs loop-invariant
+ * hoisting on. */
 #pragma opt_loop_invariants on
 
 /* Blend pose vectors and shortest-path angles; a missing toPose copies fromPose. */
@@ -109,7 +105,7 @@ void evtPolygonMovieLerpPose(s32 enabled, f32 blend, f32 *fromPose, f32 *toPose,
 }
 #pragma opt_loop_invariants off
 
-// Intent: Allocates the 0x114-byte movie work block, accounts its memory and returns it zeroed [inferred]
+// Allocates the 0x114-byte movie work block, accounts its memory and returns it zeroed.
 // FUN_0028FB90
 u8 *evtPolygonMovieAlloc(void)
 {
@@ -126,19 +122,13 @@ u8 *evtPolygonMovieAlloc(void)
     return work;
 }
 
-/* Bind the resource sections into the existing movie work object. Keep the
-   work-field reloads between writes and callbacks, and stop before overlay
-   setup when the secondary resource is absent.
-   Measured b210: 2088/2096 bytes, 16 resolved relocations and eight zero tail
-   bytes. Direct parameters with lifetime analysis preserve the retail entry
-   moves; propagation-off and loop-invariant analysis preserve the traversals.
-   See docs/probe_archive/evtPolygonMovie_0028fc40_167e607.md. */
-// Intent: Binds the primary, secondary and overlay resource sections into the work block; opens the message window when one is bound [inferred]
-/* measured: access-site-only typing grew the body from 2088 to 2708 bytes;
- * one separate typed work local preserves all section reloads and MATCH. */
+/* Binds the primary, secondary and overlay resource sections into the movie work block and opens
+ * the message window when one is bound. Stops before overlay setup when the secondary resource is
+ * absent. */
 // FUN_0028FC40
 #pragma push
-/* measured: baseline 209 differing words; access-site movie 663, reused typed movie local 209. */
+/* measured: retail keeps the section pointer reloads and hoisted loop values, which need these bind
+ * settings. */
 #pragma opt_propagation off
 #pragma opt_lifetimes on
 #pragma opt_loop_invariants on
@@ -390,7 +380,8 @@ u8 *evtPolygonMovieBind(u8 *messageContext, u8 *work, u8 *primary, u8 *secondary
     return work;
 }
 #pragma pop
-// Intent: Frees the movie: closes its message window when active, then releases the block (accounts -0x114) [inferred]
+// Frees the movie: closes its message window when active, then releases the block and accounts
+// -0x114.
 // FUN_00290470
 void evtPolygonMovieFree(s32 *movie, u32 *messageWindow)
 {
@@ -466,7 +457,8 @@ s32 *evtPolygonMovieAllocTableC(s32 **outTable)
     return table;
 }
 
-// Intent: Formats the four name strings for a frame number (rounded down to tens) with the four D_0063C7A0..7C0 formats [inferred]
+// Formats the four name strings for a frame number rounded down to tens, using the four
+// D_0063C7A0..7C0 formats.
 // FUN_00290710
 void evtPolygonMovieFormatNames(s32 frame, s32 variant, u8 *primaryName, u8 *secondaryName, u8 *overlayName, u8 *extraName)
 {

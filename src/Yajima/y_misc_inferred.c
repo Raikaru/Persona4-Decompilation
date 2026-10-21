@@ -71,11 +71,8 @@ extern u8 *D_0063F110[];
 extern s8 D_007488C0[];
 
 
-
-/* Retail digit RGBA occupies the four bytes at draw+0x75.
-   MWCC requires packed after the typedef name. These guarded
-   storage views preserve the native FclDrawColor call interface.
-   See docs/probe_archive/Fcl_digit_packed_storage_ui_20261006. */
+/* Retail digit RGBA occupies the four bytes at draw+0x75; these packed storage views keep the
+ * native FclDrawColor call interface. */
 #ifdef NON_MATCHING
 typedef union {
     FclDrawColor channels;
@@ -93,30 +90,29 @@ typedef char FclDigitStoredWordByteAligned[(sizeof(FclDigitStoredWordAlignment) 
 typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : -1];
 #endif
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002b2940-002b3960 */
-
-// Intent: Return the work block pointer stored at offset 0x38 of an object [inferred]
+// Return the task's work block pointer.
 // FUN_002B2940
 u8 *fclGetWorkPointer(u8 *task)
 {
     return ((KwlnTask *)task)->work;
 }
 
-// Intent: sets the symbol system's enabled flag (global iGpffffb55c). The field code sets it to 1 right after smapCreateSymbols, when the map is in band A or B.
+// Sets the symbol system's enabled flag; field code sets it to 1 after smapCreateSymbols when the
+// map is in band A or B.
 // FUN_002B2950
 void ySymbolSetEnabled(s32 enabled)
 {
     iGpffffb55c = enabled;
 }
 
-// Intent: returns the symbol system's enabled flag (global iGpffffb55c); the symbol update paths return early while it is 0.
+// Returns the symbol system's enabled flag; symbol update paths return early while it is 0.
 // FUN_002B2960
 s32 ySymbolIsEnabled(void)
 {
     return iGpffffb55c;
 }
 
-// Intent: Build a two-component float vector [inferred]
+// Build a two-component float vector.
 // FUN_002B2970
 FclVec2 fclMakeVec2(f32 x, f32 y)
 {
@@ -127,7 +123,7 @@ FclVec2 fclMakeVec2(f32 x, f32 y)
     return val;
 }
 
-// Intent: Build a three-component float vector [inferred]
+// Build a three-component float vector.
 // FUN_002B29A0
 FclVec3 fclMakeVec3(f32 x, f32 y, f32 z)
 {
@@ -139,7 +135,7 @@ FclVec3 fclMakeVec3(f32 x, f32 y, f32 z)
     return val;
 }
 
-// Intent: Build a bounds packet from width and height, truncated to integers [inferred]
+// Build a bounds packet from width and height, truncated to integers.
 // FUN_002B29E0
 FclBoundsPacket fclMakeBoundsPacket(f32 width, f32 height)
 {
@@ -150,7 +146,7 @@ FclBoundsPacket fclMakeBoundsPacket(f32 width, f32 height)
     return val;
 }
 
-// Intent: Pack four colour bytes into one word, red in the top byte [inferred]
+// Pack four colour bytes into one word, red in the top byte.
 // FUN_002B2A30
 s32 fclPackRgba(u8 red, u8 green, u8 blue, u8 alpha)
 {
@@ -164,7 +160,7 @@ s32 fclPackRgba(u8 red, u8 green, u8 blue, u8 alpha)
     return result;
 }
 
-// Intent: Build a draw colour from four byte channels [inferred]
+// Build a draw colour from four byte channels.
 // FUN_002B2A60
 FclDrawColor fclMakeDrawColor(u8 red, u8 green, u8 blue, u8 alpha)
 {
@@ -177,7 +173,7 @@ FclDrawColor fclMakeDrawColor(u8 red, u8 green, u8 blue, u8 alpha)
     return val;
 }
 
-// Intent: Interpolate between two values by an easing mode: linear, sine or cosine [inferred]
+// Interpolate between two values by an easing mode: linear, sine or cosine.
 // FUN_002B2AA0
 f32 fclEaseInterpolate(s64 easing, f32 first, f32 second, f32 elapsed, f32 duration)
 {
@@ -209,7 +205,8 @@ f32 fclEaseInterpolate(s64 easing, f32 first, f32 second, f32 elapsed, f32 durat
     }
 }
 
-// Intent: Compute a 2D anchor offset for a box of size w by h, from anchor mode 0 (centre), 1 or 2 [inferred]
+// Compute a 2D anchor offset for a box of size width by height, from anchor mode 0 (centre), 1 or
+// 2.
 // FUN_002B2BD0
 void fclAnchorOffset(f32 *destination, s64 mode, f32 width, f32 height, f32 referenceWidth, f32 referenceHeight)
 {
@@ -228,7 +225,7 @@ void fclAnchorOffset(f32 *destination, s64 mode, f32 width, f32 height, f32 refe
     *(FclVec2 *)destination = offset;
 }
 
-// Intent: Add two values, clamping to a bound chosen by the mode (0 none, 1 maximum, else the second bound) [inferred]
+// Add two values, clamping to a bound chosen by the mode (0 none, 1 limit, else the wrapped value).
 // FUN_002B2CB0
 s32 fclAddClamped(s32 value, s32 increment, s32 limit, s32 wrappedValue, s8 mode) {
     if (mode == 0) {
@@ -245,7 +242,8 @@ s32 fclAddClamped(s32 value, s32 increment, s32 limit, s32 wrappedValue, s8 mode
     }
 }
 
-// Intent: Subtract two values, clamping to a bound chosen by the mode (0 none, 1 minimum, else the second bound) [inferred]
+// Subtract two values, clamping to a bound chosen by the mode (0 none, 1 limit, else the wrapped
+// value).
 // FUN_002B2D00
 s32 fclSubClamped(s32 value, s32 decrement, s32 limit, s32 wrappedValue, s8 mode) {
     if (mode == 0) {
@@ -262,7 +260,7 @@ s32 fclSubClamped(s32 value, s32 decrement, s32 limit, s32 wrappedValue, s8 mode
     }
 }
 
-// Intent: Step a list index by a signed delta within a count, wrapping through the window bounds [inferred]
+// Step a list index by a signed delta within a count, wrapping through the window bounds.
 // FUN_002B2D50
 s16 yListStepIndex(s16 index, s16 cursor, s16 count, s16 windowSize, s16 delta) {
     s32 nextIndex;
@@ -300,8 +298,8 @@ s16 yListStepIndex(s16 index, s16 cursor, s16 count, s16 windowSize, s16 delta) 
     return cursor;
 }
 
-/* measured: archived body in build/WW15_002b2e70.c (object 276B/window 288B, normalized_diff 5); restored ASM fallback. */
-// Intent: Advance a list cursor and its scroll offset by one step, bounded by the visible window [inferred]
+/* Advance a list cursor and its scroll offset by one step, keeping the cursor inside the visible
+ * window. */
 // FUN_002B2E70
 void yListAdvanceCursorScroll(s32 index, s32 scroll, s32 count, s32 delta, s16 *outIndex, s16 *outScroll)
 {
@@ -360,7 +358,7 @@ loop_17_done: ;
     *outScroll = scroll;
 }
 
-// Intent: Retreat a list cursor and its scroll offset by one step, bounded by the visible window [inferred]
+// Retreat a list cursor and its scroll offset by one step, bounded by the visible window.
 // FUN_002B2F90
 void yListRetreatCursorScroll(s32 index, s32 scroll, s32 count, s32 delta, s16 *outIndex, s16 *outScroll)
 {
@@ -480,10 +478,10 @@ void yListRetreatCursorScrollDefaultIndex(s32 index, s32 scroll, s32 count, s64 
   return;
 }
 
-/* measured: opt_rebuildconditionals off probe for min/max */
-/* measured: fclMinS32, fclMaxS32 MATCH -> MISMATCH without this pragma. */
+/* measured: fclMinS32 and fclMaxS32 need conditional rebuilding off so retail's branch-and-goto
+ * shape stays as written. */
 #pragma opt_rebuildconditionals off
-// Intent: Return the smaller of two signed 32-bit values [inferred]
+// Return the smaller of two signed 32-bit values.
 // FUN_002B3110
 s32 fclMinS32(s32 left, s32 right)
 {
@@ -499,7 +497,7 @@ done:
     return result;
 }
 
-// Intent: Return the larger of two signed 32-bit values [inferred]
+// Return the larger of two signed 32-bit values.
 // FUN_002B3140
 s32 fclMaxS32(s32 left, s32 right)
 {
@@ -515,13 +513,10 @@ done:
     return result;
 }
 
-/* measured: close opt_rebuildconditionals after min/max */
-/* measured: opt_loop_invariants on adds retail's second divide hazard nop. */
-/* measured: fclDecimalDigitCount MATCH -> MISMATCH without this pragma. */
+/* measured: opt_loop_invariants on reproduces retail's second divide hazard nop. */
 #pragma opt_loop_invariants on
-// Intent: Count the decimal digits of an integer [inferred]
+// Count the decimal digits of an integer.
 // FUN_002B3170
-/* measured: do/while and pre-tested quotient loop; best baseline residual 14 differing bytes. */
 s32 fclDecimalDigitCount(s32 value)
 {
     s32 result;
@@ -534,10 +529,10 @@ s32 fclDecimalDigitCount(s32 value)
     return result;
 }
 
-/* measured: close opt_loop_invariants after 3170. */
-/* measured: fclExpandNameTags MATCH -> MISMATCH without this pragma. */
+/* measured: retail builds the following functions, including fclExpandNameTags, without loop-
+ * invariant hoisting. */
 #pragma opt_loop_invariants off
-// Intent: Subtract two 3-component float vectors and store the result [inferred]
+// Subtract two 3-component float vectors and store the result.
 // FUN_002B31A0
 void fclVec3Subtract(u8 *destination, u8 *left, u8 *right)
 {
@@ -557,7 +552,7 @@ void fclVec3Subtract(u8 *destination, u8 *left, u8 *right)
     *(struct Vec3 *)destination = result;
 }
 
-// Intent: Compare two list items by price for qsort: ascending, ties equal [inferred]
+// qsort comparator ordering items by ascending price; equal prices compare equal.
 // FUN_002B3230
 s32 datItemPriceCompare(const void *left, const void *right) {
     s16 rightId;
@@ -589,7 +584,7 @@ s32 fclSelectBoundedFallback(s32 value, s32 limit, s32 enabled, s32 fallback)
     return result;
 }
 
-// Intent: Expand the name tags <P1>, <P2>, <R1>, <R2> in a text buffer by mode [inferred]
+// Expand the name tags <P1>, <P2>, <R1>, <R2> in a text buffer according to mode.
 // FUN_002B32D0
 u8 *fclExpandNameTags(u8 *text, s32 mode, u8 *secondName, u8 *thirdName, u8 *fourthName)
 {
@@ -647,19 +642,11 @@ u8 *fclExpandNameTags(u8 *text, s32 mode, u8 *secondName, u8 *thirdName, u8 *fou
     return text;
 }
 
-/* measured: object 504B/window 512B, nd 0. Retail hoists the nine tag-byte and
-   case constants into $v1/$a1-$a3/$t0-$t2/$t5/$t6 ahead of the scan loop,
-   which needs opt_loop_invariants on (the unit default here is off); the SJIS
-   lead-byte test spelled `uc > 0x80` gives the `slti $at` form, and the four
-   match exits are `goto found` to a label in front of the single return so
-   the last byte compare branches straight to `jr ra`. The s64 second
-   parameter (file prototype) is narrowed once into an s32 `mode`. */
-// Intent: Return the length of text before the next name tag of the given mode [inferred]
+/* Count the bytes of text before the next <P1>, <P2>, <R1> or <R2> tag picked by tagMode, treating
+ * each multibyte character as two bytes. */
 // FUN_002B3520
-/* measured: opt_loop_invariants on hoists the tag constants out of the loop. */
-/* measured: fclTagTextLength MATCH -> MISMATCH without this pragma. */
+/* measured: opt_loop_invariants on hoists the tag constants out of the loop, as retail does. */
 #pragma opt_loop_invariants on
-/* measured: literal and named tag comparison constants; best baseline residual 398 differing bytes. */
 s32 fclTagTextLength(u8 *p, s64 tagMode)
 {
     s32 count;
@@ -719,8 +706,7 @@ found:
     return count;
 }
 
-/* measured: closes the loop-invariant bracket; the unit default is off. */
-// Intent: Map symbol task update: place the marker at the player's position and draw it [inferred]
+/* Map symbol task update: places the marker at the player's position and draws it. */
 // FUN_002B3720
 s32 mapSymbolTaskUpdate(u8 *task)
 {
@@ -765,7 +751,8 @@ s32 mapSymbolTaskUpdate(u8 *task)
     return 0;
 }
 
-// Intent: destructor for the marker task made by mapSymbolMarkerCreate. Frees the task's data block through the free table.
+// Destructor for the marker task made by mapSymbolMarkerCreate; frees the task's data block through
+// the free table.
 // FUN_002B3960
 void mapSymbolMarkerDestroy(u8 *task)
 {

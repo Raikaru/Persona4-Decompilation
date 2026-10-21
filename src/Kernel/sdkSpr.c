@@ -1,5 +1,5 @@
 #include "operand_order_internal.h"
-/* Original translation unit sdkSpr.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sdkSpr.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "sdk_sprite_loader.h"
 #include "type.h"
@@ -23,9 +23,8 @@ void sdkSpriteDraw(u8 *sample, s32 setStates);
 extern void (*jtbl_008873EC[])(void *node);
 /* Allocator slot at 0x008873F4 (absolute, outside gp window). */
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-/* GP-relative list head at gp -0x44E8 (absolute 0x00764C08). */
+/* GP-relative list head. */
 extern u8 *iGpffffbb18;
-/* GP-relative global at gp -0x4FC8 (absolute 0x00764128). */
 extern char iGpffffb038;
 extern char D_007130C8[];
 
@@ -138,7 +137,7 @@ typedef struct SdkSpriteBlobEntry {
     u32 offset;
 } SdkSpriteBlobEntry;
 
-/* The blob metadata is copied verbatim into the pack at +0x218. */
+/* The blob metadata is copied verbatim into the pack's header field. */
 typedef struct SdkSpriteBlobHeader {
     u8 unk00[0x14];
     u16 rasterCount, spriteCount;
@@ -163,23 +162,18 @@ typedef char SdkSpriteBlobEntrySizeCheck[sizeof(SdkSpriteBlobEntry) == 8 ? 1 : -
 typedef char SdkSpriteRecordSizeCheck[sizeof(SdkSpriteRecord) == 0x80 ? 1 : -1];
 typedef char SdkSpriteSampleSizeCheck[sizeof(SdkSpriteSample) == 0x2C ? 1 : -1];
 typedef char SdkSpritePackSizeCheck[sizeof(SdkSpritePack) == 0x240 ? 1 : -1];
-/* Keep the same address-word view used by the attachment transformer.
- * Measured direct field rewrites originally lost MATCH at several sites. Separate
- * typed aliases and named-field byte strides preserve the retail address lifetimes;
- * only the two indexed/table-record helpers still need MEMBER. */
+/* Uses the same address-word view as the attachment transformer; only the indexed and table-record
+ * helpers still need MEMBER. */
 #define SDK_SPRITE_RECORD(sample) \
     ((u8 *)((u32)((SdkSpriteSample *)(sample))->recordIndex * sizeof(SdkSpriteRecord) + \
             (u32)(u8 *)((SdkSpritePack *)(u8 *)((SdkSpriteSample *)(sample))->packAddress)->recordsAddress))
-/* Same address with the table term first. Selected point/extent sites use
- * this expression for their measured load/add order; C does not sequence
- * the two addition operands. */
-/* Measured: retain this table-first address order alongside the typed sample alias. */
+/* Same record address with the table term first. Some point/extent sites use it to get retail's
+ * load/add order, since C leaves the operand order open. */
 #define SDK_SPRITE_RECORD_TABLE_FIRST(sample) \
     ((u8 *)(((SdkSpritePack *)(u8 *)((SdkSpriteSample *)(sample))->packAddress)->recordsAddress + \
             ((SdkSpriteSample *)(sample))->recordIndex * sizeof(SdkSpriteRecord)))
-/* Resolve the record through an unsigned-word addition boundary.
- * measured: direct sums change Draw codegen; pointer-return byteAddressAdd
- * also changes 159 bytes, while operandOrderAddUnsigned retains MATCH. */
+/* measured: retail adds the record offset and table base as unsigned words in this order, so the
+ * sum goes through operandOrderAddUnsigned. */
 #define SDK_SPRITE_RECORD_VIA_ADD(sample) \
     ((u8 *)operandOrderAddUnsigned((u32)((SdkSpriteSample *)(sample))->recordIndex * sizeof(SdkSpriteRecord), \
                         (u32)(u8 *)((SdkSpritePack *)(u8 *)((SdkSpriteSample *)(sample))->packAddress)->recordsAddress))
@@ -188,16 +182,8 @@ typedef char SdkSpritePackSizeCheck[sizeof(SdkSpritePack) == 0x240 ? 1 : -1];
 #define SDK_SPRITE_RASTERS(sample) \
     ((u8 **)((SdkSpritePack *)(u8 *)((SdkSpriteSample *)(sample))->packAddress)->rasters)
 
-/* Same unsigned extent, optional signed override, and Q12 scale as the
- * public width/height queries below. Each call reads the current payload.
- * Overrides use the named field address plus the record byte stride. */
-/* Both extents convert the bounds to u32 before the wrapping subtraction;
- * the optional signed override is then converted to the same width. */
-/* measured: the signed border address avoids CSE with the unsigned extent
- * reads and preserves their separate offset-first addu (fnalign 11 -> 7). */
-/* Border-array order is top, bottom, left, right. */
-/* Read a signed sprite-border extent from the selected record. */
-/* measured: direct border reads change sdkSpriteDraw load/float-conversion allocation; both inline extent callers require this boundary. */
+/* measured: reads a signed sprite-border extent (order top, bottom, left, right) through this
+ * inline boundary; direct reads change sdkSpriteDraw load and float-conversion allocation. */
 static inline f32 sdkSpriteBorder(u8 *output, u32 offset, s32 borderIndex)
 {
     return (f32)((SdkSpriteRecord *)((s32)offset + (s32)output))->borders[borderIndex];
@@ -510,10 +496,7 @@ void sdkSpriteRelease(u8 *node)
     jtbl_008873EC[0](node);
 }
 
-/* Ported from P3FES h_maestro.c func_001126b0 (blob+index scale variant).
-   Donor struct fields map onto P4 offsets: output at 0x204, overrideX at 0x74,
-   right/left at 0x5c/0x54. The measured plain sum retains the retail address
-   operands here; only Draw's sensitive sites use operandOrderAddUnsigned. */
+/* Matches P3FES func_001126b0 (blob+index scale variant). */
 // FUN_0046B1F0
 f32 sdkSpriteEntryWidth(u8 *blob, u32 index)
 {
@@ -588,12 +571,11 @@ f32 sdkSpriteScaledHeight(u8 *sprite)
     return (f32)value;
 }
 #pragma push
-/* measured: without opt_loop_invariants the loop constants are rematerialised
- * in the vertex loop (617 fnalign edits). */
-/* measured: baseline removal differs in 4977 bytes; reuse named sprite sample alias; reread sample through original parameter also differ. */
+/* measured: without opt_loop_invariants, retail's loop constants get recomputed inside the vertex
+ * loop. */
 #pragma opt_loop_invariants on
-/* Measured: access-site, local, array, and typed-parameter forms lose Draw MATCH. */
-/* Resolve a sprite record after reading the sample index before its pack table. */
+/* measured: retail reads the sample index before the pack table, and only this inline wrapper keeps
+ * that load order in Draw. Resolves a sprite record from a sample. */
 static inline u8 *sdkSpriteIndexedRecord(u8 *sample)
 {
     u32 offset = MEMBER(u32, sample, SdkSpriteSample, recordIndex) * sizeof(SdkSpriteRecord);
@@ -601,8 +583,8 @@ static inline u8 *sdkSpriteIndexedRecord(u8 *sample)
     return (u8 *)operandOrderAddUnsigned(offset, base);
 }
 
-/* Measured: access-site, local, array, and typed-parameter forms lose Draw MATCH. */
-/* Resolve a sprite record after reading the pack table before its sample index. */
+/* measured: retail reads the pack table before the sample's record index, which only this inline
+ * wrapper reproduces. Resolve a sprite record after reading the pack table before its sample index. */
 static inline u8 *sdkSpriteTableRecord(u8 *sample)
 {
     u32 base = ((SdkSpritePack *)(u8 *)((SdkSpriteSample *)sample)->packAddress)->recordsAddress;
@@ -652,7 +634,7 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
         initialStates[0](0xE, (void *)0);
     }
     rasterIndex = ((SdkSpriteRecord *)sdkSpriteIndexedRecord(sample))->rasterIndex;
-    raster = ((u8 **)(u32)((SdkSpritePack *)(u8 *)((SdkSpriteSample *)(sample))->packAddress)->rasters)[rasterIndex]; /* measured: preserve the outer u32 address cast. */
+    raster = ((u8 **)(u32)((SdkSpritePack *)(u8 *)((SdkSpriteSample *)(sample))->packAddress)->rasters)[rasterIndex]; /* measured: retail forms the raster table address through an outer u32 cast. */
     if (raster != NULL) {
         s32 width = ((RwRaster *)raster)->width;
         s32 height = ((RwRaster *)raster)->height;
@@ -682,11 +664,8 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
             RpSkyRenderStateSet(3, (void *)0x71801);
         }
     }
-    /* With a null initial raster, retail reaches these flips and the later
-     * scalar vertex copies without writing uv[] (sp+0xA0..0xBC). An SDK
-     * packet lane that the renderer may omit does not define these local
-     * float reads. Retain the assembly guard until the input contract is
-     * recovered; this is not a defined C implementation of that path. */
+    /* With a null initial raster, retail reaches these flips and the later vertex copies without
+     * writing uv[]; that path reads uninitialized locals. */
     if ((((u32 *)((u8 *)&((SdkSpriteRecord *)((SdkSpritePack *)((SdkSpriteSample *)(sample))->packAddress)->recordsAddress)->flags + spriteSample->recordIndex * sizeof(SdkSpriteRecord)))[0] & 2) != 0) {
         verticalLeft = uv[0];
         uv[0] = uv[2];
@@ -712,10 +691,8 @@ void sdkSpriteDraw(u8 *sample, s32 setStates)
     source[1].y = source[0].y;
     source[2].x = source[0].x;
     source[2].y = source[3].y;
-    /* Retail leaves source[].z (sp+0xF8, 0x104, 0x110, 0x11C) unwritten.
-     * Both VectorMultPoints and the installed vectorASMMultPoints provider
-     * read Z into their XYZ arithmetic. A unit-Z rotation axis and unused
-     * output Z do not establish an initialized input for these calls. */
+    /* Retail leaves source[].z unwritten, yet both point-transform providers read Z, so these calls
+     * read uninitialized input. */
     angle = ((SdkSpriteSample *)sample)->angle;
     if (angle != 0.0f) {
         f32 x, x2, polynomial, quadraticProduct, correction;
@@ -1088,11 +1065,6 @@ void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x
     jtbl_008873EC[0](node);
 }
 
-/* measured: nd 53 with a full C body (object 172B against a 192B window).
-   Wave 9 ran out of turns here and left it uncommitted, so this is a partial
-   adaptation rather than a settled floor -- re-attempt from the m2c draft with
-   the brief's recipes before treating any of it as established. */
-/* Measured nd 9 (object 176 / window 192); the body matches the allocation, field initialization, callback, and result path but retains nine normalized instruction differences. */
 /* Resolve the raster selected by a pack record through a temporary sample. */
 // FUN_0046D5F0
 s32 sdkSpriteSlotHandle(u8 *pack, s32 recordIndex) {

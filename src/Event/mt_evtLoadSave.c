@@ -1,7 +1,5 @@
-/* Source unit: src/Event/mt_evtLoadSave.c */
 
 #include "type.h"
-
 
 
 /* Blend current toward target when enabled; otherwise preserve current. */

@@ -52,9 +52,8 @@ extern void mdlAttachSlotModelFindOrCreate(void *model, u16 slotIndex, u32 type,
 extern char D_006357E0[];
 extern char D_00635800[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0023; members 00231380-00231550 */
-
-// Intent: Writes the NPC model file name for a battle model id: the "npc/" or "npc2/" directory, the id and a variant from its table entry and the current flags [inferred]
+// Write the NPC model file name for a battle model id: "npc/" or "npc2/" directory, the id, and a
+// variant from its table entry and current flags.
 // FUN_00231380
 void btlBuildNpcModelName(s32 *destination, s32 modelId)
 {
@@ -125,7 +124,7 @@ void btlBuildNpcModelName(s32 *destination, s32 modelId)
                       maskedId, variant);
 }
 
-// Intent: Boss model name resolver for case 5 (NPC models): forwards to btlBuildNpcModelName [inferred]
+// Boss model name resolver for case 5 (NPC models); forwards to btlBuildNpcModelName.
 // FUN_00231550
 void btlBossResolveNpcModelName(s32 destination, u16 modelId)
 {

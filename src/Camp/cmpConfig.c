@@ -1,7 +1,6 @@
 #include "include_asm.h"
 #include "sdktask.h"
-/* Persona 4 USA decompilation - cmpConfig.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit cmpConfig.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdk_snd_internal.h"
 
@@ -140,7 +139,8 @@ typedef struct { u8 red, green, blue, alpha; } CmpConfigColor;
 typedef union { CmpConfigColor rgba; f32 transport; } CmpConfigColorSnapshot;
 
 
-// Creates the config overlay task under the parent: allocates its 0x4B0-byte work block, installs the detail step and destroy callbacks, and for mode 1 also runs nLineSetActive(1) [inferred].
+// Creates the config overlay task under the parent: allocates its 0x4B0-byte work block, installs
+// the detail step and destroy callbacks, and for mode 1 also runs nLineSetActive(1).
 // FUN_0035C690
 s32 cmpConfigCreate(void* parentTask, s32 mode) {
     s32 task;
@@ -190,7 +190,6 @@ s32 cmpConfigIsFlagsSynced(u8 *task) {
 
 // Resets the config menu state: clears the option values and cursor, then selects table mode 0 through cmpConfigSetMode.
 // FUN_0035C830
-/* measured: earlier CmpConfigWork typing changed 426 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpConfigInitState(u8* work) {
     CmpConfigWork *menu = (CmpConfigWork *)work;
     s32 resource;
@@ -269,7 +268,8 @@ s32 cmpConfigSetValue(u8 *work, s32 slotIndex, s32 value) {
     return 1;
 }
 
-// Toggles option idx between its on and off states and applies its side effects through cmpConfigSetOption; returns 0 when refused [inferred].
+// Toggles an option between its on and off states and applies side effects through
+// cmpConfigSetOption; returns 0 when refused.
 // FUN_0035CB00
 s32 cmpConfigToggleOption(u8* work, s32 optionIndex) {
     s32 scaled;
@@ -314,8 +314,8 @@ apply:
 }
 
 
-
-// Sets option arg1 to arg2 and keeps the old value; slot 1 turning off also clears slot 2, and slot 0 replays the flag draw [inferred].
+// Sets an option to value and keeps the old value; slot 1 turning off also clears slot 2, and slot
+// 0 replays the flag draw.
 // FUN_0035CC80
 s32 cmpConfigSetOption(u8 *work, s32 optionIndex, s32 value)
 {
@@ -359,7 +359,6 @@ block_9:
 
 // Switches the config table to mode 0, 1 or 2 and loads its 18-row layout; unknown modes assert.
 // FUN_0035CE10
-/* measured: earlier CmpConfigWork typing changed 279 instruction bytes; current typed-local/member forms retain MATCH. */
 s32 cmpConfigSetMode(u8* work, s32 mode) {
     CmpConfigWork *menu = (CmpConfigWork *)work;
     u8* layoutTable = 0;
@@ -406,7 +405,7 @@ s32 cmpConfigSetMode(u8* work, s32 mode) {
     return 1;
 }
 
-// Advances the config phase from 0 to 1; returns 1 in phases 0 and 1, else 0 [inferred].
+// Advances the config phase from 0 to 1; returns 1 in phases 0 and 1, else 0.
 // FUN_0035CFB0
 s32 cmpConfigAdvancePhase(u8 *work) {
     CmpConfigWork *menu = (CmpConfigWork *)work;
@@ -443,18 +442,12 @@ void cmpConfigUpdateFrame(u8* unusedNode, u8* work) {
 }
 
 
-
-
-
-/* Draw the live configuration graph, option rows, reset button and help text.
-   The complete position/color records are shared across all draw phases.
-   measured: 3092 matching code bytes plus 12 retail zero bytes. The scoped
-   settings retain the source snapshots, constant lifetimes and loop roles;
-   see docs/probe_archive/cmpConfig_0035d0a0_20260930.md. */
-// Draws the config screen: live graph, option rows, reset button and help text.
+/* Draws the config screen: live graph, option rows, reset button and help text. The position/color
+ * records are shared by all draw phases. */
 // FUN_0035D0A0
 #pragma push
-/* measured: baseline leaves 743 differing words; isolated toggle removals also fail (lifetimes alone: 65 differing bytes). */
+/* measured: retail needs constants left in place, no propagation, and original lifetimes together;
+ * no single setting suffices. */
 #pragma opt_pulloutconstants off
 #pragma opt_propagation off
 #pragma opt_lifetimes on
@@ -687,9 +680,9 @@ void cmpConfigSyncFlags(u8* work) {
     }
 }
 
-// Advances the graph phase counters and sets each of the 11 graph bars from its distance to the top and bottom targets [inferred].
+// Advances the graph phase counters and sets each of the 11 graph bars from its distance to the top
+// and bottom targets.
 // FUN_0035DDF0
-/* measured: earlier CmpConfigWork typing changed 335 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpConfigAnimateGraph(u8 *work)
 {
     CmpConfigWork *menu = (CmpConfigWork *)work;
@@ -717,20 +710,11 @@ void cmpConfigAnimateGraph(u8 *work)
 }
 
 
-
-
-
-
-
-/* 1764/1776 bytes; seventeen resolved relocations and twelve zero tail bytes.
- * Member-first array bases preserve the four retail ADDU operand orders.
- * The second arrow reloads its counter/selection, but keeps the first
- * sprite/coordinate snapshot; both text draws reload their field data. */
-// Draws the option arrows and their text for the selected row, with the selection's fade and offset [inferred].
+/* Draws the option arrows and their text for the selected row, with the selection's fade and
+ * offset. The second arrow reloads its counter and selection but reuses the first arrow's sprite
+ * and coordinates. */
 // FUN_0035DFB0
-/* Raw row-field addresses retain the measured EE addition order; the typed
- * row pointer rewrite changed 274 instruction bytes and the option-array rewrite
- * changed four; both were reverted. */
+/* Raw row-field addresses keep retail's address addition order; typed row pointers change it. */
 void cmpConfigDrawArrows(u8 *work, s32 optionIndex, s32 drawMode)
 {
     u8 color[4];
@@ -855,7 +839,8 @@ void cmpConfigFreeSprites(u8* work) {
     *(s32 *)&((CmpConfigWork *)work)->visible = 0;
 }
 
-// Overlay task update: runs the detail step, sets the done bit (0x1) when it returns 1, and the cancel bit (0x4) on its second result [inferred].
+// Overlay task update: runs the detail step, sets the done bit (0x1) when it returns 1, and the
+// cancel bit (0x4) on its second result.
 // FUN_0035E720
 s32 cmpConfigUpdate(u8* task) {
     u8* work = ((SdkTask *)task)->work;

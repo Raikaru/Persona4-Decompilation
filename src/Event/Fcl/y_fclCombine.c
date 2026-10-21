@@ -1,9 +1,10 @@
 #include "fcl_scale_transition.h"
 #include "member_access.h"
-/* measured: this unit passes u8 colour channels unmasked (002f6cf0, 002f9d90); see fcl_color.h. */
+/* measured: this unit passes u8 colour channels to the draw calls without masking them; see
+ * fcl_color.h. */
 #include "fcl_animation_internal.h"
 #include "model_motion_internal.h"
-/* Original translation unit y_fclCombine.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit y_fclCombine.c (from __FILE__ assert strings). */
 #include "fcl_color.h"
 #include "fcl_row_draw.h"
 #include "fcl_row_mode.h"
@@ -21,7 +22,7 @@ extern s32 fclCombineMenuUpdate(u8 *task);
 extern void fclCombineMenuDestroy(u8 *task);
 #include "type.h"
 
-/* Unit settings: loop-invariant motion enabled; measured: all 41 owner functions remain MATCH. */
+/* measured: loop-invariant code motion is enabled for this whole unit. */
 #pragma opt_loop_invariants on
 
 typedef struct {
@@ -422,16 +423,8 @@ extern u8 D_00749350[];
 extern u16 fclCombineOtherHeroId(void);
 
 
-
-
-/* Registers the combine UI and its child draw tasks. Creators return
- * real SDK handles; positions, colors and bounds use their shared contracts.
- * MWCCPS2 b210 -O2: 3256/3264 bytes, 148 resolved relocations, eight zero
- * tail bytes. See the SDK/Fcl closure evidence for every affected owner.
- */
+/* Registers the combine UI and its child draw tasks; creators return real SDK handles. */
 // FUN_002E8410
-/* Historical whole-layout probe: 2088 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 s32 fclCombineMenuCreate(u8 *parentTask) {
     FclCombineWork *menuState;
     s32 k;
@@ -463,7 +456,6 @@ s32 fclCombineMenuCreate(u8 *parentTask) {
         s32 segmentIndex;
         for (segmentIndex = 0; segmentIndex < 0xC; segmentIndex++) {
             menuColor = fclMakeDrawColor(0, 0, 0x99, 0xFF);
-            /* measured: direct field typing changes 2187 normalized bytes in the full owner. */
             e = fclCombineSlotRecord(menuState->ballTask.task, (s8)segmentIndex);
             ((FclCombineBallSlot *)e)->color = menuColor;
         }
@@ -573,59 +565,34 @@ s32 fclCombineMenuCreate(u8 *parentTask) {
         ((FclCombineWork *)out)->clipTasks[k] = (u8 *)fclSpriteCreatePanelChild(task);
     }
     ((FclCombineWork *)out)->headerTask.handle = (s32)fclSpriteSpawnChild(task, fclMakeVec2(288.0f, 14.0f));
-    /* measured: direct field typing changes 886 normalized bytes in the full owner. */
     fclSpriteSetPositionBounds((u8 *)menuState->headerTask.handle, fclMakeVec2(288.0f, 14.0f), fclMakeBoundsPacket(160.0f, 36.0f));
-    /* measured: direct field typing changes 886 normalized bytes in the full owner. */
     fclSpriteSetOrder((u8 *)(menuState->headerTask.handle), 0xAB);
-    /* measured: direct field typing changes 887 normalized bytes in the full owner. */
     fclSpriteSetHidden((u8 *)(menuState->headerTask.handle), 0);
-    /* measured: direct field typing changes 887 normalized bytes in the full owner. */
     fclSpriteSetCornerColors((u8 *)menuState->headerTask.handle, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0));
-    /* measured: direct field typing changes 887 normalized bytes in the full owner. */
     fclSpriteSetBaseScale((u8 *)(menuState->headerTask.handle), 53.0f);
     ((FclCombineWork *)out)->arrowTask.handle = (s32)fclSpriteSpawnChild(task, fclMakeVec2(0.0f, 14.0f));
-    /* measured: direct field typing changes 713 normalized bytes in the full owner. */
     fclSpriteSetPositionBounds((u8 *)menuState->arrowTask.handle, fclMakeVec2(0.0f, 14.0f), fclMakeBoundsPacket(26.0f, 36.0f));
-    /* measured: direct field typing changes 713 normalized bytes in the full owner. */
     fclSpriteSetOrder((u8 *)(menuState->arrowTask.handle), 0xAB);
-    /* measured: direct field typing changes 714 normalized bytes in the full owner. */
     fclSpriteSetHidden((u8 *)(menuState->arrowTask.handle), 0);
-    /* measured: direct field typing changes 714 normalized bytes in the full owner. */
     fclSpriteSetCornerColors((u8 *)menuState->arrowTask.handle, fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0));
-    /* measured: direct field typing changes 714 normalized bytes in the full owner. */
     fclSpriteSetBaseScale((u8 *)(menuState->arrowTask.handle), 53.0f);
     ((FclCombineWork *)out)->topBorderTask = (s32)fclSpriteSpawnChild(task, fclMakeVec2(0.0f, 0.0f));
-    /* measured: direct field typing changes 548 normalized bytes in the full owner. */
     fclSpriteSetPositionBounds((u8 *)menuState->topBorderTask, fclMakeVec2(0.0f, 0.0f), fclMakeBoundsPacket(640.0f, 7.0f));
-    /* measured: direct field typing changes 548 normalized bytes in the full owner. */
     fclSpriteSetOrder((u8 *)(menuState->topBorderTask), 0xB2);
-    /* measured: direct field typing changes 549 normalized bytes in the full owner. */
     fclSpriteSetCornerColors((u8 *)menuState->topBorderTask, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF));
-    /* measured: direct field typing changes 548 normalized bytes in the full owner. */
     fclSpriteSetHidden((u8 *)(menuState->topBorderTask), 1);
-    /* measured: direct field typing changes 548 normalized bytes in the full owner. */
     fclSpriteSetMode((u8 *)(menuState->topBorderTask), 1);
     ((FclCombineWork *)out)->bottomBorderTask = (s32)fclSpriteSpawnChild(task, fclMakeVec2(0.0f, 432.0f));
-    /* measured: direct field typing changes 394 normalized bytes in the full owner. */
     fclSpriteSetPositionBounds((u8 *)menuState->bottomBorderTask, fclMakeVec2(0.0f, 432.0f), fclMakeBoundsPacket(640.0f, 16.0f));
-    /* measured: direct field typing changes 394 normalized bytes in the full owner. */
     fclSpriteSetOrder((u8 *)(menuState->bottomBorderTask), 0xB2);
-    /* measured: direct field typing changes 395 normalized bytes in the full owner. */
     fclSpriteSetCornerColors((u8 *)menuState->bottomBorderTask, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF));
-    /* measured: direct field typing changes 394 normalized bytes in the full owner. */
     fclSpriteSetHidden((u8 *)(menuState->bottomBorderTask), 1);
-    /* measured: direct field typing changes 394 normalized bytes in the full owner. */
     fclSpriteSetMode((u8 *)(menuState->bottomBorderTask), 1);
     ((FclCombineWork *)out)->middleBorderTask = (s32)fclSpriteSpawnChild(task, fclMakeVec2(0.0f, 69.0f));
-    /* measured: direct field typing changes 232 normalized bytes in the full owner. */
     fclSpriteSetPositionBounds((u8 *)menuState->middleBorderTask, fclMakeVec2(0.0f, 69.0f), fclMakeBoundsPacket(640.0f, 343.0f));
-    /* measured: direct field typing changes 232 normalized bytes in the full owner. */
     fclSpriteSetOrder((u8 *)(menuState->middleBorderTask), 0xB2);
-    /* measured: direct field typing changes 233 normalized bytes in the full owner. */
     fclSpriteSetCornerColors((u8 *)menuState->middleBorderTask, fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xE5));
-    /* measured: direct field typing changes 232 normalized bytes in the full owner. */
     fclSpriteSetHidden((u8 *)(menuState->middleBorderTask), 1);
-    /* measured: direct field typing changes 232 normalized bytes in the full owner. */
     fclSpriteSetMode((u8 *)(menuState->middleBorderTask), 1);
     ((FclCombineWork *)out)->bustupTask = (u8 *)fclBustupCreate((u8 *)(task));
     ((FclCombineWork *)out)->messageTask = (u8 *)fclSpriteListCreateChild(task, 0x30, fclCombineGetSpriteList());
@@ -633,18 +600,15 @@ s32 fclCombineMenuCreate(u8 *parentTask) {
 }
 
 
-/* measured: 8604 executable bytes / 8608-byte window, verify MATCH, 287 relocations.
-   Rewritten from the retail assembly.  The switch keeps retail's case order
-   (MWCC tests the sparse labels in reverse); opt_lifetimes gives each loop
-   index its own register as retail does; the second reward scan keeps its own
-   selection local; row lookups use the 10-byte FclCombineRow at +0xC4. */
-// Fcl combine menu root (state 0): opens the screen (intro 0x11-0x17), runs the command bar (0x18) and the row list (0x1A), and routes each row to its target state; state 0x0B leaves the screen.
+/* measured: opt_lifetimes gives each loop index its own register as retail does, and the switch
+ * keeps retail's case order. Fcl combine menu root (state 0): opens the screen, runs the command
+ * bar and row list, and routes each row to its target state. */
+/* Run the root state of the combine menu: play the opening sequence and the one-time tutorial
+ * message, handle the command bar and row list, and send each selected row to its target state. */
 // FUN_002E90D0
 #pragma push
-/* measured: baseline C nd 173B; adjacent-local declaration probe nd 183B; retain settings for owner MATCH. */
+/* measured: retail gives each loop index its own register, which needs opt_lifetimes on. */
 #pragma opt_lifetimes on
-/* Historical whole-layout probe: 8 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineMenuRoot(u8 *task)
 {
     FclCombineReward *rewardEntry;
@@ -774,7 +738,6 @@ void fclCombineMenuRoot(u8 *task)
         msgArgs0[1] = 0;
         nmMesWindowSetSlotString(p[0xD], 0, msgArgs0);
         nmMesWindowShowSlotRecord(p[0xD], 9);
-        /* measured: direct field typing changes 5472 normalized bytes in the full owner. */
         datItemSetCount(rewardEntry->item, (u8)((u8)datItemCount(rewardEntry->item) + 1));
         p[1] = 0x16;
         break;
@@ -807,7 +770,6 @@ void fclCombineMenuRoot(u8 *task)
         msgArgs1[1] = 0;
         nmMesWindowSetSlotString(p[0xD], 0, msgArgs1);
         nmMesWindowShowSlotRecord(p[0xD], 9);
-        /* measured: direct field typing changes 5185 normalized bytes in the full owner. */
         datItemSetCount(rewardEntry->item, (u8)((u8)datItemCount(rewardEntry->item) + 1));
         break;
     case 0x17:
@@ -895,7 +857,6 @@ void fclCombineMenuRoot(u8 *task)
             for (n = 0; n < 3; n++) {
                 off = n * 2;
                 pos9 = fclMakeVec2(26.0f, (f32)(n * 34 + 87));
-                /* measured: direct field typing changes 4145 normalized bytes in the full owner. */
                 fclCombineDrawListRow(task, n, pos9, ((FclCombineWork *)p)->selectedIds[n], (s16)off, 1);
             }
             switch (p[0xB3]) {
@@ -1186,13 +1147,11 @@ void fclCombineMenuRoot(u8 *task)
         for (j = 0; j < p[0xB7]; j++) {
             off = j * 2;
             pos14 = fclMakeVec2(26.0f, (f32)(j * 34 + 87));
-            /* measured: direct field typing changes 458 normalized bytes in the full owner. */
             fclCombineDrawListRow(task, j + 4, pos14, ((FclCombineWork *)p)->selectedIds[j], (s16)off, 0);
         }
         color15 = fclMakeDrawColor(0xC6, 0xEE, 1, 0xFF);
         te = fclSpriteEntry((p[0xB6] + 4) * 2 + 0x1F5);
         ((FclCombineRowSprite *)te)->color = color15;
-        /* measured: direct field typing changes 8 normalized bytes in the full owner. */
         ((FclCombineRowSprite *)fclSpriteEntry((p[0xB6] + 4) * 2 + 0x1F4))->color = MEMBER(FclDrawColor, te, FclCombineRowSprite, color);
         color16 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
         ((FclCombineRowSprite *)fclSpriteEntry(((s16 *)(p + 0xB8))[p[0xB6]]))->color = color16;
@@ -1212,10 +1171,8 @@ typedef struct {
     s16 row;
 } FclCombineLayoutSlot;
 
-/* Layout 8 gives the consecutive left and right/central phases their own
-   transition values. The real aggregate-return position temporaries remain
-   at every placement. See docs/probe_archive/FclCombine_002eb270_20261004.md. */
-// Fcl combine layout transition: transition 0 slides the layout in; any other value slides it out with jitter.
+/* Layout 8 gives the consecutive left and right/central phases their own transition values; the
+ * aggregate-return position temporaries stay at every placement. */
 // FUN_002EB270
 void fclCombineLayoutTransition(u8 *task, s32 transition) {
     extern u8 D_006407F0[];
@@ -1442,15 +1399,9 @@ void fclCombineLayoutTransition(u8 *task, s32 transition) {
 }
 
 
-/* measured: full body now MATCH (object 1136B, retail window 1136B).
-   The stack argument/global load is forced in retail order with the named
-   FclVec2f base. Table stores use an integer-domain scaled offset so the
-   addu has the retail offset-first operand order; direct byte increments
-   preserve retail's store-before-next-index schedule. */
-// Fcl combine rows: builds the 10-byte combine row table (ids and sprite offsets) and creates the first row sprite.
+/* Builds the 10-byte combine row table (ids and sprite offsets) and creates the first row sprite.
+ * Table stores use integer-scaled offsets to keep retail's operand order. */
 // FUN_002ECFC0
-/* Historical whole-layout probe: 54 normalized bytes differed (2026-10-18).
-   Individual indexed stores still require the documented index-first address. */
 void fclCombineBuildRows(u8 *task) {
     FclCombineWork *rowMenu;
     FclVec2 position;
@@ -1465,122 +1416,65 @@ void fclCombineBuildRows(u8 *task) {
     fclSpriteStartAlphaAt(0x1C6, 0, 0x64, 0, 0xA, 0);
     ((FclCombineWork *)(menuWork))->commandCursor = 0;
     ((FclCombineWork *)(menuWork))->commandCount = 0;
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].state0 = 1;
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].state1 = 0x23;
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].id = 0;
     ((FclCombineWork *)(menuWork))->commandCount = ((FclCombineWork *)(menuWork))->commandCount + 1;
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].state0 = 2;
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].state1 = 0x38;
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].id = 1;
     ((FclCombineWork *)(menuWork))->commandCount = ((FclCombineWork *)(menuWork))->commandCount + 1;
     if (datGetFlag(0x1301) != 0) {
-        /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
         rowMenu->commandRows[rowMenu->commandCount].state0 = 3;
-        /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
         rowMenu->commandRows[rowMenu->commandCount].state1 = 0x51;
-        /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
         rowMenu->commandRows[rowMenu->commandCount].id = 2;
         ((FclCombineWork *)(menuWork))->commandCount = ((FclCombineWork *)(menuWork))->commandCount + 1;
     }
     if (datGetFlag(0x1302) != 0) {
-        /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
         rowMenu->commandRows[rowMenu->commandCount].state0 = 4;
-        /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
         rowMenu->commandRows[rowMenu->commandCount].state1 = 0x51;
-        /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
         rowMenu->commandRows[rowMenu->commandCount].id = 3;
         ((FclCombineWork *)(menuWork))->commandCount = ((FclCombineWork *)(menuWork))->commandCount + 1;
     }
     if (datGetFlag(0x1303) != 0) {
-        /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
         rowMenu->commandRows[rowMenu->commandCount].state0 = 5;
-        /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
         rowMenu->commandRows[rowMenu->commandCount].state1 = 0x51;
-        /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
         rowMenu->commandRows[rowMenu->commandCount].id = 4;
         ((FclCombineWork *)(menuWork))->commandCount = ((FclCombineWork *)(menuWork))->commandCount + 1;
     }
     if (datGetFlag(0x1304) != 0) {
-        /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
         rowMenu->commandRows[rowMenu->commandCount].state0 = 6;
-        /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
         rowMenu->commandRows[rowMenu->commandCount].state1 = 0x63;
-        /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
         rowMenu->commandRows[rowMenu->commandCount].id = 5;
         ((FclCombineWork *)(menuWork))->commandCount = ((FclCombineWork *)(menuWork))->commandCount + 1;
     }
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].state0 = 7;
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].state1 = 0x6E;
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].id = 6;
     ((FclCombineWork *)(menuWork))->commandCount = ((FclCombineWork *)(menuWork))->commandCount + 1;
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].state0 = 9;
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].state1 = 0xC2;
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].id = 7;
     ((FclCombineWork *)(menuWork))->commandCount = ((FclCombineWork *)(menuWork))->commandCount + 1;
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].state0 = 0xB;
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].state1 = 0xD8;
-    /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
     rowMenu->commandRows[rowMenu->commandCount].id = 8;
     ((FclCombineWork *)(menuWork))->commandCount = ((FclCombineWork *)(menuWork))->commandCount + 1;
     fclCombineLayoutTransition(task, 0);
     fclCombineSlideInSlotSprites(task, 0x96, 0x92);
     ((FclCombineWork *)(menuWork))->f1 = 0x1A;
 }
-/* measured 002ed430 2026-09-19: object 3816 against retail's 3764 instructions, +1.38% inside the 3651-3877 band with
-   61 instructions of headroom; 2865 fnalign edits (+10 reloc-only), 3139 differing words.
-   No pragmas: retail here is unscheduled like the rest of this unit.
-   Built from an m2c oracle (since removed), de-noised to this file's idiom - field macros expanded to direct
-   casts, the gp temporaries resolved to ((s32)iGpffffb440) and ((s32)iGpffffb3d4), the six error-marked
-   ldr/ldl sites written as struct-by-value `*(FclVec2f *)(ps + 0x38)` with `ps = fclSpriteEntry(0x151/0x2E0)`,
-   the 11 colour bases with their unknown-type companions folded to u8 colXXX[4] (`&sp` -> col, `sp` -> col[0],
-   `(s32)sp` -> (*(s32 *)col)), the (s32)(sp)+0x110/0xF0 stores rewritten as sp110[]/spF0[] (u16[16]),
-   37 s64 temporaries narrowed to s32 (3963 -> 3659) with four - var_16, var_16_2, var_16_3, var_17_2 - kept s64
-   to land 3659 inside the band, the switch-3 labels restored as case 0-2 (retail jtbl, +157 to 3816, still inside),
-   the m2c arg-count hallucinations on fclSpriteEntry/func_0010b5b0/fclCombineRowsBusy/fclDrawGetState/fclSpriteFlagBit/
-   nmMesWindowSlotStatus/func_00122720 cut back to the retail arg counts, the (f32)(s32) float wrappers collapsed
-   (0x437F0000->255.0f, 0x43000000->128.0f, 0x422C0000->43.0f), and D_008C027A/024E to [0]. */
-/* measured 002ed430 (owner, 2026-09-19): fnalign **2865 -> 2856 edits**, count
-   3816 -> 3814 against retail 3764, by writing m2c's top-tested `loop_N:` /
-   `if (cond) { ...; goto loop_N; }` as the `do { } while (cond)` retail actually
-   emits.  The m2c shape tests at the TOP of every iteration; retail's only compare is
-   at the bottom, ending in `bnez ..., .-N`, with no guard before the first pass.
-   Swept across the 44 first-party floors carrying the pattern: 21 improved in-gate,
-   2 improved but fell outside the band and were left alone (func_0037da60 574 -> 569,
-   func_002e4ac0 334 -> 329), and 7 got worse - notably func_002ac750 842 -> 857 and
-   func_00468ff0 310 -> 323 - so it is measured per loop, not applied on sight. */
-/* measured 002ed430 (2026-09-20): deficit_scan first per assignment - retail 3764 vs object 3814 (+50, +1.3% INSIDE) so deficit -50 and every retail-only run is CROSS (227 at 0x002efe74, 103 at 0x002ef934, 98 at 0x002eea48, all > deficit). Opcode delta BOTH directions: retail has more lb +22/bnez +12/addu +12, object has more dsll32 +43/dsra32 +42/mtc1 +16/mov.s +10/lui +7/cvt.s.w +5 - the surplus names double-extends + float conversions, as on func_0026a020 (mul.s/lui/mtc1 vs add.s doubling idiom, -66 there). Fixed: func_00275820 (f32x3->s32x3, 7 calls, each saved mtc1/lui/cvt), fclEaseInterpolate (s32,s32->s32,f32 + 0->0.0f at both calls), fclSpriteSetFlag (s32->s16 first), var_16/var_16_2/var_16_3/var_17_2 s64->s16 with (s8)/(s16) loop rewrites, *func_002e4870 u8->s8 (3 sites + 0xD), and 38x (s64)(<<0x30/0x38) to (s16)/(s8) for 0x128+1/00314660/fclSpriteEntry narrow params. fnalign **2856 -> 2559 edits** (-297, +31 reloc-only), count **3814 -> 3693** (-121) vs retail 3761 trimmed (-68, -1.8% INSIDE 3648-3874). Remaining retail dsll32 +19/dsra32 +20 vs object addiu +41/move +14 are CROSS (all long runs still > deficit 68), no ABSENT. */
-/* measured: 15048 executable bytes / 15056B retail window, zero differing words.
-   Keys: the colour branches of state 0x2A build their 0x270 sprite id as an
-   unsigned sum, so it is not CSE'd with the alpha lookup's id and its spill
-   gives retail's 0x260 frame; func_00275820 uses its real (f32 x, f32 y,
-   f32 scale, ...) signature; `> 5` for the menu range test; store-then-reread
-   of f11E/f2FA; fclDrawSetPlacementEx takes the slot byte as s8. */
+/* State 0x2A's colour branches build sprite id 0x270 as an unsigned sum so it is not shared with
+ * the alpha lookup's id, giving retail's 0x260 frame. */
 
 typedef struct {
     u8 pad0[0x2E4];
     s8 f2E4;
 } FclPartySlot;
 
-/* measured: 15048B/window 15056B, eight zero alignment bytes. See
-   docs/probe_archive/FclCombine_002ed430_recovery_20260925.md. */
-// Fcl combine menu fusion (state 1): the fusion core. Shows the partner grid (0x2A) for the selected source, confirms with cues and money and duplicate checks (0x2D-0x31), rolls the rare chance (0x34), builds the result list with inherited skills (0x36-0x37), then hands to the result handler (state 0x0D, sub-state 0xC5).
+/* Fusion core (state 1): shows the partner grid, checks money, cues and duplicates, rolls rare
+ * chance, builds results with inherited skills, then hands off to the result handler. */
 // FUN_002ED430
-/* Historical whole-layout probe: 10602 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineMenuFusion(u8 *task) {
     KwlnTask *ownerTask = (KwlnTask *)task;
     extern void fclCombineMaterialListBuild(s8);
@@ -1774,8 +1668,8 @@ void fclCombineMenuFusion(u8 *task) {
 
     menuWork4 = (FclCombineWork*)((KwlnTask *)task)->work;
     state = (u8)((u8)((u8)(menuWork4->f1)));
-    switch (state) {                               /* switch 1 */
-    case 0x23:                                      /* switch 1 */
+    switch (state) {
+    case 0x23:
         yListSlotCreate(1, 0);
         yListSlotCreate(0xA, 1);
         yListSlotCreate(0xA, 2);
@@ -1808,7 +1702,7 @@ void fclCombineMenuFusion(u8 *task) {
             menuWork4->f1 = 0x25;
         }
         break;
-    case 0x25:                                      /* switch 1 */
+    case 0x25:
         fclCombineAdvanceGridFade(task, 0x27, 0);
         return;
     case 0x26:
@@ -1834,13 +1728,13 @@ void fclCombineMenuFusion(u8 *task) {
             menuWork4->f1 = 0x1A;
         }
         break;
-    case 0x27:                                      /* switch 1 */
+    case 0x27:
         if ((s8)fclDrawGetState(menuWork4->f148) < 0 || (s8)fclDrawGetState(menuWork4->f148) > 5) {
             fclCombineHandleGridInput(task, 0, 0x2A, 0x26);
             return;
         }
         break;
-    case 0x28:                                      /* switch 1 */
+    case 0x28:
         if ((s32)((s32)(((s16)(fclSpriteFlagBit((((FclCombineRowSprite *)fclSpriteEntry(0x21C))->flags), 1))))) != (s32)((s32)(1))) {
             fclDrawSetPlacement(menuWork4->f148, (s32)(((u16 *)yListSlotEntry(0, menuWork4->f11E))), 0, 0);
             shdPersonaEndSelection(fclDrawGetResource(menuWork4->f148), 1);
@@ -1895,7 +1789,6 @@ void fclCombineMenuFusion(u8 *task) {
         break;
     case 0x2A:
         spriteAlpha3 = ((FclCombineRowSprite *)fclSpriteEntry(0x7C))->alpha;
-        /* measured: direct field typing changes 10606 normalized bytes in the full owner. */
         menuWork2 = (FclCombineWork*)ownerTask->work;
         sprite12 = fclSpriteEntry(0x7C);
         position28 = ((FclCombineRowSprite *)sprite12)->position;
@@ -1917,12 +1810,9 @@ void fclCombineMenuFusion(u8 *task) {
                     sprite13 = fclSpriteEntry(rosterIndex9 + 0x297);
                     ((FclCombineRowSprite *)sprite13)->color = selectedRowColor;
                     sprite14 = fclSpriteEntry(rosterIndex9 + 0x28B);
-                    /* measured: direct field typing changes 8 normalized bytes in the full owner. */
                     ((FclCombineRowSprite *)sprite14)->color = MEMBER(FclDrawColor, sprite13, FclCombineRowSprite, color);
                     sprite15 = fclSpriteEntry(spriteId6);
-                    /* measured: direct field typing changes 8 normalized bytes in the full owner. */
                     ((FclCombineRowSprite *)sprite15)->color = MEMBER(FclDrawColor, sprite14, FclCombineRowSprite, color);
-                    /* measured: direct field typing changes 8 normalized bytes in the full owner. */
                     ((FclCombineRowSprite *)fclSpriteEntry(selectedSpriteId))->color = MEMBER(FclDrawColor, sprite15, FclCombineRowSprite, color);
                     selectedNumberColor = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
                     ((FclCombineRowSprite *)fclSpriteEntry(rosterIndex9 + 0x2A3))->color = selectedNumberColor;
@@ -1942,7 +1832,6 @@ void fclCombineMenuFusion(u8 *task) {
                     specialRowColor = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
                     sprite16 = fclSpriteEntry(spriteId);
                     ((FclCombineRowSprite *)sprite16)->color = specialRowColor;
-                    /* measured: direct field typing changes 8 normalized bytes in the full owner. */
                     ((FclCombineRowSprite *)fclSpriteEntry(spriteId3))->color = MEMBER(FclDrawColor, sprite16, FclCombineRowSprite, color);
                     specialNumberColor = fclMakeDrawColor(0xFF, 0xCC, 0xFA, 0xFF);
                     ((FclCombineRowSprite *)fclSpriteEntry(rosterIndex9 + 0x2A3))->color = specialNumberColor;
@@ -1958,12 +1847,10 @@ void fclCombineMenuFusion(u8 *task) {
                     normalRowColor = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
                     sprite6 = fclSpriteEntry(spriteId2);
                     ((FclCombineRowSprite *)sprite6)->color = normalRowColor;
-                    /* measured: direct field typing changes 8 normalized bytes in the full owner. */
                     ((FclCombineRowSprite *)fclSpriteEntry(spriteId4))->color = MEMBER(FclDrawColor, sprite6, FclCombineRowSprite, color);
                     normalLabelColor = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
                     sprite7 = fclSpriteEntry(rosterIndex9 + 0x297);
                     ((FclCombineRowSprite *)sprite7)->color = normalLabelColor;
-                    /* measured: direct field typing changes 8 normalized bytes in the full owner. */
                     ((FclCombineRowSprite *)fclSpriteEntry(rosterIndex9 + 0x28B))->color = MEMBER(FclDrawColor, sprite7, FclCombineRowSprite, color);
                     normalNumberColor = fclMakeDrawColor(0, 0, 0x66, 0xFF);
                     ((FclCombineRowSprite *)fclSpriteEntry(rosterIndex9 + 0x2A3))->color = normalNumberColor;
@@ -2123,7 +2010,6 @@ void fclCombineMenuFusion(u8 *task) {
         break;
     case 0x2E:
         spriteAlpha = ((FclCombineRowSprite *)fclSpriteEntry(0x7C))->alpha;
-        /* measured: direct field typing changes 10606 normalized bytes in the full owner. */
         menuWork3 = (FclCombineWork*)ownerTask->work;
         sprite10 = fclSpriteEntry(0x7C);
         position31 = ((FclCombineRowSprite *)sprite10)->position;
@@ -2150,7 +2036,7 @@ void fclCombineMenuFusion(u8 *task) {
             menuWork4->f1 = 0x2D;
         }
         break;
-    case 0x2D:                                      /* switch 1 */
+    case 0x2D:
         if ((s32)((s32)(((s8)(fclDrawGetState(menuWork4->f148))))) == (s32)((s32)(0xD))) {
             if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource(menuWork4->f148)))) == (s32)((s32)(1))) {
                 shdPersonaStepSelectionCursor(fclDrawGetResource(menuWork4->f148));
@@ -2196,17 +2082,17 @@ void fclCombineMenuFusion(u8 *task) {
                 fclSpriteStartPositionAt(0x2E0, (((FclCombineRowSprite *)ps)->position), position21, 1, 4, 0);
                 previewSelection = (s8)((s8)((s8)(menuWork4->f122)));
                 switch (previewSelection) {                   /* switch 2; irregular */
-                case 0:                             /* switch 2 */
+                case 0:
                     personaModel4 = (s32)((s32)((s32)(fclDrawGetResource(menuWork4->f148))));
                     shdPersonaSetChildDispCtlHandle((u8 *)personaModel4, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
                     fclDrawSetPlacementEx(menuWork4->f148, (s32)(((u16 *)yListSlotEntry(0, menuWork4->f128))), 0, 0, 1);
                     return;
-                case 1:                             /* switch 2 */
+                case 1:
                     personaModel5 = (s32)((s32)((s32)(fclDrawGetResource(menuWork4->f148))));
                     shdPersonaSetChildDispCtlHandle((u8 *)personaModel5, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
                     fclDrawSetPlacementEx(menuWork4->f148, (s32)(((u16 *)yListSlotEntry(0, menuWork4->f11E))), 0, 0, 1);
                     return;
-                case 2:                             /* switch 2 */
+                case 2:
                     personaModel6 = (s32)((s32)((s32)(fclDrawGetResource(menuWork4->f148))));
                     shdPersonaSetChildDispCtlHandle((u8 *)personaModel6, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
                     resultIndex10 = (u8)((u8)((u8)((((DatPersonaRecord *)yListSlotEntry(menuWork4->f2F9, menuWork4->f2FA))->level))));
@@ -2235,17 +2121,17 @@ void fclCombineMenuFusion(u8 *task) {
                 fclSpriteStartPositionAt(0x2E0, (((FclCombineRowSprite *)ps)->position), position23, 1, 4, 0);
                 previewSelection2 = (s8)((s8)((s8)(menuWork4->f122)));
                 switch (previewSelection2) {                 /* switch 3; irregular */
-                case 0:                             /* switch 3 */
+                case 0:
                     personaModel9 = (s32)((s32)((s32)(fclDrawGetResource(menuWork4->f148))));
                     shdPersonaSetChildDispCtlHandle((u8 *)personaModel9, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
                     fclDrawSetPlacementEx(menuWork4->f148, (s32)(((u16 *)yListSlotEntry(0, menuWork4->f128))), 0, 0, 1);
                     return;
-                case 1:                             /* switch 3 */
+                case 1:
                     personaModel10 = (s32)((s32)((s32)(fclDrawGetResource(menuWork4->f148))));
                     shdPersonaSetChildDispCtlHandle((u8 *)personaModel10, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
                     fclDrawSetPlacementEx(menuWork4->f148, (s32)(((u16 *)yListSlotEntry(0, menuWork4->f11E))), 0, 0, 1);
                     return;
-                case 2:                             /* switch 3 */
+                case 2:
                     personaModel11 = (s32)((s32)((s32)(fclDrawGetResource(menuWork4->f148))));
                     shdPersonaSetChildDispCtlHandle((u8 *)personaModel11, fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
                     resultIndex11 = (u8)((u8)((u8)((((DatPersonaRecord *)yListSlotEntry(menuWork4->f2F9, menuWork4->f2FA))->level))));
@@ -2266,7 +2152,6 @@ void fclCombineMenuFusion(u8 *task) {
         break;
     case 0x35:
         spriteAlpha2 = ((FclCombineRowSprite *)fclSpriteEntry(0x7C))->alpha;
-        /* measured: direct field typing changes 10606 normalized bytes in the full owner. */
         menuWork = (FclCombineWork*)ownerTask->work;
         sprite11 = fclSpriteEntry(0x7C);
         position32 = ((FclCombineRowSprite *)sprite11)->position;
@@ -2311,7 +2196,7 @@ void fclCombineMenuFusion(u8 *task) {
             menuWork4->f1 = 0x30;
         }
         break;
-    case 0x30:                                      /* switch 1 */
+    case 0x30:
         if ((s32)((s32)(nmMesWindowSlotStatus((s8)(menuWork4->fD)))) != (s32)((s32)(0))) {
             nmMesWindowStepSlotRelease((s8)(menuWork4->fD));
             return;
@@ -2324,7 +2209,7 @@ void fclCombineMenuFusion(u8 *task) {
         }
         nmMesWindowDestroySlot((s8)(menuWork4->fD));
         return;
-    case 0x31:                                      /* switch 1 */
+    case 0x31:
         if ((s32)((s32)(nmMesWindowSlotStatus((s8)(menuWork4->fD)))) != (s32)((s32)(0))) {
             nmMesWindowStepSlotRelease((s8)(menuWork4->fD));
             return;
@@ -2332,7 +2217,7 @@ void fclCombineMenuFusion(u8 *task) {
         nmMesWindowDestroySlot((s8)(menuWork4->fD));
         menuWork4->f1 = 0x2DU;
         return;
-    case 0x33:                                      /* switch 1 */
+    case 0x33:
         if ((s32)((s32)(fadeStatus())) != (s32)((s32)(0))) {
             fclDrawSetStateByte(menuWork4->f148, 0xB);
             fclDrawResetScale(menuWork4->f148);
@@ -2344,13 +2229,13 @@ void fclCombineMenuFusion(u8 *task) {
             return;
         }
         break;
-    case 0x32:                                      /* switch 1 */
+    case 0x32:
         if ((s32)((s32)(((s8)(fclDrawGetState(menuWork4->f148))))) == (s32)((s32)(0xE))) {
             menuWork4->f1 = 0x34U;
             return;
         }
         break;
-    case 0x34:                                      /* switch 1 */
+    case 0x34:
         rareChanceKind = 2;
         if ((((FclCombineRowList *)yListSlotWork(0))->availability[menuWork4->f128][menuWork4->f11E]) == 2) {
             rareChanceKind = 0;
@@ -2526,9 +2411,6 @@ typedef struct {
 } while (0)
 // Fcl combine menu fusion triple (state 2): a fusion with a second source. Picks the second persona from the roster and the third through the grid (0x38-0x47), then rolls the rare chance (0x4D), builds the result list with inherited skills (0x4F-0x50), and hands to the result handler (state 0x0D, sub-state 0xC5).
 // FUN_002F0F00
-/* measured: baseline C nd 74B; adjacent-local declaration probe nd 74B; retain settings for owner MATCH. */
-/* Historical whole-layout probe: 17054 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineMenuFusionTriple(u8 *task) {
     KwlnTask *ownerTask = (KwlnTask *)task;
 
@@ -2776,8 +2658,8 @@ void fclCombineMenuFusionTriple(u8 *task) {
 
     menuWork = (FclCombineCtl*)((KwlnTask *)task)->work;
     state = (u8)((u8)((u8)(menuWork->f1)));
-    switch (state) {                               /* switch 1 */
-    case 0x38:                                      /* switch 1 */
+    switch (state) {
+    case 0x38:
         yListSlotCreate(1, 0);
         yListSlotCreate(0xA, 1);
         yListSlotCreate(0xA, 2);
@@ -2795,7 +2677,7 @@ void fclCombineMenuFusionTriple(u8 *task) {
         fclCombineLayoutDetailSprites(task, 1);
         menuWork->f1 = 0x39U;
         return;
-    case 0x39:                                      /* switch 1 */
+    case 0x39:
         if (fclCombineRowsBusy(task) != 1 && *(s8 *)yListSlotWork(0) == 1) {
             for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
                 color = fclMakeDrawColor(0, 0, 0x99, 0xFF);
@@ -2809,7 +2691,7 @@ void fclCombineMenuFusionTriple(u8 *task) {
             return;
         }
         break;
-    case 0x3A:                                      /* switch 1 */
+    case 0x3A:
         for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
             spriteValue = (f32)((FclCombineRowSprite *)fclSpriteEntry(partyRow + 0x21C))->positionElapsed;
             spriteValue4 = (u8)fclEaseInterpolate(0, 0, 255.0f, spriteValue, (f32)((FclCombineRowSprite *)fclSpriteEntry(partyRow + 0x21C))->positionDuration);
@@ -2865,7 +2747,7 @@ void fclCombineMenuFusionTriple(u8 *task) {
             return;
         }
         break;
-    case 0x3B:                                      /* switch 1 */
+    case 0x3B:
         for (gridRow = 0; gridRow < (datPersonaRosterCapacity() & 0xFFFF); gridRow++) {
             spriteValue2 = (f32)((FclCombineRowSprite *)fclSpriteEntry(gridRow + 0x21C))->positionElapsed;
             spriteValue5 = (u8)fclEaseInterpolate(0, 255.0f, 0.0f, spriteValue2, (f32)((FclCombineRowSprite *)fclSpriteEntry(gridRow + 0x21C))->positionDuration);
@@ -2888,7 +2770,7 @@ void fclCombineMenuFusionTriple(u8 *task) {
             return;
         }
         break;
-    case 0x3D:                                      /* switch 1 */
+    case 0x3D:
         candidateFound = -1;
         for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
             spriteValue3 = (f32)((FclCombineRowSprite *)fclSpriteEntry(partyRow + 0x21C))->positionElapsed;
@@ -2912,13 +2794,13 @@ void fclCombineMenuFusionTriple(u8 *task) {
             return;
         }
         break;
-    case 0x3C:                                      /* switch 1 */
+    case 0x3C:
         if ((s8)fclDrawGetState((u8 *)menuWork->f148) < 0 || (s8)fclDrawGetState((u8 *)menuWork->f148) > 5) {
             fclCombineHandleGridInput(task, 1, 0x40, 0x3B);
             return;
         }
         break;
-    case 0x3E:                                      /* switch 1 */
+    case 0x3E:
         if ((s32)((s32)(((s16)(fclSpriteFlagBit((*((s16 *)((u8 *)(fclSpriteEntry(0x21C)) + (0x10)))), 1))))) != (s32)((s32)(1))) {
             fclDrawSetPlacement((u8 *)(menuWork->f148), (s32)((u16 *)yListSlotEntry(0, menuWork->f11E)), 0, 0);
             shdPersonaEndSelection(fclDrawGetResource((u8 *)(menuWork->f148)), 1);
@@ -2928,7 +2810,7 @@ void fclCombineMenuFusionTriple(u8 *task) {
             return;
         }
         break;
-    case 0x3F:                                      /* switch 1 */
+    case 0x3F:
         if (fclDrawGetState((u8 *)(menuWork->f148)) == (s32)(5)) {
             if ((s32)((s32)(shdPersonaIsSelectionActive(fclDrawGetResource((u8 *)(menuWork->f148))))) == (s32)((s32)(1))) {
                 shdPersonaStepSelectionCursor(fclDrawGetResource((u8 *)(menuWork->f148)));
@@ -2997,13 +2879,12 @@ restoreTriplePartnerGrid:
             }
         }
         break;
-    case 0x40:                                      /* switch 1 */
+    case 0x40:
         menuWork->f129 = -1;
         for (partyRow = 0; partyRow < (datPersonaRosterCapacity() & 0xFFFF); partyRow++) {
             fclCombineSelectSlotEntry(task, (s8)(partyRow), menuWork->f128, menuWork->f129, 0);
         }
         spriteAlpha9 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7C)) + (0x6E))));
-        /* measured: direct field typing changes 17240 normalized bytes in the full owner. */
         menuWork12 = (FclCombineCtl*)ownerTask->work;
         sprite27 = (u8 *)(fclSpriteEntry(0x7C));
         position61 = ((FclCombineRowSprite *)sprite27)->position;
@@ -3158,7 +3039,7 @@ restoreTriplePartnerGrid:
             }
         }
         break;
-    case 0x41:                                      /* switch 1 */
+    case 0x41:
         sprite28 = (u8 *)(fclSpriteEntry(0x7C));
         position62 = ((FclCombineRowSprite *)sprite28)->position;
         textColor = (s32)((s32)(fclPackRgba(0xCC, 0xFF, 0xFF, 0xFFU)));
@@ -3172,7 +3053,7 @@ restoreTriplePartnerGrid:
             return;
         }
         break;
-    case 0x42:                                      /* switch 1 */
+    case 0x42:
         sprite29 = (u8 *)(fclSpriteEntry(0x7C));
         position63 = ((FclCombineRowSprite *)sprite29)->position;
         textColor2 = (s32)((s32)(fclPackRgba(0xCC, 0xFF, 0xFF, 0xFFU)));
@@ -3227,17 +3108,17 @@ restoreTripleRoster:
             }
         }
         break;
-    case 0x43:                                      /* switch 1 */
+    case 0x43:
         fclCombineRefreshRosterSelection(task);
         spriteAlpha = (*((u8 *)((u8 *)(fclSpriteEntry(0x7C)) + (0x6E))));
-        /* measured: direct field typing changes 17240 normalized bytes in the full owner. */
+        /* Retail reloads ownerTask->work here instead of reusing menuWork. */
         menuWork2 = (FclCombineCtl*)ownerTask->work;
         sprite30 = (u8 *)(fclSpriteEntry(0x7C));
         position64 = ((FclCombineRowSprite *)sprite30)->position;
         textColor3 = (s32)((s32)(fclPackRgba(0xCC, 0xFF, 0xFF, spriteAlpha)));
         frFontExDrawTextDeferredOutB(111.0f + position64.x, position64.y, 43.0f, textColor3, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, menuWork2->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         spriteAlpha2 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7D)) + (0x6E))));
-        /* measured: direct field typing changes 17241 normalized bytes in the full owner. */
+        /* Retail reloads ownerTask->work here instead of reusing menuWork. */
         menuWork3 = (FclCombineCtl*)ownerTask->work;
         sprite31 = (u8 *)(fclSpriteEntry(0x7D));
         position65 = ((FclCombineRowSprite *)sprite31)->position;
@@ -3337,12 +3218,12 @@ restoreTripleRoster:
             }
         }
         break;
-    case 0x44:                                      /* switch 1 */
+    case 0x44:
         sprite17 = (u8 *)(fclSpriteEntry(0x7C));
         position66 = ((FclCombineRowSprite *)sprite17)->position;
         textColor5 = (s32)((s32)(fclPackRgba(0xCC, 0xFF, 0xFF, 0xFFU)));
         frFontExDrawTextDeferredOutB(111.0f + position66.x, position66.y, 43.0f, textColor5, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, menuWork->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
-        /* measured: direct field typing changes 17241 normalized bytes in the full owner. */
+        /* Retail reloads ownerTask->work here instead of reusing menuWork. */
         menuWork4 = (FclCombineCtl*)ownerTask->work;
         sprite18 = (u8 *)(fclSpriteEntry(0x7D));
         position67 = ((FclCombineRowSprite *)sprite18)->position;
@@ -3357,12 +3238,12 @@ restoreTripleRoster:
             return;
         }
         break;
-    case 0x45:                                      /* switch 1 */
+    case 0x45:
         sprite19 = (u8 *)(fclSpriteEntry(0x7C));
         position68 = ((FclCombineRowSprite *)sprite19)->position;
         textColor7 = (s32)((s32)(fclPackRgba(0xCC, 0xFF, 0xFF, 0xFFU)));
         frFontExDrawTextDeferredOutB(111.0f + position68.x, position68.y, 43.0f, textColor7, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, menuWork->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
-        /* measured: direct field typing changes 17241 normalized bytes in the full owner. */
+        /* Retail reloads ownerTask->work here instead of reusing menuWork. */
         menuWork5 = (FclCombineCtl*)ownerTask->work;
         sprite20 = (u8 *)(fclSpriteEntry(0x7D));
         position69 = ((FclCombineRowSprite *)sprite20)->position;
@@ -3425,16 +3306,16 @@ restoreTripleResultGrid:
             }
         }
         break;
-    case 0x47:                                      /* switch 1 */
+    case 0x47:
         spriteAlpha3 = (u8)((u8)((u8)((*((u8 *)((u8 *)(fclSpriteEntry(0x7C)) + (0x6E)))))));
-        /* measured: direct field typing changes 17240 normalized bytes in the full owner. */
+        /* Retail reloads ownerTask->work here instead of reusing menuWork. */
         menuWork6 = (FclCombineCtl*)ownerTask->work;
         sprite21 = (u8 *)(fclSpriteEntry(0x7C));
         position70 = ((FclCombineRowSprite *)sprite21)->position;
         textColor9 = (s32)((s32)(fclPackRgba(0xCC, 0xFF, 0xFF, spriteAlpha3)));
         frFontExDrawTextDeferredOutB(111.0f + position70.x, position70.y, 43.0f, textColor9, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, menuWork6->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         spriteAlpha4 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7D)) + (0x6E))));
-        /* measured: direct field typing changes 17241 normalized bytes in the full owner. */
+        /* Retail reloads ownerTask->work here instead of reusing menuWork. */
         menuWork7 = (FclCombineCtl*)ownerTask->work;
         sprite22 = (u8 *)(fclSpriteEntry(0x7D));
         position71 = ((FclCombineRowSprite *)sprite22)->position;
@@ -3462,16 +3343,16 @@ restoreTripleResultGrid:
             return;
         }
         break;
-    case 0x46:                                      /* switch 1 */
+    case 0x46:
         spriteAlpha5 = (u8)((u8)((u8)((*((u8 *)((u8 *)(fclSpriteEntry(0x7C)) + (0x6E)))))));
-        /* measured: direct field typing changes 17240 normalized bytes in the full owner. */
+        /* Retail reloads ownerTask->work here instead of reusing menuWork. */
         menuWork8 = (FclCombineCtl*)ownerTask->work;
         sprite23 = (u8 *)(fclSpriteEntry(0x7C));
         position72 = ((FclCombineRowSprite *)sprite23)->position;
         textColor11 = (s32)((s32)(fclPackRgba(0xCC, 0xFF, 0xFF, spriteAlpha5)));
         frFontExDrawTextDeferredOutB(111.0f + position72.x, position72.y, 43.0f, textColor11, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, menuWork8->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         spriteAlpha6 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7D)) + (0x6E))));
-        /* measured: direct field typing changes 17241 normalized bytes in the full owner. */
+        /* Retail reloads ownerTask->work here instead of reusing menuWork. */
         menuWork9 = (FclCombineCtl*)ownerTask->work;
         sprite24 = (u8 *)(fclSpriteEntry(0x7D));
         position73 = ((FclCombineRowSprite *)sprite24)->position;
@@ -3522,22 +3403,22 @@ restoreTripleResultGrid:
                 fclSpriteStartPositionAt(0x2E0, (((FclCombineRowSprite *)s0)->position), (*(FclVec2f *)&position54),  1,  4,  0);
                 previewSelection = (s8)((s8)((s8)(menuWork->f122)));
                 switch (previewSelection) {                   /* switch 3; irregular */
-                case 0:                             /* switch 3 */
+                case 0:
                     personaModel6 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(menuWork->f148)))));
                     shdPersonaSetChildDispCtlHandle((u8 *)personaModel6,  fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
                     fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(menuWork) + (0x148U)))))), (s32)(((u16 *)yListSlotEntry(0, menuWork->f128))), 0, 0, 1);
                     return;
-                case 1:                             /* switch 3 */
+                case 1:
                     personaModel7 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(menuWork->f148)))));
                     shdPersonaSetChildDispCtlHandle((u8 *)personaModel7,  fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
                     fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(menuWork) + (0x148U)))))), (s32)(((u16 *)yListSlotEntry(0, menuWork->f129))), 0, 0, 1);
                     return;
-                case 2:                             /* switch 3 */
+                case 2:
                     personaModel8 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(menuWork->f148)))));
                     shdPersonaSetChildDispCtlHandle((u8 *)personaModel8,  fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
                     fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(menuWork) + (0x148U)))))), (s32)(((u16 *)yListSlotEntry(0, menuWork->f11E))), 0, 0, 1);
                     return;
-                case 3:                             /* switch 3 */
+                case 3:
                     personaModel9 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(menuWork->f148)))));
                     shdPersonaSetChildDispCtlHandle((u8 *)personaModel9,  fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
                     resultIndex9 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(menuWork->f2F9, menuWork->f2FA))) + (4)))))));
@@ -3565,22 +3446,22 @@ restoreTripleResultGrid:
                 fclSpriteStartPositionAt(0x2E0, (((FclCombineRowSprite *)s0)->position), (*(FclVec2f *)&position56),  1,  4,  0);
                 previewSelection2 = (s8)((s8)((s8)(menuWork->f122)));
                 switch (previewSelection2) {                 /* switch 4; irregular */
-                case 0:                             /* switch 4 */
+                case 0:
                     personaModel11 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(menuWork->f148)))));
                     shdPersonaSetChildDispCtlHandle((u8 *)personaModel11,  fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
                     fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(menuWork) + (0x148U)))))), (s32)(((u16 *)yListSlotEntry(0, menuWork->f128))), 0, 0, 1);
                     return;
-                case 1:                             /* switch 4 */
+                case 1:
                     personaModel12 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(menuWork->f148)))));
                     shdPersonaSetChildDispCtlHandle((u8 *)personaModel12,  fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
                     fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(menuWork) + (0x148U)))))), (s32)(((u16 *)yListSlotEntry(0, menuWork->f129))), 0, 0, 1);
                     return;
-                case 2:                             /* switch 4 */
+                case 2:
                     personaModel13 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(menuWork->f148)))));
                     shdPersonaSetChildDispCtlHandle((u8 *)personaModel13,  fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
                     fclDrawSetPlacementEx((u8 *)((*((s32 *)((u8 *)((u32)(menuWork) + (0x148U)))))), (s32)(((u16 *)yListSlotEntry(0, menuWork->f11E))), 0, 0, 1);
                     return;
-                case 3:                             /* switch 4 */
+                case 3:
                     personaModel14 = (s32)((s32)((s32)(fclDrawGetResource((u8 *)(menuWork->f148)))));
                     shdPersonaSetChildDispCtlHandle((u8 *)personaModel14,  fclPackRgba(0xFF, 0xFF, 0xFF, 0xFFU));
                     resultIndex10 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(menuWork->f2F9, menuWork->f2FA))) + (4)))))));
@@ -3598,16 +3479,16 @@ restoreTripleResultGrid:
             }
         }
         break;
-    case 0x4E:                                      /* switch 1 */
+    case 0x4E:
         spriteAlpha7 = (u8)((u8)((u8)((*((u8 *)((u8 *)(fclSpriteEntry(0x7C)) + (0x6E)))))));
-        /* measured: direct field typing changes 17240 normalized bytes in the full owner. */
+        /* Retail reloads ownerTask->work here instead of reusing menuWork. */
         menuWork10 = (FclCombineCtl*)ownerTask->work;
         sprite25 = (u8 *)(fclSpriteEntry(0x7C));
         position74 = ((FclCombineRowSprite *)sprite25)->position;
         textColor13 = (s32)((s32)(fclPackRgba(0xCC, 0xFF, 0xFF, spriteAlpha7)));
         frFontExDrawTextDeferredOutB(111.0f + position74.x, position74.y, 43.0f, textColor13, 0, 2, (const char *)((iGpffffb440) + ((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, menuWork10->f128))) + (2)))) * 0x11)), 0, 0, D_00795E60, 0x15);
         spriteAlpha8 = (*((u8 *)((u8 *)(fclSpriteEntry(0x7D)) + (0x6E))));
-        /* measured: direct field typing changes 17241 normalized bytes in the full owner. */
+        /* Retail reloads ownerTask->work here instead of reusing menuWork. */
         menuWork11 = (FclCombineCtl*)ownerTask->work;
         sprite26 = (u8 *)(fclSpriteEntry(0x7D));
         position75 = ((FclCombineRowSprite *)sprite26)->position;
@@ -3636,7 +3517,7 @@ restoreTripleResultGrid:
             return;
         }
         break;
-    case 0x48:                                      /* switch 1 */
+    case 0x48:
         resultIndex6 = (u16)((u16)((u16)((*((u16 *)((u8 *)(((u16 *)yListSlotEntry(menuWork->f2F9, menuWork->f2FA))) + (2)))))));
         resultIndex11 = (u8)((u8)((u8)((*((u8 *)((u8 *)(((u16 *)yListSlotEntry(menuWork->f2F9, menuWork->f2FA))) + (4)))))));
         if ((s32)((s32)((datCalcGetLevelById(1) & 0xFF))) < (s32)((s32)((s32) resultIndex11))) {
@@ -3656,7 +3537,7 @@ restoreTripleResultGrid:
         }
         menuWork->f1 = 0x49U;
         return;
-    case 0x49:                                      /* switch 1 */
+    case 0x49:
         if ((s32)((s32)(nmMesWindowSlotStatus((s8)(menuWork->fD)))) != (s32)((s32)(0))) {
             nmMesWindowStepSlotRelease((s8)(menuWork->fD));
             return;
@@ -3669,7 +3550,7 @@ restoreTripleResultGrid:
         }
         nmMesWindowDestroySlot((s8)(menuWork->fD));
         return;
-    case 0x4A:                                      /* switch 1 */
+    case 0x4A:
         if ((s32)((s32)(nmMesWindowSlotStatus((s8)(menuWork->fD)))) != (s32)((s32)(0))) {
             nmMesWindowStepSlotRelease((s8)(menuWork->fD));
             return;
@@ -3677,7 +3558,7 @@ restoreTripleResultGrid:
         nmMesWindowDestroySlot((s8)(menuWork->fD));
         menuWork->f1 = 0x46U;
         return;
-    case 0x4C:                                      /* switch 1 */
+    case 0x4C:
         if ((s32)((s32)(fadeStatus())) != (s32)((s32)(0))) {
             fclDrawSetStateByte((u8 *)(menuWork->f148),  0xB);
             fclDrawResetScale((u8 *)(menuWork->f148));
@@ -3689,13 +3570,13 @@ restoreTripleResultGrid:
             return;
         }
         break;
-    case 0x4B:                                      /* switch 1 */
+    case 0x4B:
         if (fclDrawGetState((u8 *)(menuWork->f148)) == (s32)(0xE)) {
             menuWork->f1 = 0x4DU;
             return;
         }
         break;
-    case 0x4D:                                      /* switch 1 */
+    case 0x4D:
         rareChanceKind = 3;
         if ((*((s8 *)((u8 *)((yListSlotWork(0) + (menuWork->f129 * 0xC) + menuWork->f11E)) + (0x14)))) == 2) {
             rareChanceKind = 0;
@@ -3724,7 +3605,7 @@ restoreTripleResultGrid:
         menuWork->f1 = 0x50U;
         menuWork->fB2 = 2;
         return;
-    case 0x4F:                                      /* switch 1 */
+    case 0x4F:
         memset(&excludedIds, 0, 0x1A);
         for (index = 0; index < (*((s32 *)((u8 *)(yListSlotWork(0)) + (8)))); index++) {
             excludedIds[index] = (u16)((u16)((u16) (*((u16 *)((u8 *)(((u16 *)yListSlotEntry(0, index))) + (2))))));
@@ -3753,7 +3634,7 @@ restoreTripleResultGrid:
         menuWork->f0 = 0xD;
         menuWork->f1 = 0xC5U;
         return;
-    case 0x50:                                      /* switch 1 */
+    case 0x50:
         {
             s16 level;
             s16 index3;
@@ -3811,22 +3692,15 @@ restoreTripleResultGrid:
 
 }
 #undef FCL0F00_GRID_ROW
-/* measured: 12084 executable bytes / 12096-byte window, verify MATCH, 391 relocations.
-   Rewritten from the retail assembly with opt_lifetimes (each loop and case keeps
-   its own registers, as in retail).  00275820 takes its floats first; colour
-   builders passed straight into 002ba5d0 keep retail's call order; the object ids
-   reused inside the selected-row branch are locals computed before their first
-   colour call; the row index is copied into its own local at each branch. */
-/* The colour packers take byte channels through the shared interface: the
-   alphas are u8 locals and retail passes them unmasked. func_00313ae0 is
-   (s8 kind, u16 id) and widens the id once on entry. */
-// Fcl combine menu material pick (states 3-5): picks the roster persona for material slot p[0x1A] (0-2), shows its detail with d-pad paging, and plays the cue; the 0x5C-0x5E path hands to the result handler (state 0x0D, sub-state 0xC5). Cancel returns to the menu root.
+/* measured: retail gives each loop and case its own registers. Material pick (states 3-5) chooses
+ * the roster persona for slots 0-2 with detail paging; cancel returns to the menu root. */
+/* Run the combine menu's material-pick states: choose the roster persona for the current material
+ * slot, show its details with d-pad paging, and move on to the result handler or back to the menu
+ * root on cancel. */
 // FUN_002F6CF0
 #pragma push
-/* measured: baseline C nd 104B; adjacent-local declaration probe nd 114B; retain settings for owner MATCH. */
+/* measured: retail gives each loop and case its own registers, which needs opt_lifetimes. */
 #pragma opt_lifetimes on
-/* Historical whole-layout probe: 8417 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineMenuMaterialPick(u8 *task) {
     FclCombineWork *menuState;
     extern void fclCombineMaterialListBuild(s8);
@@ -3933,12 +3807,10 @@ void fclCombineMenuMaterialPick(u8 *task) {
         pos2.position = fclMakeVec2(base->x - 50.0f, base->y);
         fclSpriteStartPositionAt(0xC8, pos1.position, pos2.position, 0, 0x14, 0);
         fclCombineSlideInSlotSprites(task, 0x98, 0x96);
-        /* measured: direct field typing changes 8145 normalized bytes in the full owner. */
         menuState->f11E = 0;
         p[1] = 0x53;
         break;
     case 0x53:
-        /* measured: direct field typing changes 6968 normalized bytes in the full owner. */
         for (i = 0; i < ((FclCombinePersonaListHeader *)yListSlotWork(menuState->f11E + 1))->count; i++) {
             rowPos.position = fclMakeVec2((f32)0x139, 128.0f);
             rowPos.position.y += (f32)(i * 23);
@@ -3951,13 +3823,10 @@ void fclCombineMenuMaterialPick(u8 *task) {
             }
             rgba = fclPackRgba(0xCC, 0xFF, 0xFF, alpha);
             frFontExDrawTextDeferredOutB((f32)0x19D, (f32)(i * 23 + 0x80), 43.0f, rgba, 0, 2,
-                          /* measured: direct field typing changes 7781 normalized bytes in the full owner. */
                           (const char *)((u8 *)iGpffffb440 + ((u16 *)yListSlotEntry(menuState->f11E + 1, i))[1] * 0x11),
                           0, 0, D_00795E60, 0x15);
             ((FclCombineRowSprite *)fclSpriteEntry(i + 0x250))->image =
-                /* measured: direct field typing changes 7781 normalized bytes in the full owner. */
                 (u8)datPersonaGetArcana(((u16 *)yListSlotEntry(menuState->f11E + 1, i))[1]) + 0x1B;
-            /* measured: direct field typing changes 7780 normalized bytes in the full owner. */
             if (((u8 *)yListSlotEntry(menuState->f11E + 1, i))[4] == 0) {
                 row = i;
                 color1 = fclMakeDrawColor(0x24, 0x3F, 0x9F, 0xFF);
@@ -3977,7 +3846,6 @@ void fclCombineMenuMaterialPick(u8 *task) {
                 shade = 0xCC;
                 fclSpriteEntry(i + 0x21C)[0x6E] = shade;
                 fclSpriteEntry(row + 0x22B)[0x6E] = shade;
-                /* measured: direct field typing changes 7780 normalized bytes in the full owner. */
                 nmMesWindowSetNumber(((FclCombineWork *)p)->messageTask, (s8)i, ((u8 *)yListSlotEntry(menuState->f11E + 1, i))[4],
                               rowPos.position, color6 = fclMakeDrawColor(shade, 0xFF, 0xFF, alpha), 46.0f, 0x59);
             }
@@ -3998,7 +3866,6 @@ void fclCombineMenuMaterialPick(u8 *task) {
                 nmMesWindowSetNumberColor((u8 *)((FclCombineWork *)p)->messageTask, (s8)(k + 0xC), *(FclDrawColor *)&color9);
             }
             rgba2 = fclPackRgba(0xCC, 0xFF, 0xFF, alpha2);
-            /* measured: direct field typing changes 6652 normalized bytes in the full owner. */
             if (menuState->f11E == k) {
                 rgba2 = fclPackRgba(0x2D, 0x2D, 0x2D, 0xFF);
             }
@@ -4009,31 +3876,25 @@ void fclCombineMenuMaterialPick(u8 *task) {
             color10 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
             te = fclSpriteEntry(k + 0x27D);
             ((FclCombineRowSprite *)te)->color = color10;
-            /* measured: direct field typing changes 8 normalized bytes in the full owner. */
             ((FclCombineRowSprite *)fclSpriteEntry(k + 0x270))->color = MEMBER(FclDrawColor, te, FclCombineRowSprite, color);
             objA = k + 0x297;
             objB = k + 0x28B;
             color11 = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
             te = fclSpriteEntry(objA);
             ((FclCombineRowSprite *)te)->color = color11;
-            /* measured: direct field typing changes 8 normalized bytes in the full owner. */
             ((FclCombineRowSprite *)fclSpriteEntry(objB))->color = MEMBER(FclDrawColor, te, FclCombineRowSprite, color);
             objC = k + 0x2A3;
             color12 = fclMakeDrawColor(0, 0, 0x66, 0xFF);
             ((FclCombineRowSprite *)fclSpriteEntry(objC))->color = color12;
-            /* measured: direct field typing changes 6652 normalized bytes in the full owner. */
             if (menuState->f11E == k) {
                 fclSpriteEntry(k + 0x270)[0x6E] = fclSpriteEntry(k + 0x27D)[0x6E] = 0xFF;
                 color13 = fclMakeDrawColor(0xCC, 0xFF, 0x33, 0xFF);
                 ps = fclSpriteEntry(objA);
                 ((FclCombineRowSprite *)ps)->color = color13;
                 te = fclSpriteEntry(objB);
-                /* measured: direct field typing changes 8 normalized bytes in the full owner. */
                 ((FclCombineRowSprite *)te)->color = MEMBER(FclDrawColor, ps, FclCombineRowSprite, color);
                 ps = fclSpriteEntry(k + 0x27D);
-                /* measured: direct field typing changes 8 normalized bytes in the full owner. */
                 ((FclCombineRowSprite *)ps)->color = MEMBER(FclDrawColor, te, FclCombineRowSprite, color);
-                /* measured: direct field typing changes 8 normalized bytes in the full owner. */
                 ((FclCombineRowSprite *)fclSpriteEntry(k + 0x270))->color = MEMBER(FclDrawColor, ps, FclCombineRowSprite, color);
                 color14 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
                 ((FclCombineRowSprite *)fclSpriteEntry(objC))->color = color14;
@@ -4050,13 +3911,11 @@ void fclCombineMenuMaterialPick(u8 *task) {
         buttons = D_008C027A[0];
         if (buttons & 0x1000) {
             sdkSndStartStream(0, 0, 0, 0);
-            /* measured: direct field typing changes 5528 normalized bytes in the full owner. */
             ((FclCombineWork *)p)->f11E = fclSubClamped(menuState->f11E, 1, 0, (s16)(((FclCombinePersonaListHeader *)yListSlotWork(0))->count - 1), 2);
             break;
         }
         if (buttons & 0x4000) {
             sdkSndStartStream(0, 0, 0, 0);
-            /* measured: direct field typing changes 5461 normalized bytes in the full owner. */
             ((FclCombineWork *)p)->f11E = fclAddClamped(menuState->f11E, 1, (s16)(((FclCombinePersonaListHeader *)yListSlotWork(0))->count - 1), 0, 2);
             break;
         }
@@ -4069,7 +3928,6 @@ void fclCombineMenuMaterialPick(u8 *task) {
                 fclCombineDrawSidePanels(task, 0, 1);
                 fclCombineFadeLabelSprites(task, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
                 fclCombineFadePanelSprite(task, 0, 0.0f);
-                /* measured: direct field typing changes 5370 normalized bytes in the full owner. */
                 menuState->f11E = p[0x2FA];
                 p[1] = 0x58;
                 fclSpriteSetHidden(((FclCombineWork *)p)->headerTask.task, 1);
@@ -4082,7 +3940,6 @@ void fclCombineMenuMaterialPick(u8 *task) {
             p[0x2FA] = ((FclCombineWork *)p)->f11E;
             ((FclCombineWork *)p)->f11E = -1;
             fclCombineDrawSidePanels(task, 0, 1);
-            /* measured: direct field typing changes 5220 normalized bytes in the full owner. */
             menuState->f11E = p[0x2FA];
             fclCombineLayoutFrame(task, 0, 1);
             fclCombineFadeLabelSprites(task, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0);
@@ -4107,51 +3964,36 @@ void fclCombineMenuMaterialPick(u8 *task) {
         id = ((u16 *)yListSlotEntry(0, p[0x2FA]))[1];
         datPersonaInitRecord((u8 *)yListSlotEntry(0, p[0x2FA]), id);
         fclDrawSetPlacement(((FclCombineWork *)p)->drawTask.task, (s32)yListSlotEntry(0, p[0x2FA]), 0, 0);
-        /* measured: direct field typing changes 4915 normalized bytes in the full owner. */
         shdPersonaEndSelection(fclDrawGetResource(menuState->drawTask.task), 1);
-        /* measured: direct field typing changes 4915 normalized bytes in the full owner. */
         shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
         if (((u8 *)yListSlotEntry(0, p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
-            /* measured: direct field typing changes 4915 normalized bytes in the full owner. */
             shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0x14, 0x14, 0x14, 0xFF));
         }
         p[1] = 0x55;
         break;
     case 0x55:
         if (fclDrawGetState(((FclCombineWork *)p)->drawTask.task) == 5) {
-            /* measured: direct field typing changes 4746 normalized bytes in the full owner. */
             if (shdPersonaIsSelectionActive(fclDrawGetResource(menuState->drawTask.task)) == 1) {
-                /* measured: direct field typing changes 4746 normalized bytes in the full owner. */
                 shdPersonaStepSelectionCursor(fclDrawGetResource(menuState->drawTask.task));
             }
             buttons = D_008C024E[0];
             if (buttons & 0x80) {
-                /* measured: direct field typing changes 4746 normalized bytes in the full owner. */
                 if (shdPersonaIsSelectionActive(fclDrawGetResource(menuState->drawTask.task)) == 0) {
-                    /* measured: direct field typing changes 4746 normalized bytes in the full owner. */
                     shdPersonaBeginSelection(fclDrawGetResource(menuState->drawTask.task));
-                    /* measured: direct field typing changes 4746 normalized bytes in the full owner. */
                     fclDrawSetFlag(menuState->drawTask.task, 0);
                 } else {
-                    /* measured: direct field typing changes 4746 normalized bytes in the full owner. */
                     shdPersonaEndSelection(fclDrawGetResource(menuState->drawTask.task), 1);
-                    /* measured: direct field typing changes 4745 normalized bytes in the full owner. */
                     fclDrawSetFlag(menuState->drawTask.task, 1);
                 }
             } else if (buttons & 0x20) {
-                /* measured: direct field typing changes 4746 normalized bytes in the full owner. */
                 if (shdPersonaIsSelectionActive(fclDrawGetResource(menuState->drawTask.task)) == 1) {
-                    /* measured: direct field typing changes 4746 normalized bytes in the full owner. */
                     shdPersonaEndSelection(fclDrawGetResource(menuState->drawTask.task), 1);
-                    /* measured: direct field typing changes 4745 normalized bytes in the full owner. */
                     fclDrawSetFlag(menuState->drawTask.task, 1);
                 } else {
-                    /* measured: direct field typing changes 4746 normalized bytes in the full owner. */
                     if (fclDrawGetState(menuState->drawTask.task) != 5) {
                         break;
                     }
                     sdkSndStartStream(0, 1, 0, 4);
-                    /* measured: direct field typing changes 4745 normalized bytes in the full owner. */
                     fclDrawSetStateByte(menuState->drawTask.task, 3);
                     if ((s16)fclSpriteFlagBit(((FclCombineRowSprite *)fclSpriteEntry(0x1E4))->flags, 0) == 1) {
                         fclSpriteStartAlphaAt(0x1E4, fclSpriteEntry(0x1E4)[0x6E], 0, 0, 0xA, 0);
@@ -4159,7 +4001,6 @@ void fclCombineMenuMaterialPick(u8 *task) {
                 }
             }
         }
-        /* measured: direct field typing changes 4746 normalized bytes in the full owner. */
         if (fclDrawGetState(menuState->drawTask.task) < 0 || fclDrawGetState(menuState->drawTask.task) > 5) {
             fclCombineDrawSidePanels(task, 0, 0);
             fclCombineFadeLabelSprites(task, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0);
@@ -4180,7 +4021,6 @@ void fclCombineMenuMaterialPick(u8 *task) {
             }
             rgba3 = fclPackRgba(0xCC, 0xFF, 0xFF, alpha3);
             frFontExDrawTextDeferredOutB((f32)0x19D, (f32)(i * 23 + 0x80), 43.0f, rgba3, 0, 2,
-                          /* measured: direct field typing changes 4265 normalized bytes in the full owner. */
                           (const char *)((u8 *)iGpffffb440 + ((u16 *)yListSlotEntry(menuState->f11E + 1, i))[1] * 0x11),
                           0, 0, D_00795E60, 0x15);
         }
@@ -4228,13 +4068,10 @@ void fclCombineMenuMaterialPick(u8 *task) {
         }
         fclDrawSetPlacementEx(((FclCombineWork *)p)->drawTask.task, (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], cmmCommunityExpRemaining(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                       (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
-        /* measured: direct field typing changes 2868 normalized bytes in the full owner. */
         shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
         if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
-            /* measured: direct field typing changes 2868 normalized bytes in the full owner. */
             shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0x14, 0x14, 0x14, 0xFF));
         }
-        /* measured: direct field typing changes 2868 normalized bytes in the full owner. */
         shdPersonaEndSelection(fclDrawGetResource(menuState->drawTask.task), 1);
         fclCombineDrawStageBanner(task, (s8)(p[0x1A] + 1), 0);
         p[1] = 0x57;
@@ -4243,9 +4080,7 @@ void fclCombineMenuMaterialPick(u8 *task) {
         if (fclDrawGetState(((FclCombineWork *)p)->drawTask.task) != 0xD) {
             break;
         }
-        /* measured: direct field typing changes 2586 normalized bytes in the full owner. */
         if (shdPersonaIsSelectionActive(fclDrawGetResource(menuState->drawTask.task)) == 1) {
-            /* measured: direct field typing changes 2586 normalized bytes in the full owner. */
             shdPersonaStepSelectionCursor(fclDrawGetResource(menuState->drawTask.task));
         }
         buttons = D_008C024E[0];
@@ -4253,15 +4088,11 @@ void fclCombineMenuMaterialPick(u8 *task) {
             p[1] = 0x59;
             sdkSndStartStream(0, 0, 0, 1);
         } else if (buttons & 0x20) {
-            /* measured: direct field typing changes 2586 normalized bytes in the full owner. */
             if (shdPersonaIsSelectionActive(fclDrawGetResource(menuState->drawTask.task)) == 1) {
-                /* measured: direct field typing changes 2586 normalized bytes in the full owner. */
                 shdPersonaEndSelection(fclDrawGetResource(menuState->drawTask.task), 1);
-                /* measured: direct field typing changes 2585 normalized bytes in the full owner. */
                 fclDrawSetFlag(menuState->drawTask.task, 1);
             } else {
                 p[1] = 0x5F;
-                /* measured: direct field typing changes 2585 normalized bytes in the full owner. */
                 fclDrawSetStateByte(menuState->drawTask.task, 0xB);
                 fclCombineDrawStageBanner(task, (s8)(p[0x1A] + 1), 1);
                 fclCombineFadeLabelSprites(task, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0);
@@ -4269,23 +4100,17 @@ void fclCombineMenuMaterialPick(u8 *task) {
                 sdkSndStartStream(0, 0, 0, 2);
             }
         } else if (buttons & 0x80) {
-            /* measured: direct field typing changes 2586 normalized bytes in the full owner. */
             if (shdPersonaIsSelectionActive(fclDrawGetResource(menuState->drawTask.task)) == 0) {
-                /* measured: direct field typing changes 2586 normalized bytes in the full owner. */
                 shdPersonaBeginSelection(fclDrawGetResource(menuState->drawTask.task));
-                /* measured: direct field typing changes 2586 normalized bytes in the full owner. */
                 fclDrawSetFlag(menuState->drawTask.task, 0);
             } else {
-                /* measured: direct field typing changes 2586 normalized bytes in the full owner. */
                 shdPersonaEndSelection(fclDrawGetResource(menuState->drawTask.task), 1);
-                /* measured: direct field typing changes 2585 normalized bytes in the full owner. */
                 fclDrawSetFlag(menuState->drawTask.task, 1);
             }
         } else if (buttons & 8) {
             if (p[0x122] != ((FclCombinePersonaListHeader *)yListSlotWork(((FclCombineWork *)p)->f11E + 1))->count) {
                 sdkSndStartStream(0, 2, 0, 5);
             }
-            /* measured: direct field typing changes 2212 normalized bytes in the full owner. */
             p[0x122] = fclAddClamped(p[0x122], 1, ((FclCombinePersonaListHeader *)yListSlotWork(menuState->f11E + 1))->count, 0, 1);
             switch (p[0x1A] + 1) {
             case 5:
@@ -4309,18 +4134,13 @@ void fclCombineMenuMaterialPick(u8 *task) {
             pos4.position = fclMakeVec2((f32)(stepInt * p[0x122] + 0x6A), 16.0f);
             fclSpriteStartPositionAt(0x2E0, ((FclCombineRowSprite *)ps)->position, pos4.position, 1, 4, 0);
             if (p[0x122] < p[0x1A]) {
-                /* measured: direct field typing changes 2585 normalized bytes in the full owner. */
                 shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
-                /* measured: direct field typing changes 2585 normalized bytes in the full owner. */
                 fclDrawSetPlacementEx(menuState->drawTask.task, (s32)yListSlotEntry(p[0x2FA] + 1, p[0x122]), 0, 0, 1);
             } else {
-                /* measured: direct field typing changes 2585 normalized bytes in the full owner. */
                 shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
                 if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
-                    /* measured: direct field typing changes 2585 normalized bytes in the full owner. */
                     shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0x14, 0x14, 0x14, 0xFF));
                 }
-                /* measured: direct field typing changes 2586 normalized bytes in the full owner. */
                 fclDrawSetPlacementEx(menuState->drawTask.task, (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], cmmCommunityExpRemaining(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                               (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
             }
@@ -4351,18 +4171,13 @@ void fclCombineMenuMaterialPick(u8 *task) {
             pos6.position = fclMakeVec2((f32)(stepInt2 * p[0x122] + 0x6A), 16.0f);
             fclSpriteStartPositionAt(0x2E0, ((FclCombineRowSprite *)ps)->position, pos6.position, 1, 4, 0);
             if (p[0x122] < p[0x1A]) {
-                /* measured: direct field typing changes 2590 normalized bytes in the full owner. */
                 shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
-                /* measured: direct field typing changes 2590 normalized bytes in the full owner. */
                 fclDrawSetPlacementEx(menuState->drawTask.task, (s32)yListSlotEntry(p[0x2FA] + 1, p[0x122]), 0, 0, 1);
             } else {
-                /* measured: direct field typing changes 2590 normalized bytes in the full owner. */
                 shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
                 if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
-                    /* measured: direct field typing changes 2590 normalized bytes in the full owner. */
                     shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0x14, 0x14, 0x14, 0xFF));
                 }
-                /* measured: direct field typing changes 2591 normalized bytes in the full owner. */
                 fclDrawSetPlacementEx(menuState->drawTask.task, (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), ((s8 *)yListSlotWork(p[0x2F9]))[p[0x2FA] + 0x2E4], cmmCommunityExpRemaining(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                               (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
             }
@@ -4374,7 +4189,6 @@ void fclCombineMenuMaterialPick(u8 *task) {
         }
         ((FclCombineWork *)p)->f11E = -1;
         fclCombineDrawSidePanels(task, 0, 0);
-        /* measured: direct field typing changes 908 normalized bytes in the full owner. */
         menuState->f11E = p[0x2FA];
         fclSpriteSetHidden(((FclCombineWork *)p)->headerTask.task, 0);
         fclSpriteSetHidden(((FclCombineWork *)p)->arrowTask.task, 0);
@@ -4423,7 +4237,6 @@ void fclCombineMenuMaterialPick(u8 *task) {
     case 0x5D:
         if (fadeStatus() != 0) {
             fclDrawSetStateByte(((FclCombineWork *)p)->drawTask.task, 0xB);
-            /* measured: direct field typing changes 524 normalized bytes in the full owner. */
             fclDrawResetScale(menuState->drawTask.task);
             fclCombineDrawStageBanner(task, (s8)(p[0x1A] + 1), 1);
             for (i = 0; i < 0x30C; i++) {
@@ -4488,8 +4301,8 @@ void fclCombineMenuMaterialPick(u8 *task) {
 }
 #pragma pop
 
-/* Copy sourceCount records (0x30 bytes each), initialize resultRecord by ID,
-   and store the fusion inheritance mask in listSlot's entryIndex at +0x2E4. */
+/* Copy sourceCount 0x30-byte records, initialize resultRecord by ID, and store the fusion
+ * inheritance mask in listSlot's work at entryIndex. */
 // FUN_002F9C30
 void fclCombineFuseSourceRecords(u16 *resultRecord, u8 *firstSource, u8 *secondSource, u8 *thirdSource, u8 *fourthSource, u8 *fifthSource, u8 *sixthSource, s32 sourceCount, s8 listSlot, s8 entryIndex) {
     u16 buf[6 * 24];
@@ -4522,21 +4335,15 @@ void fclCombineFuseSourceRecords(u16 *resultRecord, u8 *firstSource, u8 *secondS
     *(yListSlotWork(listSlot) + entryIndex + 0x2E4) = v;
 }
 
-/* measured: 8460 executable bytes / 8464-byte window, verify MATCH, 298 relocations.
-   Rewritten from the retail assembly: 00275820 takes its three floats first
-   (frFontEx prototype), so the row y is an inline argument; each alpha and colour
-   is its own int local (retail gives them distinct registers and passes them to
-   002b2a30 unmasked), the 0x68 roster loop uses its own index, and the state
-   range checks are written `> 5` / `> 0xD`. */
-// Fcl combine menu preview (state 6): browses the roster, previews the selected persona in the draw, then returns to the menu root (sub-state 0x1A) or hands to the result handler (state 0x0D, sub-state 0xC5).
+/* Fcl combine menu preview (state 6): browses the roster and previews the selected persona, then
+ * returns to the menu root (sub-state 0x1A) or hands off to the result handler (state 0x0D, sub-
+ * state 0xC5). */
 // FUN_002F9D90
-/* Historical whole-layout probe: 5870 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineMenuPreview(u8 *task) {
     FclCombineWork *menuState;
     extern void yListSlotAppend(s8, s32, s8);
     extern void fclCombineDrawPairLayout(u8 *, s32, s8);
-    extern void shdPersonaSetChildDispCtlHandle(u8 *, s32); /* retail loads the colour into $a1 */
+    extern void shdPersonaSetChildDispCtlHandle(u8 *, s32); /* Retail passes the colour as a plain int. */
     extern s16 yListStepIndex(s16, s16, s16, s16, s16);
     extern f32 D_00640E70[];
     FclDrawColor slotColor;
@@ -4659,9 +4466,7 @@ void fclCombineMenuPreview(u8 *task) {
         frFontExDrawTextDeferredOutB(97.0f, 195.0f, 43.0f, fclPackRgba(0x2D, 0x2D, 0x2D, alpha3), 0, 2,
                       (const char *)((u8 *)iGpffffb440 + ((u16 *)yListSlotEntry(1, 0))[1] * 0x11), 0, 0, D_00795E60, 0x15);
         fclSpriteEntry(0x270)[0x6E] = fclSpriteEntry(0x27D)[0x6E] = 0xFF;
-        /* measured: direct field typing changes 5899 normalized bytes in the full owner. */
         if ((fclDrawGetState(menuState->drawTask.task) < 8 || fclDrawGetState(menuState->drawTask.task) > 0xD) &&
-            /* measured: direct field typing changes 5899 normalized bytes in the full owner. */
             (fclDrawGetState(menuState->drawTask.task) < 0 || fclDrawGetState(menuState->drawTask.task) > 5)) {
             for (i = 0; i < 12; i++) {
                 if ((s16)fclSpriteFlagBit(((FclCombineRowSprite *)fclSpriteEntry(i + 0x21C))->flags, 1) == 1) {
@@ -4677,16 +4482,12 @@ void fclCombineMenuPreview(u8 *task) {
                     sdkSndStartStream(0, 0, 0, 1);
                     p[0x2F9] = 1;
                     p[0x2FA] = 0;
-                    /* measured: direct field typing changes 5901 normalized bytes in the full owner. */
                     fclDrawSetPlacementEx(menuState->drawTask.task, (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, cmmCommunityExpRemaining(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                                   (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
-                    /* measured: direct field typing changes 5899 normalized bytes in the full owner. */
                     shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
                     if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
-                        /* measured: direct field typing changes 5899 normalized bytes in the full owner. */
                         shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0x14, 0x14, 0x14, 0xFF));
                     }
-                    /* measured: direct field typing changes 5899 normalized bytes in the full owner. */
                     shdPersonaEndSelection(fclDrawGetResource(menuState->drawTask.task), 1);
                     fclCombineDrawStageBanner(task, 8, 0);
                     fclCombineDrawPairLayout(task, 0, 1);
@@ -4722,52 +4523,37 @@ void fclCombineMenuPreview(u8 *task) {
             break;
         }
         fclDrawSetPlacement(((FclCombineWork *)p)->drawTask.task, (s32)yListSlotEntry(1, 0), 0, 0);
-        /* measured: direct field typing changes 3353 normalized bytes in the full owner. */
         shdPersonaEndSelection(fclDrawGetResource(menuState->drawTask.task), 1);
         if (p[0x20] == 0) {
-            /* measured: direct field typing changes 3353 normalized bytes in the full owner. */
             shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
         } else {
-            /* measured: direct field typing changes 3353 normalized bytes in the full owner. */
             shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0x14, 0x14, 0x14, 0xFF));
         }
         p[1] = 0x67;
         break;
     case 0x67:
         if (fclDrawGetState(((FclCombineWork *)p)->drawTask.task) == 5) {
-            /* measured: direct field typing changes 3210 normalized bytes in the full owner. */
             if (shdPersonaIsSelectionActive(fclDrawGetResource(menuState->drawTask.task)) == 1) {
-                /* measured: direct field typing changes 3210 normalized bytes in the full owner. */
                 shdPersonaStepSelectionCursor(fclDrawGetResource(menuState->drawTask.task));
             }
             buttons = D_008C024E[0];
             if (buttons & 0x80) {
-                /* measured: direct field typing changes 3210 normalized bytes in the full owner. */
                 if (shdPersonaIsSelectionActive(fclDrawGetResource(menuState->drawTask.task)) == 0) {
-                    /* measured: direct field typing changes 3210 normalized bytes in the full owner. */
                     shdPersonaBeginSelection(fclDrawGetResource(menuState->drawTask.task));
-                    /* measured: direct field typing changes 3210 normalized bytes in the full owner. */
                     fclDrawSetFlag(menuState->drawTask.task, 0);
                 } else {
-                    /* measured: direct field typing changes 3210 normalized bytes in the full owner. */
                     shdPersonaEndSelection(fclDrawGetResource(menuState->drawTask.task), 1);
-                    /* measured: direct field typing changes 3209 normalized bytes in the full owner. */
                     fclDrawSetFlag(menuState->drawTask.task, 1);
                 }
             } else if (buttons & 0x20) {
-                /* measured: direct field typing changes 3210 normalized bytes in the full owner. */
                 if (shdPersonaIsSelectionActive(fclDrawGetResource(menuState->drawTask.task)) == 1) {
-                    /* measured: direct field typing changes 3210 normalized bytes in the full owner. */
                     shdPersonaEndSelection(fclDrawGetResource(menuState->drawTask.task), 1);
-                    /* measured: direct field typing changes 3209 normalized bytes in the full owner. */
                     fclDrawSetFlag(menuState->drawTask.task, 1);
                 } else {
-                    /* measured: direct field typing changes 3210 normalized bytes in the full owner. */
                     if (fclDrawGetState(menuState->drawTask.task) != 5) {
                         break;
                     }
                     sdkSndStartStream(0, 1, 0, 4);
-                    /* measured: direct field typing changes 3209 normalized bytes in the full owner. */
                     fclDrawSetStateByte(menuState->drawTask.task, 3);
                     if ((s16)fclSpriteFlagBit(((FclCombineRowSprite *)fclSpriteEntry(0x1E4))->flags, 0) == 1) {
                         fclSpriteStartAlphaAt(0x1E4, fclSpriteEntry(0x1E4)[0x6E], 0, 0, 0xA, 0);
@@ -4775,7 +4561,6 @@ void fclCombineMenuPreview(u8 *task) {
                 }
             }
         }
-        /* measured: direct field typing changes 3210 normalized bytes in the full owner. */
         if (fclDrawGetState(menuState->drawTask.task) < 0 || fclDrawGetState(menuState->drawTask.task) > 5) {
             fclCombineDrawPairLayout(task, 0, 0);
             if (p[0x20] == 0) {
@@ -4819,9 +4604,7 @@ void fclCombineMenuPreview(u8 *task) {
         if (fclDrawGetState(((FclCombineWork *)p)->drawTask.task) != 0xD) {
             break;
         }
-        /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
         if (shdPersonaIsSelectionActive(fclDrawGetResource(menuState->drawTask.task)) == 1) {
-            /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
             shdPersonaStepSelectionCursor(fclDrawGetResource(menuState->drawTask.task));
         }
         buttons = D_008C024E[0];
@@ -4836,27 +4619,18 @@ void fclCombineMenuPreview(u8 *task) {
                 p[1] = 0x6A;
             }
         } else if (buttons & 0x80) {
-            /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
             if (shdPersonaIsSelectionActive(fclDrawGetResource(menuState->drawTask.task)) == 0) {
-                /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
                 shdPersonaBeginSelection(fclDrawGetResource(menuState->drawTask.task));
-                /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
                 fclDrawSetFlag(menuState->drawTask.task, 0);
             } else {
-                /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
                 shdPersonaEndSelection(fclDrawGetResource(menuState->drawTask.task), 1);
-                /* measured: direct field typing changes 1927 normalized bytes in the full owner. */
                 fclDrawSetFlag(menuState->drawTask.task, 1);
             }
         } else if (buttons & 0x20) {
-            /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
             if (shdPersonaIsSelectionActive(fclDrawGetResource(menuState->drawTask.task)) == 1) {
-                /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
                 shdPersonaEndSelection(fclDrawGetResource(menuState->drawTask.task), 1);
-                /* measured: direct field typing changes 1927 normalized bytes in the full owner. */
                 fclDrawSetFlag(menuState->drawTask.task, 1);
             } else {
-                /* measured: direct field typing changes 1927 normalized bytes in the full owner. */
                 fclDrawSetStateByte(menuState->drawTask.task, 0xB);
                 fclCombineDrawStageBanner(task, 8, 1);
                 fclCombineDrawPairLayout(task, 0, 0);
@@ -4874,30 +4648,22 @@ void fclCombineMenuPreview(u8 *task) {
                 sdkSndStartStream(0, 2, 0, 5);
             }
             p[0x122] = fclAddClamped(p[0x122], 1, 0xC, 0, 1);
-            /* measured: direct field typing changes 1369 normalized bytes in the full owner. */
             ((FclCombineWork *)p)->windowRow = yListStepIndex(p[0x122], menuState->windowRow, 0xC, 7, 1);
             ps = fclSpriteEntry(0x155);
-            /* measured: direct field typing changes 1369 normalized bytes in the full owner. */
             pos3 = fclMakeVec2((f32)(menuState->windowRow * 61 + 0x6A), 16.0f);
             fclSpriteStartPositionAt(0x155, ((FclCombineRowSprite *)ps)->position, pos3, 1, 4, 0);
             ps = fclSpriteEntry(0x2E0);
-            /* measured: direct field typing changes 1369 normalized bytes in the full owner. */
             pos4 = fclMakeVec2((f32)(menuState->windowRow * 61 + 0x6A), 16.0f);
             fclSpriteStartPositionAt(0x2E0, ((FclCombineRowSprite *)ps)->position, pos4, 1, 4, 0);
             fclCombineDrawStageTiles(task, 0, 0);
             if (p[0x122] < 0xC) {
-                /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
                 shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
-                /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
                 fclDrawSetPlacementEx(menuState->drawTask.task, (s32)yListSlotEntry(0, p[0x122]), 0, 0, 1);
             } else {
-                /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
                 shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
                 if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
-                    /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
                     shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0x14, 0x14, 0x14, 0xFF));
                 }
-                /* measured: direct field typing changes 1930 normalized bytes in the full owner. */
                 fclDrawSetPlacementEx(menuState->drawTask.task, (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, cmmCommunityExpRemaining(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                               (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
             }
@@ -4906,30 +4672,22 @@ void fclCombineMenuPreview(u8 *task) {
                 sdkSndStartStream(0, 2, 0, 5);
             }
             p[0x122] = fclSubClamped(p[0x122], 1, 0, 0, 1);
-            /* measured: direct field typing changes 814 normalized bytes in the full owner. */
             ((FclCombineWork *)p)->windowRow = yListStepIndex(p[0x122], menuState->windowRow, 0xC, 7, -1);
             ps = fclSpriteEntry(0x155);
-            /* measured: direct field typing changes 814 normalized bytes in the full owner. */
             pos5 = fclMakeVec2((f32)(menuState->windowRow * 61 + 0x6A), 16.0f);
             fclSpriteStartPositionAt(0x155, ((FclCombineRowSprite *)ps)->position, pos5, 1, 4, 0);
             ps = fclSpriteEntry(0x2E0);
-            /* measured: direct field typing changes 814 normalized bytes in the full owner. */
             pos6 = fclMakeVec2((f32)(menuState->windowRow * 61 + 0x6A), 16.0f);
             fclSpriteStartPositionAt(0x2E0, ((FclCombineRowSprite *)ps)->position, pos6, 1, 4, 0);
             fclCombineDrawStageTiles(task, 0, 0);
             if (p[0x122] < 0xC) {
-                /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
                 shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
-                /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
                 fclDrawSetPlacementEx(menuState->drawTask.task, (s32)yListSlotEntry(0, p[0x122]), 0, 0, 1);
             } else {
-                /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
                 shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
                 if (((u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[4] > (u8)datCalcGetLevelById(1)) {
-                    /* measured: direct field typing changes 1928 normalized bytes in the full owner. */
                     shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0x14, 0x14, 0x14, 0xFF));
                 }
-                /* measured: direct field typing changes 1930 normalized bytes in the full owner. */
                 fclDrawSetPlacementEx(menuState->drawTask.task, (s32)yListSlotEntry(p[0x2F9], p[0x2FA]), 0, cmmCommunityExpRemaining(cmmTopCommunityOfArcana(iGpffffb3d4[((u16 *)yListSlotEntry(p[0x2F9], p[0x2FA]))[1] * 14 + 2]),
                               (u8 *)yListSlotEntry(p[0x2F9], p[0x2FA]), 0), 1);
             }
@@ -4959,7 +4717,6 @@ void fclCombineMenuPreview(u8 *task) {
     case 0x6C:
         if (fadeStatus() != 0) {
             fclDrawSetStateByte(((FclCombineWork *)p)->drawTask.task, 0xB);
-            /* measured: direct field typing changes 205 normalized bytes in the full owner. */
             fclDrawResetScale(menuState->drawTask.task);
             fclCombineDrawStageBanner(task, 8, 1);
             ((FclCombineWork *)p)->f11E = p[0x122];
@@ -4979,10 +4736,11 @@ void fclCombineMenuPreview(u8 *task) {
     }
 }
 
-/* measured: all 26320 bytes match; distinct caption origin and mutable
- * iterator lifetimes retain the retail loop allocation. */
+/* measured: a separate caption origin and mutable iterator lifetimes keep the retail loop
+ * allocation. */
 #pragma push
-/* measured: baseline C nd 17217B; adjacent-local declaration probe nd 17217B; retain settings for owner MATCH. */
+/* measured: retail's loop register allocation needs opt_lifetimes; changing the local declaration
+ * order has no effect. */
 #pragma opt_lifetimes on
 typedef struct {
     u8 f0;
@@ -5020,9 +4778,8 @@ typedef struct {
 // Fcl combine menu price/purchase screen (entered from state 0x10). With f0 == 0xF it lists candidate personas with a buffed-stat price after discount and buys the selected one: inserts it into the roster and deducts the price.
 // With f0 == 0x10 it runs the same list with a non-purchase apply action and no price or money change.
 // FUN_002FBEA0
-/* List counts deliberately use the signed low halfword of the word at +8;
-   retain that alias width. The detail task exposes only a byte-state getter,
-   so its state at +1 remains a raw byte rather than an invented full layout. */
+/* List counts use the signed low halfword of the word at +8; the detail task's state at +1 is read
+ * as a raw byte. */
 void fclCombineMenuPriceInfo(u8 *task) {
 
     struct {
@@ -6118,8 +5875,6 @@ void fclCombineMenuPriceInfo(u8 *task) {
 #pragma pop
 // Fcl combine slot claim: takes the first free combine slot (0-3) whose gate is met and sets up its item; 0 if none.
 // FUN_00302570
-/* Historical whole-layout probe: 253 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 s32 fclCombineClaimSlot(u8 *task) {
     FclCombineWork *menuState;
     u8 *p;
@@ -6132,12 +5887,9 @@ s32 fclCombineClaimSlot(u8 *task) {
     i = 0;
     while ((s32)i < 4) {
         if ((datGetFlag((s32)i + 0x1309) == 0) && (datGetPersonaCacheCompletionPercent() >= D_00749100[(s32)i])) {
-            /* measured: direct field typing changes 232 normalized bytes in the full owner. */
             menuState->claimSlot = (s8)i;
             ((FclCombineWork *)p)->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
-            /* measured: direct field typing changes 156/233 normalized bytes in the full owner. */
             nmMesWindowSetSlotString(menuState->fD, 0, datGetItemNameId((s16)(menuState->claimSlot + 0x464)));
-            /* measured: direct field typing changes 165/233 normalized bytes in the full owner. */
             nmMesWindowShowSlotRecord(menuState->fD, menuState->claimSlot + 0x17);
             datSetFlag((s32)i + 0x1309, 1);
             datItemSetCount((s16)(i + 0x464), 1);
@@ -6164,18 +5916,10 @@ s32 fclCombineApplyDiscount(u16 personaId, s32 price)
     return price;
 }
 
-/* MATCHED: no pragmas. Retail-order rewrite of the guarded draft: both
-   bb680 tests take the busy arm first; the 0xD store is re-read as
-   *(s8 *)(p + 0xD) (b210 forwards it); the tracked positions are FclVec2f
-   struct copies in and out of fclSpriteWork; fclSpriteStartPositionAt takes FclVec2f
-   by value, so *(FclVec2f *)(q + 0x38) gives retail's ldr/ldl; 413 and 321
-   are (f32) int conversions (cvt.s.w); the format string is a gp-relative
-   s32 (iGpffffa8a0). Stack slots follow declaration order: fv0 first, the
-   FclVec2 constructor results, then fv7..fv1, then buf. */
-// Fcl combine menu detail panels (state 7): shows the two detail panels with their counts (0x6E-0x72), follows the sprite anchors each frame (0x73, 0x74), and the d-pad switches panels; cancel (0x20) returns to state 0 at sub-state 0x1A.
+/* Fcl combine menu detail panels (state 7): shows both detail panels with counts, follows the
+ * sprite anchors each frame, d-pad switches panels, and cancel returns to state 0 at sub-state
+ * 0x1A. */
 // FUN_00302770
-/* Historical whole-layout probe: 2717 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineMenuDetailPanels(u8 *task) {
     FclCombineWork *menuState;
     extern u8 *fclSpriteWork(u8 *task);
@@ -6238,7 +5982,6 @@ void fclCombineMenuDetailPanels(u8 *task) {
         fclCombineSlideInSlotSprites(task, 0x1E7, 0x96);
         if (datGetFlag(0x131A) == 0) {
             ((FclCombineWork *)p)->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
-            /* measured: direct field typing changes 2690 normalized bytes in the full owner. */
             nmMesWindowShowSlotRecord(menuState->fD, 0x4E);
             datSetFlag(0x131A, 1);
             p[1] = 0x6F;
@@ -6253,26 +5996,19 @@ void fclCombineMenuDetailPanels(u8 *task) {
         cmmDateSelectionRefresh(task);
         ((FclCombineWork *)p)->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
         sprintf(buf, (const char *)&iGpffffa8a0, fclCalendarMonth());
-        /* measured: direct field typing changes 2525 normalized bytes in the full owner. */
         nmMesWindowSetSlotString(menuState->fD, 0, buf);
         sprintf(buf, (const char *)&iGpffffa8a0, (u8)fclCalendarDay());
-        /* measured: direct field typing changes 2525 normalized bytes in the full owner. */
         nmMesWindowSetSlotString(menuState->fD, 1, buf);
-        /* measured: direct field typing changes 2525 normalized bytes in the full owner. */
         nmMesWindowShowSlotRecord(menuState->fD, 0x4A);
         p[1] = 0x71;
         break;
     case 0x71:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 2430 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 2430 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             p[1] = 0x72;
-            /* measured: direct field typing changes 59 normalized bytes in the full owner. */
             menuState->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
-            /* measured: direct field typing changes 59 normalized bytes in the full owner. */
             nmMesWindowShowSlotRecord(menuState->fD, 0x4B);
             fclCombineDrawStageBanner(task, 2, 0);
             position3 = fclMakeVec2(57.0f, 72.0f);
@@ -6289,10 +6025,8 @@ void fclCombineMenuDetailPanels(u8 *task) {
         break;
     case 0x72:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 2150 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 2150 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             p[1] = 0x73;
         }
@@ -6332,7 +6066,6 @@ void fclCombineMenuDetailPanels(u8 *task) {
                 position15 = fclMakeVec2(460.0f, 72.0f);
                 position16 = fclMakeVec2(460.0f, 72.0f);
                 fclCombineSlidePanelColumn(task, 1, position15, position16, 0, 0);
-                /* measured: direct field typing changes 1774 normalized bytes in the full owner. */
                 menuState->f122 = 0;
             } else if (D_008C024E[0] & 4) {
                 if (((FclCombineWork *)p)->f122 != 0) {
@@ -6351,7 +6084,6 @@ void fclCombineMenuDetailPanels(u8 *task) {
                 position21 = fclMakeVec2(460.0f, 72.0f);
                 position22 = fclMakeVec2(460.0f, 72.0f);
                 fclCombineSlidePanelColumn(task, 1, position21, position22, 0, 1);
-                /* measured: direct field typing changes 1453 normalized bytes in the full owner. */
                 menuState->f122 = 1;
             } else if ((D_008C024E[0] & 0x20) && p[1] == 0x73) {
                 nmMesWindowDestroySlot(((FclCombineWork *)p)->fD);
@@ -6415,10 +6147,8 @@ void fclCombineMenuDetailPanels(u8 *task) {
         break;
     case 0x6F:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 176 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 176 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             p[1] = 0x70;
             position37 = fclMakeVec2(640.0f, 98.0f);
@@ -6430,13 +6160,9 @@ void fclCombineMenuDetailPanels(u8 *task) {
     }
 }
 
-/* measured: 1036/1040 bytes with eight resolved code relocations and a fully resolved
-   44-byte switch table at 0x00749300. Independent searches keep their own
-   short counters; the nested category search retains separate inner/outer
-   lifetimes. The existing loop-invariant pragma hoists the flag constant. */
-// Fcl combine rule check: tests the ids against the combine's three category rules; 1 when they pass or no rule is set.
+/* Fcl combine rule check: tests the ids against the combine's three category rules; 1 when they
+ * pass or no rule is set. Each search keeps its own short counter. */
 // FUN_00303610
-/* measured: baseline C nd 294B; adjacent-local declaration probe nd 294B; retain settings for owner MATCH. */
 s32 fclCombineCheckRules(u8 *task, s8 sourceCount, u16 *personaIds)
 {
     u8 *rule;
@@ -6560,8 +6286,6 @@ s32 fclCombineCheckRules(u8 *task, s8 sourceCount, u16 *personaIds)
 
 // Fcl combine id check: gathers the item ids for the combine's stage count and validates them; 1 when they pass.
 // FUN_00303A20
-/* Historical whole-layout probe: 730 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 s32 fclCombineCheckIds(u8 *task) {
     s8 *p = ((s8*)((KwlnTask *)task)->work);
     FclCombineWork *menuState = (FclCombineWork *)p;
@@ -6581,37 +6305,25 @@ s32 fclCombineCheckIds(u8 *task) {
         break;
     case 4:
         buf[0] = ((DatPersonaRecord *)(yListSlotEntry((s8)(((FclCombineWork *)p)->f11E + 1), 0)))->id;
-        /* measured: direct field typing changes 725 normalized bytes in the full owner. */
         buf[1] = ((DatPersonaRecord *)(yListSlotEntry((s8)(menuState->f11E + 1), 1)))->id;
-        /* measured: direct field typing changes 738 normalized bytes in the full owner. */
         buf[2] = ((DatPersonaRecord *)(yListSlotEntry((s8)(menuState->f11E + 1), 2)))->id;
-        /* measured: direct field typing changes 738 normalized bytes in the full owner. */
         buf[3] = ((DatPersonaRecord *)(yListSlotEntry((s8)(menuState->f11E + 1), 3)))->id;
         buf[4] = ((DatPersonaRecord *)(yListSlotEntry(p[0x2F9], p[0x2FA])))->id;
         break;
     case 5:
         buf[0] = ((DatPersonaRecord *)(yListSlotEntry((s8)(((FclCombineWork *)p)->f11E + 1), 0)))->id;
-        /* measured: direct field typing changes 722 normalized bytes in the full owner. */
         buf[1] = ((DatPersonaRecord *)(yListSlotEntry((s8)(menuState->f11E + 1), 1)))->id;
-        /* measured: direct field typing changes 731 normalized bytes in the full owner. */
         buf[2] = ((DatPersonaRecord *)(yListSlotEntry((s8)(menuState->f11E + 1), 2)))->id;
-        /* measured: direct field typing changes 731 normalized bytes in the full owner. */
         buf[3] = ((DatPersonaRecord *)(yListSlotEntry((s8)(menuState->f11E + 1), 3)))->id;
-        /* measured: direct field typing changes 731 normalized bytes in the full owner. */
         buf[4] = ((DatPersonaRecord *)(yListSlotEntry((s8)(menuState->f11E + 1), 4)))->id;
         buf[5] = ((DatPersonaRecord *)(yListSlotEntry(p[0x2F9], p[0x2FA])))->id;
         break;
     case 6:
         buf[0] = ((DatPersonaRecord *)(yListSlotEntry((s8)(((FclCombineWork *)p)->f11E + 1), 0)))->id;
-        /* measured: direct field typing changes 719 normalized bytes in the full owner. */
         buf[1] = ((DatPersonaRecord *)(yListSlotEntry((s8)(menuState->f11E + 1), 1)))->id;
-        /* measured: direct field typing changes 723 normalized bytes in the full owner. */
         buf[2] = ((DatPersonaRecord *)(yListSlotEntry((s8)(menuState->f11E + 1), 2)))->id;
-        /* measured: direct field typing changes 723 normalized bytes in the full owner. */
         buf[3] = ((DatPersonaRecord *)(yListSlotEntry((s8)(menuState->f11E + 1), 3)))->id;
-        /* measured: direct field typing changes 723 normalized bytes in the full owner. */
         buf[4] = ((DatPersonaRecord *)(yListSlotEntry((s8)(menuState->f11E + 1), 4)))->id;
-        /* measured: direct field typing changes 723 normalized bytes in the full owner. */
         buf[5] = ((DatPersonaRecord *)(yListSlotEntry((s8)(menuState->f11E + 1), 5)))->id;
         buf[6] = ((DatPersonaRecord *)(yListSlotEntry(p[0x2F9], p[0x2FA])))->id;
         break;
@@ -6619,12 +6331,10 @@ s32 fclCombineCheckIds(u8 *task) {
     return fclCombineCheckRules(task, p[0x1A], buf);
 }
 
-/* measured: 740 executable bytes / 752B retail window, all eight relocations exact.
-   Five s32 weights and five s8 IDs reproduce the real stack buffers. A named
-   compact-store pointer and the s16 value cast preserve retail address lifetimes. */
-// Fcl combine outcome list: appends to the outcome list at p+0x2DA (count at p+0x2DF) from either the current calendar row (selector -1) or the selected entry's five candidates. Candidates with weight 100 are appended directly; the rest are weighted and one is drawn with RpRandom.
+/* Appends outcomes to the list at p+0x2DA (count at p+0x2DF) from the calendar row (selector -1) or
+ * the selected entry's five candidates; weight-100 candidates go in directly, the others are drawn
+ * by weight with RpRandom. */
 // FUN_00303DE0
-/* measured: baseline C nd 154B; adjacent-local declaration probe nd 154B; retain settings for owner MATCH. */
 void fclCombineRollOutcomeList(u8 *task)
 {
     s32 weights[5];
@@ -6707,20 +6417,10 @@ void fclCombineRollOutcomeList(u8 *task)
         }
     }
 }
-/* Defined below.  The selector is a signed byte that fclCombineRollOutcome forwards
-   without re-extending it. */
+/* The selector is a signed byte that fclCombineRollOutcome forwards without re-extending it. */
 s32 fclCombineStageValue(s32 count, s8 stageKind);
-/* measured: object 532B/window 544B, nd 0. The five-byte weight table copy is
-   the tree's load / advance / decrement / store order through a named byte
-   temporary. The random roll is an s32 holding the (s8) remainder (extended
-   once, retail $a0); the running sum and the s16 index are narrow locals that
-   re-extend at each use. The picked stage is an s8 assigned from the call
-   (extension at the assignment), then copied into a separate s32 `cur`
-   (second extension after the join) that the retry loop compares without a
-   further extension; count is an s32 narrowed with `(s8)(count + 1)` so the
-   final call passes it raw. Declaration order colours k/limit/count into
-   $s5/$s4/$s3 (count reuses arg1's register after its last use). */
-// Fcl combine outcome roll: picks the stage (0-4) from the five weights, then the result count, and returns its value.
+/* Fcl combine outcome roll: picks the stage (0-4) from the five weights, then the result count, and
+ * returns its value. */
 // FUN_003040D0
 s32 fclCombineRollOutcome(u8 *task, s16 level, s8 stageKind)
 {
@@ -6808,23 +6508,14 @@ s32 fclCombineStageValue(s32 count, s8 stageKind)
     return -1;
 }
 
-/* A 0x30-byte combination recipe, as copied out by yListSlotCopyEntry and
-   passed by value to fclCombinePickCandidateId.  Its word alignment gives the
-   two-word copy loop retail uses for the argument. */
+/* A 0x30-byte combination recipe, copied out by yListSlotCopyEntry and passed by value to
+ * fclCombinePickCandidateId. */
 typedef struct {
     s32 data[12];
 } FclCombineRecipe;
 
-/* measured: MATCH.  The recipe is passed by value: the six 8-byte blocks
-   retail copies into sp+0x4F0 are the compiler's own copy of the struct
-   argument.  The key arrives as an s16 and goes to func_00313690
-   unextended; bound takes the sign extension.  The loop then fills an
-   sp+0x70 s16 table from the func_00313690 key and retries rand()%count
-   until func_0010ce10 succeeds.  The random divisor is a separate s32
-   local after the sign-extended s64 count; a signed modulo result and a
-   named s16 *entry table pointer give retail's dsll32/dsra32 remainder
-   and its separate addiu 0x70 before lhu. */
-// Fcl combine candidate id: picks a random persona id for the recipe from the ids of the same kind (func_00313690) as arg1, excluding arg1 itself. The draw loop stops at the first pick that datPersonaFindSkillSlot reports as absent (-1), as written.
+/* The recipe is passed by value. Retail's six 8-byte block copies are the compiler's copy of the
+ * struct argument. */
 // FUN_00304410
 u16 fclCombinePickCandidateId(FclCombineRecipe recipe, s16 excludedId) {
     s16 table[0x240];
@@ -6879,11 +6570,10 @@ typedef struct {
     u16 replacement;
 } FclSkillPair;
 
-/* Preserve signed loop induction and row-coordinate invariants from retail. */
-/* measured: baseline C nd 322B; adjacent-local declaration probe nd 329B; retain settings for owner MATCH. */
-/* Both grid transitions share the header/row draw sequence; mode 0 preserves cell positions. */
-/* The provider-relative slot animation layout also preserves this inlined
-   roster-grid sequence, including its original argument evaluation shape. */
+/* Preserve signed loop induction and row-coordinate invariants from retail. Both grid transitions
+ * share the header/row draw sequence; mode 0 preserves cell positions. The provider-relative slot
+ * animation layout also preserves this inlined roster-grid sequence, including its original
+ * argument evaluation shape. */
 #define FCL_COMBINE_GRID_ROW(menu, outer, inner, mode, headerPosition, cellPosition, color0, color1) do { \
     s32 grid = mode; \
  \
@@ -6921,8 +6611,6 @@ typedef struct {
 // Fcl combine menu roster fusion (state 8): picks two roster personas (0x75-0x7E) and previews the match bonus, then confirms (0x81-0x83), writes the fused persona and removes both sources from the roster.
 // The result is added to the roster and may replace a skill (0x85-0x89).
 // FUN_00304580
-/* Historical whole-layout probe: 12990 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineMenuRosterFusion(u8 *task) {
     KwlnTask *ownerTask = (KwlnTask *)task;
     FclDrawColor gridBaseColor;
@@ -6938,9 +6626,6 @@ void fclCombineMenuRosterFusion(u8 *task) {
     FclDrawColor normalNumberColor;
     FclDrawColor normalDigitColor;
     u8 *ps;
-
-
-
 
 
     u8 personaState[5];
@@ -7125,7 +6810,7 @@ void fclCombineMenuRosterFusion(u8 *task) {
     u8 *sprite17;
     work = (FclCombineWork*)((KwlnTask *)task)->work;
     state = (u8)(work->f1);
-    switch (state) {                               /* switch 1 */
+    switch (state) {
     case 0x75:
         if (datGetFlag(0x131C) == 0) {
             work->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
@@ -7245,7 +6930,7 @@ void fclCombineMenuRosterFusion(u8 *task) {
     case 0x79:
         fclCombineAdvanceGridFade(task, 0x7B, 0);
         break;
-    case 0x7B:                                      /* switch 1 */
+    case 0x7B:
         for (rosterIndex2 = 0; rosterIndex2 < (datPersonaRosterCapacity() & 0xFFFF); rosterIndex2++) {
             fclCombineSelectSlotEntry(task, (s8)(rosterIndex2), -1, -1, 0);
         }
@@ -7334,7 +7019,7 @@ void fclCombineMenuRosterFusion(u8 *task) {
             }
         }
         break;
-    case 0x7C:                                      /* switch 1 */
+    case 0x7C:
         if (((s16)(fclSpriteFlagBit((((FclCombineRowSprite *)fclSpriteEntry(0x21C))->flags), 1))) != 1) {
             fclDrawSetPlacement((u8 *)work->drawTask.handle, (s32)yListSlotEntry(0, work->f11E), 0, 0);
             personaModel2 = (s32)(fclDrawGetResource((u8 *)work->drawTask.handle));
@@ -7344,7 +7029,7 @@ void fclCombineMenuRosterFusion(u8 *task) {
             return;
         }
         break;
-    case 0x7D:                                      /* switch 1 */
+    case 0x7D:
         if ((((s8)(fclDrawGetState((u8 *)work->drawTask.handle))) < 0) || (((s8)(fclDrawGetState((u8 *)work->drawTask.handle))) > 5)) {
             for (rosterIndex4 = 0; rosterIndex4 < (datPersonaRosterCapacity() & 0xFFFF); rosterIndex4++) {
                 position14 = fclMakeVec2(16.0f, 128.0f);
@@ -7382,10 +7067,9 @@ void fclCombineMenuRosterFusion(u8 *task) {
             work->f1 = 0x1B;
         }
         break;
-    case 0x7E:                                      /* switch 1 */
+    case 0x7E:
         work->f129 = -1;
         spriteAlpha = (u8)((((FclCombineRowSprite *)fclSpriteEntry(0x7C))->alpha));
-        /* measured: direct field typing changes 12994 normalized bytes in the full owner. */
         menuWork5 = (FclCombineWork*)ownerTask->work;
         sprite14 = (u8 *)(fclSpriteEntry(0x7C));
         position40 = ((FclCombineRowSprite *)sprite14)->position;
@@ -7402,12 +7086,9 @@ void fclCombineMenuRosterFusion(u8 *task) {
                     sprite15 = fclSpriteEntry(rosterIndex12 + 0x297);
                     ((FclCombineRowSprite *)sprite15)->color = selectedRowColor;
                     sprite16 = fclSpriteEntry(rosterIndex12 + 0x28B);
-                    /* measured: direct field typing changes 8 normalized bytes in the full owner. */
                     ((FclCombineRowSprite *)sprite16)->color = MEMBER(FclDrawColor, sprite15, FclCombineRowSprite, color);
                     sprite17 = fclSpriteEntry(id27D);
-                    /* measured: direct field typing changes 8 normalized bytes in the full owner. */
                     ((FclCombineRowSprite *)sprite17)->color = MEMBER(FclDrawColor, sprite16, FclCombineRowSprite, color);
-                    /* measured: direct field typing changes 8 normalized bytes in the full owner. */
                     ((FclCombineRowSprite *)fclSpriteEntry(id270))->color = MEMBER(FclDrawColor, sprite17, FclCombineRowSprite, color);
                     selectedNumberColor = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
                     ((FclCombineRowSprite *)fclSpriteEntry(rosterIndex12 + 0x2A3))->color = selectedNumberColor;
@@ -7421,12 +7102,10 @@ void fclCombineMenuRosterFusion(u8 *task) {
                     normalRowColor = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
                     sprite8 = fclSpriteEntry(id27D_2);
                     ((FclCombineRowSprite *)sprite8)->color = normalRowColor;
-                    /* measured: direct field typing changes 8 normalized bytes in the full owner. */
                     ((FclCombineRowSprite *)fclSpriteEntry(id270_2))->color = MEMBER(FclDrawColor, sprite8, FclCombineRowSprite, color);
                     normalLabelColor = fclMakeDrawColor(0x49, 0x72, 0xFF, 0xFF);
                     sprite9 = fclSpriteEntry(rosterIndex12 + 0x297);
                     ((FclCombineRowSprite *)sprite9)->color = normalLabelColor;
-                    /* measured: direct field typing changes 8 normalized bytes in the full owner. */
                     ((FclCombineRowSprite *)fclSpriteEntry(rosterIndex12 + 0x28B))->color = MEMBER(FclDrawColor, sprite9, FclCombineRowSprite, color);
                     normalNumberColor = fclMakeDrawColor(0, 0, 0x66, 0xFF);
                     ((FclCombineRowSprite *)fclSpriteEntry(rosterIndex12 + 0x2A3))->color = normalNumberColor;
@@ -7466,7 +7145,7 @@ void fclCombineMenuRosterFusion(u8 *task) {
                     }
                     matchIndex2 = (s8)(fclCombineFindMatchIndex(task));
                     switch (matchIndex2) {            /* switch 3; irregular */
-                    case 0:                         /* switch 3 */
+                    case 0:
                         personaRecord = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                         (((DatPersonaRecord *)personaRecord)->stats[0]) = (u8) ((((DatPersonaRecord *)personaRecord)->stats[0]) + 6);
                         personaRecord2 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
@@ -7474,7 +7153,7 @@ void fclCombineMenuRosterFusion(u8 *task) {
                         work->f30C[0] = 6;
                         work->f30C[1] = 6;
                         break;
-                    case 1:                         /* switch 3 */
+                    case 1:
                         personaRecord3 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                         (((DatPersonaRecord *)personaRecord3)->stats[2]) = (u8) ((((DatPersonaRecord *)personaRecord3)->stats[2]) + 6);
                         personaRecord4 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
@@ -7482,7 +7161,7 @@ void fclCombineMenuRosterFusion(u8 *task) {
                         work->f30C[2] = 6;
                         work->f30C[3] = 6;
                         break;
-                    case 2:                         /* switch 3 */
+                    case 2:
                         personaRecord5 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                         (((DatPersonaRecord *)personaRecord5)->stats[4]) = (u8) ((((DatPersonaRecord *)personaRecord5)->stats[4]) + 6);
                         personaRecord6 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
@@ -7490,7 +7169,7 @@ void fclCombineMenuRosterFusion(u8 *task) {
                         work->f30C[4] = 6;
                         work->f30C[0] = 6;
                         break;
-                    case 3:                         /* switch 3 */
+                    case 3:
                         personaRecord7 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                         (((DatPersonaRecord *)personaRecord7)->stats[1]) = (u8) ((((DatPersonaRecord *)personaRecord7)->stats[1]) + 6);
                         personaRecord8 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
@@ -7567,9 +7246,10 @@ void fclCombineMenuRosterFusion(u8 *task) {
             }
         }
         break;
-    case 0x7F:                                      /* switch 1 */
+    case 0x7F:
         spriteAlpha2 = (u8)((((FclCombineRowSprite *)fclSpriteEntry(0x7C))->alpha));
-        /* measured: direct field typing changes 12994 normalized bytes in the full owner. */
+        /* The sprite is read through a u8 pointer then cast; typing the field directly changes the
+         * compiled output. */
         menuWork = (FclCombineWork*)ownerTask->work;
         sprite10 = (u8 *)(fclSpriteEntry(0x7C));
         position41 = ((FclCombineRowSprite *)sprite10)->position;
@@ -7584,9 +7264,10 @@ void fclCombineMenuRosterFusion(u8 *task) {
             return;
         }
         break;
-    case 0x80:                                      /* switch 1 */
+    case 0x80:
         spriteAlpha3 = (u8)((((FclCombineRowSprite *)fclSpriteEntry(0x7C))->alpha));
-        /* measured: direct field typing changes 12994 normalized bytes in the full owner. */
+        /* The sprite is read through a u8 pointer then cast; typing the field directly changes the
+         * compiled output. */
         menuWork2 = (FclCombineWork*)ownerTask->work;
         sprite11 = (u8 *)(fclSpriteEntry(0x7C));
         position42 = ((FclCombineRowSprite *)sprite11)->position;
@@ -7611,9 +7292,10 @@ void fclCombineMenuRosterFusion(u8 *task) {
             return;
         }
         break;
-    case 0x81:                                      /* switch 1 */
+    case 0x81:
         spriteAlpha4 = (u8)((((FclCombineRowSprite *)fclSpriteEntry(0x7C))->alpha));
-        /* measured: direct field typing changes 12994 normalized bytes in the full owner. */
+        /* The sprite is read through a u8 pointer then cast; typing the field directly changes the
+         * compiled output. */
         menuWork3 = (FclCombineWork*)ownerTask->work;
         sprite12 = (u8 *)(fclSpriteEntry(0x7C));
         position43 = ((FclCombineRowSprite *)sprite12)->position;
@@ -7681,25 +7363,25 @@ void fclCombineMenuRosterFusion(u8 *task) {
                 shdPersonaFillStateBlock(fclDrawGetResource((u8 *)work->drawTask.handle), personaState);
                 matchIndex4 = (s8)(fclCombineFindMatchIndex(task));
                 switch (matchIndex4) {                 /* switch 4; irregular */
-                case 0:                             /* switch 4 */
+                case 0:
                     personaRecord9 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (((DatPersonaRecord *)personaRecord9)->stats[0]) = (u8) ((((DatPersonaRecord *)personaRecord9)->stats[0]) - 6);
                     personaRecord10 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (((DatPersonaRecord *)personaRecord10)->stats[1]) = (u8) ((((DatPersonaRecord *)personaRecord10)->stats[1]) - 6);
                     return;
-                case 1:                             /* switch 4 */
+                case 1:
                     personaRecord11 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (((DatPersonaRecord *)personaRecord11)->stats[2]) = (u8) ((((DatPersonaRecord *)personaRecord11)->stats[2]) - 6);
                     personaRecord12 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (((DatPersonaRecord *)personaRecord12)->stats[3]) = (u8) ((((DatPersonaRecord *)personaRecord12)->stats[3]) - 6);
                     return;
-                case 2:                             /* switch 4 */
+                case 2:
                     personaRecord13 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (((DatPersonaRecord *)personaRecord13)->stats[4]) = (u8) ((((DatPersonaRecord *)personaRecord13)->stats[4]) - 6);
                     personaRecord14 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (((DatPersonaRecord *)personaRecord14)->stats[0]) = (u8) ((((DatPersonaRecord *)personaRecord14)->stats[0]) - 6);
                     return;
-                case 3:                             /* switch 4 */
+                case 3:
                     personaRecord15 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                     (((DatPersonaRecord *)personaRecord15)->stats[1]) = (u8) ((((DatPersonaRecord *)personaRecord15)->stats[1]) - 6);
                     personaRecord16 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
@@ -7724,13 +7406,13 @@ void fclCombineMenuRosterFusion(u8 *task) {
                     shdPersonaFillStateBlock(fclDrawGetResource((u8 *)work->drawTask.handle), personaState2);
                     previewSelection = (s8)(work->f122);
                     switch (previewSelection) {            /* switch 5; irregular */
-                    case 0:                         /* switch 5 */
+                    case 0:
                         fclDrawSetPlacementEx((u8 *)work->drawTask.handle, (s32)yListSlotEntry(0, work->f128), 0, 0, 1);
                         break;
-                    case 1:                         /* switch 5 */
+                    case 1:
                         fclDrawSetPlacementEx((u8 *)work->drawTask.handle, (s32)yListSlotEntry(0, work->f129), 0, 0, 1);
                         break;
-                    case 2:                         /* switch 5 */
+                    case 2:
                         fclDrawSetPlacementEx((u8 *)work->drawTask.handle, (s32)yListSlotEntry(work->f2F9, work->f2FA), 0, 0, 1);
                         break;
                     }
@@ -7755,13 +7437,13 @@ void fclCombineMenuRosterFusion(u8 *task) {
                     shdPersonaFillStateBlock(fclDrawGetResource((u8 *)work->drawTask.handle), personaState3);
                     previewSelection2 = (s8)(work->f122);
                     switch (previewSelection2) {            /* switch 6; irregular */
-                    case 0:                         /* switch 6 */
+                    case 0:
                         fclDrawSetPlacementEx((u8 *)work->drawTask.handle, (s32)yListSlotEntry(0, work->f128), 0, 0, 1);
                         break;
-                    case 1:                         /* switch 6 */
+                    case 1:
                         fclDrawSetPlacementEx((u8 *)work->drawTask.handle, (s32)yListSlotEntry(0, work->f129), 0, 0, 1);
                         break;
-                    case 2:                         /* switch 6 */
+                    case 2:
                         fclDrawSetPlacementEx((u8 *)work->drawTask.handle, (s32)yListSlotEntry(work->f2F9, work->f2FA), 0, 0, 1);
                         break;
                     }
@@ -7782,9 +7464,8 @@ void fclCombineMenuRosterFusion(u8 *task) {
             }
         }
         break;
-    case 0x82:                                      /* switch 1 */
+    case 0x82:
         spriteAlpha5 = (u8)((((FclCombineRowSprite *)fclSpriteEntry(0x7C))->alpha));
-        /* measured: direct field typing changes 12994 normalized bytes in the full owner. */
         menuWork4 = (FclCombineWork*)ownerTask->work;
         sprite13 = (u8 *)(fclSpriteEntry(0x7C));
         position44 = ((FclCombineRowSprite *)sprite13)->position;
@@ -7815,7 +7496,7 @@ void fclCombineMenuRosterFusion(u8 *task) {
             return;
         }
         break;
-    case 0x83:                                      /* switch 1 */
+    case 0x83:
         if (nmMesWindowSlotStatus(work->fD) != 0) {
             nmMesWindowStepSlotRelease(work->fD);
             return;
@@ -7839,25 +7520,25 @@ void fclCombineMenuRosterFusion(u8 *task) {
             shdPersonaFillStateBlock(fclDrawGetResource((u8 *)work->drawTask.handle), personaState4);
             matchIndex3 = (s8)(fclCombineFindMatchIndex(task));
             switch (matchIndex3) {                    /* switch 7; irregular */
-            case 0:                                 /* switch 7 */
+            case 0:
                 personaRecord17 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (((DatPersonaRecord *)personaRecord17)->stats[0]) = (u8) ((((DatPersonaRecord *)personaRecord17)->stats[0]) - 6);
                 personaRecord18 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (((DatPersonaRecord *)personaRecord18)->stats[1]) = (u8) ((((DatPersonaRecord *)personaRecord18)->stats[1]) - 6);
                 break;
-            case 1:                                 /* switch 7 */
+            case 1:
                 personaRecord19 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (((DatPersonaRecord *)personaRecord19)->stats[2]) = (u8) ((((DatPersonaRecord *)personaRecord19)->stats[2]) - 6);
                 personaRecord20 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (((DatPersonaRecord *)personaRecord20)->stats[3]) = (u8) ((((DatPersonaRecord *)personaRecord20)->stats[3]) - 6);
                 break;
-            case 2:                                 /* switch 7 */
+            case 2:
                 personaRecord21 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (((DatPersonaRecord *)personaRecord21)->stats[4]) = (u8) ((((DatPersonaRecord *)personaRecord21)->stats[4]) - 6);
                 personaRecord22 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (((DatPersonaRecord *)personaRecord22)->stats[0]) = (u8) ((((DatPersonaRecord *)personaRecord22)->stats[0]) - 6);
                 break;
-            case 3:                                 /* switch 7 */
+            case 3:
                 personaRecord23 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
                 (((DatPersonaRecord *)personaRecord23)->stats[1]) = (u8) ((((DatPersonaRecord *)personaRecord23)->stats[1]) - 6);
                 personaRecord24 = (u16 *)(yListSlotEntry(work->f2F9, work->f2FA));
@@ -7876,7 +7557,7 @@ void fclCombineMenuRosterFusion(u8 *task) {
         }
         nmMesWindowDestroySlot(work->fD);
         return;
-    case 0x84:                                      /* switch 1 */
+    case 0x84:
         if (((s8)(fclDrawGetState((u8 *)work->drawTask.handle))) == 0xE) {
             fclCombineLayoutDetailSprites(task, 0);
             fclSpriteSetHidden((u8 *)(work->headerTask.handle), 0);
@@ -7888,7 +7569,7 @@ void fclCombineMenuRosterFusion(u8 *task) {
             return;
         }
         break;
-    case 0x85:                                      /* switch 1 */
+    case 0x85:
         if (nmMesWindowSlotStatus(work->fD) != 0) {
             nmMesWindowStepSlotRelease(work->fD);
             return;
@@ -7908,7 +7589,7 @@ void fclCombineMenuRosterFusion(u8 *task) {
         }
         fclCombinePlayCue(task, 0x1E, 1);
         return;
-    case 0x86:                                      /* switch 1 */
+    case 0x86:
         if (nmMesWindowSlotStatus(work->fD) != 0) {
             nmMesWindowStepSlotRelease(work->fD);
             return;
@@ -7951,7 +7632,7 @@ finishRosterFusionMessage:
         work->f1 = 0x84U;
         nmMesWindowDestroySlot(work->fD);
         return;
-    case 0x88:                                      /* switch 1 */
+    case 0x88:
         if (nmMesWindowSlotStatus(work->fD) != 0) {
             nmMesWindowStepSlotRelease(work->fD);
             return;
@@ -7970,7 +7651,7 @@ finishRosterFusionMessage:
         datSetFlag(0x1307, 0);
         work->selectedIds[2] = 0x16B;
         return;
-    case 0x89:                                      /* switch 1 */
+    case 0x89:
         skillPair2 = (FclSkillPair *)iGpffffb3ec + work->outcome.signedValue;
         work->f2D8 = fclAddClamped(work->f2D8, 1, 0x28, 0, 1);
         if (work->f2D8 == 0x14) {
@@ -7993,7 +7674,7 @@ finishRosterFusionMessage:
             return;
         }
         break;
-    case 0x87:                                      /* switch 1 */
+    case 0x87:
         if (nmMesWindowSlotStatus(work->fD) != 0) {
             nmMesWindowStepSlotRelease(work->fD);
             return;
@@ -8009,19 +7690,9 @@ finishRosterFusionMessage:
     }
 }
 #undef FCL_COMBINE_GRID_ROW
-/* measured: same stack-lookup-table floor as fclCombineFindMatchIndex — retail loads
-   tbl[i] via sll/addu($sp)/addiu(0x48)/lh ($v0); mwcc b210 folds the 0x48
-   into the load displacement in every spelling (array-index nd 42,
-   byte-offset arithmetic nd 42), shifting all following words by one. */
-/* MATCHED wave 14: the stack-table INITIALIZER was the real defect, not the
-   load form. A `s16 table[4] = {…}` initializer makes mwcc load the 4
-   constants from a gp-relative pool (lh $a2,($gp) x4) instead of retail's
-   four addiu/sh pairs; writing `table[0]=0xD; table[1]=0x35; …` as
-   individual stores reproduces retail exactly (the sll/addu/sp/addiu(0x48)/
-   lhu load shape then matches byte-for-byte). nd 95 -> 1 -> MATCH. Note the
-   return type is u16* (returns the raw func_002e48a0 results), and the
-   per-iteration args reload p[0x128]/p[0x129] with (s8) hunches. */
-// Fcl combine match: when one material's code matches a table entry, returns the other material's record; else 0.
+/* The stack table is filled with individual stores because an initializer list makes the compiler
+ * load the constants from a gp-relative pool instead. Fcl combine match: when one material's code
+ * matches a table entry, returns the other material's record; else 0. */
 // FUN_00308CC0
 u16 *fclCombineFindMatchPtr(u8 *task) {
     s16 table[4];
@@ -8060,19 +7731,8 @@ s32 fclCombineRollTier(u8 *task)
     }
     return 5;
 }
-/* measured: retail loads the stack lookup table via sll/addu($sp)/addiu(0x48)
-   then lh ($v0); mwcc b210 folds the 0x48 into the load displacement
-   (sll/addu/lh 0x48($v0)) no matter the spelling — probed array-index,
-   named pointer, byte-offset arithmetic, for-loop, initializer-list, and
-   #pragma schedule on (nd 56); best nd 40. Same floor family as fclCombineApplyPackedResult. */
-/* MATCHED wave 14: same fix as fclCombineFindMatchPtr — the table INITIALIZER was the
-   defect. Individual stores `table[0]=0xD; …` (not the array initializer,
-   which pulls the 4 constants from a gp pool) reproduce retail's addiu/sh
-   pairs; the sll/addu/sp/addiu(0x48)/lh read immediately matches, and the
-   loop/branch layout falls into place (nd 10 -> 1 benign padding -> MATCH).
-   Key types: table is s16[4], p is the s8* work at arg0+0x38, table compare
-   against func_002e48a0(0, p[0x128])[1] / [0x129] with (s8)i return. */
-// Fcl combine match index: returns the index (0-3) of the matching code, or -1 when none matches.
+/* Returns the index (0-3) of the matching code, or -1 when none matches. The table is filled by
+ * individual stores, not an initializer, to match retail. */
 // FUN_00308E50
 s32 fclCombineFindMatchIndex(u8 *task) {
     s16 table[4];
@@ -8088,18 +7748,8 @@ s32 fclCombineFindMatchIndex(u8 *task) {
     }
     return -1;
 }
-/* floor (above marker kept clear for the verifier): the array-address
-   sequence sll/addu(sp)/addiu(0x48) vs mwcc's sll/addiu/addu with swapped
-   $v0/$v1 coloring — probed array, pointer, named-temp, separate-locals,
-   byte-offset forms and schedule/opt_* pragmas; best nd 4 (scheduling). */
-/* MATCHED: the four nibbles are s8 locals (retail re-extends each at use)
-   extracted in n1, n2, n0, n3 order; the flag walk counter is s32 against a
-   (u16) count; total is s16; packed is u16 built n0-first with no nibble
-   masks; the switch is on n0, not n2.  fclCombineOtherHeroId returns u16 and
-   datStageSetId takes u16 (no mask / sign-extension at either call site).
-   The byte sum reads ((u8 *)&datStagedRecord()[0x13])[j] (addu, lbu 0x26)
-   and packed is declared before j (register rotation). */
-// Fcl combine packed result: applies the packed four-nibble result word (datStagedId) to the roster flags (cycling the 0x20/0x40/0x80 bits of members with bit 4) and, when flag 0x1306 is set and 0x1307 is not, either hands the working record to the other hero (when the nibble or total rule fires) or raises the two stat bytes chosen by n0 by D_00749350[n3], capped at 0x63.
+/* The four nibbles are extracted in n1, n2, n0, n3 order; packed is rebuilt n0-first, and the
+ * switch is on n0. */
 // FUN_00308F40
 void fclCombineApplyPackedResult(void) {
     u16 raw;
@@ -8267,18 +7917,10 @@ s32 fclCombineFindRandomSkillIndex(u8 *task)
     }
     return -1;
 }
-/* measured: 6272B == retail window, zero differing words. The search helper
-   below is inlined at each single-id test; the two 6-id scans in states
-   0xCC/0xCE are written out with their own index declared before the outer
-   counter, which gives retail's $t2/$t1 colouring (the helper form swaps them).
-   The fade tail is a second inline so each expansion gets its own stack slots. */
-/* Membership test over the work's slot list (count at +0x2DF, entries at
-   +0x2DA). Retail inlines it at every use and re-reads the work pointer. */
-/* Count and IDs are typed; the measured reload uses the named task member. */
-/* Search the outcome identifiers stored in the combination task. */
+/* measured: retail inlines this membership test at every single-id check and re-reads the work
+ * pointer; the two 6-id scans are written out separately to keep retail's register order. */
 static inline s32 fclCombineHasEntry(u8 *task, s8 id)
 {
-    /* measured: direct field typing changes 4535 normalized bytes in the full owner. */
     u8 *w = MEMBER(u8 *, task, KwlnTask, work);
     s16 i;
 
@@ -8290,20 +7932,18 @@ static inline s32 fclCombineHasEntry(u8 *task, s8 id)
     return 0;
 }
 
-/* Starts the 20-frame fade used when the combine result is confirmed. */
-/* The pointer-valued sprite handle uses the measured named-member form. */
-/* Spawn the white card sprite and reset its fade progress. */
+/* Starts the 20-frame fade used when the combine result is confirmed: spawns the white card sprite
+ * and resets its fade progress. */
 static inline void fclCombineStartFade(u8 *task)
 {
     extern u8 *datScreenPointToWorldPosition(u8 *, s32, s32, f32);
-    extern void cmbCardEffSetSpriteValue(s32, s32); /* lint: allow H011 -- caller's declared types kept; retyping to the definition is unmeasured */
+    extern void cmbCardEffSetSpriteValue(s32, s32); /* lint: allow H011 -- keeps the caller's declared types. */
     u8 *w = ((KwlnTask *)task)->work;
     FclVec3 pos;
     FclDrawColor color;
 
     datScreenPointToWorldPosition((u8 *)&pos, 0x140, 0xA5, 300.0f);
     color = fclMakeDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
-    /* measured: direct field typing changes 1223 normalized bytes in the full owner. */
     cmbCardEffSpawnSprite(MEMBER(u8 *, w, FclCombineWork, cardSpriteTask), pos, 0.0f, 0.0f, 0.0f, 1.0f, color, 0, -1);
     cmbCardEffSetSpriteValue(((FclCombineWork *)w)->cardSpriteTask, 0x14);
     ((FclCombineWork *)w)->f2D8 = 0;
@@ -8313,16 +7953,13 @@ static inline void fclCombineStartFade(u8 *task)
    every inlined search, as retail does. */
 // Fcl combine menu result (state 0x0D): tallies the slot outcome, shows the result text and cues, then hands off to skill pick (sub-state 0xA0) or finish (state 0x0E, sub-state 0xD2); the fade ends the sequence.
 // FUN_003097E0
-/* measured: baseline C nd 799B; adjacent-local declaration probe nd 799B; retain settings for owner MATCH. */
-/* Historical whole-layout probe: 4469 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineMenuResult(u8 *task) {
     FclCombineWork *menuState;
     extern void fclCombineSetModel(s32, u16, s32);
-    extern s32 cmbCardEffSpawnChild(u8 *, u16 *, s32); /* lint: allow H011 -- caller's declared types kept; retyping to the definition is unmeasured */
-    extern s32 cmbCardEffCreateSprite(u8 *, void *, s32); /* lint: allow H011 -- caller's declared types kept; retyping to the definition is unmeasured */
-    extern s8 *cmbCardEffWork(s32); /* lint: allow H011 -- caller's declared types kept; s8 return is dereferenced and retyping is unmeasured */
-    extern s32 cmbCardEffSpriteFileLoaded(s32); /* lint: allow H011 -- caller's declared types kept; retyping to the definition is unmeasured */
+    extern s32 cmbCardEffSpawnChild(u8 *, u16 *, s32); /* lint: allow H011 -- keeps the caller's declared types. */
+    extern s32 cmbCardEffCreateSprite(u8 *, void *, s32); /* lint: allow H011 -- keeps the caller's declared types. */
+    extern s8 *cmbCardEffWork(s32); /* lint: allow H011 -- keeps the caller's types; the s8 return is dereferenced. */
+    extern s32 cmbCardEffSpriteFileLoaded(s32); /* lint: allow H011 -- keeps the caller's declared types. */
     extern s32 fclCombineEventTaskCreate(u8 *, s8);
     extern void frFontExCopyString(void *, void *, s32);
     extern void fclCombineClearState(s32);
@@ -8340,7 +7977,6 @@ void fclCombineMenuResult(u8 *task) {
     char text2[32];
     u16 buf[12];
 
-    /* measured: direct field typing changes 4511 normalized bytes in the full owner. */
     p = MEMBER(u8*, task, KwlnTask, work);
     menuState = (FclCombineWork *)p;
     cls = ((DatPersonaRecord *)yListSlotEntry(((FclCombineWork *)p)->f2F9, ((FclCombineWork *)p)->f2FA))->id;
@@ -8368,7 +8004,6 @@ void fclCombineMenuResult(u8 *task) {
         }
         fclCombineRollOutcomeList(task);
         fclCombineSetModel(((FclCombineWork *)p)->detailTask.handle, cls, 0);
-        /* measured: direct field typing changes 4196 normalized bytes in the full owner. */
         *(((s8 *)fclCombineGetWork(menuState->detailTask.task)) + 1) = 0;
         for (k = 0; k < 0xC; k++) {
             buf[k] = 0;
@@ -8387,37 +8022,25 @@ void fclCombineMenuResult(u8 *task) {
             break;
         case 4:
             buf[0] = ((DatPersonaRecord *)yListSlotEntry(((FclCombineWork *)p)->f11E + 1, 0))->id;
-            /* measured: direct field typing changes 3959 normalized bytes in the full owner. */
             buf[1] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 1))->id;
-            /* measured: direct field typing changes 3959 normalized bytes in the full owner. */
             buf[2] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 2))->id;
-            /* measured: direct field typing changes 3959 normalized bytes in the full owner. */
             buf[3] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 3))->id;
             ((FclCombineWork *)p)->cardEffectTask = cmbCardEffSpawnChild(task, buf, 3);
             break;
         case 5:
             buf[0] = ((DatPersonaRecord *)yListSlotEntry(((FclCombineWork *)p)->f11E + 1, 0))->id;
-            /* measured: direct field typing changes 3824 normalized bytes in the full owner. */
             buf[1] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 1))->id;
-            /* measured: direct field typing changes 3824 normalized bytes in the full owner. */
             buf[2] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 2))->id;
-            /* measured: direct field typing changes 3824 normalized bytes in the full owner. */
             buf[3] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 3))->id;
-            /* measured: direct field typing changes 3824 normalized bytes in the full owner. */
             buf[4] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 4))->id;
             ((FclCombineWork *)p)->cardEffectTask = cmbCardEffSpawnChild(task, buf, 4);
             break;
         case 6:
             buf[0] = ((DatPersonaRecord *)yListSlotEntry(((FclCombineWork *)p)->f11E + 1, 0))->id;
-            /* measured: direct field typing changes 3661 normalized bytes in the full owner. */
             buf[1] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 1))->id;
-            /* measured: direct field typing changes 3661 normalized bytes in the full owner. */
             buf[2] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 2))->id;
-            /* measured: direct field typing changes 3661 normalized bytes in the full owner. */
             buf[3] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 3))->id;
-            /* measured: direct field typing changes 3661 normalized bytes in the full owner. */
             buf[4] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 4))->id;
-            /* measured: direct field typing changes 3661 normalized bytes in the full owner. */
             buf[5] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 5))->id;
             ((FclCombineWork *)p)->cardEffectTask = cmbCardEffSpawnChild(task, buf, 5);
             break;
@@ -8458,9 +8081,7 @@ void fclCombineMenuResult(u8 *task) {
             if (fclCombineCheckIds(task) == 1 && fclCombineHasEntry(task, 0xC) == 1) {
                 p[1] = 0xCB;
                 ((FclCombineWork *)p)->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
-                /* measured: direct field typing changes 3054 normalized bytes in the full owner. */
                 nmMesWindowShowSlotRecord(menuState->fD, 0x2A);
-                /* measured: direct field typing changes 4458 normalized bytes in the full owner. */
                 *(u16 *)yListSlotEntry(menuState->f2F9, menuState->f2FA) |= 4;
                 return;
             }
@@ -8470,28 +8091,21 @@ void fclCombineMenuResult(u8 *task) {
             }
             ((FclCombineWork *)p)->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             sprintf(text, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
-            /* measured: direct field typing changes 2963 normalized bytes in the full owner. */
             nmMesWindowSetSlotString(menuState->fD, 1, text);
-            /* measured: direct field typing changes 2963 normalized bytes in the full owner. */
             nmMesWindowShowSlotRecord(menuState->fD, iGpffffb3d4[cls * 0xE + 0xD] + 0x71);
             p[1] = 0xCA;
         }
         break;
     case 0xC8:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 2876 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
             return;
         }
-        /* measured: direct field typing changes 2876 normalized bytes in the full owner. */
         nmMesWindowDestroySlot(menuState->fD);
         if (fclCombineCheckIds(task) == 1 && fclCombineHasEntry(task, 0xC) == 1) {
             p[1] = 0xCB;
-            /* measured: direct field typing changes 152 normalized bytes in the full owner. */
             menuState->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
-            /* measured: direct field typing changes 152 normalized bytes in the full owner. */
             nmMesWindowShowSlotRecord(menuState->fD, 0x2A);
-            /* measured: direct field typing changes 4458 normalized bytes in the full owner. */
             *(u16 *)yListSlotEntry(menuState->f2F9, menuState->f2FA) |= 4;
             return;
         }
@@ -8499,32 +8113,25 @@ void fclCombineMenuResult(u8 *task) {
             p[1] = 0xCC;
             return;
         }
-        /* measured: direct field typing changes 2876 normalized bytes in the full owner. */
         menuState->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
         sprintf(text, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
-        /* measured: direct field typing changes 2876 normalized bytes in the full owner. */
         nmMesWindowSetSlotString(menuState->fD, 1, text);
-        /* measured: direct field typing changes 2876 normalized bytes in the full owner. */
         nmMesWindowShowSlotRecord(menuState->fD, iGpffffb3d4[cls * 0xE + 0xD] + 0x71);
         p[1] = 0xCA;
         break;
     case 0xC9:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 2571 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
             return;
         }
-        /* measured: direct field typing changes 2571 normalized bytes in the full owner. */
         nmMesWindowDestroySlot(menuState->fD);
         p[1] = 0xC7;
         break;
     case 0xCA:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 2528 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
             return;
         }
-        /* measured: direct field typing changes 2528 normalized bytes in the full owner. */
         nmMesWindowDestroySlot(menuState->fD);
         p[1] = 0xCC;
         if (datGetFlag(0x5B) != 0) {
@@ -8533,23 +8140,18 @@ void fclCombineMenuResult(u8 *task) {
         break;
     case 0xCB:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 2467 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
             return;
         }
-        /* measured: direct field typing changes 2467 normalized bytes in the full owner. */
         nmMesWindowDestroySlot(menuState->fD);
         if (datGetFlag(0x5B) != 0) {
             if (iGpffffb3d4[cls * 0xE + 0xD] == 0) {
                 p[1] = 0xCC;
                 return;
             }
-            /* measured: direct field typing changes 2467 normalized bytes in the full owner. */
             menuState->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             sprintf(text, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
-            /* measured: direct field typing changes 2467 normalized bytes in the full owner. */
             nmMesWindowSetSlotString(menuState->fD, 1, text);
-            /* measured: direct field typing changes 2467 normalized bytes in the full owner. */
             nmMesWindowShowSlotRecord(menuState->fD, iGpffffb3d4[cls * 0xE + 0xD] + 0x71);
             p[1] = 0xCA;
         } else if (datGetFlag(0x5C) != 0) {
@@ -8589,7 +8191,6 @@ void fclCombineMenuResult(u8 *task) {
                     for (m = 0; m < 6; m++) {
                         w = ((KwlnTask *)task)->work;
                         for (n = 0; n < ((FclCombineWork *)w)->outcomeIdCount; n++) {
-                            /* measured: direct field typing changes 1 normalized bytes in the full owner. */
                             if (MEMBER(s8, w + n, FclCombineWork, outcomeIds[0]) == (s8)(m + 1)) {
                                 r = 1;
                                 goto found_cc;
@@ -8613,43 +8214,31 @@ void fclCombineMenuResult(u8 *task) {
             }
         } else {
             ((FclCombineWork *)p)->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
-            /* measured: direct field typing changes 1705 normalized bytes in the full owner. */
             nmMesWindowSetSlotString(menuState->fD, 0,
-                          /* measured: direct field typing changes 4458 normalized bytes in the full owner. */
                           iGpffffb44c + datPersonaGetArcana(((DatPersonaRecord *)yListSlotEntry(menuState->f2F9,
-                                                                             /* measured: direct field typing changes 4458 normalized bytes in the full owner. */
                                                                              menuState->f2FA))->id) * 0x15);
             sprintf(text, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
-            /* measured: direct field typing changes 1705 normalized bytes in the full owner. */
             nmMesWindowSetSlotString(menuState->fD, 1, text);
-            /* measured: direct field typing changes 1705 normalized bytes in the full owner. */
             nmMesWindowShowSlotRecord(menuState->fD, 0x3A);
             p[1] = 0xCD;
         }
         break;
     case 0xCD:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 1579 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
             return;
         }
-        /* measured: direct field typing changes 1579 normalized bytes in the full owner. */
         nmMesWindowDestroySlot(menuState->fD);
         if (fclCombineHasEntry(task, 8) == 1) {
             v = cmmTopCommunityOfArcana(iGpffffb3d4[cls * 0xE + 2]);
-            /* measured: direct field typing changes 4510/4513 normalized bytes in the full owner. */
             ((FclCombineWork *)p)->unk10 = cmmCommunityExpRemaining(v, yListSlotEntry(menuState->f2F9, menuState->f2FA), 1);
             if (fclCombineCheckIds(task) == 1) {
-                /* measured: direct field typing changes 4549 normalized bytes in the full owner. */
                 menuState->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                 sprintf(text, (const char *)&iGpffffa8a4, cmmCommunityName(cmmTopCommunityOfArcana(iGpffffb3d4[cls * 0xE + 2])));
                 frFontExCopyString(text, text2, 0x20);
-                /* measured: direct field typing changes 4549 normalized bytes in the full owner. */
                 nmMesWindowSetSlotString(menuState->fD, 0, text2);
                 sprintf(text, (const char *)&iGpffffa8a4, iGpffffb440 + cls * 0x11);
-                /* measured: direct field typing changes 4549 normalized bytes in the full owner. */
                 nmMesWindowSetSlotString(menuState->fD, 1, text);
-                /* measured: direct field typing changes 4549 normalized bytes in the full owner. */
                 nmMesWindowShowSlotRecord(menuState->fD, 0x55);
                 ((FclCombineWork *)p)->unk21 = 1;
                 p[1] = 0xD0;
@@ -8660,7 +8249,6 @@ void fclCombineMenuResult(u8 *task) {
             fclCombineStartFade(task);
             p[1] = 0xD1;
         } else {
-            /* measured: direct field typing changes 4458 normalized bytes in the full owner. */
             ((FclCombineWork *)p)->unk10 = cmmCommunityExpRemaining(cmmTopCommunityOfArcana(iGpffffb3d4[cls * 0xE + 2]), yListSlotEntry(menuState->f2F9, menuState->f2FA), 0);
             fclCombineClearState(((FclCombineWork *)p)->detailTask.handle);
             datSetFlag(0x59, 1);
@@ -8670,11 +8258,9 @@ void fclCombineMenuResult(u8 *task) {
         break;
     case 0xCE:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 946 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
             return;
         }
-        /* measured: direct field typing changes 946 normalized bytes in the full owner. */
         nmMesWindowDestroySlot(menuState->fD);
         p[1] = 0xCF;
         if (fclCombineCheckIds(task) == 1) {
@@ -8706,7 +8292,6 @@ void fclCombineMenuResult(u8 *task) {
                 for (m = 0; m < 6; m++) {
                     w = ((KwlnTask *)task)->work;
                     for (n = 0; n < ((FclCombineWork *)w)->outcomeIdCount; n++) {
-                        /* measured: direct field typing changes 1 normalized bytes in the full owner. */
                         if (MEMBER(s8, w + n, FclCombineWork, outcomeIds[0]) == (s8)(m + 1)) {
                             r = 1;
                             goto found_ce;
@@ -8739,11 +8324,9 @@ void fclCombineMenuResult(u8 *task) {
         break;
     case 0xD0:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 318 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
             return;
         }
-        /* measured: direct field typing changes 318 normalized bytes in the full owner. */
         nmMesWindowDestroySlot(menuState->fD);
         fclCombineClearState(((FclCombineWork *)p)->detailTask.handle);
         datSetFlag(0x59, 1);
@@ -8751,13 +8334,10 @@ void fclCombineMenuResult(u8 *task) {
         p[1] = 0xD1;
         break;
     case 0xD1:
-        /* measured: direct field typing changes 29 normalized bytes in the full owner. */
         ((FclCombineWork *)p)->f2D8 = fclAddClamped(menuState->f2D8, 1, 0x32, 0, 1);
-        /* measured: direct field typing changes 163 normalized bytes in the full owner. */
         if (menuState->f2D8 == 0x14) {
             sdkSndStartStream(1, 0, 4, 5);
         }
-        /* measured: direct field typing changes 32 normalized bytes in the full owner. */
         if ((s8)((FclCombineModelWork *)fclCombineGetWork(((FclCombineWork *)p)->detailTask.task))->cleared == 4 && menuState->f2D8 >= 0x14) {
             *(s8 *)p = 0xC;
             p[1] = 0xA0;
@@ -8766,16 +8346,10 @@ void fclCombineMenuResult(u8 *task) {
     }
 }
 
-/* MATCHED: switch on the state byte (C2/C3/C4) with s16 loop counters;
-   colours are FclDrawColor struct returns copied whole to te+0x85 (lbu x4,
-   sb x4); the D_00640D78 pair is read through a named FclVec2f base (lui/
-   addiu base then lwc1 0/4); the flag at p+0x13A is s8; the scroll loop
-   declares k before e and keeps lim as s32; the 0xD store is re-read as
-   *(s8 *)(p + 0xD) for func_002badc0 (b210 forwards it after the lh). */
-// Fcl combine menu material grid (state 0x09): scrollable six-row list. 0xC2 builds the rows, 0xC3 polls the pad (0x40 selects a row, 0x20 leaves to sub-state 0x1A, the scroll calls page the list), 0xC4 waits for the dialog.
+/* Fcl combine menu material grid (state 0x09): scrollable six-row list. 0xC2 builds the rows, 0xC3
+ * polls the pad (0x40 selects a row, 0x20 leaves to sub-state 0x1A, the scroll calls page the
+ * list), 0xC4 waits for the dialog. */
 // FUN_0030B060
-/* Historical whole-layout probe: 1243 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineMenuMaterialGrid(u8 *task)
 {
     FclCombineWork *menuState;
@@ -8813,19 +8387,15 @@ void fclCombineMenuMaterialGrid(u8 *task)
             fclCombineDrawListRow(task, (s8)j, v0, (s16)(j + 0x179), (s16)(j * 2 + 2), 0);
         }
         c0 = fclMakeDrawColor(0xC6, 0xEE, 1, 0xFF);
-        /* measured: direct field typing changes 1217 normalized bytes in the full owner. */
         te = fclSpriteEntry((s16)(menuState->f11E * 2 + 500));
         ((FclCombineRowSprite *)te)->color = c0;
         c1 = fclMakeDrawColor(0xC6, 0xEE, 1, 0xFF);
-        /* measured: direct field typing changes 1217 normalized bytes in the full owner. */
         te = fclSpriteEntry((s16)(menuState->f11E * 2 + 501));
         ((FclCombineRowSprite *)te)->color = c1;
         c2 = fclMakeDrawColor(0x2D, 0x2D, 0x2D, 0xFF);
-        /* measured: direct field typing changes 1219 normalized bytes in the full owner. */
         te = fclSpriteEntry((s16)(menuState->f11E + 0x179));
         ((FclCombineRowSprite *)te)->color = c2;
         c3 = fclMakeDrawColor(0x92, 0xC8, 7, 0xFF);
-        /* measured: direct field typing changes 1219 normalized bytes in the full owner. */
         te = fclSpriteEntry((s16)(menuState->windowRow + 0x2FB));
         ((FclCombineRowSprite *)te)->color = c3;
         base = (FclVec2f *)D_00640D78;
@@ -8868,7 +8438,6 @@ void fclCombineMenuMaterialGrid(u8 *task)
                                 if (D_008C024E[0] & 0x40) {
                                     sdkSndStartStream(0, 0, 0, 1);
 ((FclCombineWork *)p)->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
-                                    /* measured: direct field typing changes 368 normalized bytes in the full owner. */
                                     nmMesWindowShowSlotRecord(menuState->fD, ((FclCombineWork *)p)->f11E + 0x58);
                                     *(p + 1) = 0xC4;
                                 } else if (D_008C024E[0] & 0x20) {
@@ -8908,17 +8477,11 @@ void fclCombineMenuMaterialGrid(u8 *task)
     }
 }
 
-/* MATCHED: colours are FclDrawColor struct returns copied whole (the
-   501 -> 500 copy is a struct copy between the two elements); the flag
-   words are read directly (b210 CSEs them where retail does); case 0 tests
-   datCategoryRank(1) >= 3 && !flag 0x96F for the 0x70 arm; *(s8 *)te is the
-   second fclCombineDrawListRow argument. The row loop derives the second byte as
-   &D_00882FB0[j * 2] + 1: that second use of j is what makes b210
-   re-extend j at the top of the body instead of reusing the test's copy. */
-// Fcl combine menu option pick (state 0x0A): lists the option rows (kinds 0-3 and 0xB), shows the selected kind's message on select (0x40), and returns to state 0 on cancel (0x20).
+/* Fcl combine menu option pick (state 0x0A): lists the option rows (kinds 0-3 and 0xB), shows the
+ * selected kind's message on select (0x40), and returns to state 0 on cancel (0x20). Colours are
+ * FclDrawColor struct returns copied whole; case 0 tests datCategoryRank(1) >= 3 && !flag 0x96F for
+ * the 0x70 arm. */
 // FUN_0030B7B0
-/* Historical whole-layout probe: 2197 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates the measured exceptions and packed tables below. */
 void fclCombineMenuOptionPick(u8 *task) {
     FclCombineWork *menuState;
     u8 *p;
@@ -8961,49 +8524,32 @@ void fclCombineMenuOptionPick(u8 *task) {
         ((FclCombineWork *)p)->choiceCount += 1;
         v1 = fclMakeVec2(26.0f, (f32)(((FclCombineWork *)p)->choiceCount * 0x22 + 0x57));
         fclCombineDrawListRow(task, 1, v1, 0x174, 4, 0);
-        /* measured: direct field typing changes 2006 normalized bytes in the full owner. */
         D_00882FB0[menuState->choiceCount * 2] = 1;
-        /* measured: direct field typing changes 2006 normalized bytes in the full owner. */
         D_00882FB1[menuState->choiceCount * 2] = 0xC;
-        /* measured: direct field typing changes 172 normalized bytes in the full owner. */
         menuState->choiceCount += 1;
-        /* measured: direct field typing changes 174 normalized bytes in the full owner. */
         v2 = fclMakeVec2(26.0f, (f32)(menuState->choiceCount * 0x22 + 0x57));
         fclCombineDrawListRow(task, 2, v2, 0x170, 6, 0);
-        /* measured: direct field typing changes 2006 normalized bytes in the full owner. */
         D_00882FB0[menuState->choiceCount * 2] = 2;
-        /* measured: direct field typing changes 2006 normalized bytes in the full owner. */
         D_00882FB1[menuState->choiceCount * 2] = 8;
-        /* measured: direct field typing changes 293 normalized bytes in the full owner. */
         menuState->choiceCount += 1;
-        /* measured: direct field typing changes 295 normalized bytes in the full owner. */
         v3 = fclMakeVec2(26.0f, (f32)(menuState->choiceCount * 0x22 + 0x57));
         fclCombineDrawListRow(task, 3, v3, 0x171, 8, 0);
-        /* measured: direct field typing changes 2006 normalized bytes in the full owner. */
         D_00882FB0[menuState->choiceCount * 2] = 3;
-        /* measured: direct field typing changes 2006 normalized bytes in the full owner. */
         D_00882FB1[menuState->choiceCount * 2] = 9;
-        /* measured: direct field typing changes 2003 normalized bytes in the full owner. */
         menuState->choiceCount += 1;
         if (datGetFlag(0x1305) != 0) {
-            /* measured: direct field typing changes 2005 normalized bytes in the full owner. */
             v4 = fclMakeVec2(26.0f, (f32)(menuState->choiceCount * 0x22 + 0x57));
             fclCombineDrawListRow(task, 0xB, v4, 0x173, 0xA, 0);
-            /* measured: direct field typing changes 2006 normalized bytes in the full owner. */
             D_00882FB0[((FclCombineWork *)p)->choiceCount * 2] = 0xB;
-            /* measured: direct field typing changes 2006 normalized bytes in the full owner. */
             D_00882FB1[((FclCombineWork *)p)->choiceCount * 2] = 0xB;
-            /* measured: direct field typing changes 2003 normalized bytes in the full owner. */
             ((FclCombineWork *)p)->choiceCount += 1;
         }
-        /* measured: direct field typing changes 2189 normalized bytes in the full owner. */
         for (j = 0; j < menuState->choiceCount; j++) {
             te = &D_00882FB0[j * 2];
             c0 = fclMakeDrawColor(0, 0, 0x66, 0xFF);
             p501 = fclSpriteEntry((s16)(*(s8 *)te * 2 + 501));
             ((FclCombineRowSprite *)p501)->color = c0;
             p500 = fclSpriteEntry((s16)(*(s8 *)te * 2 + 500));
-            /* measured: direct field typing changes 8 normalized bytes in the full owner. */
             ((FclCombineRowSprite *)p500)->color = MEMBER(FclDrawColor, p501, FclCombineRowSprite, color);
             row = &D_00882FB0[j * 2] + 1;
             c1 = fclMakeDrawColor(0xCC, 0xFF, 0xFF, 0xFF);
@@ -9025,7 +8571,7 @@ void fclCombineMenuOptionPick(u8 *task) {
         te = fclSpriteEntry(0x168);
         ((FclCombineRowSprite *)te)->color = c5;
         c6 = fclMakeDrawColor(0x92, 0xC8, 7, 0xFF);
-        /* measured: direct field typing changes 2178 normalized bytes in the full owner. Raw table access uses interior aliases into an interleaved two-byte choice table. */
+        /* The choice table is interleaved two-byte records, addressed through interior aliases. */
         te = fclSpriteEntry((s16)(((FclCombineChoice *)D_00882FB0)[menuState->f11E].signedKind + 0x2FB));
         ((FclCombineRowSprite *)te)->color = c6;
         if (((FclCombineWork *)p)->choiceFlags > 0) {
@@ -9035,7 +8581,6 @@ void fclCombineMenuOptionPick(u8 *task) {
         break;
     case 0xC3:
         if ((s16)fclSpriteFlagBit(
-                /* measured: direct field typing changes 2124 normalized bytes in the full owner. Raw table access uses interior aliases into an interleaved two-byte choice table. */
                 ((FclCombineRowSprite *)fclSpriteEntry((s16)(((FclCombineChoice *)D_00882FAE)[menuState->choiceCount].signedKind * 2 + 500)))->flags,
                 1) != 1) {
             if ((D_008C0276[0] & 0x1000) && (((FclCombineWork *)p)->redrawRequested == 0)) {
@@ -9132,13 +8677,10 @@ typedef struct {
     s16 item;
 } FclCombineSlot;
 
-/* Nonzero when the task's slot list (count at 0x2DF, kinds from 0x2DA)
-   holds the given kind.  Retail inlines this at every use. */
-/* The task-work reload retains its measured inlined-owner difference below. */
-/* Search the combination task for a matching slot kind. */
+/* Nonzero when the task's slot list (count at 0x2DF, kinds from 0x2DA) holds the given kind. Retail
+ * inlines this at every use. */
 static inline s32 fclCombineHasSlotKind(u8 *task, s8 kind)
 {
-    /* measured: direct field typing changes 9087 normalized bytes in the full owner. */
     s8 *q = MEMBER(s8 *, task, KwlnTask, work);
     s16 i;
 
@@ -9172,12 +8714,9 @@ static inline s16 fclCombinePickItem(s8 kind, s8 roll)
     return -1;
 }
 
-/* The independent state scans preserve each counter's lifetime.
-   Item values narrow at their halfword consumers; the skill replacement
-   provider and every caller use a signed-halfword previous-skill ID.
-   The progress value is explicitly forwarded to the child setter. */
-/* Read the low item identifier from a full-width stored value. */
-/* measured: plain load-and-truncate expressions lose one of the 41 owner MATCHes; retain the word-load conversion boundary. */
+/* Item values narrow at their halfword consumers; skill replacement callers use a signed-halfword
+ * previous-skill ID. measured: the static inline wrapper keeps the word load followed by
+ * truncation, as retail does. */
 static inline u16 fclItemHalf(const s32 *value)
 {
     return *value;
@@ -9186,12 +8725,10 @@ static inline u16 fclItemHalf(const s32 *value)
 // skill roll, learn, or replace (0xAC-0xBB), then finish (0xBF-0xC1 -> 0xD2).
 // FUN_0030C3C0
 #pragma push
-/* measured: hoists each slot scan's count and kind out of its loop. */
-/* measured: baseline C nd 8223B; adjacent-local declaration probe nd 8223B; retain settings for owner MATCH. */
-/* measured: keeps the 0xAC slot pointer as its own index-first address. */
+/* measured: hoists each slot scan's count and kind out of its loop. measured: retail keeps adjacent
+ * locals in separate registers; these settings reproduce that. measured: keeps the 0xAC slot
+ * pointer as its own index-first address. */
 #pragma opt_propagation off
-/* Historical whole-layout probe: 9513 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineMenuResultGrowth(u8 *task) {
     FclCombineWork *menuState;
     KwlnTask *ownerTask = (KwlnTask *)task;
@@ -9276,11 +8813,8 @@ void fclCombineMenuResultGrowth(u8 *task) {
     case 0xA0:
         if (datGetFlag(0x5E) != 0) {
             *((s8 *)fclCombineGetWork(((FclCombineWork *)p)->detailTask.task)) = 4;
-            /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
             fclDrawSetPlacementEx(((FclCombineWork *)p)->drawTask.task, (s32)yListSlotEntry(menuState->f2F9, menuState->f2FA), 0, 0, 0);
-            /* measured: direct field typing changes 8641 normalized bytes in the full owner. */
             shdPersonaSetChildDispCtlHandle(fclDrawGetResource(menuState->drawTask.task), fclPackRgba(0xFF, 0xFF, 0xFF, 0xFF));
-            /* measured: direct field typing changes 8641 normalized bytes in the full owner. */
             shdPersonaEndSelection(fclDrawGetResource(menuState->drawTask.task), 1);
             p[1] = 0xA1;
         }
@@ -9292,7 +8826,6 @@ void fclCombineMenuResultGrowth(u8 *task) {
             {
                 u8 *persona;
                 s32 experience;
-                /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
                 persona = yListSlotEntry(menuState->f2F9, menuState->f2FA);
                 experience = ((FclCombineWork *)p)->unk10;
                 datPersonaPreviewLevelUp(persona, p + 0x28, experience);
@@ -9342,22 +8875,17 @@ void fclCombineMenuResultGrowth(u8 *task) {
         break;
     case 0xA2:
         if (((FclCombineWork *)p)->unkB1 != 0) {
-            /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
             ((FclCombineWork *)p)->unk14.signedValue = datPersonaExpToNextLevel(yListSlotEntry(menuState->f2F9, menuState->f2FA));
             {
                 u8 *persona;
                 s32 experience;
-                /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
                 persona = yListSlotEntry(menuState->f2F9, menuState->f2FA);
-                /* measured: direct field typing changes 7909 normalized bytes in the full owner. */
                 experience = menuState->unk14.signedValue;
                 datPersonaPreviewLevelUp(persona, p + 0x28, experience);
             }
-            /* measured: direct field typing changes 7908 normalized bytes in the full owner. */
             ((FclCombineWork *)p)->unk10 -= menuState->unk14.signedValue;
             ((FclCombineWork *)p)->outcome.signedValue = 0;
             ((FclCombineWork *)p)->f2D8 = 1;
-            /* measured: direct field typing changes 7917 normalized bytes in the full owner. */
             (menuState->unkB1)--;
             p[1] = 0xA4;
             sdkSndStartStream(0, 0, 0, 0xA);
@@ -9386,7 +8914,6 @@ void fclCombineMenuResultGrowth(u8 *task) {
                     }
                 } else {
                     for (j2 = 0; j2 < 6; j2++) {
-                        /* measured: direct field typing changes 9251 normalized bytes in the full owner. */
                         q2 = MEMBER(s8*, task, KwlnTask, work);
                         for (k2 = 0; k2 < q2[0x2DF]; k2++) {
                             if (q2[k2 + 0x2DA] == (s8)(j2 + 1)) {
@@ -9418,37 +8945,27 @@ void fclCombineMenuResultGrowth(u8 *task) {
         break;
     case 0xA3:
         if (shdPersonaLevelUpIsDone(((FclCombineWork *)p)->levelUpTask) != 0) {
-            /* measured: direct field typing changes 7240 normalized bytes in the full owner. */
             kwlnTaskDestroyWithHierarchy((KwlnTask *)menuState->levelUpTask);
-            /* measured: direct field typing changes 7239 normalized bytes in the full owner. */
             menuState->levelUpTask = 0;
             p[1] = 0xA2;
         }
         break;
     case 0xA4:
         fclDrawSetHandleValue(((FclCombineWork *)p)->drawTask.task,
-                      /* measured: direct field typing changes 7203 normalized bytes in the full owner. */
                       ((FclCombineWork *)p)->unk14.value - (u32)fclEaseInterpolate(2, 1.0f, (f32)menuState->unk14.value,
                                                                (f32)((FclCombineWork *)p)->f2D8, 55.0f));
-        /* measured: direct field typing changes 7441 normalized bytes in the full owner. */
         if (menuState->f2D8 < 0x37) {
-            /* measured: direct field typing changes 184/7441 normalized bytes in the full owner. */
             menuState->f2D8 = fclAddClamped(menuState->f2D8, 1, 0x37, 0, 1);
-            /* measured: direct field typing changes 184 normalized bytes in the full owner. */
             if (menuState->f2D8 > 0xF &&
                 ((D_008C024E[0] & 0x40) || (D_008C024E[0] & 0x20) || (D_008C024E[0] & 0x800))) {
-                /* measured: direct field typing changes 7203 normalized bytes in the full owner. */
                 menuState->f2D8 = 0x37;
             }
         } else {
             sdkSndStopStream(0, 0);
-            /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
             ((DatPersonaRecord *)yListSlotEntry(menuState->f2F9, menuState->f2FA))->exp += datPersonaExpToNextLevel(yListSlotEntry(menuState->f2F9, menuState->f2FA));
             if (((FclCombineWork *)p)->unkB1 == 0) {
-                /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
                 ((DatPersonaRecord *)yListSlotEntry(menuState->f2F9, menuState->f2FA))->exp += ((FclCombineWork *)p)->unk10;
             }
-            /* measured: direct field typing changes 7205 normalized bytes in the full owner. */
             ((FclCombineWork *)p)->levelUpTask = shdPersonaLevelUpCreate((s32)task, (s32)fclDrawGetResource(menuState->drawTask.task), p + 0x28,
                                                 fclCombineGetMesWindow(), 0, (s32 *)D_00641AD0);
             p[1] = 0xA3;
@@ -9456,10 +8973,8 @@ void fclCombineMenuResultGrowth(u8 *task) {
         break;
     case 0xCE:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 6828 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 6828 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             p[1] = 0xBF;
             if (fclCombineCheckIds(task) == 1) {
@@ -9487,7 +9002,6 @@ void fclCombineMenuResultGrowth(u8 *task) {
                     }
                 } else {
                     for (j3 = 0; j3 < 6; j3++) {
-                        /* measured: direct field typing changes 9205 normalized bytes in the full owner. */
                         q3 = MEMBER(s8*, task, KwlnTask, work);
                         for (k3 = 0; k3 < q3[0x2DF]; k3++) {
                             if (q3[k3 + 0x2DA] == (s8)(j3 + 1)) {
@@ -9529,16 +9043,13 @@ void fclCombineMenuResultGrowth(u8 *task) {
         }
         sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
         nmMesWindowSetSlotString(((FclCombineWork *)p)->fD, 0, text);
-        /* measured: direct field typing changes 6075 normalized bytes in the full owner. */
         nmMesWindowShowSlotRecord(menuState->fD, 0x54);
         p[1] = 0xA9;
         break;
     case 0xA9:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 6038 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 6038 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             for (i3 = 0; i3 < 5; i3++) {
                 list[i3] = 0;
@@ -9548,7 +9059,6 @@ void fclCombineMenuResultGrowth(u8 *task) {
                 name[i4] = 0;
                 text[i4] = 0;
             }
-            /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
             e = (u8 *)yListSlotEntry(menuState->f2F9, menuState->f2FA);
             best = 0;
             top = e[0x1C];
@@ -9561,20 +9071,15 @@ void fclCombineMenuResultGrowth(u8 *task) {
             p[0x13D] = best;
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)D_00641B90[best]);
             frFontExCopyString(text, name, 0x20);
-            /* measured: direct field typing changes 6038 normalized bytes in the full owner. */
             nmMesWindowSetSlotString(menuState->fD, 0, name);
             list[((FclCombineWork *)p)->unk13D] = ((FclCombineWork *)p)->unk13C;
-            /* measured: direct field typing changes 5764/9076 normalized bytes in the full owner. */
             ((u8 *)yListSlotEntry(menuState->f2F9, menuState->f2FA))[menuState->unk13D + 0x1C] += (u8)p[0x13C];
             for (i6 = 0; i6 < 0x20; i6++) {
                 name[i6] = 0;
                 text[i6] = 0;
             }
-            /* measured: direct field typing changes 5763 normalized bytes in the full owner. */
             sprintf(text, &iGpffffa8a0, menuState->unk13C);
-            /* measured: direct field typing changes 6038 normalized bytes in the full owner. */
             nmMesWindowSetSlotString(menuState->fD, 1, text);
-            /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
             e = (u8 *)yListSlotEntry(menuState->f2F9, menuState->f2FA);
             best = 0;
             top = e[0x1C];
@@ -9585,29 +9090,22 @@ void fclCombineMenuResultGrowth(u8 *task) {
                 }
             }
             p[0x13E] = best;
-            /* measured: direct field typing changes 5765 normalized bytes in the full owner. */
             list[best] = menuState->unk13C;
-            /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
             ((u8 *)yListSlotEntry(menuState->f2F9, menuState->f2FA))[((FclCombineWork *)p)->unk13E + 0x1C] += (u8)p[0x13C];
             shdPersonaFillStateBlock(fclDrawGetResource(((FclCombineWork *)p)->drawTask.task), list);
             p[0xB0] = 0;
-            /* measured: direct field typing changes 6038 normalized bytes in the full owner. */
             nmMesWindowShowSlotRecord(menuState->fD, 0x3E);
             p[1] = 0xAA;
         }
         break;
     case 0xAA:
-        /* measured: direct field typing changes 27 normalized bytes in the full owner. */
         ((FclCombineWork *)p)->unkB0 = fclAddClamped(menuState->unkB0, 1, 0x14, 0, 1);
-        /* measured: direct field typing changes 5466 normalized bytes in the full owner. */
         if (menuState->unkB0 == 0xF) {
             sdkSndStartStream(1, 3, 3, 1);
         }
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 5414 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 5414 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             for (i8 = 0; i8 < 0x20; i8++) {
@@ -9616,33 +9114,26 @@ void fclCombineMenuResultGrowth(u8 *task) {
             }
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)D_00641B90[((FclCombineWork *)p)->unk13E]);
             frFontExCopyString(text, name, 0x20);
-            /* measured: direct field typing changes 5414 normalized bytes in the full owner. */
             nmMesWindowSetSlotString(menuState->fD, 0, name);
             for (i9 = 0; i9 < 0x20; i9++) {
                 name[i9] = 0;
                 text[i9] = 0;
             }
             sprintf(text, &iGpffffa8a0, ((FclCombineWork *)p)->unk13C);
-            /* measured: direct field typing changes 5414 normalized bytes in the full owner. */
             nmMesWindowSetSlotString(menuState->fD, 1, text);
-            /* measured: direct field typing changes 5414 normalized bytes in the full owner. */
             nmMesWindowShowSlotRecord(menuState->fD, 0x3E);
             p[1] = 0xAB;
             p[0xB0] = 0;
         }
         break;
     case 0xAB:
-        /* measured: direct field typing changes 27 normalized bytes in the full owner. */
         ((FclCombineWork *)p)->unkB0 = fclAddClamped(menuState->unkB0, 1, 0x14, 0, 1);
-        /* measured: direct field typing changes 5174 normalized bytes in the full owner. */
         if (menuState->unkB0 == 0xF) {
             sdkSndStartStream(1, 3, 3, 1);
         }
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 5122 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 5122 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             p[1] = 0xBF;
             if (fclCombineCheckIds(task) == 1) {
@@ -9654,7 +9145,6 @@ void fclCombineMenuResultGrowth(u8 *task) {
                     }
                 } else {
                     for (j4 = 0; j4 < 6; j4++) {
-                        /* measured: direct field typing changes 9162 normalized bytes in the full owner. */
                         q4 = MEMBER(s8*, task, KwlnTask, work);
                         for (k4 = 0; k4 < q4[0x2DF]; k4++) {
                             if (q4[k4 + 0x2DA] == (s8)(j4 + 1)) {
@@ -9679,7 +9169,6 @@ void fclCombineMenuResultGrowth(u8 *task) {
     case 0xB2:
         row = D_0063FCA0 + ((FclCombineWork *)p)->ruleIndices[0] * 28;
         cal = (FclCombineSlot *)(D_006406F0 + (s8)calGetDayEntryForMonthDay(fclCalendarMonth(), (u8)fclCalendarDay()) * 20);
-        /* measured: direct field typing changes 4758 normalized bytes in the full owner. */
         if (menuState->ruleIndices[0] == -1) {
             for (i10 = 0; i10 < 5; i10++) {
                 if (((FclCombineWork *)p)->outcomeIds[i10] == 0xA) {
@@ -9700,31 +9189,24 @@ void fclCombineMenuResultGrowth(u8 *task) {
         p[1] = 0xB3;
         break;
     case 0xB3:
-        /* measured: direct field typing changes 29 normalized bytes in the full owner. */
         ((FclCombineWork *)p)->f2D8 = fclAddClamped(menuState->f2D8, 1, 0x14, 0, 1);
-        /* measured: direct field typing changes 4506 normalized bytes in the full owner. */
         if (menuState->f2D8 >= 0x14) {
             p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
             nmMesWindowSetSlotString(((FclCombineWork *)p)->fD, 1, text);
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(((FclCombineWork *)p)->outcome.value));
-            /* measured: direct field typing changes 4426 normalized bytes in the full owner. */
             nmMesWindowSetSlotString(menuState->fD, 0, text);
-            /* measured: direct field typing changes 4426 normalized bytes in the full owner. */
             nmMesWindowShowSlotRecord(menuState->fD, 0x51);
             p[1] = 0xB6;
         }
         break;
     case 0xB5:
         if (datBlockStageIsEight(((FclCombineWork *)p)->skillReplaceTask) == 1) {
-            /* measured: direct field typing changes 4356 normalized bytes in the full owner. */
             kwlnTaskDestroyWithHierarchy((KwlnTask *)menuState->skillReplaceTask);
-            /* measured: direct field typing changes 4356 normalized bytes in the full owner. */
             menuState->skillReplaceTask = 0;
             shdPersonaArmSkillReveal(fclDrawGetResource(((FclCombineWork *)p)->drawTask.task));
             p[1] = 0xBF;
             for (j5 = 0; j5 < 6; j5++) {
-                /* measured: direct field typing changes 9008 normalized bytes in the full owner. */
                 q5 = (s8*)ownerTask->work;
                 for (k5 = 0; k5 < q5[0x2DF]; k5++) {
                     if (q5[k5 + 0x2DA] == (s8)(j5 + 1)) {
@@ -9754,28 +9236,21 @@ void fclCombineMenuResultGrowth(u8 *task) {
         break;
     case 0xB6:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 4057 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 4057 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             ((FclCombineWork *)p)->f2D8 = 0;
             p[1] = 0xB7;
-            /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
             e = yListSlotEntry(menuState->f2F9, menuState->f2FA);
             {
                 u16 selectedSkill;
                 selectedSkill = ((FclCombineWork *)p)->outcome.value;
                 if (datPersonaFindSkillSlot(e, selectedSkill) != -1) {
                     p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
-                    /* measured: direct field typing changes 4006 normalized bytes in the full owner. */
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(menuState->outcome.value));
-                    /* measured: direct field typing changes 4057 normalized bytes in the full owner. */
                     nmMesWindowSetSlotString(menuState->fD, 0, text);
-                    /* measured: direct field typing changes 4057 normalized bytes in the full owner. */
                     nmMesWindowShowSlotRecord(menuState->fD, 0x52);
                     p[1] = 0xB4;
-                /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
                 } else if ((s32)datPersonaCountSkills(yListSlotEntry(menuState->f2F9, menuState->f2FA)) >= 8) {
                     p[1] = 0xB5;
                     ((FclCombineWork *)p)->skillReplaceTask = shdPersonaSkillReplaceCreate((s32)task, fclDrawGetResource(((FclCombineWork *)p)->drawTask.task), fclCombineGetMesWindow(), D_00641AD0);
@@ -9785,15 +9260,12 @@ void fclCombineMenuResultGrowth(u8 *task) {
         break;
     case 0xB4:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 3840 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 3840 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             p[1] = 0xBF;
             shdPersonaArmSkillReveal(fclDrawGetResource(((FclCombineWork *)p)->drawTask.task));
             for (j6 = 0; j6 < 6; j6++) {
-                /* measured: direct field typing changes 9008 normalized bytes in the full owner. */
                 q6 = (s8*)ownerTask->work;
                 for (k6 = 0; k6 < q6[0x2DF]; k6++) {
                     if (q6[k6 + 0x2DA] == (s8)(j6 + 1)) {
@@ -9822,9 +9294,7 @@ void fclCombineMenuResultGrowth(u8 *task) {
         }
         break;
     case 0xB7:
-        /* measured: direct field typing changes 29 normalized bytes in the full owner. */
         ((FclCombineWork *)p)->f2D8 = fclAddClamped(menuState->f2D8, 1, 0x28, 0, 1);
-        /* measured: direct field typing changes 3630 normalized bytes in the full owner. */
         if (menuState->f2D8 == 0x14) {
             {
                 u8 *personaTask;
@@ -9833,14 +9303,14 @@ void fclCombineMenuResultGrowth(u8 *task) {
                 skill = ((FclCombineWork *)p)->outcome.value;
                 shdPersonaAddSkill(personaTask, skill);
             }
-            /* measured: direct field typing changes 3499 normalized bytes in the full owner. */
+            /* measured: typed field access here changes codegen across the whole function. */
             shdPersonaArmSkillReveal(fclDrawGetResource(menuState->drawTask.task));
             sdkSndStartStream(1, 3, 3, 2);
-        /* measured: direct field typing changes 3473 normalized bytes in the full owner. */
+        /* measured: typed field access here changes codegen across the whole function. */
         } else if (menuState->f2D8 >= 0x28) {
             p[1] = 0xBF;
             for (j7 = 0; j7 < 6; j7++) {
-                /* measured: direct field typing changes 9008 normalized bytes in the full owner. */
+                /* measured: typed field access here changes codegen across the whole function. */
                 q7 = (s8*)ownerTask->work;
                 for (k7 = 0; k7 < q7[0x2DF]; k7++) {
                     if (q7[k7 + 0x2DA] == (s8)(j7 + 1)) {
@@ -9878,84 +9348,88 @@ void fclCombineMenuResultGrowth(u8 *task) {
                 break;
             }
         }
-        /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
+        /* measured: typed field access here changes codegen across the whole function. */
         ((FclCombineWork *)p)->outcome.signedValue = fclCombineRollOutcome(task, ((u8 *)yListSlotEntry(menuState->f2F9, menuState->f2FA))[4], ((FclCombineWork *)p)->stageKind);
-        /* measured: direct field typing changes 3093 normalized bytes in the full owner. */
+        /* measured: typed field access here changes codegen across the whole function. */
         item = menuState->outcome.value;
-        /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
+        /* measured: typed field access here changes codegen across the whole function. */
         if (datPersonaFindSkillSlot((u8 *)yListSlotEntry(menuState->f2F9, menuState->f2FA), fclItemHalf(&item)) == -1) {
             p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
             nmMesWindowSetSlotString(((FclCombineWork *)p)->fD, 1, text);
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(item));
-            /* measured: direct field typing changes 2992 normalized bytes in the full owner. */
+            /* measured: typed field access here changes codegen across the whole function. */
             nmMesWindowSetSlotString(menuState->fD, 0, text);
         } else {
-            /* measured: direct field typing changes 3092 normalized bytes in the full owner. */
+            /* measured: typed field access here changes codegen across the whole function. */
             kind = menuState->stageKind;
             roll = fclAddClamped(((FclCombineWork *)p)->outcomeCount, 1, 9, 0, 1);
             item = (u16)fclCombinePickItem(kind, roll);
-            /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
+            /* measured: typed field access here changes codegen across the whole function. */
             if (datPersonaFindSkillSlot((u8 *)yListSlotEntry(menuState->f2F9, menuState->f2FA), fclItemHalf(&item)) == -1) {
                 p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                 sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
                 nmMesWindowSetSlotString(((FclCombineWork *)p)->fD, 1, text);
                 sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(item));
-                /* measured: direct field typing changes 2667 normalized bytes in the full owner. */
+                /* measured: typed field access here changes codegen across the whole function. */
                 nmMesWindowSetSlotString(menuState->fD, 0, text);
-                /* measured: direct field typing changes 3093 normalized bytes in the full owner. */
+                /* measured: typed field access here changes codegen across the whole function. */
                 menuState->outcome.signedValue = item;
             } else {
-                /* measured: direct field typing changes 3092 normalized bytes in the full owner. */
+                /* measured: typed field access here changes codegen across the whole function. */
                 kind = menuState->stageKind;
-                /* measured: direct field typing changes 2940 normalized bytes in the full owner. */
+                /* measured: typed field access here changes codegen across the whole function. */
                 roll = fclSubClamped(menuState->outcomeCount, 1, 0, 9, 1);
                 item = (u16)fclCombinePickItem(kind, roll);
-                /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
+                /* measured: typed field access here changes codegen across the whole function. */
                 if (datPersonaFindSkillSlot((u8 *)yListSlotEntry(menuState->f2F9, menuState->f2FA), fclItemHalf(&item)) == -1) {
                     p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
                     nmMesWindowSetSlotString(((FclCombineWork *)p)->fD, 1, text);
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(item));
-                    /* measured: direct field typing changes 2336 normalized bytes in the full owner. */
+                    /* measured: typed field access here changes codegen across the whole function. */
                     nmMesWindowSetSlotString(menuState->fD, 0, text);
-                    /* measured: direct field typing changes 3093 normalized bytes in the full owner. */
+                    /* measured: typed field access here changes codegen across the whole function. */
                     menuState->outcome.signedValue = item;
                 } else {
                     p[0x20] = 1;
                     p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
                     nmMesWindowSetSlotString(((FclCombineWork *)p)->fD, 1, text);
-                    /* measured: direct field typing changes 3093 normalized bytes in the full owner. */
+                    /* measured: typed field access here changes codegen across the whole function. */
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(menuState->outcome.value));
-                    /* measured: direct field typing changes 2235 normalized bytes in the full owner. */
+                    /* measured: typed field access here changes codegen across the whole function. */
                     nmMesWindowSetSlotString(menuState->fD, 0, text);
                 }
             }
         }
-        /* measured: direct field typing changes 3093 normalized bytes in the full owner. */
+        /* measured: typed field access here changes codegen across the whole function. */
         shdPersonaSetPendingSkill(fclDrawGetResource(((FclCombineWork *)p)->drawTask.task), menuState->outcome.value);
         p[1] = 0xB0;
         break;
     case 0xAD:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 2154 normalized bytes in the full owner. */
+            /* measured: typed field access here changes codegen across the whole function. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 2154 normalized bytes in the full owner. */
+            /* measured: typed field access here changes codegen across the whole function. */
             nmMesWindowDestroySlot(menuState->fD);
             if (((FclCombineWork *)p)->unk20 == 1) {
                 for (j8 = 0; j8 < 8; j8++) {
-                    /* measured: direct field typing changes 9378/9381 normalized bytes in the full owner. */
+                    /* measured: typed field access here changes codegen across the whole function. */
                     if (((u16 *)yListSlotEntry(menuState->f2F9, menuState->f2FA))[j8 + 6] != 0 &&
-                        /* measured: direct field typing changes 9378/9381 normalized bytes in the full owner. */
+                        /* measured: typed field access here changes codegen across the whole
+                         * function. */
                         ((FclCombineWork *)p)->outcome.signedValue == ((u16 *)yListSlotEntry(menuState->f2F9, menuState->f2FA))[j8 + 6]) {
                         p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
-                        /* measured: direct field typing changes 9117 normalized bytes in the full owner. */
+                        /* measured: typed field access here changes codegen across the whole
+                         * function. */
                         sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(menuState->outcome.value));
-                        /* measured: direct field typing changes 9117 normalized bytes in the full owner. */
+                        /* measured: typed field access here changes codegen across the whole
+                         * function. */
                         nmMesWindowSetSlotString(menuState->fD, 0, text);
-                        /* measured: direct field typing changes 9117 normalized bytes in the full owner. */
+                        /* measured: typed field access here changes codegen across the whole
+                         * function. */
                         nmMesWindowShowSlotRecord(menuState->fD, 0x52);
                         p[1] = 0xAE;
                     }
@@ -9963,19 +9437,19 @@ void fclCombineMenuResultGrowth(u8 *task) {
                 if (p[1] != 0xAE) {
                     p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(((FclCombineWork *)p)->outcome.value));
-                    /* measured: direct field typing changes 9117 normalized bytes in the full owner. */
+                    /* measured: typed field access here changes codegen across the whole function. */
                     nmMesWindowSetSlotString(menuState->fD, 0, text);
                     sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
-                    /* measured: direct field typing changes 9117 normalized bytes in the full owner. */
+                    /* measured: typed field access here changes codegen across the whole function. */
                     nmMesWindowSetSlotString(menuState->fD, 1, text);
-                    /* measured: direct field typing changes 9117 normalized bytes in the full owner. */
+                    /* measured: typed field access here changes codegen across the whole function. */
                     nmMesWindowShowSlotRecord(menuState->fD, 0x53);
                     p[1] = 0xAE;
                 }
             } else {
                 p[1] = 0xB1;
                 ((FclCombineWork *)p)->f2D8 = 0;
-                /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
+                /* measured: typed field access here changes codegen across the whole function. */
                 if ((s32)datPersonaCountSkills(yListSlotEntry(menuState->f2F9, menuState->f2FA)) >= 8) {
                     p[1] = 0xAF;
                     ((FclCombineWork *)p)->skillReplaceTask = shdPersonaSkillReplaceCreate((s32)task, fclDrawGetResource(((FclCombineWork *)p)->drawTask.task), fclCombineGetMesWindow(), D_00641AD0);
@@ -9985,9 +9459,7 @@ void fclCombineMenuResultGrowth(u8 *task) {
         break;
     case 0xAF:
         if (datBlockStageIsEight(((FclCombineWork *)p)->skillReplaceTask) == 1) {
-            /* measured: direct field typing changes 1760 normalized bytes in the full owner. */
             kwlnTaskDestroyWithHierarchy((KwlnTask *)menuState->skillReplaceTask);
-            /* measured: direct field typing changes 1760 normalized bytes in the full owner. */
             menuState->skillReplaceTask = 0;
             shdPersonaArmSkillReveal(fclDrawGetResource(((FclCombineWork *)p)->drawTask.task));
             for (i13 = 0; i13 < ((FclCombineWork *)p)->outcomeIdCount; i13++) {
@@ -10003,18 +9475,14 @@ void fclCombineMenuResultGrowth(u8 *task) {
         }
         break;
     case 0xB0:
-        /* measured: direct field typing changes 27 normalized bytes in the full owner. */
         ((FclCombineWork *)p)->unkE = fclAddClamped(menuState->unkE, 1, 0x28, 0, 1);
-        /* measured: direct field typing changes 1553 normalized bytes in the full owner. */
         if (menuState->unkE >= 0x28) {
             p[1] = 0xAD;
             nmMesWindowShowSlotRecord(((FclCombineWork *)p)->fD, 0x51);
         }
         break;
     case 0xB1:
-        /* measured: direct field typing changes 29 normalized bytes in the full owner. */
         ((FclCombineWork *)p)->f2D8 = fclAddClamped(menuState->f2D8, 1, 0x28, 0, 1);
-        /* measured: direct field typing changes 1494 normalized bytes in the full owner. */
         if (menuState->f2D8 == 0xF) {
             {
                 u8 *personaTask;
@@ -10025,7 +9493,6 @@ void fclCombineMenuResultGrowth(u8 *task) {
             }
             sdkSndStartStream(1, 3, 3, 2);
         }
-        /* measured: direct field typing changes 32 normalized bytes in the full owner. */
         if (menuState->f2D8 >= 0x28) {
             shdPersonaArmSkillReveal(fclDrawGetResource(((FclCombineWork *)p)->drawTask.task));
             for (i14 = 0; i14 < ((FclCombineWork *)p)->outcomeIdCount; i14++) {
@@ -10042,10 +9509,8 @@ void fclCombineMenuResultGrowth(u8 *task) {
         break;
     case 0xAE:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 1223 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 1223 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             for (i15 = 0; i15 < ((FclCombineWork *)p)->outcomeIdCount; i15++) {
                 if (((FclCombineWork *)p)->outcomeIds[i15] > 0 && ((FclCombineWork *)p)->outcomeIds[i15] < 7) {
@@ -10059,48 +9524,34 @@ void fclCombineMenuResultGrowth(u8 *task) {
     case 0xB8:
         p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
         do {
-            /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
             count = datPersonaCountSkills(yListSlotEntry(menuState->f2F9, menuState->f2FA));
             p[0x27] = RpRandom() % count;
-        /* measured: direct field typing changes 9076 normalized bytes in the full owner. */
         } while ((s16)datGetSelectorByte(((s16 *)yListSlotEntry(menuState->f2F9, menuState->f2FA))[((FclCombineWork *)p)->unk27 + 6]) == 0);
-        /* measured: direct field typing changes 1064/9076 normalized bytes in the full owner. */
         sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(((u16 *)yListSlotEntry(menuState->f2F9, menuState->f2FA))[menuState->unk27 + 6]));
-        /* measured: direct field typing changes 1064/9076 normalized bytes in the full owner. */
         ((FclCombineWork *)p)->outcome.signedValue = ((u16 *)yListSlotEntry(menuState->f2F9, menuState->f2FA))[menuState->unk27 + 6];
         nmMesWindowSetSlotString(((FclCombineWork *)p)->fD, 0, text);
-        /* measured: direct field typing changes 957 normalized bytes in the full owner. */
         nmMesWindowShowSlotRecord(menuState->fD, 0x56);
-        /* measured: direct field typing changes 957 normalized bytes in the full owner. */
         nmMesWindowSetSlotParam(menuState->fD, 0);
-        /* measured: direct field typing changes 957 normalized bytes in the full owner. */
         nmMesWindowSetSlotFlag(menuState->fD, 0);
         nmMesWindowRequestRefresh();
         p[1] = 0xB9;
         break;
     case 0xB9:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 894 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
-        /* measured: direct field typing changes 894 normalized bytes in the full owner. */
         } else if (nmMesWindowGetSlotState(menuState->fD) == 0) {
-            /* measured: direct field typing changes 894 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
-            /* measured: direct field typing changes 9074/9076 normalized bytes in the full owner. */
             yListSlotCopyEntry((u8 *)&info, menuState->f2F9, menuState->f2FA);
             ((FclCombineWork *)p)->unk24.signedValue = fclCombinePickCandidateId(info, ((FclCombineWork *)p)->outcome.signedValue);
             ((FclCombineWork *)p)->f2D8 = 0;
             p[1] = 0xBA;
         } else {
-            /* measured: direct field typing changes 894 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             p[1] = 0xBF;
         }
         break;
     case 0xBA:
-        /* measured: direct field typing changes 29 normalized bytes in the full owner. */
         ((FclCombineWork *)p)->f2D8 = fclAddClamped(menuState->f2D8, 1, 0x28, 0, 1);
-        /* measured: direct field typing changes 790 normalized bytes in the full owner. */
         if (menuState->f2D8 == 0x14) {
             {
                 u8 *personaTask;
@@ -10109,29 +9560,23 @@ void fclCombineMenuResultGrowth(u8 *task) {
                 originalSkill = ((FclCombineWork *)p)->outcome.value;
                 shdPersonaReplaceSkill(personaTask, originalSkill, ((FclCombineWork *)p)->unk24.value);
             }
-            /* measured: direct field typing changes 742/744/9076 normalized bytes in the full owner. */
             datPersonaReplaceSkill(yListSlotEntry(menuState->f2F9, menuState->f2FA), menuState->outcome.signedValue, menuState->unk24.value);
             sdkSndStartStream(1, 3, 3, 2);
         }
-        /* measured: direct field typing changes 32 normalized bytes in the full owner. */
         if (menuState->f2D8 >= 0x28) {
             p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(((FclCombineWork *)p)->unk24.value));
             nmMesWindowSetSlotString(((FclCombineWork *)p)->fD, 1, text);
             sprintf(text, (const char *)&iGpffffa8a4, (const char *)func_00243840(((FclCombineWork *)p)->outcome.value));
-            /* measured: direct field typing changes 641 normalized bytes in the full owner. */
             nmMesWindowSetSlotString(menuState->fD, 0, text);
-            /* measured: direct field typing changes 641 normalized bytes in the full owner. */
             nmMesWindowShowSlotRecord(menuState->fD, 0x57);
             p[1] = 0xBB;
         }
         break;
     case 0xBB:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 574 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 574 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             p[1] = 0xBF;
         }
@@ -10140,7 +9585,6 @@ void fclCombineMenuResultGrowth(u8 *task) {
         p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
         sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
         nmMesWindowSetSlotString(((FclCombineWork *)p)->fD, 0, text);
-        /* measured: direct field typing changes 494 normalized bytes in the full owner. */
         nmMesWindowShowSlotRecord(menuState->fD, 0x47);
         p[1] = 0xBE;
         break;
@@ -10148,16 +9592,13 @@ void fclCombineMenuResultGrowth(u8 *task) {
         p[0xD] = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
         sprintf(text, (const char *)&iGpffffa8a4, (const char *)iGpffffb440 + id * 0x11);
         nmMesWindowSetSlotString(((FclCombineWork *)p)->fD, 0, text);
-        /* measured: direct field typing changes 419 normalized bytes in the full owner. */
         nmMesWindowShowSlotRecord(menuState->fD, 0x48);
         p[1] = 0xBE;
         break;
     case 0xBE:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 384 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 384 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             p[0x21] = 1;
             p[1] = p[0x22];
@@ -10168,12 +9609,9 @@ void fclCombineMenuResultGrowth(u8 *task) {
         p[1] = 0xC0;
         /* fallthrough */
     case 0xC0:
-        /* measured: direct field typing changes 29 normalized bytes in the full owner. */
         ((FclCombineWork *)p)->f2D8 = fclAddClamped(menuState->f2D8, 1, 0x3C, 0, 1);
-        /* measured: direct field typing changes 332 normalized bytes in the full owner. */
         if (menuState->f2D8 >= 0x3C &&
             fclDrawGetState(((FclCombineWork *)p)->drawTask.task) != 0xE) {
-            /* measured: direct field typing changes 292 normalized bytes in the full owner. */
             fclDrawSetStateByte(menuState->drawTask.task, 0xB);
             pos.position = fclMakeVec2(0.0f, 0.0f);
             fclSpriteCreate(0x1E8, pos.position, 6.0f, 0xAA);
@@ -10184,7 +9622,6 @@ void fclCombineMenuResultGrowth(u8 *task) {
         break;
     case 0xC1:
         if (fclDrawGetState(((FclCombineWork *)p)->drawTask.task) == 0xE) {
-            /* measured: direct field typing changes 175 normalized bytes in the full owner. */
             fclDrawSetState(menuState->drawTask.task, 1);
             p[0] = 0xE;
             p[1] = 0xD2;
@@ -10193,15 +9630,10 @@ void fclCombineMenuResultGrowth(u8 *task) {
     }
 }
 #pragma pop
-/* measured: MWCC b210 -O2, 348B / 352B window; executable bytes exact.
- * Halfword counters/bound and loop-invariant motion recover the narrowing.
- * Direct identifier comparisons let the compiler cache the masked key;
- * an explicit second identifier local instead rotates three saved registers. */
-// Fcl combine consume materials: removes the material personas in materials (count at work+0x1A, where 7 means 12) from the roster, except the lead persona, then inserts the result record. If the lead persona was a material, the result is selected in its place and the lead is removed; the selected roster member is removed last.
+/* Removes the material personas (count at work+0x1A, 7 meaning 12) from the roster, except the
+ * lead, then inserts the result. If the lead was a material, the result replaces it; the selected
+ * member is removed last. */
 // FUN_0030F4F0
-/* measured: baseline C nd 160B; adjacent-local declaration probe nd 160B; retain settings for owner MATCH. */
-/* Historical whole-layout probe: 250 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineConsumeMaterials(u8 *task, s16 *materials) {
     FclCombineWork *resultState;
     s16 materialIndex;
@@ -10228,7 +9660,6 @@ void fclCombineConsumeMaterials(u8 *task, s16 *materials) {
     searchIndex = 0;
     while (searchIndex < count) {
         if ((u16)equippedId == materials[searchIndex]) {
-            /* measured: direct field typing changes 137 normalized bytes in the full owner. */
             datPersonaSelectRosterMemberById(((DatPersonaRecord *)yListSlotEntry(resultState->f2F9, resultState->f2FA))->id);
             datPersonaRemoveRosterMemberById(equippedId);
             break;
@@ -10237,19 +9668,10 @@ void fclCombineConsumeMaterials(u8 *task, s16 *materials) {
     }
     datPersonaRemoveSelectedRosterMember();
 }
-/* MATCHED: struct colour copies straight into fclSpriteEntry(...) + 0x85;
-   evtGetEventFrame takes no argument and fclSpriteStartTweenAt ends in two floats
-   (0.0f, -360.0f); the second constructor coordinates for 0x20C are
-   (f32)347 / (f32)267 (retail converts them with cvt.s.w). Stored bytes
-   are re-read (*(s16 *)(p + 0x2D8), *(s8 *)(p + 0xD)) so b210 forwards
-   them as retail does; the D_00640C50/C58/41660 pairs go through a named
-   FclVec2f base; the table rows use the fclCombineBuildRows offset spelling; the
-   material switch keeps the 6 -> 5 -> 4 fallthrough labels (jump table);
-   i is s8 and declared first, then cls, then p (saved-register order). */
-// Fcl combine menu finish (state 0x0E): the post-fusion completion sequence. 0xD2-0xD4 wait for the draw and 720 frames, then tear down the linked task; 0xD5-0xD6 show the completion line; 0xD7 rebuilds the menu sprites and the dialogue queue, then returns to state 0 at sub-state 0x1A.
+/* Fcl combine menu finish (state 0x0E): 0xD2-0xD4 wait for the draw and 720 frames, then tear down
+ * the linked task; 0xD5-0xD6 show the completion line; 0xD7 rebuilds menu sprites and dialogue
+ * queue, returning to state 0 at sub-state 0x1A. */
 // FUN_0030F650
-/* Historical whole-layout probe: 2483 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineMenuFinish(u8 *task) {
     FclCombineWork *rowMenu;
     FclCombineWork *menuState;
@@ -10286,9 +9708,7 @@ void fclCombineMenuFinish(u8 *task) {
         *(p + 1) = 0xD3;
         ((FclCombineWork *)p)->f2D8 = 0;
     case 0xD3:
-        /* measured: direct field typing changes 29 normalized bytes in the full owner. */
         ((FclCombineWork *)p)->f2D8 = fclAddClamped(menuState->f2D8, 1, 0xF, 0, 1);
-        /* measured: direct field typing changes 2430 normalized bytes in the full owner. */
         if (menuState->f2D8 >= 0xF) {
             datSetFlag(0x5F, 1);
             datSetFlag(0x59, 0);
@@ -10299,14 +9719,11 @@ void fclCombineMenuFinish(u8 *task) {
     case 0xD4:
         if (evtGetEventFrame() >= 0x2D0) {
             if (*((s8 *)fclCombineGetWork(((FclCombineWork *)p)->detailTask.task)) != 0) {
-                /* measured: direct field typing changes 2331 normalized bytes in the full owner. */
                 *((s8 *)fclCombineGetWork(menuState->detailTask.task)) = 4;
             }
             if (datGetPersonaArcanaCommunityValue((u16)cls) > 0) {
                 if (kwlnTaskIsLinked(((FclCombineWork *)p)->cardSpriteTask) != 0) {
-                    /* measured: direct field typing changes 2283 normalized bytes in the full owner. */
                     kwlnTaskDestroyWithHierarchy((KwlnTask *)(u32)menuState->cardSpriteTask);
-                    /* measured: direct field typing changes 2282 normalized bytes in the full owner. */
                     menuState->cardSpriteTask = 0;
                 }
             }
@@ -10316,19 +9733,15 @@ void fclCombineMenuFinish(u8 *task) {
     case 0xD5:
         if (datGetFlag(0x5B) != 0) {
             ((FclCombineWork *)p)->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
-            /* measured: direct field typing changes 2231 normalized bytes in the full owner. */
             nmMesWindowSetSlotString(MEMBER(s8, p, FclCombineWork, fD), 0, iGpffffb440 + cls * 0x11);
-            /* measured: direct field typing changes 187 normalized bytes in the full owner. */
             nmMesWindowShowSlotRecord(menuState->fD, 0x49);
             *(p + 1) = 0xD6;
         }
         break;
     case 0xD6:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 2164 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 2164 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             *(p + 1) = 0xD7;
             datSetFlag(0x59, 1);
@@ -10340,7 +9753,6 @@ void fclCombineMenuFinish(u8 *task) {
         }
         if (kwlnTaskGetTaskByName(D_00641BB0) != 0) {
             kwlnTaskDestroyWithHierarchy((KwlnTask *)(u32)((FclCombineWork *)p)->cardEffectTask);
-            /* measured: direct field typing changes 2081 normalized bytes in the full owner. */
             menuState->cardEffectTask = 0;
         }
         if (hsndGetCurrentCue() == -1) {
@@ -10362,11 +9774,8 @@ void fclCombineMenuFinish(u8 *task) {
             mats[4] = ((DatPersonaRecord *)yListSlotEntry(((FclCombineWork *)p)->f11E + 1, 4))->id;
         case 4:
             mats[0] = ((DatPersonaRecord *)yListSlotEntry(((FclCombineWork *)p)->f11E + 1, 0))->id;
-            /* measured: direct field typing changes 1863 normalized bytes in the full owner. */
             mats[1] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 1))->id;
-            /* measured: direct field typing changes 1892 normalized bytes in the full owner. */
             mats[2] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 2))->id;
-            /* measured: direct field typing changes 1892 normalized bytes in the full owner. */
             mats[3] = ((DatPersonaRecord *)yListSlotEntry(menuState->f11E + 1, 3))->id;
             break;
         case 7:
@@ -10378,7 +9787,6 @@ void fclCombineMenuFinish(u8 *task) {
         fclCombineConsumeMaterials(task, mats);
         if (((FclCombineWork *)p)->cardEffectTask != 0) {
             kwlnTaskDestroyWithHierarchy((KwlnTask *)(u32)((FclCombineWork *)p)->cardEffectTask);
-            /* measured: direct field typing changes 1679 normalized bytes in the full owner. */
             menuState->cardEffectTask = 0;
         }
         fclSpriteSetFlag(0x84, 0, 0);
@@ -10386,10 +9794,8 @@ void fclCombineMenuFinish(u8 *task) {
         fclSpriteSetFlag(0x1C6, 0, 0);
         if (fclCombineClaimSlot(task) == 0) {
             if (((FclCombineWork *)p)->drawTask.handle != 0) {
-                /* measured: direct field typing changes 1610 normalized bytes in the full owner. */
                 menuState->drawTask.handle = 0;
             }
-            /* measured: direct field typing changes 1610 normalized bytes in the full owner. */
             menuState->drawTask.handle = fclDrawTaskCreate(task);
             fclCombineCreateSlotIcons(task, 0);
             w0 = fclMakeVec2(-78.0f, -82.0f);
@@ -10433,75 +9839,48 @@ void fclCombineMenuFinish(u8 *task) {
             fclSpriteStartAlphaAt(0x1C6, 0, 0x64, 0, 0xA, 0);
             ((FclCombineWork *)p)->commandCursor = 0;
             ((FclCombineWork *)p)->commandCount = 0;
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].state0 = 1;
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].state1 = 0x23;
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].id = 0;
             ((FclCombineWork *)p)->commandCount = ((FclCombineWork *)p)->commandCount + 1;
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].state0 = 2;
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].state1 = 0x38;
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].id = 1;
             ((FclCombineWork *)p)->commandCount = ((FclCombineWork *)p)->commandCount + 1;
             if (datGetFlag(0x1301) != 0) {
-                /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
                 rowMenu->commandRows[rowMenu->commandCount].state0 = 3;
-                /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
                 rowMenu->commandRows[rowMenu->commandCount].state1 = 0x51;
-                /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
                 rowMenu->commandRows[rowMenu->commandCount].id = 2;
                 ((FclCombineWork *)p)->commandCount = ((FclCombineWork *)p)->commandCount + 1;
             }
             if (datGetFlag(0x1302) != 0) {
-                /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
                 rowMenu->commandRows[rowMenu->commandCount].state0 = 4;
-                /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
                 rowMenu->commandRows[rowMenu->commandCount].state1 = 0x51;
-                /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
                 rowMenu->commandRows[rowMenu->commandCount].id = 3;
                 ((FclCombineWork *)p)->commandCount = ((FclCombineWork *)p)->commandCount + 1;
             }
             if (datGetFlag(0x1303) != 0) {
-                /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
                 rowMenu->commandRows[rowMenu->commandCount].state0 = 5;
-                /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
                 rowMenu->commandRows[rowMenu->commandCount].state1 = 0x51;
-                /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
                 rowMenu->commandRows[rowMenu->commandCount].id = 4;
                 ((FclCombineWork *)p)->commandCount = ((FclCombineWork *)p)->commandCount + 1;
             }
             if (datGetFlag(0x1304) != 0) {
-                /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
                 rowMenu->commandRows[rowMenu->commandCount].state0 = 6;
-                /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
                 rowMenu->commandRows[rowMenu->commandCount].state1 = 0x63;
-                /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
                 rowMenu->commandRows[rowMenu->commandCount].id = 5;
                 ((FclCombineWork *)p)->commandCount = ((FclCombineWork *)p)->commandCount + 1;
             }
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].state0 = 7;
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].state1 = 0x6E;
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].id = 6;
             ((FclCombineWork *)p)->commandCount = ((FclCombineWork *)p)->commandCount + 1;
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].state0 = 9;
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].state1 = 0xC2;
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].id = 7;
             ((FclCombineWork *)p)->commandCount = ((FclCombineWork *)p)->commandCount + 1;
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].state0 = 0xB;
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].state1 = 0xD8;
-            /* measured: commandRows indexing reverses addu operands (2 normalized bytes). */
             rowMenu->commandRows[rowMenu->commandCount].id = 8;
             ((FclCombineWork *)p)->commandCount = ((FclCombineWork *)p)->commandCount + 1;
             fclCombineLayoutTransition(task, 0);
@@ -10512,10 +9891,8 @@ void fclCombineMenuFinish(u8 *task) {
         break;
     case 0x97:
         if (nmMesWindowSlotStatus(((FclCombineWork *)p)->fD) != 0) {
-            /* measured: direct field typing changes 90 normalized bytes in the full owner. */
             nmMesWindowStepSlotRelease(menuState->fD);
         } else {
-            /* measured: direct field typing changes 90 normalized bytes in the full owner. */
             nmMesWindowDestroySlot(menuState->fD);
             if (fclCombineClaimSlot(task) == 0) {
                 *p = 0;
@@ -10639,8 +10016,6 @@ void fclCombineRestoreSnapshot(void)
 
 /* Open messageId; refreshWindow == 1 initializes its parameters and refreshes it. */
 // FUN_00310960
-/* Historical whole-layout probe: 109 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombinePlayCue(u8 *task, s32 messageId, s32 refreshWindow)
 {
     FclCombineTaskState *taskState;
@@ -10650,20 +10025,16 @@ void fclCombinePlayCue(u8 *task, s32 messageId, s32 refreshWindow)
     p = ((KwlnTask *)task)->work;
     taskState = (FclCombineTaskState *)p;
     ((FclCombineWork *)p)->fD = nmMesWindowAcquire((void *)fclCombineGetMesWindow());
-    /* measured: direct field typing changes 109 normalized bytes in the full owner. */
     t = taskState->messageSlot;
     nmMesWindowShowSlotRecord(t, (s8)messageId);
     if ((s8)refreshWindow == 1) {
-        /* measured: direct field typing changes 110 normalized bytes in the full owner. */
         nmMesWindowSetSlotParam(taskState->messageSlot, 0);
-        /* measured: direct field typing changes 110 normalized bytes in the full owner. */
         nmMesWindowSetSlotFlag(taskState->messageSlot, 0);
         nmMesWindowRequestRefresh();
     }
 }
-/* measured: u16 class id, as its three callers pass it (raw lhu). With
-   func_00109280(u16), the row index masks into a temp, as retail does. */
-/* Choose message 0x2B/0x2C/0x2D from today's date and the persona arcana's date window. */
+/* personaId is a u16, as all three callers pass it. Choose message 0x2B/0x2C/0x2D from today's date
+ * and the persona arcana's date window. */
 // FUN_00310A10
 void fclCombinePlayResultCue(u8 *task, u16 personaId) {
     s8 *menuWork = ((s8*)((KwlnTask *)task)->work);
@@ -10694,8 +10065,6 @@ void fclCombinePlayResultCue(u8 *task, u16 personaId) {
 
 // Fcl combine task update: state dispatch registered with the combine task; runs the current state (0-15).
 // FUN_00310BF0
-/* Historical whole-layout probe: 926 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 s32 fclCombineTaskUpdate(u8 *task) {
     s8 *p = ((s8*)((KwlnTask *)task)->work);
     FclCombineTaskState *taskState = (FclCombineTaskState *)p;
@@ -10707,10 +10076,8 @@ s32 fclCombineTaskUpdate(u8 *task) {
     case 1:
         p[0] = 2;
         if (((FclCombineTaskState *)p)->childTask != 0) {
-            /* measured: direct field typing changes 944 normalized bytes in the full owner. */
             taskState->childTask = 0;
         }
-        /* measured: direct field typing changes 922 normalized bytes in the full owner. */
         taskState->childTask = fclCombineMenuCreate(task);
         break;
     case 2:
@@ -10757,10 +10124,8 @@ s32 fclCombineTaskUpdate(u8 *task) {
             }
             if (datGetFlag(0x413) == 0 && datGetFlag(0x96F) != 0 && datCategoryRank(1) >= 3) {
                 if (((FclCombineTaskState *)p)->childTask != 0) {
-                    /* measured: direct field typing changes 627 normalized bytes in the full owner. */
                     taskState->childTask = 0;
                 }
-                /* measured: direct field typing changes 958 normalized bytes in the full owner. */
                 taskState->childTask = fclCombineEventSceneCreate(task, 0x294, 0xA);
                 datSetFlag(0x413, 1);
                 if (!(cmmCommunityRecordValue(0x14) & 0xFFFF)) {
@@ -10804,10 +10169,8 @@ s32 fclCombineTaskUpdate(u8 *task) {
                 p[0] = 3;
             } else if (fclCombineRecipeUnlocked() == 1) {
                 if (((FclCombineTaskState *)p)->childTask != 0) {
-                    /* measured: direct field typing changes 267 normalized bytes in the full owner. */
                     taskState->childTask = 0;
                 }
-                /* measured: direct field typing changes 999 normalized bytes in the full owner. */
                 taskState->childTask = fclCombineEventSceneCreate(task, 0x294, 1);
                 p[0] = 0xE;
             } else {
@@ -10850,8 +10213,6 @@ s32 fclCombineTaskUpdate(u8 *task) {
 }
 // Fcl combine task destroy: releases the CDVD handle and frees the task work block.
 // FUN_003111D0
-/* Historical whole-layout probe: 5 normalized bytes differed (2026-10-18).
-   Access-site typing now isolates only the measured raw exceptions below. */
 void fclCombineTaskDestroy(u8 *task)
 {
     KwlnTask *ownerTask = (KwlnTask *)task;
@@ -10865,16 +10226,12 @@ void fclCombineTaskDestroy(u8 *task)
         fclCombineRequestRefresh();
     }
     H_Cdvd_Destroy(((FclCombineTaskState *)p)->directory.pointer);
-    /* measured: direct field typing changes 5 normalized bytes in the full owner. */
     jtbl_008873EC[0]((u8*)ownerTask->work);
 }
 
-/* measured: full body now MATCH (object 1688B, retail window 1696B).
-   Retail reuses the resource pointer register as the first loop index, then
-   rotates the later loop index/flag pair. Separate first/later locals,
-   explicit skip labels for the b5b0 threshold guard, and the <=-equivalent
-   `found > b5b0` spelling reproduce the saved-register and slt shapes. */
-// Fcl combine task create: creates the combine task with fclCombineTaskUpdate/Destroy, initialises its state, and runs the unlock and roster setup when flag 0x1463 is set.
+/* Creates the combine task with fclCombineTaskUpdate/Destroy, initialises its state, and runs the
+ * unlock and roster setup when flag 0x1463 is set. Separate first/later loop locals mirror retail
+ * register reuse. */
 // FUN_00311260
 s32 fclCombineTaskCreate(u8 *parentTask)
 {

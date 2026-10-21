@@ -171,8 +171,8 @@ extern FrFontManagerData4 gFrFontManagerData_abs[];
 
 extern u32 DAT_00881634_abs[];
 
-/* Glyph metrics are signed edge pairs. The cache provider allocates 0x21C
- * bytes per FrFontRasterEntry, whose +0x10 word holds the acquired raster. */
+/* Glyph metrics are signed edge pairs; the cache allocates one FrFontRasterEntry per glyph, whose
+ * references word holds the acquired raster. */
 typedef struct FrFontGlyphMetrics { s8 left, right; } FrFontGlyphMetrics;
 typedef struct FrFontRasterEntry {
     u8 pad00[0x10];
@@ -181,14 +181,10 @@ typedef struct FrFontRasterEntry {
 } FrFontRasterEntry;
 
 
-/* Builds the slot grid: columns * rows nodes, each with its screen rectangle and optional aux buffer. */
-/* measured: signed pool globals, preserved propagation boundaries and loop
-   invariants reproduce bare-LUI hoisting without hoisting mutable loads.
-   The existing 32-byte GslListNode layout gives all 860 executable bytes
-   and 62 resolved relocations; the final retail word is alignment padding. */
+/* Builds the slot grid: columns rows nodes, each with its screen rectangle and optional aux buffer. */
 // FUN_00270FB0
 #pragma push
-/* measured: baseline, individual-toggle and scaled-row probes differ (best nd 119); retain propagation and hoisting. */
+/* measured: retail output needs propagation off and loop-invariant hoisting on. */
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 s32 frFontInitSlotGrid(s32 unused, s32 columns, s32 rows, s32 width, s32 height, s32 auxSize)
@@ -267,13 +263,8 @@ s32 frFontInitSlotGrid(s32 unused, s32 columns, s32 rows, s32 width, s32 height,
     return 1;
 }
 #pragma pop
-/* Inserts a node after the free-list head and returns the new count. */
-// Ported from P3FES FUN_003b4580 (verified MATCH there). The prior nd11
-// floor was the RETURN TYPE: retail leaves the incremented count live in $v0
-// at the jr, so every void spelling coloured the whole global-load chain
-// $v1/$a0 instead of retail's $v0/$v1. Returning s32 count fixes it. The
-// caller in this file passes a u8* node, so the param is u8* (not the donor's
-// int). Struct offsets prev=0x18/next=0x1C match the donor's data[6] layout.
+/* Inserts a node after the free-list head and returns the new count. Matches P3FES FUN_003b4580;
+ * returns s32 because retail leaves the incremented count as the return value. */
 // FUN_00271310
 s32 frFontFreeListInsert(u8 *freeNode)
 {
@@ -304,15 +295,13 @@ void frFontSlotLoadData(s32 slot, u8 *fontData)
 }
 
 
-
-/* Initialises the font manager: slot grid, scratch tables, and a glyph cache of arg1 entries. */
-/* measured: pointer locals (FrFontSlot4 *slots / s32 *bb0), a named scaled
-   offset, and opt_propagation off reproduce the retail loop guards and
-   register coloring. The body is an exact 528-byte match. */
+/* Initialises the font manager: slot grid, scratch tables, and a glyph cache of cacheCapacity
+ * entries. ) ( measured: pointer locals and propagation off reproduce retail's loop guards and
+ * register use. */
 
 // FUN_002713B0
 #pragma push
-/* measured: baseline and direct slot-array probes differ (nd 266/267); retain propagation off. */
+/* measured: retail loop guards need propagation off. */
 #pragma opt_propagation off
 void frFontInitManager(s32 gridCapacity, s32 cacheCapacity)
 {
@@ -471,11 +460,8 @@ void frFontSlotFree(u32 slot)
 }
 
 
-
-// fmGslContPushNode and frFontFreeListInsert are intentionally left undeclared
-// (implicit old-style calls, as in the P3 donor FUN_003b0030); a typed
-// prototype would force an int->pointer cast mwcc rejects, and the P3
-// retail form is the implicit call.
+// fmGslContPushNode and frFontFreeListInsert are deliberately undeclared implicit calls, as in P3
+// retail; a typed prototype would need an int-to-pointer cast.
 
 
 /* Loads the font table on first use (synchronous read), then snapshots the manager data into the five backup tables. */
@@ -525,30 +511,15 @@ void frFontLoadTables(void)
     D_007645A0 = 0;
 }
 
-/* measured: recipe B retest 2026-08-03 - nd66..71 across four spellings
-   (u8* arithmetic, named storep local, struct-element indexing with
-   &slots[temp_17], mixed u8/s32 mask locals). Root cause confirmed: retail
-   re-issues var_19&0xFF three times (andi $18/$17/$v0) so FOUR values live
-   across the jals (frame 0x50, 4 saved regs); mwcc b210 CSEs every spelling
-   (var_19&0xFF, (u8)var_19, (u8)(var_19&0xFF), %256, type-split u8/s32 - all
-   one AND node) down to 2 andis, dropping to 3 saved regs (frame 0x40) and
-   rematerializing the store address after jal func_00454bd0 - the recorded
-   nd29 was not reproducible this wave. Struct indexing additionally folds
-   0x1C into the base addiu where retail keeps it in the lw. CSE-of-mask
-   floor. */
-
-/* Releases every in-use slot's block and clears its entry. */
-/* measured: opt_propagation off, three differently spelled masks of the loop index (`i & 0xff`,
-   `(u32)i & 0xff`, `(u32)(u8)i`) so none is CSE'd with another (retail andi s2/s1/v0 from s3), and
-   the free-slot pointer computed into a saved local BEFORE func_00454bd0 (retail addiu s1 before
-   the jal); the table base stays in $a1 for both the par load and the slot address. */
+/* Releases every in-use slot's block and clears its entry. measured: retail masks the loop index
+ * three separate ways without sharing them, and computes the free-slot pointer before calling
+ * func_00454bd0. */
 // FUN_00271A40
 #pragma push
-/* measured: baseline and shared slot-index probes differ (nd 74/182); retain propagation off. */
+/* measured: retail register use needs propagation off. */
 #pragma opt_propagation off
 void frFontReleaseSlots(void)
 {
-    /* Historical whole-layout typing changed MWCC scheduling; access-site probes now keep matching fields. */
 
     s32 i;
     s32 mask;
@@ -577,7 +548,7 @@ void frFontReleaseSlots(void)
         *allocationAddress = 0;
         func_00440b68(D_0063BBF0, mask);
         ((FrFontSlot4 *)slot)->f00 = 0;
-        MEMBER(u32, slot, FrFontSlot4, object) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+        MEMBER(u32, slot, FrFontSlot4, object) = 0;
     }
 }
 #pragma pop
@@ -650,16 +621,12 @@ u32 frFontListRelease(int list)
 }
 
 
-
 /* Eight signed heights; the following halfword at 0x763810 is separate flags. */
 extern s8 D_00763808[8];
 
 
-
-/* Computes the metrics of one glyph node from the height table and the scale globals. */
-/* measured: 576B/576B MATCH (b210). Native /32 and /128 restore the signed
-   rounding instruction sequence; unary negation fixes the final mult operand
-   order. The complete eight-byte table retains retail GP-relative access. */
+/* Computes the metrics of one glyph node from the height table and the scale globals. Plain /32 and
+ * /128 give signed rounding, and the full eight-byte table stays GP-relative. */
 // FUN_00271D10
 void frFontComputeGlyphMetrics(u8 *glyph, s32 glyphIndex)
 {
@@ -672,8 +639,6 @@ void frFontComputeGlyphMetrics(u8 *glyph, s32 glyphIndex)
     FrFontGlyphData *widthFields;
     FrFontGlyphData *advanceFieldsNextReload;
     FrFontGlyphData *heightFields;
-
-    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
 
     FrFontSlot4 *slot;
     s32 heightOverride;
@@ -713,20 +678,19 @@ void frFontComputeGlyphMetrics(u8 *glyph, s32 glyphIndex)
             D_00763808[((FrFontGlyphData *)glyph)->slot];
     }
     ((FrFontGlyphData *)glyph)->height =
-        D_00763808[(slotFields = (FrFontGlyphData *)(glyph), slotFields)->slot]; /* measured: this access-site member rewrite changes instruction bytes. */
+        D_00763808[(slotFields = (FrFontGlyphData *)(glyph), slotFields)->slot];
     advanceOverride = D_007645A8;
     if (advanceOverride > 0) {
         ((FrFontGlyphData *)glyph)->advance = advanceOverride;
     } else {
         ((FrFontGlyphData *)glyph)->advance =
-            D_00763808[(slotFieldsReload = (FrFontGlyphData *)(glyph), slotFieldsReload)->slot]; /* measured: this access-site member rewrite changes instruction bytes. */
+            D_00763808[(slotFieldsReload = (FrFontGlyphData *)(glyph), slotFieldsReload)->slot];
     }
     if ((((FrFontGlyphData *)glyph)->flags & 1) &&
         ((FrFontFileHeader *)slot->f04)->hasMetrics != 0) {
         metricsOffset = glyphIndex * 2;
         if (metricsOffset < (s32)slot->f08) {
             metricsAddress = (s32)slot->f10;
-            /* measured: pair indexing/site fields fold +1 into lb; typed-local stride indexing grows the body. Keep add-right then add-offset. */
             rightEdge = *(s8 *)(metricsAddress + MEMBER_OFFSET(FrFontGlyphMetrics, right) + metricsOffset);
             if (rightEdge != 0) {
                 leftEdge = ((FrFontGlyphMetrics *)(metricsAddress + metricsOffset))->left;
@@ -748,33 +712,33 @@ void frFontComputeGlyphMetrics(u8 *glyph, s32 glyphIndex)
                     ((FrFontGlyphData *)glyph)->x = xOffset;
                     scaledAdvance = (extent + 1) * D_007645A8;
                     advance = scaledAdvance / 32;
-                    (advanceFields = (FrFontGlyphData *)(glyph), advanceFields)->advance = advance; /* measured: this access-site member rewrite changes instruction bytes. */
+                    (advanceFields = (FrFontGlyphData *)(glyph), advanceFields)->advance = advance;
                 } else {
                     defaultScaledOffset =
-                        -leftFixed * D_00763808[(slotFieldsNextReload = (FrFontGlyphData *)(glyph), slotFieldsNextReload)->slot]; /* measured: this access-site member rewrite changes instruction bytes. */
+                        -leftFixed * D_00763808[(slotFieldsNextReload = (FrFontGlyphData *)(glyph), slotFieldsNextReload)->slot];
                     defaultOffset = defaultScaledOffset / 32;
                     ((FrFontGlyphData *)glyph)->x = defaultOffset;
                     defaultScaledAdvance =
-                        (extent + 1) * D_00763808[(slotFieldsFinalReload = (FrFontGlyphData *)(glyph), slotFieldsFinalReload)->slot]; /* measured: this access-site member rewrite changes instruction bytes. */
+                        (extent + 1) * D_00763808[(slotFieldsFinalReload = (FrFontGlyphData *)(glyph), slotFieldsFinalReload)->slot];
                     defaultAdvance = defaultScaledAdvance / 32;
-                    (advanceFieldsReload = (FrFontGlyphData *)(glyph), advanceFieldsReload)->advance = defaultAdvance; /* measured: this access-site member rewrite changes instruction bytes. */
+                    (advanceFieldsReload = (FrFontGlyphData *)(glyph), advanceFieldsReload)->advance = defaultAdvance;
                 }
                 horizontalScale = D_007645A0;
                 if (horizontalScale > 0) {
                     scaledWidth =
-                        (u8)MEMBER(s8, glyph, FrFontGlyphData, width) * horizontalScale; /* measured: this access-site member rewrite changes instruction bytes. */
+                        (u8)MEMBER(s8, glyph, FrFontGlyphData, width) * horizontalScale;
                     width = scaledWidth / 128;
-                    *(s8 *)&(widthFields = (FrFontGlyphData *)(glyph), widthFields)->width = (s8)width; /* measured: this access-site member rewrite changes instruction bytes. */
-                    scaledSpacing = MEMBER(s32, glyph, FrFontGlyphData, advance) * D_007645A0; /* measured: this access-site member rewrite changes instruction bytes. */
+                    *(s8 *)&(widthFields = (FrFontGlyphData *)(glyph), widthFields)->width = (s8)width;
+                    scaledSpacing = MEMBER(s32, glyph, FrFontGlyphData, advance) * D_007645A0;
                     spacing = scaledSpacing / 128;
-                    (advanceFieldsNextReload = (FrFontGlyphData *)(glyph), advanceFieldsNextReload)->advance = spacing; /* measured: this access-site member rewrite changes instruction bytes. */
+                    (advanceFieldsNextReload = (FrFontGlyphData *)(glyph), advanceFieldsNextReload)->advance = spacing;
                 }
                 verticalScale = D_007645A4;
                 if (verticalScale > 0) {
                     scaledHeight =
-                        (u8)MEMBER(s8, glyph, FrFontGlyphData, height) * verticalScale; /* measured: this access-site member rewrite changes instruction bytes. */
+                        (u8)MEMBER(s8, glyph, FrFontGlyphData, height) * verticalScale;
                     height = scaledHeight / 128;
-                    *(s8 *)&(heightFields = (FrFontGlyphData *)(glyph), heightFields)->height = (s8)height; /* measured: this access-site member rewrite changes instruction bytes. */
+                    *(s8 *)&(heightFields = (FrFontGlyphData *)(glyph), heightFields)->height = (s8)height;
                 }
             }
         }
@@ -791,8 +755,6 @@ extern u16 frFontGetSlotHeaderAuxValue(u32 slot);
 u8 *frFontAcquireGlyph(u8 *glyph, u32 glyphIndex)
 {
     FrFontSlot4 *objectFields;
-
-    /* Historical whole-layout typing changed MWCC scheduling; access-site probes now keep matching fields. */
 
     u8 *cacheEntry;
     u8 *raster;
@@ -813,15 +775,15 @@ u8 *frFontAcquireGlyph(u8 *glyph, u32 glyphIndex)
         chkmemAllocSiteTag(D_0063BAE8, 0x526);
         decodedGlyph = (u8 *)jtbl_008873E8[0](0x200, 0x40000);
         fmGslContSetupSubBlocks((int *)(u32)((FrFontSlot4 *)raster)->object, (int *)decodeWork);
-        fmGslContDecodeRun((int)decodedGlyph, (int)glyphIndex, *(int *)&(objectFields = (FrFontSlot4 *)(raster), objectFields)->object, (int *)decodeWork); /* measured: this access-site member rewrite changes instruction bytes. */
-        cacheEntry = (u8 *)(u32)frFontFindOrLoadEntry(glyphIndex, (u32)decodedGlyph, glyph[0x14]); /* measured: this access-site member rewrite changes instruction bytes. */
+        fmGslContDecodeRun((int)decodedGlyph, (int)glyphIndex, *(int *)&(objectFields = (FrFontSlot4 *)(raster), objectFields)->object, (int *)decodeWork);
+        cacheEntry = (u8 *)(u32)frFontFindOrLoadEntry(glyphIndex, (u32)decodedGlyph, glyph[0x14]);
         if (cacheEntry == NULL) {
             kAssertFail(D_0063BAE8, 0x560);
         }
         DAT_008873ec_abs[0](decodedGlyph);
     }
     frFontGetSlotHeaderValue(((FrFontGlyphData *)glyph)->slot);
-    frFontGetSlotHeaderAuxValue(glyph[0x15]); /* measured: this access-site member rewrite changes instruction bytes. */
+    frFontGetSlotHeaderAuxValue(glyph[0x15]);
     freeSlot = (u8 *)(u32)((GslListNode *)DAT_0088152C_abs[0])->next;
     if ((s32)((GslListNode *)freeSlot)->data[0] == 0) {
         freeSlot = NULL;
@@ -849,7 +811,6 @@ extern char D_0063BC50[];
 extern u8 *fmGslContPopNode(s32 listAddress);
 
 
-
 /* Creates a text glyph node for character arg0 in slot arg1 with style arg2 and flags arg3, and computes its metrics. */
 // FUN_00272170
 u8 * frFontCreateGlyphNode(u16 character, u8 slotId, u8 palette, u8 effect)
@@ -858,8 +819,6 @@ u8 * frFontCreateGlyphNode(u16 character, u8 slotId, u8 palette, u8 effect)
     FrFontGlyphData *flagsFields;
     FrFontGlyphData *yFields;
     FrFontGlyphData *yFieldsReload;
-
-    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
 
     u8 *node;
     u16 ch;
@@ -907,9 +866,9 @@ u8 * frFontCreateGlyphNode(u16 character, u8 slotId, u8 palette, u8 effect)
     }
     width = 0x147;
 width_ok:
-    *(u32 *)&(rasterFields = (FrFontGlyphData *)(node), rasterFields)->raster = (u32)frFontAcquireGlyph(node, width); /* measured: this access-site member rewrite changes instruction bytes. */
+    *(u32 *)&(rasterFields = (FrFontGlyphData *)(node), rasterFields)->raster = (u32)frFontAcquireGlyph(node, width);
     frFontComputeGlyphMetrics(node, width);
-    if (((flagsFields = (FrFontGlyphData *)(node), flagsFields)->flags & 0x10) == 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+    if (((flagsFields = (FrFontGlyphData *)(node), flagsFields)->flags & 0x10) == 0) {
         goto zero_store;
     }
     hit = 0;
@@ -930,10 +889,10 @@ width_ok:
     } else {
         value = 0x10;
     }
-    *(u32 *)&(yFields = (FrFontGlyphData *)(node), yFields)->y = (s8)value; /* measured: this access-site member rewrite changes instruction bytes. */
+    *(u32 *)&(yFields = (FrFontGlyphData *)(node), yFields)->y = (s8)value;
     goto done;
 zero_store:
-    *(u32 *)&(yFieldsReload = (FrFontGlyphData *)(node), yFieldsReload)->y = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+    *(u32 *)&(yFieldsReload = (FrFontGlyphData *)(node), yFieldsReload)->y = 0;
 done:
     return node;
 }
@@ -1024,22 +983,14 @@ extern u8 D_007645B4;
 extern u8 *frFontCreateGlyphNode(u16 character, u8 slotId, u8 palette, u8 effect);
 
 
-
-/* Builds a text list from a string: one glyph node per character (1 or 2 bytes), linked and width-summed with kerning. */
-/* Converted from INCLUDE_ASM. Retail keeps var16=$s0, var17=$s1,
-   var18/i=$s2, arg4=$s3, arg0=$s4, result count=$s5, arg2=$s6,
-   and arg3=$s7. The u8 helper arguments are materialized once in
-   preheader locals so b210 emits the retail andi sequence. Style is a word,
-   character a signed byte; the shared API preserves all 57 owner matches.
-   Callers explicitly sequence character loads, and dynamic style before
-   character, to retain the retail argument evaluation order. */
+/* Builds a text list from a string: one glyph node per character (1 or 2 bytes), linked and width-
+ * summed with kerning. The u8 helper arguments are computed once before the loop, and callers load
+ * the character after the dynamic style to keep retail argument evaluation order. */
 // FUN_002724D0
 u8 *frFontCreateTextList(u8 *text, s32 style, s8 palette, s32 effect, u8 *existing) {
     FrFontGlyphData *previousFields;
     FrFontTextRun *widthFields;
     FrFontTextRun *lastglyphFields;
-
-    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
 
     s32 kerning;
     u16 ch;
@@ -1058,7 +1009,7 @@ u8 *frFontCreateTextList(u8 *text, s32 style, s8 palette, s32 effect, u8 *existi
     if ((s8)style >= 0) {
         D_007645B4 = (u8)style;
     }
-    if (((FrFontSlotObject *)((u8 *)DAT_0088164C_abs + ((D_007645B4 & 0xFF) << 5)))->object == 0) { /* Linker interior alias of the slot object column; keep its relocation base. */
+    if (((FrFontSlotObject *)((u8 *)DAT_0088164C_abs + ((D_007645B4 & 0xFF) << 5)))->object == 0) { /* Retail addresses the slot object column through a linker interior alias. */
         return NULL;
     }
     if (text != NULL) {
@@ -1102,22 +1053,22 @@ u8 *frFontCreateTextList(u8 *text, s32 style, s8 palette, s32 effect, u8 *existi
         ((FrFontTextRun *)list)->glyphCount += 1;
         kerning = frFontKerningOffset((short *)glyph);
         if (kerning != 0) {
-            previousGlyph = *(u8 * *)&(previousFields = (FrFontGlyphData *)(glyph), previousFields)->previous; /* measured: this access-site member rewrite changes instruction bytes. */
+            previousGlyph = *(u8 * *)&(previousFields = (FrFontGlyphData *)(glyph), previousFields)->previous;
             if (previousGlyph != NULL) {
                 ((FrFontGlyphData *)previousGlyph)->advance -= kerning;
             }
-            (widthFields = (FrFontTextRun *)(list), widthFields)->width -= kerning; /* measured: this access-site member rewrite changes instruction bytes. */
+            (widthFields = (FrFontTextRun *)(list), widthFields)->width -= kerning;
         }
         i += 1;
     }
     if (glyph != NULL) {
-        *(u8 * *)&(lastglyphFields = (FrFontTextRun *)(list), lastglyphFields)->lastGlyph = glyph; /* measured: this access-site member rewrite changes instruction bytes. */
+        *(u8 * *)&(lastglyphFields = (FrFontTextRun *)(list), lastglyphFields)->lastGlyph = glyph;
         ((FrFontTextRun *)list)->glyphWidth = ((FrFontGlyphData *)glyph)->width;
         ((FrFontTextRun *)list)->glyphHeight = ((FrFontGlyphData *)glyph)->height;
     }
     return list;
 }
-/* Sets the byte at +2 of every node in the list. */
+/* Sets the intensity byte of every node in the list. */
 // FUN_00272730
 void frFontSetListFlag(int list, u8 intensity)
 {
@@ -1155,7 +1106,7 @@ void frFontEnableList(FrFontNode *node)
     }
 }
 
-/* Sets the byte at +3 of a node and recomputes its width at +0xC. */
+/* Sets a node's spacing and recomputes its width. */
 // FUN_00272860
 void frFontSetCharWidth(int list, int spacing)
 {
@@ -1166,7 +1117,7 @@ void frFontSetCharWidth(int list, int spacing)
     ((FrFontTextRun *)list)->width = frFontNodeWidth(list);
 }
 
-/* Sets the slot byte (+0x15) of every glyph in every node of the list. */
+/* Sets the slot byte of every glyph in every node of the list. */
 // FUN_002728C0
 void frFontSetListSlot(int list, u8 slot)
 {
@@ -1227,23 +1178,7 @@ void frFontMoveListToFloat(int list, float x, float y)
     }
 }
 
-/* Sets the aux byte (+0x14) of every glyph in the list. */
-/* measured: frFontSetGlyphAux/00272b34 (and frFontSetGlyphColor/00272bd4) are one retail
-   code region split by Ghidra at a branch target: b00's entry beq jumps to
-   b34's entry, whose bne branches back into b00's body. Portable C cannot
-   reproduce the cross-function branch (standalone compiles give b00 15 words
-   vs a 13-word window and b34 a full body vs a 7-word window). P3FES donor
-   keeps the same pair as asm functions (FUN_003b0dd8/FUN_003b0e04).
-   Ghidra split, not a compiler floor. */
-/* Was recorded here as a Ghidra split that portable C could not express. It was a
-   boundary bug, not a source problem: spimdisasm took the landing point of this
-   function's opening `b 0x00272B34` - the bottom test of its rotated loop - as a second
-   function, so the window stopped at 52 bytes in the middle of the loop and no body
-   could ever fill it. 0x00272B34 has zero jal, zero j and zero pointer references in
-   the whole image while this address has 17 jal sites. With the landing point withdrawn
-   in reconcile_function_boundaries the window is 80 bytes and the obvious nested-while,
-   the same shape as the already-matching frFontReplaceGlyphAux below, is byte-exact. */
-/* Apply one palette byte to every glyph while walking the run chain toward its previous links. */
+/* Sets the aux byte of every glyph in each run, walking the run chain toward its previous links. */
 // FUN_00272B00
 void frFontSetGlyphAux(int list, u8 palette)
 {
@@ -1278,14 +1213,8 @@ void frFontReplaceGlyphAux(int list, u8 oldPalette, u8 newPalette)
     }
 }
 
-/* Sets the colour word (+0x10) of every glyph in the list. */
-/* measured: s32 twin of the frFontSetGlyphAux/00272b34 split above (stores a
-   u32 at +0x10 instead of a u8 at +0x14); 00272bd4's entry bne branches back
-   into 00272ba0's body. Same Ghidra split, same impossibility for portable C
-   (see the note above FUN_00272B00). */
-/* The u32 twin of frFontSetGlyphAux above (stores at +0x10 instead of a u8 at +0x14).
-   Same withdrawn branch-landing entry (0x00272BD4, zero callers; this address has 18
-   jal sites), same 80-byte window, same nested-while body. */
+/* Sets the colour of every glyph in the list. This is the u32 twin of frFontSetGlyphAux above,
+ * which stores a u8 instead. */
 // FUN_00272BA0
 void frFontSetGlyphColor(int list, u32 color)
 {
@@ -1325,7 +1254,6 @@ u16 frFontSetFlagBits(s16 bits)
 }
 
 
-
 /* Clears bits in the global flag word and returns its previous value. */
 // FUN_00272C80
 u16 frFontClearFlagBits(u16 bits)
@@ -1340,21 +1268,17 @@ u16 frFontClearFlagBits(u16 bits)
 }
 
 
-/* Fades every node of type 2 that still has a fade level: lowers the level by 8 and raises the node's +8 by 0x10. Returns 1 if any node changed. */
-// Ported from P3FES FUN_003b0ec0 (verified MATCH there). Retail hoists the
-// loop-invariant mask/type constants here; removing opt_loop_invariants
-// measured nd102 at 136B instead of nd1 at 140B (P3 donor annotation).
+/* Fades every node of type 2 that still has a fade level: lowers the level by 8 and raises the
+ * node's +8 by 0x10. Returns 1 if any node changed. Matches P3FES FUN_003b0ec0. */
 
 // FUN_00272CB0
 
 #pragma push
-/* measured: baseline and per-node constant-lifetime probes both differ (nd 102); retain invariant hoisting. */
+/* measured: retail hoists the loop-invariant mask and type constants out of the node loops. */
 #pragma opt_loop_invariants on
 u32 frFontFadeNodes(int list)
 {
     FrFontGlyphData *colorFields;
-
-    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
 
     u32 result = 0;
     u32 mask = ~0xff;
@@ -1377,7 +1301,7 @@ u32 frFontFadeNodes(int list)
                     }
                     merged = word & mask;
                     merged |= fade;
-                    (colorFields = (FrFontGlyphData *)(node), colorFields)->color = merged; /* measured: this access-site member rewrite changes instruction bytes. */
+                    (colorFields = (FrFontGlyphData *)(node), colorFields)->color = merged;
                     ((FrFontGlyphData *)node)->y += 0x10;
                     result = changed;
                 }
@@ -1389,7 +1313,6 @@ u32 frFontFadeNodes(int list)
     return result;
 }
 #pragma pop
-
 
 
 /* Returns the node if its type and state say it is ready (or 0). */
@@ -1424,22 +1347,11 @@ u8 *frFontReadyNode(u8 *list)
     }
     return 0;
 }
-/* Steps a node's intensity by a scaled amount (saturating at 0xFF) and returns the x shift for type-1 nodes. */
-/* measured: retail keeps arg1=$16/arg0=$17/temp_18=$18/var_19=$19/var_20=$20/
-   var_21=$21/var_22=$22/arg3=$23; mwcc b210 colors arg3=$16 FIRST and omits
-   the arg1+0x10 hoist (nd167). Declaration reorders (4 orders probed), u32
-   param widths, ternary float, early hoist, switch-wrapped final if: no
-   combination moves it. Float if/else also emits a branch-to-branch where
-   retail branches to the join. Re-tested wave 14 (fresh m2c body, nd170):
-   confirms the pervasive rotation - retail saves 8 (frame 0x90,
-   arg0=$s1/arg1=$s0/arg3=$s7), mwcc saves 7 (frame 0x80, arg0=$s3/arg1=$s2)
-   from the very first move; also fixed frFontReadyNode's call to 1 arg (m2c
-   draft wrongly shows 2; retail calls with $18 only). Saved-register
-   SUPERSEDED: Saved-register rotation floor. */
+/* Steps a node's intensity by a scaled amount (saturating at 0xFF) and returns the x shift for
+ * type-1 nodes. */
 // FUN_00272E10
 s32 frFontStepNodeIntensity(u8 *list, u8 *glyph, u8 threshold, u8 speed)
 {
-    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
 
     s32 result = 0;
     s32 amount;
@@ -1494,7 +1406,7 @@ s32 frFontStepNodeIntensity(u8 *list, u8 *glyph, u8 threshold, u8 speed)
                 if (((FrFontTextRun *)previousList)->duration == -1) {
                     sdkSndIsChannelPlaying(1);
                 } else {
-                    MEMBER(s32, previousList, FrFontTextRun, duration) = /* measured: this access-site member rewrite changes instruction bytes. */
+                    MEMBER(s32, previousList, FrFontTextRun, duration) =
                         ((FrFontTextRun *)previousList)->duration - 1;
                 }
                 break;
@@ -1545,14 +1457,12 @@ void frFontDrawListDefault(s32 list)
 }
 
 
-
 /* Draws a list with the given mode and the default third argument. */
 // FUN_00273140
 void frFontDrawListMode(void *list, u32 mode)
 {
     frFontDrawList(list, mode, D_00764598);
 }
-
 
 
 extern s32 D_0076459C;
@@ -1565,17 +1475,11 @@ extern s32 frFontRasterDrawGlyph(s32 x, s32 y, f32 depth, u8 *glyph,
 extern code D_00887300_abs[];
 
 
-
-/* Draws every node of a list: glyph by glyph at the node position, with per-glyph animation. Returns the total advance, or 0 while glyphs are still animating. */
-/* measured: ordinary s32 spacing preserves its signed-byte load across
-   callbacks, while named raster inputs and opt_propagation off preserve
-   argument load order. Reversed long-lived declaration order closes the
-   saved-register mirrors. All 824 executable bytes and 11 relocations
-   match; the remaining eight retail bytes are alignment padding. */
+/* Draws every node of a list: glyph by glyph at the node position, with per-glyph animation.
+ * Returns the total advance, or 0 while glyphs are still animating. */
 // FUN_00273170
 s32 frFontDrawList(void *list, u32 drawMode, u32 unused)
 {
-    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
 
     u8 *node;
     u8 *glyph;
@@ -1637,10 +1541,10 @@ s32 frFontDrawList(void *list, u32 drawMode, u32 unused)
             scale = ((FrFontTextRun *)node)->depth.scale;
             frFontRasterDrawGlyph(drawX, drawY, scale, glyph, palette, width, height,
                          ((FrFontGlyphData *)glyph)->color);
-            if (glyph[0x10] != 0) { /* measured: this access-site member rewrite changes instruction bytes. */
+            if (glyph[0x10] != 0) {
                 ((FrFontGlyphData *)glyph)->frame += 1;
             }
-            if (glyph[0x10] < 255U) { /* measured: this access-site member rewrite changes instruction bytes. */
+            if (glyph[0x10] < 255U) {
                 complete = 0;
             }
             x += (s32)((u32)(((FrFontGlyphData *)glyph)->advance + spacing) << 4);
@@ -1660,7 +1564,7 @@ s32 frFontDrawList(void *list, u32 drawMode, u32 unused)
                     if (((FrFontTextRun *)node)->duration == -1) {
                         sdkSndIsChannelPlaying(1);
                     } else {
-                        MEMBER(s32, node, FrFontTextRun, duration) -= 1; /* measured: this access-site member rewrite changes instruction bytes. */
+                        MEMBER(s32, node, FrFontTextRun, duration) -= 1;
                     }
                     break;
                 }
@@ -1670,7 +1574,7 @@ s32 frFontDrawList(void *list, u32 drawMode, u32 unused)
             }
         }
         total += ((FrFontTextRun *)node)->glyphCount;
-        node = MEMBER(u8 *, node, FrFontTextRun, next); /* measured: this access-site member rewrite changes instruction bytes. */
+        node = MEMBER(u8 *, node, FrFontTextRun, next);
     }
     if (D_0076459C > 0) {
         D_0076459C -= 1;
@@ -1681,19 +1585,12 @@ s32 frFontDrawList(void *list, u32 drawMode, u32 unused)
     }
     return total;
 }
-/* Returns the total advance of a list if no node is still animating, otherwise 0. Measures without drawing. */
-/* measured: reconstructed from the matched frFontReadyNode case logic. Reusing
-   arg0 as the walking node and declaring flag before sum gives retail's
-   node=$s2/flag=$s1/sum=$s0 prologue. Assigning the result pointer only after
-   each case's call, with explicit result_zero/result_check labels, reproduces
-   the shared move/beqz block. MATCH at normalized_diff 0, object 340B/window
-   352B; exact body archived at build/WCKFldUnit_734b0_match.c. */
+/* Returns the total advance of a list if no node is still animating, otherwise 0. Measures without
+ * drawing. */
 // FUN_002734B0
 s32 frFontMeasureList(u8 *list)
 {
     FrFontTextRun *nextFields;
-
-    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
 
     s32 command;
     s32 duration;
@@ -1749,7 +1646,7 @@ result_check:
             }
         }
         total += ((FrFontTextRun *)list)->glyphCount;
-        list = *(u8 * *)&(nextFields = (FrFontTextRun *)(list), nextFields)->next; /* measured: this access-site member rewrite changes instruction bytes. */
+        list = *(u8 * *)&(nextFields = (FrFontTextRun *)(list), nextFields)->next;
     }
     if ((s8)complete == 0) {
         total = 0;
@@ -1796,25 +1693,19 @@ body:
 }
 
 
-
 extern int frFontCountRuns(int node);
 
 
-
-/* Detaches the run of same-type nodes at index arg1 from *arg0 and returns the run's last node; *arg0 is updated to the remaining head. */
-/* measured 2026-08-08: reconstructed the 0x40-byte-linked-list extractor
-   with a typed local node and explicit goto CFG. The declaration order
-   temp_3,var_18,temp_17,var_7,... plus the forward count guard
-   `frFontCountRuns(temp_17) > var_18` yields retail's saved colors and
-   `slt $at`; optimization_level 1 with opt_common_subs on is load-bearing.
-   MATCH nd 0, object 464/window 464 (O2 nd2; O1 without common-substitutions
-   nd36). */
+/* Detaches the run of same-type nodes at index arg1 from *arg0 and returns the run's last node;
+ * *arg0 is updated to the remaining head. ) ( measured: retail is built at optimization_level 1
+ * with common subexpression elimination on; the local declaration order and forward count guard
+ * reproduce its register allocation. */
 // FUN_002736D0
-/* measured: opens the optimization_level 1 scope for frFontSplitRun; the
-   common-substitution setting is required for MATCH nd 0. */
+/* measured: retail compiles frFontSplitRun at optimization level 1 with common-subexpression
+ * elimination on. */
 #pragma push
 #pragma optimization_level 1
-/* measured: baseline and early-return range probes both differ at preserved O1 (nd 34); retain common substitutions. */
+/* measured: retail reuses common subexpressions at this optimization level. */
 #pragma opt_common_subs on
 u8 *frFontSplitRun(u8 **listAddress, s32 runIndex)
 {
@@ -1934,11 +1825,8 @@ loop32_check:
     *listAddress = (u8 *)remaining;
     return (u8 *)runEnd;
 }
-/* measured: closes the optimization_level 1 scope; frFontSplitRun remains
-   MATCH nd 0, object 464/window 464 at the file's O2 baseline. */
 #pragma optimization_level 2
 #pragma pop
-
 
 
 /* Loads data into the system font slot (slot 8). */
@@ -1947,7 +1835,6 @@ void frFontLoadSystemSlot(u8 *fontData)
 {
     frFontSlotLoad(8, fontData, 0);
 }
-
 
 
 /* Returns a node's total width: each glyph's advance plus the node's line height. */
@@ -1965,9 +1852,7 @@ int frFontNodeWidth(FrFontNode *node)
 }
 
 
-
-
-/* Read the selected font header's unknown halfword at offset 0x10; the slot index is byte-masked. */
+/* Return the unk10 halfword from the font file header for the given slot. */
 // FUN_00273910
 /* Return the font header halfword at +0x10 for the selected slot; its meaning is not established. */
 u16 frFontGetSlotHeaderValue(u32 slot)
@@ -1978,9 +1863,7 @@ u16 frFontGetSlotHeaderValue(u32 slot)
 }
 
 
-
-
-/* Read the selected font header's unknown halfword at offset 0x12; the slot index is byte-masked. */
+/* Return the unk12 halfword from the font file header for the given slot. */
 // FUN_00273940
 /* Return the font header halfword at +0x12 for the selected slot; its meaning is not established. */
 u16 frFontGetSlotHeaderAuxValue(u32 slot)
@@ -1989,7 +1872,6 @@ u16 frFontGetSlotHeaderAuxValue(u32 slot)
     u32 *entry = base[(slot & 0xff) * 8];
     return ((FrFontFileHeader *)entry)->unk12;
 }
-
 
 
 /* Returns the number of same-type runs in a node's chain. */
@@ -2018,15 +1900,12 @@ int frFontCountRuns(int node)
     return result;
 }
 
-/* Lays out the string stored for slot index (D_008815B0) as glyph nodes appended to context. */
-/* measured: 724 executable bytes / 736B retail window, fully relocated exact.
-   The real three-byte glyph buffer and the neighboring insertion routine's
-   branch settings preserve retail stack storage and helper-branch placement.
-   Reuse FrFontNode/FrFontGlyph for linked attributes and signed spacing. */
+/* measured: retail branch placement needs branch-likely off. Lays out the string for slot index as
+ * glyph nodes appended to context. */
 // FUN_002739E0
 #pragma push
 #pragma no_branch_likely on
-/* measured: baseline and signed-byte conditional probes differ (nd 46/351); retain conditional rebuilding off. */
+/* measured: retail keeps signed-byte conditionals as written instead of rebuilding them. */
 #pragma opt_rebuildconditionals off
 void frFontLayoutSlotText(u8 index, u8 *context)
 {
@@ -2036,8 +1915,6 @@ void frFontLayoutSlotText(u8 index, u8 *context)
     FrFontContext *listFieldsNextReload;
     FrFontContext *listFieldsFinalReload;
     FrFontTextRun *spacingFields;
-
-    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
 
     s8 character;
     extern s32 strlen(const void *value);
@@ -2096,7 +1973,7 @@ text_body:
                     glyph[1] = ((FrFontEncodedText *)(text + position))->signedByte;
                 }
             }
-            style = (styleFields = (FrFontContext *)(context), styleFields)->style; /* measured: this access-site member rewrite changes instruction bytes. */
+            style = (styleFields = (FrFontContext *)(context), styleFields)->style;
             if (style != (s32)previousStyle) {
                 /* A style transition needs an empty node before the next glyph. */
                 node = (FrFontNode *)(u8 *)(u32)((FrFontContext *)context)->list;
@@ -2117,7 +1994,7 @@ link_new_node:
                     (s32)node, (s32)newNode, 1);
 store_new_node:
                 node = linkedNode;
-                *(u8 * *)&(listFields = (FrFontContext *)(context), listFields)->list = (u8 *)node; /* measured: this access-site member rewrite changes instruction bytes. */
+                *(u8 * *)&(listFields = (FrFontContext *)(context), listFields)->list = (u8 *)node;
                 goto apply_attribute;
 create_first_node:
                 firstNode = (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)&iGpffffa748, 0, character, ((FrFontContext *)context)->effect, NULL));
@@ -2131,10 +2008,10 @@ link_first_node:
                     (s32)node, (s32)firstNode, 1);
 store_first_node:
                 node = linkedNode;
-                *(u8 * *)&(listFieldsReload = (FrFontContext *)(context), listFieldsReload)->list = (u8 *)node; /* measured: this access-site member rewrite changes instruction bytes. */
+                *(u8 * *)&(listFieldsReload = (FrFontContext *)(context), listFieldsReload)->list = (u8 *)node;
 apply_attribute:
                 attribute = (u8)((FrFontContext *)context)->intensity;
-                attributeNode = (FrFontNode *)*(u8 * *)&(listFieldsNextReload = (FrFontContext *)(context), listFieldsNextReload)->list; /* measured: this access-site member rewrite changes instruction bytes. */
+                attributeNode = (FrFontNode *)*(u8 * *)&(listFieldsNextReload = (FrFontContext *)(context), listFieldsNextReload)->list;
                 if (attributeNode == NULL) {
                     kAssertFail(&D_0063BAE8, 0x69B);
                 }
@@ -2145,7 +2022,7 @@ apply_attribute:
                 previousStyle = (s8)style;
             }
             ((FrFontContext *)context)->list =(s32)
-                (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyph, style, character, ((FrFontContext *)context)->effect, *(u8 * *)&(listFieldsFinalReload = (FrFontContext *)(context), listFieldsFinalReload)->list)); /* measured: this access-site member rewrite changes instruction bytes. */
+                (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyph, style, character, ((FrFontContext *)context)->effect, *(u8 * *)&(listFieldsFinalReload = (FrFontContext *)(context), listFieldsFinalReload)->list));
             spacing = D_0076380C;
             glyphNode = (u8 *)(u32)((FrFontContext *)context)->list;
             if (glyphNode == NULL) {
@@ -2156,7 +2033,7 @@ apply_attribute:
             child = (FrFontGlyph *)(u32)((FrFontTextRun *)glyphNode)->firstGlyph;
             while (child != NULL) {
                 width += child->advance;
-                width += (spacingFields = (FrFontTextRun *)(glyphNode), spacingFields)->spacing; /* measured: this access-site member rewrite changes instruction bytes. */
+                width += (spacingFields = (FrFontTextRun *)(glyphNode), spacingFields)->spacing;
                 child = child->next;
             }
             ((FrFontTextRun *)glyphNode)->width = width;
@@ -2175,15 +2052,13 @@ extern s8 D_0076380C;
 extern s32 strlen(const void *value);
 
 
-
-/* Lays out a text string (arg0) as glyph nodes appended to context (arg1). */
-/* measured: MATCH. no_branch_likely on with opt_rebuildconditionals off
-   preserves the retail positive helper branches and natural relink loop;
-   typed node/child locals preserve the field offsets and tail allocation. */
+/* Lays out a text string (arg0) as glyph nodes appended to context (arg1). measured: retail keeps
+ * positive helper branches and a natural relink loop, needing no branch-likely and no conditional
+ * rebuilding. */
 // FUN_00273CC0
 #pragma push
 #pragma no_branch_likely on
-/* measured: baseline and signed-byte conditional probes differ (nd 46/351); retain conditional rebuilding off. */
+/* measured: retail keeps signed-byte conditionals as written instead of rebuilding them. */
 #pragma opt_rebuildconditionals off
 void frFontLayoutText(u8 *text, u8 *context)
 {
@@ -2193,8 +2068,6 @@ void frFontLayoutText(u8 *text, u8 *context)
     FrFontContext *listFieldsNextReload;
     FrFontContext *listFieldsFinalReload;
     FrFontTextRun *spacingFields;
-
-    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
 
     s8 character;
     extern s32 strlen(const void *value);
@@ -2258,7 +2131,7 @@ loop_body_30:
                     glyphBuffer.bytes[1] = ((FrFontEncodedText *)(text + position))->signedByte;
                 }
             }
-            style = (styleFields = (FrFontContext *)(context), styleFields)->style; /* measured: this access-site member rewrite changes instruction bytes. */
+            style = (styleFields = (FrFontContext *)(context), styleFields)->style;
             if (style != (s32)previousStyle) {
                 node = (struct FrFontNode3 *)(u8 *)(u32)((FrFontContext *)context)->list;
                 if (node == NULL) {
@@ -2279,7 +2152,7 @@ call_node_1:
                 goto store_node_1;
 store_node_1:
                 node = linkedNode;
-                *(u8 * *)&(listFields = (FrFontContext *)(context), listFields)->list = (u8 *)node; /* measured: this access-site member rewrite changes instruction bytes. */
+                *(u8 * *)&(listFields = (FrFontContext *)(context), listFields)->list = (u8 *)node;
                 goto common_node_1;
 null_node_1:
                 firstNode = (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)&iGpffffa748, 0, character, ((FrFontContext *)context)->effect, NULL));
@@ -2294,10 +2167,10 @@ call_node_2:
                 goto store_node_2;
 store_node_2:
                 node = linkedNode;
-                *(u8 * *)&(listFieldsReload = (FrFontContext *)(context), listFieldsReload)->list = (u8 *)node; /* measured: this access-site member rewrite changes instruction bytes. */
+                *(u8 * *)&(listFieldsReload = (FrFontContext *)(context), listFieldsReload)->list = (u8 *)node;
 common_node_1:
                 intensity = (u8)((FrFontContext *)context)->intensity;
-                attributeNode = (struct FrFontNode3 *)*(u8 * *)&(listFieldsNextReload = (FrFontContext *)(context), listFieldsNextReload)->list; /* measured: this access-site member rewrite changes instruction bytes. */
+                attributeNode = (struct FrFontNode3 *)*(u8 * *)&(listFieldsNextReload = (FrFontContext *)(context), listFieldsNextReload)->list;
                 if (attributeNode == NULL) {
                     kAssertFail(&D_0063BAE8, 0x69B);
                 }
@@ -2308,7 +2181,7 @@ common_node_1:
                 previousStyle = (s8)style;
             }
             ((FrFontContext *)context)->list =(s32)
-                (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyphBuffer.bytes, style, character, ((FrFontContext *)context)->effect, *(u8 * *)&(listFieldsFinalReload = (FrFontContext *)(context), listFieldsFinalReload)->list)); /* measured: this access-site member rewrite changes instruction bytes. */
+                (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyphBuffer.bytes, style, character, ((FrFontContext *)context)->effect, *(u8 * *)&(listFieldsFinalReload = (FrFontContext *)(context), listFieldsFinalReload)->list));
             spacing = D_0076380C;
             glyphNode = (u8 *)(u32)((FrFontContext *)context)->list;
             if (glyphNode == NULL) {
@@ -2319,7 +2192,7 @@ common_node_1:
             child = (struct FrFontChild3 *)(u32)((FrFontTextRun *)glyphNode)->firstGlyph;
             while (child != NULL) {
                 width += ((FrFontGlyphData *)child)->advance;
-                width += (spacingFields = (FrFontTextRun *)(glyphNode), spacingFields)->spacing; /* measured: this access-site member rewrite changes instruction bytes. */
+                width += (spacingFields = (FrFontTextRun *)(glyphNode), spacingFields)->spacing;
                 child = child->next;
             }
             ((FrFontTextRun *)glyphNode)->width = width;
@@ -2335,7 +2208,7 @@ loop_test_30:
 #pragma pop
 /* Applies pending text work: when active, builds the text list from the string buffer, appends it, sets its codes and height, then applies the pending values. */
 // FUN_00273F70
-/* measured: full frFontSplitRun recipe stack. */
+/* measured: retail compiles this function at optimization level 1, like frFontSplitRun. */
 #pragma push
 #pragma optimization_level 1
 void frFontUpdateTextWork(u8 *context)
@@ -2431,27 +2304,21 @@ done:
 return_point:
     return;
 }
-/* measured: close recipe stack. */
 #pragma optimization_level 2
 #pragma pop
 
 
-
-
-/* Builds a text chain from a descriptor (data) and returns its head (the value stored at the context's +0x14). */
-/* measured: the neighboring positive insertion-branch recipe, natural u32
-   byte temporary and real three-byte glyph buffer close the old placement
-   and register floor. Keep the full signed pair for the C080 threshold.
-   All 1212 executable bytes and 32 relocations match; the final word is
-   alignment. Six real command groups exist; diagnostics are not guards. */
+/* Builds a text chain from a descriptor (data) and returns its head, the value stored in the
+ * context. Six real command groups exist; the diagnostics are not guards. */
 // FUN_002740B0
 #pragma push
 #pragma no_branch_likely on
-/* measured: baseline and reversed guard-order probes differ (nd 26/44); retain conditional rebuilding off. */
+/* measured: retail keeps the guard tests in source order, so conditional rebuilding stays off. */
 #pragma opt_rebuildconditionals off
 u8 *frFontBuildText(void *data)
 {
-    /* fr_font_objects.h records the layouts; only individually measured instruction-byte culprits remain raw below. */
+    /* fr_font_objects.h records the layouts; the raw accesses left below are ones where the typed
+     * form changed the output. */
 
     s8 character;
     s32 style;
@@ -2505,7 +2372,7 @@ u8 *frFontBuildText(void *data)
                 result = 1;
             } else {
                 if (((FrFontContext *)context)->active == 0) {
-                    MEMBER(s8, context, FrFontContext, active) = 1; /* measured: this access-site member rewrite changes instruction bytes. */
+                    MEMBER(s8, context, FrFontContext, active) = 1;
                 }
                 result = 0;
             }
@@ -2524,7 +2391,7 @@ u8 *frFontBuildText(void *data)
                 ((FrFontContext *)context)->active = 0;
             }
             if (((FrFontContext *)context)->active != 0) {
-                node = MEMBER(FrFontNode *, context, FrFontContext, list); /* measured: this access-site member rewrite changes instruction bytes. */
+                node = MEMBER(FrFontNode *, context, FrFontContext, list);
                 allocated = (character = ((FrFontContext *)context)->palette, frFontCreateTextList(&iGpffffa748, 0, character, ((FrFontContext *)context)->effect, NULL));
                 if (allocated != NULL) {
                     goto link_node;
@@ -2535,20 +2402,20 @@ link_node:
                 linked = (FrFontNode *)frFontAppendList((s32)node, (s32)allocated, 1);
 store_node:
                 node = linked;
-                MEMBER(FrFontNode *, context, FrFontContext, list) = node; /* measured: this access-site member rewrite changes instruction bytes. */
-                frFontSetListFlag((int)node, *(u8 *)&((FrFontContext *)(context))->intensity); /* measured: this access-site member rewrite changes instruction bytes. */
+                MEMBER(FrFontNode *, context, FrFontContext, list) = node;
+                frFontSetListFlag((int)node, *(u8 *)&((FrFontContext *)(context))->intensity);
                 height = ((FrFontContext *)context)->height;
-                node = MEMBER(FrFontNode *, context, FrFontContext, list); /* measured: this access-site member rewrite changes instruction bytes. */
+                node = MEMBER(FrFontNode *, context, FrFontContext, list);
                 if (node == NULL) {
                     kAssertFail(D_0063BAE8, 0x6A7);
                 }
                 *(s16 *)node = height;
-                MEMBER(s8, context, FrFontContext, active) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+                MEMBER(s8, context, FrFontContext, active) = 0;
             }
             if (((FrFontContext *)context)->pendingPosition != 0) {
                 ((FrFontTextRun *)((u8 *)(u32)((FrFontContext *)context)->list))->x = ((FrFontContext *)context)->x;
                 ((FrFontTextRun *)((u8 *)(u32)((FrFontContext *)context)->list))->y = ((FrFontContext *)context)->y;
-                MEMBER(s8, context, FrFontContext, pendingPosition) = 0; /* measured: this access-site member rewrite changes instruction bytes. */
+                MEMBER(s8, context, FrFontContext, pendingPosition) = 0;
             }
             if ((s32)code < 0x80) {
                 if (code == 0x20) {
@@ -2559,24 +2426,24 @@ store_node:
                     glyph[0] = code;
                     glyph[1] = 0;
                 }
-                MEMBER(u8 *, context, FrFontContext, list) = (style = ((FrFontContext *)context)->style, character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyph, style, character, ((FrFontContext *)context)->effect, MEMBER(u8 *, context, FrFontContext, list))); /* measured: this access-site member rewrite changes instruction bytes. */
+                MEMBER(u8 *, context, FrFontContext, list) = (style = ((FrFontContext *)context)->style, character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyph, style, character, ((FrFontContext *)context)->effect, MEMBER(u8 *, context, FrFontContext, list)));
             } else {
                 pair = (code << 8) | script->data[script->pos++];
                 if (pair < 0xC080) {
                     glyph[0] = (pair & 0xFF00) >> 8;
                     glyph[1] = pair;
                     glyph[2] = 0;
-                    MEMBER(u8 *, context, FrFontContext, list) = (style = ((FrFontContext *)context)->style, character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyph, style, character, ((FrFontContext *)context)->effect, MEMBER(u8 *, context, FrFontContext, list))); /* measured: this access-site member rewrite changes instruction bytes. */
+                    MEMBER(u8 *, context, FrFontContext, list) = (style = ((FrFontContext *)context)->style, character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyph, style, character, ((FrFontContext *)context)->effect, MEMBER(u8 *, context, FrFontContext, list)));
                 } else {
                     pair -= 0x4000;
                     glyph[0] = (pair & 0xFF00) >> 8;
                     glyph[1] = pair;
                     glyph[2] = 0;
-                    MEMBER(u8 *, context, FrFontContext, list) = (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyph, 8, character, ((FrFontContext *)context)->effect, MEMBER(u8 *, context, FrFontContext, list))); /* measured: this access-site member rewrite changes instruction bytes. */
+                    MEMBER(u8 *, context, FrFontContext, list) = (character = ((FrFontContext *)context)->palette, frFontCreateTextList((u8 *)glyph, 8, character, ((FrFontContext *)context)->effect, MEMBER(u8 *, context, FrFontContext, list)));
                 }
             }
             spacing = (-D_00763808[(u8)((FrFontContext *)context)->style] * 2) / 32;
-            node = MEMBER(FrFontNode *, context, FrFontContext, list); /* measured: this access-site member rewrite changes instruction bytes. */
+            node = MEMBER(FrFontNode *, context, FrFontContext, list);
             if (node == NULL) {
                 kAssertFail(D_0063BAE8, 0x6C3);
             }
@@ -2590,7 +2457,7 @@ store_node:
             }
             ((FrFontTextRun *)node)->width = width;
             duration = ((FrFontContext *)context)->duration;
-            node = MEMBER(FrFontNode *, context, FrFontContext, list); /* measured: this access-site member rewrite changes instruction bytes. */
+            node = MEMBER(FrFontNode *, context, FrFontContext, list);
             if (node == NULL) {
                 kAssertFail(D_0063BAE8, 0x735);
             }
@@ -2692,17 +2559,8 @@ void frFontSetMode(u32 mode)
     D_00764594 = mode;
 }
 
-/* Runs a font command script from its current position until a terminator; a nonzero param_2 runs only that command. Returns 0. */
-/* measured candidate archived at build/WBYList_frFont_746e0_candidate5.c.
-   It compiled as MISMATCH at normalized_diff 102 with object 464B/window
-   512B; fndiff reported 50 differing words at byte offsets:
-   36,40,60,76,84,92,108,324,332,336,344,348,356,360,364,368,372,376,
-   380,384,388,392,396,400,404,408,412,416,420,424,428,432,436,440,444,
-   448,452,456,464,468,472,476,480,484,488,492,496. Ruled out raw-pointer
-   forms (nd363-376 and oversized frames), named callback-result/in-place
-   variants (nd104), and direct loop/boolean forms. Bare INCLUDE_ASM is
-   retained because this candidate remains above the nd<=25 park threshold. */
-/* Interpret commands without constructing glyphs; optionally filter dispatch to one command and stop on a handler signal. */
+/* Runs a font command script from its current position until a terminator or handler stop signal,
+ * without building glyphs; a nonzero onlyCommand dispatches only that command. Returns 0. */
 // FUN_002746E0
 s8 frFontRunScript(void *context, int onlyCommand)
 {

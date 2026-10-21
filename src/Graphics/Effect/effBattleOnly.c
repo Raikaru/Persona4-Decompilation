@@ -1,5 +1,4 @@
 #include "include_asm.h"
-/* Source unit: src/Graphics/Effect/effBattleOnly_004b50f0.c */
 #include "type.h"
 #include "effect_instance_internal.h"
 
@@ -31,24 +30,17 @@ typedef struct EffBattleWork
     u8 pad3C[4];    // 0x3C
 } EffBattleWork;    // 0x40
 
-/* BSS: per-type effect hook table pointer (gp -0x4460) and the "battle
- * effect active" check callback (gp -0x445C), initialised by startup code.
- * Storage is DEFINED by this unit so the linker can place it at 0x00764c90. */
+/* Per-type effect hook table and battle-effect-active callback, set by startup code; defined here
+ * so the linker places them correctly. */
 s32 (*D_00764C94)(void);     // 0x00764c94
 EffBattleEntry *D_00764C90;  // 0x00764c90
 
 u8 *EffBattleAllocWork(s32 id, s32 initialData);
 
 
-
-/* The nd-13 "register colouring floor" here was a wrong parameter type. Retail masks
-   0xFFFF TWICE - `andi $v0,$s0` for the range check and `andi $s0,$s0` for the table
-   index - which a `u16` parameter cannot produce, because MWCC masks once on entry and
-   reuses it. The parameter is `s32`, and the two uses must be spelled with DISTINCT CSE
-   keys or b210 folds them back into one: `(u16)id` in the check, `(id & 0xFFFF)` for the
-   index and the stored id. The reverse assignment of the two spellings scores nd 88 and
-   using one spelling for both scores nd 13 or nd 167 - measured. */
-// Allocates a battle effect work block sized from the per-id table, stores the id, and copies initialData's data into it.
+/* The id is s32 because retail masks it to 16 bits separately for the range check and the table
+ * index; the two spellings must stay different. Allocates a battle effect work block sized from the
+ * per-id table, stores the id, and copies initialData's data into it. */
 // FUN_004B50F0
 u8 *EffBattleAllocWork(s32 id, s32 initialData)
 {
@@ -77,12 +69,9 @@ u8 *EffBattleAllocWork(s32 id, s32 initialData)
 }
 
 
-
-/* Measured closure: compute the table offset first, then load D_00764C90 into
- * named base, add 4 and the offset for setup, and reload base before adding the
- * offset for post. This preserves retail's lw/addiu/addu address sequence.
- * Object 316B/window 320B; scoped verify normalized_diff 0. */
-// Creates a battle effect from a source: loads its texture, then when the test callback passes calls the per-id setup and post callbacks from the table.
+/* The table base is reloaded before adding the entry offset for the post callback, matching
+ * retail's address computation order. Creates a battle effect from a source: loads its texture,
+ * then when the test callback passes calls the per-id setup and post callbacks from the table. */
 // FUN_004B5200
 void *EffBattleCreate(void *source)
 {
@@ -106,7 +95,7 @@ void *EffBattleCreate(void *source)
     work = EffBattleAllocWork(id, (s32)tex);
     if ((*D_00764C94)() != 0) {
         entryOffset = (id & 0xFFFF) * 0x1C;
-        /* Keep the byte cursor: typed table indexing changes the measured callback-load sequence above. */
+        /* Kept as a byte cursor; typed table indexing changes the callback-load sequence. */
         base = (u8 *)D_00764C90;
         base += 4;
         base += entryOffset;

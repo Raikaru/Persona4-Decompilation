@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0017cd60-0017d240 */
 
 /* Unit optimizer settings shared by player-icon and map-tile functions. */
 #pragma opt_loop_invariants off
@@ -65,16 +64,6 @@ extern u8 D_005F1B00[];
 extern u8 iGpffff9f54;
 extern s32 D_005F1930[];
 extern s32 D_005F1934[];
-/* measured: best plain-C body is 108B in the 112B retail window (112B),
-   normalized_diff 4; the sole residual bytes at offset 56 are retail
-   `andi $a3,$s1,0xffff` versus candidate `move $a3,$s1`. The file-scope
-   Encount_PickEncounter declaration remains (u16, u16, u16, s32) for matching
-   FldUnit_SpawnEncounter. Probed a block-scope fourth-parameter u16 prototype at
-   the function top, after locals, in an inner block, unnamed, and with
-   explicit narrowed locals/casts: each moved the mask before the two lhu
-   loads (nd 10); mixed third s32/fourth u16 gave nd 6. O1, schedule off,
-   and function-pointer casts did not improve it. Best body remains archived
-   at build/D178_00178870_body.c; committed form is bare INCLUDE_ASM. */
 
 /* The __FILE__ evidence groups 0x0017B510..0x0017CCC0 as one translation unit
    named k_shadow.c (tu_audit HIGH, score 5). That span and its helpers
@@ -94,9 +83,8 @@ typedef struct {
     u16 frame; /* +0x10 */
 } FldPlayerIconWork;
 
-/* 764/768 bytes; fourteen resolved relocations; four zero alignment bytes.
- * Preserve unsigned frame updates and the three ordered sprite draws. */
-/* Initialize or draw the three player-icon sprites with a repeating fifteen-frame sine animation. */
+/* Initialize or draw the three player-icon sprites with a repeating fifteen-frame sine animation;
+ * frame updates stay unsigned and the draws stay in order. */
 // FUN_0017CD60
 s32 FldPlayerIconUpdate(u8 *task)
 {
@@ -207,7 +195,7 @@ void FldPlayerIconUpdatePos(u8 *task)
     ((FldPlayerIconWork *)work)->y.shortValue = ((FldIconPositionColumn *)((u8 *)D_005F1934 + positionOffset))->coordinate;
 }
 
-/* Preserve the distinct interior symbols for the two eight-byte size columns. */
+/* The two size columns are separate interior symbols of the same eight-byte records. */
 // FUN_0017D1F0
 /* Read the tile dimensions for its type and queue a quad, including the one-pixel size expansion. */
 void FldSmapTileQueueByType(u8 *queue, u8 *context, s32 tileType, s32 variant,

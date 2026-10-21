@@ -105,12 +105,8 @@ extern void H_Cdvd_ResetStreamState(void);
 extern void H_Cdvd_InitDevices(void);
 extern s32 kwlnGetCamera(void);
 extern u8 D_005DD680[];
-/* RenderWare keeps its engine instance in the `ourGlobals` array
-   (retail 0x008872E0) and reaches device state through
-   RWSRCGLOBAL(dOpenDevice): the near Z is at +0x18, the render-state and
-   Im2D entry points from +0x20.  The prefix of RwGlobals/RwDevice from
-   rwplcore.h is what makes a member access address it absolutely with the
-   %lo folded into the load, which is retail's loop shape. */
+/* Prefix of RenderWare's RwGlobals/RwDevice (ourGlobals); member access lets device fields like
+ * zBufferNear and the Im2D entry points be addressed absolutely, as retail does. */
 typedef struct {
     f32 gammaCorrection;
     void *fpSystem;
@@ -198,16 +194,13 @@ typedef struct KwlnInitConstants {
 extern f32 fGpffff8030;
 extern u8 iGpffff85d0;
 
-/* Source unit: src/promoted/code1_0010.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0010.c; members 00100e30-001013a0 */
-
-/* measured: tailcall on emits the retail bare jump wrapper. */
+/* measured: tailcall on gives the bare jump wrapper retail uses. */
 #pragma tailcall on
-/* measured: close tailcall bracket around func_00100218. */
 #pragma tailcall off
-// Intent: callback that calls func_004ccb38(0), then the sync and ei instructions to re-enable interrupts. Registered through func_00418b18.
+// Callback that calls func_004ccb38(0), then runs sync and ei to re-enable interrupts; registered
+// through func_00418b18.
 // FUN_00100E30
-/* measured: hardware barrier probe uses the required sync/ei instructions. */
+/* measured: enabling interrupts needs the literal sync/ei instruction pair in order. */
 s32 kwlnEnableInterrupts(void)
 {
     func_004ccb38(0);
@@ -223,15 +216,15 @@ s32 kwlnEnableInterrupts(void)
     return 0;
 }
 
-/* measured: opt_propagation off keeps each GP-relative queue address in the caller's temporary registers. */
-/* measured: func_00100e60 MATCH -> MISMATCH without this pragma. */
+/* measured: retail reloads values at each use instead of forwarding earlier copies, so propagation
+ * stays off. */
 #pragma opt_propagation off
-/* measured: opt_loop_invariants off prevents the four queue-address expressions from being hoisted across their wait loops. */
-/* measured: opt_common_subs off keeps each GP-anchor address materialized at its retail call site. */
-/* measured: func_00100e60 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline removal differs in 460 bytes; named queue address lifetimes; explicit constant arguments instead of shared one local also differ. */
+/* measured: opt_loop_invariants off stops the four queue-address expressions being hoisted across
+ * their wait loops; opt_common_subs off keeps each GP-anchor address computed at its retail call
+ * site. */
 #pragma opt_common_subs off
-// Intent: initialises the kwln subsystems: the active handle, the task and primitive pools, the CD streams and devices, the sound system and the table of active handles.
+// Initialises the kwln subsystems: active handle, task and primitive pools, CD streams and devices,
+// sound, and the active-handle table.
 // FUN_00100E60
 void kwlnInitSubsystems(void)
 {
@@ -323,9 +316,9 @@ void kwlnInitSubsystems(void)
     nLineInit();
 }
 
-/* measured: func_00101270 MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs on
-// Intent: runs one frame of the kwln loop: updates CD requests, sprites, sound and pad, runs the task frame, then advances the frame counters. Returns 0 when the task frame is not ready.
+// Runs one kwln frame: updates CD requests, sprites, sound and pad, runs the task frame, advances
+// frame counters; returns 0 if the task frame is not ready.
 // FUN_00101270
 s32 kwlnRunFrame(void)
 {
@@ -361,7 +354,8 @@ block_5:
     return 1;
 }
 
-// Intent: kwln main loop. Runs the init steps, seeds the random number generators from the boot seed, then runs frames forever.
+// kwln main loop: runs the init steps, seeds the random number generators from the boot seed, then
+// runs frames forever.
 // FUN_00101350
 void kwlnMainLoop(void)
 {
@@ -375,7 +369,7 @@ loop_1:
     goto loop_1;
 }
 
-/* measured: func_001013a0 is a live plain-C MATCH (272B window, 272B object, normalized_diff 0); staging kind = 4 before data = &iGpffffba6c reproduces retail's argument materialization order. */
+/* Setting kind = 4 before data = &iGpffffba6c follows the order retail loads the arguments. */
 // FUN_001013A0
 /* Install the optional global render-state configuration, including packed color. */
 void kwlnApplyRenderStateConfig(void)

@@ -1,7 +1,7 @@
 #include "byte_address_internal.h"
 #include "field_transition_internal.h"
 #include "include_asm.h"
-/* Original translation unit evtMain.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit evtMain.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "scene_event_internal.h"
 #include "sdk_snd_internal.h"
@@ -40,7 +40,8 @@ void func_003e8180(void *, float);
 void func_003e81c0(void *, float);
 extern u8 D_0063C3B0[];
 void memset(void *dst, s32 c, s32 n);
-// Scratch record for evtDispatchNode: 0x28 bytes, cleared with memset before each dispatch. Word 0 selects the dispatch pass; evtResetEventScene writes 1 for its first node loop and 2 for its second [inferred].
+// Scratch record for evtDispatchNode, cleared before each dispatch; word 0 selects the pass
+// (evtResetEventScene writes 1, then 2).
 extern s32 D_008821E0[];
 void MT_Scene_ClearExclusiveRes(void);
 struct KwlnTask;
@@ -98,7 +99,7 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern void kwlnSetColorRgba(u8 red, u8 green, u8 blue, u8 alpha);
 extern u8 D_0063C5C0[];
 void sprintf();
-s32 evtStartScriptLoad(s32 parentTask); /* lint: allow H011 -- caller stores the returned v0 (retail keeps it); definition is void */
+s32 evtStartScriptLoad(s32 parentTask); /* lint: allow H011 -- caller stores the return value as retail does; the definition is void */
 void evtScriptLoadRequest(); /* lint: allow H011 -- unprototyped: arg2 is a char array (label) at the call, and the definition declares it s32; the return value is discarded */
 void MT_Scene_StopShake(void);
 void MT_Scene_StartShake(s32 first, s32 second);
@@ -132,14 +133,8 @@ void taskRecordRequestPrimary(void *task);
 void taskRecordSetPosition(u8 *task, s64 packedPosition);
 
 
-/* measured: retail dispatches the 20-case switch (arg0->{0} 0..0x39) via a
-   jump table (range-check then sll/addu/lw/jr); mwcc b210 emits an if-chain
-   (addiu $v1,0x35 / beq chain) for this sparse case set, and separately
-   allocates saved registers arg0=$s4/arg1=$s3/arg2=$s2 with locals child=$s0
-   and r=$s1 where mwcc rotates to arg0=$s0/arg1=$s1/arg2=$s4, child=$s3,
-   r=$s2. Tried the complete m2c switch body + 1 declaration order; nd 324
-   (obj 1424B vs window 1248B). Jump-table-density + saved-register floor. */
-// Creates a 0x54-byte child node for the node at arg0 and appends it to that node's list; kind 10 also allocates a 0x30-byte record filled by evtInterpolateNodeMatrices, and kinds 0x18/0x19 add nothing else [inferred].
+/* Creates a 0x54-byte child node and appends it to the parent's list; kind 10 also allocates a
+ * 0x30-byte record filled by evtInterpolateNodeMatrices. */
 // FUN_00286780
 u8 *evtNodeCreate(u8 *parentBytes, s32 startFrame, u8 *event) {
     EvtNode *parent = (EvtNode *)parentBytes;
@@ -401,7 +396,7 @@ void evtNodeRemoveFree(u8 *ownerBytes, u8 *nodeBytes) {
 
 // Event list: inserts 'node' into the owner list in ascending key order.
 // FUN_00286D80
-/* measured: the retained ownerWords[0x13] and node[0x25] reads each change instructions when typed alone. */
+/* measured: the raw ownerWords[0x13] and node[0x25] reads change the output when typed. */
 void evtListInsertSorted(u32 *inserted, u32 *ownerWords) {
     u32 *node = (u32 *)ownerWords[0x13];
     if (node == 0) {
@@ -538,12 +533,11 @@ void *evtNodeAllocWithRes(s32 kind, u8 *ownerBytes, u16 resourceId, s32 resource
     return node;
 }
 
-/* measured: without opt_loop_invariants, MWCC rematerializes the 0x21 loop
- * constant inside the loop body after the entry jump; retail hoists it to the
- * preheader before the jump (same pattern as func_00287ad0). */
-/* measured: baseline 5 differing words; access-site owner 75, named search kind and for-loop search 5. */
+/* measured: retail hoists the 0x21 loop constant to the preheader before the entry jump instead of
+ * reloading it in the loop body, as in func_00287ad0. */
 #pragma opt_loop_invariants on
-// Enables or disables the scene resource of each type-1 and type-0x30 node with a resource id; kind == 0 enables, except nodes flagged for a duration are always disabled [inferred].
+// Enables or disables the scene resource of each type-1 and type-0x30 node with a resource id;
+// nodes flagged for a duration are always disabled.
 // FUN_002871A0
 void evtSetNodeResourcesEnabled(s32 disable, u8 *unusedFrame, u8 *event) {
     EvtEventWork *owner = (EvtEventWork *)event;
@@ -590,7 +584,7 @@ void evtSetNodeResourcesEnabled(s32 disable, u8 *unusedFrame, u8 *event) {
         }
     }
 }
-/* measured: see annotation above (func_002871a0). */
+/* measured: loop-invariant hoisting is only needed for evtSetNodeResourcesEnabled. */
 #pragma opt_loop_invariants off
 
 // Applies the event's resource state: enables its nodes when the state is 1, otherwise disables them.
@@ -608,18 +602,14 @@ void evtRefreshNodeResources(u8 *event) {
 struct Resrc;
 
 #pragma push
-/* measured: baseline 328 differing words; access-site object aliases 329-422, reused typed locals 328. */
 #pragma opt_propagation off
 /* Keep the native scaled-address order for the three cut-in task slots. */
 
 
-/* Measured: 1896 executable bytes, 47 resolved relocations and eight zero tail
-   bytes. Reassigning the consumed enable state retains retail's duration load
-   and common join; both duration outcomes perform the same polygon update.
-   Current proof: docs/probe_archive/Event_duration_current_5a1bcf7_20260921.md. */
-// Updates the cut-in polygon each frame from its duration gate and enable state, using the packed position and colour values [inferred].
+/* Updates the cut-in polygon each frame from its duration gate and enable state, using the packed
+ * position and colour values; both duration outcomes do the same update. */
 // FUN_00287360
-/* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
+/* measured: typed object locals keep retail's reloads; alias-sensitive members still use MEMBER. */
 void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event) {
     EvtNode *ownerNode = (EvtNode *)owner;
     EvtChildNode *child = (EvtChildNode *)currentKey;
@@ -893,9 +883,8 @@ void evtUpdateCutin(u8 *owner, u8 *nextKey, u8 *currentKey, s32 frame, u8 *event
 #pragma pop
 // Updates an event's wait state: finds its type-0x22 node and sets wait bit 0x20 (mode 0, once the state at +0x678 has cleared) or 0x2000 (mode 1, once the fade has finished).
 // FUN_00287AD0
-/* measured: without opt_loop_invariants, MWCC rematerializes the 0x22 loop
- * constant inside the loop body; retail hoists it to the preheader. */
-/* measured: baseline 54 differing words; named search kind and for-loop search both 54. */
+/* measured: retail hoists the 0x22 search constant out of the loop, which needs loop-invariant
+ * hoisting enabled. */
 #pragma opt_loop_invariants on
 void evtUpdateWaitState(int frame, int eventAddress) {
     u8 *currentKey = NULL;
@@ -926,7 +915,7 @@ void evtUpdateWaitState(int frame, int eventAddress) {
         }
     }
 }
-/* measured: see annotation above (func_00287ad0). */
+/* measured: restores the unit setting after func_00287ad0. */
 #pragma opt_loop_invariants off
 
 // Selects the type-0x26 choice whose range [start, start + length] contains arg0, stores its value in arg1, and sets the selected flag.
@@ -982,7 +971,8 @@ u8 *evtFindBestChoice(u32 unusedContext, u8 *owner, s32 frame, s32 layer) {
     return found;
 }
 
-// Steps the model layers for the choice the event selects: finds the best matching choice and advances its layers' times [inferred].
+// Steps the model layers for the choice the event selects: finds the best matching choice and
+// advances its layers' times.
 // FUN_00287D90
 void evtStepLayerByChoice(frame, resource, ownerAddress, event)
 s32 frame;
@@ -1078,22 +1068,10 @@ block_29:
     }
 }
 
-/* measured: retail holds the inner-loop linked-list walk in $a2 (p) and the
-   found-node in $v1 (first loop) / $a0 (second loop); mwcc b210 always puts
-   p in $a0 and found in $a2. Tried 3 declaration orders, separate node/node2
-   locals (gets register allocation right: frame=$s1, resource=$s0, node=$s2) and
-   inline-"use p directly" structure; all nd 17 with this residual. Temp-
-   register allocation floor (not a saved-register issue). */
-/* Recovered from the m2c draft via tools/draft_probe.py (nd 26 as generated).
-   The whole residual was loop SHAPE: m2c writes every loop as
-   `if (cond) { body; goto top; }`, which b210 compiles as a top-test loop with an
-   unconditional back-branch, where retail rotates - an entry `b` to the test plus a
-   conditional back-branch at the bottom. Turning the two OUTER goto-chains into
-   `while` took nd 26 -> 10, and the two inner ones (with `break` on the hit, keeping
-   the trailing if/else exactly as m2c emitted it) closed it. Converting all four at
-   once while also collapsing that if/else scores nd 127 at 300B, so keep the
-   surrounding structure and change only the loop form. */
-// Syncs each event node with its resource manager entry, updating the node's resource state [inferred].
+/* Remaining mismatch is temp-register choice in the inner list walks; declaration order does not
+ * change it. Loops are written as while/break to get retail's rotated loop form; keep the trailing
+ * if/else as is. // Syncs each event node with its resource manager entry, updating the node's
+ * resource state [inferred]. */
 // FUN_00288020
 void evtSyncResManagerNodes(s32 frame, u8 *event) {
     u8 *manager;
@@ -1170,14 +1148,11 @@ typedef union EvtDirectionMatrix {
     } value;
 } EvtDirectionMatrix;
 
-/* 2424 executable bytes / 2432-byte window; the suffix is eight zero bytes.
-   The twelve-entry motion switch owns the 48-byte table at 0x00748440.
-   Command snapshots preserve full vector objects and call argument order. */
-// Intent: Event node type 1 and 48 handler: resource command (motion, scale, colour, shadow, model slot) for the node's resource [inferred]
+/* Event node type 1 and 48 handler: runs a resource command (motion, scale, colour, shadow, model
+ * slot) on the node's resource. The motion switch uses a twelve-entry jump table. */
 // FUN_00288170
-/* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
+/* measured: typed object locals keep retail's reloads; alias-sensitive members still use MEMBER. */
 #pragma push
-/* measured: baseline 476 differing words; access-site owner 495, typed child local 476. */
 #pragma opt_propagation off
 s32 evtNodeResCommand(s32 action, s32 frame, u8 *event, u8 *resource, u8 *command)
 {
@@ -1558,14 +1533,11 @@ typedef struct EvtCameraCommand {
     u8 longArc;
 } EvtCameraCommand;
 
-/* 1060 executable bytes / 1072-byte window; all 17 code relocations
-   resolve exactly, and the remaining 12 bytes are zero padding.
-   opt_propagation keeps each command snapshot at its call boundary. */
-// Intent: Event node type 33 handler: camera move; places the camera resource and runs timed or eased moves [inferred]
+/* Event node type 33 handler: camera move; places the camera resource and runs timed or eased
+ * moves. */
 // FUN_00288AF0
 #pragma push
 #pragma no_branch_likely on
-/* measured: baseline 9 differing words; access-site objects 228-242, inline duration/easing 9. */
 #pragma opt_propagation off
 s32 evtNodeCameraMove(s32 action, s32 frame, u8 *event, u8 *resourceBytes, u8 *commandBytes)
 {
@@ -1778,7 +1750,7 @@ s32 evtCmdResEnable(s32 action, s32 frame, s32 event, s32 owner, u8 *command) {
 
 // Event command (resource placement): case 2 sets placement, motion, slot or material.
 // FUN_002891D0
-/* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
+/* measured: typed object locals keep retail's reloads; alias-sensitive members still use MEMBER. */
 s32 evtCmdResPlace(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     EvtEventWork *eventState = (EvtEventWork *)event;
     SVec3 position;
@@ -1859,8 +1831,8 @@ s32 evtCmdResPlace(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     }
 }
 
-/* 720/720 bytes; 49 fully resolved relocations. */
-// Intent: Event node type 4 handler: message step; sets up the message state and handles the selection for the node's id [inferred]
+/* Event node type 4 handler: message step that sets up the message state and handles the selection
+ * for the node's id. */
 // FUN_002894B0
 s32 evtNodeMessageSelect(s32 action, s32 frame, s32 event, u8 *owner, u8 *command) {
     s32 recordId;
@@ -1992,14 +1964,7 @@ s32 evtCmdLabelText(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     }
 }
 
-/* measured: retail reuses event's dead register ($s1) for p2 with the addu
-   operand order rs=$v0 (scaled), and routes the default case's return through
-   the shared addiu block; mwcc b210 always gives p2 the earlier-freed $s2,
-   emits addu rs=$s1, and reuses the dispatch's $v0=1 by branching the default
-   straight to the epilogue. Tried goto-ret, b-local vs inline expression, and
-   4 declaration orders; all nd 8. Register-reuse + branch-target floor. */
-/* measured: retail reuses event's dead register for the case-2 slot pointer and keeps the dispatcher result in a separate saved register; mwcc b210 assigns the slot and argument registers differently in the final call sequence. Tried declaration orders and parameter reuse; all closed at nd 8. Committed at nd 8. */
-// Event command (task slot): case 2 replaces the slot at +0x6D0 with a task of kind 0-6.
+/* Event command (task slot): case 2 replaces the slot at +0x6D0 with a task of kind 0-6. */
 // FUN_002898B0
 /* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
 s32 evtCmdTaskSlot(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
@@ -2208,7 +2173,8 @@ s32 evtCmdCamPos(int action, int frame, int eventAddress, int ownerAddress, u16 
     }
 }
 
-// Event command for cue playback: action 2 plays the node's cue (formatted or by id) once per matching node; actions 0 and 1 only report readiness [inferred].
+// Event command for cue playback: action 2 plays the node's cue (formatted or by id) once per
+// matching node; actions 0 and 1 only report readiness.
 // FUN_00289FB0
 /* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
 s32 evtCmdPlayCue(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
@@ -2246,7 +2212,8 @@ s32 evtCmdPlayCue(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
         return 1;
     }
 }
-// Intent: Event node type 54 handler: soundtrack request or channel fade for the node's id, chosen by the node kind [inferred]
+// Event node type 54 handler: soundtrack request or channel fade for the node's id, chosen by the
+// node kind.
 // FUN_0028A100
 /* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
 s32 evtNodeSoundTrack(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
@@ -2288,7 +2255,8 @@ s32 evtNodeSoundTrack(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) 
     }
 }
 
-// Event command for stream playback: action 2 starts the node's sound stream for its type; actions 0 and 1 only report readiness [inferred].
+// Event command for stream playback: action 2 starts the node's sound stream for its type; actions
+// 0 and 1 only report readiness.
 // FUN_0028A2A0
 s32 evtCmdPlayStream(s32 action, s32 frame, s32 event, s32 owner, u8 *command) {
     evtFindTask();
@@ -2319,9 +2287,10 @@ s32 evtCmdPlayStream(s32 action, s32 frame, s32 event, s32 owner, u8 *command) {
     }
 }
 
-// Intent: Event node type 19 handler: sound cue for the node's id: plays a cue, queues a sound, or stops a channel [inferred]
+// Event node type 19 handler: sound cue for the node's id; plays a cue, queues a sound, or stops a
+// channel.
 // FUN_0028A3B0
-/* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
+/* measured: typed object locals keep retail's reloads; alias-sensitive members use MEMBER. */
 s32 evtNodeSoundCue(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     u16 commandFrame;
     s16 operation;
@@ -2367,12 +2336,10 @@ s32 evtNodeSoundCue(s32 action, s32 frame, u8 *event, s32 owner, u8 *command) {
     }
 }
 
-/* measured: nested switch for D_008821E0[0] plus the no-argument
-   MT_Scene_StopShake call preserves retail's live $a0 value. nd 0, object 320B,
-   window 320B. */
-// Event command (range flag): sets or clears flag 0x2 on the node for ids in the range.
+/* Event command (range flag): sets or clears flag 0x2 on the node for ids in the range. The nested
+ * switch on D_008821E0[0] and the no-argument MT_Scene_StopShake call follow retail. */
 // FUN_0028A560
-/* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
+/* measured: typed object locals keep retail's reloads; alias-sensitive members use MEMBER. */
 s32 evtCmdRangeFlag(s32 action, s32 frame, s32 *event, s32 owner, u8 *command) {
     EvtChildNode *child = (EvtChildNode *)command;
     u16 duration;
@@ -2409,7 +2376,8 @@ s32 evtCmdRangeFlag(s32 action, s32 frame, s32 *event, s32 owner, u8 *command) {
     }
 }
 
-// Intent: Event node type 28 handler: draws the gated entry, or stops pad rumble, chosen by the node kind [inferred]
+// Event node type 28 handler: draws the gated entry or stops pad rumble, depending on the node
+// kind.
 // FUN_0028A6A0
 s32 evtNodeDrawOrRumble(int action, int frame, int eventAddress, int ownerAddress, u16 *commandWords) {
     s16 thirdValue;
@@ -2543,13 +2511,8 @@ s32 evtDispatchNode(s32 frame, s32 eventAddress, u8 *ownerBytes) {
     }
 }
 
-/* measured: retail assigns saved registers frame=$s1, eventAddress=$s0, node=$s2,
-   node3=$s3, node2=$s4 (params low, locals high); mwcc b210 always emits
-   the mirror image (params $s4/$s3, locals $s0-$s2) regardless of local
-   declaration order (5 orders probed), extra unused params (3-5 probed),
-   or the slt register ($v0 vs $at). Instruction stream is identical; pure
-   saved-register rotation. nd 48. */
-// Resets the event scene: clears the scene light slots, syncs the event nodes with their resource manager entries, and resets the per-node state [inferred].
+/* Resets the event scene: clears the scene light slots, syncs the event nodes with their resource
+ * manager entries, and resets the per-node state. */
 // FUN_0028AAF0
 void evtResetEventScene(s32 frame, u8 *event) {
     EvtEventWork *work = (EvtEventWork *)event;
@@ -2634,9 +2597,10 @@ void evtResetEventScene(s32 frame, u8 *event) {
     }
 }
 
-// Destroys the event scene: kills the tint task, destroys the model, and releases the child tasks and nodes [inferred].
+// Destroys the event scene: kills the tint task, destroys the model, and releases the child tasks
+// and nodes.
 // FUN_0028AD90
-/* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
+/* measured: typed object locals keep retail's reloads; alias-sensitive members use MEMBER. */
 void evtDestroyEventScene(u8 *event, s32 stopSound) {
     EvtEventWork *eventState = (EvtEventWork *)event;
     s32 waitTask;
@@ -2783,7 +2747,7 @@ u8 *evtCreateEventState(void) {
 
 // Event teardown: restores env/camera state, releases the scene task, frees the node.
 // FUN_0028B160
-/* measured: typed object locals preserve retail reloads; remaining alias-sensitive members use MEMBER. */
+/* measured: typed object locals keep retail's reloads; alias-sensitive members use MEMBER. */
 void evtDestroy(int eventAddress, s32 stopSound) {
     EvtEventWork *eventState = (EvtEventWork *)eventAddress;
     u32 readerTask;
@@ -2804,7 +2768,7 @@ void evtDestroy(int eventAddress, s32 stopSound) {
     func_00440b68(D_0063C628);
 }
 
-// Clears the pending word at +0x774 of the event block and calls the event state reset.
+// Clears the event block's pending word and calls the event state reset.
 // FUN_0028B230
 void evtResetPendingState(int eventAddress) {
     ((EvtEventWork *)eventAddress)->pending = 0;
@@ -2878,7 +2842,7 @@ void evtEnvSlotRestore(int eventAddress, int slotIndex) {
     D_00764B5C = ((EvtEnvironmentSlot *)slotAddress)->value;
 }
 
-// Camera position: saves camera x/y into the event node at +0x98.
+// Saves the camera x/y into the event block's savedCamera.
 // FUN_0028B550
 void evtCamPosSave(int eventAddress) {
     f32 *position;
@@ -2894,7 +2858,7 @@ void evtCamPosSave(int eventAddress) {
     position[1] = ((KwlnCamera *)camera)->y;
 }
 
-// Camera position: restores the x/y stored at +0x98 into the camera.
+// Restores the camera x/y from the event block's savedCamera.
 // FUN_0028B5D0
 void evtCamPosRestore(int eventAddress) {
     f32 *position;

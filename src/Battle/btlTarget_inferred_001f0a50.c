@@ -32,7 +32,6 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *, s32, s32);
 
 
-
 extern u8 D_0060AB08[];
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
@@ -49,16 +48,10 @@ extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
 
-
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
 extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
-
-
-
-
-
 
 
 extern s32 iGpffffb464;
@@ -68,16 +61,13 @@ extern u8 D_00624F60[];
 extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f0a50-001f0f70 */
-
 #pragma push
 #pragma pop
+/* Return 1 if any hit row of any of the action's targets has flag 4 set, otherwise 0. */
 // FUN_001F0A50
 /* Report whether any selected target has hit-row flag 4. */
 s32 btlActionAnyTargetHitRowFlagged(u8 *action)
 {
-    /* Measured site, typed-local and stride forms changed retail code generation;
-     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 i;
     s32 j;
     s32 n;
@@ -109,17 +99,14 @@ outer_test:
     return 0;
 }
 
-/* measured: invariant mask materialisation needs opt_loop_invariants on to
-   place the retail `lui` in the preheader. */
-/* measured: func_001f0af0 MATCH -> MISMATCH without this pragma. */
-/* Unit-region setting: invariant hoisting remains enabled for the seven following target predicates. */
+/* measured: loop-invariant hoisting places the retail mask load in the loop preheader; it stays
+ * enabled for the following seven target predicates. */
 #pragma opt_loop_invariants on
+/* Return 1 if any hit row of any of the action's targets added status bit 0x100000, otherwise 0. */
 // FUN_001F0AF0
 /* Report whether any selected target has hit-row status bit 0x100000. */
 s32 btlActionAnyTargetHitRowStatus(u8 *action)
 {
-    /* Measured site, typed-local and stride forms changed retail code generation;
-     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 i;
     s32 j;
     s32 n;
@@ -153,16 +140,12 @@ outer_test:
     return 0;
 }
 
-/* measured: closes the invariant-hoist bracket for func_001f0af0. */
+/* Return 1 if any of the action's targets has its special-hit flag set, otherwise 0. */
 // FUN_001F0B90
-/* The two 0xFFFF masks are spelled differently on purpose: retail re-masks
-   the counter separately for the index and for the loop bound, and writing
-   both as `i & 0xFFFF` lets b210 common-subexpression them into one andi
-   (nd 57, one word short). */
-/* Report whether any selected target records a special hit. */
+/* The two 0xFFFF masks are spelled differently on purpose: retail masks the counter separately for
+ * the index and the loop bound, and identical spellings merge into one. Reports whether any
+ * selected target records a special hit. */
 s32 btlActionAnyTargetSpecialHit(u8 *action) {
-    /* Measured site, typed-local and stride forms changed retail code generation;
-     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 i;
     s32 n;
 
@@ -181,14 +164,11 @@ test:
     return 0;
 }
 
+/* Return 1 if any of the action's targets has target flag bit 1 or 2 set, otherwise 0. */
 // FUN_001F0BF0
-/* Mask spelling as in func_001f0b90: `(u16)i` for the index and
-   `i & 0xFFFF` for the bound, so b210 does not fold retail's two andi
-   instructions into one. */
-/* Report whether any selected target has critical/weak hit flags. */
+/* Like func_001f0b90, the index is masked as `(u16)i` and the bound as `i & 0xFFFF` so both of
+ * retail's andi masks are kept. Reports whether any selected target has critical/weak hit flags. */
 s32 btlActionAnyTargetFlagged(u8 *action) {
-    /* Measured site, typed-local and stride forms changed retail code generation;
-     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 i;
     s32 n;
 
@@ -207,13 +187,13 @@ test:
     return 0;
 }
 
-/* measured: loop-invariant probe for func_001f0c50's shared true value. */
+/* Return 0 if any other target belongs to a different genus than the acting unit. Otherwise return
+ * 1 if any of those targets has a hit row that restores HP or SP or removes a status, and 0 if none
+ * does. */
 // FUN_001F0C50
 /* Require same-genus non-self targets and detect positive HP/SP or status-clear changes. */
 s32 btlActionSameGenusTargetsHaveDelta(u8 *action)
 {
-    /* Measured site, typed-local and stride forms changed retail code generation;
-     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 result;
     s32 i;
     s32 n;
@@ -255,15 +235,13 @@ s32 btlActionSameGenusTargetsHaveDelta(u8 *action)
     return result;
 }
 
-/* measured: close opt_loop_invariants after func_001f0c50 probe. */
-/* measured: invariant mask materialisation needs opt_loop_invariants on to
-   place the retail `lui` in the preheader. */
+/* measured: loop-invariant optimisation must stay on so the invariant mask's upper half is loaded
+ * once before the loop, as in retail. */
+/* Return 1 if any hit row on any of the action's targets removes the death status bit, otherwise 0. */
 // FUN_001F0D30
 /* Report whether any target hit row clears status bit 0x80000. */
 s32 btlActionAnyTargetClearsDeathStatus(u8 *action)
 {
-    /* Measured site, typed-local and stride forms changed retail code generation;
-     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 i;
     s32 j;
     s32 n;
@@ -297,15 +275,13 @@ outer_test:
     return 0;
 }
 
-/* measured: closes the invariant-hoist bracket for func_001f0d30. */
-/* measured: opt_loop_invariants on preserves the nonzero-path constant and loop preheaders for func_001f0dd0. */
+/* measured: loop-invariant hoisting stays on so retail keeps the nonzero-path constant and loop
+ * preheaders in func_001f0dd0. */
 // FUN_001F0DD0
 /* Test target result rows for a negative HP change or status result, with mode-specific exclusions. */
 s32 btlActionTargetsHaveDamageResult(u8 *action, s32 mode)
 {
     /* Hit outcomes occupy the control halfword preceding the per-target hit rows. */
-    /* Measured site, typed-local and stride forms changed retail code generation;
-     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 result;
     s32 one;
     s32 targetIndex;
@@ -392,14 +368,11 @@ done:
     return result;
 }
 
-/* measured: close opt_loop_invariants after func_001f0dd0. */
 // FUN_001F0F70
 /* Report a special-hit target or target flags 0x500. */
 u32 btlActionAnyTargetHasSpecialResult(u8 *action)
 {
     /* Hit outcomes occupy the control halfword preceding the per-target hit rows. */
-    /* Measured site, typed-local and stride forms changed retail code generation;
-     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     u8 *target;
     s32 targetCount;
     s32 targetIndex;

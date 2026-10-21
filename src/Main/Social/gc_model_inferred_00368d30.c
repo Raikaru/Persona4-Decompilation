@@ -21,10 +21,6 @@ typedef union {
 typedef struct PersonaWork PersonaWork;
 
 
-
-
-
-
 extern f32 iGpffff84a4;
 extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
                           u8 alphaSubtract, u8 red, u8 green, u8 blue,
@@ -74,21 +70,12 @@ extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern f32 iGpffff8040;
 extern f32 fGpffff8198;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0036; members 00368d30-00368e80 */
-
 extern void pscModelBuildTileVertices(u8 *mesh, u8 *model);
-/* 780/784 bytes; nine resolved relocations; four zero alignment bytes.
- * Keep the angle and shared scale local to each primitive call. */
+/* Keep the angle and shared scale local to each primitive call. */
 #pragma push
 #pragma pop
-/* measured: opt_common_subs off keeps the raw alpha argument in $s1 and re-masks it at each of
-   its two uses (color entry, 0xFF - alpha at the sprite call) as retail does; with CSE on b210
-   masks once into $s0 (nd 78). */
-/* measured: nd 9 -> 0. opt_loop_invariants on hoists the digit loop's 16.0f and 10
-   ahead of the entry branch. Alpha: `n = arg1 & 0xFF; arg1 = 0xFF - n;` through the
-   loop counter's register puts the andi before the li (fresh local or one expression: nd 3). */
-/* measured: closes the loop-invariant bracket; the file default is off. */
-// Intent: Initialises a shuffle-card panel model in mode 3: its sub-panel, light quad, corner positions, colours and timing constants [inferred]
+/* Initialises a shuffle-card panel model in mode 3: its sub-panel, light quad, corner positions,
+ * colours and timing constants. */
 // FUN_00368D30
 void pscModelInitPanel(u8 *model)
 {
@@ -146,14 +133,12 @@ void pscModelInitPanel(u8 *model)
 
 /* measured: retail hoists the 0.5f loop constants out of the corner loops. */
 #pragma push
-/* measured: func_00368e80 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline differs by 128 words; explicit corner-center local leaves nd359; retain hoisting. */
+/* measured: retail hoists loop-invariant corner-center values out of the tile loops in
+ * pscModelStepAnimation. */
 #pragma opt_loop_invariants on
-// Intent: Advances a panel's animation timer and phase values for its mode, then rebuilds its tile vertices [inferred]
-/* Advance mode-specific card UV and pulse phases, expire timed transitions, and rebuild enabled tile meshes. */
+// Advances a panel's animation timer and mode-specific UV and pulse phases, expires timed
+// transitions, and rebuilds enabled tile meshes.
 // FUN_00368E80
-/* Initial whole-layout typing hoisted extra addresses (1480/1472 bytes); the
- * access-site and shared typed-local forms below preserve the retail code. */
 void pscModelStepAnimation(u8 *model)
 {
     PscModel *panelModel;

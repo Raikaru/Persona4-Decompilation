@@ -16,17 +16,13 @@ extern u8 D_00922C50[];
 extern u8 DAT_00922c30_abs[];
 
 
-
 struct MdlFlags78ec0;
-
 
 
 extern f32 fGpffffbb4c;
 extern f32 fGpffffbb48;
 extern f32 fGpffffbb50;
 extern f32 fGpffffbb54;
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0047; members 0047f830-0047f850 */
 
 typedef struct Code47Dispatch {
     void *unused;
@@ -47,14 +43,15 @@ u8 *mdlGetSampleScratch(void)
     return D_00922C50;
 }
 
-/* measured: direct table indexing with loop-invariant optimization matches
- * all 412 executable bytes in the 416-byte retail window. The count is a
- * snapshot; callback and item-array loads remain visible after callbacks. */
+/* measured: retail hoists loop invariants here; the count is a snapshot, while callback and item-
+ * array loads are re-read after each callback. */
 #pragma push
-/* measured: mdlDispatchTrackRows MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists loop-invariant loads out of the row loop in mdlDispatchTrackRows. */
 #pragma opt_loop_invariants on
-/* Runs the four track row kinds against the target list at +0x50: a row with data on both sides is blended with the matching right-hand row, otherwise it is sampled, and its apply callback writes the result to every target. */
-/* measured: typed row pointers, pointer iteration and byte-stride row lookup leave 12 differing register words without hoisting; retain the toggle. */
+/* Runs the four track row kinds against the targets list: a row with data on both sides is blended
+ * with the matching right-hand row, otherwise it is sampled, and its apply callback writes the
+ * result to every target. measured: retail hoists the loop-invariant row lookups out of the loop,
+ * which needs loop-invariant optimization on. */
 // FUN_0047F850
 void mdlDispatchTrackRows(u8 *leftTrack, f32 leftTime, u8 *rightTrack, f32 rightTime,
                    f32 weight)

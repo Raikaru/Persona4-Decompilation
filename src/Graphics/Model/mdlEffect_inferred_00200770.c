@@ -23,7 +23,6 @@ typedef struct BtlAction BtlAction;
 extern void datStopPadRumble(void);
 
 
-
 typedef struct {
     u8 pad0[2];
     s16 field2;
@@ -39,9 +38,6 @@ extern f32 fGpffff83b0;
 extern u8 *D_0076449C;
 extern s32 iGpffffb448;
 extern s32 D_0062656C[];
-
-
-
 
 
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -108,9 +104,7 @@ extern u8 D_00795080[];
 
 extern u8 D_006253B0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00200770-00200c50 */
-
-// Intent: advance the battle model curve and update the model matrix from the curve state. [inferred]
+// Advances the battle model curve and updates the model matrix from the curve state.
 // FUN_00200770
 void btlUiUpdateModelCurve(u8 *command)
 {
@@ -187,14 +181,13 @@ void btlUiUpdateModelCurve(u8 *command)
     }
 }
 
-// Intent: reset the overlay scale field to its default value. [inferred]
+// Resets the overlay scale to its default value.
 // FUN_00200960
 void btlUiResetOverlayScale(void) {
     ((MdlEffectUiState *)D_0076449C)->overlayScale = fGpffff8184;
 }
 
-/* measured: clean-C body is byte-exact in the current TU (object/window 208B, normalized_diff 0). */
-// Intent: set the overlay scale from the progress ratio of the current and total counters. [inferred]
+/* Sets the overlay scale from the progress ratio of the current and total counters. */
 // FUN_00200980
 void btlUiUpdateOverlayScale(u8 *command)
 {
@@ -225,7 +218,7 @@ void btlUiUnitPositionDestroyNoop(void)
 {
 }
 
-// Intent: re-apply position and rotation to the living units of both sides. [inferred]
+// Re-applies position and rotation to the living units of both sides.
 // FUN_00200A60
 void btlUiRefreshUnitPositions(u8 *command)
 {

@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0034a630-0034ad40 */
 
 #include "nline_vertex_internal.h"
 #include "member_access.h"
@@ -96,7 +95,7 @@ extern f32 fGpffff8504;
 extern f32 D_008872F8[];
 extern u8 D_0064A6E0[];
 extern u8 D_0064A6F0[];
-// Intent: Return the combine object's work block pointer [inferred]
+// Return the combine object's work block pointer.
 // FUN_0034A630
 s32 fclCombineGetWork(u8 *task)
 {
@@ -113,9 +112,10 @@ do { \
     (dst).tail = copy_f32; \
 } while (0)
 
-// Intent: Set the combine object's model: when its id or kind changes and no fade runs, free the old model, clone the new entry and reset its matrices [inferred]
+// Set the combine object's model: when its id or kind changes and no fade runs, free the old model,
+// clone the new entry and reset its matrices.
 // FUN_0034A640
-/* measured: propagation-on scalar copies/reordered temporaries differ by 10 bytes; aggregate copies differ by 8; keep scalar-copy order. */
+/* measured: retail keeps the scalar-copy order and its temporaries, which needs propagation off. */
 #pragma push
 #pragma opt_propagation off
 void fclCombineSetModel(u8 *task, u16 modelId, s64 kind)
@@ -140,9 +140,8 @@ void fclCombineSetModel(u8 *task, u16 modelId, s64 kind)
     modelWork = ((KwlnTask *)task)->work;
     COPY_SCALAR_PAIR_0034(translation, *(Pair *)D_0064A6E0);
     COPY_SCALAR_PAIR_0034(rotationAxis, *(Pair *)D_0064A6F0);
-    /* measured: typing modelId/kind changes reloads (492/484 bytes versus 480).
-       Pointer-member typing also changes reloads; child slots alone grow to 488 bytes.
-       Keep these accesses raw, with their proven offsets documented above. */
+    /* measured: typed modelId/kind and pointer members change retail's reload pattern, so these
+     * accesses keep the plain casts. */
 
     if (((((FclCombineModelWork *)(modelWork))->modelId != (u16)modelId) ||
          (((FclCombineModelWork *)(modelWork))->kind != (s8)kind) ||
@@ -188,7 +187,7 @@ void fclCombineSetModel(u8 *task, u16 modelId, s64 kind)
 
 #undef COPY_SCALAR_PAIR_0034
 
-// Intent: Clear the combine object's first state byte and set its second to 1 [inferred]
+// Clear the combine object's cleared byte and set initialized to 1.
 // FUN_0034A820
 void fclCombineClearState(u8 *task)
 {
@@ -199,7 +198,7 @@ void fclCombineClearState(u8 *task)
     ((FclCombineModelWork *)modelWork)->initialized = 1;
 }
 
-// Intent: Zero the combine object's view counters and initialise its view state [inferred]
+// Zero the combine object's view counter and view state, then initialise its camera view.
 // FUN_0034A840
 void fclCombineInitView(u8 *task) {
     u8 *work;
@@ -207,11 +206,11 @@ void fclCombineInitView(u8 *task) {
     work = (u8 *)(((KwlnTask *)task)->work);
     ((FclCombineModelWork *)work)->viewCounter = 0;
     ((FclCombineModelWork *)work)->viewState = 0;
-    /* measured: a typed viewState address is hoisted across kwlnGetCamera (72 versus 80 bytes). */
+    /* measured: a typed viewState address gets hoisted across kwlnGetCamera, unlike retail. */
     func_003e8130((u8 *)kwlnGetCamera(), work + 0xE0);
 }
 
-// Intent: Mark the combine object ready by setting its sixth state byte [inferred]
+// Mark the combine object ready.
 // FUN_0034A890
 void fclCombineSetReady(u8 *task)
 {
@@ -221,10 +220,11 @@ void fclCombineSetReady(u8 *task)
     ((FclCombineModelWork *)modelWork)->ready = 1;
 }
 
-// Intent: Draw one combine packet: set the sky render states and the far-plane and tint values, then run the state dispatcher [inferred]
+// Draw one combine packet: set the sky render states, far-plane and tint values, then run the state
+// dispatcher.
 // FUN_0034A8B0
-/* Preserve the dispatcher contract and the four retail far-plane observations. */
-/* measured: removing hoisting differs by 75 bytes; propagation-on table/field/width spellings leave at least 17 bytes; retain both settings. */
+/* measured: retail keeps the loop-invariant loads hoisted and the table and field values
+ * unpropagated, so both settings are needed. */
 #pragma push
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
@@ -290,9 +290,10 @@ void fclCombineDrawPacket(u8 *packet, s32 data, void *callback)
 }
 #pragma pop
 
-// Ball slot task update: for each slot up to the count at +0x1800 whose flag bit 0 is set, inside its time window, with a nonzero +0x162, queues the slot's draw packet.
+// Ball slot task update: queue the draw packet of each slot up to the slot count whose flag bit 0
+// is set, inside its time window, with a nonzero field.
 // FUN_0034AC00
-/* measured: propagation-on cached, direct and typed-slot comparisons still swap the width/global loads (6 bytes); reversed comparison differs by 10. */
+/* measured: with propagation on, the width and global loads swap order compared with retail. */
 #pragma push
 #pragma opt_propagation off
 s32 fclCmbBallSlotsUpdate(u8 *task)

@@ -68,15 +68,10 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
-
-
-
-
 
 
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
@@ -93,27 +88,8 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00197a80-00197f30 */
-
-/* measured: opt_propagation off is scoped to func_001927c0. */
-/* measured: closes opt_propagation around func_001927c0. */
-/* measured: opt_propagation off is scoped to func_001928c0. */
-/* measured: opt_loop_invariants on is scoped to func_001928c0. */
-/* measured: closes opt_loop_invariants around func_001928c0. */
-/* measured: closes opt_propagation around func_001928c0. */
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
-/* measured: opt_propagation off keeps the per-use u8/u16 conversions and the
-   named scaled index (`off = k * 6`) from being folded into one address. */
-/* measured: closes the propagation bracket; the file default is on. */
-/* measured: opt_propagation off preserves the COP1 chain's intermediate colouring. */
-/* measured: func_00197a80 MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps the float chain's intermediate values separate, which copy propagation
+ * would fold together. */
 #pragma opt_propagation off
 /* Advance the arc displacement, or apply the indexed vertical-offset curve for the alternate mode. */
 // FUN_00197A80
@@ -169,7 +145,6 @@ s32 btlUnitArcMovePacketUpdate(u8 *packetWork)
     return ++((BtlUnitArcMovePacket *)packetWork)->counter >= 0x23U;
 }
 
-/* measured: restore opt_propagation after func_00197a80 FPR temporary colouring probe. */
 /* Allocate arc work with the starting counter and the formation scale. */
 // FUN_00197CC0
 u8 *btlUnitCreateArcMovePacket(s32 unitAddress, s16 mode, s16 counter)
@@ -193,8 +168,9 @@ void btlUnitHoldPendingRotate(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-/* measured: access-site flags/counter typing changes MATCH to MISMATCH; a distinct typed packet alias preserves both accesses. */
-/* Start an immediate facing change or a deferred rotation and wait for its activity bit to clear. */
+/* On the first update, either turn the unit to face the packet target immediately or start a
+ * deferred rotation toward it. Return 1 once the unit's rotation bit has cleared, otherwise count
+ * the frame and return 0. */
 // FUN_00197D70
 s32 btlUnitRotatePacketUpdate(u8 *packetWork)
 {

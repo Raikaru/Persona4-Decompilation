@@ -215,22 +215,14 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 #pragma push
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 004530b0-004530b0 */
-
 extern void sdkPadRepeatButtonDispatch(s32 padIndex, u16 buttonMask, s32 timerIndex);
 #pragma pop
-/* measured: restore O2 after func_00450e80. */
-/* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */
 #pragma push
 #pragma pop
-/* 756/768 bytes; thirty-eight resolved relocations; twelve zero tail bytes.
- * Measured: propagation off retains the raw/cooked pointer allocation.
- * Analog values 0x5B..0xA5 are neutral; retain raw button bits 4..7. */
 #pragma push
 #pragma pop
-// Intent: computes the held and edge masks for slot `arg0` and dispatches each button through func_00453310.
-/* Typed interior mask columns retain MATCH; record-relative accesses changed
- * the measured address/load order. Each column row retains the 0x4A stride. */
+// Computes the held and edge masks for the slot and dispatches each button through func_00453310;
+// each record row uses a 0x4A stride.
 // FUN_004530B0
 void sdkPadDispatchButtons(s32 slot) {
     s32 recordOffset;

@@ -220,11 +220,8 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 
 
-
 #pragma push
 #pragma pop
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 004543d0-004544b0 */
 
 #pragma push
 #pragma pop
@@ -233,8 +230,6 @@ typedef struct Code45Im2DVertex {
  * Returns zero when already at the end and selects the last visible item. */
 // FUN_004543D0
 s32 sdkListStateRepeatForward(u8 *state) {
-    /* Measured: this local preserves MATCH for stores and post-store reloads;
-     * access-site casts alone changed instruction selection in those accesses. */
     SdkListState *listState = (SdkListState *)state;
     s32 visibleCount;
     s32 nextOffset;
@@ -274,12 +269,9 @@ one:
 /* Move the visible window back by the repeat step, clamping its scroll to zero.
  * Returns zero when already at the start and resets the visible cursor. */
 // FUN_00454460
-/* The three exits are laid out with explicit gotos because retail places the
-   `return 0` block and the `return 1` block out of line, in that order, after
-   the main body. The natural nested-if / result-variable spellings all merge
-   them into one epilogue and come out two words short (nd 24). */
+/* Explicit gotos because retail places the `return 0` and `return 1` blocks out of line, in that
+ * order, after the main body. */
 s32 sdkListStateRepeatBack(u8 *state) {
-    /* Measured: stores through this local retain MATCH; access-site casts do not. */
     SdkListState *listState = (SdkListState *)state;
     s32 offset;
     s32 nextOffset;
@@ -303,7 +295,8 @@ one:
     return 1;
 }
 
-// Intent: resets the CD streaming state: sets the CD mode, clears the stream table and the movie slot flags.
+// Resets the CD streaming state: sets the CD mode, clears the stream table and the movie slot
+// flags.
 // FUN_004544B0
 void H_Cdvd_ResetStreamState(void)
 {

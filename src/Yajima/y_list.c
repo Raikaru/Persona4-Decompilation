@@ -107,7 +107,8 @@ typedef struct YListPersonaMetadata {
     u8 pad04[10];
 } YListPersonaMetadata;
 
-/* 228/240 bytes; fifteen resolved relocations and twelve zero alignment bytes. */
+/* Create the item list task and its work buffer, destroying any existing list first, then store the
+ * filters, kind and order. */
 // FUN_002E24A0
 /* Create the active item-list task, replacing the previous active list. */
 void yListCreate(s32 filterA, s32 filterB, s8 kind, s8 order) {
@@ -151,7 +152,7 @@ s16 yListCount(void) {
     return ((YListItemWork *)(((KwlnTask *)(task))->work))->count;
 }
 
-// Intent: index of the last entry in the current list (count - 1, clamped), or -1 when no list is active. Pairs with yListCount.
+// Index of the last entry in the current list (count - 1, clamped), or -1 when no list is active.
 // FUN_002E26A0
 s32 yListLastIndex(void) {
     u8 *task = iGpffffb58c;
@@ -167,7 +168,7 @@ s16 yListCountFor(void *task) {
     return ((YListItemWork *)(((KwlnTask *)((u8 *)task))->work))->count;
 }
 
-// Intent: index of the last entry in the list `task` (count - 1, clamped). Pairs with yListCountFor.
+// Index of the last entry in the list task (count - 1, clamped).
 // FUN_002E2700
 s32 yListLastIndexFor(void *task) {
     return fclSubClamped(((YListItemWork *)(((KwlnTask *)((u8 *)task))->work))->count, 1, 0, 0, 1);
@@ -303,7 +304,6 @@ static inline s32 yListAcceptsItem(u8 *owner, s16 id)
 {
     /* An absent mask accepts every item; otherwise both active masks apply. */
     u8 *filter = ((KwlnTask *)owner)->work;
-    /* measured: a typed alias preserves mask reloads that access-site-only typing moves. */
     YListItemWork *filterWork = (YListItemWork *)filter;
     if (((YListItemWork *)filter)->filterA == 0 && ((YListItemWork *)filter)->filterB == 0) {
         return 1;
@@ -321,14 +321,11 @@ static inline s32 yListAcceptsItem(u8 *owner, s16 id)
     return 0;
 }
 
-/* measured: 2888 code bytes and eight zero alignment bytes; the scoped
-   common-subexpression and loop-invariant settings preserve all siblings. */
+/* Refill the global item list with items that pass its filters for the given kind, then sort it in
+ * the requested order. Do nothing if no list exists. */
 // FUN_002E2A10
 /* Rebuild the active filtered item list, optionally moving flagged IDs first or sorting by price. */
-/* measured: explicit paired-row base and redundant-CSE bisection; best baseline residual 431 differing bytes. */
 void yListRebuild(s32 filterA, s32 filterB, s8 kind, s8 order) {
-    /* Fields use access-site typing where it preserves retail output;
-       MEMBER retains byte-access aliasing only at measured culprits. */
     s32 reorder[0x600];
     s32 sortedIds[0x600];
     s32 outputCount;
@@ -494,13 +491,11 @@ void yListRebuild(s32 filterA, s32 filterB, s8 kind, s8 order) {
 }
 
 
-/* measured: all 2864 code bytes match with the same scoped settings. */
+/* Refill the given list task with items that pass its filters for the given kind, then sort it in
+ * the requested order. */
 // FUN_002E3560
 /* Rebuild a task-owned filtered item list with the selected ordering mode. */
-/* measured: explicit paired-row base and redundant-CSE bisection; best baseline residual 434 differing bytes. */
 void yListRebuildFor(u8 *task, s32 filterA, s32 filterB, s8 kind, s32 order) {
-    /* Fields use access-site typing where it preserves retail output;
-       MEMBER retains byte-access aliasing only at measured culprits. */
     s32 reorder[0x600];
     s32 sortedIds[0x600];
     s32 outputCount;
@@ -668,10 +663,9 @@ void yListRebuildFor(u8 *task, s32 filterA, s32 filterB, s8 kind, s32 order) {
 // FUN_002E4090
 #pragma push
 #pragma opt_lifetimes on
-/* measured: scoped counters, cached-ID snapshot and narrowed wider counter; best baseline residual 12 differing bytes. */
+/* measured: retail's register lifetimes need scoped counters, a cached-ID snapshot and a narrowed
+ * counter. */
 s32 yListSlotRefresh(u8 *task) {
-    /* Fields use access-site typing where it preserves retail output;
-       MEMBER retains byte-access aliasing only at measured culprits. */
     DatPersonaRecord registered;
     DatPersonaRecord current;
     s16 slotIndex;
@@ -854,24 +848,6 @@ u8 *yListSlotEntry(s8 list, s16 index) {
     }
 }
 
-/* measured 2026-08-08: this reconstruction is a park at object
-   348B/window 352B and nd 16.  The scheduling lever is retained: the
-   dispatch operations are in retail order at 0x1C..0x28 (lw pointer,
-   lw type, addiu literal 6, beq), after moving the named n3=6 assignment
-   into the default loop and using the direct switch expression.  The
-   remaining thirteen instruction rows are scratch-register colouring only
-   ($a3 versus $t0), plus retail's final zero-padding word at 0x15C:
-   0x1C lw a3,38(v1) vs lw t0,38(v1); 0x20 lw a1,4(a3) vs lw a1,4(t0);
-   0x24 addiu t0,zero,6 vs addiu a3,zero,6; 0x28 beq a1,t0 vs beq a1,a3;
-   0x90/0xDC/0x128 addu v1,v1,a3 vs addu v1,v1,t0;
-   0x12C addiu a3,v1,14 vs addiu a2,v1,14; 0x130/0x134 lw via a3 vs a2;
-   0x138 addiu a3,a3,8 vs addiu a2,a2,8; 0x13C addiu t0,t0,-1 vs
-   addiu a3,a3,-1; 0x14C bgtz t0 vs bgtz a3; 0x15C retail-only nop.
-   Ruled out declaration order, pointer type, assignment order, integer
-   base spelling, counter-first source, operand-order changes, removal of
-   the named type local, removal of the early named constant, and the
-   direct switch rewrite; all retained nd 19 or worsened the object.
-   Committed at nd 16. */
 // FUN_002E4960
 /* Copy a persona record as six pairs of words; byte cursors address its representation, not fields. */
 void yListSlotCopyEntry(u8 *destination, s8 list, s16 index) {
@@ -943,11 +919,8 @@ void yListSlotCopyEntry(u8 *destination, s8 list, s16 index) {
 }
 
 
-
-
-
-/* Get the task work block for the selected list. */
-/* measured: three individually bisected work lookups change availability/pair-flag allocation; thirteen other lookups expand unchanged. */
+/* Get the task work block for the selected list. measured: the inline wrapper keeps retail's
+ * allocation of the availability and pair-flag values at three call sites. */
 static inline u8 *yListWork(s8 list) {
     return ((KwlnTask *)D_00882F70[list])->work;
 }
@@ -980,7 +953,7 @@ static inline u8 *yListEntryInWork(u8 *work, s16 index) {
 // FUN_002E4AC0
 #pragma push
 #pragma opt_loop_invariants on
-/* measured: row-base calculation before inner-counter initialization; best baseline residual 969 differing bytes. */
+/* measured: retail computes the row base before initializing the inner counter. */
 void yListBuildAvailability(s32 modeOrResult, s32 selectedIndex) {
     u8 *base;
     u8 *row;
@@ -1056,7 +1029,6 @@ extern s32 fclFuseSpecialPartner(u8 *, s32 , s32 );
 /* Fill the availability matrix and each row's corresponding pair-result list.
  * Complete the destination lookup before reading the two source record IDs. */
 // FUN_002E5000
-/* measured: row-base calculation before inner-counter initialization; best baseline residual 473 differing bytes. */
 void yListBuildPairFlags(void) {
     u8 *base;
     u8 *row;
@@ -1111,15 +1083,11 @@ s32 yListRecordsDiffer(u8 *left, u8 *right) {
     return (u32)((DatPersonaRecord *)(left))->exp != (u32)((DatPersonaRecord *)(right))->exp;
 }
 #pragma push
-/* Test whether an allocated list contains the requested persona ID. */
-/* measured: without `opt_loop_invariants on` MWCC rematerializes the switch
-   jump-table base (lui/addiu) inside the loop body instead of hoisting it into
-   the preheader as retail does, giving nd 30+. */
+/* Test whether an allocated list contains the requested persona ID. measured: retail hoists the
+ * switch jump-table base out of the loop, which needs loop-invariant hoisting enabled. */
 #pragma opt_loop_invariants on
-/* measured: without `opt_loop_invariants on` the switch jump-table base is
-   rematerialized in the loop body instead of hoisted to the preheader (nd 30+). */
+/* measured: retail hoists the switch jump-table base out of the loop. */
 // FUN_002E53B0
-/* measured: equivalent kind if/else dispatch; best baseline residual 55 differing bytes. */
 s32 yListSlotContainsId(s8 list, s16 id) {
     u8 **slot = &D_00882F70[list];
     u8 *task;
@@ -1164,10 +1132,8 @@ s32 yListSlotContainsId(s8 list, s16 id) {
 
 /* Find the first matching persona ID, returning minus one when absent. */
 // FUN_002E54C0
-/* measured: without `opt_loop_invariants on` MWCC rematerializes the switch
-   jump-table base (lui/addiu) inside the loop body instead of hoisting it into
-   the preheader as retail does, giving nd 30+. */
-/* measured: equivalent kind if/else dispatch; best baseline residual 76 differing bytes. */
+/* measured: needs opt_loop_invariants on so the switch jump-table base is hoisted out of the loop,
+ * as retail does. */
 s16 yListSlotIndexOf(s8 list, s16 id) {
     s16 rowIndex = 0;
     u8 **slot = &D_00882F70[list];
@@ -1209,17 +1175,18 @@ s16 yListSlotIndexOf(s8 list, s16 id) {
     }
     return -1;
 }
-/* measured: restore unit loop settings after the shared contains/index search scope. */
 #pragma pop
 
 #pragma push
-/* measured: direct C reconstruction. Disabling common-subexpression
-   elimination preserves retail's repeated D_00882F70[arg0] address
-   materialization; explicit (u16)arg1 preserves ac10's 16-bit argument. */
+/* measured: retail recomputes the D_00882F70[list] address at each use, so common-subexpression
+ * elimination is off. */
 #pragma opt_common_subs off
+/* Initialize the next persona record in the given list task from id; when useRoster is set, copy
+ * the matching roster record instead, or use a zero-level fresh record if the persona isn't in the
+ * roster. */
 // FUN_002E55C0
-/* Append a default or roster-derived persona record and increment the list count. */
-/* measured: typed and MEMBER task-work reloads; best baseline residual 620 differing bytes. */
+/* Append a default or roster-derived persona record and increment the list count. measured: common-
+ * subexpression elimination is off because retail reloads the task work pointer at each use. */
 void yListSlotAppend(s8 list, s32 id, s8 useRoster) {
     u8 **slot;
     u8 *task;
@@ -1337,8 +1304,9 @@ void yListSlotAppend(s8 list, s32 id, s8 useRoster) {
     }
 }
 
-/* measured: restore common-subexpression elimination after func_002e55c0. */
 #pragma pop
+/* Zero every persona record in the given list task (and the roster availability flags for roster
+ * kinds), then reset its cursor, scroll and count. */
 // FUN_002E5960
 /* Clear the kind-dependent record region and reset cursor, scroll and count. */
 void yListSlotClear(s8 list) {
@@ -1377,25 +1345,17 @@ void yListSlotClear(s8 list) {
     ((YListPersonaWork *)(work))->count.value = 0;
 }
 
-/* Signed level, bound and metadata-offset snapshots recover the retail spill
-   lifetimes; separate membership counters preserve the initial and expanded
-   searches. slotp is declared after level and read as *(u8 **)(u32)slotp in
-   the first membership search. That repeated conversion keeps slotp a local
-   at its declared number (docs/matching.md, "Keep a load local alive").
-   The expanded scan reuses the first scan's counter i under
-   opt_lifetimes, so its split lifetime is numbered after the per-entry
-   index, as in func_001b11c0. Together they give retail's saved registers. */
+/* Separate counters for the initial and expanded searches, plus signed level and bound snapshots,
+ * follow retail's register lifetimes. */
 // FUN_002E5AE0
 #pragma push
 #pragma opt_lifetimes on
 extern s32 yListIsExcludedId(u16 , u16 *);
-/* Fill eligible persona IDs around the requested level, widening an empty search until it yields more than five. */
-/* measured: separate initial and expanded-search counters; best baseline residual 25 differing bytes. */
+/* measured: retail keeps separate counters for the initial and widened searches. Fills eligible
+ * persona IDs near the requested level, widening until more than five are found. */
 void yListSlotFillNearLevel(s8 list, u16 *exclude, s8 requestedLevel)
 {
     YListPersonaWork *nearLevelList;
-    /* Fields use access-site typing where it preserves retail output;
-       MEMBER retains byte-access aliasing only at measured culprits. */
     u8 *work;
     s16 lowerLevel;
     s32 level;
@@ -1624,9 +1584,8 @@ expandedSearchDone:
 }
 #pragma pop
 
-/* True when `id` is one of the 13 entries of `exclude`. yListSlotFillByLevel uses it
-   inline; func_002e5ae0 calls the out-of-line copy. */
-/* Test an identifier against the thirteen-entry exclusion list. */
+/* True when `id` is one of the 13 entries of `exclude`. yListSlotFillByLevel uses it inline;
+ * func_002e5ae0 calls the out-of-line copy. */
 static inline s32 yListExcluded(u16 id, u16 *exclude)
 {
     s32 j = 0;
@@ -1685,20 +1644,16 @@ static inline s32 yListContains(s8 list, s16 id)
 }
 
 #pragma push
-/* measured: MATCH. The exclusion, membership and entry-address steps are
-   inline helpers, which gives retail's 1/0 joins and the two duplicated
-   jump-table switches. The persona id passed to the u16 callees is `i`
-   itself (a separate u16 local changes the saved-register order).
-   measured: loop-invariant motion is required (29 words without it). */
+/* measured: retail hoists loop invariants, and inline helpers reproduce its duplicated jump-table
+ * switches. */
 #pragma opt_loop_invariants on
+/* Clear the list and refill it with every listable, unexcluded persona whose base level is at most
+ * level plus three. */
 // FUN_002E6280
 /* Fill eligible arcana-one personas up to level plus three, excluding supplied IDs. */
-/* measured: typed and MEMBER task-work loads; best baseline residual 39 differing bytes. */
 void yListSlotFillByLevel(s8 list, u16 *exclude, s8 level)
 {
     YListPersonaWork *levelList;
-    /* Fields use access-site typing where it preserves retail output;
-       MEMBER retains byte-access aliasing only at measured culprits. */
     u8 *data;
     s32 limit;
     s16 i;
@@ -1724,9 +1679,9 @@ void yListSlotFillByLevel(s8 list, u16 *exclude, s8 level)
 }
 #pragma pop
 
-/* measured: 640B/640B, exact instructions and all 44 jump-table entries.
-   Keep each signed index's byte offset across its repeated accessor pair.
-   The comparator's O1 scope preserves the retail selector and key lifetimes. */
+/* measured: optimization level 1 keeps retail's selector and key lifetimes in this comparator. */
+/* qsort comparator that orders list 0 record indices in descending order by a weighted key: the
+ * record's level plus 100 times the persona's metadata byte. */
 // FUN_002E6630
 #pragma optimization_level 1
 /* Compare persona levels weighted by one hundred times their metadata arcana. */
@@ -1830,20 +1785,16 @@ s32 yListCompareByWeightedKeyDesc(const void *left, const void *right) {
 #pragma optimization_level 2
 
 
-
-
-
+/* Sort the list's records with yListCompareByWeightedKeyDesc, then rewrite them in sorted order
+ * from the cached persona records. */
 // FUN_002E68B0
 #pragma push
-/* measured: without `opt_loop_invariants on` MWCC keeps the loop2 switch
-   jump-table base (lui/addiu) inside the dispatch instead of hoisting it
-   into the preheader as retail does. */
+/* measured: without loop-invariant motion the second loop's switch jump-table base stays in the
+ * dispatch instead of being hoisted as retail does. */
 #pragma opt_loop_invariants on
-/* Sort indices by the weighted key, then rebuild records from their cached persona IDs. */
-/* measured: typed and MEMBER task-work loads; best baseline residual 110 differing bytes. */
+/* measured: task-work loads mix typed fields and MEMBER access to follow retail. Sorts indices by
+ * the weighted key, then rebuilds records from their cached persona IDs. */
 void yListSlotSortWeighted(s8 list) {
-    /* Fields use access-site typing where it preserves retail output;
-       MEMBER retains byte-access aliasing only at measured culprits. */
     u8 **slot = &D_00882F70[list];
     u8 *task;
     u8 *work;
@@ -1903,20 +1854,14 @@ void yListSlotSortWeighted(s8 list) {
         memcpy(destination, datPersonaCachedRecord(sortedIds[writeIndex]), 0x30);
     }
 }
-/* measured: see the annotation above the matching `on` pragma (func_002e68b0). */
+/* measured: loop-invariant motion applies only to yListSlotSortWeighted. */
 #pragma pop
 
-/* measured 2026-08-12: best plain-C comparator body is archived at
-   build/D2E6_002e6b20_body.c (object 360B/window 368B, normalized_diff 10;
-   differing byte offsets 6,7,10,11,12,13,14,16,18,19). The direct body has
-   no calls and its s16 *arg0/s16 *arg1 signature is confirmed. The remaining
-   residual is the initial retail load order (lh arg0, lh arg1, then the
-   global base) versus MWCCPS2's lh arg0, global base, lh arg1 schedule.
-   Retained: s32 vb, s32 va_mask, opt_common_subs off. Ruled out:
-   schedule-on, propagation-off, declaration-order, pointer-load,
-   ordered-assignment/initializer, const/alias typed-load, optimization_level
-   1, dependent-index, and split-global forms. */
-/* measured: unmodified m2c candidate from src/generated, installed as a permuter seed; not a verified body. */
+/* measured: retail loads both s16 indices before the global base, which the compiler would
+ * otherwise reorder. Compare two persona list indices by the level of their records in the active
+ * list, for qsort in descending order. */
+/* qsort comparator that orders persona list indices by the level of their records. The record table
+ * it reads depends on the list kind. */
 // FUN_002E6B20
 #pragma schedule on
 #pragma optimization_level 1
@@ -1987,25 +1932,15 @@ s32 yListCompareByKeyDesc(const void *left, const void *right) {
 #pragma schedule off
 
 
-
-/* func_002e6c90 was closed by porting the MATCHED sibling func_002e68b0: same
-   declaration order, same p2 re-index spelling
-   `(u8 *)*(u8 **)((u8 *)D_00882F70 + (u32)(s8)arg0 * 4)`, same loop2/loop3
-   shapes, with func_002e6b20 as the sort comparator. That fixed the old
-   "arg0 not saved to $s2" defect and the missing p2 re-index, taking the
-   recorded nd 140 to 52; the remaining loop2 register rotation then cleared.
-   measured: `opt_loop_invariants on` is required here — without it MWCC keeps
-   the loop-invariant slot address live in the loop body instead of hoisting it
-   into the preheader, which is the rotation retail does not have. */
+/* measured: retail hoists the loop-invariant slot address into the preheader, which needs
+ * opt_loop_invariants on. */
+/* Sort the persona records in the given list slot by level, then rewrite each entry from the cached
+ * persona data in sorted order. */
 // FUN_002E6C90
 #pragma push
-/* measured: open opt_loop_invariants scope for func_002e6c90. */
 #pragma opt_loop_invariants on
 /* Sort indices by level, then rebuild records from their cached persona IDs. */
-/* measured: typed and MEMBER task-work loads; best baseline residual 110 differing bytes. */
 void yListSlotSortByKey(s8 list) {
-    /* Fields use access-site typing where it preserves retail output;
-       MEMBER retains byte-access aliasing only at measured culprits. */
     u8 **slot = &D_00882F70[list];
     u8 *task;
     u8 *work;
@@ -2068,10 +2003,7 @@ void yListSlotSortByKey(s8 list) {
 }
 /* Allocate forty-eight minus-one indices followed by a zero count. */
 // FUN_002E6F00
-/* measured: without `opt_loop_invariants on` MWCC rematerializes the -1 store
-   constant at the top of the loop body (nd 6) instead of hoisting it into the
-   preheader as retail does (addiu $a1,$zero,-1 before the initial branch). */
-/* measured: indexed and pointer-cursor fill loops; best baseline residual 11 differing bytes. */
+/* measured: retail hoists the -1 fill constant out of the loop, which needs opt_loop_invariants on. */
 u8 *yListAllocIndexTable(void) {
     s16 *indices;
     s16 index;
@@ -2088,5 +2020,4 @@ u8 *yListAllocIndexTable(void) {
     indices[0x30] = 0;
     return (u8 *)indices;
 }
-/* measured: restore unit loop settings after the shared key-sort/index-table scope. */
 #pragma pop

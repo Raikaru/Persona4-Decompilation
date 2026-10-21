@@ -51,7 +51,6 @@ extern u8 D_00714018[];
 extern u8 D_00714144[];
 
 
-
 extern void RpSkyRenderStateGet(s32 param, void *out);
 extern void RpSkyRenderStateSet(s32 param, s32 value);
 extern void (*D_00887300[])(u32 state, u32 value);
@@ -74,7 +73,8 @@ extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
 
-// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes FlashQuadCopyAllocFromRecord MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
+// lint: allow H011 -- the caller's (u16, s32) prototype is needed; the definition's (s32, void *)
+// changes FlashQuadCopyAllocFromRecord's code.
 
 extern u16 iGpffffbb90;
 extern f32 fGpffffbb74;
@@ -84,21 +84,15 @@ extern s8 iGpffffbb68;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void (*jtbl_008873EC[])(void *);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004a7e30-004a8890 */
-
-/* measured: restores the file's O2 loop-invariant baseline. */
-/* measured: close loop-invariant hoisting after mdlEffectCreateGridForRecord. */
 #pragma push
 #pragma tailcall off
-/* measured: restore the enclosing options; owner verification is 92/92 MATCH. */
 #pragma pop
-/* measured: the byte->float sites are `(f32)(u32)x`; the eight rotated-corner stores add the
-   centre offset inside the store expression (`*(f32 *)(vertices + 0x10) = centerU + component;`):
-   assigning back into component makes mwcc put the coalesced operand first (add.s f1,f1,f26),
-   a fresh destination keeps retail's add.s f1,f26,f1. */
-/* measured: loop-invariant conversion preloads for func_004a7e30. */
-/* measured: func_004a7e30 MATCH -> MISMATCH without this pragma. */
+/* measured: retail preloads the loop-invariant byte-to-float conversions before the loop and adds
+ * the centre offset inside the corner stores. */
 #pragma opt_loop_invariants on
+/* Build four screen-space vertices for a billboard quad from the parameters' bounds, color and
+ * scale, and fill in depth, color and UV values. Return 0 if the quad is off-screen or its UV
+ * extent is degenerate or too large. */
 // FUN_004A7E30
 s32 mdlEffectProjectBillboardQuad(u8 *parameters, u8 *vertices)
 {
@@ -135,7 +129,6 @@ s32 mdlEffectProjectBillboardQuad(u8 *parameters, u8 *vertices)
     u32 alpha;
     u8 *vertex;
 
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     if (MEMBER(f32, parameters, MdlEffectBillboardParameters, left) > 640.0f ||
         ((MdlEffectBillboardParameters *)parameters)->top > 448.0f ||
         ((MdlEffectBillboardParameters *)parameters)->right < 0.0f ||
@@ -166,14 +159,10 @@ loop_004a7e30_check:
     centerU = ((MdlEffectBillboardParameters *)parameters)->centerX / D_00922D94[0];
     centerV = ((MdlEffectBillboardParameters *)parameters)->centerY / D_00922D98[0];
     reciprocalDepth = ((MdlEffectBillboardParameters *)parameters)->scale;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     screenDepth = MEMBER(f32, parameters, MdlEffectBillboardParameters, left);
     coordinate = screenDepth / D_00922D94[0];
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     firstComponent = MEMBER(f32, parameters, MdlEffectBillboardParameters, top) / D_00922D98[0];
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     secondComponent = MEMBER(f32, parameters, MdlEffectBillboardParameters, right) / D_00922D94[0];
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     component = MEMBER(f32, parameters, MdlEffectBillboardParameters, bottom) / D_00922D98[0];
     value = coordinate - centerU;
     leftU = reciprocalDepth * value;
@@ -201,7 +190,6 @@ loop_004a7e30_check:
     ((MdlEffectScreenVertex *)vertices)[2].y = ((MdlEffectBillboardParameters *)parameters)->bottom;
     ((MdlEffectScreenVertex *)vertices)[3].x = ((MdlEffectBillboardParameters *)parameters)->right;
     ((MdlEffectScreenVertex *)vertices)[3].y = ((MdlEffectBillboardParameters *)parameters)->top;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     if (MEMBER(f32, parameters, MdlEffectBillboardParameters, angle) == 0.0f) {
         firstComponent = leftU + centerU;
         secondComponent = rightU + centerU;
@@ -216,7 +204,6 @@ loop_004a7e30_check:
         ((MdlEffectScreenVertex *)vertices)[3].u.value = secondComponent;
         ((MdlEffectScreenVertex *)vertices)[3].v.value = component;
     } else {
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         cosine = cosf(MEMBER(f32, parameters, MdlEffectBillboardParameters, angle));
         sine = sinf(((MdlEffectBillboardParameters *)parameters)->angle);
         reciprocalDepth = topV * sine;
@@ -247,10 +234,8 @@ loop_004a7e30_check:
     return 1;
 }
 
-/* measured: close the loop-invariant bracket after func_004a7e30. */
 /* Build four screen vertices with rectangle coordinates, normalized UV corners and the input tint. */
 // FUN_004A8250
-/* measured: loop-invariant conversion preloads for func_004a8250. */
 void mdlEffectBuildRectQuad(u8 *parameters, u8 *vertices)
 {
     f32 reciprocalDepth;
@@ -301,10 +286,8 @@ loop_004a8250_check:
     ((MdlEffectScreenVertex *)vertices)[3].v.bits = 0;
 }
 
-/* measured: close loop-invariant conversion scope for func_004a8250. */
 /* Build rectangle vertices with UVs shifted by the angle and magnitude in the input parameters. */
 // FUN_004A8440
-/* measured: loop-invariant conversion preloads for func_004a8440. */
 void mdlEffectBuildOffsetQuad(u8 *parameters, u8 *vertices)
 {
     extern f32 fGpffff8090;
@@ -377,10 +360,8 @@ loop_004a8440_check:
     ((MdlEffectScreenVertex *)vertices)[3].v.value = secondComponent;
 }
 
-/* measured: close loop-invariant conversion scope for func_004a8440. */
 /* Copy rectangle bounds and tint to four screen vertices without modifying UVs. */
 // FUN_004A86C0
-/* measured: loop-invariant conversion preloads for func_004a86c0. */
 void mdlEffectBuildDirectRectQuad(u8 *parameters, u8 *vertices)
 {
     f32 reciprocalDepth;
@@ -423,7 +404,6 @@ loop_004a86c0_check:
     ((MdlEffectScreenVertex *)vertices)[3].y = ((MdlEffectBillboardParameters *)parameters)->scale;
 }
 
-/* measured: close loop-invariant conversion scope for func_004a86c0. */
 /* Draw the base and projected billboard passes while saving and restoring the sky render state. */
 // FUN_004A8890
 void mdlEffectDrawProjectedBillboard(u8 *effect, s32 *textureSource) {

@@ -49,7 +49,6 @@ extern u8 D_00714018[];
 extern u8 D_00714144[];
 
 
-
 extern u8 D_00714368[];
 extern f32 D_008872F8[];
  
@@ -66,7 +65,8 @@ extern u8 D_0071401C[];
 extern u8 D_00714014[];
 
 
-// lint: allow H011 -- measured: aligning this extern to the definition's (s32, void *) makes FlashQuadCopyAllocFromRecord MISMATCH (verify, 137/138); the caller's (u16, s32) shape is load-bearing.
+// lint: allow H011 -- the caller's (u16, s32) prototype is needed to reproduce retail code for
+// FlashQuadCopyAllocFromRecord.
 
 extern u16 iGpffffbb90;
 extern f32 fGpffffbb74;
@@ -74,8 +74,6 @@ extern f32 fGpffffbb70;
 extern f32 iGpffffb10c;
 extern s8 iGpffffbb68;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_004a; members 004a5fc0-004a5fc0 */
 
 typedef struct EffSpriteFrame {
     f32 rect[4];
@@ -88,14 +86,8 @@ typedef struct EffSpriteRGBA {
     u8 blue;
     u8 alpha;
 } EffSpriteRGBA;
-/* measured: the sibling 004a3010 body matches this loop and byte-copy shape. */
-/* measured: closes the opt_loop_invariants scope for 004a1ca0 at the file baseline. */
-/* measured: loop-invariant hoisting recovers the shared fade constants and
-   replication strides. The 4-byte color assignment preserves retail's
-   load-all/store-all byte copy. Separate loop locals keep the saved-register
-   allocation exact. */
-/* measured: restores the file's O2 loop-invariant baseline. */
-/* Sprite update: reads the frame counter at +0x2C, resets it to zero when the cycle wraps, and rebuilds the sprite's frame, colour and texture state. */
+/* measured: loop-invariant hoisting shares the fade constants and replication strides; the 4-byte
+ * colour assignment keeps retail's load-all/store-all byte copy. */
 // FUN_004A5FC0
 void EffSpriteUpdate(u8 *instance)
 {
@@ -136,9 +128,7 @@ void EffSpriteUpdate(u8 *instance)
     f32 *uv;
 
     total = ((MdlEffectAnimatedSprite *)instance)->duration;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     count = (spriteState = (MdlEffectAnimatedSprite *)instance)->age;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     sprite = (spriteGeometryOwner = (MdlEffectAnimatedSprite *)instance)->geometry;
     if (count == 0) {
         return;
@@ -188,7 +178,6 @@ void EffSpriteUpdate(u8 *instance)
     scale = mdlEffectSampleScalarKeys(instance + 0x64, count, total);
     scale = scale * ((MdlEffectAnimatedSprite *)instance)->sizeScale;
     spin = mdlEffectSampleScalarKeys(instance + 0x90, count, total);
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     if (MEMBER(s32, instance, MdlEffectAnimatedSprite, tracks) != 0) {
         f32 cellW;
         f32 cellH;
@@ -196,7 +185,6 @@ void EffSpriteUpdate(u8 *instance)
         f32 x0;
         f32 x1;
 
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         mdlEffectWrapTrackFrames(MEMBER(s32, instance, MdlEffectAnimatedSprite, tracks), count);
         mdlEffectEvalSubPose(((MdlEffectAnimatedSprite *)instance)->tracks, animation);
         cellW = 16.0f * animation[12];
@@ -220,7 +208,6 @@ void EffSpriteUpdate(u8 *instance)
         info.size[0] = (u32)animation[12];
         info.size[1] = (u32)animation[13];
         spin += animation[4];
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         func_003c42b0(MEMBER(void *, sprite, EffGeometryBlock, material), *(s32 *)&animation[5]);
     } else if ((void *)((MdlEffectAnimatedSprite *)instance)->tlp != NULL) {
         s32 w;
@@ -245,7 +232,6 @@ void EffSpriteUpdate(u8 *instance)
         info.rect[3] = (f32)(h >> 5) / 16.0f;
         info.size[0] = (u32)texture[2];
         info.size[1] = (u32)texture[3];
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         func_003c42b0(MEMBER(void *, sprite, EffGeometryBlock, material), *(s32 *)&texture[4]);
     } else {
         s32 w;
@@ -269,7 +255,6 @@ void EffSpriteUpdate(u8 *instance)
         info.size[0] = frame[0];
         info.size[1] = frame[1];
     }
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     RpGeometryLock(((RpAtomic *)MEMBER(u8 *, sprite, EffGeometryBlock, atomic))->geometry, 0xFF2);
     {
         u8 *geometry = (u8 *)((RpAtomic *)((EffGeometryBlock *)sprite)->atomic)->geometry;

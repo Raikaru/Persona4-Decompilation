@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Kosaka/Field/k_fldrc.c; members 002e6f90-002e7510 */
 
 #include "list_item_internal.h"
 #include "fcl_scale_transition.h"
@@ -29,7 +28,7 @@ typedef struct FclItemIdList {
     s16 count;
 } FclItemIdList;
 
-/* shopSystemCreate allocates 0x18 bytes and drives the byte state at 0. */
+/* shopSystemCreate allocates 0x18 bytes and drives the state byte. */
 typedef struct ShopSystemWork {
     s8 state;
     u8 pad01[3];
@@ -40,7 +39,7 @@ typedef struct ShopSystemWork {
 /* Append an item ID only when it is absent from the 48-entry list. */
 // FUN_002E6F90
 #pragma push
-/* measured: baseline 34 differing words; pointer/index loops did not match; retain scoped settings. */
+/* measured: retail's pointer/index loop shape needs loop-invariant hoisting enabled. */
 #pragma opt_loop_invariants on
 s32 fclListAddUnique(u8 *list, s32 itemId) {
     s32 i = 0;
@@ -60,10 +59,12 @@ s32 fclListAddUnique(u8 *list, s32 itemId) {
 #pragma pop
 
 #pragma push
-/* Mark the requested ID empty, compact retained IDs, and decrement the stored count. */
-/* measured: typing the remaining count reads/store changed 10..95 bytes; retain count reloads while compacting the ID array. */
+/* measured: retail reloads the retained count while compacting the ID array. The function marks the
+ * requested ID empty, compacts the remaining IDs and decrements the count. */
+/* Remove every entry matching itemId from the ID list, shift the remaining IDs down to close the
+ * gaps, and reduce the count by one. Always return 1. */
 // FUN_002E7010
-/* measured: baseline 80 differing words; block lifetimes did not match; retain scoped settings. */
+/* measured: retail's block lifetimes need loop-invariant hoisting enabled. */
 #pragma opt_loop_invariants on
 s32 fclListRemoveId(u8 *list, s16 itemId)
 {
@@ -149,7 +150,6 @@ loop_test:
 }
 
 /* Drive shop scene loading, fades, shop task creation and eventual scene unloading. */
-/* measured: typing the two remaining shop-task writes changed 136/338 bytes; retain the measured work pointers across shop creation. */
 // FUN_002E72C0
 s32 shopSystemUpdate(u8 *task)
 {

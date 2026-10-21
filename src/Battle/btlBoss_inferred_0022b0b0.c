@@ -1,6 +1,4 @@
 #include "member_access.h"
-/* Measured alias-sensitive fields use MEMBER; typed access-site, local-pointer
- * and applicable array forms are recorded in FullBattle2.culprits.tsv. */
 #include "rw_types_internal.h"
 #include "btl_skill_target_internal.h"
 #include "btl_motion_internal.h"
@@ -23,8 +21,8 @@ typedef struct ResrcManager {
     u8 *resLists[RESRC_TYPE_MAX];
 } ResrcManager;
 
-/* scrScriptProcess.c establishes the context; its message-manager word is
- * read at +0x130 by scrGetMessageManager and the status-window setup below. */
+/* scrScriptProcess.c sets up this context; scrGetMessageManager and the status-window setup below
+ * read its messageWindow word. */
 typedef struct ScrScriptWork {
     u8 pad00[0x130];
     s32 messageWindow;
@@ -209,8 +207,6 @@ extern u32 datCalcIsDead(void *unit, s32 hpDelta);
 extern u8 D_006354C0[], D_006354D0[], D_00635500[];
 extern f32 fGpffff80e4;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0022; members 0022b0b0-0022fb10 */
-
 extern void btlCameraApplyPartyPose(u8 *camera);
 extern void btlEncounterStartSequence(u8 *action);
 extern s32 btlEncounterFinishStep(u8 *action);
@@ -225,31 +221,10 @@ extern s32 btlEncounterWaitIdle(s64 *actionUid);
 
 #pragma push
 #pragma pop
-/* 896/896 bytes and all 17 relocations resolve exactly.
- * Keep the opaque byte branch-local, snapshot coordinates before opacity
- * conversion, and pack the color before preparing the overlay dimensions. */
 #pragma push
 #pragma pop
-/* 1036/1040 bytes; 26 code relocations and all nine switch entries exact. */
 #pragma push
 #pragma pop
-/* 1688/1696 bytes; all 36 resolved code relocations exact. */
-/* Measured: 800/800 bytes, 20 resolved relocations, zero differences.
- * Disabling common-subexpression folding preserves the wrapping target walk. */
-/* measured 00225d00 plain-C reconstruction matches the complete 256-byte retail window at normalized_diff 0. */
-/* measured: opt_scalarize off retains the real horizontal vector stores.
- * Staged radius scaling and the scoped two-halfword skill table give
- * 1420/1424 bytes, 21 code relocations and zero normalized differences. */
-/* 1516/1520 bytes, 48 resolved code relocations and all
- * seven switch targets match retail; four zero tail-alignment bytes. */
-/* measured: opt_common_subs off preserves per-use 16-bit ordinal masks.
- * Independent target/party ordinals and the materialized subordinate predicate
- * give 1620/1632 bytes, 50 code relocations and zero normalized differences.
- * Each pose pair is two contiguous seven-float poses, without padding. */
-/* measured: closing opt_common_subs off for btlCameraApplyPartyPose. */
-/* 2444/2448 bytes; all 56 resolved code relocations exact. */
-/* measured: opt_propagation off preserves btlEncounterStartSequence's initial GP-load/store order (nd 0). */
-/* measured: close opt_propagation after btlEncounterStartSequence (nd 0). */
 /* Fade the battle BGM over 45 frames and complete this sequence packet. */
 // FUN_0022B0B0
 s32 btlEncounterSetState2D(void)
@@ -258,7 +233,7 @@ s32 btlEncounterSetState2D(void)
     return 1;
 }
 
-// Intent: Play the cue when the frame flag 0x40 is set. [inferred]
+// Play the cue when battle flag 0x40 is set.
 // FUN_0022B0E0
 s32 btlEncounterPlayCueIfFlag40(void)
 {
@@ -268,9 +243,8 @@ s32 btlEncounterPlayCueIfFlag40(void)
     return 1;
 }
 
-// Intent: Run the formation presentation sequence for an action. [inferred]
+// Run the formation presentation sequence for an action.
 // FUN_0022B120
-/* 1860/1872 bytes; all 67 resolved code relocations exact. */
 void btlActionRunFormationSequence(u8 *action)
 {
     u8 *actor;
@@ -305,7 +279,6 @@ void btlActionRunFormationSequence(u8 *action)
 
     packet = btlUnitCreateAnimPacket(actor, 0x13, 0, 2, 1.0f);
     ((BtlPacket *)packet)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd1125). */
     ((BtlPacket *)packet)->dependencyUID = MEMBER(u64, anchor, BtlPacket, uid);
     ((BtlPacket *)packet)->delay = 2;
     ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
@@ -313,28 +286,24 @@ void btlActionRunFormationSequence(u8 *action)
 
     packet = (u8 *)btlBossCreateStepEndBgmPacket();
     ((BtlPacket *)packet)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd1125). */
     ((BtlPacket *)packet)->dependencyUID = MEMBER(u64, anchor, BtlPacket, uid);
     ((BtlPacket *)packet)->delay = 0x33;
     btlPacketEnqueue(packet, 1);
 
     wait1 = (u8 *)btlFormationCreatePacket((u32)openingFormation, (u32)actor, (u32)actor, 0, 0x200);
     ((BtlPacket *)wait1)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd1125). */
     ((BtlPacket *)wait1)->dependencyUID = MEMBER(u64, anchor, BtlPacket, uid);
     ((BtlPacket *)wait1)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(wait1, 2);
 
     wait0 = (u8 *)btlFormationCreatePacket((u32)openingFormation, (u32)actor, (u32)actor, 1, 0x200);
     ((BtlPacket *)wait0)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd1125). */
     ((BtlPacket *)wait0)->dependencyUID = MEMBER(u64, anchor, BtlPacket, uid);
     ((BtlPacket *)wait0)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(wait0, 2);
 
     packet = (u8 *)btlEffectCreateMessagePacket(iGpffffa4d8, 0x1E);
     ((BtlPacket *)packet)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd1125). */
     ((BtlPacket *)packet)->dependencyUID = MEMBER(u64, anchor, BtlPacket, uid);
     ((BtlPacket *)packet)->delay = 0x19A;
     ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
@@ -353,10 +322,8 @@ void btlActionRunFormationSequence(u8 *action)
 
     anchor = (u8 *)btlUnitCreateModelReleasePacket((BtlUnit *)actor);
     ((BtlPacket *)anchor)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd815). */
     ((BtlPacket *)anchor)->dependencyUID = MEMBER(u64, wait1, BtlPacket, uid);
     ((BtlPacket *)anchor)->dependencyKind2 = 4;
-    /* measured: typing uid here loses MATCH (nd806). */
     ((BtlPacket *)anchor)->dependencyUID2 = MEMBER(u64, wait0, BtlPacket, uid);
     ((BtlPacket *)anchor)->delay = 1;
     ((BtlPacket *)anchor)->actionUID = ((BtlAction *)action)->uid;
@@ -364,20 +331,16 @@ void btlActionRunFormationSequence(u8 *action)
 
     packet = (u8 *)btlBossCreateStopEndBgmPacket();
     ((BtlPacket *)packet)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd815). */
     ((BtlPacket *)packet)->dependencyUID = MEMBER(u64, wait1, BtlPacket, uid);
     ((BtlPacket *)packet)->dependencyKind2 = 4;
-    /* measured: typing uid here loses MATCH (nd806). */
     ((BtlPacket *)packet)->dependencyUID2 = MEMBER(u64, wait0, BtlPacket, uid);
     ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 1);
 
     cleanup = (u8 *)btlBossCreateReleaseEndBgmPacket();
     ((BtlPacket *)cleanup)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd814). */
     ((BtlPacket *)cleanup)->dependencyUID = MEMBER(u64, wait1, BtlPacket, uid);
     ((BtlPacket *)cleanup)->dependencyKind2 = 4;
-    /* measured: typing uid here loses MATCH (nd1267). */
     ((BtlPacket *)cleanup)->dependencyUID2 = MEMBER(u64, wait0, BtlPacket, uid);
     ((BtlPacket *)cleanup)->delay = 3;
     ((BtlPacket *)cleanup)->actionUID = ((BtlAction *)action)->uid;
@@ -407,7 +370,6 @@ void btlActionRunFormationSequence(u8 *action)
 
     packet = (u8 *)btlBossCreateLoadEndBgmPacket(0x10E);
     ((BtlPacket *)packet)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd505). */
     ((BtlPacket *)packet)->dependencyUID = MEMBER(u64, anchor, BtlPacket, uid);
     ((BtlPacket *)packet)->dependencyKind2 = 4;
     ((BtlPacket *)packet)->dependencyUID2 = ((BtlPacket *)cleanup)->uid;
@@ -417,7 +379,6 @@ void btlActionRunFormationSequence(u8 *action)
 
     packet = (u8 *)btlUnitCreateColorPacket((BtlUnit *)actor, 0xFFFFFFFFU, 1, 0, 3, 0);
     ((BtlPacket *)packet)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd505). */
     ((BtlPacket *)packet)->dependencyUID = MEMBER(u64, anchor, BtlPacket, uid);
     ((BtlPacket *)packet)->delay = 2;
     ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
@@ -425,7 +386,6 @@ void btlActionRunFormationSequence(u8 *action)
 
     packet = (u8 *)btlEffectCreateFadeLevelPacket(0x1E);
     ((BtlPacket *)packet)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd505). */
     ((BtlPacket *)packet)->dependencyUID = MEMBER(u64, anchor, BtlPacket, uid);
     ((BtlPacket *)packet)->delay = 4;
     ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
@@ -433,7 +393,6 @@ void btlActionRunFormationSequence(u8 *action)
 
     wait0 = (u8 *)btlFormationCreatePacket((u32)closingFormation, (u32)actor, (u32)actor, 0, 0x200);
     ((BtlPacket *)wait0)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd504). */
     ((BtlPacket *)wait0)->dependencyUID = MEMBER(u64, anchor, BtlPacket, uid);
     ((BtlPacket *)wait0)->delay = 2;
     ((BtlPacket *)wait0)->actionUID = ((BtlAction *)action)->uid;
@@ -441,7 +400,6 @@ void btlActionRunFormationSequence(u8 *action)
 
     wait1 = (u8 *)btlFormationCreatePacket((u32)closingFormation, (u32)actor, (u32)actor, 1, 0x200);
     ((BtlPacket *)wait1)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd1296). */
     ((BtlPacket *)wait1)->dependencyUID = MEMBER(u64, anchor, BtlPacket, uid);
     ((BtlPacket *)wait1)->delay = 2;
     ((BtlPacket *)wait1)->actionUID = ((BtlAction *)action)->uid;
@@ -457,30 +415,24 @@ void btlActionRunFormationSequence(u8 *action)
 
     packet = (u8 *)btlMainCreateFadePacket(0x10, 0);
     ((BtlPacket *)packet)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd208). */
     ((BtlPacket *)packet)->dependencyUID = MEMBER(u64, wait0, BtlPacket, uid);
     ((BtlPacket *)packet)->dependencyKind2 = 4;
-    /* measured: typing uid here loses MATCH (nd200). */
     ((BtlPacket *)packet)->dependencyUID2 = MEMBER(u64, wait1, BtlPacket, uid);
     ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 1);
 
     packet = (u8 *)btlMainCreateColorFadePacket(0x10);
     ((BtlPacket *)packet)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd208). */
     ((BtlPacket *)packet)->dependencyUID = MEMBER(u64, wait0, BtlPacket, uid);
     ((BtlPacket *)packet)->dependencyKind2 = 4;
-    /* measured: typing uid here loses MATCH (nd200). */
     ((BtlPacket *)packet)->dependencyUID2 = MEMBER(u64, wait1, BtlPacket, uid);
     ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 1);
 
     packet = (u8 *)btlMainCreateColorSetPacket(8);
     ((BtlPacket *)packet)->dependencyKind = 4;
-    /* measured: typing uid here loses MATCH (nd208). */
     ((BtlPacket *)packet)->dependencyUID = MEMBER(u64, wait0, BtlPacket, uid);
     ((BtlPacket *)packet)->dependencyKind2 = 4;
-    /* measured: typing uid here loses MATCH (nd200). */
     ((BtlPacket *)packet)->dependencyUID2 = MEMBER(u64, wait1, BtlPacket, uid);
     ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 0);
@@ -489,10 +441,10 @@ void btlActionRunFormationSequence(u8 *action)
     btlFormationSetPlacement((u32)openingFormation);
 }
 
-/* measured: opt_loop_invariants on probe for btlEncounterFinishSetup. */
-/* measured: btlEncounterFinishSetup MATCH -> MISMATCH without this pragma. */
+/* measured: btlEncounterFinishSetup only matches retail's loop code generation with loop-invariant
+ * hoisting enabled. */
 #pragma opt_loop_invariants on
-// Intent: Finish encounter setup once the presentation completes. [inferred]
+// Finish encounter setup once the presentation completes.
 // FUN_0022B870
 s32 btlEncounterFinishSetup(u8 *action)
 {
@@ -511,18 +463,13 @@ s32 btlEncounterFinishSetup(u8 *action)
                       ((u64)0x3FFFFFFF << 32) | 0xFFFFFFFF) == NULL) {
         ((BtlBattleState *)DAT_0076449c)->flags &= 0xFFF7FFFF;
         btlUnitInitFromRecord((u8*)((BtlAction *)action)->unit, 0x10E);
-        /* measured: typing unit here loses MATCH (nd347). */
         datUnitInit((DatUnit *)((u8*)((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->datUnit), 1, 0x10E);
         datSetFlag(0x15FF, 1);
         ((BtlBattleState *)DAT_0076449c)->boss.recordTable = &D_00630C50[0];
         ((BtlBattleState *)DAT_0076449c)->bossRecordVariant = 1;
-        /* measured: typing unit here loses MATCH (nd348). */
         ((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->flags3 |= 0x2000;
-        /* measured: typing unit here loses MATCH (nd349). */
         ((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->flags3 &= 0xFFFF7FFF;
-        /* measured: typing unit here loses MATCH (nd349). */
         ((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->flags3 &= ~0x20;
-        /* measured: typing unit here loses MATCH (nd348). */
         unitData = (u8*)((BtlUnit *)MEMBER(u8 *, action, BtlAction, unit))->datUnit;
         ((DatUnit *)unitData)->flags |= 0x20;
         ((BtlAction *)action)->unk_1a |= 0x100;
@@ -532,18 +479,18 @@ s32 btlEncounterFinishSetup(u8 *action)
         emptySlot = -1;
         goto loop_test;
 loop_body:
-        /* measured: contiguous cue-array indexing loses MATCH (nd1). */
+        /* Retail indexes the battle state base by byte offset per cue slot rather than indexing the
+         * cue array directly. */
         *(s8 *)&((BtlBattleState *)(DAT_0076449c + index))->bossCuePrefix[0] = emptySlot;
         index++;
 loop_test:
         if (index < 0x1E) {
             goto loop_body;
         }
-        /* measured: typing unit here loses MATCH (nd348). */
         value = (s32)btlSoundGetCharacterBank(MEMBER(u8 *, action, BtlAction, unit));
-        /* measured: typing unit here loses MATCH (nd349). */
+        /* The unit pointer is read through a raw pointer cast because a typed field access changes
+         * the generated code. */
         ((Model *)((BtlUnit *)*(u8 * *)&((BtlAction *)(action))->unit)->layerHandle)->motion.request = value;
-        /* measured: typing unit here loses MATCH (nd349). */
         btlUnitUpdateStatusMotion(*(u8 * *)&((BtlAction *)(action))->unit, 6);
         datSetFlag(0x15C0, 0);
         ((BtlBattleState *)DAT_0076449c)->boss.displayedIds[3] = 0;
@@ -554,9 +501,10 @@ loop_test:
     return 1;
 }
 
-/* measured: closes opt_loop_invariants around btlEncounterFinishSetup. */
-/* measured: optimization_level 1 preserves btlEncounterResetUnit's loop branch. */
-/* Clear the defeat state of unit 0x10E and stop its BGM; retail ignores the supplied ID. */
+/* measured: optimization level 1 keeps retail's loop branch shape. Clears the defeat state of unit
+ * 0x10E and stops its BGM; retail ignores the supplied ID. */
+/* Find unit 0x10E in the battle's third unit list, clear the defeat state on its action, and stop
+ * the BGM. The supplied ID is ignored. */
 // FUN_0022BA40
 void btlEncounterResetUnit(u16 unusedId)
 {
@@ -587,7 +535,6 @@ found:
     }
 }
 
-/* measured: closes optimization_level 1 around btlEncounterResetUnit. */
 // FUN_0022BAC0
 /* Finish the reset-unit sequence immediately; the dispatcher clears callbacks on a zero update result. */
 s32 btlEncounterFinishResetSequence(void)
@@ -595,7 +542,7 @@ s32 btlEncounterFinishResetSequence(void)
     return 0;
 }
 
-// Intent: Show the unit status window for the given slot. [inferred]
+// Show the unit status window for the given slot.
 // FUN_0022BAD0
 s32 btlUnitStatusWindowShow(u8 *action, u16 slotIndex)
 {
@@ -631,7 +578,6 @@ changed:
         unit = (u8*)((BtlAction *)target)->unit;
         if (((BtlUnit *)unit)->genus == 0) {
             itfMesWindowSetString(
-                /* measured: typing messageWindow here loses MATCH (nd6). */
                 MEMBER(u8 *, state, ScrScriptWork, messageWindow), 0,
                 datPersonaNamePart1Alt((s16)((BtlUnit *)unit)->charId));
         } else {
@@ -643,19 +589,16 @@ changed:
     kwlnTaskAddChild((u8*)((BtlBattleState *)iGpffffb3ac)->cutinTaskParent, handle);
     ((BtlBattleState *)iGpffffb3ac)->boss.statusTask = handle;
     ((BtlBattleState *)iGpffffb3ac)->boss.statusSlot = slotIndex;
-    /* measured: typed cache-array stores change address addition order (nd1). */
     *(s32 *)&((BtlBattleState *)(&((u8 *)(((u32)slotIndex & 0xFFFF) * 4))
               [(u32)iGpffffb3ac]))->boss.displayedIds[0] =
-        /* measured: typing id here loses MATCH (nd304). */
         MEMBER(s32, action, BtlAction, id);
-    /* measured: typed cache-array stores change address addition order (nd1). */
     *(s32 *)&((BtlBattleState *)(&((u8 *)(((u32)slotIndex & 0xFFFF) * 4))
               [(u32)iGpffffb3ac]))->boss.displayedStates[0] =
         (s32)((BtlAction *)action)->unk_20;
     return 1;
 }
 
-// Intent: Report whether the task slot is linked. [inferred]
+// Report whether the status task is linked to the given slot.
 // FUN_0022BC80
 s32 btlTaskSlotIsLinked(s32 slotIndex) {
     u8 *battle = DAT_0076449c;
@@ -674,28 +617,26 @@ s32 btlTaskSlotIsLinked(s32 slotIndex) {
     return 1;
 }
 
-// Intent: Report whether the task slot is set. [inferred]
+// Report whether a status task is set.
 // FUN_0022BD00
 s32 btlTaskSlotIsSet(void)
 {
     return ((BtlBattleState *)DAT_0076449c)->boss.statusTask != 0;
 }
 
+/* Return nonzero if the current encounter's sound track rule has the boss flag set. */
 // FUN_0022BD20
 /* Test encounter-entry flag 0x20, which gates boss setup, resource loading, and boss action voices. */
 s32 btlEncounterIsBoss(void)
 {
-    /* measured: the typed 0x18-byte encounter flags row changes instructions (nd3). */
     return (((BtlSoundTrackRule *)(iGpffffb414 +
                      ((BtlSoundEncounterRecord *)(u8 *)((BtlBattleState *)DAT_0076449c)->encounterRecord)->trackRule * 0x18))->flags &
             0x20) != 0;
 }
 
-/* measured: 1744/1744 bytes, all 152 code relocations and 22 switch-table
-   targets exact. Loop-invariant motion keeps the signed empty-slot sentinel
-   in the clearing-loop preheader. The pragma does not affect other functions. */
+/* measured: retail hoists the signed empty-slot sentinel into the clearing loop's preheader. */
 #pragma push
-// Intent: Initialise the encounter globals for each battle id. [inferred]
+// Initialise the encounter globals for each battle ID.
 // FUN_0022BD60
 void btlEncounterInitGlobals(void)
 {
@@ -827,16 +768,13 @@ void btlEncounterInitGlobals(void)
         break;
     }
     for (i = 0; i < 30; i++) {
-        /* measured: contiguous cue-array indexing loses MATCH (nd1). */
         *(s8 *)&((BtlBattleState *)(DAT_0076449c + i))->bossCuePrefix[0] = -1;
     }
 }
 
 #pragma pop
-/* measured: 1876B / 1888B window; 123 code relocations and all 22 table
-   relocations resolve exactly. The omitted 12B are zero alignment.
-   Keep each lookup/allocation/set/store sequence and its global reload. */
-// Intent: Allocate the encounter formation slots for each battle id. [inferred]
+/* Allocates the encounter formation slots for each battle id; each lookup/allocate/set/store
+ * sequence reloads its global, as retail does. */
 // FUN_0022C430
 void btlFormationAllocEncounterSlots(void)
 {
@@ -996,7 +934,7 @@ void btlFormationAllocEncounterSlots(void)
     }
 }
 
-// Intent: Look up the formation slot index for a unit. [inferred]
+// Look up the formation slot index for a unit.
 // FUN_0022CB90
 s32 btlFormationLookupSlot(u8 *unit, u16 slotIndex)
 {
@@ -1028,7 +966,6 @@ s32 btlFormationLookupSlot(u8 *unit, u16 slotIndex)
         }
         return ((u8 *)slotTable)[slotIndex & 0xFFFF];
     default:
-        /* measured: direct boss cue-array lookup loses MATCH (nd36); retain the byte-address sum. */
         overrideSlot = ((s8 *)((u32)&((BtlBattleState *)battle)->bossCuePrefix[0] + (u32)(slotIndex & 0xFFFF)))[0];
         if (overrideSlot >= 0) {
             return overrideSlot;
@@ -1037,9 +974,9 @@ s32 btlFormationLookupSlot(u8 *unit, u16 slotIndex)
     }
 }
 
-/* measured: typed formation indexing and a single narrow cursor retain 38 or more baseline words. */
+/* measured: retail does not propagate the formation index and slot cursor into the loop body. */
 #pragma opt_propagation off
-// Intent: Clear the formation slots and their placements. [inferred]
+// Clear the formation slots and their placements.
 // FUN_0022CC90
 void btlFormationClearSlots(void)
 {
@@ -1072,7 +1009,6 @@ void btlFormationClearSlots(void)
             index = signedSlot * 4;
             btlFormationSetPlacement(value, base);
             base = DAT_0076449c;
-            /* measured: typed formation-array indexing changes instructions (nd111). */
             *(s32 *)&((BtlBattleState *)(base + index))->boss.formations[0] = 0;
         }
         i++;
@@ -1089,9 +1025,9 @@ void btlFormationClearSlots(void)
     }
 }
 
-/* measured: btlUnitApplyPacketEffects, btlUnitReactToDeath MATCH -> MISMATCH without this pragma. */
+/* measured: btlUnitApplyPacketEffects and btlUnitReactToDeath need copy propagation turned back on. */
 #pragma opt_propagation on
-// Intent: Return the encounter record for an index, or NULL. [inferred]
+// Return the encounter record for an index, or NULL.
 // FUN_0022CDB0
 u8 *btlEncounterGetRecord(s32 index)
 {
@@ -1128,14 +1064,14 @@ u8 *btlEncounterGetRecord(s32 index)
     return record;
 }
 
-// Intent: Return the formation record for an index. [inferred]
+// Return the formation record for an index.
 // FUN_0022CED0
 u8 *btlFormationGetRecord(s32 index)
 {
     return H_Cdvd_GetArchiveEntry((u8 *)((BtlBattleState *)DAT_0076449c)->bossPakHandle, index & 0xFFFF, 0);
 }
 
-// Intent: Return the action anchor height for a unit. [inferred]
+// Return the action anchor height for a unit.
 // FUN_0022CF00
 f32 btlUnitGetActionAnchorHeight(u8 *source, u8 *unit, u16 actionKind) {
     s32 kind;
@@ -1209,10 +1145,8 @@ fail:
     return -1.0f;
 }
 
-// Intent: Select the formation slot for the action's unit. [inferred]
+// Select the formation slot for the action's unit.
 // FUN_0022D200
-/* Measured: 824/832 bytes, one resolved relocation, zero differences;
- * the remaining eight retail bytes are zero alignment. */
 s32 btlActionSelectFormationSlot(u8 *action)
 {
     u8 *global;
@@ -1287,7 +1221,7 @@ s32 btlActionSelectFormationSlot(u8 *action)
     }
 }
 
-// Intent: Report whether an action has a formation slot. [inferred]
+// Report whether an action has a formation slot.
 // FUN_0022D540
 s32 btlActionHasFormationSlot(u8 *action, u8 *slots) {
     u16 unitId;
@@ -1318,10 +1252,8 @@ s32 btlActionHasFormationSlot(u8 *action, u8 *slots) {
     }
 }
 
-/* measured: 1412B / 1424B window, all 59 relocations exact; twelve
-   retail zero-alignment bytes. Keep the real unused source input and the
-   explicit unsigned counter update with its signed clamp interpretation. */
-// Intent: Update the unit HP gauge from the packet. [inferred]
+/* Update the unit HP gauge from the packet. The unused source parameter is real, and the counter is
+ * updated as unsigned but clamped as signed. */
 // FUN_0022D600
 void btlUnitUpdateHpGauge(void *source, u8 *packet, s32 *hpDelta)
 {
@@ -1351,43 +1283,29 @@ void btlUnitUpdateHpGauge(void *source, u8 *packet, s32 *hpDelta)
         resource = resrcMngFindResById(((ResrcManager *)iGpffff9db0)->resLists[2], 0x2804);
         if (resource == NULL || ((ResrcRecord *)resource)->slotHandle[1] == NULL)
             break;
-        /* measured: typing unit here loses MATCH (nd1011). */
         hp = ((DatUnit *)(u8*)((BtlUnit *)MEMBER(u8 *, packet, BtlAction, unit))->datUnit)->hp;
-        /* measured: typing unit here loses MATCH (nd1048). */
         maxHp = datCalcMaxHp(((BtlUnit *)MEMBER(u8 *, packet, BtlAction, unit))->datUnit);
-        /* measured: typing unit here loses MATCH (nd1047). */
         scale.x = ((BtlUnit *)((u8 *)((BtlAction *)(packet))->unit))->scale;
-        /* measured: typing unit here loses MATCH (nd1048). */
         scale.y = ((BtlUnit *)*(u8 * *)&((BtlAction *)(packet))->unit)->scale;
-        /* measured: typing unit here loses MATCH (nd1046). */
         scale.z = ((BtlUnit *)*(u8 * *)&((BtlAction *)(packet))->unit)->scale;
         translation.x = 0.0f;
         translation.y = 0.0f;
         translation.z = -450.0f;
         if (hp < maxHp) {
-            /* measured: typing slotHandle[1] here loses MATCH (nd1017). */
             mdlScale(MEMBER(Model *, resource, ResrcRecord, slotHandle[1]), &scale, 0);
-            /* measured: typing slotHandle[1] here loses MATCH (nd1016). */
             mdlTranslateMatrix(MEMBER(RwMatrix *, resource, ResrcRecord, slotHandle[1]), &translation, 2);
-            /* measured: typing slotHandle[1] here loses MATCH (nd1017). */
             model = MEMBER(void *, resource, ResrcRecord, slotHandle[1]);
             mdlSetFrameColorByName(model, (s32)D_006355C0, 0xFF);
         }
         if (hp * 100 <= maxHp * 50) {
-            /* measured: typing slotHandle[1] here loses MATCH (nd1017). */
             mdlScale(MEMBER(Model *, resource, ResrcRecord, slotHandle[1]), &scale, 0);
-            /* measured: typing slotHandle[1] here loses MATCH (nd1016). */
             mdlTranslateMatrix(MEMBER(RwMatrix *, resource, ResrcRecord, slotHandle[1]), &translation, 2);
-            /* measured: typing slotHandle[1] here loses MATCH (nd1017). */
             model = MEMBER(void *, resource, ResrcRecord, slotHandle[1]);
             mdlSetFrameColorByName(model, (s32)D_006355E0, 0xFF);
         }
         if (hp * 100 <= maxHp * 75) {
-            /* measured: typing slotHandle[1] here loses MATCH (nd1017). */
             mdlScale(MEMBER(Model *, resource, ResrcRecord, slotHandle[1]), &scale, 0);
-            /* measured: typing slotHandle[1] here loses MATCH (nd1016). */
             mdlTranslateMatrix(MEMBER(RwMatrix *, resource, ResrcRecord, slotHandle[1]), &translation, 2);
-            /* measured: typing slotHandle[1] here loses MATCH (nd1016). */
             model = MEMBER(void *, resource, ResrcRecord, slotHandle[1]);
             mdlSetFrameColorByName(model, (s32)D_00635600, 0xFF);
         }
@@ -1462,7 +1380,7 @@ void btlUnitUpdateHpGauge(void *source, u8 *packet, s32 *hpDelta)
     }
 }
 
-// Intent: Select the unit's record table by battle id. [inferred]
+// Selects the unit's record table by battle id.
 // FUN_0022DB90
 void btlUnitSelectRecordTable(u8 *action) {
     u16 id;
@@ -1493,10 +1411,8 @@ void btlUnitSelectRecordTable(u8 *action) {
     }
 }
 
-/* measured: 2164B / 2176B window, 74 code and 20 table relocations exact.
-   Twelve bytes are retail zero alignment. Keep node declared before started:
-   reversing them swaps saved-register uses in nine retail instructions. */
-// Intent: Apply packet flags to the unit state. [inferred]
+/* Applies packet flags to the unit state. node must be declared before started; swapping them
+ * changes which saved registers retail uses. */
 // FUN_0022DC70
 void btlUnitApplyPacketFlags(u8 *packet)
 {
@@ -1586,7 +1502,6 @@ void btlUnitApplyPacketFlags(u8 *packet)
                 ((BtlBattleState *)DAT_0076449c)->bossCueTail[7] = 14;
                 ((BtlBattleState *)DAT_0076449c)->pendingBossCue = 15;
                 ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 17;
-                /* measured: typing unit here loses MATCH (nd1715). */
                 ((BtlUnit *)MEMBER(u8 *, packet, BtlAction, unit))->unk_9d8 |= 0x20;
                 break;
             case 0x16A:
@@ -1634,7 +1549,6 @@ void btlUnitApplyPacketFlags(u8 *packet)
             case 0x17B:
             case 0x184:
                 btlEncounterSetSequence((s32)btlActionRunPresentation, (s32)btlEncounterWaitCleared, (s32)packet);
-                /* measured: typing unk_6c here loses MATCH (nd815). */
                 MEMBER(u16, packet, BtlAction, unk_6c) = 8;
                 btlActionSetState((BtlAction *)packet, 25);
                 ((BtlBattleState *)DAT_0076449c)->bossMotionCountdown = 3;
@@ -1698,7 +1612,6 @@ void btlUnitApplyPacketFlags(u8 *packet)
                 ((BtlBattleState *)DAT_0076449c)->bossCueTail[7] = 14;
                 ((BtlBattleState *)DAT_0076449c)->pendingBossCue = 14;
                 ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = 18;
-                /* measured: typing unit here loses MATCH (nd1715). */
                 ((BtlUnit *)MEMBER(u8 *, packet, BtlAction, unit))->unk_9d8 |= 0x20;
                 break;
             case 0x180:
@@ -1709,7 +1622,6 @@ void btlUnitApplyPacketFlags(u8 *packet)
                 ((BtlBattleState *)DAT_0076449c)->bossCueTail[7] = -1;
                 ((BtlBattleState *)DAT_0076449c)->pendingBossCue = -1;
                 ((BtlBattleState *)DAT_0076449c)->bossCueTail[5] = -2;
-                /* measured: typing unit here loses MATCH (nd1715). */
                 ((BtlUnit *)MEMBER(u8 *, packet, BtlAction, unit))->unk_9d8 &= ~0x20;
                 break;
             default:
@@ -1739,7 +1651,7 @@ void btlUnitApplyPacketFlags(u8 *packet)
     }
 }
 
-// Intent: Report whether the action matches the expected skill. [inferred]
+// Reports whether the action matches the expected skill.
 // FUN_0022E4F0
 s32 btlActionMatchesSkill(u8 *action, s32 skillId) {
     u16 unitId;
@@ -1793,11 +1705,8 @@ notMatched:
     return 0;
 }
 
-/* measured: first complete C candidate, 1172/1184 bytes with twelve zero
-   alignment bytes; all 28 relocations resolved and no executable differences.
-   Enqueue always receives the target, including the four unconditional calls
-   for battle 0x215. Stat results and the status-clear mask are explicit. */
-// Intent: Apply the encounter roster to the unit. [inferred]
+/* Applies the encounter roster to the unit; enqueue always receives the target, including four
+ * unconditional calls for battle 0x215. */
 // FUN_0022E630
 s32 btlUnitApplyEncounterRoster(u8 *action)
 {
@@ -1902,7 +1811,7 @@ s32 btlUnitApplyEncounterRoster(u8 *action)
     return 1;
 }
 
-// Intent: Realign enemy cells for battle 0x202. [inferred]
+// Realigns enemy cells for battle 0x202.
 // FUN_0022EAD0
 s32 btlUnitRealignCells(void) {
     struct {
@@ -1940,10 +1849,7 @@ loop_check:
     return 1;
 }
 
-/* measured: 2428B / 2432B window; all 115 relocations resolve exactly.
-   The remaining four bytes are retail zero alignment. Keep the single-case
-   action switch, model reloads before each callback, and structured list loop. */
-// Intent: Apply packet effects to the unit by battle id. [inferred]
+/* Applies packet effects to the unit selected by battle id. */
 // FUN_0022EBA0
 s32 btlUnitApplyPacketEffects(u8 *packet)
 {
@@ -1975,10 +1881,8 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
             }
         }
         if (((BtlBattleState *)DAT_0076449c)->bossCuePrefix[0] == 0xE)
-            /* measured: typing unit here loses MATCH (nd1743). */
             ((BtlUnit *)MEMBER(u8 *, packet, BtlAction, unit))->unk_9d8 |= 0x20;
         else
-            /* measured: typing unit here loses MATCH (nd1743). */
             ((BtlUnit *)MEMBER(u8 *, packet, BtlAction, unit))->unk_9d8 &= ~0x20;
         break;
     case 0x106:
@@ -1991,10 +1895,8 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
         case 0x16E:
             model = (void*)((BtlUnit *)other)->layerHandle;
             mdlSetFrameColorByName(model, (s32)D_007636C0, 0);
-            /* measured: typing layerHandle here loses MATCH (nd1692). */
             model = MEMBER(void *, other, BtlUnit, layerHandle);
             mdlSetFrameColorByName(model, (s32)D_007636C8, 0);
-            /* measured: typing layerHandle here loses MATCH (nd1691). */
             model = MEMBER(void *, other, BtlUnit, layerHandle);
             mdlSetFrameColorByName(model, (s32)D_007636D0, 255);
             ((BtlBattleState *)DAT_0076449c)->bossPhase = 1;
@@ -2008,10 +1910,8 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
         case 0x16F:
             model = (void*)((BtlUnit *)other)->layerHandle;
             mdlSetFrameColorByName(model, (s32)D_007636C0, 0);
-            /* measured: typing layerHandle here loses MATCH (nd1691). */
             model = MEMBER(void *, other, BtlUnit, layerHandle);
             mdlSetFrameColorByName(model, (s32)D_007636C8, 255);
-            /* measured: typing layerHandle here loses MATCH (nd1691). */
             model = MEMBER(void *, other, BtlUnit, layerHandle);
             mdlSetFrameColorByName(model, (s32)D_007636D0, 255);
             ((BtlBattleState *)DAT_0076449c)->bossPhase = 2;
@@ -2025,10 +1925,8 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
         case 0x170:
             model = (void*)((BtlUnit *)other)->layerHandle;
             mdlSetFrameColorByName(model, (s32)D_007636C0, 255);
-            /* measured: typing layerHandle here loses MATCH (nd1691). */
             model = MEMBER(void *, other, BtlUnit, layerHandle);
             mdlSetFrameColorByName(model, (s32)D_007636C8, 255);
-            /* measured: typing layerHandle here loses MATCH (nd1691). */
             model = MEMBER(void *, other, BtlUnit, layerHandle);
             mdlSetFrameColorByName(model, (s32)D_007636D0, 255);
             /* fall through */
@@ -2045,13 +1943,10 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
             ((BtlAction *)target)->unk_1a |= 8;
             ((BtlAction *)target)->unk_1a &= ~0x400;
             ((BtlUnit *)other)->flags3 |= 8;
-            /* measured: typing unk_6e here loses MATCH (nd1692). */
             if (MEMBER(u16, packet, BtlAction, unk_6e) == 0x171) {
-                /* measured: typing flags3 here loses MATCH (nd1002). */
                 MEMBER(u32, other, BtlUnit, flags3) &= ~0x2000;
                 func_003dc740(&rotation, (const RwV3d *)D_0060A0E0, 180.0f, 0);
                 btlUnitSetRot((BtlUnit *)other, &rotation);
-                /* measured: typing flags3 here loses MATCH (nd1002). */
                 MEMBER(u32, other, BtlUnit, flags3) |= 0x2000;
                 btlUnitShowModel(other);
             }
@@ -2125,9 +2020,7 @@ s32 btlUnitApplyPacketEffects(u8 *packet)
             ((BtlUnit *)(u8*)((BtlAction *)target)->unit)->unk44 = iGpffffb45c;
             ((BtlUnit *)(u8*)((BtlAction *)target)->unit)->unk48 = iGpffffb45c;
             btlUnitSetColor((BtlUnit *)(u8*)((BtlAction *)target)->unit, iGpffffb45c);
-            /* measured: typing unit here loses MATCH (nd363). */
             datCalcClearBadStatus((s32)(u8 *)((BtlUnit *)MEMBER(u8 *, target, BtlAction, unit))->datUnit, 0xFFF7FFFF);
-            /* measured: typing unit here loses MATCH (nd363). */
             unit = MEMBER(u8 *, target, BtlAction, unit);
             if ((((BtlUnit *)unit)->flags2 & 2) != 0)
                 ((BtlUnit *)unit)->unk_9d8 |= 0x10;
@@ -2143,9 +2036,7 @@ targets_body:
             ((BtlUnit *)(u8*)((BtlAction *)target)->unit)->unk44 = iGpffffb45c;
             ((BtlUnit *)(u8*)((BtlAction *)target)->unit)->unk48 = iGpffffb45c;
             btlUnitSetColor((BtlUnit *)(u8*)((BtlAction *)target)->unit, iGpffffb45c);
-            /* measured: typing unit here loses MATCH (nd1804). */
             datCalcClearBadStatus((s32)(u8 *)((BtlUnit *)MEMBER(u8 *, target, BtlAction, unit))->datUnit, 0xFFF7FFFF);
-            /* measured: typing unit here loses MATCH (nd1804). */
             unit = MEMBER(u8 *, target, BtlAction, unit);
             if ((((BtlUnit *)unit)->flags2 & 2) != 0)
                 ((BtlUnit *)unit)->unk_9d8 |= 0x10;
@@ -2159,7 +2050,7 @@ targets_check:
     return 1;
 }
 
-// Intent: React to the death of unit 0x102 with an animation. [inferred]
+// React to the death of unit 0x102 with an animation.
 // FUN_0022F520
 s32 btlUnitReactToDeath(void)
 {
@@ -2251,7 +2142,7 @@ notTriggered:
     return 0;
 }
 
-// Intent: Return the entry position for a unit. [inferred]
+// Return the entry position for a unit.
 // FUN_0022F7D0
 s32 btlUnitGetEntryPosition(u8 *unit, u8 *position) {
     s32 encounterId;
@@ -2318,9 +2209,10 @@ fail:
     return 0;
 }
 
+/* Return nonzero if a boss-battle targeting rule prevents the action from targeting the subordinate
+ * unit. */
 // FUN_0022F950
-/* measured: the existing typed skill query retains MATCH under surrounding propagation; no exception is needed. */
-// Intent: Report whether the unit's skill is blocked. [inferred]
+/* Report whether the unit's skill is blocked. */
 s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate) {
     s32 paired;
     s16 skill;
@@ -2336,7 +2228,6 @@ s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate) {
         }
         if ((btlActionHasNoTargetClass((u32)action) == 0) &&
             (((BtlBossTargetRule *)(iGpffffb3e0 +
-                     /* measured: typing charId here loses MATCH (nd216). */
                      (MEMBER(u16, subordinate, BtlUnit, charId) * 0x58)))->flags & 0x20)) {
             return 1;
         }
@@ -2350,7 +2241,7 @@ s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate) {
     return 0;
 }
 
-// Intent: Report whether the slot is open for the unit. [inferred]
+// Report whether the slot is open for the unit.
 // FUN_0022FA90
 s32 btlUnitSlotIsOpen(u8 *action, s16 slotIndex)
 {
@@ -2366,12 +2257,10 @@ s32 btlUnitSlotIsOpen(u8 *action, s16 slotIndex)
     if (((BtlUnit *)(u8 *)((BtlAction *)action)->unit)->genus != 1) {
         return 1;
     }
-    /* Form the EE byte address without arithmetic on an invented pointer. */
-    /* measured: typed signed cue-array indexing loses MATCH (nd1). */
     return *(s8 *)&((BtlBattleState *)((u32)(s32)slotIndex + (u32)battle))->bossCuePrefix[0] != -2;
 }
 
-// Intent: Report whether the encounter skips the presentation. [inferred]
+// Report whether the encounter skips the presentation.
 // FUN_0022FB10
 s32 btlEncounterSkipsPresentation(void)
 {

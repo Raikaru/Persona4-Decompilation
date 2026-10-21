@@ -1,7 +1,6 @@
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Persona 4 USA decompilation - cmmCommunity.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit cmmCommunity.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdk_snd_internal.h"
 #include "cmm_internal.h"
@@ -122,10 +121,9 @@ end:
     datSetFlag(id + ((band << 5) + 0x3FF), 1);
 }
 
-/* measured: 356 executable bytes / 368B retail window, fully relocated exact.
-   The inline clear helper owns the masked ID and loop-index lifetimes;
-   its separate assertion preserves retail's record/ID saved-register order. */
-/* Clear the thirteen community flags after validating the masked identifier. */
+/* measured: the inline clear helper keeps the masked ID and loop index in their own scope, and its
+ * separate assertion keeps retail's register save order. Clears the thirteen community flags after
+ * validating the masked identifier. */
 static inline void cmmClearCommunityFlags(s32 community)
 {
     s32 id = community & 0xFFFF;
@@ -335,13 +333,9 @@ void cmmCommunityReleaseCounterparts(s32 communityId)
     }
 }
 
-/* measured: retail's slot search keeps the found-exit as an inline
-   unconditional branch (bne->advance; b found; advance out-of-line), the same
-   shape mwcc b210 emits for `if (cond) return;` in cmmCommunityFindRecord. mwcc merges
-   `if (cond) goto found;` (any if/else polarity) into a single beqz->found with
-   the advance inline. Tried while+break+retest (re-test not folded), goto,
-   both if/else orders — all nd 10. Branch-shape floor. */
-// Community alloc record: when value has no record, claims the first free slot of the table at D_00797410, sets its id and its +6 field to 1, and sets flag bands 0 and 4. Asserts on a full table or a zero id.
+/* Community alloc record: when the id has no record, claims the first free slot of the table at
+ * D_00797410, sets its id and +6 field to 1, and sets flag bands 0 and 4. Asserts on a full table
+ * or a zero id. */
 // FUN_001075D0
 void cmmCommunityAllocRecord(s32 communityId) {
     CmmCommunityRecord *r;
@@ -378,31 +372,8 @@ ret:
     cmmCommunitySetFlagBand(communityId, 4);
 }
 
-/* measured: retail's slot search emits the found-exit as an inline
-   unconditional branch (bne->advance; b found) exactly like cmmCommunityFindRecord's
-   `if (cond) return;`, but this is void with shared tail code. mwcc b210 merges
-   any single-goto if/else branch into a conditional branch to the target
-   (beq->found), and a post-loop NULL retest is only free (reuses the loop slti)
-   when kept off the found path via goto; ==/> retest forms regress. Best nd 10
-   (goto + >= retest); 4 attempts. Branch-shape + retest floor. */
-/* Community-slot scan family (cmmCommunityReleaseRecord/cmmCommunityHasRecord/107a00/107bd0/107ce0/107dc0/
-   107f00/107fe0): walk 21 records of stride 16 from D_007973A0[0x70] looking for a
-   matching id. All eight sit at nd 38 with the body below, recovered from the m2c
-   draft via tools/draft_probe.py. Two m2c defects had to be repaired first: the
-   pointer is typed `s32 *` and advanced by `+= 0x10`, which walks 64 bytes per record
-   instead of 16 (silently wrong, still compiles), and the base is emitted as a bare
-   address literal D_00797410 that no file declares.
-   The residual is one branch shape: retail leaves the loop on a match with a
-   bne-to-advance plus b-to-exit PAIR, b210 with a single beq-to-exit. Measured NOT
-   reachable via goto, break, inverted test with continue, advance-in-else, an
-   explicit entry-goto mirroring retail block order, do/while, a single-case switch
-   (right size, booleanised compare), while+break (nd 48-65, and it is what fixed
-   evtMain func_00288020, so it is shape-specific not universal), s16/s32/u16
-   signatures, and eleven control-flow pragmas including opt_rotateloops both ways.
-   An in-loop `return` DOES produce the pair at the exact window size but then
-   materialises its own return value where retail falls into the shared block.
-   Committed at nd 72. */
-// Community release record: when value has a record, clears it and its 13 flag bands; asserts on a zero id in that case.
+/* Release a community record: when the id has a record, clear it and its 13 flag bands; a zero id
+ * asserts. */
 // FUN_001076E0
 void cmmCommunityReleaseRecord(s32 communityId) {
     s32 j;
@@ -443,21 +414,8 @@ ret:
     }
 }
 
-/* measured: retail slot search emits found-exit as inline unconditional b
-   (bne->advance; b found) which mwcc b210 only produces for return-thens
-   (cmmCommunityFindRecord); goto/break/switch/continue/m2c-goto-loop spellings all
-   merge to a single conditional branch (best nd 14, m2c verbatim form has
-   test-at-top layout). Shared tail after the loop blocks the return idiom.
-   Branch-shape floor. */
-/* measured: retail's slot search found-exit (bne->advance; b found) is the
-   return-then shape: an in-loop `return var_4 != NULL;` reproduces the branch
-   pair exactly but duplicates the sltu value computation at the loop site
-   (nd 17); goto/break/switch forms merge into a single conditional branch
-   (best nd 14 m2c-goto form). The found path must jump to the shared return
-   block, which mwcc b210 only does for the merged goto. Branch-shape floor. */
-/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
-   Committed at nd 38. */
-// Community has record: returns 1 when a record with id value is in the 21-entry table at D_00797410, else 0. Asserts the id is in range.
+/* Returns 1 when a record with this id is in the 21-entry community table at D_00797410, else 0.
+ * Asserts the id is in range. */
 // FUN_001077F0
 s32 cmmCommunityHasRecord(s32 communityId) {
     s32 id = communityId & 0xFFFF;
@@ -539,14 +497,8 @@ s32 cmmCommunityFindActiveSlotInGroup(s32 group)
     return 0;
 }
 
-/* measured: same slot-search floor as cmmCommunityAllocRecord: retail's found-exit is
-   bne->advance; b found, jumping to a shared NULL-retest tail; mwcc b210
-   merges the goto spelling into a single beq->found (nd 24) and the
-   return-then spelling inlines the found lw/and block into the loop instead
-   of the shared retest tail (nd 25). Branch-shape floor. */
-/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
-   Committed at nd 38. */
-// Test record flags: returns the record's flag word ANDed with mask option, or 0 when value has no record.
+/* Test record flags: returns the record's flag word ANDed with mask, or 0 when communityId has no
+ * record. */
 // FUN_00107A00
 s32 cmmCommunityTestRecordFlags(s32 communityId, s32 mask) {
     s32 id = communityId & 0xFFFF;
@@ -579,12 +531,8 @@ ret:
     return (s32)((CmmCommunityRecord *)r)->flags & mask;
 }
 
-/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
-   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 22.
-   Branch-shape floor. */
-/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
-   Committed at nd 38. */
-// Returns the u16 value at +6 of the record for community value (the id is matched at +4), or 0 when there is none; ids of 0x1F or more assert.
+/* Returns the u16 value at +6 of the record for the community id (the id is matched at +4), or 0 if
+ * none; ids of 0x1F or more assert. */
 // FUN_00107AC0
 u16 cmmCommunityRecordValue(s32 communityId) {
     s32 id = communityId & 0xFFFF;
@@ -637,12 +585,8 @@ s32 cmmCommunityTestMarked(s32 communityId)
     return 0;
 }
 
-/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
-   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 22.
-   Branch-shape floor. */
-/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
-   Committed at nd 38. */
-// Set marked: sets the MARKED bit (0x4) in the record of community value; does nothing when the id has no record. The bit's meaning is not evidenced (see include/cmm_internal.h).
+/* Set marked: sets the MARKED bit (0x4) in the record of community value; does nothing when the id
+ * has no record. The bit's meaning is not evidenced (see include/cmm_internal.h). */
 // FUN_00107BD0
 void cmmCommunitySetMarked(s32 communityId) {
     s32 id = communityId & 0xFFFF;
@@ -674,12 +618,8 @@ ret:
     }
 }
 
-/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
-   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 31.
-   Branch-shape floor. */
-/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
-   Committed at nd 38. */
-// Set reversed: sets the REVERSED bit (0x1), clears BROKEN (0x2), then refreshes flag band 2. Nothing happens when value has no record.
+/* Set reversed: sets the REVERSED bit (0x1), clears BROKEN (0x2), then refreshes flag band 2.
+ * Nothing happens when value has no record. */
 // FUN_00107CE0
 void cmmCommunitySetReversed(s32 communityId) {
     s32 id = communityId & 0xFFFF;
@@ -713,12 +653,8 @@ ret:
     }
 }
 
-/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
-   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 32.
-   Branch-shape floor. */
-/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
-   Committed at nd 38. */
-// Clear reversed: clears the REVERSED bit (0x1) and calls datSetFlag(id + 0x43F, 0); asserts on a zero id when the record exists.
+/* Clears the REVERSED bit (0x1) and calls datSetFlag(id + 0x43F, 0); asserts on a zero id when the
+ * record exists. */
 // FUN_00107DC0
 void cmmCommunityClearReversed(s32 communityId) {
     s32 id = communityId & 0xFFFF;
@@ -794,12 +730,8 @@ s32 cmmCommunityTestBroken(s32 communityId)
     return 0;
 }
 
-/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
-   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 31.
-   Branch-shape floor. */
-/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
-   Committed at nd 38. */
-// Set broken: sets the BROKEN bit (0x2), clears REVERSED (0x1), then refreshes flag band 3. Nothing happens when value has no record.
+/* Set broken: sets the BROKEN bit (0x2), clears REVERSED (0x1), then refreshes flag band 3. Does
+ * nothing when the community has no record. */
 // FUN_00107F00
 void cmmCommunitySetBroken(s32 communityId) {
     s32 id = communityId & 0xFFFF;
@@ -833,12 +765,8 @@ ret:
     }
 }
 
-/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
-   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 32.
-   Branch-shape floor. */
-/* Community-slot scan family; see the note above cmmCommunityReleaseRecord. nd 38.
-   Committed at nd 38. */
-// Clear broken: clears the BROKEN bit (0x2) and calls datSetFlag(id + 0x45F, 0); asserts on a zero id when the record exists.
+/* Clears the BROKEN bit (0x2) and calls datSetFlag(id + 0x45F, 0); asserts on a zero id when the
+ * record exists. */
 // FUN_00107FE0
 void cmmCommunityClearBroken(s32 communityId) {
     s32 id = communityId & 0xFFFF;
@@ -874,16 +802,10 @@ ret:
     }
 }
 
-/* measured: retail booleanizes the variable-mask bit check (lw; and; sltu
-   $v0,$zero,$v0; beqz) and mwcc b210 folds `!= 0`, `(u32)x > 0`, boolean-local,
-   u32-typed and `0 < x` spellings into a direct and;beqz (2 missing sltu words
-   shift the whole tail; nd 64). Everything else matched on the first draft.
-   Booleanize floor. */
-/* measured: the typed game-state flag array preserves both owner matches; calling datGetFlag or a bit-test helper changes codegen. */
-// Earn scale: returns the float multiplier for points community value earns, from cmmRosterHasArcana on its arcana, the event bit in D_0079B1CC, and the per-slot bands in D_007973A0.
-/* The character lookup receives this function's incoming identifier.
-   With that argument explicit, the configured O2 profile preserves every
-   original instruction; the old omitted-argument O1 workaround is obsolete. */
+/* measured: retail booleanizes the variable-mask bit check before branching, which other spellings
+ * fold into a direct and-branch; the typed game-state flag array is read directly instead of
+ * calling datGetFlag. Returns the float multiplier for community points, from cmmRosterHasArcana on
+ * its arcana, the event bit in D_0079B1CC, and the per-slot bands in D_007973A0. */
 // FUN_001080C0
 #pragma optimization_level 2
 f32 cmmCommunityEarnScale(s32 communityId) {
@@ -927,10 +849,9 @@ f32 cmmCommunityEarnScale(s32 communityId) {
 #pragma optimization_level 2
 
 
-/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
-   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 151
-   (loop floor plus tail register-allocation noise). Branch-shape floor. */
-// Add scaled points: adds option scaled by cmmCommunityEarnScale to value's point counter at +8 and returns the amount added; 0 when value has no record.
+/* measured: retail's slot-search loop branches the found-exit like cmmCommunityTestRecordFlags,
+ * which this optimization level reproduces. Adds points scaled by cmmCommunityEarnScale to the
+ * community's point counter and returns the amount added; returns 0 if the community has no record. */
 // FUN_00108290
 s32 cmmCommunityAddScaledPoints(s32 communityId, u32 points) {
     f32 v;
@@ -1002,9 +923,9 @@ ret:
 }
 
 
-/* measured: object 604 bytes against the 592-byte retail window, normalized_diff 206, first differing offsets 42,44,46,47,50,51,54-59,62,63,66,67; archived in build/CMMC_00108590_body.c. Retail's int-to-float bltz/mtc1/cvt.s.w and srl/andi/or/mtc1/cvt.s.w/add.s paths are represented by (f32)(u32)option, and its c.le.s/trunc.w.s/mfc1/andi or sub.s/trunc.w.s/mfc1/lui 0x8000/or/andi paths by (u16)temp_f1. Corrected block-scope callee declarations; direct/aggregate layouts, aliases, parameter mutation, O1, loop forms, floating guard polarity, explicit branch labels, and declaration variants were ruled out. */
-/* measured: explicit earned-value widening after effect-index initialization matches with loop invariants at baseline. */
-// Add points: adds option scaled by cmmCommunityEarnScale to value's point counter at +8, plays the threshold effect (sdkSndStartStream) and the resource check (MT_Scene_SpawnResIconTask) when selection is not -1, and returns the new counter. A zero value uses the current community.
+/* Adds points scaled by cmmCommunityEarnScale to the community's point counter, plays the threshold
+ * effect and resource icon when resourceId is not -1, and returns the new counter. Community 0
+ * means the current community. */
 // FUN_00108590
 u16 cmmCommunityAddPoints(s32 communityId, s32 points, s32 resourceId) {
     extern void kAssertFail(void *file, s32 line);
@@ -1124,32 +1045,10 @@ ret:
 }
 
 
-/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
-   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 93
-   (loop floor plus tail noise). Branch-shape floor. */
-/* measured: reconstructed this wave. Slot-search head plus the community
-   rank-up predicate. Three levers took it from nd 163 to nd 1: reusing the
-   masked-id local for the cmmCommunityFindRecord result (retail reuses $s0 for both),
-   declaring the slot pointer before the id so the pair lands $s1/$s0 rather
-   than $s0/$s1, and #pragma optimization_level 1, which stops b210 folding
-   the third guarded load into the level register and restores retail's
-   andi. The single residual word is retail's `daddiu $v0,$zero,1` for the
-   predicate's true value where b210 emits `addiu`. Probed for that one word:
-   ok as s32, u32, long, unsigned long, s64, u64, and both
-   pointer types, with 1, 1U, 1LL,
-   (s64)1, (u8 *)1, !0 and -(-1); inverted and pre-set branch polarity
-   (nd 11 and nd 343); goto/switch/result-variable tail layouts (all
-   identical); schedule on/off, no_branch_likely, opt_common_subs off,
-   opt_propagation off, opt_rebuildconditionals, opt_loop_invariants at -O1
-   return-merge, which b210 does not inline (object collapses to 324).
-   New comparison-spelling probes changed `id >= 0x1F` to `id > 0x1E`
-   and `i < 0x15` to `i <= 0x14`; each scored nd 3, so the nd 1 base
-   remains the lowest body. The daddiu residual did not move; this is a
-   settled floor after the comparison lever. Committed at nd 1. */
-// Try rank up: runs the same checks as cmmCommunityCanRankUp inline; when they pass, raises the rank by one through cmmCommunitySetRank, zeroes the point counter, and clears record flag 4. Returns 1 on success.
-/* measured: -O1 is load-bearing for this body - at -O2 mwcc coalesces the
-   third cmmCommunityFindRecord result straight into the level saved register and
-   drops retail's andi, costing nd 162. */
+/* measured: the slot search keeps retail's branch shape, where the found case exits through an
+ * advance branch instead of a merged branch to found. */
+/* Raise the community's rank by one if it has a record, is below rank 10, and has enough points for
+ * the next threshold; reset its points and clear the marked flag. Return 1 on success, 0 otherwise. */
 // FUN_00108950
 #pragma optimization_level 1
 s32 cmmCommunityTryRankUp(s32 communityId) {
@@ -1231,15 +1130,10 @@ ret:
 ret0:
     return 0;
 }
-/* measured: closes the -O1 bracket above at the file's -O2 baseline. */
 #pragma optimization_level 2
 
-/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
-   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 18
-   (tail matched; s16 option variant only differs by mwcc's post-jal
-   re-extension, nd 47 with s32 option from assert-block scheduling).
-   Branch-shape floor. */
-// Set rank: stores option (1 to 0xA) as value's rank at +6 and sets flag band 1 at max rank, or band rank + 3 otherwise.
+/* Stores the rank (1 to 0xA) in the community's record and sets flag band 1 at max rank, or band
+ * rank + 3 otherwise. */
 // FUN_00108B60
 void cmmCommunitySetRank(s32 communityId, s32 rank) {
     s32 id = communityId & 0xFFFF;
@@ -1377,11 +1271,8 @@ u16 cmmCommunityGetTableHead(void)
     return D_0079740C[0];
 }
 
-/* measured: same slot-search floor as cmmCommunityTestRecordFlags/cmmCommunityAllocRecord (found-exit
-   bne->advance; b found vs mwcc's merged beq->found); goto spelling nd 93
-   (loop floor; the descending switch and call loop match otherwise).
-   Branch-shape floor. */
-// Community advance form: sets the upgraded form id of the record for value (3->4, 5->6, 0B->0C, 0E->0F, 15->16, 19->1A, 1B->1C), clears flag bands 0-12, and refreshes that record's flags.
+/* Switch the community's record to its upgraded form id, clear its event flag bands, and refresh
+ * the flags for the new id. */
 // FUN_00108EF0
 void cmmCommunityAdvanceForm(s32 communityId) {
     s32 id;

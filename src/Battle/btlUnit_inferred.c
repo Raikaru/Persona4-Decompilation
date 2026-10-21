@@ -90,10 +90,6 @@ extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
 
 
-
-
-
-
 extern s32 iGpffffb444;
 extern void btlUnitInitChild(u8 *unit, u16 characterId);
 
@@ -112,18 +108,13 @@ extern s64 btlUnitGetMotionId(u8 *unit, u16 motion);
 extern s16 btlUnitMotionFrames(u8 *unit, u16 motion, f32 rate);
 extern void btlUnitSetMotion(u8 *unit, s16 motion, u16 frame, f32 rate, u16 option);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 00198380-00198380 */
-
 extern s32 btlUnitGetMotionState(u8 *unit);
 extern u32 btlUnitIsAtRestMotion(u8 *unit);
 extern u32 btlUnitIsWalkingMotion(u8 *unit);
 extern s64 btlUnitModelAnimFrame(u8 *unit);
 
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: declaration-corrected C candidate for func_00198380. */
-/* Update motion-layer weight and walking/rest transitions, including completion and held-frame modes. */
-/* measured: separate typed aliases retain the motion/handle reloads that moved instructions with access-site fields. */
+/* Update motion-layer weight and walking/rest transitions, including completion and held-frame
+ * modes. measured: separate typed aliases keep retail's reloads of the motion and handle fields. */
 // FUN_00198380
 void btlUnitUpdateMotionLayer(u8 *unit) {
     BtlUnit *unitFields = (BtlUnit *)unit;

@@ -25,7 +25,6 @@ typedef struct RwRGBA
     u8 a;
 } RwRGBA;
 
-/* 4 bytes */
 typedef struct ScrShutdownWork
 {
     KwlnTask* scrTask; /* 0x00 */

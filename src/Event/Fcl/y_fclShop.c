@@ -4,8 +4,8 @@
 #include "type.h"
 #include "sdk_task_registration.h"
 
-/* Constructor stores prove this prefix of the 0x1840-byte shop work block.
-   Unknown interpolation words retain their integer representation here. */
+/* Prefix of the 0x1840-byte shop work block, as shown by the constructor's stores; unknown
+ * interpolation words stay as integers. */
 typedef struct FclShopWork {
     u8 state;
     u8 mode;

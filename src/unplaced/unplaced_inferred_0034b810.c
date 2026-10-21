@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0034b810-0034b950 */
 
 #include "nline_vertex_internal.h"
 #include "include_asm.h"
@@ -41,14 +40,14 @@ extern s32 D_00884684[];
 extern u16 iGpffffb5a4;
 extern u8 D_00793E80[];
 
-// Intent: Return the combine object's work block pointer, the same body as fclCombineGetWork [inferred]
+// Return the combine object's work block pointer; same body as fclCombineGetWork.
 // FUN_0034B810
 s32 fclCombineGetWorkAlt(u8 *task)
 {
     return (s32)((KwlnTask *)task)->work;
 }
 
-// Intent: Set the combine sprite's position, sprite id, colour and scale, and flag the sprite as changed [inferred]
+// Set the combine sprite's position, image, colour and scale, and flag the sprite as changed.
 // FUN_0034B820
 void fclCombineSetSprite(u8 *task, FclVec2 position, s16 image, FclDrawColor color, f32 scale)
 {
@@ -63,7 +62,7 @@ void fclCombineSetSprite(u8 *task, FclVec2 position, s16 image, FclDrawColor col
     ((FclCombineSpriteWork *)work)->flags |= 1;
 }
 
-// Intent: Set the combine's tint bytes and timing and flag the tint as changed [inferred]
+// Set the combine's tint alpha bytes and timing and flag the tint as changed.
 // FUN_0034B880
 void fclCombineSetTint(u8 *task, u8 startAlpha, u8 endAlpha, u8 mode, s16 duration, s16 delay)
 {
@@ -85,7 +84,8 @@ void fclCombineSpriteNoop(void)
 {
 }
 
-// Intent: Refresh the nLine task: when both state flags are set, run the nLine setup and reset its counters [inferred]
+// Refresh the nLine task: when both state flags are set, run the nLine update and reset its
+// counters.
 // FUN_0034B8D0
 s32 nLineRefreshTask(u8 *unusedTask)
 {
@@ -98,7 +98,7 @@ s32 nLineRefreshTask(u8 *unusedTask)
     return 0;
 }
 
-// Intent: Registered nLine callback that draws the layer at the origin [inferred]
+// Registered nLine callback that draws the layer at the origin.
 // FUN_0034B950
 void nLineDrawOriginCallback(void)
 {

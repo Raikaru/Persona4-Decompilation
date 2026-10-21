@@ -17,7 +17,6 @@ extern void *D_00609850[];
    the 32-bit call result at this store site. */
 
 
-
 extern u8 *iGpffffb3ac;
 extern u8 *iGpffffb414;
 extern u8 iGpffffa9b0;
@@ -34,9 +33,6 @@ extern f32 fGpffff8058;
 extern f32 fGpffff8344;
 extern f32 fGpffff8060;
 extern f32 D_00761438;
-
-
-
 
 
 extern void *D_00609CE0[];
@@ -60,8 +56,6 @@ extern f32 fGpffffb454;
 extern u8 D_00609E40[];
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001ed3a0-001ee610 */
 
 extern s32 btlAiGetGlobal(void);
 extern s32 btlAiSetGlobal(void);
@@ -114,25 +108,17 @@ typedef struct RouteNode {
 } RouteNode;
 #pragma push
 #pragma pop
-/* measured probe: preserve the retail filter branch chain */
 #pragma push
-/* measured probe: close the filter branch chain */
 #pragma pop
-/* measured probe: preserve retail conditional branch shape */
 #pragma push
-/* measured probe: close conditional branch shape */
 #pragma pop
-/* measured: optimization_level 1 probe for retail GP-load scheduling. */
-/* measured: close optimization_level 1 probe for btlAiGetGlobal. */
-/* measured: opt_propagation off probe for e320 GP-load order. */
-/* measured: closes opt_propagation probe for btlAiSetGlobal. */
-/* 1468/1472 bytes; all four call relocations resolve exactly. */
-/* measured: third 001ec5e0 probe tests opt_propagation off for FPU-zero placement. */
-/* measured: closes opt_propagation probe for btlTargetInitSpring. */
+/* Fill a route node's neighbor and distance lists with every reachable obstacle corner, fixed world
+ * node, start point and goal point, then null-terminate the list and return the neighbor count.
+ * Obstacle corners must also meet the clearance threshold. */
 // FUN_001ED3A0
-/* 852/864 bytes; all eighteen relocations resolve exactly.
-   Array types preserve halfword indexing; local order preserves lifetimes. */
-/* Collect reachable radius-qualified neighbors and their planar distances, including start and goal. */
+/* Array types keep halfword indexing; local declaration order keeps the original lifetimes.
+ * Collects reachable radius-qualified neighbors and their planar distances, including start and
+ * goal. */
 s32 btlTargetCollectRouteNeighbors(u8 *node, f32 threshold)
 {
 
@@ -203,7 +189,8 @@ s32 btlTargetCollectRouteNeighbors(u8 *node, f32 threshold)
 }
 
 #pragma push
-/* measured: baseline nd2171, loop hoisting alone nd237, adding lifetimes nd31; dead-assignment setting closes it. */
+/* measured: retail needs loop-invariant hoisting, lifetimes, and dead-assignment removal off to
+ * match. */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 #pragma opt_dead_assignments off
@@ -608,13 +595,11 @@ s32 btlTargetRefreshRadiusNode(u8 *unit) {
     return 0;
 }
 
-/* The first pass through the route loop reads `cur`, `last` and `seg[1]`
-   before anything has written them (001ee71c/001ee730); retail uses the
-   stack slots as they are. The C keeps those reads of the uninitialised
-   locals. opt_loop_invariants hoists &pts[n] (retail $s5) and pts[0].z
-   (retail $f20) out of the subdivision loop. */
+/* The first route-loop pass reads cur, last and seg[1] uninitialised as retail does; invariant
+ * hoisting lifts &pts[n] and pts[0].z out of the loop. */
 #pragma push
-/* measured: baseline nd1116; caching the final point pointer leaves nd1345; retain invariant hoisting. */
+/* measured: retail hoists loop invariants such as the final point pointer out of the subdivision
+ * loop. */
 #pragma opt_loop_invariants on
 // FUN_001EE610
 s32 btlTargetBuildSmoothRoute(u8 *route, f32 radius)

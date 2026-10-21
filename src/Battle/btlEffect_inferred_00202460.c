@@ -19,11 +19,9 @@ typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
 
-
 extern void btlPacketIncUnitCounter(u8 *work);
 extern s32 btlPacketUpdateHpRatio(u8 *work);
 extern void btlPacketDecUnitCounter(u8 *work);
-
 
 
 extern f32 fGpffff815c;
@@ -32,9 +30,6 @@ extern f32 fGpffff83b0;
 extern u8 *D_0076449C;
 extern s32 iGpffffb448;
 extern s32 D_0062656C[];
-
-
-
 
 
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -82,29 +77,20 @@ extern u8 D_00795080[];
 
 extern u8 D_006253B0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00202460-00202570 */
-
-/* measured: caching D_00887300 in s0 reproduces retail's one-time
-   lui/addiu vtable materialization across these callback calls. */
-/* measured: close the vtable propagation probe and restore default state. */
-/* Keep the opacity base ahead of byte promotion, matching retail order. */
+/* measured: caching the vtable pointer in a local keeps retail's one-time address load across these
+ * callback calls. */
 #pragma push
 #pragma pop
-/* Measured: 676/688 bytes, seven resolved relocations and twelve zero alignment bytes.
- * Snapshot inputs before providers; reload the skill fields and final output
- * metadata at their retail callback boundaries. */
 #pragma push
 #pragma pop
-/* measured: opt_rebuildconditionals off tested for callback completion. */
-/* measured: restore conditional rebuilding after callback completion. */
-// Intent: packet callback; increments the unit counter at +0xA0. [inferred]
+/* Packet callback; increments the unit's pendingPacketCount. */
 // FUN_00202460
 void btlPacketIncUnitCounter(u8 *work)
 {
     ((BtlUnit *)((BtlHpRatioWork *)work)->unit)->pendingPacketCount = ((BtlUnit *)((BtlHpRatioWork *)work)->unit)->pendingPacketCount + 1;
 }
 
-// Intent: packet callback; updates the unit HP ratio from current and max HP. [inferred]
+// Packet callback; updates the unit HP ratio from current and max HP.
 // FUN_00202480
 s32 btlPacketUpdateHpRatio(u8 *work)
 {
@@ -119,7 +105,6 @@ s32 btlPacketUpdateHpRatio(u8 *work)
     switch (((BtlHpRatioWork *)work)->mode) {
     case 0:
         hp = (s16)datCalcGetHp((s32)((BtlUnit *)unit)->datUnit);
-        /* measured: typing both datUnit loads hoists +A64 into s3 (244 vs 240 bytes). */
         maximumHp = (s16)datCalcMaxHp((s32)unitFields->datUnit);
         delta = ((BtlHpRatioWork *)work)->delta;
         if (delta != 0) {
@@ -140,7 +125,7 @@ s32 btlPacketUpdateHpRatio(u8 *work)
     return 1;
 }
 
-// Intent: packet callback; decrements the unit counter at +0xA0. [inferred]
+// Packet callback; decrements the unit's pending packet count.
 // FUN_00202570
 void btlPacketDecUnitCounter(u8 *work)
 {

@@ -67,9 +67,6 @@ extern f32 fGpffff8030;
 extern f32 fGpffff803c;
 extern f32 fGpffff8110;
 
-/* Source unit: src/promoted/code1_001d.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d4eb0-001d5b20 */
-
 extern s32 btlCameraFindFormationForCounts(u8 *counts);
 typedef void BtlAttachPositionCallback(u8 *work, u8 *unit, u8 *entry, f32 *position);
 /* Derive attachment scale from the unit bounds and clamp it for effects. */
@@ -101,8 +98,6 @@ static inline f32 btlAttachFieldScale(u8 *unit)
     }
     return s;
 }
-/* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
-/* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
 #pragma push
 #pragma pop
 /* Resolve an attachment point from its indexed model matrix, with a cached-position mode and camera-
@@ -455,8 +450,7 @@ void btlFormationUpdateAttachments(s32 work)
     w->frame++;
 }
 
-/* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
-/* measured: func_001d5990 MATCH -> MISMATCH without this pragma. */
+/* measured: optimization level 1 keeps retail's stack reload scheduling in this function. */
 #pragma optimization_level 1
 /* Save the camera modelling matrix and install the formation basis and position around effect drawing. */
 // FUN_001D5990
@@ -546,8 +540,8 @@ void btlFormationCameraFrame(void)
     func_003e8120(kwlnGetCamera());
 }
 
-/* measured: restore optimization_level 2 after func_001d5990. */
-/* measured: func_001d5b20 MATCH -> MISMATCH without this pragma. */
+/* measured: the following functions only reproduce retail code when compiled at optimization level
+ * 2. */
 #pragma optimization_level 2
 /* Restore the camera modelling matrix saved before formation rendering. */
 // FUN_001D5AC0

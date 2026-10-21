@@ -106,7 +106,6 @@ extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
 
 
-
 extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern void MT_Scene_DestroyRes(u16 resTypeId);
 extern u8 *resrcMngCreateRes(s32 resManager, s32 resTypeId);
@@ -171,8 +170,6 @@ extern s32 D_007642E4;
 extern u8 D_005EFB10[];
 
 
-
-
 typedef struct {
     u8 b0;
     u8 b1;
@@ -184,12 +181,6 @@ typedef FieldRgba8 Rgba8_0014;
 
 
 extern s32 D_007642F0;
-
-
-
-
-
-
 
 
 extern s32 iGpffff9dd0;
@@ -214,16 +205,8 @@ extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
 
 
-
-
-/* Camp display: grid, labels, radar and corner sprites.
- * The radar callees are declared here with u8 opacity parameters (H011):
- * retail narrows each radar alpha with its unsigned conversion and passes
- * it without another mask, while the matched definitions in this file keep
- * s32 because their own bodies use the full word.
- * `sprite` is one function-scope variable for the 0x1834 label sprite and
- * the corner sprite; b210 does not propagate it into the sdkSpriteDrawSized
- * call, so the label pointer is loaded before the stack argument. */
+/* Camp display: grid, labels, radar and corner sprites. Radar callees take u8 opacity because
+ * retail narrows each alpha before passing it. */
 #pragma push
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
@@ -254,26 +237,15 @@ extern f32 D_008872F8[];
 #pragma pop
 
 
-
-
-
-
-/* measured: closes the scoped optimization-level-1 probe. */
+#pragma push
+#pragma pop
 
 
 #pragma push
 #pragma pop
 
-
-
-#pragma push
-#pragma pop
-
-/* Source unit: src/promoted/code1_0014.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 001459b0-00146a10 */
-
-/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
-/* measured: two effect reloads require MEMBER; access-site, typed-local and array forms grow this body from 272 to 284 bytes. */
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation
+ * failure. */
 // FUN_001459B0
 s32 MT_Scene_CreateObjectRes(u16 resourceId, s32 model, s8 drawMode) {
     f32 initialPosition[3];
@@ -628,8 +600,8 @@ s32 MT_Scene_CreatePointRes19(u16 resourceId, f32 *position, f32 radius) {
     return resourceTypeId;
 }
 
-/* Initialize the selected resource kind and return its packed type/id, or zero on allocation failure. */
-/* measured: only the two allocated-matrix reloads require MEMBER; typed-local and array forms also change matrix-copy lifetimes (230/169 differing bytes). */
+/* Initialize the selected resource kind and return its packed type/id, or zero on allocation
+ * failure. */
 // FUN_00146440
 s32 MT_Scene_CreateCameraRes(u16 resourceId, s32 cameraKind, f32 cameraValue, u8 *firstMatrixInput, u8 *secondMatrixInput, u8 *position, f32 nearValue, f32 farValue, s32 parameters, s32 data) {
     s32 resourceTypeId;
@@ -705,8 +677,6 @@ s32 MT_Scene_CreateCameraRes(u16 resourceId, s32 cameraKind, f32 cameraValue, u8
     return resourceTypeId;
 }
 
-/* measured: O1 probe for 00146630 register allocation and short tail. */
-/* measured: schedule-off probe for 46630 branch delay slots. */
 /* Release the resource-kind-specific owned handles before unlinking and freeing the record. */
 // FUN_00146630
 void MT_Scene_DestroyRes(u16 resTypeId) {
@@ -881,13 +851,8 @@ void MT_Scene_DestroyRes(u16 resTypeId) {
     }
 }
 
-/* measured: closes schedule-off probe for 46630. */
-/* Updates the supplied position, rotation and scale vectors before applying
-   the resource-specific model or effect transform. NULL inputs retain the
-   corresponding resource vector. Native b210 -O2: 1100/1104 bytes, with
-   four 12-byte initializer vectors and a four-byte zero suffix.
-   See Resource_transform_00146a10_20260922_worker1.md. */
-/* measured: only the effect-matrix call handle requires MEMBER; access-site, typed-local and array forms each change 216 bytes. */
+/* Updates the supplied position, rotation and scale vectors, then applies the resource-specific
+ * model or effect transform. NULL inputs keep the corresponding resource vector. */
 // FUN_00146A10
 void MT_Scene_ApplyResTransform(u8 *resource, u8 *position, u8 *rotation, u8 *scaleInput)
 {

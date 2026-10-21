@@ -1,6 +1,6 @@
 #include "operand_order_internal.h"
 #include "byte_address_internal.h"
-/* Original translation unit cmpPartyPanel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit cmpPartyPanel.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "sdktask.h"
 #include "type.h"
@@ -46,7 +46,6 @@ typedef struct { f32 x, y; } Vec2f;
 /* Reuse the existing SDK Sky2 fields: four consecutive 0x40-byte vertices.
  * Integer color stores preserve the original floating-point bit patterns. */
 typedef struct { BtlShuffleSkyFields vertices[4]; } CmpPartyPanelGaugePacket;
-
 
 
 typedef struct {
@@ -120,8 +119,8 @@ void cmpPartyPanelDrawGauge(f32 originX, f32 originY, f32 fillRatio) {
     y = originY;
     z = fillRatio;
     depth = D_008872F8[0];
-    /* The lightweight SDK layout keeps this Camp TU independent of the full
-       camera header configuration; bacamera.h establishes nearPlane at +0x80. */
+    /* A lightweight camera layout keeps this file independent of the full camera header; nearPlane
+     * matches bacamera.h. */
     reciprocalDepth = 1.0f / ((RwCamera *)kwlnGetCamera())->nearPlane;
     leftX = ((41.0f) * (z));
     rightX = ((x) + (leftX));
@@ -170,9 +169,8 @@ void cmpPartyPanelDrawGauge(f32 originX, f32 originY, f32 fillRatio) {
 }
 
 
-/* 820/832 bytes; sixteen resolved relocations and twelve zero alignment bytes.
- * The sprite API keeps coordinates before byte colors, as its core does.
- * Snapshot the row position and unsigned HP/SP values before drawing. */
+/* Snapshot the row position and unsigned HP/SP values before drawing; the sprite API takes
+ * coordinates before byte colors. */
 // FUN_00363200
 void cmpPartyPanelDrawRow(u8* work, s64 rowIndex)
 {
@@ -222,7 +220,6 @@ void cmpPartyPanelDrawRow(u8* work, s64 rowIndex)
 
 /* Advance ready row motions and draw all live party rows when visibility bit 0 is set. */
 // FUN_00363540
-/* measured: earlier CmpPartyPanelWork typing changed 150 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpPartyPanelDraw(u8* unusedNode, u8* work) {
     CmpPartyPanelWork *menu = (CmpPartyPanelWork *)work;
     s32 motionIndex;
@@ -244,18 +241,8 @@ void cmpPartyPanelDraw(u8* unusedNode, u8* work) {
 }
 
 
-/* Recovered work layout: 0x10-byte header, four 0x28-byte rows, then the
- * 0x30-byte ordering-table node. Animation fields are also read by 00362F00.
- * 00353B50 writes only the compacted live roster. The four-entry comparison
- * below intentionally retains retail's read of the unwritten stack tail,
- * as explicitly authorized for retail recovery on 2026-10-07. Do not clear
- * that tail or limit the removal scan to the compacted roster count.
- * If all four IDs compare equal after a shrink, changed reaches 4. The
- * offset-based update below then aliases the real ordering node at +0xB0
- * inside the 0xE0 allocation; it does not refer to a fifth stored party row.
- * Whole-owner configured compile: 2772 exact live bytes, 12 zero tail bytes;
- * the seven case-table entries at 007528E0 and all six siblings are exact. */
-/* measured: baseline has 408 differing words; an equivalent while loop retains the constant/preheader residual. */
+/* measured: retail hoists the loop constant out of the loop; work is a 0x10-byte header, four
+ * 0x28-byte rows, then the ordering-table node. */
 #pragma opt_loop_invariants on
 /* Repeated row placement shares the signed roster-count contract. */
 /* Place one party row using the bottom-aligned row count and index. */
@@ -481,7 +468,6 @@ s32 cmpPartyPanelTaskStep(u8 *task)
 
 /* Release the shared gauge sprite and each party portrait, then free the task work. */
 // FUN_003640F0
-/* measured: earlier CmpPartyPanelWork typing changed 103 instruction bytes; current typed-local/member forms retain MATCH. */
 void cmpPartyPanelTaskDestroy(u8* task) {
     u8* work = ((SdkTask *)task)->work;
     CmpPartyPanelWork *menu = (CmpPartyPanelWork *)work;

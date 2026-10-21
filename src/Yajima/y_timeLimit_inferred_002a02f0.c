@@ -39,8 +39,6 @@ extern u16 D_008C027A[];
 extern s8 iGpffffb54c;
 
 
-
-
 struct RwMatrixTag;
 extern void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s32 centerX, s16 centerY,
@@ -66,8 +64,6 @@ extern u8 D_00882EF0[];
 extern u8 *iGpffffb540;
 extern u8 iGpffffa7e8;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a02f0-002a02f0 */
-
 /* Reset six selection statuses when requested, then draw the five populated name-entry slots. */
 // FUN_002A02F0
 void yTimeNameDrawSelections(u8 *task, s32 preserveStatus) {
@@ -77,7 +73,6 @@ void yTimeNameDrawSelections(u8 *task, s32 preserveStatus) {
     work = (NameEntryWork *)((KwlnTask *)task)->work;
     if ((preserveStatus == 0) && (work->inputState != 1)) {
         for (i = 0; i < 6; i++) {
-            /* measured: typed rows and MEMBER commute the retail addu operands; retain this address tree. */
             *(s16 *)((u8 *)work + (i * 4) + MEMBER_OFFSET(NameEntryWork, selectionStatus)) = 0;
         }
     }

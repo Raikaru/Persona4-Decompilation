@@ -9,7 +9,7 @@
 #include "texture_callback_internal.h"
 #include "include_asm.h"
 #include "Kosaka/k_clump_property_internal.h"
-/* Original translation unit k_fldResource.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit k_fldResource.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "scene_event_internal.h"
 #include "model_matrix_internal.h"
@@ -161,9 +161,6 @@ extern s32 D_007E8060[];
 extern s32 iGpffffb208;   /* gp - 0x4DF8 = 0x007642F8 */
 
 
-
-
-
 /* The 0x12C-byte load allocation contains the path and asynchronous readers. */
 typedef struct FldResourceLoadWork {
     char path[0x80];
@@ -249,15 +246,13 @@ typedef struct FldResourcePresetIndex { u8 preset; } FldResourcePresetIndex;
 /* Three 12-byte records at 0x005F0590; the field-index map is at 0x005F05B8. */
 extern const FldResourcePreset fldResourcePresets[3];
 
-/* Queue field resources from the ordinary/special preset or the requested
- * major/minor pair. Each work capture belongs to one append operation.
- * measured: b210 -O2 retains the loop bases and the explicit work reads;
- * the typed preset view separates records from the field-index bytes. */
+/* Queue field resources from the ordinary/special preset or the requested major/minor pair; each
+ * work capture belongs to one append. */
 #pragma push
-/* Append preset or explicit field ID pairs to the loader queue. */
-/* Typed queued-ID/table cursors preserve the measured byte-offset-first append/copy order. */
+/* Append preset or explicit field ID pairs to the loader queue. Typed queued-ID and table cursors
+ * keep retail's append/copy order. */
 // FUN_0014EFC0
-/* measured: baseline 101 differing words; block lifetimes did not match; retain scoped settings. propagation off and redundant common-subexpression on removed; only invariant motion is needed. */
+/* measured: retail hoists the loop bases out of the loops, which needs only loop-invariant motion. */
 #pragma opt_loop_invariants on
 void FldResource_QueueFieldResources(s32 majorId, s32 minorId)
 {
@@ -309,7 +304,6 @@ void FldResource_QueueFieldResources(s32 majorId, s32 minorId)
                 i = 0;
                 for (; work = iGpffff9db0, i < ((FldResourceWork *)work)->resourceCount; i++) {
                     offset = i * sizeof(s32);
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     resourceReference = (const s32 *)((const u8 *)D_007E8060 + offset);
                     ((FldResourceWork *)(work + offset))->resources[0] = *resourceReference;
                 }
@@ -323,7 +317,7 @@ void FldResource_QueueFieldResources(s32 majorId, s32 minorId)
             iGpffffb204 = H_Cdvd_AcquireDirectory(fieldPath, 1);
         }
         work = iGpffff9db0;
-        /* measured: plain queued-work addressing reverses the addu sources. */
+        /* byteAddressAdd keeps retail's operand order when forming the queued-ID address. */
         ((FldResourceWork *)byteAddressAdd(((FldResourceWork *)work)->queuedCount * 4, work))->queuedIds[0].majorId = (s16)majorId;
         work = iGpffff9db0;
         ((FldResourceWork *)byteAddressAdd(((FldResourceWork *)work)->queuedCount * 4, work))->queuedIds[0].minorId = (s16)minorId;
@@ -332,127 +326,8 @@ void FldResource_QueueFieldResources(s32 majorId, s32 minorId)
     iGpffffb208 = chkmemGetBytes();
 }
 #pragma pop
-/* Field-loader recovery history (the final byte-exact result is recorded below):
- * complete camera matrices, vectors and 32-entry tables; word-wide resource
- * publication; explicit state dispatch and default return. At the first
- * checkpoint, native b210/O1 gave 5516/5504 bytes and 513 aligned
- * edits (previous guard: 5392 bytes, 574 edits). All 20 guarded siblings are
- * unchanged. The unnecessary 44-byte dispatch table is gone. NPC file-handle
- * storage uses absolute addresses; the old guard emitted out-of-range GP loads.
- * Camera-member and legacy matrix output lifetimes were unresolved at that
- * checkpoint. Its evidence is in build/resume-field-worker12/loader-proof.json.
-
- * 2026-10-09: 513 -> 450: the m2c `loop_N: if (c) { ...; goto loop_N; }` loops
- * are while loops (retail tests at the bottom), with the re-read of
- * iGpffff9db0 repeated at the end of each body.
- * 2026-10-09: 450 -> 378: the nested grid searches are for loops that
- * leave by goto once the cell is found, and the two HBN read loops are while
- * loops whose exit code follows the loop.
- * 2026-10-09: 378 -> 361: the loops re-read iGpffff9db0 inside the loop test
- * (`while (i < *(s32 *)((w = (u8 *)(iGpffff9db0)) + 0x24))`) and the code after
- * the loop uses that pointer, as retail does.
- * 2026-10-09: 361 -> 339: the grid searches store (u8) counters (retail andi,
- * no sign extension) and clear the inner counter before forming the row base.
- * 2026-10-09: 339 -> 260: locals declared in descending order of the retail
- * saved register that holds them (b210 colours later declarations first here).
- * 2026-10-09: 260 -> 219: the two table-copy loops take the D_007E8060 /
- * D_005F05B8 / D_005F0590 addresses into locals before the loop (retail hoists
- * all three) and test the table entry inline.
- * 2026-10-09: 219 -> 215: the per-resource pointer lists are indexed as arrays
- * (`((u8 **)(w + 0x28))[*(s32 *)(w + 0x24)]`).
- * 2026-10-09: 215 -> 209: grid cells are `(u8 *)(row + (s32)MT_Scene_GetFrameState()) + col`
- * (retail adds the row base to the call result first).
- * 2026-10-09: 209 -> 205: the pending flags count failures (`pending += 1`).
- * 2026-10-09: 205 -> 194: hbnData, fieldOfView, cameraKind, cameraValue60,
- * cameraValue64 declared in that order give retail's frame slots.
- * 2026-10-09: 194 -> 193: one shared `return 0` at the end (the switch default and
- * the state transitions jump there); the dispatch is a switch; waitEnvironment
- * falls into readCamera after an if/else whose else returns.
- * 2026-10-09: 193 -> 165: the environment reload is `if (flags & 4) state = 0x28;
- * else { state = 999; break; }` followed by the loadEnvironment and
- * waitReloadedEnvironment cases at the same level.
- * 2026-10-09: 165 -> 163: the memcpy source is `(u8 *)entry + 4`.
- * 2026-10-09: 163 -> 155: the per-resource loops read iGpffff9db0 before
- * forming the index (`e = w; off = i * 4; e = *(u8 **)(e + off + 0x28)`).
- * 2026-10-09: 155 -> 153: the loaded hbnData pointer is tested and passed from
- * one local.
- * 2026-10-09: 153 -> 132: the frame lists re-read their header inside the loop
- * test as well, and the frame kind is an int-typed lhu result.
- * 2026-10-09: 132 -> 116: the table-copy locals are declared counter, base,
- * offset, destination, index table, count table.
- * 2026-10-09: 116 -> 99: MT_Scene_GetRes is called before the constant store, the
- * flag call passes one `enable` local twice (retail copies $a0 to $a1), and the
- * frame-list loop keeps a `u32 *frameCount` from its test for the final clear.
- * 2026-10-09: MT_Scene_SetResPlacement is declared here with an s32 id: retail passes the
- * masked id without the u16 re-mask that the header prototype would force
- * (H011, retail 0x0014FE90 area).
- * 2026-10-09: 99 -> 94: the frame record is the list base plus `i * 0x18`, added
- * after the base load.
- * 2026-10-09: 94 -> 90: MT_Scene_CreateCameraRes takes the camera entry arrays as pointers.
- * 2026-10-09: 90 -> 86: FldFbnReadTable's last parameter is s16.
- * 2026-10-09: 86 -> 84: the loaded HBN entry is its own local `hbnEntry`.
- * 2026-10-09: 84 -> 83: the first file check assigns `pendingCount = 1` in its NULL branch.
- * 2026-10-09: 83 -> 70: frameMatrix is declared before modelId.
- * 2026-10-09: 70 -> 65: the reload list walker is declared before its next pointer.
- * 2026-10-09: 65 -> 64: the resource pair offset is formed as `idx * 4` then
- * `+= base` (retail adds the base second).
- * 2026-10-09: 64 -> 53: body taken from the parallel cos/finish-first-party-20261009 worktree.
- * sdiff --regs 38 -> 32: the two load checks are one inline helper returning 1/0 in $v0, as retail; retail still reuses the switch's constant 1 for the first NULL case.
- * all four resource checks use the inline readiness helper (same output, consistent source).
- * structure identical (fnalign 64 -> 40): the dispatch is an if-chain in retail's descending order whose compare against 1 uses a local `one`; the first readiness check returns that `one` for a NULL file, so the switch's constant 1 in $v0 is reused as retail does; the last test is a one-case switch with default (retail beqz/b).
- * measured 2026-10-12: fnalign 40 -> 14; separate preset-index and copied-resource locals in each publication loop preserve their roles and free the retail table-base register.
- * 2026-10-12: the 14 edits are the $v0/$v1 swap of the state base and its
- * +0x28 resource in the two FldMap_IsCurrentInBandB()==1 part reads. Backend copy
- * propagation folds the base (memory uses only) into its late gp-load temp,
- * while the resource keeps its low variable number through the +0xA4C addiu;
- * whatif: base numbered below the resource gives retail. Block/struct/helper/
- * address-of spellings, an extra base copy and O1 + opt_common_subs stay 14+.
- * 2026-10-13: at O1 there is no propagate_copy_instructions stage; the
- * after_backend_optimization pass forwards copies only into memory-address
- * operands. The base (loads only) therefore folds into its gp-load temp r713
- * and the resource survives as r41 through its addiu +0xA4C argument.
- * Reading the resource twice (no O1 load CSE: duplicate lw, 47), address-of
- * argument spellings (still addiu, 14) and an inline part-load helper (its
- * argument is substituted, 14) leave the order unchanged.
- * Replay: the sites close iff the base is a local numbered below the
- * resource (r39 < r41) or the resource is a temp above r713. Named values
- * (block-scope locals r154, inline-parameter bindings r158) always number
- * below codegen temps, so the base must survive. O1 forwarding is block-local:
- * every memory-only local that survives has a use in a later block, and
- * retail has none after the call. No effect (14): register, u32/s32 base,
- * merging with the else-loop base, block scopes, typed helper parameters,
- * O1 + propagation/dead-code/lifetimes/strength-reduction toggles. O2 + no
- * CSE/propagation (44) needs the table-loop locals numbered in declaration
- * order, which only O1 keeps.
- * O1 + opt_common_subs on (frontend CSE only; O1 has no backend CSE stage) with the swap-site
- * call reading iGpffff9db0 directly reproduces both swap sites exactly: the frontend shadows base
- * then resource in creation order. The cost is ten iGpffff9db0 reloads that the frontend merges
- * across blocks (retail reloads them) plus two var * 0x18 strides (163). Reading the global as
- * *(u8 **)&iGpffff9db0 at one occurrence per site restores the reloads (87, build/f310_o1cse_87.c),
- * but the strides stay merged and the table loops regress to the O2 colouring.
- * Capture: with opt_common_subs on, the O1 backend pass also forwards the loop locals' copies into
- * arithmetic (sll/preset/resource fold), so the O1-only declaration-order colouring is lost.
- * Replay of the old single-definition resource web required a number >= 714
- * (its raw load temp); named values capped near r158 (inline parameter binding).
- * Also measured: a phase helper
- * around the whole if/else 79, an s64 base parameter 49 (adds a move per site), a resource passed as a
- * call-site expression into a helper 14, the base defined before the branch or via an a270 result
- * local 14, cross-phase variable reuse 19, register 14. Micros: build/micro_src/fwd1-3.
- * measured: fnalign 14 -> 4 by retaining the FBN output-member address in
- * each primary-resource read, rather than the resource base. The file handle
- * at +0xA48 immediately precedes the output buffer pointer at +0xA4C.
- * At that checkpoint all registers agreed; the output-address addiu was early
- * at each site, before the two ID loads and file load rather than after them.
- * measured: 4 -> 0, 1375 instructions. Each primary phase now keeps one result
- * word for the mode query and then the selected resource address. Both values
- * are consumed: the first selects the branch, the second supplies the FBN.
- * The capture in build/code1af310_captures/primary_word_match shows these two
- * phase-local webs (r41/r46) coalescing with physical $v0, without extra code.
- * Keep the output argument in the pointer domain: the typed member address is
- * formed after the file load; integer-address addition materializes it early.
- */
 #pragma push
-/* measured: O1 preserves the publication-loop pointer/offset lifetimes (fnalign 0). */
+/* measured: O1 keeps retail's pointer and offset lifetimes in the publication loop. */
 #pragma optimization_level 1
 /* Treat a missing file as ready; otherwise query asynchronous file completion. */
 static inline s32 fldResourceIsReady(u8 *file)
@@ -478,8 +353,8 @@ static inline s32 fldResourceIsReadyWithDefault(u8 *file, s32 one)
     return 0;
 }
 
-/* Advance asynchronous resource, grid, NPC, camera and environment phases; return one at completion. */
-/* Access-site fields preserve the O1 address lifetimes; only individually measured exceptions use retained pointers or MEMBER. */
+/* Advance asynchronous resource, grid, NPC, camera and environment phases; return one at
+ * completion. */
 // FUN_0014F310
 s32 FldResource_StepPartLoad(s32 majorId, s32 minorId) {
     s32 *specialResourceSlot;
@@ -532,17 +407,18 @@ s32 FldResource_StepPartLoad(s32 majorId, s32 minorId) {
     /* lint: allow H011 -- retail passes an already-u16-masked ID as a word;
      * the provider consumes that same u16 ID. */
     extern void MT_Scene_SetResPlacement(s32 resourceId, u8 *position, u8 *angles);
-    /* lint: allow H011 -- the final arguments are array addresses; the provider
-     * casts its s32 words to memcpy sources of 0x20 and 0x180 bytes. */
+    /* lint: allow H011 -- the final arguments are array addresses; the provider memcpys 0x20 and
+     * 0x180 bytes from them. */
     extern s32 MT_Scene_CreateCameraRes(u16 resourceId, s32 cameraKind, f32 cameraValue, u8 *firstMatrixInput, u8 *secondMatrixInput, u8 *position, f32 nearValue, f32 farValue, s8 *parameters, Vec3 *data);
     extern u8 *MT_Scene_GetResListHead(s32 resourceType);
-    // lint: allow H011 -- measured: u16 prototype regresses FldResource_StepPartLoad (andi on wide id args)
+    // lint: allow H011 -- measured: a u16 prototype makes FldResource_StepPartLoad mask the wide id
+    // arguments, which retail does not do.
     extern u8 *MT_Scene_GetRes(s32 resTypeId);
     extern void MT_Scene_DestroyRes(u16 resTypeId);
     extern s32 MT_Scene_CreateModelFldRes(u16 resourceId, s32 model);
     extern s32 MT_Scene_CreateRes11(u16 resourceId, s32 model);
-    /* lint: allow H011 -- the resource pointer is stored unchanged in the
-     * provider's +0x1A0 field; its s32 parameter is a 32-bit address carrier. */
+    /* lint: allow H011 -- the provider stores the resource pointer unchanged; its s32 parameter
+     * carries a 32-bit address. */
     extern s32 MT_Scene_CreateFldRes(u16 resourceId, u8 *model);
     extern u8 *FldHbnOpenData(s32 fieldId, s32 roomId);
     extern s32 FldHbnReadData(u8 *request, u16 **destination, s32 fieldId, s32 roomId);
@@ -778,10 +654,8 @@ initializeResources:
                 return 0;
             }
             if (((FldResourceWork *)initializedWork)->flags & 0x80000000) {
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 ((FldResourceWork *)initializedWork)->majorId = (s32) ((FldResource *)(u8 *)((FldResourceWork *)initializedWork)->resources[0])->majorId;
                 minorIdWork = (u8 *)(iGpffff9db0);
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 ((FldResourceWork *)minorIdWork)->minorId = (s32) ((FldResource *)(u8 *)((FldResourceWork *)minorIdWork)->resources[0])->minorId;
             }
             entryRequestIndex = 0;
@@ -939,7 +813,6 @@ publishResources:
                 ordinaryIndexTable = (u8 *)D_005F05B8;
                 ordinaryCountTable = (u8 *)D_005F0590;
                 while (ordinaryPreset = ((FldResourcePresetIndex *)(ordinaryIndexTable + ((FldResourceWork *)ordinaryPublishWork)->majorId - 0x28))->preset,
-                       /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                        ordinaryPublishIndex < ((FldResourcePreset *)ordinaryCountTable)[ordinaryPreset].ordinaryCount) {
                     ordinaryPublishOffset = ordinaryPublishIndex * 4;
                     ordinaryResource = ((FldResourceWork *)(ordinaryPublishWork + ordinaryPublishOffset))->resources[0];
@@ -975,7 +848,6 @@ publishResources:
             } else {
                 MT_Scene_CreateFldRes(0, (u8 *)((FldResourceWork *)iGpffff9db0)->resources[0]);
                 modelFrameIndex = 0;
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 while (modelFrameIndex < (u32) ((FldResource *)(modelFrameResource = (u8 *)((u8 *)((FldResourceWork *)iGpffff9db0)->resources[0])))->entryCount) {
                     modelFrameOffset = modelFrameIndex * 0x18;
                     frameMatrix = (u8 *)(func_003e9700((RwFrame *)((FldResource *)(modelFrameResource + modelFrameOffset))->entries[0].frame));
@@ -1250,13 +1122,12 @@ pending:
     return 0;
 }
 #pragma pop
-/* measured: opt_loop_invariants hoists the slash loop constant. */
+/* measured: retail hoists the slash-search loop constant out of the loop. */
 #pragma push
 
 /* Allocate a resource and load state, parse fNNN_NNN IDs, and request its directory. */
-/* Earlier whole-layout probe changed 442 normalized bytes at equal size; only measured access-site exceptions remain. */
 // FUN_00150970
-/* measured: baseline 129 differing words; branch/loop forms did not match; retain scoped settings. */
+/* measured: retail's loop shape needs loop-invariant hoisting turned on for this function. */
 #pragma opt_loop_invariants on
 u8 *FldResource_Create(char *path)
 {
@@ -1333,7 +1204,6 @@ u8 *FldResource_Create(char *path)
     if (iGpffffb204 == 0) {
         func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0x4A5);
         ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->directory =
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             H_Cdvd_AcquireDirectory((char *)(fieldResource->loadWork), 0);
     } else {
         ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->directory = 1;
@@ -1359,11 +1229,9 @@ s32 FldResource_IsFileLoaded(u8 *resource)
     return 1;
 }
 
-/* measured: 988B/992B, all emitted instructions match; 4B retail zero tail.
-   The stream descriptors and complete chunk header are real helper storage.
-   Keep resource snapshots on their retail side of the asynchronous callbacks. */
-/* Dispatch world, clump, texture and animation chunks to asynchronous readers. */
-/* Earlier whole-layout probe: 988 -> 1016 bytes; the mixed body retains only measured load-state/stream exceptions. */
+/* The stream descriptors and full chunk header are real helper storage; resource snapshots stay on
+ * their retail side of the asynchronous callbacks. Dispatch world, clump, texture and animation
+ * chunks to asynchronous readers. */
 // FUN_00150CE0
 void FldResource_ParseChunks(u8 *resource)
 {
@@ -1378,7 +1246,6 @@ void FldResource_ParseChunks(u8 *resource)
     s32 child;
     u8 *destination;
 
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
     data = H_Cdvd_LookupRequest(fieldResource->loadWork, &size);
     memory[0] = data;
     memory[1] = size;
@@ -1388,16 +1255,12 @@ void FldResource_ParseChunks(u8 *resource)
             while (func_003df3c0(streamHandle, (s32 *)chunk) != 0) {
                 switch (chunk[0]) {
                 case 11:
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     if (((FldResourceLoadWork *)(fieldResource->loadWork +
-                                 /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                                  (s32)((FldResourceLoadWork *)fieldResource->loadWork)->worldCount * 4))->worldReaders[0] == 0) {
-                        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                         chunkMemory[0] = memory[0] + MEMBER(s32, (u8 *)streamHandle, struct RwStream, memory.position);
                     }
                     chunkMemory[1] = memory[1];
                     child = func_003e2f60(3, 1, &chunkMemory[0]);
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     destination = fieldResource->loadWork;
                     child = filerEnqueueRequest(1, 0, 0, 0, child, 0, 0, 0, 0, 0);
                     ((FldResourceLoadWork *)(destination + (s32)((FldResourceLoadWork *)destination)->worldCount * 4))->worldReaders[0] = child;
@@ -1406,11 +1269,9 @@ void FldResource_ParseChunks(u8 *resource)
                         ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->worldCount + 1;
                     break;
                 case 16:
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     chunkMemory[0] = memory[0] + MEMBER(s32, (u8 *)streamHandle, struct RwStream, memory.position);
                     chunkMemory[1] = memory[1];
                     child = func_003e2f60(3, 1, &chunkMemory[0]);
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     destination = fieldResource->loadWork;
                     child = filerEnqueueRequest(2, 0, 0, 0, child, 0, 0, 0, 0, 0);
                     ((FldResourceLoadWork *)(destination + (s32)((FldResourceLoadWork *)destination)->clumpCount * 4))->clumpReaders[0] = child;
@@ -1425,7 +1286,6 @@ void FldResource_ParseChunks(u8 *resource)
                     func_003ef1b0(callbackHandle);
                     break;
                 case 22:
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     chunkMemory[0] = memory[0] + MEMBER(s32, (u8 *)streamHandle, struct RwStream, memory.position);
                     chunkMemory[1] = memory[1];
                     child = filerEnqueueRequest(8, 0, 0, 0, func_003e2f60(3, 1, &chunkMemory[0]), 0, 0, 0, 0, 0);
@@ -1433,7 +1293,6 @@ void FldResource_ParseChunks(u8 *resource)
                     func_003e2ce0(streamHandle, chunk[1]);
                     break;
                 case 12:
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     chunkMemory[0] = memory[0] + MEMBER(s32, (u8 *)streamHandle, struct RwStream, memory.position);
                     chunkMemory[1] = memory[1];
                     child = filerEnqueueRequest(0xB, 0, 0, 0, func_003e2f60(3, 1, &chunkMemory[0]), 0, 0, 0, 0, 0);
@@ -1449,9 +1308,7 @@ void FldResource_ParseChunks(u8 *resource)
                 func_003e2e40(streamHandle, 0);
             }
         } else {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             if (fieldResource->loadWork != NULL) {
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 H_Cdvd_Destroy((u8 *)((FldResourceLoadWork *)fieldResource->loadWork)->directory);
                 jtbl_008873EC[0](((FldResource *)resource)->loadWork);
             }
@@ -1463,7 +1320,6 @@ void FldResource_ParseChunks(u8 *resource)
 }
 
 /* Install completed chunk readers and return one after every pending reader is consumed. */
-/* Earlier whole-layout probe: 1240/1216 bytes. The retained byte-alias resource loads are individually measured below. */
 // FUN_001510C0
 s32 FldResource_PollLoads(u8 *resource)
 {
@@ -1478,20 +1334,15 @@ s32 FldResource_PollLoads(u8 *resource)
     u32 clumpIndex;
 
     pendingCount = 0;
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
     if (fieldResource->loadWork == NULL) {
         return 1;
     }
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
     if (((FldResourceLoadWork *)fieldResource->loadWork)->textureReader != 0) {
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
         if (((FldResourceLoadWork *)fieldResource->loadWork)->textureNames != 0) {
             kAssertFail((const char *)D_005EFC80, 0x56C);
         }
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
         dictionary = (s32)filerTakeCompletedRequest(((FldResourceLoadWork *)fieldResource->loadWork)->textureReader, &status, &stream);
         if (status == 1) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             func_003ef260((const struct RwTexDictionary *)(u32)dictionary, K_Clump_AppendTextureName, fieldResource->loadWork + 0x128);
             func_003ef1b0(dictionary);
             ((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->textureReader = 0;
@@ -1502,11 +1353,8 @@ s32 FldResource_PollLoads(u8 *resource)
             pendingCount += 1;
         }
     }
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
     for (worldIndex = 0; worldIndex < ((FldResourceLoadWork *)fieldResource->loadWork)->worldCount; worldIndex++) {
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
         if (((FldResourceLoadWork *)(fieldResource->loadWork + worldIndex * 4))->worldReaders[0] != 0) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             world = filerTakeCompletedRequest(((FldResourceLoadWork *)(fieldResource->loadWork + worldIndex * 4))->worldReaders[0], &status, &stream);
             if (status == 1) {
                 if (world == NULL) {
@@ -1516,7 +1364,6 @@ s32 FldResource_PollLoads(u8 *resource)
                     ((FldResource *)resource)->alternateObject = (s32)world;
                 } else if (K_Clump_GeometryHasMatUsrData(world, D_005EFD00) != 0) {
                     ((FldResource *)resource)->secondaryObject = (s32)world;
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 } else if (fieldResource->primaryDrawObject == 0) {
                     ((FldResource *)resource)->primaryDrawObject = (s32)world;
                     func_003db550(world, (void *)(u32)kwlnGetCamera());
@@ -1533,11 +1380,8 @@ s32 FldResource_PollLoads(u8 *resource)
             }
         }
     }
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
     for (clumpIndex = 0; clumpIndex < ((FldResourceLoadWork *)fieldResource->loadWork)->clumpCount; clumpIndex++) {
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
         if (((FldResourceLoadWork *)(fieldResource->loadWork + clumpIndex * 4))->clumpReaders[0] != 0) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             clump = filerTakeCompletedRequest(((FldResourceLoadWork *)(fieldResource->loadWork + clumpIndex * 4))->clumpReaders[0], &status, &stream);
             if (status == 1) {
                 if (clump == NULL) {
@@ -1547,14 +1391,11 @@ s32 FldResource_PollLoads(u8 *resource)
                     ((FldResource *)resource)->alternateObject = (s32)clump;
                 } else if (K_Clump_ClumpHasMatUsrData(clump, D_005EFD00) != 0) {
                     ((FldResource *)resource)->secondaryObject = (s32)clump;
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 } else if (!(((FldResource *)resource)->flags & 1) && fieldResource->primaryObject == 0) {
                     ((FldResource *)resource)->primaryObject = (s32)clump;
                     ((FldResource *)resource)->primaryDrawObjectPtr = sdkClumpCreateBuckets(clump);
                 } else {
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     ((FldResource *)(resource + (s32)(fieldResource->clumpCount) * 4))->clumps[0] = (s32)clump;
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     ((FldResource *)(resource + (s32)(fieldResource->clumpCount) * 4))->drawObjectPointers[0] = sdkClumpCreateBuckets(clump);
                     ((FldResource *)resource)->clumpCount = (s32)((FldResource *)resource)->clumpCount + 1;
                 }
@@ -1567,7 +1408,6 @@ s32 FldResource_PollLoads(u8 *resource)
             }
         }
     }
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
     if (((FldResourceLoadWork *)fieldResource->loadWork)->animationReader != 0) {
         fieldResource->animation = (s32)filerTakeCompletedRequest(((FldResourceLoadWork *)fieldResource->loadWork)->animationReader, &status, &stream);
         if (status == 1) {
@@ -1583,7 +1423,6 @@ s32 FldResource_PollLoads(u8 *resource)
         }
     }
     if (pendingCount == 0) {
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
         if (fieldResource->primaryObject == 0) {
             ((FldResource *)resource)->flags = ((FldResource *)resource)->flags | 0x10000000;
             ((FldResource *)resource)->primaryObject = ((FldResource *)resource)->primaryDrawObject;
@@ -1621,15 +1460,12 @@ s32 FldResource_FindFrameForId(u8 *resource, s32 entryId, s32 *flagsOut)
     for (clumpIndex = 0; clumpIndex < ((FldResource *)resource)->clumpCount; clumpIndex++) {
         clumpCursor = resource + clumpIndex * 4;
         clumpResource = (FldResource *)clumpCursor;
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
         propertyCount = K_Clump_CountIntUsrData((void *)(clumpResource->clumps[0]), (const char *)D_005EFD20);
         for (propertyIndex = 0; propertyIndex < propertyCount; propertyIndex++) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             K_Clump_GetIntUsrDataAt(&idProperty, (void *)(clumpResource->clumps[0]), (const char *)D_005EFD40, propertyIndex);
             if (idProperty.value == 0) {
                 kAssertFail((const char *)D_005EFC80, 0x622);
             }
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             K_Clump_GetIntUsrDataAt(&kindProperty, (void *)(clumpResource->clumps[0]), (const char *)D_005EFD20, propertyIndex);
             K_Clump_GetIntUsrDataAt(&flagsProperty, (void *)((FldResource *)clumpCursor)->clumps[0], (const char *)D_005EFD60, propertyIndex);
             if (flagsProperty.value != 0) {
@@ -1648,7 +1484,6 @@ out:
 }
 
 /* Read clump user properties and request the model/effect assets for each entry. */
-/* Earlier whole-layout probe: 1416/1392 bytes. Only the marked clump/count reads use retained pointers or MEMBER. */
 // FUN_00151710
 void FldResource_RequestEntryLoads(u8 *resource)
 {
@@ -1676,27 +1511,20 @@ void FldResource_RequestEntryLoads(u8 *resource)
     for (clumpIndex = 0; clumpIndex < ((FldResource *)resource)->clumpCount; clumpIndex++) {
         clumpCursor = resource + clumpIndex * 4;
         clumpResource = (FldResource *)clumpCursor;
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
         propertyCount = K_Clump_CountIntUsrData((void *)(clumpResource->clumps[0]), (const char *)D_005EFD20);
         for (propertyIndex = 0; propertyIndex < propertyCount; propertyIndex++) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             K_Clump_GetIntUsrDataAt(&assetProperty, (void *)(clumpResource->clumps[0]), (const char *)D_005EFD80, propertyIndex);
             if (assetProperty.value != 0) {
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 K_Clump_GetIntUsrDataAt(&idProperty, (void *)(clumpResource->clumps[0]), (const char *)D_005EFD40, propertyIndex);
                 if (idProperty.value == 0) {
                     kAssertFail((const char *)D_005EFC80, 0x65A);
                 }
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 ((FldResource *)(resource + fieldResource->entryCount * 0x18))->entries[0].id = (u16)idProperty.value;
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 K_Clump_GetIntUsrDataAt(&hiddenProperty, (void *)(clumpResource->clumps[0]), (const char *)D_005EFD60, propertyIndex);
                 if (hiddenProperty.value != 0) {
                     ((FldResource *)(resource + ((FldResource *)resource)->entryCount * 0x18))->entries[0].flags = 2;
                 }
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 K_Clump_GetIntUsrDataAt(&kindProperty, (void *)(clumpResource->clumps[0]), (const char *)D_005EFD20, propertyIndex);
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 ((FldResource *)(resource + fieldResource->entryCount * 0x18))->entries[0].type = (u16)kindProperty.value;
                 if (kindProperty.value == 0) {
                     if (iGpffffb204 == 0) {
@@ -1723,7 +1551,6 @@ void FldResource_RequestEntryLoads(u8 *resource)
                         sprintf(effectSuffix, D_005EFDD8, assetProperty.value);
                         strcat(effectPath, effectSuffix);
                         func_00440b68((const char *)&iGpffff9df0, (const char *)D_005EFC80, 0x6A1);
-                        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                         ((FldResource *)(resource + fieldResource->entryCount * 0x18))->entries[0].file = H_Cdvd_AcquireDirectory(effectPath, 0);
                         if (((FldResource *)(resource + ((FldResource *)resource)->entryCount * 0x18))->entries[0].file == 0) {
                             kAssertFail((const char *)D_005EFC80, 0x6A2);
@@ -1754,7 +1581,6 @@ void FldResource_RequestEntryLoads(u8 *resource)
 }
 
 /* Wait for every entry, apply model placements, create effects and release temporary load state. */
-/* Earlier whole-layout probe: 776/768 bytes. Only marked count/effect/load-state reads use retained pointers or MEMBER. */
 // FUN_00151C80
 s32 FldResource_TryInstallEntries(u8 *resource)
 {
@@ -1762,7 +1588,6 @@ s32 FldResource_TryInstallEntries(u8 *resource)
     u32 checkIndex;
     u32 installIndex;
 
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
     for (checkIndex = 0; checkIndex < fieldResource->entryCount; checkIndex++) {
         if (((FldResource *)resource)->entries[checkIndex].type == 0 || ((FldResource *)resource)->entries[checkIndex].type == 2) {
             if ((u32)((FldResource *)resource)->entries[checkIndex].model == 0) {
@@ -1789,30 +1614,25 @@ s32 FldResource_TryInstallEntries(u8 *resource)
             if (iGpffffb204 == 0) {
                 if (((FldResource *)resource)->entries[installIndex].filePtr != NULL) {
                     MEMBER(s32, resource + installIndex * 0x18, FldResource, entries[0].effect) = mdlEffectCreateFromResource((u32)((HCdvdRequest *)(((FldResource *)resource)->entries[installIndex].filePtr))->data);
-                    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                     mdlEffectSetChildPositionVec(MEMBER(void *, resource + installIndex * 0x18, FldResource, entries[0].effect), (f32 *)((u8 *)func_003e9700((RwFrame *)((FldResource *)resource)->entries[installIndex].frame) + 0x30));
                     H_Cdvd_Destroy(((FldResource *)resource)->entries[installIndex].filePtr);
                     ((FldResource *)resource)->entries[installIndex].filePtr = NULL;
                 }
             } else if (((FldResource *)resource)->entries[installIndex].filePtr != NULL) {
                 MEMBER(s32, resource + installIndex * 0x18, FldResource, entries[0].effect) = mdlEffectCreateFromResource((s32)(u8 *)((FldResource *)resource)->entries[installIndex].file);
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 mdlEffectSetChildPositionVec(MEMBER(void *, resource + installIndex * 0x18, FldResource, entries[0].effect), (f32 *)((u8 *)func_003e9700((RwFrame *)((FldResource *)resource)->entries[installIndex].frame) + 0x30));
                 ((FldResource *)resource)->entries[installIndex].filePtr = NULL;
             }
         }
     }
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
     if (fieldResource->loadWork != NULL) {
         if (((FldResource *)resource)->majorId >= 0x28 && ((FldResource *)resource)->majorId < 0x31) {
             if ((u32)((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->textureNames != 0) {
                 ((FldResourceWork *)iGpffff9db0)->textureNames = (u32)((FldResourceLoadWork *)((FldResource *)resource)->loadWork)->textureNames;
             }
         } else {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             K_Clump_FreeTextureNameList((u8 *)((FldResourceLoadWork *)fieldResource->loadWork)->textureNames);
         }
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
         jtbl_008873EC[0](fieldResource->loadWork);
         ((FldResource *)resource)->loadWork = NULL;
     }
@@ -1878,11 +1698,8 @@ void FldResource_Destroy(u8 *resource)
     jtbl_008873EC[0](resource);
 }
 
-/* The draw-state table has two address lifetimes: one at the initial call,
- * and one shared by the final render-state sequence. The context is passed
- * in the callback's second argument. Saved Vec4 values are light colors. */
-/* Save light colors/transform, move the camera/lights to the selected world and set draw state. */
-/* Only measured world-pointer reads use retained pointers or MEMBER; the saved matrix still copies eight 8-byte scalar pairs. */
+/* Saves light colors and transform, moves the camera and lights to the selected world, and sets
+ * draw state. The context arrives in the callback's second argument. */
 // FUN_00152170
 void FldResource_BeginDrawState(u8 *command, u8 *resource)
 {
@@ -1949,20 +1766,15 @@ void FldResource_BeginDrawState(u8 *command, u8 *resource)
         func_003cbf30((RpWorld *)(u32)K_Clump_GetWorld(), (RpLight *)(u32)K_Clump_GetLightB());
         flags = (s32)((FldResource *)resource)->flags;
         if (flags & 0x80000000) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             func_003cbe80((RpWorld *)(fieldResource->primaryDrawObject), (RpLight *)(u32)K_Clump_GetLightA());
             func_003cbe80((RpWorld *)((FldResource *)resource)->primaryDrawObject, (RpLight *)(u32)K_Clump_GetLightB());
         } else if (flags & 0x40000000) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             func_003cbe80((RpWorld *)(fieldResource->alternateObject), (RpLight *)(u32)K_Clump_GetLightA());
             func_003cbe80((RpWorld *)((FldResource *)resource)->alternateObject, (RpLight *)(u32)K_Clump_GetLightB());
         } else if ((flags & 0x20000000) && (((FldResource *)resource)->secondaryObject != 0)) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             func_003cbe80((RpWorld *)(fieldResource->secondaryObject), (RpLight *)(u32)K_Clump_GetLightA());
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             func_003cbe80((RpWorld *)(fieldResource->secondaryObject), (RpLight *)(u32)K_Clump_GetLightB());
         } else {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             func_003cbe80((RpWorld *)(fieldResource->primaryObject), (RpLight *)(u32)K_Clump_GetLightA());
             func_003cbe80((RpWorld *)((FldResource *)resource)->primaryObject, (RpLight *)(u32)K_Clump_GetLightB());
         }
@@ -1985,7 +1797,6 @@ void FldResource_BeginDrawState(u8 *command, u8 *resource)
 }
 
 /* Restore the global world camera/lights and the light state saved by BeginDrawState. */
-/* Earlier whole-layout probe: 784/768 bytes. Only the marked secondary-world read remains raw. */
 // FUN_00152630
 void FldResource_EndDrawState(u8 *command, u8 *resource)
 {
@@ -1999,20 +1810,15 @@ void FldResource_EndDrawState(u8 *command, u8 *resource)
     func_003e8110((u32)camera);
     if (((FldResource *)resource)->flags & 1) {
         if (((FldResource *)resource)->flags & 0x80000000) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             func_003cbf30((RpWorld *)(u32)fieldResource->primaryDrawObject, (RpLight *)(u32)K_Clump_GetLightA());
             func_003cbf30((RpWorld *)(u32)((FldResource *)resource)->primaryDrawObject, (RpLight *)(u32)K_Clump_GetLightB());
         } else if (((FldResource *)resource)->flags & 0x40000000) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             func_003cbf30((RpWorld *)(u32)fieldResource->alternateObject, (RpLight *)(u32)K_Clump_GetLightA());
             func_003cbf30((RpWorld *)(u32)((FldResource *)resource)->alternateObject, (RpLight *)(u32)K_Clump_GetLightB());
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
         } else if ((((FldResource *)resource)->flags & 0x20000000) && fieldResource->secondaryObject != 0) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             func_003cbf30((RpWorld *)(u32)fieldResource->secondaryObject, (RpLight *)(u32)K_Clump_GetLightA());
             func_003cbf30((RpWorld *)(u32)((FldResource *)resource)->secondaryObject, (RpLight *)(u32)K_Clump_GetLightB());
         } else {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             func_003cbf30((RpWorld *)(u32)fieldResource->primaryObject, (RpLight *)(u32)K_Clump_GetLightA());
             func_003cbf30((RpWorld *)(u32)((FldResource *)resource)->primaryObject, (RpLight *)(u32)K_Clump_GetLightB());
         }
@@ -2036,7 +1842,6 @@ void FldResource_EndDrawState(u8 *command, u8 *resource)
     }
     func_003c38b0((RpLight *)(u32)K_Clump_GetLightA(), (const RwRGBAReal *)(resource + 0xA50));
     func_003c38b0((RpLight *)(u32)K_Clump_GetLightB(), (const RwRGBAReal *)(resource + 0xA60));
-    /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
     func_003e9cb0((RwFrame *)(u32)(s32)(((struct RpLight *)(u8 *)(u32)K_Clump_GetLightB())->object.parent),
                   (const RwMatrix *)(resource + 0xA70), rwCOMBINEREPLACE);
     ((struct RpLight *)(u8 *)(u32)K_Clump_GetLightB())->object.flags = 3;
@@ -2045,7 +1850,6 @@ void FldResource_EndDrawState(u8 *command, u8 *resource)
 }
 
 /* Queue selected world/clumps and bracket their drawing with light-state callbacks. */
-/* Earlier whole-layout probe: 644/640 bytes. Commands are typed; only the marked clump-count read remains raw. */
 // FUN_00152930
 void FldResource_QueueDrawCallbacks(u8 *list, u8 *resource)
 {
@@ -2098,14 +1902,10 @@ void FldResource_QueueDrawCallbacks(u8 *list, u8 *resource)
         }
     }
     if (!(((FldResource *)resource)->flags & 0xC0000000)) {
-        /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
         for (i = 0; i < fieldResource->clumpCount; i++) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             if (((FldResource *)resource)->drawObjects[i] != 0) {
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 clumpCommand = sdkOtQueueClump(list, ((FldResource *)resource)->drawObjects[i]);
             } else {
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 clumpCommand = PrimQueueSkyStateEnter(list, ((FldResource *)resource)->clumps[i]);
             }
             if (clumpCommand != NULL && i == 0) {
@@ -2143,9 +1943,7 @@ void FldResource_QueueDrawCallbacksPrimary(u8 *list, u8 *resource)
     }
     if (!(((FldResource *)resource)->flags & 0xC0000000)) {
         for (i = 0; i < ((FldResource *)resource)->clumpCount; i++) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             if ((u8 *)(((FldResource *)resource)->drawObjects[i]) != NULL) {
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 clumpCommand = sdkOtQueueClumpPrimaryPass(list, ((FldResource *)resource)->drawObjects[i]);
                 if (clumpCommand != NULL && i == 0) {
                     ((PrimQueueDrawNode *)clumpCommand)->begin.callback = (void (*)(void))FldResource_BeginDrawState;
@@ -2191,9 +1989,7 @@ void FldResource_QueueDrawCallbacksSecondary(u8 *list, u8 *resource)
     }
     if (!(((FldResource *)resource)->flags & 0xC0000000)) {
         for (i = 0; i < ((FldResource *)resource)->clumpCount; i++) {
-            /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
             if ((u8 *)(((FldResource *)resource)->drawObjects[i]) != NULL) {
-                /* measured: typing this remaining site changes b210 instruction bytes (owner loses MATCH). */
                 clumpCommand = sdkOtQueueClumpSecondaryPass(list, ((FldResource *)resource)->drawObjects[i]);
                 if (clumpCommand != NULL && i == 0) {
                     ((PrimQueueDrawNode *)clumpCommand)->begin.callback = (void (*)(void))FldResource_BeginDrawState;
@@ -2206,15 +2002,13 @@ void FldResource_QueueDrawCallbacksSecondary(u8 *list, u8 *resource)
     }
 }
 
-/* Measured: 1188 bytes and 27 resolved relocations; twelve zero tail bytes.
- * Real twelve-byte vectors/tolerances occupy quadword-aligned stack slots.
- * The packed axis view preserves the independent eight- and four-byte loads;
- * resource pointers, loop bounds and the post-rotate frame remain reloads. */
+/* Twelve-byte vectors and tolerances sit in quadword-aligned stack slots; resource pointers, loop
+ * bounds and the post-rotate frame are reloaded. */
 #pragma push
-/* Translate clump frames and models; rotate effect positions about the supplied angle first. */
-/* Typed matrix bit members preserve integer initialization in the measured scalar-copy body. */
+/* Translate clump frames and models; rotate effect positions about the supplied angle first. Typed
+ * matrix bit members keep the matrix initialization as integer stores. */
 // FUN_00152E50
-/* measured: baseline 80 differing words; block lifetimes did not match; retain scoped settings. */
+/* measured: retail's block lifetimes need copy propagation disabled for this function. */
 #pragma opt_propagation off
 void FldResource_TransformFrames(u8 *resource, u8 *translation, f32 angle)
 {
@@ -2350,7 +2144,8 @@ void FldResource_TransformFrames(u8 *resource, u8 *translation, f32 angle)
 }
 #pragma pop
 
-/* measured: opt_propagation off preserves the named scalar global loads; this scalar pair copy suppresses aggregate ld/sd traffic. */
+/* measured: propagation off keeps the named scalar global loads; the scalar pair copy avoids
+ * aggregate 64-bit load/store traffic. */
 #pragma push
 #define COPY_SCALAR_PAIR(dst, src) \
 do { \
@@ -2364,7 +2159,8 @@ do { \
 /* Rotate clump frames, entry models and effect Euler angles about the stored axis. */
 /* Typed frame/entry fields preserve the packed-axis scalar loads and pointer/handle aliases. */
 // FUN_00153300
-/* measured: baseline 3 differing words; block lifetimes, load snapshots did not match; retain scoped settings. */
+/* measured: retail's block lifetimes and load order need copy propagation disabled for this
+ * function. */
 #pragma opt_propagation off
 void FldResource_AdvanceAnimations(s8 *resource, f32 angle)
 {
@@ -2438,18 +2234,12 @@ testEntry:
         goto rotateEntry;
     }
 }
-/* measured: restore propagation after FldResource_AdvanceAnimations. */
 #pragma pop
 
 extern void FldResource_TransformFrames(u8 *resource, u8 *translation, f32 angle);
 
-/* measured: MWCCPS2 b210 -O2, 792B/window 800B, 17 relocations,
- * eight zero alignment bytes. Ghidra identifies the unsigned angle
- * conversion; IDA identifies the three-pair copy of each 24-byte entry.
- * The arrays end at the measured count/scale fields, not at the allocation
- * boundary: the original allocation remains 0xAB0 bytes. */
-/* Clone non-world resources and apply an unsigned number of quarter turns plus translation. */
-/* Typed clone cursors preserve the measured three-pair 24-byte entry copies and word-backed pointer aliases. */
+/* Clone a non-world resource, rotate it by an unsigned number of quarter turns and translate it.
+ * Each 24-byte entry is copied as three pairs; the allocation stays 0xAB0 bytes. */
 // FUN_001534A0
 FldResource *FldResource_CloneRotated(FldResource *src, void *translation, u32 quarterTurns)
 {

@@ -1,5 +1,4 @@
 #include "resrc_manager_internal.h"
-/* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/Kosaka/k_command_inferred_00175f70.c); members 0015f600-0015f660 */
 
 #include "mt_scene_internal.h"
 #include "field_transition_internal.h"
@@ -19,9 +18,10 @@ extern s32 mdlPrepareModel(s32 model);
 #include "Kosaka/k_fldFrame_internal.h"
 #include "scene_event_internal.h"
 #pragma push
-/* measured: baseline removal differs in 15 bytes; early-return list predicate; typed resource cursor also differ. */
+/* measured: retail hoists loop invariants in this list scan; the default setting produces different
+ * code. */
 #pragma opt_loop_invariants on
-// Intent: Return 1 when every resource in list 3 has its flag 0x10000000 set, otherwise 0 [inferred]
+// Return 1 when every resource in list 3 has flag 0x10000000 set, otherwise 0.
 // FUN_0015F600
 s32 MT_Scene_AllResFlagSet(void)
 {
@@ -41,8 +41,8 @@ s32 MT_Scene_AllResFlagSet(void)
 }
 #pragma pop
 
-// Intent: Prepare each model in scene resource list 3 that is not yet prepared and mark it prepared; returns 1 only when every model is ready [inferred]
-/* A typed alias for the prepared-flag store preserves the byte cursor's model-load lifetime. */
+// Prepares each unprepared model in scene resource list 3 and marks it prepared; returns 1 only
+// when every model is ready.
 // FUN_0015F660
 s32 mtSceneResListPrepareAll(void)
 {

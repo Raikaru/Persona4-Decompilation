@@ -2,7 +2,6 @@
 #include "operand_order_internal.h"
 #include "member_access.h"
 #include "mdl_file_internal.h"
-/* Source unit: src/Graphics/Model/mdlFile_00230bc0.c (1 function markers) */
 #include "type.h"
 
 #define MODEL_TYPE_BTLCHAR 1
@@ -20,10 +19,8 @@ extern u8 DAT_00713200_abs[];
 extern u64 K_ClumpMatColorStore();
 
 
-/* W409 measured: P3 donor carried NONMATCHING 204/224 nd74 -> MATCH 216/224 nd0 annotation; ported verbatim. */
 extern u32 DAT_00922c30;
 extern u8 DAT_00922c30_abs[];
-
 
 
 /* Return whether the narrowed model type uses PAC resources; the ID is not consulted. */
@@ -40,7 +37,6 @@ s32 mdlFileIsTypePac(u32 type, u16 id)
 }
 
 
-
 /* Releases one reference on a shared wrapper: frees the handle at +4, decrements the object's count at +4 (freeing the object at zero) and frees the wrapper. */
 // FUN_0047DCC0
 void mdlReleaseSharedWrapper(int *wrapper)
@@ -54,8 +50,6 @@ void mdlReleaseSharedWrapper(int *wrapper)
     }
     ((void (*)())DAT_008873ec_abs[0])(wrapper);
 }
-
-
 
 
 extern void (*iGpffffbb3c)();
@@ -75,8 +69,7 @@ typedef struct Code47Vec4 {
 extern Code47Vec4 D_00922C40;
 /* Refresh the attached secondary effect when its handle is present; the owning model argument is unused. */
 // FUN_0047DD40
-/* All three retail callers pass the owning model in a1 (00476808,
-   00476BB0, 00478CC4); this secondary-effect updater does not read it. */
+/* All three retail callers pass the owning model, but this updater does not read it. */
 void mdlRefreshSecondaryEffect(u8 *attachment, void *model)
 {
     u8 *effect;
@@ -133,20 +126,16 @@ void mdlSetWrapperValue(int wrapper,u64 value)
 }
 
 
-
 /* Releases the handle at +4 of the wrapper and clears it to zero. */
 // FUN_0047DE50
 void mdlClearWrapperHandle(int wrapper)
 {
-  /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
   if (MEMBER(int, wrapper, MdlFileAttachment, handle) != 0) {
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     Vpad_Activate(MEMBER(int, wrapper, MdlFileAttachment, handle));
     ((MdlFileAttachment *)wrapper)->handle = 0;
   }
   return;
 }
-
 
 
 /* Samples a scalar track at fparg0 by linear interpolation between the surrounding keys, clamped to the last key. Writes the value to fGpffffbb4c and returns &fGpffffbb48, which holds the time. */
@@ -221,19 +210,8 @@ void mdlApplyMaterialColorRow(void *row,void *material)
 }
 
 
-
-
-
-
-
-/* measured: mdlSampleVec4Track remains 300B in a 304B retail window with
- * only one retail zero-tail word. Keeping the exact helper static in this
- * code1 TU exposes its real register clobbers to MWCC, so mdlBlendVec4Tracks
- * retains $t1/$f13/$f14 across both calls. The pointer-first source signature
- * preserves the independent integer/float ABI while ordering the second
- * call's $a0 setup before $f12; mdlBlendVec4Tracks is 216B in a 224B window with
- * only two retail zero-tail words. */
-/* Samples the Vec4 track table at t: binary search over the key times, interpolates the four components into DAT_00922c30, and returns that buffer with t in its first word. */
+/* measured: the helper stays static in this file so the caller sees its real register use and keeps
+ * values live across both calls; the pointer-first signature fixes argument setup order. */
 // FUN_0047F3A0
 static u32 *mdlSampleVec4Track(int *table, float t)
 {
@@ -290,7 +268,7 @@ static u32 *mdlSampleVec4Track(int *table, float t)
 }
 
 
-/* Samples two Vec4 tracks at fparg0 and fparg1 and linearly blends their y, z and w components by fparg2 into D_00922C40. */
+/* Samples two Vec4 tracks at their times and linearly blends y, z and w by weight into D_00922C40. */
 // FUN_0047F4D0
 void *mdlBlendVec4Tracks(u8 *leftTrack, f32 leftTime, u8 *rightTrack, f32 rightTime,
                    f32 weight)
@@ -307,7 +285,8 @@ void *mdlBlendVec4Tracks(u8 *leftTrack, f32 leftTime, u8 *rightTrack, f32 rightT
 }
 
 
-/* Samples the Vec4 leftTrack leftTrack at leftTime, then blends its three components toward the byte colour in rightTrack (bytes 0..2 divided by 255) by rightTime. Returns the sampled buffer. */
+/* Samples the Vec4 track at time, then blends its three components toward the byte colour (bytes
+ * 0..2 divided by 255) by weight. Returns the sampled buffer. */
 // FUN_0047F5B0
 void *mdlBlendTrackColorBytes(u8 *track, f32 time, u8 *color, f32 weight)
 {
@@ -341,7 +320,7 @@ void *mdlBlendTrackColorBytes(u8 *track, f32 time, u8 *color, f32 weight)
 }
 
 
-/* Converts the float RGB components of track (words 1..3) to bytes at color + 4. */
+/* Converts the float RGB components of sample (words 1..3) to bytes at material + 4. */
 // FUN_0047F710
 void mdlStoreColorBytes(void *sample, void *material)
 {
@@ -354,9 +333,8 @@ void mdlStoreColorBytes(void *sample, void *material)
 }
 
 
-/* 64/64 bytes; two resolved relocations. Pass the released object explicitly
- * rather than relying on an incidental live argument register. */
-/* Drops one u16 reference at +8 and frees the object at zero. */
+/* Drops one u16 reference and frees the object at zero, passing the object to the free callback
+ * explicitly. */
 // FUN_004808B0
 void mdlReleaseU16Ref(int wrapper)
 {
@@ -368,7 +346,6 @@ void mdlReleaseU16Ref(int wrapper)
 }
 
 
-
 /* Adds one u16 reference at +8 and returns the object. */
 // FUN_004808F0
 u32 mdlRetainU16Ref(int wrapper)
@@ -378,7 +355,6 @@ u32 mdlRetainU16Ref(int wrapper)
   return wrapper;
 
 }
-
 
 
 /* Appends one u32 to the table at *wrapper: stores it at the index given by the u16 count at +4, then increments the count. */

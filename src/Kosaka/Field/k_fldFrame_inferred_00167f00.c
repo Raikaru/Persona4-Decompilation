@@ -45,9 +45,7 @@ typedef struct FldTaskStorage {
 } FldTaskStorage;
 
 
-/* Actor table stride is 0x750; the movement callback wraps the history at 64.
- * Shifted byte cursors select valid[index], position[index], and forward[index]
- * through the corresponding zero-index member when alias-sensitive. */
+/* Actor table stride is 0x750; the movement callback wraps the history at 64. */
 typedef struct FldActorHistory {
     u8 pad00[0x48];
     s32 active;
@@ -164,8 +162,6 @@ extern s32 FldFrame_RaycastFieldWorlds(RwV3d *origin, RwV3d *vector, f32 fractio
 extern void FldAmbientTrigger(s32 model, u16 mode, u16 id);
 
 
-
-
 extern f32 iGpffff8094;
 
 extern s32 RwEngineGetMatrixTolerances(RwV3d *task);
@@ -176,36 +172,7 @@ extern void RwMatrixUpdate(u8 *task);
 typedef signed __int128 s128;
 
 
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0016; members 00167f00-00168ec0 */
-
-/* Build a 7-by-8 grid of 80-by-64 quads, snapshotting depth before any stores.
-   measured: natural vertex assignment order, invariant hoisting and disabled
-   propagation preserve retail's coordinate preparation and float registers.
-   Object 252B/window 256B; exact instructions and a four-byte zero tail. */
-/* measured: restore propagation and invariant baselines after the exact grid. */
-/* measured: closing the single-function address-hoist bracket. */
-/* measured: opt_propagation off preserves the render-state table base across calls. */
-/* measured: closes the function-scoped opt_propagation probe. */
-/* Matched full 759-instruction retail body.  The state accessor preserves the
- * read before the row-offset calculations across the branch join. */
-/* measured: opt_propagation off probe for retail field-load order in FldEnemyLoadTable */
-/* measured: opt_propagation on closes the FldEnemyLoadTable load-order probe */
-/* measured: opt_propagation off preserves the retail recomputed index and live register set in FldPartyModelRelease. */
-/* measured: closes the opt_propagation bracket for FldPartyModelRelease. */
-/* measured: direct global address expressions preserve retail bases while
-   opt_loop_invariants hoists the stride (nd 14 -> 0). */
-/* measured: direct global address expression preserves retail base/stride
-   register assignment while loop invariants hoist the stride (nd 0). */
-/* measured: closes the loop-invariant scope at the file baseline. */
-/* measured: direct global address expression preserves retail base/stride
-   register assignment while loop invariants hoist the stride (nd 0). */
-/* measured: closes the loop-invariant scope at the file baseline. */
-/* measured: optimization_level 1 reproduces FldDayEventActive's register coloring. */
-/* measured: restore baseline optimization level after FldDayEventActive. */
 /* Resolve the follower model lazily, then copy the owner position for type-3 resources. */
-/* Byte-base fallbacks retain the measured payload/matrix aliasing;
- * proven layouts are documented above. */
 // FUN_00167F00
 s32 FldFrameTask_UpdateFollower(u8 *task)
 {
@@ -259,8 +226,6 @@ void FldFrameTask_DestroyFollower(u8 *task)
 }
 
 /* Apply movement in three collision-tested steps and sample the actor history every five ticks. */
-/* Byte-base fallbacks retain the measured payload/matrix aliasing;
- * proven layouts are documented above. */
 // FUN_00168060
 s32 FldFrameTask_Update(u8 *task)
 {
@@ -385,17 +350,18 @@ void FldFrameTask_Destroy(u8 *task)
     (*DAT_008873EC)(((FldTaskStorage *)task)->data);
 }
 
-/* Allocate movement/follower tasks; raw actor-table aliases retain the measured stride/base expression order. */
+/* Allocate movement/follower tasks; raw actor-table accesses keep retail's stride/base expression
+ * order. */
 // FUN_001684A0
-/* measured: opt_loop_invariants hoists the two resource-table strides and
-   their absolute bases for FldFrameTask_Spawn. */
-/* measured: FldFrameTask_Spawn MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists the two resource-table strides and their absolute bases out of the loops
+ * in FldFrameTask_Spawn. */
 #pragma push
-/* measured: baseline 24 differing words; block lifetimes, pointer/index loops did not match; retain scoped settings. */
+/* measured: retail hoists loop invariants in FldFrameTask_Spawn, so the setting is scoped to this
+ * function. */
 #pragma opt_loop_invariants on
 s32 FldFrameTask_Spawn(s32 parentTask, s32 resourceKey, f32 height)
 {
-    /* Named ABI/table accesses retain the measured byte-address expression order. */
+    /* Table accesses use byte addresses to keep retail's address expression order. */
     s32 taskHandle;
     s32 partyOffset;
     s32 enemyOffset;
@@ -470,8 +436,7 @@ s32 FldFrameTask_Spawn(s32 parentTask, s32 resourceKey, f32 height)
 }
 #pragma pop
 
-/* measured: closes the opt_loop_invariants scope for FldFrameTask_Spawn. */
-/* measured: FldFrameTask_GetPosition, FldFrameTask_SetOrientation, FldFrameTask_StartMove MATCH -> MISMATCH without this pragma. */
+/* OR the given bits into the frame task's movement flags. */
 // FUN_00168730
 void FldFrameTask_SetFlags(u8 *task, s32 flags)
 {
@@ -523,7 +488,7 @@ s32 FldFrameTask_GetTileZ(u8 *task)
 // FUN_001687F0
 void FldFrameTask_GetPosition(u8 *destination, u8 *task)
 {
-    /* Named ABI/table accesses retain the measured byte-address expression order. */
+    /* Table accesses use byte addresses to keep retail's address expression order. */
     RwV3d position;
     u8 *clearCursor;
     s32 clearRemaining;
@@ -549,11 +514,11 @@ void FldFrameTask_GetPosition(u8 *destination, u8 *task)
     *(RwV3d *)destination = position;
 }
 
-/* Replace orientation while retaining position and actor scale; scale-table aliases retain their original byte addressing. */
+/* Replace orientation while retaining position and actor scale. */
 // FUN_00168890
 void FldFrameTask_SetOrientation(u8 *task, u8 *orientation)
 {
-    /* Byte-base fallbacks retain the measured payload/matrix aliasing. */
+    /* Byte-base accesses keep retail's payload/matrix aliasing. */
     RwV3d savedPosition;
     RwV3d zeroPosition;
     RwV3d initialTolerance;
@@ -620,7 +585,6 @@ void FldFrameTask_SetOrientation(u8 *task, u8 *orientation)
 // FUN_00168AE0
 void FldFrameTask_SetPosition(u8 *task, u8 *position)
 {
-    /* Byte-base fallbacks retain the measured payload/matrix aliasing. */
     RwV3d tolerance;
     s32 model;
     u8 *work;
@@ -649,7 +613,6 @@ void FldFrameTask_SetPosition(u8 *task, u8 *position)
     }
 }
 
-/* Byte-base fallbacks retain the measured payload/matrix aliasing. */
 /* Refresh the cached 1200-unit field-cell coordinates from the model's current world position. */
 // FUN_00168C00
 void FldFrameTask_UpdateTile(u8 *task) {
@@ -704,8 +667,8 @@ void FldFrameTask_StartMove(u8 *task, f32 distance)
     }
 }
 
-/* Rotate around the model origin, retaining world position. */
-/* Byte-base fallbacks retain the measured payload/matrix aliasing. */
+/* Rotate around the model origin, retaining world position. Byte-base pointer access keeps the
+ * payload and matrix aliasing used by retail. */
 // FUN_00168DE0
 void FldFrameTask_Rotate(u8 *task, const void *axis, f32 angle) {
     RwV3d position;
@@ -738,7 +701,6 @@ s32 K_FldFrame_IsPointInTriangle(f32 *point, f32 **vertices, f32 *normal)
     s32 axis;
     s32 previous;
     s32 result;
-
 
 
     result = 0;

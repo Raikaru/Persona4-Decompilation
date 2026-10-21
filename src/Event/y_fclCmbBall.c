@@ -5,7 +5,7 @@
 #include "sdk_task_registration.h"
 extern s32 fclCmbBallSlotsUpdate(u8 *task);
 extern void fclCmbBallSlotsDestroy(u8 *task);
-/* Original translation unit y_fclCmbBall.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit y_fclCmbBall.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdktask.h"
 
@@ -25,7 +25,6 @@ extern void (*D_00887300[])(u32, u32);
 extern s32 kwlnGetCamera(void);
 extern s32 fclCombineGetTexture(void);
 extern void RpSkyRenderStateSet(s32, s32);
-
 
 
 /* PrimQueueDrawPrimitive uses four 0x40-byte vertices per ball. UVs are
@@ -104,7 +103,7 @@ s32 fclCmbBallTaskCreateSlots(s32 parent, u8 count, s16 order) {
     return handle;
 }
 
-/* Slot record in the task's record block (base +0x38, 0x200 stride, record at +0x104). */
+/* Returns the record inside the given slot of the task's 0x200-stride slot block. */
 // FUN_0034AE50
 u8 *fclCombineSlotRecord(u8 *task, s8 slotIndex) {
     s32 slotOffset = slotIndex * 0x200;
@@ -112,12 +111,8 @@ u8 *fclCombineSlotRecord(u8 *task, s8 slotIndex) {
     return ((SdkTask *)task)->work + slotOffset + 0x104;
 }
 
-/* The RenderWare globals block at D_008872E0 is read through a cast
-   (RWSRCGLOBAL style); its open device's near screen Z sits at +0x18 and
-   RenderStateSet at +0x20 (D_00887300).  Reading nearZ through the cast
-   evaluates it before the 0xE14 depth, as retail does; a typed struct
-   global loads it last.  opt_propagation off keeps &RenderStateSet in
-   $s0, and loop invariants hoist only the %hi of the nearZ address. */
+/* The RenderWare globals block is read through a cast so nearZ is evaluated before the ball depth,
+ * as retail does. */
 typedef struct {
     u8 unk00[0x18];
     f32 nearZ;
@@ -126,7 +121,8 @@ typedef struct {
 extern u8 D_008872E0[];
 
 #pragma push
-/* measured: baseline 270 differing words; wide vertex index 279; retain packet-loop settings. */
+/* measured: retail keeps the RenderStateSet address live across the packet loop and hoists only the
+ * high half of the nearZ address. */
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 /* Renders one fusion ball: sets the render states, then per-slot depth and colour. */
@@ -155,8 +151,6 @@ void fclCmbBallDraw(u8 *drawTask, u8 *work) {
     setState[0](0xA, 5);
     RpSkyRenderStateSet(2, 0x44);
     RpSkyRenderStateSet(3, 0x717FB);
-    /* measured: access-site drawPacket casts differ after vertex stores;
-       the ballWork alias types these reads while preserving whole-file MATCH. */
     ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x10))->uBits = 0;
     ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x10))->vBits = 0;
     ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x50))->uBits = 0x3F800000;
@@ -165,8 +159,6 @@ void fclCmbBallDraw(u8 *drawTask, u8 *work) {
     ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0x90))->vBits = 0x3F800000;
     ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0xD0))->uBits = 0x3F800000;
     ((FclBallVertex *)((ballWork->drawPacket << 8) + (u32)work + 0xD0))->vBits = 0x3F800000;
-    /* measured: access-site alpha typing adds a saved register across color
-       constructors; ballWork preserves the required load without byte offsets. */
     if (((FclCmbBall *)work)->colorMode == 1) {
         color = fclMakeDrawColor(0x2D, 0x2D, 0x2D, ((FclCmbBall *)work)->alpha);
     } else {
@@ -202,16 +194,8 @@ void fclCmbBallDraw(u8 *drawTask, u8 *work) {
 }
 #pragma pop
 
-/* Recovered target body: the retail flag gates, staged interpolation, and
-   0xE-entry packet loop are represented directly. The first interpolation
-   call passes E72 as its signed integer mode and E6C/E6D/E6A/E68 as floats;
-   the second uses signed E68 / 2 (C division supplies retail's correction
-   sequence). The bounded update is fclAddClamped(E6A, 1, E68, 0, 1).
-   The plain u8 result cast preserves retail's float-to-u8 saturation path. */
-/* Target window: 0x390 bytes; the compiled owner image is 0x384 bytes and
-   its remaining 12 target bytes are zero padding. */
-/* fclCmbBallUpdate -- reconstructed from the complete retail, Ghidra, and IDA
-   bodies; all six owner images and all target relocations are checked. */
+/* The second interpolation call uses signed E68 / 2, and the plain u8 cast keeps retail's float-
+ * to-u8 saturation. */
 extern void fclCmbBallDraw(u8 *, u8 *);
 
 /* Per-frame update: advances the interpolation, then queues the 0xE draw packets. */
@@ -226,10 +210,9 @@ s32 fclCmbBallUpdate(u8 *task) {
         return 0;
     }
 
-    /* Flags: bit 0 enables drawing; bit 2 enables the alpha animation. */
-    /* measured: access-site animation fields hoist addresses across the
-     * interpolation/clamp calls; the ballWork alias keeps every field typed
-     * without changing the matched callback. Keep both pointer forms. */
+    /* Flags: bit 0 enables drawing; bit 2 enables the alpha animation. Both the cast work pointer
+     * and the ballWork alias are needed so field addresses are not hoisted across the interpolation
+     * calls. */
     if (((((FclCmbBall *)work)->flags & 4) >> 2) == 1) {
         if (((FclCmbBall *)work)->alphaDelay == 0) {
             if (ballWork->alphaLoop == 0) {
@@ -286,7 +269,7 @@ void fclCmbBallDestroy(u8 *task) {
     jtbl_008873EC[0](((SdkTask *)task)->work);
 }
 
-/* Ball task with a 0xF10-byte state block; its s16 header at +0 is set to 0x41. */
+/* Creates the ball task with a 0xF10-byte state block whose s16 header is set to 0x41. */
 // FUN_0034B740
 s32 fclCmbBallTaskCreate(s32 parent) {
     s32 handle;

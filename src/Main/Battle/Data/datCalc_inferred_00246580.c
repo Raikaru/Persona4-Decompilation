@@ -13,9 +13,6 @@ extern f32 D_00761260;
 extern f32 fGpffff811c;
 
 
-
-/* Source unit: src/promoted/code1_0024.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0024.c; members 00246580-00246580 */
 /* Model-neck-test task update hook: ignores its task and returns zero without changing state. */
 // FUN_00246580
 s32 mdlNeckTestUpdateNoop(u8 *unusedTask)

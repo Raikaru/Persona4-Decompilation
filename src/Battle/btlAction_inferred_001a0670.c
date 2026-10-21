@@ -14,7 +14,6 @@
 typedef struct BtlPacket BtlPacket;
 typedef struct BtlTarget BtlTarget;
 
-/* Existing byte-view callers use these adapters to the provider definitions. */
 extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 command, u32 argument, u32 extraArgument, u32 flags);
 extern void btlActionSetStateWithDelay(BtlAction *action, u16 state, u16 delay);
 
@@ -67,12 +66,7 @@ s32 btlTaskSlotLinkedSlot2(void);
 BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
 extern f32 D_0076144C;
 
-/* Source unit: src/promoted/code1_001a.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001a.c; members 001a0670-001a0f40 */
-
 extern void btlActionFinishPresentation(BtlAction *action);
-/* measured: loop-invariant probe for 001A0140 preheader materialization. */
-/* measured: close loop-invariant probe for 001A0140. */
 /* Leave standby when the unit requests recovery or has its ready flag set. */
 // FUN_001A0670
 void btlActionStandbyUpdate(BtlAction *action) {
@@ -187,12 +181,8 @@ void btlActionStartInit(BtlAction *action) {
     }
 }
 
-/* P4 initializes and copies the complete 0x20-byte target result. The P3FES
- * state-start donor explains the aggregate mechanism, but its result is 0x1c
- * bytes. Typed action/unit members and u16 casts avoid hoisting field addresses
- * and the mask into saved registers. See the 2026-09-20 donor recovery proof. */
-/* Apply turn-start passive HP/SP recovery and guard flags before selecting the next state. */
-/* A separate typed packet pointer preserves the dependency-load lifetime. */
+/* Apply turn-start passive HP/SP recovery and guard flags before selecting the next state. P4
+ * initializes and copies the full 0x20-byte target result, unlike P3FES's 0x1c-byte result. */
 // FUN_001A0B00
 #pragma push
 void btlActionStartUpdate(s64 *actionWords) {
@@ -302,11 +292,8 @@ void btlActionStartUpdate(s64 *actionWords) {
 }
 
 #pragma pop
-/* measured: opt_propagation off plus one named local per address term. mwcc
-   keeps source operand order for `named + named` (addu off,base / addu idx,sum
-   as retail) but commutes an inline product on the left (`a * k + b` emits
-   addu b,a*k); the table base must be copied first so its lw leads the block. */
-/* measured: typed rows, byte-table bases and named move slots still differ by 15 words without propagation off. */
+/* measured: propagation off with one named local per address term keeps retail operand order, so
+ * the table base load comes first in the address arithmetic. */
 #pragma opt_propagation off
 /* Return a distant unit to its anchor with the motion-table movement speed. */
 // FUN_001A0F40

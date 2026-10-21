@@ -1,10 +1,10 @@
-/* Original translation unit evtMessage.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit evtMessage.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "type.h"
 #include "scene_event_internal.h"
 
-/* 0x34-byte object: close clears the full object; open initializes the five
-   cached entries at +0x20. The update switch establishes each request field. */
+/* Close clears the whole object; open initializes the five cached entries. The update switch sets
+ * each request field. */
 typedef struct EvtMessageWindow {
     s32 active;
     s32 style;
@@ -20,7 +20,6 @@ extern void itfMesWindowReleaseIfActive();
 extern void memset();
 extern s32 itfMesWindowInstall();
 extern void itfMesWindowApplyStyle(s32 handle, s32 kind, s32 unusedValue);
-/* Source unit: src/Event/mt_evtMessage_00290a50.c (donor FUN_0039f2a0) */
 
 extern void kAssertFail(u8 *file, s32 line);
 extern u8 D_0063C820[];
@@ -34,13 +33,13 @@ extern void func_00276e70_typed(s32, u8);
 extern void func_00277250_typed(s32);
 extern void func_00277ad0_typed(s32, s32);
 extern void func_002781e0_typed(s32, u32);
-/* Source unit: src/Event/mt_evtMessage_00290e10.c (donor FUN_0039f710) */
 
 extern u32 itfMesWindowRecordCount(int handle);
 
-/* measured: a named u8 boolean preserves retail's sltu materialisation;
-   object 188B matches the 192-byte retail window with zero padding. */
-// Opens the message window in this slot: installs it with the given style and marks the object active [inferred].
+/* measured: the active check goes through a named u8 boolean because retail computes it as a set-
+ * if-nonzero value. Opens the window in this slot with the given style and marks the object active. */
+/* Install a message window with the given style, store its id in the object and mark the object
+ * active, asserting if it was already open. Return the new window id. */
 // FUN_00290880
 s32 evtMessageWindowOpen(u8 *object, s32 style) {
     s32 windowId;
@@ -82,17 +81,17 @@ void evtMessageWindowClose(u32 *object)
   }
   return;
 }
-/* Source unit: src/Event/mt_evtMessage_002909a0.c */
-// Returns 1 when the message window object is active (open), else 0.
+/* Returns 1 when the message window object is active (open), else 0. */
 // FUN_002909A0
 u32 evtMessageWindowIsOpen(u32 *object)
 {
     return ((EvtMessageWindow *)object)->active != 0;
 }
-// Requests a message display: resets any previous display, then records the style, record, layout and result slot and starts the update state machine [inferred].
+// Requests a message display: resets any previous display, records style, record, layout and result
+// slot, and starts the update state machine.
 // FUN_002909B0
-/* Keep the word-array view of EvtMessageWindow here: typed member accesses
-   changed MWCC alias/reload decisions and lost the retail match. */
+/* Uses the word-array view of EvtMessageWindow because typed member accesses change the compiler's
+ * alias and reload decisions. */
 void evtMessageWindowRequest(int *object, int style, int recordId, int layoutId, int resultSlot)
 {
   if ((u8)(*object != 0)) {
@@ -110,12 +109,10 @@ void evtMessageWindowRequest(int *object, int style, int recordId, int layoutId,
 }
 
 
-
-
 // Resets the window display: clears its contents and flags and returns it to the idle state.
 // FUN_00290A50
-/* Keep the word-array view of EvtMessageWindow here: typed member accesses
-   changed MWCC alias/reload decisions and lost the retail match. */
+/* Uses the word-array view of EvtMessageWindow because typed member accesses change the compiler's
+ * alias and reload decisions. */
 void evtMessageWindowReset(int *object)
 {
   int windowId;
@@ -136,11 +133,10 @@ void evtMessageWindowReset(int *object)
 }
 
 
-
 // Same reset as evtMessageWindowReset, through the typed window wrappers.
 // FUN_00290B00
-/* Keep the word-array view of EvtMessageWindow here: typed member accesses
-   changed MWCC alias/reload decisions and lost the retail match. */
+/* Uses the word-array view of EvtMessageWindow because typed member accesses change the compiler's
+ * alias and reload decisions. */
 void evtMessageWindowResetTyped(u32 *object)
 {
   int windowId;
@@ -162,10 +158,11 @@ void evtMessageWindowResetTyped(u32 *object)
   return;
 }
 
-// Steps the message display state machine (idle, bind, wait, layout, wait for animation, reset), storing the result slot when the animation finishes [inferred].
+// Steps the message display state machine (idle, bind, wait, layout, wait for animation, reset),
+// storing the result when the animation finishes.
 // FUN_00290BC0
-/* Keep the word-array view of EvtMessageWindow here: typed member accesses
-   changed MWCC alias/reload decisions and lost the retail match. */
+/* Uses the word-array view of EvtMessageWindow because typed member accesses change the compiler's
+ * alias and reload decisions. */
 void evtMessageWindowUpdate(int *object)
 {
   u32 active;
@@ -236,9 +233,6 @@ void evtMessageWindowUpdate(int *object)
 }
 
 
-/* Source unit: src/Event/mt_evtMessage_00290de0.c (donor FUN_0039f6e0) */
-
-
 // Returns 1 when no message is open, or when the open message's state machine is idle (the message is done).
 // FUN_00290DE0
 s32 evtMessageWindowIsDone(void *object)
@@ -250,7 +244,6 @@ s32 evtMessageWindowIsDone(void *object)
 nonzero:
   return ((EvtMessageWindow *)windowWords)->state == 0;
 }
-
 
 
 // Returns the open window's record count, or 0 when no message is open.

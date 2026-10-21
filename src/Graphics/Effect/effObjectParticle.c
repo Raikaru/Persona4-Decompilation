@@ -136,8 +136,8 @@ void ObjectParticleFree(u8 *particle)
 
 // Creates an object particle from a parent record: sizes the record buffer from the parent's block and shares its clump; asserts the parent block exists.
 // FUN_004AE6D0
-/* Keep separate typed locals for the parent, allocation and parameter block;
- * collapsing them into access-site casts changes constructor allocation. */
+/* Separate typed locals for the parent, allocation and parameter block are needed; folding them
+ * into casts changes the constructor allocation. */
 void *ObjectParticleCreateFromParent(void *opaqueSource)
 {
     u8 *particle = opaqueSource;
@@ -249,17 +249,12 @@ void ObjectParticleRebuildRecords(u8 *particle, u32 sourceId, u8 *sourceData)
     }
 }
 
-/* measured MATCH: aggregate-stack body is object 472B in the 480B retail
-   window with normalized_diff 0. The decisive source fact is unsigned
-   `u32 value` in the aggregate, which flips the default-call argument
-   materialization to retail's move $a0,$s2 then lw $a1,0x64($sp).
-   Probed and rejected before the type fix: pointer-local body (nd 292/object
-   456), initial aggregate (nd 42/object 472), stack/register variants (nd
-   28, 75, 77, 79/object 472), explicit zero-dispatch forms (nd 8/object
-   472), no-op/cast argument expressions, named argument assignments,
-   optimization_level 1, opt_propagation off, opt_common_subs off, and
-   schedule on. */
-// Walks the resource records of the source until opcode 0: opcode 22 gathers the texture-name list, opcode 16 fetches the clump; the clump is stored at +0x54 with its atomic callback set.
+/* measured: the work struct's value field must be unsigned u32 so the default call's arguments are
+ * set up the way retail does it. // Walks the resource records of the source until opcode 0: opcode
+ * 22 gathers the texture-name list, opcode 16 fetches the clump; the clump is stored at +0x54 with
+ * its atomic callback set. */
+/* Read the particle's resource stream, gathering texture names from the texture dictionary and
+ * loading the clump, then store the clump on the instance and flag all its atomics. */
 // FUN_004AEA70
 /* A distinct typed instance pointer preserves the resource loop's stack layout. */
 void ObjectParticleLoadClump(u8 *particle, s32 resource, s32 resourceInput) {
@@ -291,9 +286,6 @@ void ObjectParticleLoadClump(u8 *particle, s32 resource, s32 resourceInput) {
   done:
     func_003e2e40(stream, &work.in1); if (work.out != 0) K_Clump_FreeTextureNameList((void *)work.out); if (clump == NULL) kAssertFail(D_00714520, 0x1DF); inst->clump = clump; RpClumpForAllAtomics(clump, mdlEffectSetFlag40, NULL);
 }
-
-
-
 
 
 // Releases the source block at +0x58 through func_00492d00 when one is set.
@@ -372,13 +364,9 @@ typedef struct EffObjectMatrix {
             "ppacb %0, $0, %0\n" : "=r"(packed) : : "$vf10");            \
     } while (0)
 
-/* The pos copy is three one-element array copies: b210 treats each as an
- * aggregate store, which stops its CSE from folding the particle life reload
- * for func_004ae2f0 into the loop test, while keeping retail's lwc1/swc1
- * interleave. */
-// Draws the object particle's live records through RwMatrix transforms and the VU0 colour pack path, draws the clump atomics, and invokes TnInvokeCallback; colours are set through mdlEffectSetAllColors.
-/* Access-site age reloads differed by 1089 normalized bytes (1968 versus 1964 bytes).
- * Separate typed particle-record and clump pointers retain the original reloads. */
+/* Draws the object particle's live records through RwMatrix transforms and the VU0 colour pack
+ * path, draws the clump atomics, and invokes TnInvokeCallback. The pos copy is three one-element
+ * array copies so the particle life reload is not folded into the loop test. */
 // FUN_004AED70
 void ObjectParticleDraw(u8 *particle)
 {

@@ -21,11 +21,11 @@ extern char D_0063CB30[];
 extern char D_0063D050[];
 
 
-
 extern s32 D_0063CB50[];
 extern void scrCommandAlternateFiveOperandNoop(s64 unusedFirst, s64 unusedSecond, s64 unusedThird, s64 unusedFourth, s64 unusedFifth);
 extern u8 D_0063CFA0[];
-// lint: allow H011 -- measured: u16 prototype regresses func_00291a60 (145 diff, wide id args)
+// lint: allow H011 -- measured: a u16 prototype breaks func_00291a60, which passes wide id
+// arguments.
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                           s32, f32 farg0, s32, s32,
                           s32);
@@ -43,19 +43,12 @@ extern u16 D_008C024E[];
 extern s32 D_0063E830[];
 
 
-
 extern void mtMiscCollectType1Records(u8 *eventWork);
-/* measured probe: close opt_propagation bracket after func_00291530. */
-
-
-
 
 
 #pragma push
 
 #pragma pop
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0029; members 0029e9a0-0029e9a0 */
 
 /* Consume the five wide operands forwarded by the alternate unused script-command sink without side effects. */
 // FUN_0029E9A0
