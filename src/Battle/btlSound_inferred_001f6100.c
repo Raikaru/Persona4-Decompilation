@@ -77,10 +77,7 @@ extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
 
 
-
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
-
-
 
 
 extern s32 iGpffffb464;
@@ -93,22 +90,13 @@ extern u8 D_00624FA0[];
 extern s32 btlTargetTestUnitFlag(s32 unitId, s32 bitIndex);
 
 
-
 #pragma push
 #pragma pop
 
 
-
-
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f6100-001f73d0 */
-
 extern s32 btlActionHasNoTargetClass(u32 action);
 struct EffRandState;
 
-/* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
-/* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push
 #pragma pop
 #pragma push
@@ -288,7 +276,6 @@ s32 btlSoundLoadPlaybackFile(u8 *work)
     u16 channel;
     u8 *battle;
 
-    /* measured: typing this phase load grows the loader from 320 to 328 bytes; its phase stores remain typed. */
     phase = MEMBER(u16, work, BtlSoundLoadWork, phase);
     switch (phase) {
     case 0:
@@ -340,8 +327,8 @@ u8 *btlSoundCreateLoadPlaybackPacket(s32 bank) {
     return p;
 }
 
-/* measured: opt_loop_invariants on hoists the loop's one constant before the entry test. */
-/* measured: btlSoundRollStatusCure MATCH -> MISMATCH without this pragma. */
+/* measured: opt_loop_invariants on hoists the loop's one constant before the entry test, as retail
+ * does. */
 #pragma opt_loop_invariants on
 /* Roll the special status-cure chance and track the first eligible failed cure. */
 // FUN_001F6770
@@ -410,9 +397,10 @@ s32 btlSoundCanReceiveStatus(u8 *action)
 }
 
 #pragma push
-/* measured: grouped/isolated removals leave 162 words different; invariant motion alone grows the cure loop to 712B. */
+/* measured: retail leaves loop invariants inside the cure loop; hoisting them makes the loop
+ * larger. */
 #pragma opt_loop_invariants off
-/* measured: btlSoundSelectCureableStatuses MATCH -> MISMATCH without this pragma. */
+/* measured: retail does not propagate copies in this function. */
 #pragma opt_propagation off
 /* Build the status-cure mask from per-status probabilities, counters and passive skills. */
 // FUN_001F6930
@@ -439,7 +427,7 @@ s32 btlSoundSelectCureableStatuses(u8 *action)
 
     unit = *(u8 **)&((BtlAction *)action)->unit;
     unitState = (BtlUnit *)unit;
-    /* measured: typing this DatUnit reload changes allocation across the status/skill calls. */
+    /* The untyped DatUnit load keeps retail register allocation across the status and skill calls. */
     statuses = datCalcGetBadStatus(*(s32 *)&unitState->datUnit);
     cureMask = 0;
     statusIndex = 0;
@@ -503,7 +491,6 @@ loop_31_body:
             }
         }
         if (countedStatus == 1) {
-            /* measured: typed counter indexing changes the retained address operand order; the other counter handlers are typed. */
             if (MEMBER(u8, action + statusIndex, BtlAction, targetBlock.recovery.statusTurns[0]) <= 1) {
                 goto loop_31_increment;
             }
@@ -526,9 +513,8 @@ loop_31_test:
 #pragma pop
 /* Test whether the first status counter has reached two turns. */
 // FUN_001F6BF0
-/* measured: retail materialises this loop's invariant in the preheader; plain
-   -O2 rematerialises it in the body (nd 9 -> byte-exact with the hoist). */
-/* measured: btlSoundIsStatusCounterHigh MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists this loop's invariant into the preheader; plain -O2 recomputes it inside
+ * the loop body. */
 #pragma opt_loop_invariants on
 s32 btlSoundIsStatusCounterHigh(u8 *action) {
     s32 i;
@@ -545,8 +531,6 @@ s32 btlSoundIsStatusCounterHigh(u8 *action) {
     return 1;
 }
 
-/* measured: closes the hoist bracket opened above and restores the -O2
-   baseline for the rest of the file. */
 /* Clear counters for statuses present in the old mask but absent from the unit. */
 // FUN_001F6C40
 void btlSoundClearStatusCounters(u8 *action, s32 previousStatuses)
@@ -653,8 +637,8 @@ s16 btlSoundCalcStatusHpSpDelta(u8 *action)
     return delta;
 }
 
-/* measured: opt_rebuildconditionals off probe for btlSoundPickStatusTalkVoiceA final branch. */
-/* measured: btlSoundPickStatusTalkVoiceA MATCH -> MISMATCH without this pragma. */
+/* measured: retail keeps the final branch of btlSoundPickStatusTalkVoiceA in source order instead
+ * of rebuilding the conditional. */
 #pragma opt_rebuildconditionals off
 /* Choose a status/action-specific voice and adjust its pair for non-player units. */
 // FUN_001F6F60
@@ -744,9 +728,11 @@ s32 btlSoundPickStatusTalkVoiceA(u8 *action)
     return voice;
 }
 
-/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceA probe. */
-/* measured: opt_rebuildconditionals off preserves btlSoundPickStatusTalkVoiceB's positive flag branch. */
-/* Choose the alternate status voice, returning minus one when no voice applies. */
+/* measured: rebuilt conditionals off keeps retail's positive flag branch in
+ * btlSoundPickStatusTalkVoiceB. Choose the alternate status voice, returning minus one when no
+ * voice applies. */
+/* Pick the status-ailment voice for the acting unit's current bad status, using the next variant
+ * for non-zero genus units; return -1 if the action flag is clear or no status voice applies. */
 // FUN_001F7140
 s32 btlSoundPickStatusTalkVoiceB(u8 *action)
 {
@@ -800,7 +786,6 @@ s32 btlSoundPickStatusTalkVoiceB(u8 *action)
     return voice;
 }
 
-/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceB. */
 /* Initialize all sixteen cue-cache rows and the rotating channel sentinel. */
 // FUN_001F7260
 void btlSoundResetSlotQueue(void)
@@ -823,12 +808,11 @@ void btlSoundResetSlotQueue(void)
     }
 }
 
-// measured: required for exact retail loop codegen in btlSoundResetSlotQueue.
-/* measured: optimization_level 1 required for exact btlSoundAdvanceSlotQueue codegen. */
-/* measured: btlSoundAdvanceSlotQueue MATCH -> MISMATCH without this pragma. */
+// measured: retail's queue-aging loop in btlSoundAdvanceSlotQueue is only reproduced at
+// optimization level 1.
 #pragma optimization_level 1
-/* measured: opt_loop_invariants off baseline for btlSoundAdvanceSlotQueue. */
-/* Age the rotating queue and expire cached channel selectors after three ticks. */
+/* measured: retail keeps loop-invariant loads inside the queue loop. Age the rotating queue and
+ * expire cached channel selectors after three ticks. */
 // FUN_001F72E0
 void btlSoundAdvanceSlotQueue(void)
 {
@@ -882,8 +866,8 @@ loop_test_8:
     }
 }
 
-/* measured: restore optimization_level 2 after btlSoundAdvanceSlotQueue. */
-/* measured: btlSoundPlayRetailSelectTrack MATCH -> MISMATCH without this pragma. */
+/* measured: retail compiles the following sound functions at optimization level 2, so the earlier
+ * level must not carry over. */
 #pragma optimization_level 2
 /* Reserved sound teardown hook called while releasing the battle runtime. */
 // FUN_001F73C0

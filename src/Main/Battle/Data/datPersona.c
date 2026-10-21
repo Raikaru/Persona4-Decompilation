@@ -1,4 +1,4 @@
-/* Original translation unit datPersona.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit datPersona.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "operand_order_internal.h"
 #include "type.h"
@@ -6,7 +6,8 @@
 #include "datUnit_internal.h"
 #include "member_access.h"
 
-/* Unit settings: measured persona helpers use loop invariants off, propagation on and common subexpressions on. */
+/* measured: the retail persona helpers were built with loop invariants off, propagation on and
+ * common subexpressions on. */
 #pragma opt_loop_invariants off
 #pragma opt_propagation on
 #pragma opt_common_subs on
@@ -82,9 +83,7 @@ extern f32 fGpffff820c;
 extern s32 (*iGpffffb3e8)[98]; /* gp -0x4C18 */
 
 
-
-
-// Intent: pointer to the static 0x11-byte table row of persona personaId; fatal at id >= 0x100.
+// Returns the 0x11-byte static table row for personaId; asserts when the id is 0x100 or more.
 // FUN_00109220
 u8 *datPersonaGetRow(u16 personaId)
 {
@@ -95,10 +94,8 @@ u8 *datPersonaGetRow(u16 personaId)
 }
 /* Read the persona-table arcana byte used by arcana comparisons; IDs outside the 256-row table assert. */
 // FUN_00109280
-/* measured: the u16 parameter is zero-extended separately for the range
-   check and for the (u32) row offset, as retail does (two andi). A plain
-   int row offset shares one entry mask. */
-// Intent: arcana byte (+2 of the 14-byte persona entry); callers match it against a target arcana.
+/* Arcana is byte 2 of the 14-byte persona entry; the (u32) cast makes the row offset zero-extend
+ * separately from the range check, as retail does. */
 u8 datPersonaGetArcana(u16 personaId)
 {
     u8 *table;
@@ -110,14 +107,14 @@ u8 datPersonaGetArcana(u16 personaId)
     return table[(u32)personaId * 0xE + 2];
 }
 
-// Intent: u16 id stored at +2 of a persona record.
+// Returns the u16 id of a persona record.
 // FUN_001092F0
 u16 datPersonaRecordId(u32 recordAddress)
 {
     return ((DatPersonaRecord *)recordAddress)->id;
 }
 
-// Intent: u16 id at +2 of roster slot arg0; fatal when the slot is NULL.
+// Returns the id of a roster slot; asserts when the slot is NULL.
 // FUN_00109300
 u16 datPersonaRosterSlotId(s32 slotIndex)
 {
@@ -128,14 +125,15 @@ u16 datPersonaRosterSlotId(s32 slotIndex)
     return ((DatPersonaRecord *)p)->id;
 }
 
-// Intent: u16 id at +2 of the record for persona id arg0.
+// Returns the id of the record for a persona id.
 // FUN_00109360
 u16 datPersonaGetRecordId(u16 partyId)
 {
     return datPersonaGetRecord(partyId)->id;
 }
 
-// Intent: u8 at +4 of roster slot arg0, a ranking key; the largest value among same-type party members wins; fatal when NULL.
+// Returns the level of a roster slot, used as a ranking key among same-type party members; asserts
+// when NULL.
 // FUN_001093A0
 u8 datPersonaRosterSlotRank(s32 slotIndex)
 {
@@ -146,7 +144,7 @@ u8 datPersonaRosterSlotRank(s32 slotIndex)
     return ((DatPersonaRecord *)p)->level;
 }
 
-// Intent: u16 flags word of roster slot arg0; fatal when the slot is NULL.
+// Returns the u16 flags word of a roster slot; asserts when the slot is NULL.
 // FUN_00109470
 u16 datPersonaRosterSlotFlags(s32 slotIndex)
 {
@@ -157,21 +155,19 @@ u16 datPersonaRosterSlotFlags(s32 slotIndex)
     return *(u16 *)p;
 }
 
-/* The selected learning range uses independent output and traversal counts.
-   Its length helper preserves that value across the known-skill query.
-   Native b210 O2 with these scoped propagation/loop settings is exact
-   684/688 bytes; see docs/probe_archive/Persona_skills_00109510_20260922.md. */
-/* Compute the inclusive count between the first and last selected persona. */
-/* measured: expansion allocates the span and loop indices to different saved registers. */
+/* Compute the inclusive count between the first and last selected persona. measured: the inline
+ * wrapper keeps the span and loop index in separate saved registers, as retail does. */
 static inline s32 datPersonaSelectedCount(s32 first, s32 last)
 {
     return (last + 1) - first;
 }
 
-// Intent: writes the skill ids (arg1) and levels (arg2, optional) of persona record arg0's level-table entries it has not learned yet; returns the count.
+// Writes the skill ids and optional levels of level-table entries the persona has not learned yet;
+// returns the count.
 // FUN_00109510
 #pragma push
-/* measured: baseline propagation-on/loop-off differs by 116 words; isolated toggles give nd21/nd323; retain both. */
+/* measured: retail needs propagation off and loop invariants on together; either setting alone
+ * changes the output. */
 #pragma opt_propagation off
 #pragma opt_loop_invariants on
 s32 datPersonaCollectLearnableSkills(DatPersonaRecord *persona, void *outputSkills, void *outputLevels)
@@ -305,8 +301,8 @@ s32 datPersonaCollectLearnableSkills(DatPersonaRecord *persona, void *outputSkil
 #pragma pop
 
 
-// Intent: passes skill slot arg1 of persona record arg0 to datCalcSkillSlotValue; fatal on bad id or slot.
-/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+// Passes skill slot slotIndex of the persona record to datCalcSkillSlotValue; asserts on a bad
+// persona id or slot.
 // FUN_001097C0
 
 void datPersonaRunSkillSlot(u8 *persona, s32 slotIndex)
@@ -324,8 +320,8 @@ void datPersonaRunSkillSlot(u8 *persona, s32 slotIndex)
     datCalcSkillSlotValue(0, ((u16 *)skillTable)[(u16)slotIndex]);
 }
 
-// Intent: skill-slot value of persona id arg0 at slot arg1, read through datCalcSkillSlotValue; fatal when out of range.
-/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+// Returns the skill-slot value for the persona's slot via datCalcSkillSlotValue; fatal when the
+// persona id is out of range.
 // FUN_00109870
 
 u32 datPersonaGetSkillSlot(u16 partyId, s32 slotIndex)
@@ -344,7 +340,7 @@ u32 datPersonaGetSkillSlot(u16 partyId, s32 slotIndex)
     return (u32)datCalcSkillSlotValue(0, ((u16 *)(iGpffffb3d8 + (u16)skillPersona->id * 0x20))[(u16)slotIndex]);
 }
 
-// Intent: battle stat (index 0..4, see DatPersonaStat in datPersona_internal.h) at +0x1C of a persona record.
+// Returns battle stat 0..4 (see DatPersonaStat) of a persona record.
 // FUN_00109920
 u8 datPersonaGetStat(DatPersonaRecord *persona, s32 statIndex)
 {
@@ -354,8 +350,8 @@ u8 datPersonaGetStat(DatPersonaRecord *persona, s32 statIndex)
     return persona->stats[(u16)statIndex];
 }
 
-// Intent: battle stat (index 0..4) of the record for persona id arg0; same layout as datPersonaGetStat.
-/* Preserve the public word transport while interpreting the character as a halfword. */
+// Returns battle stat (index 0..4) of the record for persona id partyId; same layout as
+// datPersonaGetStat. The id is passed as a word but read as a halfword.
 // FUN_00109980
 s32 datPersonaGetStatById(partyId, statIndex)
 u16 partyId;
@@ -369,7 +365,7 @@ s32 statIndex;
     return base[(u16)statIndex + 0x1C];
 }
 
-// Intent: battle stat arg1 of record arg0 plus two stat modifiers, capped at 99; fatal when arg1 >= 5.
+// Battle stat plus two stat modifiers, capped at 99; asserts when statIndex >= 5.
 // FUN_001099F0
 u8 datPersonaGetBuffedStat(DatPersonaRecord *persona, s32 statIndex)
 {
@@ -390,7 +386,7 @@ u8 datPersonaGetBuffedStat(DatPersonaRecord *persona, s32 statIndex)
     return (u8)sum;
 }
 
-// Intent: battle stat arg1 of record arg0 plus two modifiers and the equipment bonus, clamped to 0..99.
+// Battle stat plus two modifiers and the equipment bonus, clamped to 0..99.
 // FUN_00109AD0
 u8 datPersonaGetTotalStat(DatPersonaRecord *persona, s32 statIndex)
 {
@@ -416,7 +412,7 @@ u8 datPersonaGetTotalStat(DatPersonaRecord *persona, s32 statIndex)
     return (u8)sum;
 }
 
-// Intent: battle stat arg1 of the record for persona id arg0, plus modifiers and equipment, clamped to 0..99.
+// Battle stat of the record for a persona id, plus modifiers and equipment, clamped to 0..99.
 // FUN_00109BF0
 u8 datPersonaGetTotalStatById(u16 partyId, s32 statIndex)
 {
@@ -443,7 +439,7 @@ u8 datPersonaGetTotalStatById(u16 partyId, s32 statIndex)
     return (u8)sum;
 }
 
-// Intent: signed per-stat bonus byte at +0x21 of a record for stat arg1; summed into the stat totals.
+// Signed per-stat bonus byte A; summed into the stat totals.
 // FUN_00109D20
 s8 datPersonaGetStatBonusA(DatPersonaRecord *persona, s32 statIndex)
 {
@@ -453,7 +449,7 @@ s8 datPersonaGetStatBonusA(DatPersonaRecord *persona, s32 statIndex)
     return persona->statBonusA[(u16)statIndex];
 }
 
-// Intent: signed per-stat bonus byte at +0x26 of a record for stat arg1; summed into the stat totals.
+// Signed per-stat bonus byte B; summed into the stat totals.
 // FUN_00109DD0
 s8 datPersonaGetStatBonusB(DatPersonaRecord *persona, s32 statIndex)
 {
@@ -468,11 +464,9 @@ extern s16 D_00797578[];
 extern DatPartyAccessory D_00796D90[];
 extern u8 *iGpffffb1b0;
 
-/* 2372/2384 bytes; 56 resolved relocations; 12 zero alignment bytes.
- * The real equipment-query inputs are unsigned halfwords. Keep each weighted
- * query independent and preserve the signed-byte result for the stat clamp. */
-// Intent: equipment bonus for stat arg1 of record arg0, summed from the equipped items of its party slot.
-/* D_00796D90 starts at the accessory halfword; the typed column retains its 0x88-byte stride. */
+/* Equipment bonus for stat statIndex of persona, summed from the equipped items of its party slot;
+ * queries use unsigned halfwords and the result stays a signed byte for the stat clamp. D_00796D90
+ * starts at the accessory halfword with a 0x88-byte stride. */
 // FUN_00109E30
 s8 datPersonaGetEquipStatBonus(DatPersonaRecord *persona, s32 statIndex)
 {
@@ -572,12 +566,8 @@ s8 datPersonaGetEquipStatBonus(DatPersonaRecord *persona, s32 statIndex)
     return (s8)bonus;
 }
 
-/* Ported from the Persona 3 FES tree (datPersona.c
-   datPersonaAddToNaturalStat), which shares this source: two separate s16
-   locals with a (s16)(u16) widening load, and the clamped total stored back
-   through a pointer materialized once, is what keeps the s16 extension mwcc
-   otherwise elides. Prior local spellings all floored at nd 25-28. */
-// Intent: adds delta arg2 to stat arg1 of record arg0, clamped to 0..99; returns the new value.
+/* Adds delta to stat statIndex of the persona record, clamped to 0..99, and returns the new value.
+ * Matches P3FES datPersonaAddToNaturalStat. */
 // FUN_0010A780
 s32 datPersonaAddStat(u8 *persona, s32 statIndex, s32 delta)
 {
@@ -600,7 +590,7 @@ s32 datPersonaAddStat(u8 *persona, s32 statIndex, s32 delta)
     *stat = statTotal;
     return (u8)statTotal;
 }
-// Intent: adds delta arg2 to stat arg1 of the record for persona id arg0, clamped to 0..99.
+// Adds delta to a stat of the record for a persona id, clamped to 0..99.
 // FUN_0010A840
 s32 datPersonaAddStatById(u16 partyId, s32 statIndex, s32 statDelta) {
     u8 *base;
@@ -626,7 +616,7 @@ s32 datPersonaAddStatById(u16 partyId, s32 statIndex, s32 statDelta) {
     return (u8)total;
 }
 
-// Intent: maps a persona id to its record; 1 is the selected roster slot, 2..10 index the party array.
+// Maps a persona id to its record; 1 is the selected roster slot, 2..10 index the party array.
 // FUN_0010A900
 DatPersonaRecord *datPersonaGetRecord(u16 partyId)
 {
@@ -647,7 +637,8 @@ DatPersonaRecord *datPersonaGetRecord(u16 partyId)
     return p;
 }
 
-// Intent: true when the lead (id 1) record has flag bit 4 set; datCalc scales damage and code1_0021 scales level when it is.
+// True when the lead (id 1) record has flag bit 4 set; datCalc scales damage and code1_0021 scales
+// level when it is.
 // FUN_0010A9B0
 s32 datPersonaLeadBoosted(s32 partyId)
 {
@@ -671,8 +662,7 @@ s32 datPersonaLeadBoosted(s32 partyId)
     return (*(u16 *)p & 4) != 0;
 }
 
-// Intent: index of the active roster slot whose id matches, or -1.
-/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+// Returns the index of the active roster slot whose id matches, or -1.
 
 // FUN_0010AA80
 
@@ -685,7 +675,6 @@ s32 datPersonaFindRosterSlotById(s32 personaId)
     s32 off;
     for (; (u16)i < count; i = (u16)(i + 1)) {
         off = (i & 0xFFFF) * 0x30;
-        /* measured: typed site/local/array forms change instructions; this existing member is exact. */
         if ((((DatPersonaRecord *)(base + off + 0xBEC))->flags & 1) != 0 && MEMBER(u16, base + 0xBEC + off, DatPersonaRecord, id) == id) {
             return (s16)i;
         }
@@ -693,7 +682,7 @@ s32 datPersonaFindRosterSlotById(s32 personaId)
     return -1;
 }
 
-// Intent: index of the first inactive roster slot, or -1 when the roster is full.
+// Index of the first inactive roster slot, or -1 when the roster is full.
 // FUN_0010AB30
 s32 datPersonaFindFreeRosterSlot(void)
 {
@@ -708,15 +697,14 @@ s32 datPersonaFindFreeRosterSlot(void)
     return -1;
 }
 
-// Intent: true when roster slot arg0 has its active flag set.
+// True when the roster slot has its active flag set.
 // FUN_0010ABD0
 s32 datPersonaRosterSlotActive(s16 slotIndex)
 {
     return (((DatPersonaRecord *)((u8 *)D_00797F8C + (s32)slotIndex * 0x30))->flags & 1) != 0;
 }
 
-// Intent: roster record of the active slot matching the id, or NULL.
-/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+// Returns the roster record in the active slot whose id matches, or NULL.
 
 // FUN_0010AC10
 
@@ -732,7 +720,6 @@ DatPersonaRecord *datPersonaFindRosterRecordById(s32 personaId)
     for (; (u16)i < count; i = (u16)(i + 1)) {
         off = (i & 0xFFFF) * 0x30;
         if ((((DatPersonaRecord *)(base + 0xBEC + off))->flags & 1) != 0 &&
-            /* measured: typed site/local/array forms change instructions; this existing member is exact. */
             MEMBER(u16, base + 0xBEC + off, DatPersonaRecord, id) == id) {
             found = (s16)i;
             goto done;
@@ -746,7 +733,7 @@ done:
     return datPersonaRosterSlot(found);
 }
 
-// Intent: roster record at index arg0, or NULL when the slot is inactive.
+// Roster record at the slot index, or NULL when the slot is inactive.
 // FUN_0010ACE0
 DatPersonaRecord *datPersonaRosterSlot(s16 slotIndex)
 {
@@ -761,8 +748,7 @@ DatPersonaRecord *datPersonaRosterSlot(s16 slotIndex)
     return (DatPersonaRecord *)((u8 *)D_007973A0 + v * 0x30 + 0xBEC);
 }
 
-// Intent: removes the active roster slot holding the id, if any.
-/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+// Removes the active roster slot holding the given persona id, if any.
 
 // FUN_0010AD80
 
@@ -776,7 +762,6 @@ s32 datPersonaRemoveRosterMemberById(s32 personaId)
     s32 off;
     for (; (u16)i < count; i = (u16)(i + 1)) {
         off = (i & 0xFFFF) * 0x30;
-        /* measured: typed site/local/array forms change instructions; this existing member is exact. */
         if ((((DatPersonaRecord *)(base + 0xBEC + off))->flags & 1) != 0 && MEMBER(u16, base + 0xBEC + off, DatPersonaRecord, id) == id) {
             slotIndex = (s16)i;
             goto done;
@@ -787,8 +772,8 @@ done:
     return datPersonaRemoveRosterSlot(slotIndex);
 }
 
-// Intent: removes roster slot arg0, shifts later slots down, then reselects the lead.
-/* The shifted roster cursor still points at the game-state base; +0xBEC/+0xBEE address the DatPersonaRecord flags/id, not a second object type. */
+// Removes roster slot slotIndex, shifts later slots down, then reselects the lead. The shifted
+// cursor still points at the game-state base; its offsets address DatPersonaRecord flags/id.
 // FUN_0010AE30
 s32 datPersonaRemoveRosterSlot(s32 slotIndex)
 {
@@ -836,7 +821,7 @@ done:
     return 1;
 }
 
-// Intent: adds persona id to the first free roster slot; fatal when the roster is full.
+// Adds the persona id to the first free roster slot; fatal when the roster is full.
 // FUN_0010B010
 u8 *datPersonaAddRosterMember(u16 personaId)
 {
@@ -847,7 +832,7 @@ u8 *datPersonaAddRosterMember(u16 personaId)
     return p;
 }
 
-// Intent: adds persona id to the first free roster slot, returning NULL when full.
+// Adds the persona id to the first free roster slot, returning NULL when full.
 // FUN_0010B060
 u8 *datPersonaTryAddRosterMember(u16 personaId)
 {
@@ -875,7 +860,7 @@ done:
     return entry;
 }
 
-// Intent: copies a 0x30-byte record into the first free roster slot; returns 1 on success, 0 when full.
+// Copies a 0x30-byte record into the first free roster slot; returns 1 on success, 0 when full.
 // FUN_0010B190
 s32 datPersonaInsertRosterRecord(u8 *persona)
 {
@@ -910,8 +895,7 @@ done:
     return 1;
 }
 
-// Intent: selects the active roster slot holding the id as lead; returns 0 when no slot matches.
-/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+// Selects the active roster slot holding the id as lead; returns 0 when no slot matches.
 
 // FUN_0010B300
 
@@ -925,7 +909,6 @@ s32 datPersonaSelectRosterMemberById(s32 personaId)
     s32 off;
     for (; (u16)i < count; i = (u16)(i + 1)) {
         off = (i & 0xFFFF) * 0x30;
-        /* measured: typed site/local/array forms change instructions; this existing member is exact. */
         if ((((DatPersonaRecord *)(base + 0xBEC + off))->flags & 1) != 0 && MEMBER(u16, base + 0xBEC + off, DatPersonaRecord, id) == id) {
             slotIndex = (s16)i;
             goto done;
@@ -936,7 +919,7 @@ done:
     return datPersonaSetLeadSlot(slotIndex);
 }
 
-// Intent: makes roster slot arg0 the lead when it is active; returns 0 otherwise.
+// Makes the roster slot the lead when it is active; returns 0 otherwise.
 // FUN_0010B3B0
 s32 datPersonaSetLeadSlot(s32 slotIndex)
 {
@@ -951,8 +934,8 @@ s32 datPersonaSetLeadSlot(s32 slotIndex)
     return 1;
 }
 
-// Intent: persona id held in the lead slot's record (+2); callers treat it as the current lead persona.
-/* D_00797F8E starts at the roster ID halfword, two bytes beyond the separate flag alias. */
+// Returns the persona id held in the lead slot's record; callers treat it as the current lead
+// persona. D_00797F8E starts at the roster ID halfword, two bytes past the separate flag alias.
 // FUN_0010B460
 u16 datPersonaLeadPersonaId(void)
 {
@@ -969,7 +952,7 @@ u16 datPersonaLeadPersonaId(void)
     return D_00797F8E[v].id;
 }
 
-// Intent: index of the lead roster slot; fatal when the lead slot is inactive.
+// Index of the lead roster slot; fatal when the lead slot is inactive.
 // FUN_0010B510
 s32 datPersonaGetLeadSlot(void)
 {
@@ -984,7 +967,7 @@ s32 datPersonaGetLeadSlot(void)
     return v;
 }
 
-// Intent: roster capacity (6, 8, 10 or 12) selected by the mode flags at D_0079B40C.
+// Roster capacity (6, 8, 10 or 12) selected by the mode flags at D_0079B40C.
 // FUN_0010B5B0
 s32 datPersonaRosterCapacity(void)
 {
@@ -1002,12 +985,10 @@ s32 datPersonaRosterCapacity(void)
 }
 
 #pragma push
-/* measured: nested static inline OR helper preserves retail's intermediate
-   ori sequence for modes 2 and 3; helper is required for exact b610 codegen. */
-/* measured: opt_propagation off preserves the three retail mask/and steps. */
-/* measured: baseline differs by 43 words; reloading the stored mode flags leaves nd110; retain propagation off. */
+/* measured: propagation off keeps retail's three separate mask/and steps, and a nested inline OR
+ * helper reproduces the ori sequence for modes 2 and 3. */
 #pragma opt_propagation off
-// Intent: sets the roster mode flags (none, 1, 2 or 3 cumulative) that select the capacity.
+// Sets the roster mode flags (none, 1, 2 or 3 cumulative) that select the capacity.
 // FUN_0010B610
 void datPersonaSetRosterMode(s32 rosterMode)
 {
@@ -1037,14 +1018,12 @@ void datPersonaSetRosterMode(s32 rosterMode)
         break;
     }
 }
-/* measured: restore the unit propagation setting after the b610 bracket. */
 #pragma pop
 #pragma push
-/* measured: sibling P3 valid-count shape closes this 0xD0 window with
-   opt_loop_invariants; the explicit bracket is required for the hoisted base. */
-/* measured: baseline differs by 17 words; cached typed roster base reduces nd35 to nd10 but changes addressing; retain hoisting. */
+/* measured: retail hoists the roster base address out of the count loop, which needs loop-invariant
+ * hoisting enabled here. */
 #pragma opt_loop_invariants on
-// Intent: number of active roster slots within the current capacity.
+// Number of active roster slots within the current capacity.
 // FUN_0010B6F0
 u16 datPersonaCountValidMembers(void)
 {
@@ -1076,20 +1055,15 @@ u16 datPersonaCountValidMembers(void)
     }
     return validCount;
 }
-/* measured: restore the unit settings after the one-function optimization bracket. */
 #pragma pop
-// Intent: clears the roster flag records.
+// Clears the roster flag records.
 // FUN_0010B7C0
 void datPersonaClearRoster(void)
 {
     memset((void *)D_00797F8C, 0, 0x240);
 }
 
-/* measured: retail loads the count-select constants with daddiu (the
-   b5b0-return form) inside the ||; mwcc b210 emits addiu for ternary/local
-   forms and hoists the D_0079B40C load. Tried ternary/u16/s64 arms and
-   assignment forms; nd 104-106. Same daddiu-local floor as datPersonaCountValidMembers. */
-// Intent: removes the selected roster member by compacting the slots after it.
+/* Removes the selected roster member by compacting the slots after it. */
 // FUN_0010B7F0
 void datPersonaRemoveSelectedRosterMember(void)
 {
@@ -1137,12 +1111,9 @@ valid_index:
         D_00797F88[0] = 0;
     }
 }
-/* 1008/1008 bytes; forty-five fully resolved relocations, no alignment tail.
- * Preserve the promoted search bound and signed persona-ID comparison.
- * Initialization and diagnostics can change the capacity flags: reload them
- * at each subsequent validation, as the retail body does. */
-// Intent: places persona arg1 into the first free slot of roster mode arg0 (mode 1 is the selection).
-/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+/* Places persona personaId into the first free slot of roster mode partyId (mode 1 is the
+ * selection). Capacity flags are reloaded at each validation because initialization and diagnostics
+ * can change them. */
 
 // FUN_0010B9A0
 
@@ -1192,7 +1163,6 @@ s32 datPersonaPlaceRosterMember(s32 partyId, u16 personaId)
         base = (u8 *)D_007973A0;
         for (; (u16)i < personaCount; i = (u16)(i + 1)) {
             off = (i & 0xFFFF) * 0x30;
-            /* measured: typed site/local/array forms change instructions; this existing member is exact. */
             if ((((DatPersonaRecord *)(base + 0xBEC + off))->flags & 1) != 0 && MEMBER(u16, base + 0xBEC + off, DatPersonaRecord, id) == id) {
                 found = (s16)i;
                 goto search_done;
@@ -1260,7 +1230,8 @@ pass47E:
     return 1;
 }
 
-// Intent: clears roster mode arg0; mode 1 resets the selection and the roster block, other modes clear one party block.
+// Clears roster mode partyId; mode 1 resets the selection and the roster block, other modes clear
+// one party block.
 // FUN_0010BD90
 void datPersonaResetRosterMode(s16 partyId)
 {
@@ -1274,7 +1245,7 @@ void datPersonaResetRosterMode(s16 partyId)
     }
 }
 
-// Intent: true when persona record arg0 is in the fixed party id range 0xC0..0xD7 (fixed growth rows).
+// True when the persona id is in the fixed party range 0xC0..0xD7, which uses fixed growth rows.
 
 // FUN_0010BE20
 s32 datPersonaUsesFixedGrowth(DatPersonaRecord *persona)
@@ -1287,20 +1258,14 @@ s32 datPersonaUsesFixedGrowth(DatPersonaRecord *persona)
     return 0;
 }
 
-/* Preview level, stat and skill changes without changing the persona.
- * Ordinary personas attempt three weighted stat gains per level; party
- * personas use fixed growth rows. Only stats below 99 can grow. Skill
- * additions/removals cover the newly reached level range.
- * Native b210 O2: 1856/1856 bytes, 34 resolved relocations, no tail.
- */
+/* Previews level, stat and skill changes without modifying the persona; ordinary personas try three
+ * weighted stat gains per level, party personas use fixed rows. */
 #pragma push
-/* measured: baseline differs by 179 words; explicit growth-table preheader gives nd1087; retain hoisting. */
+/* measured: retail hoists the growth-table address out of the loop. */
 #pragma opt_loop_invariants on
 /* Test whether the persona identifier belongs to the party-persona interval. */
 static inline s32 datPersonaGrowthIsParty(u8 *persona)
 {
-    /* Same DatPersonaRecord +2 access retained by the matching level-preview caller. */
-    /* measured: typed site/local/array forms change instructions; this existing member is exact. */
     s32 id = MEMBER(u16, persona, DatPersonaRecord, id);
     if (id >= 0xC0 && id < 0xD8) {
         return 1;
@@ -1320,8 +1285,9 @@ static inline s32 datPersonaGrowthFindSkill(u16 skill, u8 *skills, s32 known)
 }
 
 
-// Intent: previews stat, skill and level changes of persona arg0 at level arg2 into arg1 without modifying the persona.
-/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+// Previews the stat, skill and level changes from adding addedExp to persona, writing them into
+// delta without modifying the persona. Keeps byte-pointer parameters but reads fields through the
+// record layouts.
 
 // FUN_0010BE60
 
@@ -1426,7 +1392,6 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
                 }
             }
         } else {
-            /* measured: typed site/local/array forms change instructions; this existing member is exact. */
             if (MEMBER(u16, persona, DatPersonaRecord, id) < 0xC0 || MEMBER(u16, persona, DatPersonaRecord, id) > 0xD7) {
                 kAssertFail(D_005E4318, 0x59F);
             }
@@ -1452,16 +1417,13 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
         delta[0] += 1;
     }
     if (datPersonaGrowthIsParty(persona)) {
-        /* measured: typed site/local/array forms change instructions; this existing member is exact. */
         entry = (u8 *)iGpffffb3e4 + (MEMBER(u16, persona, DatPersonaRecord, id) - 0xC0) * 0x26E + 4;
         limit = 32;
         oldLevel = persona[4];
     } else {
-        /* measured: typed site/local/array forms change instructions; this existing member is exact. */
         pid = (u16)MEMBER(s16, persona, DatPersonaRecord, id);
         entry = (u8 *)iGpffffb3dc + pid * 0x46 + 6;
         limit = 16;
-        /* measured: typed base-level fields change nine bytes; plain byte-table indexing retains MATCH. */
         oldLevel = persona[4] - (iGpffffb3d4[(u32)(u16)pid * sizeof(DatPersonaLevelRow) + MEMBER_OFFSET(DatPersonaLevelRow, baseLevel)]);
     }
     newLevel = oldLevel + delta[0];
@@ -1538,7 +1500,7 @@ void datPersonaPreviewLevelUp(u8 *persona, u8 *delta, s32 addedExp)
     }
 }
 #pragma pop
-// Intent: applies a level-up delta from arg1 to persona record arg0: level, stat deltas, and newly learned skills.
+// Applies a level-up delta to the persona record: level, stat deltas, and newly learned skills.
 // FUN_0010C5A0
 void datPersonaApplyLevelUp(u8 *persona, u8 *delta)
 {
@@ -1571,10 +1533,8 @@ void datPersonaApplyLevelUp(u8 *persona, u8 *delta)
     }
 }
 
-/* 556/560 bytes; fifteen resolved relocations; four zero alignment bytes.
- * Typed party records and experience curves retain retail address ordering. */
-// Intent: total experience needed to reach level arg1 on persona arg0's growth curve; levels below 2 return 0.
-/* Retain byte-pointer interfaces while naming fields through the proven record layouts. */
+/* Total experience needed to reach the given level on the persona's growth curve; levels below 2
+ * return 0. */
 
 // FUN_0010C750
 
@@ -1632,7 +1592,7 @@ u32 datPersonaGetExpForLevel(void *persona, u16 level)
     return (u32)result;
 }
 
-// Intent: adds experience arg1 to persona record arg0 at +8; fatal when negative.
+// Adds experience to the persona record's exp field; asserts when the amount is negative.
 // FUN_0010C980
 void datPersonaAddExp(DatPersonaRecord *persona, s32 addedExp)
 {
@@ -1643,13 +1603,14 @@ void datPersonaAddExp(DatPersonaRecord *persona, s32 addedExp)
 }
 
 #pragma push
-/* measured: ported the matching P3 FES skill-compaction structure, with
-   the loop-invariant pragma required to retain retail's maxSkills preheader;
-   normalized_diff 0, object_size 232/240. */
+/* measured: retail hoists maxSkills into the loop preheader; same structure as the P3FES skill
+ * compaction. */
+/* Shift the persona's nonzero skills toward the front of its eight skill slots, closing any empty
+ * gaps. */
 // FUN_0010C9E0
-/* measured: baseline differs by 33 words; a cached skills pointer leaves nd67; retain hoisting. */
+/* measured: retail keeps loop-invariant values hoisted out of the compaction loop. */
 #pragma opt_loop_invariants on
-// Intent: compacts the 8-slot skill list of persona record arg0 so non-empty skills come first.
+// Compacts the 8-slot skill list of the persona record so non-empty skills come first.
 void datPersonaCompactSkills(u8 *persona)
 {
     u8 *record;
@@ -1688,15 +1649,14 @@ void datPersonaCompactSkills(u8 *persona)
         nextSkillIdx++;
     }
 }
-/* measured: closing pragma balances the required loop-invariant setting; nd 0. */
 #pragma pop
 
 #pragma push
-/* The halfword persona contract retains both retail masks when common
- * subexpression folding is disabled for this initializer. */
-/* measured: baseline differs by 52 words; typed level-row array access leaves nd133; retain common-subexpression setting. */
+/* measured: with common subexpression folding off, the halfword persona initializer keeps both of
+ * the masks that retail applies. */
 #pragma opt_common_subs off
-// Intent: initializes roster record arg0 for persona id arg1 from its table row, at the table level, with fixed skills.
+// Initializes a roster record for the persona id from its table row, at the table level, with fixed
+// skills.
 // FUN_0010CAD0
 void datPersonaInitRecord(u8 *persona, u16 personaId)
 {
@@ -1733,7 +1693,7 @@ void datPersonaInitRecord(u8 *persona, u16 personaId)
 }
 
 #pragma pop
-// Intent: stores skill arg1 in the first empty slot of record arg0; returns 1 on success, 0 when full.
+// Stores the skill in the first empty slot of the record; returns 1 on success, 0 when full.
 // FUN_0010CC20
 s32 datPersonaAddSkill(u8 *persona, u16 skillId)
 {
@@ -1753,7 +1713,7 @@ s32 datPersonaAddSkill(u8 *persona, u16 skillId)
     return 0;
 }
 
-// Intent: clears skill arg1 from record arg0 and compacts the list; returns 1 when found.
+// Clears the skill from the record and compacts the list; returns 1 when found.
 // FUN_0010CCC0
 s32 datPersonaRemoveSkill(u8 *persona, u32 skillId)
 {
@@ -1778,8 +1738,8 @@ s32 datPersonaRemoveSkill(u8 *persona, u32 skillId)
     return 0;
 }
 
-// Intent: replaces skill arg1 in record arg0 with arg2 when present; returns the slot index, or -1 when absent.
-/* The slot lookup supplies a byte offset into the DatPersonaRecord skills at +0x0C; retain the explicit offset local used for the final store. */
+// Replaces oldSkill with newSkill in the persona's skill list if it is there. Returns the slot
+// index, or -1 if oldSkill is not found.
 // FUN_0010CD70
 s32 datPersonaReplaceSkill(u8 *persona, s16 oldSkill, u16 newSkill)
 {
@@ -1796,7 +1756,7 @@ s32 datPersonaReplaceSkill(u8 *persona, s16 oldSkill, u16 newSkill)
     }
 }
 
-// Intent: index of skill arg1 in the 8-slot list of record arg0, or -1 when absent.
+// Index of the skill in the record's 8-slot list, or -1 when absent.
 // FUN_0010CE10
 s32 datPersonaFindSkillSlot(u8 *persona, u16 skillId)
 {
@@ -1818,7 +1778,7 @@ s32 datPersonaFindSkillSlot(u8 *persona, u16 skillId)
     return -1;
 }
 
-// Intent: number of non-empty skill slots in persona record arg0 (8 slots); 8 means full.
+// Number of non-empty skill slots in the persona record; 8 means full.
 // FUN_0010CEB0
 s32 datPersonaCountSkills(DatPersonaRecord *persona)
 {
@@ -1838,7 +1798,7 @@ s32 datPersonaCountSkills(DatPersonaRecord *persona)
     return count;
 }
 
-// Intent: skill id in slot arg1 (0..7) of persona record arg0.
+// Skill id in slot 0..7 of the persona record.
 // FUN_0010CF40
 u16 datPersonaGetSkillAt(DatPersonaRecord *persona, s16 slotIndex)
 {
@@ -1849,7 +1809,8 @@ u16 datPersonaGetSkillAt(DatPersonaRecord *persona, s16 slotIndex)
     }
     return persona->skills[index];
 }
-// Intent: stores source record arg2 (persona id arg1, its skills and stat bonuses) into the 0x30-byte record arg0; returns 1.
+// Stores the source record (persona id, skills and stat bonuses) into the 0x30-byte destination
+// record; returns 1.
 // FUN_0010CFA0
 s32 datPersonaLoadRecord(u8 *destination, u16 personaId, u8 *source)
 {
@@ -1907,7 +1868,7 @@ s32 datPersonaLoadRecord(u8 *destination, u16 personaId, u8 *source)
     return 1;
 }
 
-// Intent: adds the fixed-table skills of a party persona record arg0 (ids 0xC0..0xD7) into its empty skill slots.
+// Adds the fixed-table skills of a party persona (ids 0xC0..0xD7) into its empty skill slots.
 // FUN_0010D150
 void datPersonaLearnFixedSkills(u8 *persona)
 {

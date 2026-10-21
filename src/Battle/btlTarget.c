@@ -2,7 +2,6 @@
 #include "member_access.h"
 #include "btl_target_internal.h"
 #include "btl_motion_internal.h"
-/* Source unit: src/Battle/btlTarget_001eb440.c */
 #include "include_asm.h"
 #include "type.h"
 #include "btl_target_state_packet_internal.h"
@@ -112,15 +111,10 @@ s32 btlTargetAIPickAction(void) {
     return 1;
 }
 
-/* Ported from the P3FES btlTarget donor at 002d1600 (verified MATCH there),
- * which wraps this function in the same pragma. It is load-bearing:
- * measured: without it MWCC rematerializes the loop constant inside the loop
- * (addiu/sllv with swapped operands) instead of hoisting it, giving nd 28. */
+/* Matches P3FES func_002d1600, which uses the same pragma so the loop constant is hoisted out of
+ * the loop. */
 
-/* Ported from P3FES src/Battle/btlTarget.c FUN_002d21e0 (verified MATCH there).
- * The `volatile` on `state` is load-bearing and carried over from the donor.
- * measured: removing it takes this function MATCH nd0 -> nd6 (size 148/160),
- * matching the donor's own recorded W170 measurement of nd0 -> nd6. */
+/* Matches P3FES func_002d21e0; the volatile on state is carried over from that function. */
 
 typedef struct BtlTargetPacketWork {
     BtlAction* source; // 0x00
@@ -162,10 +156,9 @@ extern void datCalcClearStatusBlocked(void* unitFlags);
 extern void btlUnitUpdateHpGauge(void* source, u8* packet, s32* hpDelta);
 
 
-
 /* Return the genus bitmask of selected actions; duplicate targets share a bit. */
 #pragma push
-/* measured: u16 and u32 shift-one locals both leave nd28 without invariant hoisting. */
+/* measured: without invariant hoisting the shift-one bit is recomputed inside the loop. */
 #pragma opt_loop_invariants on
 // FUN_001EB440
 u16 btlTargetGetUnitIndex(BtlTarget* target)
@@ -257,7 +250,8 @@ f32 btlTargetVectorDistance(const RwV3d* first, const RwV3d* second)
     return RwV3dLength(&delta);
 }
 
-/* measured: the unit baseline retains MATCH without a propagation exception. */
+/* Return the angle between two quaternions, flipping the second one when needed so the shorter arc
+ * is measured. */
 // FUN_001EC2B0
 /* Return twice the inverse-cosine of the absolute quaternion dot product. */
 f32 btlTargetQuatAngle(BtlTargetQuaternionHolder *right, BtlTargetQuaternionHolder *left)
@@ -335,8 +329,9 @@ s32 btlTargetFindInRange(s32 position, u8 *output)
     return 1;
 }
 
-/* measured: the `volatile` on `state` is load-bearing (see annotation above);
- * removing it costs FUN_001EC630 MATCH nd0 -> nd6. */
+/* measured: retail reloads state through memory, so the volatile on state is needed. */
+/* Advance an accelerate-then-decelerate interpolation by one step of size value, updating the
+ * remaining distance, slope and result in state. Return 1.0 once the remaining distance is used up. */
 // FUN_001EC630
 /* Advance the stored spring slope and result toward completion using the remaining interval. */
 f32 btlTargetSmoothStep(f32 value, volatile f32* state)
@@ -373,7 +368,6 @@ f32 btlTargetSmoothStep(f32 value, volatile f32* state)
 }
 
 
-
 /* Round XZ coordinates to 25-unit cells relative to the 1750-unit origin. */
 // FUN_001EC6D0
 void btlTargetPositionToCell(s16* outX, s16* outZ, f32* position)
@@ -403,8 +397,7 @@ void btlTargetPositionToCell(s16* outX, s16* outZ, f32* position)
 
 /* Write the four cell-rounded XZ radius bounds into the unit obstacle. */
 // FUN_001EC790
-/* measured: reusing the cell coordinates for the upper bounds retains MATCH with propagation enabled. */
-/* Write the four XZ corners of the cell-rounded radius bounds embedded in the unit. */
+/* The upper bounds reuse the cell coordinates computed for the lower bounds. */
 void btlTargetSetRadiusArea(void* work, s32 x, s32 z, f32 radius)
 {
     s32 radiusInt;
@@ -441,7 +434,8 @@ void btlTargetSetRadiusArea(void* work, s32 x, s32 z, f32 radius)
     ((BtlTargetObstacle *)((u8 *)work + 0x508))->corners[3].position.x = xMinWorld;
     ((BtlTargetObstacle *)((u8 *)work + 0x508))->corners[3].position.z = zMaxWorld;
 }
-/* measured: reusing the two coordinates for displacement and projection retains MATCH with propagation enabled. */
+/* Return whether point projects onto the segment from first to second and lies within threshold of
+ * the line through them. */
 // FUN_001EC8C0
 /* Test perpendicular distance only when the projection lies inside the segment bounds. */
 s32 btlTargetNearSegment(f32* first, f32* second, f32* point, f32 threshold)
@@ -468,25 +462,6 @@ s32 btlTargetNearSegment(f32* first, f32* second, f32* point, f32 threshold)
     }
     return fabsf(cross) < threshold;
 }
-/* MATCH.  Reject a graph edge when it crosses an active link or an obstacle
-   edge.  The last eleven words were one saved-register exchange: retail
-   colours the second loop's counter $s2 and its next-corner pointer $s3,
-   this body had them the other way round.  Three things together close it
-   and all three are needed - `next` lives at function scope declared between
-   `i` and `j`, `edge` is declared without an initialiser, and the two are
-   assigned as statements with `next` first.  Declaring `next` after `j`
-   keeps the exchange; leaving `edge` initialised at its declaration keeps it
-   too.  Same statement-order sensitivity as handoff 7l, one level below
-   declaration order.  The first loop keeps its own block-scoped `next`;
-   folding both onto one variable costs 19.  Keep the private orientation
-   leaf defined below this caller - moving it above changes the compiler's
-   clobber knowledge and costs 920/976 bytes.
-   Earlier measurements on the way down, kept because they bound the search:
-   23 -> 11 came from declaring `corner` last in the first inner block;
-   at 11, reversing that whole block tied, `&node[i * 0x130]` tied, swapping
-   `i`/`j` tied, moving `corner` to the top of its block cost 23, hoisting
-   `i` above `node` cost 40, and spelling `corner` as `node + i * 0x130 + 8`
-   cost 223.  A 28-pair pragma sweep was entirely neutral or worse. */
 /* Reject a graph edge crossing an active midpoint link or an obstacle edge. */
 // FUN_001ECA10
 s32 btlTargetRangeCheck(u8 *first, u8 *second)
@@ -609,7 +584,7 @@ s32 btlTargetRangeCheck(u8 *first, u8 *second)
 }
 /* Return -1, zero or one for the oriented planar cross product. */
 // FUN_001ECDE0
-/* Private leaf: all twelve retail calls belong to this geometry unit. */
+/* Private helper; all twelve retail callers are in this file. */
 static s32 btlTargetCrossSign(const f32* first, const f32* second, const f32* point)
 {
     f32 cross = (second[0] - first[0]) * (point[1] - first[1]) -
@@ -629,7 +604,6 @@ nonpositive:
  * Obstacles containing either endpoint are skipped. */
 /* Return one for obstacle crossings or corners within the segment margin; skip endpoint-containing obstacles. */
 // FUN_001ECE50
-/* 520/528 bytes; all six relocations resolve exactly with the private leaf. */
 s32 btlTargetLineClear(f32 *first, f32 *second, f32 margin)
 {
     u8 *node;
@@ -715,7 +689,7 @@ void btlTargetClearWork(void* work)
     ((BtlActionResolutionMessage *)((u8 *)work + 0x10))->messageCode = 0;
 }
 
-/* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
+/* Matches P3FES func_002d8db0. */
 // FUN_001F0610
 s32 btlTargetSkillAuxiliaryMessageNoop(void)
 {
@@ -723,8 +697,10 @@ s32 btlTargetSkillAuxiliaryMessageNoop(void)
 }
 
 
-/* Ported from P3FES src/Battle/btlTarget.c FUN_002d7970 (verified MATCH there). */
+/* Matches P3FES func_002d7970. */
 
+/* Increment the pending packet count on both the source unit and the action unit of the target
+ * packet work. */
 // FUN_001F2FE0
 /* Retain each participating unit until the target-result packet is destroyed. */
 void btlTargetPacketAddPending(void* arg)
@@ -735,13 +711,12 @@ void btlTargetPacketAddPending(void* arg)
 }
 
 
-/* Ported from P3FES src/Battle/btlTarget.c FUN_002d7df0 (verified MATCH there). */
+/* Matches P3FES func_002d7df0. */
 
 /* Apply recorded HP/SP, status and buff changes, then notify death and reaction transitions. */
 // FUN_001F3010
 s32 btlTargetApplyHpSpChange(u8* work)
 {
-    /* MEMBER preserves the three measured status-word reloads across callbacks. */
 
     s32 wasStatusHigh;
     s32 wasDead;
@@ -908,7 +883,6 @@ void btlTargetPacketReleasePending(void* arg)
 }
 
 
-
 /* Copy the hit result into packet 0x700 and retain both participating units. */
 // FUN_001F36E0
 BtlPacket* btlTargetCreateDataPacket(s32 source, s32 action, const void* result, u16 effect, u16 targetFlags)
@@ -981,8 +955,7 @@ void btlTargetReleaseUnitPending(u8* work)
 
 /* Create packet 0x701 with pending-unit lifetime hooks and an action-counter update. */
 // FUN_001F3870
-/* The allocator result remains in v0 through packet initialization; all eleven
- * retail callers use it for submission or dependency setup. */
+/* All eleven retail callers use the returned packet for submission or dependency setup. */
 u8 *btlTargetCreateActionPacket(u8 *action, u8 flags)
 {
     u8 *packet;
@@ -1035,7 +1008,8 @@ u8 *btlTargetCreateRecordPacket(u8 *action)
     return packet;
 }
 
-/* Acquire the pending-unit reference for the target-hit packet. */
+/* Increment the pending packet count on the unit of the action that work points to, so the target-
+ * hit packet holds a reference to it. */
 // FUN_001F39B0
 /* Acquire the pending-unit reference for the target-hit packet. */
 void btlTargetRewindWorkPtr(u8 **work)
@@ -1073,7 +1047,7 @@ u8 *btlTargetCreateHitPacket(u8 *action)
     return packet;
 }
 
-/* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
+/* Matches P3FES func_002d8db0. */
 
 // FUN_001F3FD0
 s32 btlTargetMessageReservedFirstNoop(void)
@@ -1082,7 +1056,7 @@ s32 btlTargetMessageReservedFirstNoop(void)
 }
 
 
-/* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
+/* Matches P3FES func_002d8db0. */
 
 // FUN_001F4250
 s32 btlTargetMessageReservedSecondNoop(void)
@@ -1091,7 +1065,7 @@ s32 btlTargetMessageReservedSecondNoop(void)
 }
 
 
-/* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
+/* Matches P3FES func_002d8db0. */
 
 // FUN_001F4260
 s32 btlTargetMessageReservedThirdNoop(void)
@@ -1100,7 +1074,7 @@ s32 btlTargetMessageReservedThirdNoop(void)
 }
 
 
-/* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
+/* Matches P3FES func_002d8db0. */
 
 // FUN_001F4270
 s32 btlTargetMessageReservedFourthNoop(void)
@@ -1109,7 +1083,7 @@ s32 btlTargetMessageReservedFourthNoop(void)
 }
 
 
-/* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
+/* Matches P3FES func_002d8db0. */
 
 // FUN_001F4280
 s32 btlTargetMessageReservedFifthNoop(void)
@@ -1118,7 +1092,7 @@ s32 btlTargetMessageReservedFifthNoop(void)
 }
 
 
-/* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
+/* Matches P3FES func_002d8db0. */
 
 // FUN_001F4290
 s32 btlTargetMessageReservedSixthNoop(void)
@@ -1164,7 +1138,7 @@ BtlPacket* btlTargetCreateEmptyPacket(void)
     return packet;
 }
 
-/* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
+/* Matches P3FES func_002d8db0. */
 // FUN_001F9710
 s32 btlTargetVoiceReservedFirstNoop(void)
 {
@@ -1172,7 +1146,7 @@ s32 btlTargetVoiceReservedFirstNoop(void)
 }
 
 
-/* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
+/* Matches P3FES func_002d8db0. */
 
 // FUN_001F9720
 s32 btlTargetVoiceReservedSecondNoop(void)
@@ -1181,7 +1155,7 @@ s32 btlTargetVoiceReservedSecondNoop(void)
 }
 
 
-/* Ported from P3FES src/Battle/btlTarget.c FUN_002d8db0 (verified MATCH there). */
+/* Matches P3FES func_002d8db0. */
 
 // FUN_001F9730
 s32 btlTargetVoiceReservedThirdNoop(void)

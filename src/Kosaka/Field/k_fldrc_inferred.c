@@ -112,7 +112,6 @@ extern u8 D_005EF6C8[];
 extern f32 fGpffff8110;
 
 
-
 extern u8 D_005EF890[];
 extern u8 D_005EF8B0[];
 extern u8 D_005EF8D0[];
@@ -182,12 +181,6 @@ extern s32 RwMatrixUpdate();
 extern s32 D_007642F0;
 
 
-
-
-
-
-
-
 extern s32 iGpffff9dd0;
 extern s32 iGpffffb1f8;
 extern s32 iGpffffb1fc;
@@ -214,15 +207,8 @@ extern u8 iGpffff9dc8;
 extern RwV3d D_005EFB98;
 
 
-
-/* Camp display: grid, labels, radar and corner sprites.
- * The radar callees are declared here with u8 opacity parameters (H011):
- * retail narrows each radar alpha with its unsigned conversion and passes
- * it without another mask, while the matched definitions in this file keep
- * s32 because their own bodies use the full word.
- * `sprite` is one function-scope variable for the 0x1834 label sprite and
- * the corner sprite; b210 does not propagate it into the sdkSpriteDrawSized
- * call, so the label pointer is loaded before the stack argument. */
+/* Camp display: grid, labels, radar and corner sprites. Radar callees take u8 opacity because
+ * retail passes the narrowed alpha without another mask. */
 typedef struct { s32 lo, hi; } CampDisplayWords;
 typedef union {
     Float2_0014 xy;
@@ -248,56 +234,6 @@ extern u8 D_0064B2E0[];
 extern u8 D_0064B2E8[];
 extern f32 D_008872F8[];
 
-
-
-
-
-
-
-
-/* measured: closes the scoped optimization-level-1 probe. */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* measured: opt_rebuildconditionals off is scoped to resrcMngResetRenderSlots. */
-
-/* measured: closes opt_rebuildconditionals for resrcMngResetRenderSlots. */
-
-/* measured: opt_rebuildconditionals off is scoped to resrcMngSetDrawEnabled. */
-
-/* measured: closes loop-invariant constants probe for resrcMngSetDrawEnabled. */
-/* measured: closes opt_rebuildconditionals for resrcMngSetDrawEnabled. */
-
-/* measured: opt_rebuildconditionals off is scoped to FldMap_IsCurrentInEitherBand. */
-
-/* measured: closes opt_rebuildconditionals for FldMap_IsCurrentInEitherBand. */
-
-/* measured: opt_rebuildconditionals off is scoped to FldMap_IsInEitherBand. */
-
-/* measured: closes opt_rebuildconditionals for FldMap_IsInEitherBand. */
-
-/* Source unit: src/promoted/code1_0014.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_0014.c; members 0014dcd0-0014eec0 */
 
 extern s32 FldEvent_AverageEntryValue(void);
 extern u8 *FldEvent_GetGridCellEntry(s32 column, s32 row);
@@ -397,17 +333,6 @@ extern void fadeBeginTransition(s32 mode, s32 duration);
 extern void H_Fade_SetCustomColor(s32 r, s32 g, s32 b);
 extern void RwV3dNormalize(f32 *destination, f32 *source);
 extern u8 iGpffff9dd8[8];
-/* measured probe: optimization_level 1 on c780. */
-/* measured: restore optimization_level 2 after FldEvent_AverageEntryValue. */
-/* measured: byte-exact (354/354 instructions, 0 differing words).  The three
-   occupancy scans are block-scoped so each `clear` flag lives where retail
-   keeps it ($v0 reusing the test's 1, $s6 across the list walk's calls, $t2).
-   The grid is a u16 row array: `D_007D24B0[y + 1]` folds to the symbol+2
-   base retail uses for the final mark.  The mark's bits are `(u16)(1U << x)`
-   so they are not CSE'd with the signed occupancy test's `1 << x`.
-   opt_loop_invariants hoists 600.0f/1200.0f, x+1/y+1 and the table bases. */
-/* measured probe: opt_loop_invariants on hoists the 600.0f/1200.0f constants. */
-/* measured: restore opt_loop_invariants off after FldEvent_GetGridCellEntry. */
 // FUN_0014DCD0
 void FldRc_SetAxesTargeted(u8 *task, s32 targeted)
 {
@@ -436,11 +361,11 @@ void FldRc_SetAxesPosition(u8 *task, u8 *position) {
     RwMatrixUpdate(work);
 }
 
-/* measured probe: opt_propagation off preserves FldRc_DrawScreenQuad vtable and float stores. */
-/* measured: FldRc_DrawScreenQuad MATCH -> MISMATCH without this pragma. */
+/* measured: with copy propagation off, retail keeps the separate vtable loads and float stores in
+ * FldRc_DrawScreenQuad. */
 #pragma opt_propagation off
-/* Configure textured screen-quad render state and fill UVs from the stored bounds. */
-/* measured: typing the final texture pointer read changed 116 bytes; retain the measured pointer reload after writing vertex UVs. */
+/* Configure textured screen-quad render state and fill UVs from the stored bounds. The texture
+ * pointer is reloaded after the vertex UVs are written, as in retail. */
 // FUN_0014DD80
 void FldRc_DrawScreenQuad(u8 *context, u8 *quad) {
     FldRcScreenQuad *screenQuad = (FldRcScreenQuad *)quad;
@@ -471,15 +396,9 @@ void FldRc_DrawScreenQuad(u8 *context, u8 *quad) {
     base[0](1, 0);
 }
 
-/* measured probe: restore opt_propagation after 0014dd80. */
-/* Matched.  The near Z is RwIm2DGetNearScreenZ(), a member of RenderWare's
-   ourGlobals reached through the RwGlobals/RwDevice prefix above: read
-   twice around the camera call it keeps its address in $s5 without the
-   volatile pointer the old floor used.  The colour loop's counter and
-   vertex pointer are block-scoped, which is what puts the index in $a1
-   instead of $v0, and the four bytes convert as (f32)(u32) so MWCC emits
-   its own bltz/srl/or/cvt/add.s sequence.  No pragma. */
-/* Fill four screen vertices in the requested orientation and queue their render-state callback. */
+/* The near Z is RwIm2DGetNearScreenZ(), a member of RenderWare's ourGlobals, reached through the
+ * RwGlobals/RwDevice prefix. Fill four screen vertices in the requested orientation and queue their
+ * render-state callback. */
 // FUN_0014DEF0
 void FldRc_QueueScreenQuad(u8 *queue, u8 *quad,
                    f32 left, f32 top, f32 depthOffset, f32 width,
@@ -594,7 +513,6 @@ void FldRc_QueueScreenQuad(u8 *queue, u8 *quad,
 }
 
 /* Load an effect template, then advance primary and cloned effects until their duration expires. */
-/* measured: retained byte-alias file/template/counter accesses changed codegen individually (256..402 differing bytes); keep byte-pointer aliasing across effect calls. */
 // FUN_0014E2A0
 s32 FldRc_FileLoadStep(u8 *task) {
     FldRcEffectWork *effectWork;
@@ -703,8 +621,8 @@ block_31:
     }
 }
 
-/* Destroy all live cloned effects and the template before freeing task work. */
-/* measured: typing either task-work access changed 10 bytes; retain those raw task-pointer loads around effect destruction. */
+/* Destroy all live cloned effects and the template before freeing task work. measured: retail loads
+ * the task work pointer untyped around effect destruction, so those accesses stay raw. */
 // FUN_0014E540
 void FldRc_FileLoadDestroy(u8 *task) {
     KwlnTask *ownerTask = (KwlnTask *)task;
@@ -758,11 +676,10 @@ s32 FldRc_FileLoadIsReady(u8 *task) {
     return ((FldRcEffectWork *)((KwlnTask *)task)->work)->state >= 1;
 }
 
-/* measured probe: optimization level 1 register allocation for FldRc_RequestPositionSlot. */
-/* measured: FldRc_RequestPositionSlot MATCH -> MISMATCH without this pragma. */
+/* measured: FldRc_RequestPositionSlot needs optimization level 1 so register allocation matches
+ * retail. */
 #pragma optimization_level 1
 /* Start the primary effect or clone it into a free position slot; return the clone index or -1. */
-/* measured: typed clone-counter/priority array writes changed 2/142 bytes; retain their original integer-address helper shape. */
 // FUN_0014E740
 s32 FldRc_RequestPositionSlot(u8 *task, f32 *position) {
     s32 slotOffset;
@@ -812,10 +729,12 @@ loop_done_4:
     return slotIndex;
 }
 
-/* measured probe: restore optimization level 2 after FldRc_RequestPositionSlot. */
-/* measured: FldRc_TransitionStep, FldRc_CreateTransitionTask MATCH -> MISMATCH without this pragma. */
+/* measured: FldRc_TransitionStep and FldRc_CreateTransitionTask only reproduce retail code at
+ * optimization level 2. */
 #pragma optimization_level 2
-/* measured: each typed indexed clone access changed one normalized byte; retain the raw integer-address helper shape. */
+/* measured: indexed clone accesses use integer-address arithmetic as retail does. */
+/* Set the draw priority of a position slot in the task's effect work, or the primary priority when
+ * slotIndex is negative. An indexed slot only changes if it has an effect. */
 // FUN_0014E880
 void FldRc_SetPositionSlotPriority(u8 *task, s32 slotIndex, s16 priority) {
     u8 *work;
@@ -830,8 +749,8 @@ void FldRc_SetPositionSlotPriority(u8 *task, s32 slotIndex, s16 priority) {
     }
 }
 
-/* Return the elapsed update count of the primary effect or an indexed clone. */
-/* measured: typing the indexed counter access changed one normalized byte; retain its raw integer-address helper shape. */
+/* Return the elapsed update count of the primary effect or an indexed clone. The indexed counter is
+ * read through the raw integer-address helper, since a typed access changes the output. */
 // FUN_0014E8C0
 s32 FldRc_GetPositionSlotCount(u8 *task, s32 slotIndex) {
     u8 *work;
@@ -843,7 +762,9 @@ s32 FldRc_GetPositionSlotCount(u8 *task, s32 slotIndex) {
     return *(s32 *)&((FldRcEffectWork *)work)->primaryElapsed;
 }
 
-/* measured: typing the indexed lock access changed one normalized byte; retain its raw integer-address helper shape. */
+/* measured: the indexed lock access uses integer-address arithmetic as retail does. */
+/* Set the lock flag of a position slot in the task's effect work, or the primary lock when
+ * slotIndex is -1. */
 // FUN_0014E8F0
 void FldRc_SetPositionSlotLock(u8 *task, s32 slotIndex, s32 locked) {
     u8 *work;
@@ -856,7 +777,9 @@ void FldRc_SetPositionSlotLock(u8 *task, s32 slotIndex, s32 locked) {
     ((FldRcEffectWork *)byteAddressAdd((u32)(slotIndex * 4), work))->locks[0] = locked;
 }
 
-/* measured: typing the indexed visibility access changed one normalized byte; retain its raw integer-address helper shape. */
+/* measured: the indexed visibility access uses integer-address arithmetic as retail does. */
+/* Set the hidden flag of a position slot in the task's effect work, or the primary hidden flag when
+ * slotIndex is -1. */
 // FUN_0014E920
 void FldRc_SetPositionSlotVisibility(u8 *task, s32 slotIndex, s32 hidden) {
     u8 *work;
@@ -869,13 +792,12 @@ void FldRc_SetPositionSlotVisibility(u8 *task, s32 slotIndex, s32 hidden) {
     ((FldRcEffectWork *)byteAddressAdd((u32)(slotIndex * 4), work))->hidden[0] = hidden;
 }
 
-/* 712/720 bytes; ten resolved relocations; eight zero alignment bytes.
- * Inline predicates preserve reveal ordering and the frame-41 transition. */
+/* Inline predicates keep the reveal ordering and the frame-41 transition. */
 #pragma push
-/* measured: FldRc_TransitionStep MATCH -> MISMATCH without this pragma. */
-/* measured: typing the remaining child read/frame increment changed 514..515 bytes; keep those byte-pointer accesses across transition callbacks. */
+/* measured: child reads and the frame increment stay byte-pointer accesses because retail reloads
+ * them around the transition callbacks. */
 // FUN_0014E950
-/* measured: baseline 30 differing words; block lifetimes did not match; retain scoped settings. */
+/* measured: block lifetimes differ from retail without loop-invariant hoisting enabled. */
 #pragma opt_loop_invariants on
 s32 FldRc_TransitionStep(u8 *task)
 {

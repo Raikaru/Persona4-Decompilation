@@ -62,15 +62,10 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-
 extern u8 iGpffffa4d8;
 extern f32 fGpffff80fc;
 extern u8 D_007940F0[];
 extern f32 DAT_0076112c;
-
-
-
-
 
 
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
@@ -85,24 +80,11 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 0019a8d0-0019a960 */
-
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
+/* measured: optimization_level 1 keeps retail's loop initialisation order; -O2 reorders it. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off is scoped to func_001990d0. */
-/* measured: closes opt_propagation around func_001990d0. */
-/* measured: opt_propagation off is scoped to func_001998e0. */
-/* measured: closes opt_propagation around func_001998e0. */
-/* Measured: the hit ordinal is s64 and motion is u16. Propagation off
-   retains the entry mask and the late unsigned-halfword table index. */
+/* measured: the hit ordinal is s64 and motion is u16; with propagation off, retail keeps the entry
+ * mask and indexes the table late with an unsigned halfword. */
 #pragma push
 #pragma pop
 // FUN_0019A8D0
@@ -111,8 +93,9 @@ void btlUnitHoldPendingMotionSettle(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-/* Ported from P3FES btlUnitUpdate00284c90Packet: the packet's unit
-   pointer is at offset 0 and its comparison field is at offset 0x9EC. */
+/* Matches P3FES btlUnitUpdate00284c90Packet. */
+/* Report whether the packet's battle unit has settled into its rest motion. Only player and enemy
+ * genus units are checked; any other unit returns false. */
 // FUN_0019A8F0
 u32 btlUnitMotionSettlePacketUpdate(void *work)
 {

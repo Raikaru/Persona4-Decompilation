@@ -12,7 +12,6 @@
 #include "shd_misc_internal.h"
 
 
-
 extern s32 fclMesWindowDrawItemEntry(f32 fparg0, f32 fparg1, f32 fparg2, s32, s32, s32, s32, s32, s32);
 extern u8 *D_0072466C;
 extern s32 D_0063F2C8[];
@@ -51,18 +50,14 @@ extern f32 iGpffff82fc;
 extern u8 D_0063F3B0[];
 
 
-
 extern u32 D_007EFA00[];
 extern u8 D_007EFA04[];
 extern u8 *D_0063F110[];
 extern s8 D_007488C0[];
 
 
-
-/* Retail digit RGBA occupies the four bytes at draw+0x75.
-   MWCC requires packed after the typedef name. These guarded
-   storage views preserve the native FclDrawColor call interface.
-   See docs/probe_archive/Fcl_digit_packed_storage_ui_20261006. */
+/* Retail digit RGBA occupies the four unaligned bytes at draw+0x75; these packed views keep the
+ * FclDrawColor call interface. */
 #ifdef NON_MATCHING
 typedef union {
     FclDrawColor channels;
@@ -80,31 +75,12 @@ typedef char FclDigitStoredWordByteAligned[(sizeof(FclDigitStoredWordAlignment) 
 typedef char FclDigitColorStorageSize[(sizeof(FclDigitColorStorage) == 4) ? 1 : -1];
 #endif
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002b; members 002bc0b0-002bcbc0 */
-
 extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
-/* measured: opt_rebuildconditionals off probe for min/max */
-/* measured: close opt_rebuildconditionals after min/max */
-/* measured: opt_loop_invariants on adds retail's second divide hazard nop. */
-/* measured: close opt_loop_invariants after 3170. */
-/* measured: opt_loop_invariants on hoists the tag constants out of the loop. */
-/* measured: closes the loop-invariant bracket; the unit default is off. */
-/* measured: a typed vtable base local with propagation disabled reproduces the
-   retail single D_00887300 address hoist and saved-register frame. */
-/* measured: restores opt_propagation after func_002b5120. */
-/* Preserve the signed-halfword zero test without merging it with the
-   preceding sentinel comparison. */
+/* measured: retail hoists the tag constants out of the loop and keeps the second divide hazard nop. */
 #pragma push
 #pragma pop
-/* Row and value are signed halfwords; retail discards incoming row high bits.
-   Rewritten on the matched nmMesWindowSetNumber pattern. Retail passes both colours
-   as words (the parameter home reloaded with lw, the stored digit colour with
-   lwl/lwr), so the block-scope callee declaration takes u32 colours; the two
-   copies are spelled differently so only post-colouring CSE shares them.
-   The redraw positions are named locals, which puts their frame slots above
-   secondPosition as in retail. Depth precedes layer, as in nmMesWindowSetNumber:
-   retail copies $f12 before $t3 in the prologue, and both callers still
-   match. opt_dead_assignments off reproduces retail's late argument loads. */
+/* Row and value are signed halfwords and retail drops the row's high bits. Both colours are passed
+ * as words, so the callee declaration takes u32 colours. */
 #pragma push
 #pragma pop
 /* Keep the two positions, colors, and character-representation bounds
@@ -112,8 +88,6 @@ extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
    the layer in the recovered signature. See the worker3 digit-pair archive. */
 #pragma push
 #pragma pop
-/* Preserve the RGBA snapshot and later alpha reload across byte stores.
-   Measured: object 168B/window 176B, no instruction differences; 8B zero tail. */
 /* Draw an item with the standard single-entry flag. */
 // FUN_002BC0B0
 void fclMesWindowDrawItem(f32 x, f32 y, f32 depth, u32 color, u32 font, u32 mode,
@@ -230,12 +204,11 @@ block_23:
     return 0;
 }
 
-/* Both metadata queries share the signed halfword item ID. Capture the
- * remaining inputs before those calls; scoped propagation preserves their
- * retail entry order, all 740 code bytes, and the six-way table. */
+/* Both metadata queries take the signed halfword item ID; the other inputs are captured before
+ * those calls. */
 #pragma push
-/* measured: func_002bc4b0 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline 4 differing words; direct arguments and depth capture after query both 4. */
+/* measured: retail keeps the remaining inputs unpropagated and in entry order before the calls, so
+ * propagation is turned off for this function. */
 #pragma opt_propagation off
 /* Draw the message entry selected by the item category. */
 // FUN_002BC4B0
@@ -306,7 +279,7 @@ void fclMesWindowDraw(s32 item, s32 color, s32 font, s32 mode, s32 table, s32 li
     itfMesWindowQueueEntry(x, y, depth, color, font, mode, 1, D_0063F2B0[(s8)table], item, &D_00793E80[listIndex * 0x30]);
 }
 
-// Intent: Draw a message-window entry at the given position using the default table entry and mode 1 [inferred]
+// Draw a message-window entry at the given position using the default table entry and mode 1.
 // FUN_002BC860
 void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth,
                     s32 color, s32 font, s32 mode, s32 item)
@@ -316,9 +289,8 @@ void itfMesWindowDrawDefaultEntry(f32 x, f32 y, f32 depth,
     itfMesWindowDrawEntry(x, y, depth, color, font, mode, 1, D_0063F2C8[0], item);
 }
 
-/* Queue an unloaded slot unless it already has a pending request; cancel a pending release. */
-/* Typed slot/list rewrite changed code generation (attach: nd143; update: nd317).
- * Retain byte accesses: slots are 0x0C bytes at manager+0x1C, links +0x10, payload +0x14. */
+/* Queue an unloaded slot unless it already has a pending request; cancel a pending release. Slots
+ * are 0x0C-byte records accessed as raw bytes, with links at +0x10 and payload at +0x14. */
 // FUN_002BC890
 s32 fclMiscAttachSlot(u8 *manager, s32 slotIndex)
 {
@@ -372,9 +344,8 @@ loop_done:
     return 0;
 }
 
-/* Load the head sprite request, publish readiness, and release slots marked with flag 4. */
-/* Typed slot/list rewrite changed code generation (attach: nd143; update: nd317).
- * Retain byte accesses: slots are 0x0C bytes at manager+0x1C, links +0x10, payload +0x14. */
+/* Load the head sprite request, publish readiness, and release slots marked with flag 4. Slots are
+ * 0x0C-byte records at manager+0x1C with links at +0x10 and payload at +0x14. */
 // FUN_002BC9E0
 s32 fclMiscUpdateSlots(u8 *manager)
 {

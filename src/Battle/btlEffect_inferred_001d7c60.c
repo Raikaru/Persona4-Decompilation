@@ -55,20 +55,9 @@ extern f32 fGpffff8030;
 extern f32 fGpffff803c;
 extern f32 fGpffff8110;
 
-/* Source unit: src/promoted/code1_001d.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001d.c; members 001d7c60-001d8010 */
-
-/* measured: opt_propagation off probe for btlCameraFindFormationForCounts loop masks. */
-/* measured: close opt_propagation after btlCameraFindFormationForCounts probe. */
-/* measured: optimization_level 1 probe for func_001d5990 stack reload scheduling. */
-/* measured: restore optimization_level 2 after func_001d5990. */
-/* measured: opt_propagation off is required for the default GP load/store register order. */
-/* measured: close opt_propagation after btlEffectFlagToColor. */
-/* 680/688 bytes; five resolved relocations and eight zero alignment bytes.
- * Active battle actions receive type-0/1 work from func_0019f5f0 through
- * btlActionSetUnit. Type-2 auxiliary work lives at work+0xA0C instead.
- * This construction contract defines both sides before they are used. */
-/* Collect active actions selected by relative side, self-exclusion, death and status filters into the target array. */
+/* Collect active actions selected by relative side, self-exclusion, death and status filters into
+ * the target array. Type-0/1 work comes from btlActionSetUnit; type-2 auxiliary work lives at
+ * work+0xA0C. */
 // FUN_001D7C60
 void btlEffectCollectTargetUnits(u8 *action, u8 *selection, u32 sideFlags, u32 filterFlags, u32 statusMask)
 {
@@ -198,17 +187,13 @@ u16 btlSkillClassifyTargets(u8 *action, u8 *selection, u16 skillId, u32 reverseS
 }
 
 #pragma push
-/* measured: 25 -> 18 -> 11 -> 0. Hoisting retains the live-count bound copies;
- * opt_lifetimes splits the reused gather counters after those bounds. */
-/* measured: btlEffectSelectNeighbourTarget MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd1095; typed pointer reuse, typed parameter cache, inverted if/else did not match (best nd1095); retain opt_loop_invariants on. */
+/* measured: loop-invariant hoisting keeps the live-count bound copies, and opt_lifetimes splits the
+ * reused gather counters after those bounds, as retail does. */
 #pragma opt_loop_invariants on
-/* measured: btlEffectSelectNeighbourTarget MATCH -> MISMATCH without this pragma. */
-/* measured: baseline nd1095; typed pointer reuse, typed parameter cache, inverted if/else did not match (best nd1095); retain opt_lifetimes on. */
+/* measured: btlEffectSelectNeighbourTarget needs opt_lifetimes on to reproduce retail's register
+ * lifetimes; restructured C forms did not. */
 #pragma opt_lifetimes on
 /* Select a neighbouring battle target by screen position, facing, or chain order. */
-/* measured: site, typed-local, array and explicit member-address forms lose MATCH
- * on the party-tail reload; MEMBER retains the original global byte-cursor alias domain. */
 // FUN_001D8010
 void btlEffectSelectNeighbourTarget(u8 *action, u8 *selection) {
     BtlTargetSelection *targetSelection = (BtlTargetSelection *)(selection);

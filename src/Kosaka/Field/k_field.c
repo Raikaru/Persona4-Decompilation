@@ -7,7 +7,7 @@
 #include "Kosaka/k_fldStep_internal.h"
 #include "mt_scene_internal.h"
 #include "field_transition_internal.h"
-/* Original translation unit k_field.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit k_field.c (from __FILE__ assert strings). */
 
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -43,10 +43,8 @@ extern void FldLoadTaskUnloadScene(u8 *);
 extern u8 *kwlnGetCamera(void);
 extern void func_003e9df0(s32);
 
-/* Fresh reconstruction retained in FFS_00155360_body.c: 2192/2192 bytes,
-   112 resolved code relocations and all 19 switch targets match except the
-   three argument-setup instructions at +0x1B0..+0x1B8. Retail moves task
-   before loading field/room; the candidate loads them first. Remains ASM. */
+/* Kept as ASM: retail moves task before loading field/room, which the C reconstruction does not
+ * reproduce. */
 typedef struct KFieldStateWork {
     s32 state;
     u8 reserved04[4];
@@ -145,7 +143,6 @@ extern void FldSlotBroadcastState(s32);
 extern s32 evtMainIsFlagSet(void);
 extern void sequenceRequest(s32, void *, s32, s32);
 
-/* measured: baseline removal differs in 13 bytes; typed task work access-site reload; name script-room argument before size load also differ. */
 #pragma opt_propagation off
 /* Advance field loading, scripts and task creation, then wait for an exit or event completion. */
 /* Resource flags, step-file selection and CDVD payloads use their shared storage layouts. */
@@ -359,10 +356,10 @@ s32 FldRootUpdate(u8 *task)
 #pragma opt_propagation on
 
 
-/* measured: FldRootDestroy now matches at normalized_diff 0 (object 540B/window 544B); spelling the second range as <= 0x1E makes MWCCPS2 use the retail $at branch temporary, with the same trailing window nop. */
-// Committed at nd 0.
-/* Release field resources and dependent tasks before resetting the camera frame. */
-/* MEMBER retains the measured scalar task-handle reloads across destruction callbacks. */
+/* measured: the second range check is written as <= 0x1E because that gives retail's branch
+ * temporary. Releases field resources and dependent tasks before resetting the camera frame. */
+/* Tear down the field scene: release the event reader and its resources, slot tables, loaded scene,
+ * and dependent frame tasks, then reset the camera frame. */
 // FUN_00155BF0
 void FldRootDestroy(u8 *task)
 {
@@ -431,15 +428,15 @@ field_done:
     offset = 0;
     while (offset < 3) {
         frameSlot = (s32 *)KFIELD_D_007D2510 + offset;
-        childTask = MEMBER(s32, (u8 *)frameSlot, FldFrame, dependentTasks[0]); /* measured: FldFrame.dependentTasks[0]: local instruction mismatch; MEMBER retains reload behavior. */
+        childTask = MEMBER(s32, (u8 *)frameSlot, FldFrame, dependentTasks[0]);
         if (childTask != 0) {
             kwlnTaskDestroyWithHierarchy(childTask);
-            MEMBER(s32, (u8 *)frameSlot, FldFrame, dependentTasks[0]) = 0; /* measured: FldFrame.dependentTasks[0]: local instruction mismatch; MEMBER retains reload behavior. */
+            MEMBER(s32, (u8 *)frameSlot, FldFrame, dependentTasks[0]) = 0;
         }
         offset += 1;
     }
     func_003e9df0((s32)((RwCamera *)(kwlnGetCamera()))->object.object.parent);
-    KFIELD_JTBL_008873EC(MEMBER(s32, task, SdkTask, work)); /* measured: SdkTask.work: local instruction mismatch; MEMBER retains reload behavior. */
+    KFIELD_JTBL_008873EC(MEMBER(s32, task, SdkTask, work));
 }
 
 extern void kwlnTaskDumpAll(void);
@@ -463,24 +460,15 @@ extern void RwEngineGetMatrixTolerances(f32 *);
 extern void RwMatrixOptimize(void *, f32 *);
 extern void func_003e9680(void *);
 extern s32 FldRootUpdate(u8 *);
-/* measured: object 648B/window 656B, nd 0. The six stack parameters are s64
-   slots read in place through `*(s32 *)&argN` / `*(u8 *)&arg8`: an s32
-   stack parameter with several uses gets homed into $s2 at entry and pushes
-   the u8 register parameter out to a byte spill, while the address-taken
-   slot reads are plain lw/lbu every time exactly as retail reloads them.
-   Register parameters colour $s1,$s4,$s3,$s2,$s5-$s8 with the work pointer in
-   $s0 and the handle reusing $s1. The camera position constant is copied as
-   an s64 + f32 scalar pair (two lui, both loads before both stores, which
-   needs opt_propagation off) into a Vec3 local that is then assigned as a
-   12-byte aggregate (three lwc1 then three swc1). FldResource_OpenPrimaryFile takes the
-   two u16 parameters unmasked. */
+/* measured: stack parameters are read in place through casts because retail reloads each one at
+ * every use. */
 // FUN_00155E10
-/* measured: opt_propagation off keeps the scalar-pair copy's two loads ahead
-   of its two stores. */
-/* measured: baseline removal differs in 8 bytes; componentwise camera position copy; store Z before packed XY also differ. */
+/* measured: opt_propagation off keeps the scalar-pair copy's two loads ahead of its two stores, as
+ * retail does. */
 #pragma opt_propagation off
-/* Allocate the field controller, select event-driven or direct entry, and reset camera placement. */
-/* Scene/camera fields are named; address-taken stack slots retain the measured scalar-pair and stack reload shapes. */
+/* Allocate the field controller, select event-driven or direct entry, and reset camera placement.
+ * The position locals have their address taken so they are kept as separate stack values and
+ * reloaded from the stack. */
 s32 FldRootCreate(u8 *parent, u16 field, u16 room, u16 entry, s16 spawn, s16 direction, s32 sceneFlags, u8 loadMode,
                   s64 secondaryMode, s64 transitionValue, s64 eventId, s64 eventMajor, s64 eventMinor, s64 eventFlags)
 {
@@ -538,5 +526,4 @@ s32 FldRootCreate(u8 *parent, u16 field, u16 room, u16 entry, s16 spawn, s16 dir
     return handle;
 }
 
-/* measured: closes the propagation bracket; the unit default is on. */
 #pragma opt_propagation on

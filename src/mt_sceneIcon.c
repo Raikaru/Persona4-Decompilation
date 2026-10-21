@@ -1,7 +1,7 @@
 #include "resrc_manager_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Original translation unit mt_sceneIcon.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit mt_sceneIcon.c (from __FILE__ assert strings). */
 #include "type.h"
 
 extern s32 H_Cdvd_LookupRequest(s32 pathAddress, void *slot);
@@ -9,8 +9,8 @@ extern u8 *mdlEffectCreateFromResource(s32 resource);
 extern void MT_Scene_SpawnIconTask(s32 effectHandle);
 extern s32 D_0063B4F0[];
 
-/* Allocated by mtSceneIconSpawnTask (0x10 bytes); resource index and request
- * result are words, while the scene resource id is a halfword. */
+/* Work block allocated by mtSceneIconSpawnTask; resource index and request result are words, the
+ * scene resource id is a halfword. */
 typedef struct MtSceneIconLoadWork {
     u32 state;
     u16 resourceId;
@@ -29,10 +29,11 @@ extern u8 iGpffffa700;
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
-// lint: allow H011 -- measured: u16 prototype regresses func_0026da30 (andi on the wide icon id); retail declared this old-style
+// lint: allow H011 -- measured: retail declared this old-style; a u16 prototype adds a mask on the
+// icon id.
 extern u8 *MT_Scene_GetRes();
 extern void mdlEffectStart(s32 a);
-/* measured: returns 0 / -1 in $v0; the task dispatcher discards it, so the callback site casts. */
+/* Returns 0 or -1; the task dispatcher discards it, so the callback site casts. */
 extern s32 mtSceneIconTaskUpdate(u8 *unusedTask);
 extern u8 D_0063B558[];
 extern u8 D_0063B568[];
@@ -41,13 +42,10 @@ extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
 extern void H_Cdvd_ReadSync(u8 *cdvd);
 
 
+// Matches P3FES comuTimerSequence. kwlnTaskGetWork stays undeclared because a typed prototype adds
+// a zero-extension that retail lacks.
 
-// Ported from the P3FES comuTimerSequence donor function (verified MATCH there).
-// kwlnTaskGetWork is intentionally left undeclared (implicit old-style call, as
-// in the donor): a typed prototype makes mwcc emit zero-extension codegen
-// retail never has.
-
-// Loads the scene icon directory: logs its debug name and syncs the directory read [inferred].
+// Loads the scene icon directory: logs its debug name and syncs the directory read.
 // FUN_0026D840
 void mtSceneIconLoadDirectory(void)
 {
@@ -55,7 +53,8 @@ void mtSceneIconLoadDirectory(void)
     H_Cdvd_ReadSync(H_Cdvd_AcquireDirectory(D_0063B568, 1));
 }
 
-// Scene icon task update: state 0 starts the icon lookup request; state 1 attaches the loaded handle to the icon resource and spawns any previous handle [inferred].
+// Scene icon task update: state 0 starts the icon lookup request; state 1 attaches the loaded
+// handle to the icon resource and spawns any previous handle.
 // FUN_0026D890
 s32 mtSceneIconTaskUpdate(u8 *unusedTask)
 {
@@ -106,7 +105,7 @@ s32 mtSceneIconTaskUpdate(u8 *unusedTask)
     }
     return 0;
 }
-// Scene icon task destroy: calls the release callback on the task's work block [inferred].
+// Scene icon task destroy: calls the release callback on the task's work block.
 // FUN_0026D9F0
 void mtSceneIconTaskDestroy(u8 *unusedTask)
 {
@@ -116,7 +115,8 @@ void mtSceneIconTaskDestroy(u8 *unusedTask)
     DAT_008873ec_abs[0](workAddress);
 }
 
-// Starts the icon effect for kind 1 or 3 when arg1 is 0xA and the icon handle is set (returns 0); otherwise spawns mtSceneIconTaskUpdate for the resource [inferred].
+// Starts the icon effect for kind 1 or 3 when iconIndex is 0xA and the handle is set; otherwise
+// spawns mtSceneIconTaskUpdate for the resource.
 // FUN_0026DA30
 s32 mtSceneIconSpawnTask(s32 resourceId, s32 iconIndex)
 {
@@ -126,8 +126,8 @@ s32 mtSceneIconSpawnTask(s32 resourceId, s32 iconIndex)
 
     if (iconIndex == 0xA) {
         icon = MT_Scene_GetRes(resourceId);
-        /* measured: the NULL return is an `else` clause, not an early return, so
-           its zero lands after the two kind blocks exactly as retail places it. */
+        /* measured: the NULL return is an else clause, not an early return, so retail places its
+         * zero after the two kind blocks. */
         if (icon != NULL) {
             kind = (((ResrcRecord *)icon)->resTypeId & 0xFFC00) >> 10;
             if (kind == 1) {

@@ -75,16 +75,9 @@ extern void sdkSpriteDrawOnceScaled(s32 packAddress, s32 image, f32 x, f32 y,
                           u16 scaleX, u16 scaleY, f32 angle, s16 pivotX,
                           s16 pivotY);
 
-/* Window frame fade.  The 192 alpha is converted at each vertex (u8)(192.0f *
-   scale) - the product is shared, the float->u8 conversion is not - and the
-   primitive table is read through an integer view so its address stays in
-   $s0 across the first draw, as in fclCmbBallDraw's twin 0014dd80 recipe. */
-/* The two work floats are each reused across the phases, as retail's FP
-   colouring shows: `ratio` holds the first-phase interpolation and then the
-   width delta, `extent` the start value and then the half width.
-   -0.2617994f is -15 degrees in radians (the sprite below is drawn at -15.0f);
-   it and the other float literals are pooled in retail's gp data. */
-
+/* Window frame fade. The 192 alpha is converted to u8 separately at each vertex from a shared
+ * product. The work floats are reused across phases: `ratio` holds the interpolation then the width
+ * delta, `extent` the start value then the half width. -0.2617994f is -15 degrees in radians. */
 
 
 /* Persona list panel. The slide-in ease is 2t - t*t, clamped. Every
@@ -123,13 +116,10 @@ typedef struct Code38RingVertex {
 } Code38RingVertex;
 
 
-/* Measured: 904/912 bytes, eleven resolved relocations and eight zero
- * alignment bytes. D_00761490 is the retail scalar 0xBD872B00, not the
- * rounded -0.066f literal; keep the five-frame and 300-frame reloads. */
+/* D_00761490 is the retail scalar 0xBD872B00, not the rounded -0.066f literal. */
 typedef struct Code38RevealWeight {
     f32 value;
 } Code38RevealWeight;
-
 
 
 typedef struct {
@@ -264,14 +254,11 @@ zero_extra:
     *(s32 *)&((RpCollTree *)treeBytes)->splits = 0;
     goto pointer_0;
 }
-/* measured: closes the bracket opened above func_0038f990, which matches at
-   object 372 against the 384-byte window at nd 0 with the float copy-chain
-   locals; the explicit off restores the file baseline for what follows. */
+/* measured: restores the unit setting after func_0038f990. */
 #pragma schedule off
 #pragma no_branch_likely off
-// measured: b210 at -O2 folds (a*0x10)+0x30 into one addiu in the beqz delay
-// slot (11 words); schedule on with the constant materialized first reproduces
-// retail's hoisted addiu $a1,0x30 + addu $v0,$a1,$v0 delay-slot pair (12 words).
+// measured: retail adds the 0x30 constant separately in the branch delay slot instead of folding it
+// into the split-count multiply.
 #pragma schedule on
 /* Return serialized collision-tree bytes, including chunk headers and the optional entry map. */
 // FUN_0038FB20
@@ -285,11 +272,10 @@ s32 rpCollTreeStreamGetSize(u8 *treeBytes) {
     }
     return streamSize;
 }
-// measured: closing bracket for the schedule-on above; the function body is
-// already compiled, so this off only satisfies decomp_lint P001 balance.
+// measured: closes the schedule-on bracket above; the function is already compiled, so this only
+// keeps the pragma pairs balanced.
 #pragma schedule off
-/* FUN_0038FB50, FUN_0038FD30: matched in src/promoted/code1_0038_cw119.c */
 
-/* measured: probe_variants func_0038fe90 fixed (externs corrected, jtbl redeclare removed) 216wd (vs stale archive 732wd oversized), sched 191wd win (-25), loop_invariants 215wd tie, sched inclusive (value<0xF0 -> <=0xEF) 191wd tie (fndiff both slti $at, exclusive already $at so lever neutral here); fnalign sched 246 edits (frame 0x140 vs retail 0x110 + scheduling + address chains, plus 4 reloc-only); lever 4 tie per above; parent lesson: schedule measured, common_subs off COMPILE ERROR (pragma+body interaction, banked without it), loop_invariants tie; lb (lbu correct for u8 record bytes) checked; double-def offset (addu base+off after lw at 28FF24/28FF30) remains; re-derived (5-arg f990, 3-arg df360/df300, 1-arg e2ce0, jtbl void* per file-scope, Ghidra/IDA 5-arg confirmed); archive docs/probe_archive/P038_0038fe90_body.c (stale oversized). Banked guarded floor with sched bracket; revisit (2.4% short 204v209): sched+common_subs push 192wd tie+1 (not adopted), dead-arm N/A (no trailing empty else-if, ends with flag-gated j-loop + return), compare-chain N/A (two ==2 tests on different bytes, not adjacent K/K+1). */
-/* FUN_0038FE90: matched in src/promoted/code1_0038_cw119.c */
+/* measured: func_0038fe90 comes out closest to retail with instruction scheduling off; the
+ * remaining gap is a larger stack frame and doubled base+offset address math. */
 extern u8 *func_0038fe90(u8 *, u32, s32, f32 *, s32 *);

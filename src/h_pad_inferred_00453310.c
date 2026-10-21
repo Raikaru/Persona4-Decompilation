@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/h_pad.c; members 00453310-004534f0 */
 
 #include "include_asm.h"
 #include "type.h"
@@ -24,12 +23,10 @@ extern s16 D_008C030E[];
 extern u8 D_008C031E[];
 #pragma push
 #pragma optimization_level 2
-// Same body as sdkPadRepeatButton (sdkTask_inferred.c), run on the dispatch-stage held/edge words (D_008C0314..D_008C031E) instead of the cook-stage words.
-/* measured: retain any byte-addressed dispatch access below: using full record
- * fields changes timer/mask address materialization under b210 (nd 2..107).
- * D_008C0314/+2/+6/+0xA are held, pressed, repeat, and per-button timers. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 2, 105; retain their original address/alias expressions. */
+// Same body as sdkPadRepeatButton, run on the dispatch-stage held/edge words
+// (D_008C0314..D_008C031E) instead of the cook-stage words. measured: retail addresses the held,
+// pressed, repeat and timer words (D_008C0314/+2/+6/+0xA) as raw bytes, so typed record fields
+// change how the addresses are built.
 // FUN_00453310
 void sdkPadRepeatButtonDispatch(s32 padIndex, u16 buttonMask, s32 timerIndex) {
     s32 recordOffset;

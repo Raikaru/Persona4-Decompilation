@@ -1,4 +1,3 @@
-/* Source unit: src/btlTarget/btlTarget_001eb420.c (1 function markers) */
 #include "include_asm.h"
 #include "type.h"
 #include "btl_target_state_packet_internal.h"
@@ -33,7 +32,6 @@ typedef struct BtlTarget {
 } BtlTarget;
 
 u32 btlTargetSimpleCommand(BtlTargetSimpleWork* work);
-
 
 
 /* Snapshot the two target halfwords into their saved pair. */

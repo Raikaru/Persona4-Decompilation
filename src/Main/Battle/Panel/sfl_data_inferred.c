@@ -10,7 +10,8 @@
 struct RwMatrixTag;
 #include "rw_types_internal.h"
 
-/* Reset clears the 0x18-byte details at +4; Load and all draw helpers agree. */
+/* Reset clears these 0x18 bytes of details following the id; Load and the draw helpers use the same
+ * layout. */
 typedef struct SflPersonaDetails
 {
     s16 partyId;
@@ -50,7 +51,6 @@ extern u32 datPersonaGetExpToNextLevel(PersonaWork *persona);
 
 
 extern void memset(void *dst, s32 value, s32 size);
-
 
 
 extern s32 datCalcGetLevelById(s32 unitId);
@@ -113,12 +113,8 @@ extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern f32 iGpffff8040;
 extern f32 fGpffff8198;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0036; members 00366380-00367d00 */
-
-/* 752/752 bytes, ten resolved relocations, no alignment tail.
- * Capture both offset widths together: queued renderers consume a signed
- * halfword Y, while the immediate renderer takes its promoted signed word.
- */
+/* Queued renderers take a signed halfword Y offset, while the immediate renderer takes a promoted
+ * signed word. */
 // FUN_00366380
 /* Construct the narrow rounded frame, expand its size, color its contour and submit it with the requested transform. */
 void sflDataDrawNarrowRoundedFrame(s32 x, s32 y, f32 depth, s32 width, s32 height,
@@ -220,11 +216,8 @@ void sflDataDrawNarrowRoundedFrame(s32 x, s32 y, f32 depth, s32 width, s32 heigh
 
 /* Build the wider rounded-frame contour and dispatch it through the requested immediate or queued transform. */
 // FUN_00366670
-/* 752/752 bytes, ten resolved relocations. The explicit table copy preserves
- * the entry halfword load; the paired offset assignment preserves both real
- * primitive ABIs. Keep i = 0 before splitting the unsigned packed color.
- */
-/* Construct the alternate rounded frame contour with the wider corner steps and submit it with the requested transform. */
+/* The explicit table copy keeps the halfword entry load, and the offset assignment is shared by
+ * both primitive calls; i is set to 0 before the packed color is split. */
 void sflDataDrawWideRoundedFrame(s32 x, s32 y, f32 depth, s32 width, s32 height, s32 rgb, s32 alpha, s32 mode, s32 offsetX, s16 offsetY, void *queue, f32 angle, f32 scaleX, f32 scaleY) { extern s64 iGpffffabe8;
 extern const s32 D_0064E3B0[36];
 extern void PrimQueueBatchAlpha(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType, s32 preserveState, s16 offsetX, s16 offsetY, f32 rotation, f32 scaleX, f32 scaleY, void *queue);
@@ -317,13 +310,13 @@ if (queue != 0) {
     PrimDrawTransformed(col, v, depth, 18, 5, mode, offsetX, centerY, angle, scaleX, scaleY);
 } }
 
-/* 780/784 bytes; nine resolved relocations; four zero alignment bytes.
- * Keep the angle and shared scale local to each primitive call. */
+/* The angle and shared scale stay local to each primitive call. */
 #pragma push
-/* measured: func_00366960, func_00366c70 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline differs by 129/119 words for the two quads; cached translation coordinates do not match; retain propagation off. */
+/* measured: retail does not cache or propagate the translation coordinates between the two quad
+ * calls, so propagation stays off. */
 #pragma opt_propagation off
-// Intent: Queues a four-point colour quad of the given width and height, with packed RGBA and a transform matrix [inferred]
+// Queues a four-point colour quad of the given width and height, with packed RGBA and a transform
+// matrix.
 // FUN_00366960
 void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                    s32 alpha, s32 mode, s32 centerX, s16 centerY,
@@ -534,7 +527,7 @@ s32 sflDataDrawTexturedQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
 }
 
 #pragma pop
-// Intent: Clears a persona panel state block: its id and the 0x18 bytes that follow [inferred]
+// Clears a persona panel state block: its id and the 0x18 bytes that follow.
 // FUN_003671D0
 void sflDataResetPersonaState(s16 *state)
 {
@@ -542,7 +535,7 @@ void sflDataResetPersonaState(s16 *state)
     *state = 0;
 }
 
-// Intent: Draws one panel entry, dispatching on its kind byte (0-6) to the matching sprite or panel helper [inferred]
+// Draws one panel entry, dispatching on its kind (0-6) to the matching sprite or panel helper.
 // FUN_00367210
 void sflDataDrawEntry(P4Pair position, f32 depth, s32 opacity, s16 *state)
 {
@@ -576,9 +569,9 @@ void sflDataDrawEntry(P4Pair position, f32 depth, s32 opacity, s16 *state)
     }
 }
 
-// Intent: Fills a persona panel state block from the persona record (id, row, arcana, level, and the rank or next-level experience) [inferred]
+// Fills a persona panel state block from the persona record: id, row, arcana, level, and rank or
+// next-level experience.
 // FUN_003672D0
-// MATCH: 336B/336B. IDA-backed lookup lifetimes and canonical return contracts.
 void sflDataLoadPersonaState(void *work, s16 pcId)
 {
     u8 *state = (u8 *)work + 4;
@@ -605,7 +598,7 @@ void sflDataLoadPersonaState(void *work, s16 pcId)
     }
 }
 
-// Intent: Draws a persona panel by composing its six sub-draws at fixed offsets from the panel origin [inferred]
+// Draws a persona panel by composing its six sub-draws at fixed offsets from the panel origin.
 // FUN_00367420
 void sflDataDrawPersonaPanel(s64 position, f32 depth, s32 opacity, u8 *state)
 {
@@ -640,7 +633,7 @@ void sflDataDrawPersonaPanel(s64 position, f32 depth, s32 opacity, u8 *state)
     }
 }
 
-// Intent: Draws a two-sprite pair at a panel position with the given alpha [inferred]
+// Draws a two-sprite pair at a panel position with the given alpha.
 // FUN_003675F0
 void sflDataDrawSpritePair(PairBits position, f32 depth, s32 opacity)
 {
@@ -660,7 +653,7 @@ void sflDataDrawSpritePair(PairBits position, f32 depth, s32 opacity)
                   0xFB, 0xA2, 0, depth, 0);
 }
 
-// Intent: Draws a panel frame and a byte-valued count as digit sprites at the panel origin [inferred]
+// Draws a panel frame and a byte-valued count as digit sprites at the panel origin.
 // FUN_003676F0
 void sflDataDrawByteValuePanel(s64 position, f32 depth, s32 opacity, u8 *state)
 {
@@ -709,21 +702,15 @@ void sflDataDrawByteValuePanel(s64 position, f32 depth, s32 opacity, u8 *state)
     }
 }
 
-/* measured: opt_common_subs off keeps the raw alpha argument in $s1 and re-masks it at each of
-   its two uses (color entry, 0xFF - alpha at the sprite call) as retail does; with CSE on b210
-   masks once into $s0 (nd 78). */
 /* Draw the stored party member through a kind-three panel command using the full-name style. */
 // FUN_00367940
-/* Draw the stored party entry through a packed 12-byte panel command; DatPanelEntry names its unit, style, and kind fields. */
+/* Draws the stored party entry through a packed 12-byte DatPanelEntry panel command. */
 void sflDataDrawPartyEntry(P4Pair position, f32 depth, s32 opacity, u8 *state) { u8 buf[12]; f32 factor; factor = depth; datPanelResetCursor(buf); ((DatPanelEntry *)buf)->kind = 3; ((DatPanelEntry *)buf)->style = 1; *(s16 *)buf = ((SflPersonaState *)state)->details.partyId; datPanelDrawByKind(*(s64 *)&position, factor, opacity, buf, 1); }
 
-// Intent: Draws a right-aligned number from digit sprites beside an icon, one digit column per 16 px [inferred]
+// Draws a right-aligned number from digit sprites beside an icon, one digit column per 16 px.
 // FUN_003679C0
-/* measured: nd 9 -> 0. opt_loop_invariants on hoists the digit loop's 16.0f and 10
-   ahead of the entry branch. Alpha: `n = arg1 & 0xFF; arg1 = 0xFF - n;` through the
-   loop counter's register puts the andi before the li (fresh local or one expression: nd 3). */
-/* measured: func_003679c0 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline differs by 9 words; explicit digit-width local leaves nd26; retain hoisting for the digit renderers. */
+/* measured: loop-invariant hoisting moves the digit loop's 16.0f and 10 ahead of the entry branch,
+ * as retail does. */
 #pragma opt_loop_invariants on
 void sflDataDrawNumberValue(s64 position, f32 depth, s32 opacity, u8 *state)
 {
@@ -764,13 +751,10 @@ void sflDataDrawNumberValue(s64 position, f32 depth, s32 opacity, u8 *state)
     } while (value > 0);
 }
 
-// Intent: Draws a label string from the font followed by an icon chosen by a one-based index (1-31) [inferred]
+// Draws a font label followed by an icon chosen by a one-based index (1-31).
 // FUN_00367B80
-/* measured: opt_common_subs off keeps the raw alpha argument in $s1 and re-masks it at each of
-   its two uses (color entry, 0xFF - alpha at the sprite call) as retail does; with CSE on b210
-   masks once into $s0 (nd 78). */
-/* measured: func_00367b80 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline differs by 78 words; repeated byte accesses to opacity leave nd255; retain common-subexpression setting. */
+/* measured: retail re-masks the raw opacity argument at each use (color entry and 0xFF - opacity at
+ * the sprite call) instead of masking once. */
 #pragma opt_common_subs off
 void sflDataDrawTitledIcon(s64 position, f32 depth, s32 opacity, u8 *state)
 {
@@ -800,17 +784,16 @@ void sflDataDrawTitledIcon(s64 position, f32 depth, s32 opacity, u8 *state)
                   (u8)(0xFF - (opacity & 0xFF)), 0xEC, 0x7C, 0, scale, 0);
 }
 
-/* measured: func_00367d00 MATCH -> MISMATCH without this pragma. */
+/* measured: retail code for this function relies on common-subexpression elimination being on. */
 #pragma opt_common_subs on
-/* measured: nd 9 -> 0. opt_loop_invariants on hoists the digit loop's 16.0f and 10
-   ahead of the entry branch. Alpha: `n = arg1 & 0xFF; arg1 = 0xFF - n;` through the
-   loop counter's register puts the andi before the li (fresh local or one expression: nd 3). */
-/* measured: closes the loop-invariant bracket; the file default is off. */
-// Intent: Draws a level badge: a label sprite and the level number as digit sprites, with the level looked up from the persona id [inferred]
+/* measured: retail hoists the digit loop's 16.0f and 10 constants ahead of the loop entry branch.
+ * Draws a level badge: a label sprite plus the level, looked up from the persona id, as digit
+ * sprites. */
+/* Draw a level badge at the given position: a label sprite, a backing sprite, and the persona's
+ * level as digit sprites, faded by the given opacity. */
 // FUN_00367D00
-// measured: test ordered float loads with propagation disabled
-/* measured: func_00367d00 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline differs by 94 words; cached digit origin leaves nd415; retain propagation off. */
+// measured: with propagation on, the compiler caches the digit origin and reorders the float loads,
+// which retail does not do.
 #pragma opt_propagation off
 void sflDataDrawLevelBadge(s64 position, f32 depth, s32 opacity, u8 *state)
 {

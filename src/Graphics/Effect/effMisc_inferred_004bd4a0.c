@@ -29,10 +29,8 @@ typedef struct {
 } Code1_004bColor;
 extern Code1_004bColor iGpffffbb64;
 
-/* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
-   func_004bd628, func_004bd640, func_004bd658, func_004bd670,
-   func_004bd688, and func_004bd6a0.  Plain C cannot emit this ABI shape. */
-
+/* func_004bd628 through func_004bd6a0 are framed tail-jump wrappers kept as assembly; plain C
+ * cannot emit this shape. */
 
 
 extern u8 D_0071465C[];
@@ -55,9 +53,6 @@ extern void (*jtbl_008873EC[])(void *);
 /* The six framed tail-jump wrappers listed above are intentionally retained
    as assembly fallbacks; all ordinary small wrappers below are source-backed. */
 
-/* Source unit: src/promoted/code1_004b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004bd4a0-004bd4a0 */
-
 typedef struct {
     f32 x;
     f32 y;
@@ -68,9 +63,8 @@ typedef struct {
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: restore propagation for the rest of the unit. */
-/* Normalize both quaternions and return their clamped dot product, not acos.
- * Identical normalized inputs take the explicit zero-return path in retail. */
+/* Normalize both quaternions and return their clamped dot product, not acos. Identical normalized
+ * inputs take the explicit zero-return path in retail. */
 // FUN_004BD4A0
 f32 effMiscQuatAngle(u8 *firstQuaternion, u8 *secondQuaternion)
 {

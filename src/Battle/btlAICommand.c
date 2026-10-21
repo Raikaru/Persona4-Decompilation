@@ -1,4 +1,3 @@
-/* Source unit: src/Battle/btlEffect_001db100.c */
 #include "member_access.h"
 #include "scr_context_internal.h"
 #include "btl_skill_target_internal.h"
@@ -123,10 +122,8 @@ extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 extern void btlTargetResetCommandRecord(u8 *record);
 
-/* Removing this loses FUN_001DB040 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
-
-/* Check the actor's status and skill ownership before accepting an AI command. */
-/* measured: a separate unit alias retains reloads where access-site datUnit typing changes four callers. */
+/* Check the actor's status and skill ownership before accepting an AI command. measured: a separate
+ * unit alias keeps the retail reloads; typing datUnit at each access site changes four callers. */
 static inline s32 btlCommandUsable(u8 *subject, u32 command) {
     BtlUnit *unit;
     s32 commandId;
@@ -176,8 +173,6 @@ void btlCond_ENWEAK_PAI(u8 *action, u32 value) {
     btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 6, (code *)&btlCond_MYWEAK);
 }
 
-/* Removing this loses FUN_001DB0A0 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
-
 /* Evaluate weakness on the opposite genus, excluding defeated and down units. */
 // FUN_001DB0A0
 void btlCond_ENWEAK_ST_PAI(u8 *action, u32 value) {
@@ -194,8 +189,6 @@ void btlCond_ENWEAK_ST_PAI(u8 *action, u32 value) {
     }
     btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 6, (code *)&btlCond_MYWEAK);
 }
-
-/* Removing this loses FUN_001DB100 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* Evaluate the alternate weakness predicate on the opposite genus. */
 // FUN_001DB100
@@ -219,11 +212,8 @@ void btlCond_ENWEAK_DW_PAI(s32 action, u32 value)
 }
 
 
-/* measured: shared usability inlining and explicit signed query guards give
-   508B/512B, verify nd0; the remaining four bytes are zero tail padding.
-   Keep the entry reload after the value query and the existing s32 input ABI. */
-/* Historical whole-layout probe: nd 376; measured reloads now use named MEMBER accesses. */
-/* Test whether the unit has a usable skill with the requested element. */
+/* Test whether the unit has a usable skill with the requested element; the entry is reloaded after
+ * the value query. */
 // FUN_001DB160
 s32 btlCond_MYATTRSKIL(u8 *action, s32 value)
 {
@@ -235,20 +225,20 @@ s32 btlCond_MYATTRSKIL(u8 *action, s32 value)
     u16 *entry;
     s16 queried;
 
-    unit = MEMBER(u8 *, action, BtlAction, unit); /* measured: access-site/local/array forms change 20 normalized bytes. */
+    unit = MEMBER(u8 *, action, BtlAction, unit);
     queried = datCalcSkillElement((u8 *)((BtlUnit *)unit)->datUnit, 0);
     if (queried != value)
         goto scan;
     return 1;
 scan:
-    count = datCalcGetTableLength(MEMBER(DatUnit *, unit, BtlUnit, datUnit)); /* measured: access-site/local/array forms change 325 normalized bytes. */
-    commands = (u16 *)datCalcSkillList(MEMBER(DatUnit *, unit, BtlUnit, datUnit)); /* measured: access-site/local/array forms change 325 normalized bytes. */
+    count = datCalcGetTableLength(MEMBER(DatUnit *, unit, BtlUnit, datUnit));
+    commands = (u16 *)datCalcSkillList(MEMBER(DatUnit *, unit, BtlUnit, datUnit));
     index = 0;
     limit = count;
     while (index < limit) {
         entry = &commands[index];
         if (*entry != 0 && *entry < 0x1B8) {
-            queried = datCalcSkillElement(MEMBER(u8 *, unit, BtlUnit, datUnit), *entry); /* measured: local alias nd 16, access-site/array nd 326. */
+            queried = datCalcSkillElement(MEMBER(u8 *, unit, BtlUnit, datUnit), *entry);
             if (queried != value)
                 goto next;
             if (btlCommandUsable(action, *entry))
@@ -260,13 +250,11 @@ next:
     return 0;
 }
 
-/* Measured: 544/544 bytes, eight resolved relocations, no differing words.
- * Preserve the signed status result and the exactly-enabled status gate. */
+/* Status result is signed and the status gate requires enabled to be exactly set. */
 #pragma push
 #pragma opt_loop_invariants on
-/* measured: direct and MEMBER bitmap loads leave nd8 with propagation enabled (loop baseline nd64). */
+/* measured: retail does not propagate the bitmap loads in this function. */
 #pragma opt_propagation off
-/* Historical whole-layout probe: nd 417; a separate status-unit pointer retains MATCH. */
 /* Reject blocked elements, status-gated attacks, and unusable physical commands. */
 // FUN_001DB360
 s32 btlAICommandNomalCheck(u8 *formation, s32 index, s32 enabled)
@@ -343,8 +331,6 @@ s32 btlAICommandNomalStatusCheck(u8 *action, s16 value) {
     return !(datCalcGetElementAffinity((u8 *)(((BtlAction *)action))->unit->datUnit, (s32)value) & 0x7000000);
 }
 
-/* Removing this loses FUN_001DB620 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
-
 /* Evaluate normal-affinity targets on the opposite genus. */
 // FUN_001DB620
 void btlCond_ENNOMAL(u8 *action, u32 value) {
@@ -362,8 +348,6 @@ void btlCond_ENNOMAL(u8 *action, u32 value) {
     btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOMAL);
 }
 
-/* Removing this loses FUN_001DB680 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
-
 /* Evaluate normal-affinity targets, excluding defeated and down units. */
 // FUN_001DB680
 void btlCond_ENNOMAL_ST(u8 *action, u32 value) {
@@ -380,8 +364,6 @@ void btlCond_ENNOMAL_ST(u8 *action, u32 value) {
     }
     btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0xA, (code *)&btlCond_MYNOMAL);
 }
-
-/* Removing this loses FUN_001DB6E0 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* Evaluate the alternate normal-affinity predicate on the opposite genus. */
 // FUN_001DB6E0
@@ -430,10 +412,8 @@ s32 btlCond_SLIP(u8 *action) {
 }
 
 
-/* Ported from P3FES btlEffect.c func_002c3300 (genus-match loop).
-   func_002ffcc0->func_00231e20 (masked u8); iGpffffb6fc+0x14c->iGpffffb3ac+0x174;
-   offsets 0xa2c->0xa64, 0x4a8->0x450. Pragma disables the shift-fold. */
-/* Find an active opposite-genus action whose level exceeds the caller by the requested amount. */
+/* Matches P3FES func_002c3300. Finds an active opposite-genus action whose level exceeds the
+ * caller's by the requested amount. */
 // FUN_001DB7D0
 u32 btlCond_ENOVERLV(s32 action, u32 value)
 {
@@ -495,8 +475,6 @@ void btlCond_FRTAISEI(u8 *action, u32 value) {
     btlEffectFindUnitMatchingCallback((s32)action, value, (1 << ((((BtlAction *)action))->unit->genus)) & 0xFFFF, 0x80000, 0, (code *)&btlCond_MYTAISEI);
 }
 
-/* Removing this loses FUN_001DB990 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
-
 /* Evaluate affinity on units of the opposite genus. */
 // FUN_001DB990
 void btlCond_ENTAISEI(u8 *action, u32 value) {
@@ -514,10 +492,10 @@ void btlCond_ENTAISEI(u8 *action, u32 value) {
     btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code *)&btlCond_MYTAISEI);
 }
 
-/* measured: propagation off retains index preparation before the enemy load
-   with the canonical u32 bitmap arguments; 156B/window 160B, normalized_diff 0. */
+/* measured: retail computes the bitmap index before the enemy load, which needs propagation off. */
 #pragma push
-/* measured: direct and MEMBER bitmap loads both leave nd8 with propagation enabled. */
+/* measured: with propagation enabled the bitmap index preparation moves after the enemy load,
+ * unlike retail. */
 #pragma opt_propagation off
 /* Check the enemy affinity bitmap and test whether the requested affinity is non-normal. */
 // FUN_001DB9F0
@@ -531,8 +509,6 @@ s32 btlCond_MYNOTNOMAL(u8 *action, s16 value) {
     return (datCalcGetElementAffinity((u8 *)((BtlUnit *)p)->datUnit, (s32)value) & 0x7000000) != 0;
 }
 #pragma pop
-
-/* Removing this loses FUN_001DBA90 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 /* Evaluate non-normal affinity on units of the opposite genus. */
 // FUN_001DBA90
@@ -573,29 +549,12 @@ s32 btlAICommandAlwaysTrue(void) {
     return 1;
 }
 
-/* MATCH.  `opt_dead_assignments off` is the whole difference: with it the
-   two remaining words - retail evaluating the second argument of
-   datTestBitmapBit(((BtlUnit *)temp16)->charId, index) first, `andi $a1, $s4,
-   0xffff` before `lhu $a0, 0xa4($s0)` - come out in retail's order.  Found by
-   a pairwise sweep; the pragma is not in the usual four and had never been
-   measured anywhere in this tree.  `opt_strength_reduction off` alone is
-   neutral at 2, the pair is also 0, so the single pragma is what is kept.
-   The two source levers that got it from unmeasurable to 2 stay load-bearing:
-   the definition must be K&R, because every call site below passes a
-   differently-typed function pointer to `code arg5` and a prototyped form
-   fails the whole translation unit under -DNON_MATCHING; and the group test
-   is `count > 1` rather than `count >= 2`, which puts the compare in $at
-   where retail has it.  Measured and rejected on the last two words before
-   the pragma was found: inlining `(u16)arg1` at the call, a two-definition
-   pin on `index`, hoisting the halfword load into a named local, spelling the
-   mask `arg1 & 0xFFFF`, and all four of `schedule on` (199),
-   `opt_loop_invariants on` (147), `opt_common_subs off` (193) and
-   `opt_propagation off` (191). */
-/* Filter the classified targets by status, affinity and predicate; copy all matches or choose one. */
-/* Historical whole-layout probe: normalized diff 6; the access-site pass retains only measured raw culprits. */
+/* Filter the classified targets by status, affinity and predicate; copy all matches or choose one.
+ * K&R definition because call sites pass differently-typed function pointers as the predicate. */
 // FUN_001DBBA0
 #pragma push
-/* measured: baseline dead-assignment elimination leaves nd8; conditional rebuilding must override the unit setting (nd1). */
+/* measured: retail evaluates the bitmap index argument before the charId load, which needs dead-
+ * assignment elimination off and conditional rebuilding on. */
 #pragma opt_dead_assignments off
 #pragma opt_rebuildconditionals on
 s32 btlAICommandSelectCandidates(action, queryValue, excludedStatus, selectionFlags, rejectedResult, predicate)
@@ -732,17 +691,9 @@ code predicate;
 }
 #pragma pop
 
-/* measured 2026-09-28: 1116 bytes plus four retail zero bytes, nine resolved
-   relocations. The unit/ratio records keep integer and float copies separate;
-   u32 HP values preserve retail's unsigned float conversions. The masked s32
-   count and total, and the total-before-index declarations, retain the other
-   scan lifetimes. Loop-invariant optimization hoists the sort bound and 1.
-   Lifetime optimization separates the two uses of n: the completed target
-   scan and the subsequent sort. Reusing that cursor closes the last seven
-   register differences without adding an operation. */
 #pragma push
 #pragma opt_loop_invariants on
-/* measured: splitting the sort cursor still leaves nd13; lifetime splitting retains retail allocation. */
+/* measured: lifetime splitting is needed for retail's register allocation of the sort cursor. */
 #pragma opt_lifetimes on
 /* HP-ratio ranking row used by the weighted target picker. */
 typedef struct SortEnt {
@@ -750,7 +701,6 @@ typedef struct SortEnt {
     f32 ratio;
 } SortEnt;
 /* Use uniform targeting unless eligible party targets can be ranked by HP ratio and weighted. */
-/* Historical whole-layout probe: nd 815; the candidate-unit reload retains byte aliasing via MEMBER. */
 // FUN_001DBF20
 s32 btlAICommandPickAiTarget(u8 *action, u32 value) {
     extern u8 D_006095F0[];
@@ -818,7 +768,7 @@ s32 btlAICommandPickAiTarget(u8 *action, u32 value) {
                 candidateEntry = action + (candidateIndex & 0xFFFF) * 4 + 0x98;
                 candidateAction = *(u32 *)candidateEntry;
                 maxHp = datCalcMaxHp((DatUnit *)(u32)((BtlUnit *)((u32)((BtlAction *)candidateAction)->unit))->datUnit) & 0xFFFF;
-                currentHp = datCalcGetHp((u32)((BtlUnit *)(MEMBER(u32, candidateAction, BtlAction, unit)))->datUnit) & 0xFFFF; /* measured: access-site/local/array forms change 439 normalized bytes. */
+                currentHp = datCalcGetHp((u32)((BtlUnit *)(MEMBER(u32, candidateAction, BtlAction, unit)))->datUnit) & 0xFFFF;
                 rankedTargets[candidateIndex & 0xFFFF].unit = *(u32 *)candidateEntry;
                 rankedTargets[candidateIndex & 0xFFFF].ratio = (f32)currentHp / (f32)maxHp;
                 candidateIndex++;
@@ -859,11 +809,8 @@ s32 btlAICommandPickAiTarget(u8 *action, u32 value) {
 }
 
 #pragma pop
-/* Ported from P3FES btlEffect.c func_002c3be0 (copy-all / min-stat select).
-   func_002bff60_u16->func_001d7f10; offsets 0x88->0x98, 0xc0->0xd0, 0xa2c->0xa64;
-   lowest init 0xfffffff. */
-/* Copy all classified targets or choose the candidate with the lowest current HP. */
-/* Historical whole-layout probe: normalized diff 4; the access-site pass retains only measured raw culprits. */
+/* Matches P3FES func_002c3be0. Copies all classified targets or chooses the candidate with the
+ * lowest current HP. */
 // FUN_001DC380
 u32 btlCond_HPMIN(u32 action)
 {
@@ -911,11 +858,8 @@ u32 btlCond_HPMIN(u32 action)
 }
 
 
-/* Ported from P3FES btlEffect.c func_002c3ce0 (target-choose min-score loop).
-   func_002bff60_u16->func_001d7f10, func_002ffcc0->func_00231e20 (score masked
-   (u8)); offsets 0x88->0x98, 0xc0->0xd0, 0xa2c->0xa64. */
-/* Copy all classified targets or choose the candidate with the lowest level. */
-/* Historical whole-layout probe: normalized diff 4; the access-site pass retains only measured raw culprits. */
+/* Matches P3FES func_002c3ce0. Copies all classified targets or chooses the candidate with the
+ * lowest level. */
 // FUN_001DC480
 u32 btlCond_LVMIN(u32 action)
 {
@@ -973,20 +917,9 @@ void btlAICommandPickMyId(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 0, 0, 0, btlCond_MYID);
 }
 
-/* measured: entire loop body and tail compile with mwcc b210's temp registers
-   rotated one slot off retail ($v1/$a0/$a1 where retail uses $v0/$v1/$a0),
-   starting from the gp load (lw $v1,($gp) vs lw $v0,-0x4c54($gp)) and cascading
-   through lhu/andi, the 0x30-chain, the arr store (andi $a0.. vs $v0..), the
-   (u16)i test (andi $v1 vs $a0) and the else path (extra move $a0,$s0 + andi on
-   the u16 return). Control flow, frame, saved regs, call shapes all match.
-   Tried: decl-order swaps, fl/np locals, inline exprs, g = iGpffffb3ac local,
-   for/while, node-chain compare order, t = (u16)i local, arr[14]/arr[16] —
-   all nd 40-56. $v0/$v1-coloring floor. */
-/* Ported from P3FES btlEffect.c func_002c3f00 (btlAI target-select loop).
-   iGpffffb6fc+0x14c -> iGpffffb3ac+0x174; func_00300580 -> func_00232710;
-   func_002ffbc0 -> func_00231d70 (extern switched u16->u32 so the index
-   call doesn't re-mask the return); field 0xa2c -> 0xa64, 0x4a8 -> 0x450. */
-/* Choose another active same-genus action, falling back to the caller when none qualifies. */
+/* Matches P3FES func_002c3f00 (btlAI target-select loop); the index extern returns u32 so the call
+ * result is not re-masked. Chooses another active same-genus action, falling back to the caller
+ * when none qualifies. */
 // FUN_001DC6A0
 u32 btlCond_MYAI(s32 action)
 {
@@ -1058,21 +991,7 @@ void btlAICommandPickNotMyWeak(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 0, 0, 1, btlCond_MYWEAK);
 }
 
-/* measured: retail hoists the loop-test count load before the (u16)i mask
-   (lhu $v1,0xd0($s0); andi $v0,$a0,0xffff) while mwcc b210 emits the mask
-   first under every operand order tried, and the else-path address addu comes
-   out base-first (addu $v0,$s0,$v0 vs retail addu $v0,$v0,$s0) no matter how
-   the scaled offset is named. nd 5 = those 3 words + reloc accounting; the
-   loop-body mask, increment, branch shape and everything else are
-   byte-identical with the (u16)i + while((count=load)>i)... spelling
-   (attempt 1; swapped compare order regressed to nd 8). Load-sinking floor,
-   same family as FUN_001DCA60. */
-/* Ported from P3FES btlEffect.c func_002c4200 (copy-all / random-select).
-   func_002bff60_u16->func_001d7f10 (4th arg 1), func_002ffbc0_u16->func_00231d70;
-   offsets 0x88->0x98, 0xc0->0xd0. */
-/* The random slot offset stays in bytes: preserving its byte-base operand order makes the typed access MATCH. */
-/* Copy classified reverse targets or choose one candidate uniformly. */
-/* Historical whole-layout probe: normalized diff 2; the access-site pass retains only measured raw culprits. */
+/* Copy classified reverse targets or choose one candidate uniformly. Matches P3FES func_002c4200. */
 // FUN_001DC9A0
 u32 btlCond_AI_REV(u32 action)
 {
@@ -1095,20 +1014,8 @@ u32 btlCond_AI_REV(u32 action)
     return 1;
 }
 
-/* measured: same 2-word loop-body mask floor as FUN_001DCF10/FUN_001DC9A0 —
-   retail zero-extends the u16 counter into scratch $v0 (andi $v0,$a0,0xffff;
-   sll $v0,$v0,2), mwcc b210 masks in place (andi $a0,$a0,0xffff; sll $v0,$a0,2);
-   everything else in the function is byte-identical (nd 5 = those 2 words +
-   reloc accounting). Tried (u32)/(s32)/explicit-mask index spellings: nd >= 5. */
-/* measured: MATCH. Copy loop spelled exactly like FUN_001DC9A0 (u16 index,
-   for loop, sh count). Else branch: retail keeps func_001dbf20 INLINE and
-   puts the store block OUT OF LINE (forward bnez) — lever 1, flip the
-   branch: if (btlEffectSelectNearestEntry(...) == 0) { return func_001dbf20(...); } then
-   the store block falls through. The opposite spelling (store block in the
-   if with return 1, func_001dbf20 as trailing return) emits the mirror
-   layout at nd 36. */
-/* Use the nearest candidate when available, otherwise use the normal AI target picker. */
-/* Historical whole-layout probe: normalized diff 2; the access-site pass retains only measured raw culprits. */
+/* Use the nearest candidate when available, otherwise use the normal AI target picker; the copy
+ * loop is written like FUN_001DC9A0's. */
 // FUN_001DCA60
 s32 btlCond_APPOINT(u8 *action, u32 value)
 {
@@ -1210,12 +1117,8 @@ void btlAICommandPickNotMyId(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 0, 0, 1, btlCond_MYID);
 }
 
-/* Ported from P3FES btlEffect.c func_002c4760 (copy-all / random-select).
-   func_002bff60_u16->func_001d7f10 (4th arg 0), func_002ffbc0_u16->func_00231d70;
-   offsets 0x88->0x98, 0xc0->0xd0. */
-/* The random slot offset stays in bytes: preserving its byte-base operand order makes the typed access MATCH. */
-/* Copy classified targets or choose one candidate uniformly. */
-/* Historical whole-layout probe: normalized diff 2; the access-site pass retains only measured raw culprits. */
+/* Copies all classified targets or picks one candidate uniformly at random. Matches P3FES
+ * func_002c4760; the random slot offset is kept in bytes. */
 // FUN_001DCF10
 u32 btlCond_RND(u32 action)
 {
@@ -1259,14 +1162,8 @@ void btlAICommandPickMyNomal(u64 formation, u32 flags) {
     btlAICommandSelectCandidates(formation, flags, 0, 0, 0, (FormationCallback)btlCond_MYNOMAL);
 }
 
-/* measured: MATCH. Copy loop spelled exactly like FUN_001DC9A0 (u16 index).
-   Second (max-score search) loop needs the WHILE form (not for) with
-   statement order best=0, bestScore=0, j=0, count=load — the for-loop spelling
-   emits the count load before j=0 in the preheader (nd 8); the while form
-   preserves source order and reproduces retail's best,bestScore,j,count
-   preheader exactly. bestScore u32 (sltu). */
-/* Copy all classified targets or choose the candidate with the highest current HP. */
-/* Historical whole-layout probe: normalized diff 4; the access-site pass retains only measured raw culprits. */
+/* Copy all classified targets or choose the candidate with the highest current HP. The max-score
+ * search uses a while loop so the best, bestScore, j, count initialisation order follows retail. */
 // FUN_001DD0D0
 u32 btlCond_HPMAX(u32 action)
 {
@@ -1302,11 +1199,10 @@ u32 btlCond_HPMAX(u32 action)
     ((BtlAction *)action)->unk_6a = 1;
     return 1;
 }
-/* Skill-table byte +8 remains unnamed; it is unknown04[4] in the shared 0x28-byte row. */
-/* Select a usable command by predicted remaining target HP and the requested cost class. */
-/* Historical whole-layout probe: nd 21; a separate target-record pointer retains MATCH. */
+/* Skill-table byte +8 remains unnamed; it is unknown04[4] in the shared 0x28-byte row. Select a
+ * usable command by predicted remaining target HP and the requested cost class. */
 #pragma push
-/* measured: the unit conditional setting changes the predicted-HP selection body by nd216. */
+/* measured: retail rebuilds the conditionals in the predicted-HP selection body. */
 #pragma opt_rebuildconditionals on
 // FUN_001DD1C0
 s32 btlAICommandPickSkillTargetByHp(u8 *action, u8 *target, u16 *commands, u16 count, u32 requestedCostClass) {
@@ -1359,9 +1255,8 @@ s32 btlAICommandPickSkillTargetByHp(u8 *action, u8 *target, u16 *commands, u16 c
     return bestCommand;
 }
 #pragma pop
-/* Skill-table byte +8 remains unnamed; it is unknown04[4] in the shared 0x28-byte row. */
-/* Choose the command whose predicted target HP is closest to its maximum. */
-/* Historical whole-layout probe: nd 35; a separate target-record pointer retains MATCH. */
+/* Skill-table byte +8 remains unnamed; it is unknown04[4] in the shared 0x28-byte row. Choose the
+ * command whose predicted target HP is closest to its maximum. */
 // FUN_001DD3A0
 s32 btlAICommandPickSkillTargetNearMaxHp(u8 *action, u8 *target, u16 *commands, u16 count, s32 requestedCostClass) {
     u32 targetHp;
@@ -1403,22 +1298,7 @@ s32 btlAICommandPickSkillTargetNearMaxHp(u8 *action, u8 *target, u16 *commands, 
     datCalcClearField18((u32)targetRecord->unit->datUnit);
     return bestCommand;
 }
-/* Recovered: retail's shape is a scoped `opt_propagation off` translation
-   unit region, which is why the object keeps folds this build would remove
-   (the first tally increment stays `addiu $v0,$s2,1; andi $s2,$v0,0xffff`
-   after the tally is zeroed, and `ok = 1` is still tested by `beqz $v0`).
-   Four source shapes carry the rest: the loop bound is a separate `s32`
-   copy of the u16 limit (retail keeps the u16 in $s1 and spills the s32
-   copy to 0xB0, masking once instead of once per iteration), `idx = 0`
-   precedes that copy, both legs of the command test assign `ok = 0` and
-   jump to a single shared `ok = 1`, and the dispatch is a `switch` whose
-   cases `break` to one `return r` - the trampoline at 0x1dd8d4 - with the
-   `return -1` left as the function's last statement.  With the limit mask
-   written `(u16)call()` (propagation-off lowers `call() & 0xFFFF` as
-   ori/and) this is byte-exact. */
-/* measured: propagation enabled retains whole-owner MATCH; the scoped setting described above is historical. */
 /* Collect usable commands effective on the target and choose by predicted HP outcome. */
-/* Historical whole-layout probe: nd 627; command aliases type the body except the measured source reloads. */
 // FUN_001DD570
 s32 btlAICommandCollectSkillCandidates(u8 *action, u8 *target, s32 costPreference, s32 effectFilter)
 {
@@ -1448,15 +1328,15 @@ s32 btlAICommandCollectSkillCandidates(u8 *action, u8 *target, s32 costPreferenc
         candidates[0] = 0;
         candidateCount++;
     }
-    commandCount = (u16)datCalcGetTableLength(MEMBER(DatUnit *, sourceUnit, BtlUnit, datUnit)); /* measured: local alias nd 30, access-site/array nd 633. */
-    commands = (u16 *)datCalcSkillList(MEMBER(DatUnit *, sourceUnit, BtlUnit, datUnit)); /* measured: local alias nd 30, access-site/array nd 633. */
+    commandCount = (u16)datCalcGetTableLength(MEMBER(DatUnit *, sourceUnit, BtlUnit, datUnit));
+    commands = (u16 *)datCalcSkillList(MEMBER(DatUnit *, sourceUnit, BtlUnit, datUnit));
     commandIndex = 0;
     scanCount = commandCount;
     while (commandIndex < scanCount) {
         entry = commands + commandIndex;
         listCommand = *entry;
         if (listCommand != 0 && listCommand < 0x1B8) {
-            commandElement = (s16)datCalcSkillElement(MEMBER(u8 *, sourceUnit, BtlUnit, datUnit), listCommand); /* measured: local alias nd 30, access-site/array nd 602. */
+            commandElement = (s16)datCalcSkillElement(MEMBER(u8 *, sourceUnit, BtlUnit, datUnit), listCommand);
             elementFlags = datCalcElementBit(commandElement);
             if (effectFilter == 0) {
                 if ((elementFlags & 0x7E) == 0)
@@ -1524,13 +1404,7 @@ next:
     }
     return -1;
 }
-/* Measured with b210: the scoped scan aggregates preserve iterator lifetimes
-   through scalarization. The status scan keeps a native index with explicit
-   halfword boundaries; both scans reload entries after the usability calls.
-   Allocator capture traced the former selector/count exchange to the healing
-   scan's command/index coloring, rather than their declaration order. */
 /* Collect revive, healing or status-cure commands according to the target condition. */
-/* Historical whole-layout probe: nd 1175; target aliases type the body except the measured source reloads. */
 // FUN_001DD920
 s32 btlAICommandCollectRecoveryCommands(u8 *action, u8 *target, s16 unusedElement, s32 costPreference)
 {
@@ -1549,9 +1423,9 @@ s32 btlAICommandCollectRecoveryCommands(u8 *action, u8 *target, s16 unusedElemen
 
     recoveryKind = -1;
     candidateCount = 0;
-    unit = MEMBER(u8 *, action, BtlAction, unit); /* measured: access-site/local/array forms change 1241 normalized bytes. */
+    unit = MEMBER(u8 *, action, BtlAction, unit);
     commandCount = datCalcGetTableLength(((BtlUnit *)unit)->datUnit);
-    commands = (u16 *)datCalcSkillList(MEMBER(DatUnit *, unit, BtlUnit, datUnit)); /* measured: access-site/local/array forms change 1248 normalized bytes. */
+    commands = (u16 *)datCalcSkillList(MEMBER(DatUnit *, unit, BtlUnit, datUnit));
     if (datCalcIsDead((u32)((BtlUnit *)((u32)((BtlAction *)target)->unit))->datUnit, 0) != 0) {
         recoveryKind = 0;
     } else {
@@ -1670,15 +1544,10 @@ s32 btlAICommandCollectRecoveryCommands(u8 *action, u8 *target, s16 unusedElemen
         return candidates[datCalcRandomBelow(candidateCount)];
     return -1;
 }
-/* measured: matched by declaring func_001dd1c0's count parameter u16, so
-   the u16 tally passes raw ($a3 = $s2) instead of reusing a promoted
-   copy; the guard and the table index keep their own andi temps, which
-   is retail's shape. The callee is unaffected (still exact). */
 /* Collect usable commands of the requested element and choose by predicted HP outcome. */
-/* Historical whole-layout probe: nd 600; measured source reloads now use named MEMBER accesses. */
 // FUN_001DE000
 #pragma push
-/* measured: propagation enabled changes the command collector by nd566. */
+/* measured: retail compiles the command collector with propagation disabled. */
 #pragma opt_propagation off
 s32 btlAICommandCollectCommandsOfType(u8 *action, u8 *target, s16 element, s32 costPreference)
 {
@@ -1706,15 +1575,15 @@ s32 btlAICommandCollectCommandsOfType(u8 *action, u8 *target, s16 element, s32 c
         candidates[0] = 0;
         candidateCount++;
     }
-    commandCount = datCalcGetTableLength(MEMBER(DatUnit *, unit, BtlUnit, datUnit)); /* measured: local alias nd 30, access-site/array nd 571. */
-    commands = (u16 *)datCalcSkillList(MEMBER(DatUnit *, unit, BtlUnit, datUnit)); /* measured: local alias nd 30, access-site/array nd 571. */
+    commandCount = datCalcGetTableLength(MEMBER(DatUnit *, unit, BtlUnit, datUnit));
+    commands = (u16 *)datCalcSkillList(MEMBER(DatUnit *, unit, BtlUnit, datUnit));
     commandIndex = 0;
     scanCount = commandCount;
     for (; commandIndex < scanCount; commandIndex++) {
         entry = commands + commandIndex;
         if (*entry == 0 || *entry >= 0x1B8)
             goto next;
-        queried = datCalcSkillElement(MEMBER(u8 *, unit, BtlUnit, datUnit), *entry); /* measured: local alias nd 30, access-site/array nd 559. */
+        queried = datCalcSkillElement(MEMBER(u8 *, unit, BtlUnit, datUnit), *entry);
         if (queried != element)
             goto next;
         command = *entry;
@@ -1751,13 +1620,10 @@ s32 btlAICommandCollectCommandsOfType(u8 *action, u8 *target, s16 element, s32 c
 }
 #pragma pop
 #pragma push
-/* measured: disabling invariant hoisting changes the HP-weight picker by nd201. */
+/* measured: retail hoists loop invariants in the HP-weight picker. */
 #pragma opt_loop_invariants on
-/* measured: opt_loop_invariants on is required for the retail-sized frame and
-   bubble-sort register coloring; the COP1 chain is ordinary C arithmetic and
-   D_00609600 is a real, placeable linker symbol. */
-/* Rank candidates by missing HP and status bonus, then choose from the ranked weight table. */
-/* Historical whole-layout probe: nd 558; separate action and candidate pointers retain MATCH. */
+/* measured: retail's stack frame and bubble-sort loop require loop-invariant hoisting enabled.
+ * Ranks candidates by missing HP and status bonus, then picks from the ranked weight table. */
 // FUN_001DE370
 u32 btlAICommandPickUnitByHpWeight(u8 *action)
 {
@@ -1845,18 +1711,11 @@ u32 btlAICommandPickUnitByHpWeight(u8 *action)
     return 0;
 }
 #pragma pop
-/* measured: MATCH. The "coloring floor" was actually a switch-linear-chain
-   declaration-order issue: MWCC tests linear-chain case labels in the REVERSE
-   of their C declaration order, so the cases must be declared in the reverse
-   of retail's test order, i.e. 0x8000, 0x1000, 0x2000, 0x8002, 0x8007, 0x8005,
-   0x8006, 0x8001, 0x8008, 0x8009, 0x8004, default. Case 0x2000 falls through
-   into case 0x8002 (separate p+0xEC store then shared q+0x34=7 body); case
-   0x8004 falls through into default (v = datCalcPickSpecialItem(...)&0xFFFF then the
-   shared q+0x34=2/q+0x36=v body, reusing the v parameter in $a2 exactly as
-   retail). if/else t = v / v & 0xF000, then switch(t & 0xFFFF). */
-/* Decode the packed action code into command-work kind, skill and plan fields. */
+/* measured: switch cases are declared in reverse of retail's test order because the compiler tests
+ * linear-chain case labels in reverse. Decode the packed action code into command-work kind, skill
+ * and plan fields. */
 #pragma push
-/* measured: the unit conditional setting leaves nd1; conditional-update source form leaves nd330. */
+/* measured: retail rebuilds the conditionals in the action-code decoder. */
 #pragma opt_rebuildconditionals on
 // FUN_001DE640
 void btlAICommandSetActionCode(u8 *action, u8 *work, u16 actionCode)
@@ -1958,11 +1817,8 @@ u8 btlAICommandPickTableAction(u8 *action) {
     return 0;
 }
 
-/* Measured: 288B/288B, nd 0. Separate loop locals preserve register
-   lifetimes; random-first comparison selects retail's $at branch.
-   The random helper takes the summed weights, not the record pointer. */
-/* Preserve the precomputed table/row byte offsets when accessing the weighted-command layout. */
-/* Choose a positive-weight command from the selected five-entry AI table. */
+/* Choose a positive-weight command from the selected five-entry AI table; the random helper takes
+ * the summed weights, not the record pointer. */
 // FUN_001DEA90
 u8 *btlAISelectWeightedEntry(u8 *action, u32 index)
 {
@@ -1998,17 +1854,8 @@ u8 *btlAISelectWeightedEntry(u8 *action, u32 index)
     }
     return 0;
 }
-/* measured: MATCH. Two keys the earlier floor notes missed: (1) c is
-   REASSIGNED from func_0029de20's return in the type==0 branch
-   (`c = func_0029de20(v, buf);`), so c stays in scratch $v0 at the merge
-   point instead of needing a saved register — this is what makes retail's
-   lbu-into-$v0 + move-$a3 shape reproducible; (2) the `if (m >= 0)` guard
-   on the 0x130 load must be SIGNED (s32) or b210 eliminates it as `u32>=0`
-   always-true. t declared before d (reverse decl order -> d=$19/t=$20),
-   buf[32], case 0/1 switch, iGpffffb444 + x*21 chain. */
-/* KwlnTask+0x20 supplies the procedure priority, decremented by one. */
-/* Start the action procedure, set its message name and attach it to the battle task. */
-/* Historical whole-layout probe: nd 231; separate action/context pointers retain MATCH. */
+/* Starts the action procedure with priority from KwlnTask's field minus one, sets its message name,
+ * and attaches it to the battle task. */
 // FUN_001DEBB0
 s32 btlAICommandSpawnActionProc(u8 *action, u8 *work, u32 scriptData, u32 procedureId)
 {
@@ -2046,22 +1893,9 @@ s32 btlAICommandSpawnActionProc(u8 *action, u8 *work, u32 scriptData, u32 proced
     ((BtlAiCommandWork *)work)->procedureTask = procedureTask;
     return 1;
 }
-/* measured: three 1-2 word scheduler residuals. (1) case 1's chain: retail
-   loads iGpffffb3d0 FIRST (lw $a0,-0x4c30) then computes (a4&0xFFFF)*164 and
-   addu $v0,$v0,$a0, while mwcc b210 sinks the global load after the chain and
-   emits addu $v0,$v0,$v1 (base-first); (2) the v2 > 0 test's u16 mask lands in
-   $v0 instead of retail's $a3; (3) func_001de640's args materialize lhu-before-
-   moves instead of moves-then-lhu. Tried chain-first/global-first spellings and
-   a g = iGpffffb3d0 local inside the case — all identical 16. Load-sinking +
-   $v0/$v1-coloring floor. */
-/* Ported from P3FES btlEffect.c func_002c70d0 (action dispatch, switch type 0/1).
-   func_002d15a0->func_001eb3b0, func_002c6f50->func_001debb0, func_002c6ba0->func_001de800,
-   func_002c6e30->btlAISelectWeightedEntry, func_002c6a00->func_001de640, PTR_FUN_006975e0->D_00609CE0;
-   DAT_007ce41c->iGpffffb3d0 (integer-domain address forces the early base load),
-   DAT_007ce4cc->iGpffffb3cc, DAT_007ce4d0->iGpffffb42c. func_001de800 declared
-   locally as u32 to keep the &0xFFFF mask from folding to 0xff. */
-/* Use an explicit AI procedure when present, otherwise decode a weighted table command. */
-/* Historical whole-layout probe: nd 262; the genus path retains its action-unit reload via MEMBER. */
+/* Matches P3FES func_002c70d0 (action dispatch, switch type 0/1). func_001de800 is declared locally
+ * as u32 so the &0xFFFF mask does not fold to 0xff. Use an explicit AI procedure when present,
+ * otherwise decode a weighted table command. */
 // FUN_001DED30
 void btlAICommandSetUnitAction(s32 action, s32 work)
 {
@@ -2075,7 +1909,7 @@ void btlAICommandSetUnitAction(s32 action, s32 work)
 
     baseActionId = ((BtlUnit *)((s32)((BtlAction *)action)->unit))->charId;
     btlTargetResetCommandRecord((u8 *)work);
-    genus = ((BtlUnit *)(MEMBER(s32, action, BtlAction, unit)))->genus; /* measured: access-site/local/array forms change 262 normalized bytes. */
+    genus = ((BtlUnit *)(MEMBER(s32, action, BtlAction, unit)))->genus;
     switch (genus) {
     case 0:
         actionId = baseActionId;
@@ -2086,7 +1920,8 @@ void btlAICommandSetUnitAction(s32 action, s32 work)
             u8 *aiRecord;
             u32 recordOffset;
 
-            /* measured: the integer-domain address spelling forces the early base load (retail lw $a0,-0x4c30($gp) first), ported from donor func_002c70d0 */
+            /* measured: the integer-domain address spelling makes retail's early load of the AI
+             * record base reproduce. */
             aiRecord = ((u8 **)((u32)&iGpffffb3d0))[0];
             recordOffset = ((u32)baseActionId * 0x28 + (u32)baseActionId) * 4;
             aiRecord = (u8 *)(recordOffset) + (s32)aiRecord;
@@ -2114,7 +1949,6 @@ void btlAICommandSetUnitAction(s32 action, s32 work)
 
 
 /* Clear the procedure-active flag and task handle after the task is no longer linked. */
-/* Historical whole-layout probe: nd 86; a separate command-work pointer retains MATCH. */
 // FUN_001DEEE0
 u32 btlAICommandTryReleaseProc(s32 work)
 {
@@ -2143,7 +1977,7 @@ u32 btlAICommandTryReleaseProc(s32 work)
 }
 
 
-/* AI script command 0x203d (p4flow AI.json AI_FUNCTION_003D). */
+/* Set the current AI state's action to the default action code 0x8000. Always returns 1. */
 // FUN_001DEF60
 u32 btlAICommandScriptSetDefaultAction(void)
 {
@@ -2156,7 +1990,8 @@ u32 btlAICommandScriptSetDefaultAction(void)
 }
 
 
-/* AI script command 0x203e (p4flow AI.json AI_FUNCTION_003E). */
+/* Set the AI action code from the first script parameter. Zero picks the default 0x8000, a negative
+ * value picks 0x8002, and a positive value is used as-is. */
 // FUN_001DEFA0
 s32 btlAICommandScriptSetActionParam(void) {
     u8 *action = scrGetAiState();
@@ -2170,7 +2005,8 @@ s32 btlAICommandScriptSetActionParam(void) {
     return 1;
 }
 
-/* AI script command 0x2068 (p4flow AI.json AI_FUNCTION_0068). */
+/* Make the AI action use the skill given by the first script parameter and record its underlying
+ * skill ID. A negative ID sets action code 0x8002 instead. */
 // FUN_001DF040
 s32 btlAICommandScriptSetSkillAction(void) {
     u8 *action = scrGetAiState();
@@ -2185,7 +2021,7 @@ s32 btlAICommandScriptSetSkillAction(void) {
     return 1;
 }
 
-/* AI script command 0x203f (p4flow AI.json AI_FUNCTION_003F). */
+/* AI script command: set the current AI state's action code to 0x8001. */
 // FUN_001DF0C0
 u32 btlAICommandScriptSetAction8001(void)
 {
@@ -2199,7 +2035,7 @@ u32 btlAICommandScriptSetAction8001(void)
 }
 
 
-/* AI script command 0x2040 (p4flow AI.json AI_FUNCTION_0040). */
+/* AI script command: set the current AI state's action code to 0x8002. */
 // FUN_001DF100
 u32 btlAICommandScriptSetAction8002(void)
 {
@@ -2213,7 +2049,8 @@ u32 btlAICommandScriptSetAction8002(void)
 }
 
 
-/* AI script command 0x20d5 (p4flow AI.json AI_FUNCTION_00D5). */
+/* AI script command: store the integer parameter as a subword in the action's target block, then
+ * set the action code to 0x8002. */
 // FUN_001DF140
 s32 btlAICommandScriptSetActionSubword(void) {
     u8 *action = scrGetAiState();
@@ -2222,7 +2059,8 @@ s32 btlAICommandScriptSetActionSubword(void) {
     return 1;
 }
 
-/* AI script command 0x2041 (p4flow AI.json AI_FUNCTION_0041). */
+/* AI script command: set the AI command work's plan from the integer parameter and mark the action
+ * type. Then run the first plan handler and fall back to the second if the first fails. */
 // FUN_001DF1A0
 s32 btlAICommandScriptSetAiPlan(void) {
     u8 *action = scrGetAiState();
@@ -2234,8 +2072,8 @@ s32 btlAICommandScriptSetAiPlan(void) {
     return 1;
 }
 
-/* AI script command 0x2059 (p4flow AI.json AI_FUNCTION_0059). */
-/* Historical whole-layout probe: normalized diff 113; the access-site pass retains only measured raw culprits. */
+/* Set the AI action to plan 9/0x111 with the two script parameters as summon IDs, then run the plan
+ * handler and fall back to the default handler if it fails. Always returns 1. */
 // FUN_001DF230
 s32 btlAICommandScriptSetAiPlanWithArg(void) {
     u8 *action = scrGetAiState();
@@ -2248,7 +2086,7 @@ s32 btlAICommandScriptSetAiPlanWithArg(void) {
     return 1;
 }
 
-/* AI script command 0x2048 (p4flow AI.json AI_FUNCTION_0048). */
+/* AI script command: set the current AI state's action code to 0x8007. */
 // FUN_001DF2D0
 u32 btlAICommandScriptSetAction8007(void)
 {
@@ -2262,7 +2100,8 @@ u32 btlAICommandScriptSetAction8007(void)
 }
 
 
-/* AI script command 0x2000 (p4flow AI.json AI_FUNCTION_0000). */
+/* Evaluate the acting unit's own-HP condition using the script's threshold parameter and return
+ * whether it holds to the script. */
 // FUN_001DF310
 s32 btlAICommandScriptQueryMyHp(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x1000000;
@@ -2278,7 +2117,8 @@ s32 btlAICommandScriptQueryMyHp(void) {
     return 1;
 }
 
-/* AI script command 0x2001 (p4flow AI.json AI_FUNCTION_0001). */
+/* Evaluate the acting unit's own-MP condition using the script's threshold parameter and return
+ * whether it holds to the script. */
 // FUN_001DF3C0
 s32 btlAICommandScriptQueryMyMp(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x2000000;
@@ -2294,7 +2134,8 @@ s32 btlAICommandScriptQueryMyMp(void) {
     return 1;
 }
 
-/* AI script command 0x2002 (p4flow AI.json AI_FUNCTION_0002). */
+/* Evaluate an ally-HP condition using the script's threshold parameter and return whether it holds
+ * to the script. */
 // FUN_001DF470
 s32 btlAICommandScriptQueryFrHp(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x3000000;
@@ -2310,7 +2151,8 @@ s32 btlAICommandScriptQueryFrHp(void) {
     return 1;
 }
 
-/* AI script command 0x2003 (p4flow AI.json AI_FUNCTION_0003). */
+/* Evaluate an enemy-HP condition using the script's threshold parameter and return whether it holds
+ * to the script. */
 // FUN_001DF520
 s32 btlAICommandScriptQueryEnHp(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x4000000;
@@ -2326,7 +2168,8 @@ s32 btlAICommandScriptQueryEnHp(void) {
     return 1;
 }
 
-/* AI script command 0x2004 (p4flow AI.json AI_FUNCTION_0004). */
+/* Evaluate the alternate enemy-HP condition using the script's threshold parameter and return
+ * whether it holds to the script. */
 // FUN_001DF5D0
 s32 btlAICommandScriptQueryEnHpO(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x5000000;
@@ -2342,7 +2185,8 @@ s32 btlAICommandScriptQueryEnHpO(void) {
     return 1;
 }
 
-/* AI script command 0x2005 (p4flow AI.json AI_FUNCTION_0005). */
+/* AI script command: evaluate condition kind 6 (own level check) against the script parameter for
+ * the current AI state and return whether it holds. */
 // FUN_001DF680
 s32 btlAICommandScriptQueryMyLvO(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x6000000;
@@ -2358,7 +2202,8 @@ s32 btlAICommandScriptQueryMyLvO(void) {
     return 1;
 }
 
-/* AI script command 0x2006 (p4flow AI.json AI_FUNCTION_0006). */
+/* AI script command: evaluate condition kind 7 (ally level check) against the script parameter for
+ * the current AI state and return whether it holds. */
 // FUN_001DF730
 s32 btlAICommandScriptQueryFrLvO(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x7000000;
@@ -2374,7 +2219,8 @@ s32 btlAICommandScriptQueryFrLvO(void) {
     return 1;
 }
 
-/* AI script command 0x2007 (p4flow AI.json AI_FUNCTION_0007). */
+/* AI script command: evaluate condition kind 8 (enemy level check) against the script parameter for
+ * the current AI state and return whether it holds. */
 // FUN_001DF7E0
 s32 btlAICommandScriptQueryEnLvO(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x8000000;
@@ -2390,7 +2236,8 @@ s32 btlAICommandScriptQueryEnLvO(void) {
     return 1;
 }
 
-/* AI script command 0x2008 (p4flow AI.json AI_FUNCTION_0008). */
+/* AI script command: evaluate condition kind 9 (ally count check) against the script parameter for
+ * the current AI state and return whether it holds. */
 // FUN_001DF890
 s32 btlAICommandScriptQueryFrCnt(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x9000000;
@@ -2406,7 +2253,8 @@ s32 btlAICommandScriptQueryFrCnt(void) {
     return 1;
 }
 
-/* AI script command 0x2009 (p4flow AI.json AI_FUNCTION_0009). */
+/* AI script command: evaluate condition kind 10 (enemy count check) against the script parameter
+ * for the current AI state and return whether it holds. */
 // FUN_001DF940
 s32 btlAICommandScriptQueryEnCnt(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0xA000000;
@@ -2422,7 +2270,8 @@ s32 btlAICommandScriptQueryEnCnt(void) {
     return 1;
 }
 
-/* AI script command 0x200a (p4flow AI.json AI_FUNCTION_000A). */
+/* Evaluate the AI's own-bad-status condition (kind 0xB) on the script parameter and return whether
+ * it holds. */
 // FUN_001DF9F0
 s32 btlAICommandScriptQueryMyBad(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0xB000000;
@@ -2438,7 +2287,8 @@ s32 btlAICommandScriptQueryMyBad(void) {
     return 1;
 }
 
-/* AI script command 0x200b (p4flow AI.json AI_FUNCTION_000B). */
+/* Evaluate the ally-bad-status condition (kind 0xC) on the script parameter and return whether it
+ * holds. */
 // FUN_001DFAA0
 s32 btlAICommandScriptQueryFrBad(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0xC000000;
@@ -2454,7 +2304,8 @@ s32 btlAICommandScriptQueryFrBad(void) {
     return 1;
 }
 
-/* AI script command 0x200c (p4flow AI.json AI_FUNCTION_000C). */
+/* Evaluate the enemy-bad-status condition (kind 0xD) on the script parameter and return whether it
+ * holds. */
 // FUN_001DFB50
 s32 btlAICommandScriptQueryEnBad(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0xD000000;
@@ -2470,7 +2321,8 @@ s32 btlAICommandScriptQueryEnBad(void) {
     return 1;
 }
 
-/* AI script command 0x200d (p4flow AI.json AI_FUNCTION_000D). */
+/* Evaluate the all-enemies-bad-status condition (kind 0xE) on the script parameter and return
+ * whether it holds. */
 // FUN_001DFC00
 s32 btlAICommandScriptQueryEnBadAll(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0xE000000;
@@ -2486,7 +2338,7 @@ s32 btlAICommandScriptQueryEnBadAll(void) {
     return 1;
 }
 
-/* AI script command 0x200e (p4flow AI.json AI_FUNCTION_000E). */
+/* Evaluate the ally-ID condition (kind 0xF) on the script parameter and return whether it holds. */
 // FUN_001DFCB0
 s32 btlAICommandScriptQueryFrId(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0xF000000;
@@ -2502,7 +2354,8 @@ s32 btlAICommandScriptQueryFrId(void) {
     return 1;
 }
 
-/* AI script command 0x200f (p4flow AI.json AI_FUNCTION_000F). */
+/* Run the enemy-ID condition check on the script's integer parameter for the current AI state, and
+ * return true or false to the script. */
 // FUN_001DFD60
 s32 btlAICommandScriptQueryEnId(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x10000000;
@@ -2518,7 +2371,8 @@ s32 btlAICommandScriptQueryEnId(void) {
     return 1;
 }
 
-/* AI script command 0x2010 (p4flow AI.json AI_FUNCTION_0010). */
+/* Run the ally support-effect (hojo) condition check on the script's integer parameter for the
+ * current AI state, and return true or false to the script. */
 // FUN_001DFE10
 s32 btlAICommandScriptQueryFrHojo(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x11000000;
@@ -2534,7 +2388,8 @@ s32 btlAICommandScriptQueryFrHojo(void) {
     return 1;
 }
 
-/* AI script command 0x2011 (p4flow AI.json AI_FUNCTION_0011). */
+/* Run the enemy support-effect (hojo) condition check on the script's integer parameter for the
+ * current AI state, and return true or false to the script. */
 // FUN_001DFEC0
 s32 btlAICommandScriptQueryEnHojo(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x12000000;
@@ -2550,28 +2405,26 @@ s32 btlAICommandScriptQueryEnHojo(void) {
     return 1;
 }
 
-/* AI script command 0x2012 (p4flow AI.json AI_FUNCTION_0012). */
 // FUN_001DFF70
 s32 btlAICommandScriptQueryEscape(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609934[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
-/* AI script command 0x2013 (p4flow AI.json AI_FUNCTION_0013). */
 // FUN_001DFFC0
 s32 btlAICommandScriptQuerySummon(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609940[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
-/* AI script command 0x2014 (p4flow AI.json AI_FUNCTION_0014). */
 // FUN_001E0010
 s32 btlAICommandScriptQuerySensei(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_0060994C[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
-/* AI script command 0x2015 (p4flow AI.json AI_FUNCTION_0015). */
+/* Run the self reflect (hansya) condition check on the script's integer parameter for the current
+ * AI state, and return true or false to the script. */
 // FUN_001E0060
 s32 btlAICommandScriptQueryMyHansya(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x16000000;
@@ -2587,7 +2440,8 @@ s32 btlAICommandScriptQueryMyHansya(void) {
     return 1;
 }
 
-/* AI script command 0x2016 (p4flow AI.json AI_FUNCTION_0016). */
+/* Run the self absorb (kyusyu) condition check on the script's integer parameter for the current AI
+ * state, and return true or false to the script. */
 // FUN_001E0110
 s32 btlAICommandScriptQueryMyKyusyu(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x17000000;
@@ -2603,7 +2457,8 @@ s32 btlAICommandScriptQueryMyKyusyu(void) {
     return 1;
 }
 
-/* AI script command 0x2017 (p4flow AI.json AI_FUNCTION_0017). */
+/* AI script command: test whether the acting unit nullifies the element given by the script
+ * parameter, and return the result as a boolean. */
 // FUN_001E01C0
 s32 btlAICommandScriptQueryMyMukou(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x18000000;
@@ -2619,7 +2474,8 @@ s32 btlAICommandScriptQueryMyMukou(void) {
     return 1;
 }
 
-/* AI script command 0x2018 (p4flow AI.json AI_FUNCTION_0018). */
+/* AI script command: test whether the acting unit is weak to the element given by the script
+ * parameter, and return the result as a boolean. */
 // FUN_001E0270
 s32 btlAICommandScriptQueryMyWeak(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x19000000;
@@ -2635,7 +2491,8 @@ s32 btlAICommandScriptQueryMyWeak(void) {
     return 1;
 }
 
-/* AI script command 0x2019 (p4flow AI.json AI_FUNCTION_0019). */
+/* AI script command: test whether an ally reflects the element given by the script parameter, and
+ * return the result as a boolean. */
 // FUN_001E0320
 s32 btlAICommandScriptQueryFrHansya(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x1A000000;
@@ -2651,7 +2508,8 @@ s32 btlAICommandScriptQueryFrHansya(void) {
     return 1;
 }
 
-/* AI script command 0x201a (p4flow AI.json AI_FUNCTION_001A). */
+/* AI script command: test whether an enemy reflects the element given by the script parameter, and
+ * return the result as a boolean. */
 // FUN_001E03D0
 s32 btlAICommandScriptQueryEnHansya(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x1B000000;
@@ -2667,7 +2525,8 @@ s32 btlAICommandScriptQueryEnHansya(void) {
     return 1;
 }
 
-/* AI script command 0x201b (p4flow AI.json AI_FUNCTION_001B). */
+/* AI script command: test whether an ally absorbs the element given by the script parameter, and
+ * return the result as a boolean. */
 // FUN_001E0480
 s32 btlAICommandScriptQueryFrKyusyu(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x1C000000;
@@ -2683,7 +2542,8 @@ s32 btlAICommandScriptQueryFrKyusyu(void) {
     return 1;
 }
 
-/* AI script command 0x201c (p4flow AI.json AI_FUNCTION_001C). */
+/* Evaluate the enemy-absorbs (kyusyu) AI condition against the first script parameter and return
+ * whether it holds to the script. */
 // FUN_001E0530
 s32 btlAICommandScriptQueryEnKyusyu(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x1D000000;
@@ -2699,7 +2559,8 @@ s32 btlAICommandScriptQueryEnKyusyu(void) {
     return 1;
 }
 
-/* AI script command 0x201d (p4flow AI.json AI_FUNCTION_001D). */
+/* Evaluate the ally-nullifies (mukou) AI condition against the first script parameter and return
+ * whether it holds to the script. */
 // FUN_001E05E0
 s32 btlAICommandScriptQueryFrMukou(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x1E000000;
@@ -2715,7 +2576,8 @@ s32 btlAICommandScriptQueryFrMukou(void) {
     return 1;
 }
 
-/* AI script command 0x201e (p4flow AI.json AI_FUNCTION_001E). */
+/* Evaluate the enemy-nullifies (mukou) AI condition against the first script parameter and return
+ * whether it holds to the script. */
 // FUN_001E0690
 s32 btlAICommandScriptQueryEnMukou(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x1F000000;
@@ -2731,7 +2593,8 @@ s32 btlAICommandScriptQueryEnMukou(void) {
     return 1;
 }
 
-/* AI script command 0x201f (p4flow AI.json AI_FUNCTION_001F). */
+/* Evaluate the ally-weakness AI condition against the first script parameter and return whether it
+ * holds to the script. */
 // FUN_001E0740
 s32 btlAICommandScriptQueryFrWeak(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x20000000;
@@ -2747,7 +2610,8 @@ s32 btlAICommandScriptQueryFrWeak(void) {
     return 1;
 }
 
-/* AI script command 0x2020 (p4flow AI.json AI_FUNCTION_0020). */
+/* Evaluate the enemy-weakness AI condition against the first script parameter and return whether it
+ * holds to the script. */
 // FUN_001E07F0
 s32 btlAICommandScriptQueryEnWeak(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x21000000;
@@ -2763,7 +2627,8 @@ s32 btlAICommandScriptQueryEnWeak(void) {
     return 1;
 }
 
-/* AI script command 0x2021 (p4flow AI.json AI_FUNCTION_0021). */
+/* AI script command: test whether this unit has used an attack of the given attribute, by running
+ * the condition-table check, and return the result to the script. */
 // FUN_001E08A0
 s32 btlAICommandScriptQueryMyUseAttr(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x22000000;
@@ -2779,7 +2644,8 @@ s32 btlAICommandScriptQueryMyUseAttr(void) {
     return 1;
 }
 
-/* AI script command 0x2022 (p4flow AI.json AI_FUNCTION_0022). */
+/* AI script command: test whether an ally has used an attack of the given attribute, by running the
+ * condition-table check, and return the result to the script. */
 // FUN_001E0950
 s32 btlAICommandScriptQueryFrUseAttr(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x23000000;
@@ -2795,7 +2661,8 @@ s32 btlAICommandScriptQueryFrUseAttr(void) {
     return 1;
 }
 
-/* AI script command 0x2023 (p4flow AI.json AI_FUNCTION_0023). */
+/* AI script command: test whether an enemy has used an attack of the given attribute, by running
+ * the condition-table check, and return the result to the script. */
 // FUN_001E0A00
 s32 btlAICommandScriptQueryEnUseAttr(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x24000000;
@@ -2811,7 +2678,8 @@ s32 btlAICommandScriptQueryEnUseAttr(void) {
     return 1;
 }
 
-/* AI script command 0x2024 (p4flow AI.json AI_FUNCTION_0024). */
+/* AI script command: test whether this unit has used the given skill, by running the condition-
+ * table check, and return the result to the script. */
 // FUN_001E0AB0
 s32 btlAICommandScriptQueryMyUseSkil(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x25000000;
@@ -2827,7 +2695,8 @@ s32 btlAICommandScriptQueryMyUseSkil(void) {
     return 1;
 }
 
-/* AI script command 0x2025 (p4flow AI.json AI_FUNCTION_0025). */
+/* AI script command: test whether an ally has used the given skill, by running the condition-table
+ * check, and return the result to the script. */
 // FUN_001E0B60
 s32 btlAICommandScriptQueryFrUseSkil(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x26000000;
@@ -2843,7 +2712,8 @@ s32 btlAICommandScriptQueryFrUseSkil(void) {
     return 1;
 }
 
-/* AI script command 0x2026 (p4flow AI.json AI_FUNCTION_0026). */
+/* AI script command: test whether an enemy has used the skill given by the script parameter, and
+ * return the result as a boolean. */
 // FUN_001E0C10
 s32 btlAICommandScriptQueryEnUseSkil(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x27000000;
@@ -2859,28 +2729,26 @@ s32 btlAICommandScriptQueryEnUseSkil(void) {
     return 1;
 }
 
-/* AI script command 0x2027 (p4flow AI.json AI_FUNCTION_0027). */
 // FUN_001E0CC0
 s32 btlAICommandScriptQueryMyGroup(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A30[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
-/* AI script command 0x2028 (p4flow AI.json AI_FUNCTION_0028). */
 // FUN_001E0D10
 s32 btlAICommandScriptQueryFrGroup(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A3C[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
-/* AI script command 0x2029 (p4flow AI.json AI_FUNCTION_0029). */
 // FUN_001E0D60
 s32 btlAICommandScriptQueryEnGroup(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A48[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
-/* AI script command 0x202a (p4flow AI.json AI_FUNCTION_002A). */
+/* AI script command: run the turn-count condition on the script parameter for the current AI state,
+ * and return the result as a boolean. */
 // FUN_001E0DB0
 s32 btlAICommandScriptQueryTurn(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x2B000000;
@@ -2896,7 +2764,8 @@ s32 btlAICommandScriptQueryTurn(void) {
     return 1;
 }
 
-/* AI script command 0x202b (p4flow AI.json AI_FUNCTION_002B). */
+/* AI script command: run the alternate turn condition on the script parameter for the current AI
+ * state, and return the result as a boolean. */
 // FUN_001E0E60
 s32 btlAICommandScriptQueryTurnO(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x2C000000;
@@ -2912,21 +2781,20 @@ s32 btlAICommandScriptQueryTurnO(void) {
     return 1;
 }
 
-/* AI script command 0x2046 (p4flow AI.json AI_FUNCTION_0046). */
 // FUN_001E0F10
 s32 btlAICommandScriptQueryMyHrec(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A6C[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
-/* AI script command 0x2047 (p4flow AI.json AI_FUNCTION_0047). */
 // FUN_001E0F60
 s32 btlAICommandScriptQueryMore(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609A78[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
-/* AI script command 0x2051 (p4flow AI.json AI_FUNCTION_0051). */
+/* AI script command: test whether an ally has the reflect status given by the script parameter, and
+ * return the result as a boolean. */
 // FUN_001E0FB0
 s32 btlAICommandScriptQueryFrHansyaSt(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x2F000000;
@@ -2942,7 +2810,8 @@ s32 btlAICommandScriptQueryFrHansyaSt(void) {
     return 1;
 }
 
-/* AI script command 0x2052 (p4flow AI.json AI_FUNCTION_0052). */
+/* AI script command: test whether an enemy has the reflect status given by the script parameter,
+ * and return the result as a boolean. */
 // FUN_001E1060
 s32 btlAICommandScriptQueryEnHansyaSt(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x30000000;
@@ -2958,7 +2827,8 @@ s32 btlAICommandScriptQueryEnHansyaSt(void) {
     return 1;
 }
 
-/* AI script command 0x2053 (p4flow AI.json AI_FUNCTION_0053). */
+/* Run the AI condition check for allies that absorb the given element (Kyusyu), using the script
+ * parameter. Return the true/false result to the script. */
 // FUN_001E1110
 s32 btlAICommandScriptQueryFrKyusyuSt(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x31000000;
@@ -2974,7 +2844,8 @@ s32 btlAICommandScriptQueryFrKyusyuSt(void) {
     return 1;
 }
 
-/* AI script command 0x2054 (p4flow AI.json AI_FUNCTION_0054). */
+/* Run the AI condition check for enemies that absorb the given element (Kyusyu), using the script
+ * parameter. Return the true/false result to the script. */
 // FUN_001E11C0
 s32 btlAICommandScriptQueryEnKyusyuSt(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x32000000;
@@ -2990,7 +2861,8 @@ s32 btlAICommandScriptQueryEnKyusyuSt(void) {
     return 1;
 }
 
-/* AI script command 0x2055 (p4flow AI.json AI_FUNCTION_0055). */
+/* Run the AI condition check for allies that nullify the given element (Mukou), using the script
+ * parameter. Return the true/false result to the script. */
 // FUN_001E1270
 s32 btlAICommandScriptQueryFrMukouSt(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x33000000;
@@ -3006,7 +2878,8 @@ s32 btlAICommandScriptQueryFrMukouSt(void) {
     return 1;
 }
 
-/* AI script command 0x2056 (p4flow AI.json AI_FUNCTION_0056). */
+/* Run the AI condition check for enemies that nullify the given element (Mukou), using the script
+ * parameter. Return the true/false result to the script. */
 // FUN_001E1320
 s32 btlAICommandScriptQueryEnMukouSt(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x34000000;
@@ -3022,7 +2895,8 @@ s32 btlAICommandScriptQueryEnMukouSt(void) {
     return 1;
 }
 
-/* AI script command 0x2057 (p4flow AI.json AI_FUNCTION_0057). */
+/* Run the AI condition check for allies weak to the given element, using the script parameter.
+ * Return the true/false result to the script. */
 // FUN_001E13D0
 s32 btlAICommandScriptQueryFrWeakSt(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x35000000;
@@ -3038,7 +2912,8 @@ s32 btlAICommandScriptQueryFrWeakSt(void) {
     return 1;
 }
 
-/* AI script command 0x2058 (p4flow AI.json AI_FUNCTION_0058). */
+/* Evaluate the enemy-weak-status condition for the given parameter through the AI condition table
+ * and return whether it holds. */
 // FUN_001E1480
 s32 btlAICommandScriptQueryEnWeakSt(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x36000000;
@@ -3054,15 +2929,8 @@ s32 btlAICommandScriptQueryEnWeakSt(void) {
     return 1;
 }
 
-/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
-   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
-/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
-   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
-/* AI script command 0x205a (p4flow AI.json AI_FUNCTION_005A). */
+/* Find the unit with the given ID on the caller's side and set the script return value to whether
+ * its HP satisfies the condition in parameter 1. */
 // FUN_001E1530
 u32 btlAICommandSideIdQueryMyHp(void)
 {
@@ -3096,11 +2964,8 @@ u32 btlAICommandSideIdQueryMyHp(void)
 }
 
 
-/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
-   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
-/* AI script command 0x205b (p4flow AI.json AI_FUNCTION_005B). */
+/* Find the unit with the given ID on the caller's side and set the script return value to whether
+ * its MP satisfies the condition in parameter 1. */
 // FUN_001E1620
 u32 btlAICommandSideIdQueryMyMp(void)
 {
@@ -3134,11 +2999,8 @@ u32 btlAICommandSideIdQueryMyMp(void)
 }
 
 
-/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
-   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
-/* AI script command 0x205c (p4flow AI.json AI_FUNCTION_005C). */
+/* Find the unit with the given ID on the caller's side and set the script return value to whether
+ * it passes the type-6 (level) check in parameter 1. */
 // FUN_001E1710
 u32 btlAICommandSideIdQueryMyLvO(void)
 {
@@ -3172,11 +3034,10 @@ u32 btlAICommandSideIdQueryMyLvO(void)
 }
 
 
-/* Ported from P3FES btlEffect.c func_002c9ba0 (argument sideMask dispatch,
-   selector tag 0x0b000000, inline shift). func_0035ed20->scrGetParamInt,
-   func_0035f160->func_0029d050, func_002c0e30->btlEffectFindUnitByIdAndStatus,
-   func_0035f060->scrSetReturnInt, gFormationDispatchTable->D_00609850. */
-/* AI script command 0x205d (p4flow AI.json AI_FUNCTION_005D). */
+/* Matches P3FES func_002c9ba0. */
+/* Find the unit with the given ID on the caller's side and set the script return value to whether
+ * it has the bad status given in parameter 1. If parameter 1 has bit 0x80000 set, the unit lookup
+ * skips the status filter. */
 // FUN_001E1800
 u32 btlAICommandSideIdQueryMyBad(void)
 {
@@ -3215,7 +3076,8 @@ u32 btlAICommandSideIdQueryMyBad(void)
     return 1;
 }
 
-/* AI script command 0x205e (p4flow AI.json AI_FUNCTION_005E). */
+/* Find the unit with the given ID on the acting unit's own side and return whether it has any of
+ * the buffs in the given mask. */
 // FUN_001E1940
 s32 btlAICommandSideIdQueryHasBuff(void) {
     u8 *action = scrGetAiState();
@@ -3229,11 +3091,8 @@ s32 btlAICommandSideIdQueryHasBuff(void) {
     return 1;
 }
 
-/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
-   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
-/* AI script command 0x205f (p4flow AI.json AI_FUNCTION_005F). */
+/* AI command: find the unit with the given id on the caller's side and return whether it reflects
+ * (hansya) the attribute given in param 1. */
 // FUN_001E19F0
 u32 btlAICommandSideIdQueryMyHansya(void)
 {
@@ -3267,11 +3126,8 @@ u32 btlAICommandSideIdQueryMyHansya(void)
 }
 
 
-/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
-   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
-/* AI script command 0x2060 (p4flow AI.json AI_FUNCTION_0060). */
+/* AI command: find the unit with the given id on the caller's side and return whether it absorbs
+ * (kyusyu) the attribute given in param 1. */
 // FUN_001E1AE0
 u32 btlAICommandSideIdQueryMyKyusyu(void)
 {
@@ -3305,11 +3161,8 @@ u32 btlAICommandSideIdQueryMyKyusyu(void)
 }
 
 
-/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
-   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
-/* AI script command 0x2061 (p4flow AI.json AI_FUNCTION_0061). */
+/* AI command: find the unit with the given id on the caller's side and return whether it nullifies
+ * (mukou) the attribute given in param 1. */
 // FUN_001E1BD0
 u32 btlAICommandSideIdQueryMyMukou(void)
 {
@@ -3343,11 +3196,8 @@ u32 btlAICommandSideIdQueryMyMukou(void)
 }
 
 
-/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
-   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
-/* AI script command 0x2062 (p4flow AI.json AI_FUNCTION_0062). */
+/* AI command: find the unit with the given id on the caller's side and return whether it is weak to
+ * the attribute given in param 1. */
 // FUN_001E1CC0
 u32 btlAICommandSideIdQueryMyWeak(void)
 {
@@ -3381,11 +3231,8 @@ u32 btlAICommandSideIdQueryMyWeak(void)
 }
 
 
-/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
-   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
-/* AI script command 0x2063 (p4flow AI.json AI_FUNCTION_0063). */
+/* AI command: find the unit with the given id on the caller's side and return whether it can use
+ * the attribute given in param 1. */
 // FUN_001E1DB0
 u32 btlAICommandSideIdQueryMyUseAttr(void)
 {
@@ -3419,11 +3266,8 @@ u32 btlAICommandSideIdQueryMyUseAttr(void)
 }
 
 
-/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
-   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
-/* AI script command 0x2064 (p4flow AI.json AI_FUNCTION_0064). */
+/* Find the unit with the given id on the caller's own side and return whether it passes the use-
+ * skill condition check named by the second parameter. */
 // FUN_001E1EA0
 u32 btlAICommandSideIdQueryMyUseSkil(void)
 {
@@ -3457,7 +3301,8 @@ u32 btlAICommandSideIdQueryMyUseSkil(void)
 }
 
 
-/* AI script command 0x2065 (p4flow AI.json AI_FUNCTION_0065). */
+/* Find the unit with the given ID on the acting unit's own side and return the result of the my-
+ * group condition check on it. */
 // FUN_001E1F90
 s32 btlAICommandSideIdQueryMyGroup(void) {
     u8 *action = scrGetAiState();
@@ -3471,7 +3316,8 @@ s32 btlAICommandSideIdQueryMyGroup(void) {
     return 1;
 }
 
-/* AI script command 0x2066 (p4flow AI.json AI_FUNCTION_0066). */
+/* Find the unit with the given ID on the acting unit's own side and return the result of the my-
+ * hrec condition check on it. */
 // FUN_001E2030
 s32 btlAICommandSideIdQueryMyHrec(void) {
     u8 *action = scrGetAiState();
@@ -3485,17 +3331,9 @@ s32 btlAICommandSideIdQueryMyHrec(void) {
     return 1;
 }
 
-/* measured: mwcc b210 folds f = (a == 0) into an xor/sltiu booleanize no matter
-   the spelling (if/else, ternary, inline in the shift, f = 0 first, switch,
-   goto) while retail keeps a branchy set (bnez $v0,L; addiu $v0,1; b; L: move
-   $v0,0), which then shifts the whole dispatch tail by 4 words; same fold floor
-   as FUN_001DB7D0. The rest (9280 arg order, dsll32/dsrl32 24-bit masks, the
-   e*3 table call) all compile correctly when f is the only difference. */
-/* Ported from P3FES btlEffect.c func_002ca480 (dispatch handler, 8-alt clone
-   family). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
-   gFormationDispatchTable->D_00609850; selector tag 0x01000000. */
-/* AI script command 0x209e (p4flow AI.json AI_FUNCTION_009E). */
+/* Matches P3FES func_002ca480. */
+/* Find the unit with the given id on the side opposite the caller and return whether its HP passes
+ * the condition named by the second parameter. */
 // FUN_001E20D0
 u32 btlAICommandOppSideIdQueryMyHp(void)
 {
@@ -3537,18 +3375,7 @@ done:
 }
 
 
-/* measured: re-verified this wave — the goto-form body compiles the whole
-   function byte-identically except the inner-else branch: retail b 0x1e22b4
-   (branch-to-branch through the outer tail jump) vs mwcc b210 b 0x1e22c0
-   (threaded straight to the join). Tried this wave: double-goto both-paths
-   into the merge label (nd 4), explicit goto out2 closing the r!=0 block
-   (nd 4), label inside the block (nd 4), #pragma opt_propagation off
-   (nd 62), opt_common_subs off (nd 4), schedule off (nd 4). Still nd 4 =
-   1 word + 3 reloc words; same wall as the previous wave. Branch-to-branch
-   sharing floor (corroborated in mdlManager/datCalc). */
-/* Ported from P3FES btlEffect.c func_002ca590 (dispatch handler, 8-alt clone
-   family, selector tag 0x02000000). Same mapping as FUN_001E20D0. */
-/* AI script command 0x209f (p4flow AI.json AI_FUNCTION_009F). */
+/* Matches P3FES func_002ca590; uses selector tag 0x02000000. */
 // FUN_001E21E0
 u32 btlAICommandOppSideIdQueryMyMp(void)
 {
@@ -3590,19 +3417,7 @@ done:
 }
 
 
-/* measured: branchy shift set reproduces with the goto form under
-   #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
-   x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
-   b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
-   same wall as FUN_001E21E0; switch(cond) dispatch form re-lays-out the
-   whole tail (nd 30) so if/else is the closer shape. */
-/* measured: re-verified this wave — same recipe body as FUN_001E21E0 (goto
-   shift set + pragma off); the sole residual is again the threaded branch:
-   retail b 0x1e23c4 (branch-to-branch) vs mwcc b210 b 0x1e23d0. nd 4 = 1
-   word + 3 reloc words. Branch-to-branch sharing floor. */
-/* Ported from P3FES btlEffect.c func_002ca6a0 (dispatch handler, 8-alt clone
-   family, selector tag 0x06000000). Same mapping as FUN_001E20D0. */
-/* AI script command 0x20a0 (p4flow AI.json AI_FUNCTION_00A0). */
+/* Matches P3FES func_002ca6a0; same mapping as FUN_001E20D0. */
 // FUN_001E22F0
 u32 btlAICommandOppSideIdQueryMyLvO(void)
 {
@@ -3644,11 +3459,7 @@ done:
 }
 
 
-/* Ported from P3FES btlEffect.c func_002ca7b0 (argument sideMask dispatch,
-   selector tag 0x0b000000). func_0035ed20->scrGetParamInt, func_0035f160->func_0029d050,
-   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
-   gFormationDispatchTable->D_00609850. Pragma for branchy shift set. */
-/* AI script command 0x20a1 (p4flow AI.json AI_FUNCTION_00A1). */
+/* Matches P3FES func_002ca7b0; dispatches on the argument side mask with selector tag 0x0b000000. */
 // FUN_001E2400
 u32 btlAICommandOppSideIdQueryMyBad(void)
 {
@@ -3696,9 +3507,7 @@ done:
 }
 
 
-/* AI script command 0x210e (p4flow AI.json AI_FUNCTION_010E). */
-/* Historical whole-layout probe: nd 134; a separate matching-unit pointer retains MATCH. */
-/* Return true only when every living matching ally has the requested status. */
+/* Returns true only when every living matching ally has the requested status. */
 // FUN_001E2550
 s32 btlAICommandSideIdQueryAllBadStatus(void) {
     u32 statusMask;
@@ -3745,15 +3554,9 @@ s32 btlAICommandSideIdQueryAllBadStatus(void) {
     return 1;
 }
 
-/* measured: byte-exact at nd 0. Reusing the c0 local for the node payload
-   and m for the post-call c02 value gives retail's saved-register live
-   ranges; #pragma opt_rebuildconditionals off preserves the branchy shift
-   sequence and its 392-byte object (retail window 400 bytes). */
-/* AI script command 0x210d (p4flow AI.json AI_FUNCTION_010D). */
-/* Historical whole-layout probe: nd 134; a separate matching-unit pointer retains MATCH. */
-/* Require the requested status on every living matching unit of the opposite side. */
+/* Requires the requested status on every living matching unit of the opposite side. */
 // FUN_001E26C0
-/* measured: retains the branch-rebuild setting required for the byte-exact body. */
+/* measured: retail keeps the shift selection as branches, so conditional rebuilding stays off. */
 s32 btlAICommandOppSideIdQueryAllBadStatus(void)
 {
     u32 shift;
@@ -3805,9 +3608,8 @@ done:
     return 1;
 }
 
-/* Removing this loses FUN_001E2850 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
-
-/* AI script command 0x20a2 (p4flow AI.json AI_FUNCTION_00A2). */
+/* Find the unit with the given ID on the side opposing the acting unit and return whether it has
+ * any of the buffs in the given mask. */
 // FUN_001E2850
 s32 btlAICommandOppSideIdQueryHasBuff(void) {
     u32 shift;
@@ -3832,9 +3634,7 @@ s32 btlAICommandOppSideIdQueryHasBuff(void) {
     return 1;
 }
 
-/* AI script command 0x2111 (p4flow AI.json AI_FUNCTION_0111). */
-/* Historical whole-layout probe: nd 134; a separate matching-unit pointer retains MATCH. */
-/* Require a matching buff on every living ally with the requested unit id. */
+/* Requires a matching buff on every living ally with the requested unit id. */
 // FUN_001E2910
 s32 btlAICommandSideIdQueryAllHasBuff(void) {
     u32 statusMask;
@@ -3881,11 +3681,8 @@ s32 btlAICommandSideIdQueryAllHasBuff(void) {
     return 1;
 }
 
-/* measured: byte-exact sibling of FUN_001E26C0; reusing c0 for the node
-   payload and m for c02 with conditional rebuilds disabled gives nd 0. */
-/* AI script command 0x2110 (p4flow AI.json AI_FUNCTION_0110). */
-/* Historical whole-layout probe: nd 134; a separate matching-unit pointer retains MATCH. */
-/* Require a matching buff on every living opponent with the requested unit id. */
+/* Requires a matching buff on every living opponent with the requested unit id. Sibling of
+ * FUN_001E26C0. */
 // FUN_001E2A80
 s32 btlAICommandOppSideIdQueryAllHasBuff(void)
 {
@@ -3938,14 +3735,9 @@ done:
     return 1;
 }
 
-/* measured: branchy shift set reproduces with the goto form under
-   #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
-   x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
-   b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
-   same wall as FUN_001E21E0. */
-/* Ported from P3FES btlEffect.c func_002ca9d0 (dispatch handler, 8-alt clone
-   family, selector tag 0x16000000). Same mapping as FUN_001E20D0. */
-/* AI script command 0x20a3 (p4flow AI.json AI_FUNCTION_00A3). */
+/* Matches P3FES func_002ca9d0. */
+/* Find the unit with the given id on the side opposite the caller and return whether it passes the
+ * reflect (hansya) condition named by the second parameter. */
 // FUN_001E2C10
 u32 btlAICommandOppSideIdQueryMyHansya(void)
 {
@@ -3987,19 +3779,7 @@ done:
 }
 
 
-/* measured: branchy shift set reproduces with the goto form under
-   #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
-   x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
-   b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
-   same wall as FUN_001E21E0. */
-/* measured: re-verified this wave — same recipe body as FUN_001E21E0 (goto
-   shift set + pragma off, const 0x17000000); sole residual is the threaded
-   branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
-   straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
-   sharing floor, same as FUN_001E21E0. */
-/* Ported from P3FES btlEffect.c func_002caae0 (dispatch handler, 8-alt clone
-   family, selector tag 0x17000000). Same mapping as FUN_001E20D0. */
-/* AI script command 0x20a4 (p4flow AI.json AI_FUNCTION_00A4). */
+/* Matches P3FES func_002caae0; selector tag 0x17000000. */
 // FUN_001E2D20
 u32 btlAICommandOppSideIdQueryMyKyusyu(void)
 {
@@ -4041,19 +3821,7 @@ done:
 }
 
 
-/* measured: branchy shift set reproduces with the goto form under
-   #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
-   x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
-   b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
-   same wall as FUN_001E21E0. */
-/* measured: re-verified this wave — same recipe body as FUN_001E21E0 (goto
-   shift set + pragma off, const 0x18000000); sole residual is the threaded
-   branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
-   straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
-   sharing floor, same as FUN_001E21E0. */
-/* Ported from P3FES btlEffect.c func_002cabf0 (dispatch handler, 8-alt clone
-   family, selector tag 0x18000000). Same mapping as FUN_001E20D0. */
-/* AI script command 0x20a5 (p4flow AI.json AI_FUNCTION_00A5). */
+/* Matches P3FES func_002cabf0; selector tag 0x18000000. */
 // FUN_001E2E30
 u32 btlAICommandOppSideIdQueryMyMukou(void)
 {
@@ -4095,19 +3863,7 @@ done:
 }
 
 
-/* measured: branchy shift set reproduces with the goto form under
-   #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
-   x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
-   b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
-   same wall as FUN_001E21E0. */
-/* measured: re-verified this wave — same recipe body as FUN_001E21E0 (goto
-   shift set + pragma off, const 0x19000000); sole residual is the threaded
-   branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
-   straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
-   sharing floor, same as FUN_001E21E0. */
-/* Ported from P3FES btlEffect.c func_002cad00 (dispatch handler, 8-alt clone
-   family, selector tag 0x19000000). Same mapping as FUN_001E20D0. */
-/* AI script command 0x20a6 (p4flow AI.json AI_FUNCTION_00A6). */
+/* Matches P3FES func_002cad00; selector tag 0x19000000. */
 // FUN_001E2F40
 u32 btlAICommandOppSideIdQueryMyWeak(void)
 {
@@ -4149,19 +3905,7 @@ done:
 }
 
 
-/* measured: branchy shift set reproduces with the goto form under
-   #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
-   x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
-   b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
-   same wall as FUN_001E21E0. */
-/* measured: re-verified this wave — same recipe body as FUN_001E21E0 (goto
-   shift set + pragma off, const 0x22000000); sole residual is the threaded
-   branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
-   straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
-   sharing floor, same as FUN_001E21E0. */
-/* Ported from P3FES btlEffect.c func_002cae10 (dispatch handler, 8-alt clone
-   family, selector tag 0x22000000). Same mapping as FUN_001E20D0. */
-/* AI script command 0x20a7 (p4flow AI.json AI_FUNCTION_00A7). */
+/* Matches P3FES func_002cae10; selector tag 0x22000000. */
 // FUN_001E3050
 u32 btlAICommandOppSideIdQueryMyUseAttr(void)
 {
@@ -4203,19 +3947,7 @@ done:
 }
 
 
-/* measured: branchy shift set reproduces with the goto form under
-   #pragma opt_rebuildconditionals off; only residual is 1 word — retail's
-   x=0 path jumps to the call-path tail jump (branch-to-branch) while mwcc
-   b210 peepholes it straight to the merge. nd 4 = that word + reloc words;
-   same wall as FUN_001E21E0. */
-/* measured: re-verified this wave — same recipe body as FUN_001E21E0 (goto
-   shift set + pragma off, const 0x25000000); sole residual is the threaded
-   branch: retail b to the call-path tail jump (branch-to-branch) vs mwcc b210
-   straight to the join. nd 4 = 1 word + 3 reloc words. Branch-to-branch
-   sharing floor, same as FUN_001E21E0. */
-/* Ported from P3FES btlEffect.c func_002caf20 (dispatch handler, 8-alt clone
-   family, selector tag 0x25000000). Same mapping as FUN_001E20D0. */
-/* AI script command 0x20a8 (p4flow AI.json AI_FUNCTION_00A8). */
+/* Matches P3FES func_002caf20; selector tag 0x25000000. */
 // FUN_001E3160
 u32 btlAICommandOppSideIdQueryMyUseSkil(void)
 {
@@ -4257,9 +3989,9 @@ done:
 }
 
 
-/* AI script command 0x20a9 (p4flow AI.json AI_FUNCTION_00A9). */
+/* AI script command: find the opposing-side unit with the ID given in param 0 and return whether
+ * its group query holds against the acting unit. */
 // FUN_001E3270
-/* Removing this loses FUNC_001E3270 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUNC_001E3270
 s32 btlAICommandOppSideIdQueryMyGroup(void) {
@@ -4285,9 +4017,9 @@ s32 btlAICommandOppSideIdQueryMyGroup(void) {
     return 1;
 }
 
-/* AI script command 0x20aa (p4flow AI.json AI_FUNCTION_00AA). */
+/* AI script command: find the opposing-side unit with the ID given in param 0 and return whether
+ * its hit-record query holds against the acting unit. */
 // FUN_001E3320
-/* Removing this loses FUNC_001E3320 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
 
 // FUNC_001E3320
 s32 btlAICommandOppSideIdQueryMyHrec(void) {
@@ -4313,7 +4045,8 @@ s32 btlAICommandOppSideIdQueryMyHrec(void) {
     return 1;
 }
 
-/* AI script command 0x2069 (p4flow AI.json AI_FUNCTION_0069). */
+/* AI script command: return whether the acting unit is on the side given in param 0 and has the
+ * character ID given in param 1. */
 // FUN_001E33D0
 s32 btlAICommandScriptUnitIsIdOnSide(void) {
     u8 *action = scrGetAiState();
@@ -4338,7 +4071,8 @@ s32 btlAICommandScriptUnitIsIdOnSide(void) {
     return 1;
 }
 
-/* AI script command 0x206a (p4flow AI.json AI_FUNCTION_006A). */
+/* AI script command: evaluate the friendly-side all-HP condition with the value from param 0 and
+ * return the result as a boolean. */
 // FUN_001E34B0
 s32 btlAICommandScriptQueryFrAllHp(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x38000000;
@@ -4354,7 +4088,8 @@ s32 btlAICommandScriptQueryFrAllHp(void) {
     return 1;
 }
 
-/* AI script command 0x206b (p4flow AI.json AI_FUNCTION_006B). */
+/* AI script command: evaluate the enemy-side all-HP condition with the value from param 0 and
+ * return the result as a boolean. */
 // FUN_001E3560
 s32 btlAICommandScriptQueryEnAllHp(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x39000000;
@@ -4370,7 +4105,8 @@ s32 btlAICommandScriptQueryEnAllHp(void) {
     return 1;
 }
 
-/* AI script command 0x206c (p4flow AI.json AI_FUNCTION_006C). */
+/* Run the AI condition that checks whether the acting unit has a usable skill matching the script
+ * parameter, and return 1 or 0 to the script. */
 // FUN_001E3610
 s32 btlAICommandScriptQueryMyAbleSkil(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x3A000000;
@@ -4386,7 +4122,8 @@ s32 btlAICommandScriptQueryMyAbleSkil(void) {
     return 1;
 }
 
-/* AI script command 0x206d (p4flow AI.json AI_FUNCTION_006D). */
+/* Run the AI condition that checks for an enemy weakness matching the script parameter, and return
+ * 1 or 0 to the script. */
 // FUN_001E36C0
 s32 btlAICommandScriptQueryEnWeakPai(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x3B000000;
@@ -4402,7 +4139,8 @@ s32 btlAICommandScriptQueryEnWeakPai(void) {
     return 1;
 }
 
-/* AI script command 0x206e (p4flow AI.json AI_FUNCTION_006E). */
+/* Run the AI condition that checks for an enemy weakness to a status effect matching the script
+ * parameter, and return 1 or 0 to the script. */
 // FUN_001E3770
 s32 btlAICommandScriptQueryEnWeakStPai(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x3C000000;
@@ -4418,7 +4156,8 @@ s32 btlAICommandScriptQueryEnWeakStPai(void) {
     return 1;
 }
 
-/* AI script command 0x206f (p4flow AI.json AI_FUNCTION_006F). */
+/* Run the AI condition that checks for an enemy weakness to a debuff matching the script parameter,
+ * and return 1 or 0 to the script. */
 // FUN_001E3820
 s32 btlAICommandScriptQueryEnWeakDwPai(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x3D000000;
@@ -4434,7 +4173,8 @@ s32 btlAICommandScriptQueryEnWeakDwPai(void) {
     return 1;
 }
 
-/* AI script command 0x2070 (p4flow AI.json AI_FUNCTION_0070). */
+/* Run the AI condition that checks whether the acting unit has a skill of the element given by the
+ * script parameter, and return 1 or 0 to the script. */
 // FUN_001E38D0
 s32 btlAICommandScriptQueryMyAttrSkil(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x3E000000;
@@ -4450,7 +4190,8 @@ s32 btlAICommandScriptQueryMyAttrSkil(void) {
     return 1;
 }
 
-/* AI script command 0x2071 (p4flow AI.json AI_FUNCTION_0071). */
+/* Evaluate the AI's "my normal" condition against the script parameter and return whether it holds
+ * to the script. */
 // FUN_001E3980
 s32 btlAICommandScriptQueryMyNomal(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x3F000000;
@@ -4466,7 +4207,8 @@ s32 btlAICommandScriptQueryMyNomal(void) {
     return 1;
 }
 
-/* AI script command 0x2072 (p4flow AI.json AI_FUNCTION_0072). */
+/* Evaluate the AI's "enemy normal" condition against the script parameter and return whether it
+ * holds to the script. */
 // FUN_001E3A30
 s32 btlAICommandScriptQueryEnNomal(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x40000000;
@@ -4482,7 +4224,8 @@ s32 btlAICommandScriptQueryEnNomal(void) {
     return 1;
 }
 
-/* AI script command 0x2073 (p4flow AI.json AI_FUNCTION_0073). */
+/* Evaluate the AI's "enemy normal status" condition against the script parameter and return whether
+ * it holds to the script. */
 // FUN_001E3AE0
 s32 btlAICommandScriptQueryEnNomalSt(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x41000000;
@@ -4498,7 +4241,8 @@ s32 btlAICommandScriptQueryEnNomalSt(void) {
     return 1;
 }
 
-/* AI script command 0x2074 (p4flow AI.json AI_FUNCTION_0074). */
+/* Evaluate the AI's "enemy normal down" condition against the script parameter and return whether
+ * it holds to the script. */
 // FUN_001E3B90
 s32 btlAICommandScriptQueryEnNomalDw(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x42000000;
@@ -4514,28 +4258,26 @@ s32 btlAICommandScriptQueryEnNomalDw(void) {
     return 1;
 }
 
-/* AI script command 0x2092 (p4flow AI.json AI_FUNCTION_0092). */
 // FUN_001E3C40
 s32 btlAICommandScriptQueryAnalyze(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B74[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
-/* AI script command 0x2093 (p4flow AI.json AI_FUNCTION_0093). */
 // FUN_001E3C90
 s32 btlAICommandScriptQueryDown(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B80[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
-/* AI script command 0x2094 (p4flow AI.json AI_FUNCTION_0094). */
 // FUN_001E3CE0
 s32 btlAICommandScriptQuerySlip(void) {
     scrSetReturnInt(((s32 (*)(u8 *, s32))D_00609B8C[0])(scrGetAiState(), 0) != 0);
     return 1;
 }
 
-/* AI script command 0x20af (p4flow AI.json AI_FUNCTION_00AF). */
+/* Evaluate the AI's "enemy over level" condition against the script parameter and return whether it
+ * holds to the script. */
 // FUN_001E3D30
 s32 btlAICommandScriptQueryEnOverlv(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x46000000;
@@ -4551,11 +4293,8 @@ s32 btlAICommandScriptQueryEnOverlv(void) {
     return 1;
 }
 
-/* Ported from P3FES btlEffect.c func_002cbba0 (side-switch dispatch, selector
-   tag 0x19000000). func_0035ed20->scrGetParamInt, func_002c0e30->btlEffectFindUnitByIdAndStatus,
-   func_0035f060->scrSetReturnInt, gFormationDispatchTable->D_00609850. id is u32
-   (masked & 0xFFFF) because btlEffectFindUnitByIdAndStatus takes s32. switch cases ascending 0/1. */
-/* AI script command 0x20b9 (p4flow AI.json AI_FUNCTION_00B9). */
+/* Matches P3FES func_002cbba0; id is u32 masked to 0xFFFF because btlEffectFindUnitByIdAndStatus
+ * takes s32. */
 // FUN_001E3DE0
 u32 btlAICommandSideSwitchIdQueryMyWeak(void)
 {
@@ -4596,7 +4335,8 @@ u32 btlAICommandSideSwitchIdQueryMyWeak(void)
     return 1;
 }
 
-/* AI script command 0x20ba (p4flow AI.json AI_FUNCTION_00BA). */
+/* AI script command: look up the unit by side and ID and return whether its action is flagged as a
+ * critical or weakness hit. */
 // FUN_001E3F10
 s32 btlScriptIsSideUnitHitFlagged(void) {
     u32 side = scrGetParamInt(0) & 0xFFFF;
@@ -4621,7 +4361,8 @@ s32 btlScriptIsSideUnitHitFlagged(void) {
     return 1;
 }
 
-/* AI script command 0x20d6 (p4flow AI.json AI_FUNCTION_00D6). */
+/* AI script command: look up the unit by side and ID and return whether its action is flagged as a
+ * critical hit. */
 // FUN_001E3FD0
 s32 btlScriptIsSideUnitCriticalFlagged(void) {
     u32 side = scrGetParamInt(0) & 0xFFFF;
@@ -4646,7 +4387,8 @@ s32 btlScriptIsSideUnitCriticalFlagged(void) {
     return 1;
 }
 
-/* AI script command 0x20d7 (p4flow AI.json AI_FUNCTION_00D7). */
+/* AI script command: look up the unit by side and ID and return whether its action is flagged as a
+ * weakness hit. */
 // FUN_001E4090
 s32 btlScriptIsSideUnitWeakFlagged(void) {
     u32 side = scrGetParamInt(0) & 0xFFFF;
@@ -4671,7 +4413,8 @@ s32 btlScriptIsSideUnitWeakFlagged(void) {
     return 1;
 }
 
-/* AI script command 0x20d8 (p4flow AI.json AI_FUNCTION_00D8). */
+/* AI script command: look up the unit by side and ID and return whether its action is flagged as
+ * knocked down. */
 // FUN_001E4150
 s32 btlScriptIsSideUnitDownFlagged(void) {
     u32 side = scrGetParamInt(0) & 0xFFFF;
@@ -4696,7 +4439,8 @@ s32 btlScriptIsSideUnitDownFlagged(void) {
     return 1;
 }
 
-/* AI script command 0x20c9 (p4flow AI.json AI_FUNCTION_00C9). */
+/* AI script command: look up the unit by side and ID, run the first query handler in D_00609B74 on
+ * it, and return whether that handler gave a nonzero result. */
 // FUN_001E4210
 s32 btlAICommandSideSwitchQueryAnalyze(void) {
     u32 side = scrGetParamInt(0) & 0xFFFF;
@@ -4721,11 +4465,8 @@ s32 btlAICommandSideSwitchQueryAnalyze(void) {
     return 1;
 }
 
-/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
-   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
-/* AI script command 0x20cb (p4flow AI.json AI_FUNCTION_00CB). */
+/* Find the unit with the given id on the caller's own side and return whether it can use the skill
+ * named by the second parameter. */
 // FUN_001E42E0
 u32 btlAICommandSideIdQueryMyAbleSkil(void)
 {
@@ -4759,7 +4500,8 @@ u32 btlAICommandSideIdQueryMyAbleSkil(void)
 }
 
 
-/* AI script command 0x20cc (p4flow AI.json AI_FUNCTION_00CC). */
+/* Return through the script whether the acting unit has any of the buffs in the mask given by the
+ * first parameter. */
 // FUN_001E43D0
 s32 btlAICommandScriptSelfHasBuff(void) {
     u8 *action = scrGetAiState();
@@ -4767,11 +4509,8 @@ s32 btlAICommandScriptSelfHasBuff(void) {
     return 1;
 }
 
-/* Ported from P3FES btlEffect.c dispatch handler (10-alt clone family, inline
-   shift). func_0035f160->func_0029d050, func_0035ed20->scrGetParamInt,
-   func_002c0e30->btlEffectFindUnitByIdAndStatus, func_0035f060->scrSetReturnInt,
-   gFormationDispatchTable->D_00609850. No pragma needed (inline shift). */
-/* AI script command 0x20d4 (p4flow AI.json AI_FUNCTION_00D4). */
+/* Find the unit with the given id on the caller's own side and return whether it has a skill of the
+ * attribute named by the second parameter. */
 // FUN_001E4430
 u32 btlAICommandSideIdQueryMyAttrSkil(void)
 {
@@ -4805,7 +4544,8 @@ u32 btlAICommandSideIdQueryMyAttrSkil(void)
 }
 
 
-/* AI script command 0x20d9 (p4flow AI.json AI_FUNCTION_00D9). */
+/* Return through the script whether the current AI action is in the action queue ahead of the
+ * battle's selected action. */
 // FUN_001E4520
 s32 btlAICommandScriptIsSelfListed(void) {
     u8 *action = scrGetAiState();
@@ -4826,14 +4566,14 @@ s32 btlAICommandScriptIsSelfListed(void) {
     return 1;
 }
 
-/* AI script command 0x20e0 (p4flow AI.json AI_FUNCTION_00E0). */
 // FUN_001E45D0
 s32 btlAICommandScriptAlwaysFalse(void) {
     scrSetReturnInt(0);
     return 1;
 }
 
-/* AI script command 0x20eb (p4flow AI.json AI_FUNCTION_00EB). */
+/* Evaluate the self-affinity (taisei) condition from the first parameter through the condition
+ * handler table and return the result through the script as a boolean. */
 // FUN_001E4600
 s32 btlAICommandScriptQueryMyTaisei(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x48000000;
@@ -4849,7 +4589,8 @@ s32 btlAICommandScriptQueryMyTaisei(void) {
     return 1;
 }
 
-/* AI script command 0x20ec (p4flow AI.json AI_FUNCTION_00EC). */
+/* Evaluate the ally-affinity (taisei) condition from the first parameter through the condition
+ * handler table and return the result through the script as a boolean. */
 // FUN_001E46B0
 s32 btlAICommandScriptQueryFrTaisei(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x49000000;
@@ -4865,7 +4606,8 @@ s32 btlAICommandScriptQueryFrTaisei(void) {
     return 1;
 }
 
-/* AI script command 0x20ed (p4flow AI.json AI_FUNCTION_00ED). */
+/* Evaluate the enemy-affinity (taisei) condition from the first parameter through the condition
+ * handler table and return the result through the script as a boolean. */
 // FUN_001E4760
 s32 btlAICommandScriptQueryEnTaisei(void) {
     u32 packedCondition = (scrGetParamInt(0) & 0xFFFFFF) | 0x4A000000;
@@ -4881,7 +4623,8 @@ s32 btlAICommandScriptQueryEnTaisei(void) {
     return 1;
 }
 
-/* AI script command 0x202c (p4flow AI.json AI_FUNCTION_002C). */
+/* Run the default AI target routine on the current AI state, retrying it once if the first call
+ * fails. Always returns 1. */
 // FUN_001E4810
 s32 btlAICommandScriptRunAi(void) {
     u8 *action = scrGetAiState();
@@ -4890,7 +4633,8 @@ s32 btlAICommandScriptRunAi(void) {
     return 1;
 }
 
-/* AI script command 0x202d (p4flow AI.json AI_FUNCTION_002D). */
+/* Try the lowest-HP targeting routine on the current AI state and fall back to the default AI
+ * routine if it fails. */
 // FUN_001E4880
 s32 btlAICommandAiUnlessHpMin(void) {
     u8 *action = scrGetAiState();
@@ -4899,7 +4643,8 @@ s32 btlAICommandAiUnlessHpMin(void) {
     return 1;
 }
 
-/* AI script command 0x202e (p4flow AI.json AI_FUNCTION_002E). */
+/* Try the lowest-level targeting routine on the current AI state and fall back to the default AI
+ * routine if it fails. */
 // FUN_001E48F0
 s32 btlAICommandAiUnlessLvMin(void) {
     u8 *action = scrGetAiState();
@@ -4908,7 +4653,8 @@ s32 btlAICommandAiUnlessLvMin(void) {
     return 1;
 }
 
-/* AI script command 0x202f (p4flow AI.json AI_FUNCTION_002F). */
+/* Try the highest-MP targeting routine on the current AI state and fall back to the default AI
+ * routine if it fails. */
 // FUN_001E4960
 s32 btlAICommandAiUnlessMpMax(void) {
     u8 *action = scrGetAiState();
@@ -4917,7 +4663,8 @@ s32 btlAICommandAiUnlessMpMax(void) {
     return 1;
 }
 
-/* AI script command 0x2030 (p4flow AI.json AI_FUNCTION_0030). */
+/* Build a bad-status condition query from the script parameter and dispatch it through the AI
+ * routine table, falling back to the default AI routine if the query fails. */
 // FUN_001E49D0
 s32 btlAICommandCondQueryBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x4000000;
@@ -4927,7 +4674,8 @@ s32 btlAICommandCondQueryBad(void) {
     return 1;
 }
 
-/* AI script command 0x2031 (p4flow AI.json AI_FUNCTION_0031). */
+/* Run the AI condition handler of type 5 with the script argument against the current AI state, and
+ * fall back to the default handler if it fails. */
 // FUN_001E4A80
 s32 btlAICommandCondQueryNotBad(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x5000000;
@@ -4937,7 +4685,8 @@ s32 btlAICommandCondQueryNotBad(void) {
     return 1;
 }
 
-/* AI script command 0x210c (p4flow AI.json AI_FUNCTION_010C). */
+/* Select target candidates for the current AI state with the MYID condition, using the unit id and
+ * excluded status taken from the script arguments. */
 // FUN_001E4B30
 s32 btlAICommandScriptPickMyIdFromArgs(void) {
     u32 unitId = scrGetParamInt(0);
@@ -4946,7 +4695,8 @@ s32 btlAICommandScriptPickMyIdFromArgs(void) {
     return 1;
 }
 
-/* AI script command 0x2032 (p4flow AI.json AI_FUNCTION_0032). */
+/* Run the AI condition handler of type 6 (id query) with the script argument against the current AI
+ * state, and fall back to the default handler if it fails. */
 // FUN_001E4BB0
 s32 btlAICommandCondQueryId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x6000000;
@@ -4956,7 +4706,8 @@ s32 btlAICommandCondQueryId(void) {
     return 1;
 }
 
-/* AI script command 0x2033 (p4flow AI.json AI_FUNCTION_0033). */
+/* Run the "mine" AI condition handler on the current AI state, and fall back to the default handler
+ * if it fails. */
 // FUN_001E4C60
 s32 btlAICommandAiUnlessMine(void) {
     u8 *action = scrGetAiState();
@@ -4965,7 +4716,8 @@ s32 btlAICommandAiUnlessMine(void) {
     return 1;
 }
 
-/* AI script command 0x2034 (p4flow AI.json AI_FUNCTION_0034). */
+/* Run the "my AI" condition handler on the current AI state, and fall back to the default handler
+ * if it fails. */
 // FUN_001E4CD0
 s32 btlAICommandAiUnlessMyAi(void) {
     u8 *action = scrGetAiState();
@@ -4974,7 +4726,9 @@ s32 btlAICommandAiUnlessMyAi(void) {
     return 1;
 }
 
-/* AI script command 0x2035 (p4flow AI.json AI_FUNCTION_0035). */
+/* AI script command: tag the script's element parameter with condition type 9 (repels) and pass it
+ * to the matching handler in the condition table, so the AI state targets units that reflect that
+ * element. If the handler fails, fall back to the default handler. */
 // FUN_001E4D40
 s32 btlAICommandCondQueryHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x9000000;
@@ -4984,7 +4738,9 @@ s32 btlAICommandCondQueryHansya(void) {
     return 1;
 }
 
-/* AI script command 0x2036 (p4flow AI.json AI_FUNCTION_0036). */
+/* AI script command: tag the script's element parameter with condition type 10 (absorbs) and pass
+ * it to the matching handler in the condition table, so the AI state targets units that absorb that
+ * element. If the handler fails, fall back to the default handler. */
 // FUN_001E4DF0
 s32 btlAICommandCondQueryKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xA000000;
@@ -4994,7 +4750,9 @@ s32 btlAICommandCondQueryKyusyu(void) {
     return 1;
 }
 
-/* AI script command 0x2037 (p4flow AI.json AI_FUNCTION_0037). */
+/* AI script command: tag the script's element parameter with condition type 11 (nullifies) and pass
+ * it to the matching handler in the condition table, so the AI state targets units that block that
+ * element. If the handler fails, fall back to the default handler. */
 // FUN_001E4EA0
 s32 btlAICommandCondQueryMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xB000000;
@@ -5004,7 +4762,9 @@ s32 btlAICommandCondQueryMukou(void) {
     return 1;
 }
 
-/* AI script command 0x2038 (p4flow AI.json AI_FUNCTION_0038). */
+/* AI script command: tag the script's element parameter with condition type 12 (weak) and pass it
+ * to the matching handler in the condition table, so the AI state targets units weak to that
+ * element. If the handler fails, fall back to the default handler. */
 // FUN_001E4F50
 s32 btlAICommandCondQueryWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xC000000;
@@ -5014,7 +4774,9 @@ s32 btlAICommandCondQueryWeak(void) {
     return 1;
 }
 
-/* AI script command 0x2039 (p4flow AI.json AI_FUNCTION_0039). */
+/* AI script command: tag the script's element parameter with condition type 13 (does not repel) and
+ * pass it to the matching handler in the condition table, so the AI state targets units that don't
+ * reflect that element. If the handler fails, fall back to the default handler. */
 // FUN_001E5000
 s32 btlAICommandCondQueryNotHansya(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xD000000;
@@ -5024,7 +4786,8 @@ s32 btlAICommandCondQueryNotHansya(void) {
     return 1;
 }
 
-/* AI script command 0x203a (p4flow AI.json AI_FUNCTION_003A). */
+/* Narrow the AI target set to units that do not absorb (kyusyu) the script's affinity parameter,
+ * and clear the set if none match. */
 // FUN_001E50B0
 s32 btlAICommandCondQueryNotKyusyu(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xE000000;
@@ -5034,7 +4797,8 @@ s32 btlAICommandCondQueryNotKyusyu(void) {
     return 1;
 }
 
-/* AI script command 0x203b (p4flow AI.json AI_FUNCTION_003B). */
+/* Narrow the AI target set to units that do not nullify (mukou) the script's affinity parameter,
+ * and clear the set if none match. */
 // FUN_001E5160
 s32 btlAICommandCondQueryNotMukou(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0xF000000;
@@ -5044,7 +4808,8 @@ s32 btlAICommandCondQueryNotMukou(void) {
     return 1;
 }
 
-/* AI script command 0x203c (p4flow AI.json AI_FUNCTION_003C). */
+/* Narrow the AI target set to units that are not weak to the script's affinity parameter, and clear
+ * the set if none match. */
 // FUN_001E5210
 s32 btlAICommandCondQueryNotWeak(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x10000000;
@@ -5054,7 +4819,8 @@ s32 btlAICommandCondQueryNotWeak(void) {
     return 1;
 }
 
-/* AI script command 0x2043 (p4flow AI.json AI_FUNCTION_0043). */
+/* Run the appointed-target AI condition on the current AI state, and clear the target set if it
+ * fails. */
 // FUN_001E52C0
 s32 btlAICommandAiUnlessAppoint(void) {
     u8 *action = scrGetAiState();
@@ -5063,7 +4829,7 @@ s32 btlAICommandAiUnlessAppoint(void) {
     return 1;
 }
 
-/* AI script command 0x2044 (p4flow AI.json AI_FUNCTION_0044). */
+/* Run the downed-target AI condition on the current AI state, and clear the target set if it fails. */
 // FUN_001E5330
 s32 btlAICommandAiUnlessDown(void) {
     u8 *action = scrGetAiState();
@@ -5072,7 +4838,8 @@ s32 btlAICommandAiUnlessDown(void) {
     return 1;
 }
 
-/* AI script command 0x2045 (p4flow AI.json AI_FUNCTION_0045). */
+/* AI script command: run the first condition handler in D_00609D80 on the AI state and fall back to
+ * the default handler if it fails. Always returns 1. */
 // FUN_001E53A0
 s32 btlAICommandAiUnlessStand(void) {
     u8 *action = scrGetAiState();
@@ -5081,7 +4848,8 @@ s32 btlAICommandAiUnlessStand(void) {
     return 1;
 }
 
-/* AI script command 0x2049 (p4flow AI.json AI_FUNCTION_0049). */
+/* AI script command: run condition query 0x15 (reflect status) with the script's integer parameter
+ * and fall back to the default handler if the query fails. Always returns 1. */
 // FUN_001E5410
 s32 btlAICommandCondQueryHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x15000000;
@@ -5091,7 +4859,8 @@ s32 btlAICommandCondQueryHansyaSt(void) {
     return 1;
 }
 
-/* AI script command 0x204a (p4flow AI.json AI_FUNCTION_004A). */
+/* AI script command: run condition query 0x16 (absorb status) with the script's integer parameter
+ * and fall back to the default handler if the query fails. Always returns 1. */
 // FUN_001E54C0
 s32 btlAICommandCondQueryKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x16000000;
@@ -5101,7 +4870,8 @@ s32 btlAICommandCondQueryKyusyuSt(void) {
     return 1;
 }
 
-/* AI script command 0x204b (p4flow AI.json AI_FUNCTION_004B). */
+/* AI script command: run condition query 0x17 (nullify status) with the script's integer parameter
+ * and fall back to the default handler if the query fails. Always returns 1. */
 // FUN_001E5570
 s32 btlAICommandCondQueryMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x17000000;
@@ -5111,7 +4881,8 @@ s32 btlAICommandCondQueryMukouSt(void) {
     return 1;
 }
 
-/* AI script command 0x204c (p4flow AI.json AI_FUNCTION_004C). */
+/* AI script command: run condition query 0x18 (weakness status) with the script's integer parameter
+ * and fall back to the default handler if the query fails. Always returns 1. */
 // FUN_001E5620
 s32 btlAICommandCondQueryWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x18000000;
@@ -5121,7 +4892,8 @@ s32 btlAICommandCondQueryWeakSt(void) {
     return 1;
 }
 
-/* AI script command 0x204d (p4flow AI.json AI_FUNCTION_004D). */
+/* Narrow the AI target query to units whose status does not reflect (hansya) the element given by
+ * the script parameter, resetting the query if none match. Always returns 1. */
 // FUN_001E56D0
 s32 btlAICommandCondQueryNotHansyaSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x19000000;
@@ -5131,7 +4903,8 @@ s32 btlAICommandCondQueryNotHansyaSt(void) {
     return 1;
 }
 
-/* AI script command 0x204e (p4flow AI.json AI_FUNCTION_004E). */
+/* Narrow the AI target query to units whose status does not absorb (kyusyu) the element given by
+ * the script parameter, resetting the query if none match. Always returns 1. */
 // FUN_001E5780
 s32 btlAICommandCondQueryNotKyusyuSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1A000000;
@@ -5141,7 +4914,8 @@ s32 btlAICommandCondQueryNotKyusyuSt(void) {
     return 1;
 }
 
-/* AI script command 0x204f (p4flow AI.json AI_FUNCTION_004F). */
+/* Narrow the AI target query to units whose status does not nullify (mukou) the element given by
+ * the script parameter, resetting the query if none match. Always returns 1. */
 // FUN_001E5830
 s32 btlAICommandCondQueryNotMukouSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1B000000;
@@ -5151,7 +4925,8 @@ s32 btlAICommandCondQueryNotMukouSt(void) {
     return 1;
 }
 
-/* AI script command 0x2050 (p4flow AI.json AI_FUNCTION_0050). */
+/* Narrow the AI target query to units whose status is not weak to the element given by the script
+ * parameter, resetting the query if none match. Always returns 1. */
 // FUN_001E58E0
 s32 btlAICommandCondQueryNotWeakSt(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x1C000000;
@@ -5161,7 +4936,8 @@ s32 btlAICommandCondQueryNotWeakSt(void) {
     return 1;
 }
 
-/* AI script command 0x2067 (p4flow AI.json AI_FUNCTION_0067). */
+/* Copy the battle's currently selected action's formation entry into the AI state and apply it as
+ * the target, resetting the query if that fails. Always returns 1. */
 // FUN_001E5990
 s32 btlAICommandScriptAppointCurrent(void) {
     u8 *action = scrGetAiState();
@@ -5174,7 +4950,8 @@ s32 btlAICommandScriptAppointCurrent(void) {
     return 1;
 }
 
-/* AI script command 0x2098 (p4flow AI.json AI_FUNCTION_0098). */
+/* Run the AI target-filter condition 0x21 ("not ID") with the script's parameter on the current AI
+ * state, falling back to the default filter if it fails. */
 // FUN_001E5A20
 s32 btlAICommandCondQueryNotId(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x21000000;
@@ -5184,7 +4961,8 @@ s32 btlAICommandCondQueryNotId(void) {
     return 1;
 }
 
-/* AI script command 0x209a (p4flow AI.json AI_FUNCTION_009A). */
+/* Run the random-chance AI filter on the current AI state, falling back to the default filter if it
+ * fails. */
 // FUN_001E5AD0
 s32 btlAICommandAiUnlessRnd(void) {
     u8 *action = scrGetAiState();
@@ -5193,7 +4971,8 @@ s32 btlAICommandAiUnlessRnd(void) {
     return 1;
 }
 
-/* AI script command 0x20c6 (p4flow AI.json AI_FUNCTION_00C6). */
+/* Run the AI target-filter condition 0x23 (support/buff "hojo") with the script's parameter on the
+ * current AI state, falling back to the default filter if it fails. */
 // FUN_001E5B40
 s32 btlAICommandCondQueryHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x23000000;
@@ -5203,7 +4982,8 @@ s32 btlAICommandCondQueryHojo(void) {
     return 1;
 }
 
-/* AI script command 0x20c7 (p4flow AI.json AI_FUNCTION_00C7). */
+/* Run the AI target-filter condition 0x24 (lacking support/buff "hojo") with the script's parameter
+ * on the current AI state, falling back to the default filter if it fails. */
 // FUN_001E5BF0
 s32 btlAICommandCondQueryNotHojo(void) {
     u32 v = (scrGetParamInt(0) & 0xFFFFFF) | 0x24000000;
@@ -5213,7 +4993,8 @@ s32 btlAICommandCondQueryNotHojo(void) {
     return 1;
 }
 
-/* AI script command 0x210f (p4flow AI.json AI_FUNCTION_010F). */
+/* Select AI candidates that match the given unit ID using btlCond_MYID, excluding units that have
+ * the buffs named in the second script parameter. */
 // FUN_001E5CA0
 s32 btlAICommandScriptPickMyIdFiltered(void) {
     u32 unitId = scrGetParamInt(0);
@@ -5222,7 +5003,8 @@ s32 btlAICommandScriptPickMyIdFiltered(void) {
     return 1;
 }
 
-/* AI script command 0x2112 (p4flow AI.json AI_FUNCTION_0112). */
+/* AI script command: run the acting unit's action through the second handler table entry unless the
+ * first handler's check (HP at max) passes. Always returns 1. */
 // FUN_001E5D20
 s32 btlAICommandAiUnlessHpMax(void) {
     u8 *action = scrGetAiState();
@@ -5231,9 +5013,7 @@ s32 btlAICommandAiUnlessHpMax(void) {
     return 1;
 }
 
-/* AI script command 0x2091 (p4flow AI.json AI_FUNCTION_0091). */
-/* Historical whole-layout probe: nd 117; a separate action-record pointer retains MATCH. */
-/* Clear four buff levels before replacing the acting unit's secondary id. */
+/* Clears four buff levels before replacing the acting unit's secondary id. */
 // FUN_001E5D90
 s32 btlAICommandScriptSetId2ClearBuffs(void) {
     u8 *action = scrGetAiState();
@@ -5249,7 +5029,6 @@ s32 btlAICommandScriptSetId2ClearBuffs(void) {
     return 1;
 }
 
-/* AI script command 0x2095 (p4flow AI.json AI_FUNCTION_0095). */
 // FUN_001E5E40
 s32 btlAICommandScriptSetDownFlag(void) {
     u8 *action = scrGetAiState();
@@ -5263,7 +5042,6 @@ s32 btlAICommandScriptSetDownFlag(void) {
     return 1;
 }
 
-/* AI script command 0x2096 (p4flow AI.json AI_FUNCTION_0096). */
 // FUN_001E5EC0
 s32 btlAICommandScriptSetSlipFlag(void) {
     u8 *action = scrGetAiState();
@@ -5277,8 +5055,6 @@ s32 btlAICommandScriptSetSlipFlag(void) {
     return 1;
 }
 
-/* AI script command 0x20db (p4flow AI.json AI_FUNCTION_00DB). */
-/* Historical whole-layout probe: normalized diff 6; the access-site pass retains only measured raw culprits. */
 // FUN_001E5F40
 s32 btlAICommandScriptSetCommandOverride(void) {
     u8 *action = scrGetAiState();
@@ -5287,7 +5063,7 @@ s32 btlAICommandScriptSetCommandOverride(void) {
     return 1;
 }
 
-/* AI script command 0x2099 (p4flow AI.json AI_FUNCTION_0099). */
+/* AI script command: return the id2 field of the acting unit's DatUnit to the script. */
 // FUN_001E5F90
 s32 btlAICommandScriptGetSelfId2(void) {
     u32 data = (u32)((BtlUnit *)(((BtlAction *)(scrGetAiState()))->unit))->datUnit;
@@ -5295,7 +5071,8 @@ s32 btlAICommandScriptGetSelfId2(void) {
     return 1;
 }
 
-/* AI script command 0x20ab (p4flow AI.json AI_FUNCTION_00AB). */
+/* AI script command: find a unit with the given id on the acting unit's own side and return its
+ * unk_20 value, or 0 if none is found. */
 // FUN_001E5FD0
 s32 btlScriptGetSameSideUnitValue(void) {
     u8 *action = scrGetAiState();
@@ -5304,9 +5081,8 @@ s32 btlScriptGetSameSideUnitValue(void) {
     return 1;
 }
 
-/* Removing this loses FUN_001E6050 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
-
-/* AI script command 0x20ac (p4flow AI.json AI_FUNCTION_00AC). */
+/* AI script command: find a unit with the given id on the side opposite the acting unit and return
+ * its unk_20 value, or 0 if none is found. */
 // FUN_001E6050
 s32 btlScriptGetOppositeSideUnitValue(void) {
     u32 shift;
@@ -5326,7 +5102,8 @@ s32 btlScriptGetOppositeSideUnitValue(void) {
     return 1;
 }
 
-/* AI script command 0x20b0 (p4flow AI.json AI_FUNCTION_00B0). */
+/* AI script command: count the units on the acting unit's side that match the btlCond_MYHOJO
+ * condition for the given parameter and return the count. */
 // FUN_001E60F0
 s32 btlAICommandScriptCountOwnHojo(void) {
     u8 *action = scrGetAiState();
@@ -5334,7 +5111,8 @@ s32 btlAICommandScriptCountOwnHojo(void) {
     return 1;
 }
 
-/* AI script command 0x20b1 (p4flow AI.json AI_FUNCTION_00B1). */
+/* AI script command: count the units on the AI's own side that do not match btlCond_MYHOJO (no buff
+ * active) and return the count to the script. */
 // FUN_001E6160
 s32 btlAICommandScriptCountOwnNotHojo(void) {
     u8 *action = scrGetAiState();
@@ -5342,7 +5120,8 @@ s32 btlAICommandScriptCountOwnNotHojo(void) {
     return 1;
 }
 
-/* AI script command 0x20b2 (p4flow AI.json AI_FUNCTION_00B2). */
+/* AI script command: count the units on the AI's own side that match btlCond_MYBAD (an ailment
+ * active) and return the count to the script. */
 // FUN_001E61D0
 s32 btlAICommandScriptCountOwnBad(void) {
     u8 *action = scrGetAiState();
@@ -5350,7 +5129,8 @@ s32 btlAICommandScriptCountOwnBad(void) {
     return 1;
 }
 
-/* AI script command 0x20ea (p4flow AI.json AI_FUNCTION_00EA). */
+/* AI script command: count the units on the opposing side that match btlCond_MYBAD (an ailment
+ * active) and return the count to the script. */
 // FUN_001E6240
 s32 btlAICommandScriptCountOppBad(void) {
     u8 *action = scrGetAiState();
@@ -5358,7 +5138,8 @@ s32 btlAICommandScriptCountOppBad(void) {
     return 1;
 }
 
-/* AI script command 0x20b3 (p4flow AI.json AI_FUNCTION_00B3). */
+/* AI script command: count the units on the opposing side that match btlCond_MYHOJO (a buff active)
+ * and return the count to the script. */
 // FUN_001E62B0
 s32 btlAICommandScriptCountOppHojo(void) {
     u8 *action = scrGetAiState();
@@ -5366,7 +5147,8 @@ s32 btlAICommandScriptCountOppHojo(void) {
     return 1;
 }
 
-/* AI script command 0x20b4 (p4flow AI.json AI_FUNCTION_00B4). */
+/* AI script command: count the units on the opposing side that do not match btlCond_MYHOJO (no buff
+ * active) and return the count to the script. */
 // FUN_001E6320
 s32 btlAICommandScriptCountOppNotHojo(void) {
     u8 *action = scrGetAiState();
@@ -5374,7 +5156,8 @@ s32 btlAICommandScriptCountOppNotHojo(void) {
     return 1;
 }
 
-/* AI script command 0x20cd (p4flow AI.json AI_FUNCTION_00CD). */
+/* AI script command: count the units on the acting side that pass the own-HP condition given by
+ * parameter 0, and return the count to the script. */
 // FUN_001E6390
 s32 btlAICommandScriptCountOwnHp(void) {
     u8 *action = scrGetAiState();
@@ -5382,16 +5165,14 @@ s32 btlAICommandScriptCountOwnHp(void) {
     return 1;
 }
 
-/* AI script command 0x20ce (p4flow AI.json AI_FUNCTION_00CE). */
 // FUN_001E6400
 s32 btlAICommandScriptAverageOwnLevel(void) {
     scrSetReturnInt(btlSideAverageLevel((1 << ((((BtlAction *)(scrGetAiState())))->unit->genus)) & 0xFFFF, 0x80000) & 0xFFFF);
     return -1;
 }
 
-/* Removing this loses FUN_001E6450 (MATCH nd0 -> MISMATCH nd43) - measured W161. */
-
-/* AI script command 0x20cf (p4flow AI.json AI_FUNCTION_00CF). */
+/* AI script command: return the average level of the side opposing the acting unit, where the
+ * opposing side is picked from the unit's genus. */
 // FUN_001E6450
 s32 btlAICommandScriptAverageOppLevel(void) {
     u32 shift;
@@ -5409,7 +5190,8 @@ s32 btlAICommandScriptAverageOppLevel(void) {
     return -1;
 }
 
-/* AI script command 0x20d0 (p4flow AI.json AI_FUNCTION_00D0). */
+/* AI script command: return the element row of the skill given in parameter 0, as calculated for
+ * the acting unit. */
 // FUN_001E64C0
 s32 btlAICommandScriptGetCommandRow(void) {
     u8 *action = scrGetAiState();
@@ -5418,7 +5200,7 @@ s32 btlAICommandScriptGetCommandRow(void) {
     return -1;
 }
 
-/* AI script command 0x20e1 (p4flow AI.json AI_FUNCTION_00E1). */
+/* AI script command: return how many units on the player side are not in a bad state. */
 // FUN_001E6530
 s32 btlAICommandScriptCountOwnAlive(void) {
     scrGetAiState();
@@ -5426,7 +5208,7 @@ s32 btlAICommandScriptCountOwnAlive(void) {
     return 1;
 }
 
-/* AI script command 0x20e2 (p4flow AI.json AI_FUNCTION_00E2). */
+/* AI script command: return how many units on the enemy side are not in a bad state. */
 // FUN_001E6570
 s32 btlAICommandScriptCountOppAlive(void) {
     scrGetAiState();
@@ -5434,14 +5216,14 @@ s32 btlAICommandScriptCountOppAlive(void) {
     return -1;
 }
 
-/* AI script command 0x2113 (p4flow AI.json AI_FUNCTION_0113). */
 // FUN_001E65B0
 s32 btlAICommandScriptGetSelfHp(void) {
     scrSetReturnInt(datCalcGetHp((u32)((BtlUnit *)(((BtlAction *)(scrGetAiState()))->unit))->datUnit) & 0xFFFF);
     return -1;
 }
 
-/* AI script command 0x2075 (p4flow AI.json AI_FUNCTION_0075). */
+/* Script command: look up the action for the given ID and run the HP condition check (kind 1)
+ * against the query value, returning whether it holds. */
 // FUN_001E65F0
 s32 btlAICommandIdScriptQueryMyHp(void) {
     u32 actionId = scrGetParamInt(0);
@@ -5459,7 +5241,8 @@ s32 btlAICommandIdScriptQueryMyHp(void) {
     return 1;
 }
 
-/* AI script command 0x2076 (p4flow AI.json AI_FUNCTION_0076). */
+/* Script command: return whether the unit of the action with the given ID has any buff in the given
+ * mask. */
 // FUN_001E66C0
 s32 btlAICommandIdScriptQueryHasBuff(void) {
     u32 actionId = scrGetParamInt(0);
@@ -5469,9 +5252,7 @@ s32 btlAICommandIdScriptQueryHasBuff(void) {
     return 1;
 }
 
-/* AI script command 0x2077 (p4flow AI.json AI_FUNCTION_0077). */
-/* Historical whole-layout probe: nd 111; the three post-calculation reloads retain byte aliasing via MEMBER. */
-/* Predict whether the default attack kills the selected action's unit. */
+/* Predicts whether the default attack kills the selected action's unit. */
 // FUN_001E6740
 s32 btlAICommandScriptWouldBeKilled(void) {
     u8 *action = scrGetAiState();
@@ -5479,15 +5260,16 @@ s32 btlAICommandScriptWouldBeKilled(void) {
     s32 hpDelta = datCalcSkillAmount(0, (u8 *)((BtlAction *)action)->unit->datUnit, (u8 *)((BtlAction *)target)->unit->datUnit, 1, 1, 1, 0, 1);
     s32 currentHp;
     s32 remainingHp;
-    datCalcClearField18((u32)((BtlUnit *)(MEMBER(u8 *, action, BtlAction, unit)))->datUnit); /* measured: access-site/local/array forms change 110 normalized bytes. */
-    datCalcClearField18((u32)((BtlUnit *)(MEMBER(u8 *, target, BtlAction, unit)))->datUnit); /* measured: access-site/local/array forms change 159 normalized bytes. */
-    currentHp = (s32)(datCalcGetHp((u32)((BtlUnit *)(MEMBER(u8 *, target, BtlAction, unit)))->datUnit) & 0xFFFF); /* measured: access-site/local/array forms change 159 normalized bytes. */
+    datCalcClearField18((u32)((BtlUnit *)(MEMBER(u8 *, action, BtlAction, unit)))->datUnit);
+    datCalcClearField18((u32)((BtlUnit *)(MEMBER(u8 *, target, BtlAction, unit)))->datUnit);
+    currentHp = (s32)(datCalcGetHp((u32)((BtlUnit *)(MEMBER(u8 *, target, BtlAction, unit)))->datUnit) & 0xFFFF);
     remainingHp = currentHp + hpDelta;
     scrSetReturnInt(remainingHp <= 0);
     return 1;
 }
 
-/* AI script command 0x2078 (p4flow AI.json AI_FUNCTION_0078). */
+/* Script command: return whether the AI state has a command of the given element type usable
+ * against the action with the given ID. */
 // FUN_001E6820
 s32 btlAICommandScriptHasCommandOfType(void) {
     u32 element;
@@ -5502,7 +5284,7 @@ s32 btlAICommandScriptHasCommandOfType(void) {
 }
 
 
-/* AI script command 0x2079 (p4flow AI.json AI_FUNCTION_0079). */
+/* Script command: read both parameters and look up the action by ID, then always return false. */
 // FUN_001E68C0
 s32 btlAICommandScriptLookupOnlyFalse(void) {
     u32 actionId;
@@ -5516,7 +5298,8 @@ s32 btlAICommandScriptLookupOnlyFalse(void) {
 }
 
 
-/* AI script command 0x209c (p4flow AI.json AI_FUNCTION_009C). */
+/* Script command: look up the action for the given ID and run the normal-status condition check
+ * (kind 0x3F) against the query value, returning whether it holds. */
 // FUN_001E6930
 s32 btlAICommandIdScriptQueryMyNomal(void) {
     u32 actionId = scrGetParamInt(0);
@@ -5534,15 +5317,12 @@ s32 btlAICommandIdScriptQueryMyNomal(void) {
     return 1;
 }
 
-/* AI script command 0x20e3 (p4flow AI.json AI_FUNCTION_00E3). */
 // FUN_001E6A00
 s32 btlAICommandIdScriptQueryOnSideZero(void) {
     scrSetReturnInt((((BtlAction *)btlActionFindById(scrGetParamInt(0) & 0xFFFFFFF)))->unit->genus == 0);
     return 1;
 }
-/* AI script command 0x20e4 (p4flow AI.json AI_FUNCTION_00E4). */
-/* Historical whole-layout probe: nd 218; a separate subject-unit pointer retains MATCH. */
-/* Report whether the selected unit can use the supplied command id. */
+/* Reports whether the selected unit can use the supplied command id. */
 // FUN_001E6A50
 s32 btlAICommandIdScriptQueryCanUseCommand(void) {
     s32 actionId = scrGetParamInt(0);

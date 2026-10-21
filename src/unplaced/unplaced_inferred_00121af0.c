@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00121af0-001223d0 */
 
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -57,7 +56,6 @@ void tickerStartTask(void) {
 
 /* Step fade-in/out counters and wait for any calendar-change child task. */
 // FUN_00121B70
-/* Earlier whole-layout typing probe: CalendarFade access changed codegen (nd 306).; access-site and typed-local forms now match. */
 s32 fadeTaskStep(u8 *unusedTask) {
     extern s32 calendarStartDayChange(s32 , s32 );
     extern s32 calendarStartTimeChange(s32 , s32 );
@@ -280,7 +278,8 @@ void fadeDrawMesh(void)
 
 /* Dispatch the active fade renderer while preserving the previous render state. */
 // FUN_001221A0
-/* measured: removing opt_propagation off, including a pointer-to-array base, rematerializes the dispatch base (358 differing bytes). */
+/* measured: with propagation on, the compiler rematerializes the dispatch table base instead of
+ * keeping it. */
 #pragma opt_propagation off
 void fadeUpdateCallback(void *unusedContext, u8 *fadeWork)
 {

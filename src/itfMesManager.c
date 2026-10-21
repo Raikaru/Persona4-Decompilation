@@ -1,5 +1,4 @@
 #include "member_access.h"
-/* Source unit: src/itfMesManager_002770d0.c */
 #include "type.h"
 #include "itf_mes_objects.h"
 #include "primitive_queue_internal.h"
@@ -57,7 +56,7 @@ void *poolAlloc();
 void memset();
 void itfMesEntryReset();
 void itfMesClearSlots();
-void itfMesWindowClearStateField(s32 window); /* lint: allow H011 -- caller passes the stored pointer as s32 (*(s32 *)(row + 0x28)); the definition takes s32 *, and retyping the caller's load is unmeasured */
+void itfMesWindowClearStateField(s32 window); /* lint: allow H011 -- the caller passes the stored pointer as s32; the definition takes s32 *. */
 void itfMesWindowSendClear(s32 handle);
 void fmGslContPoolUnlink();
 s8 frFontRunCommand(int stream, int mode, int command);
@@ -489,7 +488,6 @@ u32 itfMesCmdWindowSetHandle(void)
 }
 
 
-
 /* Select the default procedure kind and request its opening transition. */
 // FUN_00277130
 s32 itfMesCmdWindowReset(void)
@@ -593,7 +591,6 @@ u32 itfMesCmdWindowSetValue(void)
 }
 
 
-
 /* Install the script-supplied button-to-choice binding in the current window. */
 // FUN_00277450
 u32 itfMesCmdWindowSetParam(void)
@@ -613,17 +610,11 @@ u32 itfMesCmdWindowSetParam(void)
 }
 
 
-
-/* Install the first free slot, retaining retail's diagnostic and copy ordering.
-   measured: integer-address testing and pointer-address reloading prevent
-   whole-slot CSE; propagation off keeps the scaled index across the copy call.
-   Neither lever alone matches. Exact 452B instructions plus 12B zero tail. */
+/* Install the first free slot, keeping retail's diagnostic and copy ordering. */
 #pragma push
-/* measured: baseline and pointer-address slot-test probes differ (nd 79/39); retain propagation off. */
+/* measured: propagation off keeps the scaled slot index live across the copy call, as retail does. */
 #pragma opt_propagation off
 /* Allocate a manager entry and its window, preserving the prior active window flags on replacement. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 119, 190, 304, 338; retain their original address/alias expressions. */
 // FUN_002774D0
 s32 itfMesWindowInstall(u8 *record)
 {
@@ -830,19 +821,7 @@ void itfMesWindowClearObject(u8 *window, s32 clearLabel)
     }
 }
 
-/* Instruction-exact candidate: docs/probe_archive/BoA_00277be0_best_body.c,
-   664B/672B; fndiff differs only in two absent zero-tail words.
-   An s32 count still spills with SQ/LQ; declaring the second getter result
-   before the third reproduces the retail register/stack assignment.
-   Retain ASM pending semantic closure: the candidate's 1U << index requires
-   index < 32, but the signed table count has no proven bound. Retail SLLV
-   wraps the shift count; explicitly masking adds an instruction. */
-/* Recovered: this body was measured at zero differing words in
-   docs/probe_archive/MessagePrepareRecovery_00277be0_body.c and never
-   installed. */
 /* Run choice predicates, build the unhidden choices and initialize selection transition state. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 330, 335, 336, 343, 350; retain their original address/alias expressions. */
 // FUN_00277BE0
 void itfMesWindowLayout(s32 handle, s32 recordIndex)
 {
@@ -1072,30 +1051,8 @@ s16 itfMesWindowGetCursor(s32 handle)
     return ((ItfMesWindow *)object)->selection.cursor;
 }
 
-/* measured: re-measured 2026-08-03: nd 6 confirmed (verify normalized_diff
-   10, bytes 80-91 = the case-0 arg order only; everything else byte-identical
-   including the switch jtbl dispatch). New finding: the buf local must be
-   u32 buf[4] (16B) to land at $sp+0x30 like retail - char buf[4] lands at
-   0x3C (nd 7). The 3-word residual is unchanged from the floor: retail
-   move $a0,$s1; move $a1,$s0; addiu $a2,$sp,0x30 (address-of last), mwcc b210
-   always hoists the pure address-of addiu above the moves. Tried: (s32)buf,
-   &buf[0], char buf[4], u32 buf[4] - identical. Address-of-in-argument-list
-   scheduler floor (documented non-applicable case), not source-drivable. */
-/* Case values decoded from jtbl_00748120 with tools/jtbl.py: eight dense
-   entries, each with its own body, in the order written below (b210 lays case
-   bodies out in declaration order). Case 1 calls func_002784e0 with $a0/$a1/$a2
-   still holding the entry arguments, so it takes all three.
-   measured: nd 10, obj 388 in a 400-byte window. The only residual is case 0's
-   argument order -- retail materialises $a0 and $a1 before the sp+0x30 buffer
-   address in $a2, b210 emits the addiu first (3 words). Naming the buffer in
-   an int local and taking &sp30[0] both measure nd 10; schedule on is far
-   worse (nd 203). Call-argument setup order floor. Committed at nd 10. */
-/* object_size=388; window=400; normalized_diff=10; differing_word_offsets=80,84,88; first_diff_bytes=80,81,82,83,85,86,88,89,90,91. Corrected matched-callee declarations: datPersonaDisplayName(s16) and datGetItemNameId(s16), both with u32 return, replacing file-scope s64 declarations. Retail prologue checks for open callees confirmed func_00442088's existing variadic call shape and s32 signatures for func_00243840, func_002438b0 and func_00109220. Residual remains case-0 func_00278450 argument materialization: retail emits move a0,s1; move a1,s0; addiu a2,sp,0x30, while MWCC b210 emits addiu first. Probes retained from prior lane: char sp30[16]; u32/s32 sp30[4]; &sp30[0], integer/pointer casts; named a0/a1/a2 and dst/src/count locals with assignments in retail and reverse order; case-scoped/register locals; pointer local; comma-sequenced arguments; nested old-style callee declaration; fixed and variadic func_00442088 prototypes; optimization_level 1 (object 404, nd67); schedule-on (nd203); fresh permute (best nd10). No volatile or inline asm used. */
-/* measured: the case-0 argument order (move a0 / move a1 / addiu a2,sp) is
-   produced by passing the buffer to a pointer-typed parameter; casting it
-   to an integer materialises the address first. Same lever as the "call-
-   argument setup order" floor entry, which this closes. */
-/* Resolve a numeric or data-table value to text, or store a numeric substitution directly. */
+/* Resolve a numeric or data-table value to text, or store a numeric substitution directly. Case
+ * bodies follow the jump table order; case 1 forwards all three entry arguments. */
 // FUN_002782C0
 void itfMesWindowFormatValue(int handle, int slotIndex, int value, u32 format) {
     char textBuffer[16];
@@ -1192,8 +1149,6 @@ void itfMesWindowApplyStyle(s32 handle, s16 kind, s32 unusedValue)
 }
 
 /* Replace or append a button binding, rejecting reserved buttons and a full binding table. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 104; retain their original address/alias expressions. */
 // FUN_002786C0
 u32 itfMesWindowSetParam(int handle, int button, int entryIndex)
 {
@@ -1231,13 +1186,8 @@ u32 itfMesWindowSetParam(int handle, int button, int entryIndex)
     return 1;
 }
 
-/* MATCH (wave14): the old "$v0/$v1-coalescing + saved-reg-reuse floor" was
-   a lever-1 miss - the function was INCLUDE_ASM with no prototype, but retail
-   RETURNS a value (e.g. frFontBuildTextFull/0027a520 result). Writing the body as
-   s32 func_002787d0(s32,s32,s32,s32) with the 9-arg frFontBuildTextFull call and
-   returning func_0027a520's result matched byte-exact (nd 0). mwcc requires
-   explicit casts (u8*<->int) at the func_00278de0/00279740 call sites. */
-/* Build a temporary text list with the window slots/font, measure its width and release it. */
+/* Build a temporary text list with the window slots/font, measure its width and release it. Returns
+ * the width from func_0027a520. */
 // FUN_002787D0
 s32 itfMesWindowMeasureText(s32 handle, s32 recordIndex, s32 textIndex, s32 style) {
     u8 *obj;
@@ -1415,16 +1365,10 @@ check:
 }
 
 
-
-/* Private helper knowledge keeps value in t3 across relocation. Staged
-   arguments with propagation off preserve the load/move order.
-   Measured: 76B of matching instructions and a 4B zero tail; helper 240B MATCH. */
 /* Relocate message offsets exactly once, using the header relocation stream. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 15; retain their original address/alias expressions. */
 // FUN_00278D50
 #pragma push
-/* measured: baseline and reordered-argument/typed-flag probes differ (nd 8/44); retain propagation off. */
+/* measured: propagation off keeps retail's load/move order for the staged arguments. */
 #pragma opt_propagation off
 void itfMesRecordFixup(u8 *record)
 {
@@ -1456,12 +1400,6 @@ s32 itfMesRecordIsValid(u8 *record)
     }
     return result != 0;
 }
-/* wave14: the former inline `volatile` on this load (which forced the
-   `lw $v1, 4($a0)` ahead of the sll; removing it plain lost MATCH -> nd 9)
-   is REPLACED by the lever-6 integer-domain spelling
-   `(s32)*(s32 **)((u32)param_1 + 4)` - measured to tie the volatile byte-
-   for-byte (fndiff 2 = benign tail padding; verify MATCH, decomp_lint clean).
-   No volatile remains in this file. */
 /* Return an eight-byte entry address from the window record and caller-supplied index. */
 // FUN_00278DE0
 int itfMesRecordEntry(int windowAddress,int entryIndex)
@@ -1484,10 +1422,8 @@ int itfMesRecordTail(int recordAddress)
 }
 
 
-
-/* Read the record kind at the requested index of a checked window. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 8; retain their original address/alias expressions. */
+/* Read the record kind at the requested index of a checked window. The remaining raw address
+ * expressions are kept because typed forms change the output. */
 // FUN_00278E20
 s32 itfMesWindowEntryValue(s32 handle, s32 recordIndex)
 {
@@ -1540,13 +1476,11 @@ s32 itfMesWindowGetTextList(s32 handle)
 }
 
 
-
 // FUN_00278FD0
 s32 itfMesWindowGetBodyList(s32 handle)
 {
     return ((ItfMesWindow *)D_00881808[handle].window)->label.list.value;
 }
-
 
 
 // FUN_00278FF0
@@ -1561,9 +1495,6 @@ s32 itfMesWindowGetChoiceCount(s32 handle)
     return ((ItfMesWindow *)D_00881808[handle].window)->selection.count;
 }
 
-/* Measured: 448B/448B MATCH. The integer-address load preserves base-before-
-   index evaluation; mixed byte cast/mask forms avoid call-crossing mask reuse.
-   The unsigned index shift preserves EE wrapping arithmetic. */
 /* Build one record entry at the requested screen position, then apply color/effect/scale. */
 // FUN_00279030
 u8 *itfMesWindowBuildEntry(f32 x, f32 y, f32 scale, s32 color, s32 slotIndex, s32 effect, s32 flags, s32 handle, s32 recordIndex)
@@ -1668,10 +1599,12 @@ s32 itfMesWindowDrawPair(f32 x, f32 y, f32 scale, s32 color, s32 slotIndex, s32 
     return 0;
 }
 
-/* measured: integer-domain index-first address `(u8 *)(slotIndex * 8) + (u32)base` preserves retail's addu operand order; normalized_diff 0, object 172B/176B (trailing word is alignment padding). */
-/* Execute a font command against the first text of the requested record entry. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 8; retain their original address/alias expressions. */
+/* measured: the address is computed as index-first integer arithmetic so the add operands come out
+ * in the same order as retail. Execute a font command against the first text of the requested
+ * record entry. measured: the remaining raw accesses keep their original address expressions
+ * because typed rewrites change the output. */
+/* Run a font command with the given value against the first text of the record entry at recordIndex
+ * in the window for handle. */
 // FUN_00279690
 s64 itfMesWindowRunEntry(s32 handle, s32 recordIndex, s32 command, s32 value)
 {
@@ -1686,9 +1619,8 @@ s64 itfMesWindowRunEntry(s32 handle, s32 recordIndex, s32 command, s32 value)
     address = (u8 *)(recordIndex * 8) + (u32)base;
     return frFontRunCommand(itfMesRecordTextAt(((ItfMesRecord *)(address))->entries[0].data.value, 0), command, value);
 }
-/* Return a text pointer for an in-range row, or zero for an invalid signed index. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 1; retain their original address/alias expressions. */
+/* Return a text pointer for an in-range row, or zero for an invalid signed index; the remaining raw
+ * address casts are kept because typed field accesses change the output. */
 // FUN_00279740
 u32 itfMesRecordTextAt(int recordAddress,int textIndex)
 {
@@ -1707,17 +1639,10 @@ u32 itfMesRecordTextAt(int recordAddress,int textIndex)
 }
 
 
-
-/* Measured: 768B/window 768B, exact match. Named zero origins with
-   opt_propagation off preserve constructor argument order. The binding
-   helper consumes a text pointer; its pointer parameter also restores
-   the final argument-move ordering. */
 /* Build the current row, derive its mode flags, notify its procedure and update row metrics. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 1; retain their original address/alias expressions. */
 // FUN_00279780
 #pragma push
-/* measured: baseline and literal constructor-origin probes both differ (nd 20); retain propagation off. */
+/* measured: retail's register setup in this function needs constant propagation off. */
 #pragma opt_propagation off
 void itfMesWindowBuildRow(u8 *window)
 {
@@ -1810,8 +1735,6 @@ list_done:
 }
 #pragma pop
 /* Replace one of 32 owned substitution strings, rounding allocation size to four bytes. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 170, 248, 262; retain their original address/alias expressions. */
 // FUN_00279A80
 void itfMesObjectSetString(u8 *window, s32 slotIndex, s32 textAddress, s32 length)
 {
@@ -1846,20 +1769,8 @@ void itfMesObjectSetString(u8 *window, s32 slotIndex, s32 textAddress, s32 lengt
     }
 }
 
-/* MATCH (wave14): the old "CSE/allocator floor" was broken by lever 6 -
-   spelling the POST-call slot store with integer-domain address arithmetic,
-   `((ItfMesWord *)base)[slotIndex].words = res;`, so its CSE key differs from
-   the pre-call `slot = (s32 *)(base + slotIndex * 4)` read. mwcc then RE-derives
-   base+slotIndex*4 after the calls exactly like retail (sll $v1,$s3,2; addu
-   $v1,$s2,$v1) instead of holding the full slot address live across the
-   func_0046a2d0/func_0046a430 jals; base stays live in $s2 and the arg->$s
-   mapping falls into retail's $s1/$s3/$s0. Prior attempts (slot local, bare
-   expr, slotIndex<<2, s32/u8-star lvalue casts, opt_propagation off) all stayed
-   nd 51; the DISTINCT-CAST address spelling is the only thing that worked.
-   obj 220B vs window 224B (benign tail pad). */
-/* Replace one substitution slot with an allocated four-byte integer value. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 39; retain their original address/alias expressions. */
+/* Replace one substitution slot with an allocated four-byte integer value. The post-call slot store
+ * uses a separate cast so the slot address is recomputed after the calls, as retail does. */
 // FUN_00279C00
 void itfMesObjectSetNumber(u8 *window, s32 slotIndex, s32 value) {
     s32 base;
@@ -1899,7 +1810,6 @@ void itfMesApplySlotTable(int slotsAddress)
 }
 
 
-
 /* Publish substitution values from a checked window handle to the font processor. */
 // FUN_00279D40
 void itfMesWindowApplySlots(s32 handle)
@@ -1937,16 +1847,7 @@ void itfMesWindowSetLabel(u8 *window, u8 *text)
 }
 
 
-
-/* measured: func_00279e90 now matches exactly (object 316B, retail window
-   320B, normalized_diff 0). The existing saved halfword/local and index-first
-   itfMesAddOffset helper preserve retail's frame and address calculation. The
-   first branch's unsigned handle load matches the canonical u32 constructor
-   parameter without a conflicting local prototype. The second branch's
-   explicit u32 cast preserves its load-before-argument-moves order. */
 /* Rebuild a changed label from a substitution slot or the message auxiliary name table. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 1, 2, 218; retain their original address/alias expressions. */
 // FUN_00279E90
 void itfMesWindowSetSelectionText(u8 *window, u8 *record)
 {
@@ -2008,7 +1909,6 @@ int itfMesCountClearBits(int count,u32 mask)
 }
 
 
-
 /* Append each unhidden text at successive vertical positions and set the combined list value/alpha. */
 // FUN_0027A010
 u8 *itfMesBuildGlyphRun(u32 *texts, s32 count, u32 hiddenMask, s32 x, s32 y, s32 value, s32 spacing, s32 style)
@@ -2054,10 +1954,6 @@ static inline void itfMesReleaseListNode(u8 **link)
     *link = next;
 }
 
-/* measured: b210 -O2, 332 executable bytes / 336B window, all five
-   relocations exact. Local traversal ownership and head-before-tail
-   declarations close the saved-register floor; the final word is alignment. */
-/* Keep the requested same-Y run and detach/release every run before and after it. */
 // FUN_0027A150
 u8 *itfMesReleaseTagRun(u8 *list, s32 firstLine, s32 lastLine)
 {
@@ -2112,9 +2008,8 @@ void itfMesWindowSetMetrics(int listAddress, int rowAddress)
     ((ItfMesRow *)rowAddress)->effect.bits = ((FrFontGlyphData *)glyphAddress)->effect;
 }
 
-/* Derive the inclusive line count from fixed-point Y distance and glyph height. */
-/* measured: individual typed rewrites of the remaining raw accesses give
- * normalized_diff 92; retain their original address/alias expressions. */
+/* Derive the inclusive line count from fixed-point Y distance and glyph height. The cast and alias
+ * expressions are kept because typed field accesses change the generated code. */
 // FUN_0027A2D0
 s32 itfMesLineCount(u8 *firstRun, u8 *lastRun)
 {
@@ -2127,12 +2022,7 @@ s32 itfMesLineCount(u8 *firstRun, u8 *lastRun)
                (glyphheightFields = (FrFontTextRun *)(lastRun), glyphheightFields)->glyphHeight + 1;
 }
 
-/* Recovered after withdrawing the branch-landing boundary 0x0027A350: this
-   function opens with `b 0x0027A350` into its own loop test, which spimdisasm
-   recorded as a separate function, leaving only a 16-byte window here. 0x0027A340
-   has 3 jal sites, 0x0027A350 none. See reconcile.BRANCH_LANDING_ENTRIES. */
-// Sets field +0x14 of every entry in the list starting at firstRun to lastRun [inferred].
-/* Set the per-run depth/value word across the linked text runs. */
+/* Writes value into the depth word of every text run, following the previous links until NULL. */
 // FUN_0027A340
 void itfMesListSetValue(u8 *list, int value)
 {
@@ -2144,10 +2034,8 @@ void itfMesListSetValue(u8 *list, int value)
 
 /* Set the glyph palette for the requested same-Y run while preserving the donor K&R form. */
 // FUN_0027A370
-/* Not `static`: the symbol must stay global so the linker can resolve the
- * retail asm blob's jal to this address (measured: mwldps2 reports Undefined
- * "func_0027a370" if local).
- * The K&R parameter list below is the donor's form and is load-bearing. */
+/* Not static because the retail asm blob calls this address; the K&R parameter list is the original
+ * form. */
 int itfMesListSetColor(listAddress,firstLine,lastLine,palette)
 int listAddress;
 int firstLine;
@@ -2212,11 +2100,9 @@ done:
 }
 
 
-/* Removing this loses FUN_0027A4D0 (MATCH nd0 -> MISMATCH nd24) - measured W161. */
-
 /* Replace only the low alpha byte of every glyph color in the linked text runs. */
 // FUN_0027A4D0
-/* measured: baseline and named color-mask probes differ (nd 24/25); retain invariant hoisting. */
+/* measured: retail hoists the color mask out of the glyph loop. */
 #pragma opt_loop_invariants on
 void itfMesListSetAlpha(int listAddress,u32 alpha)
 {
@@ -2230,7 +2116,6 @@ void itfMesListSetAlpha(int listAddress,u32 alpha)
   return;
 }
 #pragma opt_loop_invariants off
-
 
 
 /* Sum widths of runs sharing a Y position and return the maximum in sixteenth-pixel units. */
@@ -2264,7 +2149,6 @@ outer_test:
 }
 
 
-
 /* Enable each text run whose first glyph has no effect byte set. */
 // FUN_0027A580
 void itfMesListEnableVisible(int listAddress)
@@ -2279,7 +2163,6 @@ void itfMesListEnableVisible(int listAddress)
 }
 
 
-
 /* Clear the 32 substitution handles without freeing their allocations. */
 // FUN_0027A6C0
 void itfMesClearSlots(int slotsAddress)
@@ -2292,8 +2175,6 @@ void itfMesClearSlots(int slotsAddress)
 
   return;
 }
-
-
 
 
 /* Draw all active windows and advance the manager flush counter. */

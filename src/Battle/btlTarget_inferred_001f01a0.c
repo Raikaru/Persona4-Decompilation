@@ -33,7 +33,6 @@ extern void (*jtbl_008873EC[])(void *ptr);
 extern s32 (*D_00624FF0[])(u8 *, s32, s32);
 
 
-
 extern u8 D_0060AB08[];
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
@@ -50,16 +49,10 @@ extern u8 D_00624B20[];
 extern u8 D_00624B22[];
 
 
-
 extern u8 iGpffffb468;
 extern u8 iGpffffb469;
 extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
-
-
-
-
-
 
 
 extern s32 iGpffffb464;
@@ -69,8 +62,8 @@ extern u8 D_00624F60[];
 extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f01a0-001f0260 */
-
+/* Return the status-effect message code for the acting unit's character, using an alternate code
+ * for character 3 when the target's enemy has the table flag. */
 // FUN_001F01A0
 /* Select the party status-message code, with a target-dependent variant for unit three. */
 s32 btlTargetGetStatusEffectMsgCode(u8 *action, u8 *target)

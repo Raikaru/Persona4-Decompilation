@@ -209,11 +209,8 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 
 
-
 #pragma push
 #pragma pop
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 0045fbe0-0045fbe0 */
 
 extern void K_ClumpLookAtBasis(u8 *object, u8 *position, u8 *target, f32 *referenceUp);
 extern void mdlRenderInitializeBuffers(void);
@@ -223,19 +220,14 @@ extern s32 kwlnGetCamera(void);
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_propagation off preserves the retail global-load destination register. */
-/* measured: close propagation-off probe for K_ClumpLookAtBasis. */
-/* measured: opt_scalarize off keeps the prop triple in stack spill slots with direct sp-relative accesses. */
+/* measured: propagation off keeps retail's global-load destination, and scalarize off keeps the
+ * prop triple in stack slots accessed directly. */
 #pragma push
 #pragma pop
-/* measured: opt_loop_invariants on hoists the array base into $v1 ahead of
-   the loop as retail; a named base local is coloured $a0 (archived nd 8). */
-/* measured: closes the hoisting scope after func_0045b430. */
+/* measured: loop-invariant hoisting puts the array base in a register ahead of the loop, as retail
+ * does; this scope ends after func_0045b430. */
 #pragma push
 #pragma pop
-/* Honest plain-C best is the 1-word common-off body, still MISMATCH. */
-/* measured: restores propagation after PrimDrawFlatTriangle. */
-/* Frustum-test a world-space circle, transform twenty samples, and close the line strip with its first vertex. */
 // FUN_0045FBE0
 void primCircleLine3D(const Code45Vec3 *center, f32 radius, u8 *inputColors, f32 *inputMatrix, s32 inputPreserveState)
 {

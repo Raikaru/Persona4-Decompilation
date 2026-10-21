@@ -21,10 +21,6 @@ typedef union {
 typedef struct PersonaWork PersonaWork;
 
 
-
-
-
-
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(u8 *list, u8 *node);
 extern void pscModelDrawCallback(void);
@@ -73,23 +69,11 @@ extern s32 (*D_00887310[])(s32 arg0, void *arg1, s32 arg2);
 extern f32 iGpffff8040;
 extern f32 fGpffff8198;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0036; members 00369470-00369470 */
-
-/* 780/784 bytes; nine resolved relocations; four zero alignment bytes.
- * Keep the angle and shared scale local to each primitive call. */
 #pragma push
 #pragma pop
-/* measured: opt_common_subs off keeps the raw alpha argument in $s1 and re-masks it at each of
-   its two uses (color entry, 0xFF - alpha at the sprite call) as retail does; with CSE on b210
-   masks once into $s0 (nd 78). */
-/* measured: nd 9 -> 0. opt_loop_invariants on hoists the digit loop's 16.0f and 10
-   ahead of the entry branch. Alpha: `n = arg1 & 0xFF; arg1 = 0xFF - n;` through the
-   loop counter's register puts the andi before the li (fresh local or one expression: nd 3). */
-/* measured: closes the loop-invariant bracket; the file default is off. */
-/* measured: retail hoists the 0.5f loop constants out of the corner loops. */
 #pragma push
 #pragma pop
-// Intent: Queues a draw node for a panel object with the shared draw callback pscModelDrawCallback [inferred]
+// Queues a draw node for a panel object with the shared draw callback pscModelDrawCallback.
 // FUN_00369470
 void pscModelEnqueueDrawNode(s32 model, u8 *queue) {
     u8 *p;

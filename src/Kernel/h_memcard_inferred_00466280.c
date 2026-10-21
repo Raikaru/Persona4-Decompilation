@@ -153,8 +153,6 @@ extern f32 fGpffff81c4;
 extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 00466280-00466280 */
-
 extern s32 memcardPollCommand(s32 *command, s32 *result, s32 *succeeded);
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
@@ -228,7 +226,8 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
-// Intent: memory-card probe step. Polls card info (sceMc2), reads the free-block count, and returns 100 when the card is ready or a negative error code.
+// Memory-card probe step: polls card info, reads the free-block count, and returns 100 when the
+// card is ready or a negative error code.
 // FUN_00466280
 s32 H_Memcard_ProbeCardStep(void)
 {

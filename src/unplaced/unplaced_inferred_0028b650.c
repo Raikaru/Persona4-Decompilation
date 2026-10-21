@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0028b650-0028bef0 */
 
 /* Unit optimizer settings shared by the neighboring functions. */
 #pragma opt_loop_invariants off
@@ -32,7 +31,7 @@ extern u8 D_00748340[];
 extern void (*jtbl_008873EC[])(void *ptr);
 extern u8 *MT_Scene_GetResListHead(s32 );
 extern void evtMemAccount(s32 , s32 );
-// Event task-handle check: nonzero when the current event's +0x768 task handle is set.
+// Returns nonzero when the current event's noiseTask handle is set.
 // FUN_0028B650
 s32 evtHasTaskHandle(void) {
     s32 h = evtEnsureEventTask();
@@ -43,13 +42,12 @@ s32 evtHasTaskHandle(void) {
     return (s32)((EvtEventWork *)evtGetEventTaskWork((u8 *)kwlnTaskGetWork((void *)h)))->noiseTask != 0;
 }
 
-// Event handle table: frees every handle in the table at +0x7A4 and clears it.
+// Frees every handle in the event's handle table and clears it.
 // FUN_0028B6B0
-/* measured: the table local at the loop-body head reproduces retail's
-   sll-before-lw body order; nd 0, object 244B / window 256B. */
+/* measured: the table local read at the loop-body head gives retail's body instruction order. */
 void evtClearHandles(u8 *work)
 {
-    /* measured: remaining table/key byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
+    /* measured: table fields are accessed through byte offsets so loads keep retail's reload order. */
     s32 count;
     s32 i;
     s32 *table;
@@ -79,10 +77,11 @@ void evtClearHandles(u8 *work)
     ((EvtHandleTable *)(work + 0x7A0))->count = 0;
 }
 
-// Loads the event's tables: allocates the working area, copies the table entries and records their memory [inferred].
+// Loads the event's tables: allocates the working area, copies the table entries and records their
+// memory.
 // FUN_0028B7B0
 void evtLoadEventTables(u8 *work) {
-    /* measured: remaining table/key byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
+    /* measured: table fields are accessed through byte offsets so loads keep retail's reload order. */
     u8 *count_node;
     u8 *copy;
     u8 *array;
@@ -352,8 +351,7 @@ func_0028b7b0_copy_valid_done:
     }
 }
 
-// Sets the exclusive resource for kind 0 or 1 and stores the kind on the event [inferred].
-/* Store the exclusive kind in the event work after selecting its scene resource. */
+// Sets the exclusive scene resource for kind 0 or 1, then stores the kind in the event work.
 // FUN_0028BE70
 void evtSetKindExclusiveRes(u8 *work, s32 kind)
 {
@@ -372,10 +370,11 @@ void evtSetKindExclusiveRes(u8 *work, s32 kind)
     }
 }
 
-// Decodes a node's key: low 12 bits of the node word become , bits 12 to 15 become , and the table entry for the node type is returned [inferred].
+// Decodes a node key: low 12 bits become resourceId, bits 12-15 become variant, and the table entry
+// for the node kind is returned.
 // FUN_0028BEF0
 s32 evtDecodeNodeKey(s32 workAddress, u8 *key, s32 *resourceId, s32 *variant) {
-    /* measured: remaining table/key byte accesses preserve b210 reload/address scheduling; individual typed substitutions lose MATCH. */
+    /* measured: key fields are accessed through byte offsets so loads keep retail's reload order. */
     s32 baseKey;
     s8 kind;
 

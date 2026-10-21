@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 0028d020-0028d0a0 */
 
 /* Unit optimizer settings shared by the neighboring functions. */
 #pragma opt_loop_invariants off
@@ -35,7 +34,7 @@ s32 evtResultGet(s32 slot) {
 // Event resource list: releases each resource id stored in the node's list.
 // FUN_0028D0A0
 void evtReleaseRes(u8 *work) {
-    /* measured: the standalone channel-subobject form differs; the full event-work array form preserves MATCH. */
+    /* measured: channel ids are read through the full event-work array, as retail addresses them. */
     s32 i;
 
     i = 0;

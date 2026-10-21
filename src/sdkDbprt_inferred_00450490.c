@@ -151,9 +151,6 @@ extern u8 D_008D1C90[];
 extern u8 D_008D1C98[];
 extern u8 D_008D1CD4[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00450490-00450490 */
-
-/* measured: object 92B vs window 96B, normalized_diff 0; named locals preserve retail load order and FPU register coloring. */
 /* Maps camera depth through the near and far planes into clamped nonnegative device depth. */
 // FUN_00450490
 f32 sdkDbprtProjectDepth(f32 cameraDepth)

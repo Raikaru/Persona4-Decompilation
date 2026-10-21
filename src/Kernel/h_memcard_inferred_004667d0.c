@@ -154,8 +154,6 @@ extern f32 fGpffff81c4;
 extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 004667d0-004667d0 */
-
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
     s32 displayFrame;              /* 0x04: copied from frameNumber by provider */
@@ -228,10 +226,8 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
-/* 512/512 bytes; ten fully resolved relocations.
- * A real interrupt-state local retains the retail spill under register pressure. */
-/* measured: func_004667d0 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline removal differs in 25 bytes; typed pool indexing; reread pool slot through typed cursor also differ. */
+/* measured: retail hoists loop-invariant pool indexing out of the allocation loop, and an
+ * interrupt-state local keeps the retail spill under register pressure. */
 #pragma opt_loop_invariants on
 // FUN_004667D0
 /* Allocate a request from the fixed pool and append it under the interrupt lock. */

@@ -45,8 +45,6 @@ extern u16 D_008C027A[];
 extern s8 iGpffffb54c;
 
 
-
-
 struct RwMatrixTag;
 extern void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s32 centerX, s16 centerY,
@@ -72,12 +70,10 @@ extern u8 D_00882EF0[];
 extern u8 *iGpffffb540;
 extern u8 iGpffffa7e8;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a03b0-002a03b0 */
-
 extern void yTimeNameDrawSelections(u8 *task, s32 preserveStatus);
-/* 3888/3888 bytes. Keep the remaining-alpha accumulator separate from
- * the narrowed active alpha, and apply each cursor offset before drawing. */
-/* Draw the interactive name-entry keyboard, selection fades, cursor and the two eight-character name buffers. */
+/* Draw the interactive name-entry keyboard, selection fades, cursor and the two eight-character
+ * name buffers. The remaining-alpha accumulator stays separate from the narrowed active alpha, and
+ * each cursor offset is applied before drawing. */
 // FUN_002A03B0
 void yTimeNameDrawKeyboard(u8 *task) {
     KwlnTask *owner = (KwlnTask *)task;

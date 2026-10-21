@@ -2,7 +2,6 @@
 #include "kwln_task_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
-/* Source unit: src/Kosaka/k_clump/k_clumpInstance.c */
 #include "type.h"
 #include "member_access.h"
 #include "Kosaka/k_clump_internal.h"
@@ -63,15 +62,12 @@ extern char iGpffffa070;
 extern char iGpffffa078;
 extern char iGpffffa080;
 
-/* measured floor (nd 10): func_003deff0's 5-arg setup emits [move $a0; lw; lw; lw; lw]
- * where retail emits [lw; lw; move $a0; lw; lw] -- call-argument setup order, a
- * b210 scheduling floor (all other bytes of the function match).
-   Committed at nd 10. */
+/* Known difference: the argument setup order for the five-argument func_003deff0 call differs from
+ * retail. */
 
 
-/* Copy stream chunks to disk, rewriting texture dictionaries and clumps while retaining texture names. */
-/* measured: typing the remaining count loads or initial count store individually loses MATCH; the item array
- * and CDVD source fields are typed. */
+/* Copy stream chunks to disk, rewriting texture dictionaries and clumps while retaining texture
+ * names. */
 // FUN_00191E90
 void K_Clump_ReadChunks(u8 *directory, s32 *outputPath, u8 *workBytes)
 {
@@ -145,8 +141,7 @@ void K_Clump_ReadChunks(u8 *directory, s32 *outputPath, u8 *workBytes)
 }
 
 
-/* measured: opt_loop_invariants hoists the '.' and '/' loop constants. */
-/* measured: hoisting-off differs by 191 bytes; for-form scanning is unchanged and a split delimiter guard differs by 204 bytes. */
+/* measured: retail hoists the '.' and '/' loop constants out of the scan loop. */
 #pragma opt_loop_invariants on
 /* Enumerate candidate model files, rewrite their streams, then destroy the temporary clumps. */
 // FUN_001921A0
@@ -244,15 +239,11 @@ s32 K_Clump_LoadDirUpdate(u8 *task)
     }
     return 0;
 }
-/* measured: close the loop-invariant optimization scope for K_Clump_LoadDirUpdate. */
+/* measured: restores the unit setting after K_Clump_LoadDirUpdate. */
 #pragma opt_loop_invariants off
 
 
-
 /* Close the directory enumeration handle and release task work. */
-/* measured: typed task->work changes generated instructions across the free/close callbacks; retain byte-pointer aliasing. */
-/* measured: typing the initial task-work load loses MATCH; the directory handle member and final task-work
- * read stay typed. */
 // FUN_00192480
 void K_Clump_LoadDestroy(u8 *task)
 {
@@ -265,7 +256,6 @@ void K_Clump_LoadDestroy(u8 *task)
     }
     jtbl_008873EC[0](((KwlnTask *)task)->work);
 }
-
 
 
 /* Create the directory-rewrite task with its 0x454-byte work block. */

@@ -1,7 +1,4 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/Battle/btlShuffleSeq.c); members 0036de60-0036de60 */
 
-/* Grouped verified Persona 4 source units. */
-/* The original guards were independently verified before grouping. */
 #include "type.h"
 #include "btl_shuffle_card_internal.h"
 /* Canonical grouped function declarations. */

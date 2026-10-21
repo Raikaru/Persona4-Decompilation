@@ -46,8 +46,6 @@ extern u8 D_0079BF00[];
 /* Init-data read step: loads init/itemtbl.bin once the file is ready, then unloads the handle. */
 /* Load the initialization item table, copy its bytes into the builtin table, then release the completed file. */
 // FUN_001117C0
-/* Initial whole-work typing added address temporaries; access-site fields and
- * the shared typed work pointer below preserve the retail allocation. */
 s32 initDataReadStep(u8 *task)
 {
     InitDataReadWork *readWork;
@@ -78,11 +76,9 @@ s32 initDataReadStep(u8 *task)
     return 0;
 }
 
-/* Destroy callback of the init-data read task: releases the pending read handle. */
-/* Release any outstanding initialization file before freeing the read task work. */
+/* Destroy callback of the init-data read task: releases the pending read handle before the task
+ * work is freed. */
 // FUN_001118A0
-/* Initial whole-work typing added address temporaries; access-site fields and
- * the shared typed work pointer below preserve the retail allocation. */
 void initDataReadDestroy(u8 *task)
 {
     InitDataReadWork *readWork;

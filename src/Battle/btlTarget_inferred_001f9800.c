@@ -39,7 +39,6 @@ extern s32 (*D_00624FF0[])(u8 *arg0, s32 arg1, s32 arg2);
 extern s32 sdkSndIsChannelPlaying(s16 channelIndex);
 
 
-
 extern u8 D_0060AB08[];
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
@@ -64,11 +63,6 @@ extern s16 iGpffffb46e;
 extern u8 D_006251F0[];
 
 
-
-
-
-
-
 extern s32 iGpffffb464;
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern u8 D_00624F50[];
@@ -77,17 +71,9 @@ extern u8 D_00624F80[];
 extern u8 D_00624FA0[];
 
 
-
-
 #pragma push
 #pragma pop
 
-
-
-
-
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001f; members 001f9800-001f9800 */
 
 extern s32 btlActionHasNoTargetClass(u32 action);
 extern s32 btlSoundRollStatusCure(u8 *action);
@@ -98,45 +84,17 @@ extern s32 btlSoundPickPartnerCallVoice(u8 *action, s32 variant);
 extern s32 btlSoundPickPartnerReplyVoice(u8 *action, s32 variant);
 extern s32 btlSoundPickPartnerAssistVoice(u8 *action, s32 variant);
 extern s32 btlSoundPickRandomPartnerVoice(u8 *action);
-/* measured: optimization_level 1 probe for func_001f0ff0 call materialization. */
-/* measured: close optimization_level 1 probe for func_001f0ff0. */
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: opt_loop_invariants on hoists the loop's one constant before the entry test. */
-/* measured: close opt_loop_invariants after btlSoundRollStatusCure. */
-/* measured: every instruction matches and the object is exactly the 80-byte
-   window; the only residual is that retail materialises the shift constant
-   (`addiu $v1,$zero,1`) BEFORE the branch into the loop test while b210 puts
-   it after, which also shifts the back-edge displacement by one word (nd 9).
-   Measured identical at nd 9: an inline `1 << i`, a hoisted `one` local, and
-   an explicit goto loop with the test at the bottom. Preheader hoist-order
-   floor. Committed at nd 9. */
+/* measured: opt_loop_invariants on hoists the loop's one constant before the entry test, as retail
+ * does. */
 
 #pragma push
 #pragma pop
-/* measured: retail materialises this loop's invariant in the preheader; plain
-   -O2 rematerialises it in the body (nd 9 -> byte-exact with the hoist). */
-/* measured: closes the hoist bracket opened above and restores the -O2
-   baseline for the rest of the file. */
-/* measured: opt_rebuildconditionals off probe for btlSoundPickStatusTalkVoiceA final branch. */
-/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceA probe. */
-/* measured: opt_rebuildconditionals off preserves btlSoundPickStatusTalkVoiceB's positive flag branch. */
-/* measured: close opt_rebuildconditionals after btlSoundPickStatusTalkVoiceB. */
-/* measured: optimization_level 1 required for exact btlSoundAdvanceSlotQueue codegen. */
-/* measured: opt_loop_invariants off baseline for btlSoundAdvanceSlotQueue. */
-/* measured: restore optimization_level 2 after btlSoundAdvanceSlotQueue. */
-/* measured: opt_propagation off preserves btlSoundPickPartnerCallVoice's loop constants. */
-/* measured: close opt_propagation after btlSoundPickPartnerCallVoice probe. */
-/* measured: opt_propagation off preserves btlSoundPickPartnerReplyVoice's loop constants. */
-/* measured: close opt_propagation after btlSoundPickPartnerReplyVoice probe. */
-/* measured: opt_propagation off preserves btlSoundPickPartnerAssistVoice's loop constants. */
-/* measured: close opt_propagation after btlSoundPickPartnerAssistVoice probe. */
-/* measured: opt_propagation off tested for btlSoundPickRandomPartnerVoice; retains loop constants. */
-/* measured: close opt_propagation after btlSoundPickRandomPartnerVoice. */
-/* Run the voice selector once, wait for channel 3, and bracket the unit/model talk flags. */
-/* Measured packet/action reloads use MEMBER; model motion flag 0x20 gates talk animation. */
+/* Run the voice selector once, wait for channel 3, and bracket the unit/model talk flags; model
+ * motion flag 0x20 gates talk animation. */
 // FUN_001F9800
 s32 btlVoicePacketUpdate(u8 *packetData)
 {

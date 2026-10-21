@@ -1,4 +1,4 @@
-/* Original translation unit mainDraw.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit mainDraw.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -227,9 +227,11 @@ extern s32 mainDrawFrameUpdate(u8 *unusedTask);
 extern void mainDrawFrameDestroy(u8 *task);
 
 
-/* measured: the six render-state callbacks require opt_propagation off;
- * all five following task functions also MATCH under this shared setting. */
-/* Clear-OT callback: clears the camera and sets the sky state when a camera exists; otherwise reports the error. */
+/* measured: the six render-state callbacks and the following task functions need opt_propagation
+ * off to reproduce retail code. Clear-OT callback: clears the camera and sets the sky state when a
+ * camera exists; otherwise reports the error. */
+/* Clear the active camera with the current clear color and set up the sky render states for
+ * drawing. If the camera cannot begin its update, raise an assertion failure. */
 // FUN_001014B0
 #pragma opt_propagation off
 void mainDrawClearCameraAndSky(void) {

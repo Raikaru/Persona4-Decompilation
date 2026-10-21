@@ -51,8 +51,6 @@ extern u16 D_008C027A[];
 extern s8 iGpffffb54c;
 
 
-
-
 struct RwMatrixTag;
 extern void sflDataDrawQuad(s32 x, s32 y, f32 z, s32 width, s32 height, s32 rgb,
                           s32 alpha, s32 mode, s32 centerX, s16 centerY,
@@ -78,10 +76,10 @@ extern u8 D_00882EF0[];
 extern u8 *iGpffffb540;
 extern u8 iGpffffa7e8;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002a; members 002a1a10-002a1c80 */
-
 #pragma push
 #pragma pop
+/* Run the name-confirmation message window step by step: open it, wait for the player to close it,
+ * then reset it. Return the chosen answer once finished, or -1 while still in progress. */
 // FUN_002A1A10
 /* Run the name confirmation message; return -1 while open, then return the latched answer. */
 s32 yTimeNameConfirm(u8 *task) {
@@ -121,12 +119,12 @@ done:
     return -1;
 }
 
-/* measured: disabling common-subexpression propagation prevents the repeated
-   tween target from being held in a saved register across calls. */
-/* measured: func_002a1b20 MATCH -> MISMATCH without this pragma. */
-/* measured: removing both reveal settings gives nd109/119/117 for background/origin/rows. */
+/* measured: disabling common-subexpression propagation stops the repeated tween target from being
+ * held in a saved register across calls. */
 #pragma opt_common_subs off
 /* measured: disabling propagation preserves the retail call-site materialization. */
+/* Fade in the name-entry background track the first time this is called, then advance it each
+ * frame. Return 1 once the tween finishes, otherwise 0. */
 // FUN_002A1B20
 /* Start and advance the background reveal tween; report completion to the draw-state dispatcher. */
 s32 yTimeNameRevealBackground(u8 *task) {
@@ -148,12 +146,11 @@ fail:
     return 0;
 }
 
-/* measured: closes opt_propagation around func_002a1b20. */
-/* measured: closes opt_common_subs around func_002a1b20. */
-/* measured: common-subexpression suppression preserves repeated target addresses. */
-/* measured: propagation suppression preserves retail call-site materialization. */
-/* measured: func_002a1bd0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail rematerializes call-site values instead of propagating them, so propagation
+ * stays off for this function. */
 #pragma opt_propagation off
+/* Start the tween that slides the row origin into place, then advance it each frame. Return 1 once
+ * it finishes, otherwise 0. */
 // FUN_002A1BD0
 /* Slide the keyboard row origin from Y=249 to Y=219 over ten frames. */
 s32 yTimeNameRevealOrigin(u8 *task) {
@@ -182,11 +179,11 @@ fail:
     return 0;
 }
 
-/* measured: closes propagation suppression around func_002a1bd0. */
-/* measured: closes common-subexpression suppression around func_002a1bd0. */
-/* measured: no_branch_likely preserves retail's ordinary loop branches. */
-/* measured: opt_common_subs off preserves retail per-use index arithmetic. */
-/* measured: opt_propagation off preserves retail's global counter loads. */
+/* measured: retail keeps ordinary loop branches, recomputes index arithmetic per use, and reloads
+ * global counters. */
+/* Stagger the reveal of the name-entry grid, starting one row and its four column cells every six
+ * frames, and advance all active cell and row tweens. Return 1 once all six rows have finished,
+ * otherwise 0. */
 // FUN_002A1C80
 /* Stagger the four keyboard columns by row, advance their fades, and finish when all six rows settle. */
 s32 yTimeNameRevealRows(u8 *task) {

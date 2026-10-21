@@ -1,4 +1,4 @@
-/* Original translation unit btlShuffleCalc.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit btlShuffleCalc.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "type.h"
 #include "btl_shuffle_draw_internal.h"
@@ -6,7 +6,7 @@
 #include "btl_shuffle_motion_internal.h"
 #include "rw_camera_internal.h"
 
-/* RwCamera.viewWindow starts at 0x68; preserve the existing byte-base hoist. */
+/* RwCamera.viewWindow starts at offset 0x68 and is read through a byte-pointer base. */
 typedef struct BtlShuffleCameraWindow { f32 x, y; } BtlShuffleCameraWindow;
 
 extern void kAssertFail(const void *file, u32 line);
@@ -47,24 +47,8 @@ typedef struct ShuffleCalcUnit {
 } ShuffleCalcUnit;
 f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 endFrame, s32 curve);
 
-/* SOLVED -- this was recorded here as a "Commutative FP-mul scheduling floor"
-   and re-confirmed as a floor through wave 14. The nd-2 spelling those notes
-   called untranscribed is the body below, and the LAST word came from a named
-   f32 constant local assigned before the base hoist:
-
-       k = 100.0f;
-       temp_16 = func_00457120() + 0x68;
-       if (*(f32 *)temp_16 * k <= 0.0f) { ... }
-
-   Retail materializes the constant into the LOWER FP register and loads the
-   value into the higher one; with the literal written inline b210 does the
-   reverse and emits `mul.s $f1,$f1,$f0` where retail has `mul.s $f1,$f0,$f1`.
-   A named local pins the materialization order. The identical one-line change
-   also matched func_003713b0, its 84.0f twin. Keep `s32 sp30[8]` for the 0x50
-   frame with the slot at 0x30, a `u8 *` base hoist, `sp30[0] / 2` for the
-   rounded halving in the scale numerator and `sp30[n] >> 1` in the two
-   perspective terms -- retail genuinely uses both halving forms. */
-/* Construct the default projected position at depth 100 using the camera view window. */
+/* Retail loads the constant 100.0f into its register before the camera value, and a named local
+ * keeps that order. Retail halves with both / 2 and >> 1. */
 // FUN_00371260
 void btlShuffleCalcResetPose(u8 *output) {
     s32 viewport[8];
@@ -130,28 +114,6 @@ void btlShuffleCalcStepPose(u8 *screen, u8 *output, f32 depth) {
     ((RwV3d *)output)->z = scale;
 }
 
-/* measured: re-tested this wave. `s32 sp30[8]` (same 8-word pattern as
-   func_00371500's sp50[8]) fixes the frame to 0x50 with the slot at 0x30, and
-   `temp_2 = func_00457120() + 0x68` reproduces retail's $s0 base hoist. The
-   residual (nd 11) is then the recorded $v0/$v1 coalescing — retail keeps the
-   load in $v1 and the rounded-half shift result in $v0 (lw $v1/sra $v0/bgez
-   $v1/addiu $v0/sra $v0/mtc1 $v0); mwcc b210 always colors load->$v0,
-   result->$v1 (6 words) — plus the return's evaluation order (5 words: b210
-   hoists the divisor lwc1/mul above the numerator mtc1/cvt and transposes
-   the div.s operands; hoisting `f = (f32)var_2` and num/den locals does not
-   move it). Tried named locals, m2c if-form, inline two-return, u32/or
-   spellings, hoisted cvt, decl-order rotations — all nd 11.
-   $v0/$v1 coalescing + FP-eval-order floor. */
-/* measured: re-tested this wave — nd 11 CONFIRMED (same floor). The round-half
-   spelling that reproduces retail's `sra;bgez;addiu;sra` branch is the m2c
-   two-statement form: `var_2 = sp30 >> 1; if (sp30 < 0) { var_2 = (s32)(sp30 +
-   1) >> 1; }` (single-expression or if/else forms compile to `slt;addu;sra`,
-   nd 17-20). Residual unchanged: (1) $v0/$v1 coalescing — mine `lw $v0;
-   sra $v1,$v0` vs retail `lw $v1; sra $v0,$v1` (load in $v1, shift result in
-   $v0; 6 words); (2) return evaluation order — mine `lwc1/mul.s
-   $f1,$f20,$f0; cvt $f0; div.s $f0,$f0,$f1` vs retail `mtc1/cvt $f1;
-   lwc1/mul.s $f0,$f20,$f0; div.s $f0,$f1,$f0` (numerator-first div; 5
-   words). $v0/$v1 coalescing + FP-eval-order floor, nd 11. */
 /* Return viewport half-width divided by depth times the horizontal camera view window. */
 // FUN_003716D0
 f32 btlShuffleCalcEase(f32 depth) {
@@ -168,14 +130,11 @@ f32 btlShuffleCalcEase(f32 depth) {
 /* Transform a point by the active camera frame matrix. */
 // FUN_00371780
 void btlShuffleCalcLookAt(u8 *output, u8 *point) {
-    /* The camera frame is an EE address word; pointer-typed reads change argument-load scheduling in b210. */
+    /* The camera frame is stored as a raw address word, so it is read as an integer rather than a
+     * pointer. */
     func_003e42a0(output, point, func_003e9700((s32)((RwCamera *)kwlnGetCamera())->object.object.parent));
 }
 
-/* measured: best nd 29. Hoisting the ratio ahead of the rounding block
-   (retail computes the div chain first) rotates saved regs to $s1/$s0/$s2
-   (retail $s2/$s1/$s0; 3 decl orders probed, nd 29), on top of the recorded
-   $v0/$v1 rounding-coalescing floor and two mul.s operand swaps. */
 /* Convert a camera-space point to screen coordinates and report whether it is inside 640 by 448. */
 // FUN_003717E0
 s32 btlShuffleCalcUpdateSpeed(u8 *point, u8 *screen) {
@@ -221,12 +180,9 @@ void btlShuffleCalcSetBlend(u8 *state, u8 *start, u8 *target, f32 delay, f32 dur
     *(ShuffleVec3 *)&((BtlShuffleVectorTrack *)state)->target = *(ShuffleVec3 *)&((RwV3d *)target)->x;
 }
 
-/* measured: func_00371a60 is a live MATCH (object 312B / 320B window /
-   normalized_diff 0). Both int-to-float sites use plain `(f32)(u32)`
-   casts. Difference-first float locals reproduce retail's separate
-   subtraction, multiply, and add sequence; `*(u16 *)arg0 += 1` preserves
-   the retail count reload. */
-/* Advance a vector interpolation with the requested linear or sinusoidal timing curve. */
+/* Separate difference locals keep retail's subtract, multiply, add order, and the in-place count
+ * increment reproduces retail's reload of the count. Advance a vector interpolation with the
+ * requested linear or sinusoidal timing curve. */
 // FUN_00371A60
 s32 btlShuffleCalcSelectFrame(u8 *state, s32 curve) {
     f32 half;
@@ -285,18 +241,6 @@ void btlShuffleCalcStoreTiming(u8 *state, u8 *points, u32 delay, u32 duration) {
         ((BtlShuffleBezierTrack *)state)->points[i] = ((ShuffleVec3 *)points)[i];
     }
 }
-/* measured: re-tested this wave — BEST nd 38 (recorded 102 -> 38) with a
-   full cubic-Bezier reconstruction (u32 value local, recipe-A half-scalers,
-   `t*f3 + v*f4 + t*f5 + t*f6` mula/madda/madda/madd accumulation; 3 decl
-   orders + 2 increment spellings probed). Residuals: (1) the Load-CSE floor
-   (cf. func_003720c0) — b210 CSEs the increment's re-load `lhu` with the
-   1st half-scaler's load, keeping the value live across the whole half-scaler
-   and coloring it $a1 vs retail $v0 (cascades thro srl/andi/or/mtc1, ~9
-   words); (2) compare polarity: mwcc emits `c.olt.s $f0,$f1; bc1f` for
-   `var_f1 < field4` vs retail `c.olt.s $f1,$f0; bc1t`; (3) P0-vs-P1 mula/madd
-   chain scheduling + $f-register renumbering in component 3. Load-CSE +
-   FP-scheduling floor. */
-/* measured: archived permuter seed; see the build/ archive header for its object/window/normalized_diff. */
 /* Advance a cubic Bezier vector track with linear normalized timing. */
 // FUN_00371C70
 s32 btlShuffleCalcTimeFromFrame(u8 *state) {
@@ -430,11 +374,8 @@ s32 btlShuffleCalcAdvanceTrack(u8 *state) {
         0.0f + startv + ratio * diff);
     return 0;
 }
-/* measured: func_00372200 is a live MATCH (object 416B / 416B window /
-   normalized_diff 0). Both int-to-float sites use plain `(f32)(u16)`
-   casts. Difference-first locals reproduce retail's separate interpolation
-   subtraction and multiply sequence. */
-/* Advance a vector track with the additional quadratic displacement term. */
+/* Advance a vector track with the additional quadratic displacement term. The diff locals are
+ * computed first, so the subtraction happens separately from the multiply, as in retail. */
 // FUN_00372200
 s32 btlShuffleCalcFinishTrack(u8 *state) {
     f32 t;
@@ -497,14 +438,10 @@ void btlShuffleCalcScheduleMove(u8 *state, u16 delay, u16 duration, u8 *start, u
     *(ShuffleVec3 *)&((BtlShuffleVectorTrack *)state)->target = *(ShuffleVec3 *)&((RwV3d *)target)->x;
     ((ShuffleCalcUnit *)state)->scale = displacement;
 }
-/* Cluster transfer: the named ShuffleCalcUnit/count-pointer shape and
-   corrected helper argument order match this 440-byte body in its 448-byte
-   retail window (normalized_diff 0). */
 /* Advance a vector track using a normalized direction scaled by the stored displacement. */
 // FUN_003724F0
-/* measured: func_003724f0 object 440B/window 448B normalized_diff 0; this
-   pragma is required (without opt_propagation off, normalized_diff 26). */
-/* measured: baseline nd64; scoped locals, inverted if/else did not match (best nd64); retain opt_propagation off. */
+/* measured: retail's code shape needs copy propagation disabled for this function; restructured
+ * locals or branches do not reproduce it. */
 #pragma opt_propagation off
 s32 btlShuffleCalcUnitStep(ShuffleCalcUnit *unit) {
     u32 value2;
@@ -566,17 +503,11 @@ s32 btlShuffleCalcUnitStep(ShuffleCalcUnit *unit) {
         (displacement[2] * progress - progress * (progress * component));
     return 0;
 }
-/* measured: func_003724f0 object 440B/window 448B normalized_diff 0; restore
-   normal propagation before the next function. */
+/* measured: propagation is turned back on once this body is done. */
 #pragma opt_propagation on
-/* Cluster transfer: the same named ShuffleCalcUnit/count-pointer and helper
-   call shape matches the second 440-byte member in its 448-byte window
-   (normalized_diff 0); only its measured FP tail spelling differs. */
 /* Advance the alternate quadratic vector displacement curve. */
 // FUN_003726B0
-/* measured: func_003726b0 object 440B/window 448B normalized_diff 0; this
-   pragma is required (without opt_propagation off, normalized_diff 26). */
-/* measured: baseline nd64; scoped locals, inverted if/else did not match (best nd64); retain opt_propagation off. */
+/* measured: retail does not propagate copies in this function, so copy propagation must stay off. */
 #pragma opt_propagation off
 s32 btlShuffleCalcUnitStepB(ShuffleCalcUnit *unit) {
     u32 value2;
@@ -632,8 +563,7 @@ s32 btlShuffleCalcUnitStepB(ShuffleCalcUnit *unit) {
         (progress * (displacement[2] - direction[2]) - progress * (displacement[2] * progress));
     return 0;
 }
-/* measured: func_003726b0 object 440B/window 448B normalized_diff 0; restore
-   normal propagation before the next function. */
+/* measured: propagation is turned back on once this body is done. */
 #pragma opt_propagation on
 /* Initialize quaternion interpolation, retaining the current output if no start is supplied. */
 // FUN_00372870
@@ -653,7 +583,6 @@ void btlShuffleCalcSetQuat(u8 *state, u16 delay, u16 duration, u8 *start, Shuffl
     *(ShuffleVec4 *)&((BtlShuffleQuaternionTrack *)state)->target = *(ShuffleVec4 *)target;
 }
 
-/* measured: complete C reconstruction matches the retail 0x2D0-byte window. */
 /* Advance quaternion interpolation with the helper-provided angular weights. */
 // FUN_00372960
 s32 btlShuffleCalcUpdateArc(u8 *state) {
@@ -781,7 +710,6 @@ void btlShuffleCalcSetKeyframe(u8 *state, u16 delay, u16 duration, u8 *start, u8
     *(ShuffleVec4 *)&((BtlShuffleQuaternionTrack *)state)->target = *(ShuffleVec4 *)target;
 }
 
-/* measured: complete C reconstruction matches the retail 0x390-byte window. */
 /* Interpolate through the midpoint quaternion, one half of the duration per segment. */
 // FUN_00372D60
 s32 btlShuffleCalcUpdateCurve(u8 *state) {
@@ -968,11 +896,6 @@ void btlShuffleCalcSetFrameRange(u8 *state, s16 duration, s8 start, s8 target) {
     ((BtlShuffleByteTrack *)state)->target = target;
 }
 
-/* measured: func_003733f0 is a live MATCH (object 416B / window 416B /
-   normalized_diff 0). Plain casts reproduce all conversion sites:
-   `(f32)(u16)` for both count values, `(f32)(s32)` for the signed
-   byte-difference, `(f32)(u32)` for the byte base, and `(u8)` for the
-   final float-to-byte narrowing. */
 /* Advance a byte interpolation and report when its frame duration is exhausted. */
 // FUN_003733F0
 s32 btlShuffleCalcGetFrameRange(u8 *state) {
@@ -1014,15 +937,8 @@ void btlShuffleCalcSetFrameFlags(u8 *state, s16 delay, s8 stream, u8 channel) {
     *(s8 *)&((BtlShuffleSoundCue *)state)->channel = channel;
 }
 
-/* Both notes previously here were wrong. The store/mask order and the dispatch
-   shape are each source-drivable, but only TOGETHER: the compound assignment's
-   value fixes sh-before-andi, and the positive-condition guard branching out to
-   a single trailing `return 0` gives retail's shared zero-return block. Wave 14
-   tried the compound assignment alone and regressed to nd 53-57 because it also
-   inlined the zero return, which shifts every branch target after it. Cases are
-   declared ascending so b210 reverses the comparisons to retail's 4,3,2,1,0
-   while laying the bodies out 1,2,3,4. */
-/* Count down a scheduled sound cue, dispatch it once, and clear its channel. */
+/* Using the compound assignment's value plus a single trailing return 0 reproduces retail's store
+ * order and shared zero-return block; cases are declared ascending on purpose. */
 // FUN_00373610
 s32 btlShuffleCalcLoadTable(u8 *state)
 {
@@ -1032,16 +948,13 @@ s32 btlShuffleCalcLoadTable(u8 *state)
     if (track->channel == 0) {
         return 1;
     }
-    /* measured: the compound assignment's VALUE keeps the bumped counter in one
-       register, so the sh lands before the compare mask as retail does; a
-       separate increment-then-store pair hoists the andi above the sh. */
+    /* Using the compound assignment's value stores the counter before it is masked, as retail does. */
     bumped = (track->frame += 1);
-    /* measured: testing the positive condition and letting it branch out to the
-       single trailing `return 0` reproduces retail's slt/bnez to one shared
-       zero-return block; an inline `return 0` here duplicates the block. */
+    /* measured: retail branches the positive test to one shared trailing zero-return block; an
+     * inline return 0 here duplicates it. */
     if (!((s32)(bumped & 0xFFFF) < (s32)track->delay)) {
-        /* Cases declared ascending: b210 emits the comparisons in reverse
-           (4,3,2,1,0) while laying the bodies out in declaration order. */
+        /* Cases are declared ascending; the compiler emits the comparisons in reverse but lays out
+         * bodies in declaration order. */
         switch (track->channel) {
         case 0:
             break;
@@ -1067,8 +980,8 @@ s32 btlShuffleCalcLoadTable(u8 *state)
     return 0;
 }
 
-/* measured: preserving independent switch case bodies matches the retail layout. */
-/* measured: baseline nd566; object/dispatch locals did not match (best nd566); retain opt_propagation off. */
+/* measured: preserving independent switch case bodies matches the retail layout; retail keeps
+ * values unpropagated across the layout branches, so opt_propagation stays off. */
 #pragma opt_propagation off
 /* Place a card in the centered one-row or staggered two-row screen layout. */
 // FUN_00373750
@@ -1199,7 +1112,8 @@ void btlShuffleCalcFillTable(s32 cardIndex, s32 cardCount, f32 *screen) {
 /* Measure the distance from a world-space point to the camera frame position. */
 // FUN_00373C20
 void btlShuffleCalcNormalizeOffset(u8 *point) {
-    /* The camera frame is an EE address word; pointer-typed reads change argument-load scheduling in b210. */
+    /* The camera frame is read as an address word; pointer-typed reads change argument-load
+     * scheduling. */
     ShuffleVec3 cameraPosition;
     ShuffleVec3 difference;
     u8 *cameraMatrix;

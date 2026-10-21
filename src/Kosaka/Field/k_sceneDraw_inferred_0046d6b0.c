@@ -158,29 +158,6 @@ extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 typedef struct FilerEntry {
     char name[256];
     s32 type;
@@ -216,8 +193,6 @@ typedef struct FilerDirent {
     char name[256];
     u32 unknown;
 } FilerDirent;
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 0046d6b0-0046f2b0 */
 
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
@@ -381,14 +356,9 @@ static inline u8 *sdkControllerCreateWindow(u8 *parent,
     second = *secondSource;
     return sdkWindowCreate(parent, &rectangle, &first, &second);
 }
-/* Measured: 1252/1264 native bytes, 20 resolved relocations and twelve
- * zero alignment bytes; 57 neighboring functions and data preserved.
- * See docs/probe_archive/Filer_navigation_00467bd0_20260924.md. */
 #pragma push
-/* measured: share the checked path index and hoist the slash constant. */
 #pragma pop
-/* Measured: 652/656 bytes, eight resolved relocations and four zero tail bytes.
- * Request handles and resource tables are reloaded after their callbacks. */
+/* Request handles and resource tables are reloaded after their callbacks. */
 #pragma push
 #pragma pop
 #pragma push
@@ -407,24 +377,22 @@ void kAssertFailMsg(const char *file, s32 line, const char *msg, ...)
 {
 }
 
-// Intent: assert-fail reporter for a failed K_ASSERT-style guard; takes the source file and line. Empty in this build. [inferred]
+// Assert-fail reporter for a failed K_ASSERT-style guard; takes the source file and line. Empty in
+// this build.
 // FUN_0046D730
 void kAssertFail(void *file, s32 line) {}
 
 // FUN_0046D740
 void kAssertFailAt(const void *msg, const void *file, u32 line) {}
 
-/* Initialize and animate the border and fill vertices, then submit the
- * enabled window. The function owns its nine-entry state switch table.
- * MWCCPS2 b210: 4244 executable bytes, followed by twelve zero bytes. */
+/* Initialize and animate the border and fill vertices, then submit the enabled window. The function
+ * owns its nine-entry state switch table. */
 #pragma push
-/* measured: removing propagation differs by 178 bytes; a shared typed work alias with both toggles removed still differs by 485 bytes. */
+/* measured: retail does not propagate copies in this function. */
 #pragma opt_propagation off
-/* measured: removing lifetime optimization differs by 307 bytes; retain both settings after the work-alias probe. */
+/* measured: retail's register assignment needs lifetime splitting on here. */
 #pragma opt_lifetimes on
 /* Advance window border/fill animation and submit the five quads when enabled. */
-/* measured: typing the remaining alpha, border-progress, and dimension reads individually loses MATCH;
- * retain these byte aliases while all vertex fields stay typed. */
 // FUN_0046D750
 s32 sdkWindowUpdate(u8 *task) {
     WindowWork *windowWork;
@@ -696,13 +664,10 @@ test7k:
 }
 
 #pragma pop
-/* measured: typed task->work changes generated instructions across the free/close callbacks; retain byte-pointer aliasing. */
-/* measured: typing the initial task-work load changes this callback's instructions; its buffer and final
- * task-work read remain typed. */
-/* Keep the table address cached without changing the free callback type. */
+/* Free the window's buffer and then its work block through the free callback. */
 // FUN_0046E7F0
 #pragma push
-/* measured: propagation-on differs by 53 bytes; a MEMBER task-work load still differs by 54 bytes. */
+/* measured: retail keeps the task-work load unpropagated between the two free calls. */
 #pragma opt_propagation off
 void sdkWindowDestroy(u8 *task)
 {
@@ -715,11 +680,9 @@ void sdkWindowDestroy(u8 *task)
 }
 
 #pragma pop
-/* Pointer-valued task name restores retail argument setup.
- * MWCCPS2 b210 -O2: 444 executable bytes / 448-byte retail window.
- * The buffer calculation uses rectangle x/y, not width/height. */
 #pragma push
-/* measured: propagation-on differs by 235 bytes; direct allocator-table calls still differ by 289 bytes. */
+/* measured: retail does not propagate the allocator-table and rectangle values through this
+ * function. */
 #pragma opt_propagation off
 /* Allocate a window task and its capture buffer from the requested rectangle and colors. */
 // FUN_0046E850
@@ -773,9 +736,8 @@ void sdkWindowSetCommand(u8 *task, s32 enabled)
     ((WindowWork *)((KwlnTask *)task)->work)->enabled = enabled;
 }
 
-/* Update border and fill quad positions only while the window is in its stable state. */
-/* measured: copying rectangle integer members instead of the FInput aggregate loses MATCH; this copy
- * preserves the original word bits and floating-point load/store class. */
+/* Update border and fill quad positions only while the window is in its stable state. The rectangle
+ * is copied as a union aggregate to keep the original word bits and float load/store class. */
 // FUN_0046EA60
 void sdkWindowSetRect(u8 *task, u8 *rectangle)
 {
@@ -862,16 +824,8 @@ void sdkWindowSetRect(u8 *task, u8 *rectangle)
     }
 }
 
-/* MATCHED 2026-09-18.  The last 20 words were `addiu $aN, $gp, ...` emitted
-   one slot before the `lw $a1, ...($gp)` that should precede it, at every
-   func_004501f0 and func_00450340 call.  Both take a pointer for the format
-   argument, not an s32: b210 evaluates a cast address ahead of the plain
-   arguments, so `(s32)&iGpffffb0xx` pulled the `addiu` forward.  Declaring
-   the parameter `const void *` and dropping the casts restores retail's
-   order.  Same lever as func_00196040's out-parameters in code1_001c.c. */
-/* Draw the visible rows, formatting values with either supplied callbacks or the debug printer. */
-/* measured: typing the initial X read or the remaining draw-callback loads individually loses MATCH; other
- * row, value, and callback fields are typed. */
+/* Draw the visible rows, formatting values with either supplied callbacks or the debug printer. The
+ * text-argument parameters are const void so address arguments are evaluated in retail's order. */
 // FUN_0046EC70
 void sdkLboxDrawEntries(u8 *task) {
     ControllerWork *controller;
@@ -1014,11 +968,8 @@ void sdkLboxDrawEntries(u8 *task) {
     }
 }
 
-/* Process the debug list window, its live controller input and selection callback.
- * Native rectangle/color construction and scoped loop-invariant extraction
- * reproduce 3928 executable bytes plus the eight-byte retail zero tail. */
 #pragma push
-/* measured: hoisting-off differs by 2267 bytes; explicit color-conversion hoisting still differs by 2283 bytes. */
+/* measured: retail hoists loop-invariant color conversions out of the update loops. */
 #pragma opt_loop_invariants on
 /* Advance list-box creation, drawing, selection, and value editing; dispatch the selected entry callback. */
 // FUN_0046F2B0

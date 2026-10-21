@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00124350-0012b940 */
 
 #include "model_motion_internal.h"
 typedef signed __int128 s128;
@@ -203,7 +202,6 @@ done:
 #pragma optimization_level 2
 /* Process the three-entry title music selector and retain the previous cursor for animation. */
 // FUN_00124830
-/* Earlier whole-layout typing probe: TitleScene access changed codegen (nd 229).; access-site and typed-local forms now match. */
 s32 titleMusicStreamStep(u8 *context)
 {
     u8 listState[0x30];
@@ -246,7 +244,6 @@ s32 titleMusicStreamStep(u8 *context)
 #pragma optimization_level 2
 /* Attach the companion slot model to frame 0x64, then apply color and draw flags. */
 // FUN_00124970
-/* Earlier whole-layout typing probe: model flags at +0xD8 changed codegen (nd 229).; access-site and typed-local forms now match. */
 void taskPrepareSlotModel(s32 modelIndex, u32 packedColor, s32 flags, u32 *context)
 {
     u8 color[4];
@@ -333,11 +330,10 @@ typedef struct {
 #pragma optimization_level 2
 /* Transform, tint and update a title slot model and its companion passes. */
 // FUN_00124BB0
-/* 956/960 bytes; twenty-five resolved relocations and one zero alignment word. */
-/* measured: baseline propagation with initialized/reordered/staged axis snapshots or direct copies leaves at least 15 differing bytes. */
+/* measured: with propagation on, retail's separately staged axis snapshots get folded into direct
+ * copies, which changes the code. */
 #pragma push
 #pragma opt_propagation off
-/* Earlier whole-layout typing probe: TitleScene/model fields changed codegen (nd 307).; access-site and typed-local forms now match. */
 void titleTransformSlotModel(s32 modelIndex,
                    f32 x, f32 y, f32 z, f32 pitch,
                    f32 yaw, f32 roll,
@@ -455,11 +451,8 @@ void titleTransformSlotModel(s32 modelIndex,
 }
 #pragma pop
 
-/* Floor: 844 differing words (was 900), 967 of 964 instrs (+3, +0.3% well inside 3% band, 26 slack to 993 edge; was 993/+29 edge), 932 fnalign edits (was 1077). Surplus was 6 extra clamped float->u8 (cvt.w.s/mfc1 +12, c.ole/sub/bc1t +6, lui +6) from double-converting white via f intermediates + a2; fix is u32 r/g/b for retail's unsigned bltz/srl doubling, a0 as (s32)(f32)*(s32 *) for lwc1/cvt.s.w/cvt.w.s/mfc1, and 5 of 6 f intermediates folded to direct sums (first f0 double retained to center count). Cheap causes ruled out: all literals f-suffixed, 13 jals both with no __ soft-float relocs, no 2.0f in body (mul.s 3/3). Gate 8 inside 0 outside. Body also at docs/probe_archive/Lane0012_00124f70_body.c; production stays ASM. */
-/* measured 2026-09-18: reconstructed from bare marker (retail 0x00124F70, 3856B window, 964 instrs). v1c baseline 921 (Ghidra-direct, [6] frame exact at 0x360; [8] gave 0x370 at 922). v2 908 (-13: D_5530/40 array not scalar + 002aaf20 640/448 not 512/480,512/1216). v3 904 (-4: flag beqz polarity + col order + buffers address-ascending). v4 903 (-1: buffers descending, first-declared highest per micro stacktest2). v5 900 (-3: explicit p5234/5230/524C/5248/5244/5240/523C/5238 locals, first two spill to 0xA0/0xB0). Free pragmas tie/worse: loopinv 922 (+1), nounroll 921 tie, sched 921 tie, propoff 943 (+22), commonsubs 940 (+19). 7o eight skipped: body already in 7o form (bare decls + statement assigns, no Type name = ...; initialisers). Full proof in archive. */
-/* Title palettes contain six complete four-byte RGBA values. Native value
- * assignment through the byte-storage view preserves the copied object.
- * Measured: 3852/3856 bytes, with one zero alignment word. */
+/* Title palettes hold six four-byte RGBA values, copied as whole four-byte values through a union
+ * view of the bytes. */
 
 typedef union { f32 value; u8 bytes[4]; } TitleDrawColor;
 
@@ -499,15 +492,14 @@ static inline void titlePaletteCopy(TitlePalette *destination, const TitlePalett
 static inline u32 titleCopySelect(u8 *destination, const u8 *source, s32 byteOffset)
 {
     *(TitlePalette *)destination = *(const TitlePalette *)source;
-    /* Indexed-word selection changed titleDrawScene (nd 2808); retain the byte offset. */
+    /* Select the palette word by byte offset rather than by word index. */
     return *(u32 *)&((TitlePalette *)destination)->bytes[byteOffset];
 }
 
 #pragma push
 #pragma optimization_level 2
 #pragma always_inline on
-/* Draw the title scene model passes and full-screen palette/brightness layers.
- * Packed palette byte members retain the measured copy/selection codegen (indexed words: nd 2808). */
+/* Draw the title scene model passes and full-screen palette/brightness layers. */
 // FUN_00124F70
 void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 drawMode, u8 *sceneContext)
 {
@@ -641,7 +633,7 @@ void titleDrawScene(s32 titleIndex, s32 brightness, s32 unusedArgument, s32 draw
         u32 rep = (c << 24) | (c << 16) | (c << 8) | 0xFF;
         shdSpriteDrawNow(-1.0f, -1.0f, 0.0f, rep >> 8, 0xFF, 0, 0, (u8 *)(((TitleScene *)sceneContext)->sprites), 0);
     }
-    /* Preserve sequential byte stores while applying RGB brightness. */
+    /* Apply RGB brightness to the color one byte at a time. */
     shadePalette = D_005E5530;
     titlePaletteCopy(&shadeRed, &shadePalette);
     paletteOffset = *paletteSelection * 4;
@@ -803,7 +795,6 @@ static inline void titleRing(f32 x, f32 y, s32 color, f32 scale, f32 angle, u8 *
 #pragma optimization_level 2
 /* Draw title shade bars and counter-rotating rings on a 200-frame cycle. */
 // FUN_00126090
-/* Earlier whole-layout typing probe: TitleScene access changed codegen (nd 663).; access-site and typed-local forms now match. */
 void titleDrawShadeBars(f32 x, f32 y, f32 depth, s32 opacity, u8 *context)
 {
     TitleColor fillColor;
@@ -960,7 +951,6 @@ s32 titleLoaderReap(s32 task)
 #pragma optimization_level 2
 /* Advance the asynchronous file request and keep its resource until destruction. */
 // FUN_0012B890
-/* Earlier whole-layout typing probe: TitleFileWork access changed codegen (nd 116).; access-site and typed-local forms now match. */
 s32 titleFileLoadStep(u8 *unusedTask)
 {
     s32 complete;

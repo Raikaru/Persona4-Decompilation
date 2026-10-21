@@ -1,6 +1,6 @@
 #include "model_motion_internal.h"
 #include "include_asm.h"
-/* Original translation unit effModel.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit effModel.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 #include "effect_instance_internal.h"
@@ -8,8 +8,8 @@
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
 
-/* Same spelling as mdlEffect.c: a 128-bit type makes mwcc emit retail's lq/sq
-   quadword copy, with no inline asm. */
+/* A 128-bit type makes the compiler emit retail's lq/sq quadword copy without inline asm, as in
+ * mdlEffect.c. */
 typedef unsigned int u_long128 __attribute__((mode(TI)));
 
 /* Work extents are proven by the 0x9C/0xBC constructors and model ID accesses. */
@@ -80,7 +80,6 @@ extern char D_007144B8[];
 extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 
 
-
 /* Finds the source model by its IDs, resets its transform and layer zero, and installs the effect reset callback. */
 // FUN_004ABD80
 void *EffModelFindOrCreate(void *effect)
@@ -106,9 +105,8 @@ void EffModelResetCallback(void) {
     TnInvokeCallback();
 }
 
-/* measured: the staged type preserves constant-first lookup arguments with the
-   canonical u32 prototype; both constructors MATCH under baseline propagation. */
-/* Allocates a 0x9C-byte effect and optionally creates its embedded model resource with a free type-six ID. */
+/* Allocates a 0x9C-byte effect and optionally creates its embedded model resource with a free type-
+ * six ID. */
 // FUN_004ABE80
 void *EffModelCreate(void *source) {
     f32 unitWeight;
@@ -186,8 +184,6 @@ void *EffModelClone(void *effect)
 // FUN_004AC170
 void EffModelRebindModel(u8 *dst, u8 *src)
 {
-    /* Earlier whole-layout comparison: 191 differing bytes.
-     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
     void *work;
 
     if (((MdlEffectInstance *)src)->model.pointer == 0) {
@@ -216,7 +212,6 @@ void EffModelResetLayerTime(u8 *effect) {
 }
 
 
-
 /* Advances the effect age while its configured duration permits another update. */
 // FUN_004AC2C0
 void EffModelRollCycle(u32 *effect)
@@ -224,14 +219,11 @@ void EffModelRollCycle(u32 *effect)
     MdlEffectInstance *ageFields3;
     MdlEffectInstance *ageFields4;
 
-    /* Earlier whole-layout comparison: 44 differing bytes.
-     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
   if ((((MdlEffectInstance *)effect)->duration >= ((MdlEffectInstance *)effect)->elapsed.word) || (((MdlEffectInstance *)effect)->duration == 0)) {
     ((MdlEffectInstance *)effect)->layerWeight.scalar = 1.0f;
     (ageFields3 = (MdlEffectInstance *)(effect))->elapsed.word = (ageFields4 = (MdlEffectInstance *)(effect))->elapsed.word + 1;
   }
 }
-
 
 
 extern void EffModelDrawCallback(u8 *drawable);
@@ -253,9 +245,8 @@ extern f32 D_00761134;
 // FUN_004AC300
 void EffModelUpdate(s32 drawList, u8 *effect)
 {
-    /* Earlier whole-layout comparison: 428 differing bytes.
-     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
-    /* VU/MMI packing writes combinedColor via its retail stack slot; retain this order. */
+    /* VU/MMI packing writes combinedColor through its retail stack slot, so the local declaration
+     * order must stay as is. */
     s32 outputColor;
     s32 tintColor;
     s32 sampledColor;
@@ -360,8 +351,6 @@ void EffModelRollAndUpdate(u32 *effect)
     MdlEffectInstance *ageFields3;
     MdlEffectInstance *ageFields4;
 
-    /* Earlier whole-layout comparison: 73 differing bytes.
-     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
     if ((((MdlEffectInstance *)effect)->duration >= ((MdlEffectInstance *)effect)->elapsed.word) || (((MdlEffectInstance *)effect)->duration == 0)) {
         ((MdlEffectInstance *)effect)->layerWeight.scalar = 1.0f;
         (ageFields3 = (MdlEffectInstance *)(effect))->elapsed.word = (ageFields4 = (MdlEffectInstance *)(effect))->elapsed.word + 1;
@@ -395,8 +384,6 @@ void EffModelSetLookupIndex(int effect, int packedColor)
 /* Allocates a 0xBC-byte drawable effect, creates the embedded model and configures its draw callback and frame range. */
 // FUN_004AC640
 void *EffModelCreateDrawable(void *source) {
-    /* Earlier whole-layout comparison: 130 differing bytes.
-     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
     s32 resourceSize;
     s32 modelResource;
     s32 lastFrame;
@@ -486,8 +473,6 @@ void EffModelRebindDrawable(u8 *dst, u8 *src)
     MdlDrawableEffect *sourceForModelId;
     MdlDrawableEffect *sourceForModelSubId;
 
-    /* Earlier whole-layout comparison: 294 differing bytes.
-     * Per-access probes retain named MEMBER accesses only where all typed forms differ. */
     void *work;
 
     if (((MdlDrawableEffect *)src)->model.pointer == 0) {

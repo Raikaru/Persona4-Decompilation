@@ -99,9 +99,6 @@ extern void datSetFlag(s32 flagId, s32 enabled);
 extern u8 *btlActionFindByUnit(s32 unit);
 
 
-
-
-
 extern void (*jtbl_008873EC[])(void *arg0);
 extern void btlCameraLookAtQuat(void *out, const void *first, const void *second, const void *config);
 extern void btlMainCurveReset(u16 *curve, f32 *pose);
@@ -173,13 +170,8 @@ extern f32 fGpffff80e4;
 extern f32 btlTargetQuatAngle(void *right, void *left);
 extern s32 CrossfadeRequest(s16 frameLimit);
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0022; members 00225e50-0022ae00 */
-/* Access-site fields and typed owner locals preserve the whole-file MATCH.
- * Earlier measurements below describe failed broad rewrites, not the final
- * per-access forms. Five MEMBER accesses preserve measured alias-sensitive
- * reloads; their direct, typed-address and typed-local probes are recorded in
- * build/readability_names/FullBattle15.culprits.tsv. All reused layouts already
- * contain these members, so no shared header or object layout changes. */
+/* Inferred translation unit (no __FILE__ evidence); boundaries taken from scheduling gaps, covering
+ * functions 00225e50-0022ae00. */
 
 extern void btlCameraSelectEncounterPreset(u8 *camera);
 extern void btlCameraFrameTarget(u8 *camera, f32 distanceOffset, f32 duration);
@@ -232,19 +224,11 @@ static inline u16 btlUnitRosterIndex(u8 *unit)
 }
 #pragma push
 #pragma pop
-/* 896/896 bytes and all 17 relocations resolve exactly.
- * Keep the opaque byte branch-local, snapshot coordinates before opacity
- * conversion, and pack the color before preparing the overlay dimensions. */
 #pragma push
 #pragma pop
-/* 1036/1040 bytes; 26 code relocations and all nine switch entries exact. */
 #pragma push
 #pragma pop
-/* 1688/1696 bytes; all 36 resolved code relocations exact. */
-/* Measured: 800/800 bytes, 20 resolved relocations, zero differences.
- * Disabling common-subexpression folding preserves the wrapping target walk. */
-/* measured 00225d00 plain-C reconstruction matches the complete 256-byte retail window at normalized_diff 0. */
-// Intent: Tick the camera aim on the actor during the action. [inferred]
+/* Ticks the camera's aim on the actor during the current action. */
 // FUN_00225E50
 void btlCameraTickAimOnActor(u8 *camera)
 {
@@ -259,14 +243,13 @@ void btlCameraTickAimOnActor(u8 *camera)
     }
 }
 
-// Intent: Frame the camera for the action cutscene. [inferred]
+// Frame the camera for the action cutscene.
 // FUN_00225EC0
 void btlCameraFrameActionCutscene(u8 *camera)
 {
     BtlUnit *unitOwner;
     BtlCamera *cameraWork = (BtlCamera *)camera;
-    /* measured: typing all repeated camera/action/unit fields produces
-     * 2072B versus the 2032B window; the corresponding reloads retain byte aliasing. */
+    /* measured: retail reloads repeated camera, action and unit fields instead of caching them. */
     extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
     extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, void *outCenter, f32 *outTop, void *outBottom, u32 options);
     extern f32 RwV3dNormalize(RwV3d *out, const RwV3d *in);
@@ -424,19 +407,16 @@ void btlCameraFrameActionCutscene(u8 *camera)
     btlCameraSetDuration(camera, scale);
 }
 
-// Intent: Frame the camera on the actor and target pair with height and scale. [inferred]
+// Frame the camera on the actor and target pair with height and scale.
 // FUN_002266B0
-/* measured: opt_scalarize off retains the real horizontal vector stores.
- * Staged radius scaling and the scoped two-halfword skill table give
- * 1420/1424 bytes, 21 code relocations and zero normalized differences. */
-/* measured: btlCameraFrameActorTarget MATCH -> MISMATCH without this pragma. */
+/* measured: with scalarization off, retail keeps the real stores of the horizontal vector
+ * components. */
 #pragma opt_scalarize off
 void btlCameraFrameActorTarget(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f32 duration)
 {
     BtlUnit *targetOwner;
     BtlCamera *cameraWork = (BtlCamera *)camera;
-    /* measured: typing all repeated camera/unit fields produces 1456B
-     * versus the 1424B window; retain the owner and dimension reloads. */
+    /* measured: retail reloads the owner and dimension fields instead of caching typed values. */
     RwV3d actorPosition;
     RwV3d targetPosition;
     RwV3d targetSnapshot;
@@ -576,17 +556,13 @@ void btlCameraFrameActorTarget(u8 *camera, f32 heightScale, f32 scale, f32 dista
     btlCameraSetDuration(camera, duration);
 }
 
-// Intent: Tick the camera mode state machine. [inferred]
+// Tick the camera mode state machine.
 // FUN_00226C40
-/* 1516/1520 bytes, 48 resolved code relocations and all
- * seven switch targets match retail; four zero tail-alignment bytes. */
-/* measured: baseline leaves 349 differing words; MEMBER child/count reloads retain the larger frame and ordinal caching. */
+/* measured: retail reloads the child and count fields instead of caching them, keeping the larger
+ * frame; common-subexpression elimination must stay off. */
 #pragma opt_common_subs off
 void btlCameraTickModeState(u8 *camera)
 {
-    /* Earlier typed target-array indexing reversed one addu. The access-site
-     * targets[index] form below now preserves whole-file MATCH alongside the
-     * per-access owner typing used here. */
     RwRGBA color;
     struct CameraPosePair {
         RwV3d first;
@@ -725,17 +701,13 @@ void btlCameraTickModeState(u8 *camera)
     }
 }
 
-/* measured: btlCameraApplyMode, btlCameraTickUnitAnim MATCH -> MISMATCH without this pragma. */
 #pragma opt_common_subs on
-// Intent: Apply the camera mode selected for the current action. [inferred]
+// Apply the camera mode selected for the current action.
 // FUN_00227230
-/* 1336/1344 bytes, 48 resolved code relocations and all
- * seven switch targets match retail; eight zero tail-alignment bytes. */
 void btlCameraApplyMode(u8 *camera)
 {
     BtlCamera *cameraWork = (BtlCamera *)camera;
-    /* measured: typing all repeated owner fields produces 1360B versus
-     * the 1344B window; later camera/action/table reloads retain byte aliasing. */
+    /* Later camera, action and table fields are reloaded rather than cached, as retail does. */
     struct CameraPosePair {
         RwV3d first;
         RtQuat firstRotation;
@@ -833,13 +805,12 @@ void btlCameraApplyMode(u8 *camera)
     }
 }
 
-// Intent: Tick a camera unit animation until it finishes. [inferred]
+// Tick a camera unit animation until it finishes.
 // FUN_00227770
 void btlCameraTickUnitAnim(u8 *camera)
 {
     BtlCamera *cameraWork = (BtlCamera *)camera;
-    /* measured: repeated typed animationUnit loads retain camera+0x12C
-     * across the query call (120B versus the 112B window); keep the final reload. */
+    /* animationUnit is reloaded from the camera after the query call, as retail does. */
     u8 *action;
     u8 *animationUnit;
 
@@ -854,19 +825,13 @@ void btlCameraTickUnitAnim(u8 *camera)
     }
 }
 
-// Intent: Apply the party-member camera pose by ordinal. [inferred]
+// Apply the party-member camera pose by ordinal.
 // FUN_002277E0
-/* measured: opt_common_subs off preserves per-use 16-bit ordinal masks.
- * Independent target/party ordinals and the materialized subordinate predicate
- * give 1620/1632 bytes, 50 code relocations and zero normalized differences.
- * Each pose pair is two contiguous seven-float poses, without padding. */
-/* measured: baseline leaves 372 differing words; MEMBER child/count reloads do not restore the pose-frame and ordinal lifetimes. */
+/* measured: common subexpressions off keeps the 16-bit ordinal mask on each use instead of sharing
+ * one. Each pose pair is two contiguous seven-float poses, without padding. */
 #pragma opt_common_subs off
 void btlCameraApplyPartyPose(u8 *camera)
 {
-    /* Earlier typed target-array indexing reversed one addu. The access-site
-     * targets[index] form below now preserves whole-file MATCH alongside the
-     * per-access owner typing used here. */
     RwRGBA color;
     struct CameraPosePair {
         RwV3d first;
@@ -1011,19 +976,17 @@ void btlCameraApplyPartyPose(u8 *camera)
     }
 }
 
-/* measured: closing opt_common_subs off for btlCameraApplyPartyPose. */
-/* measured: btlActionRunMotionSequence, btlActionRunPresentation, btlCameraApplyEncounterMode, btlCameraApplyTablePose, btlCameraFramePair, btlCameraSetActorPose, btlCameraSetFixedPose, btlCameraSetRandomPartyPose, btlCameraSetRandomSkillPose, btlCameraSetRecordedPose, btlCameraSetSnapshotPose, btlEncounterFinishStep, btlEncounterResetSlots, btlEncounterStartCameraState, btlEncounterStartSequence MATCH -> MISMATCH without this pragma. */
+/* measured: the battle camera, action and encounter functions after this point only compile like
+ * retail with common-subexpression elimination turned back on. */
 #pragma opt_common_subs on
-// Intent: Apply the encounter camera mode for each camera state. [inferred]
+// Apply the encounter camera mode for each camera state.
 // FUN_00227E40
-/* measured: 1168/1168 bytes, 44 code relocations and zero differences.
- * Preserve the switch fallthrough's repeated target-kind tests and the
- * three distinct, contiguous seven-float pose pairs. No extra pragma. */
+/* The switch fallthrough repeats the target-kind tests, and the three pose pairs are distinct
+ * contiguous seven-float poses. */
 void btlCameraApplyEncounterMode(u8 *camera)
 {
     BtlCamera *cameraWork = (BtlCamera *)camera;
-    /* measured: typing all repeated owner fields produces 1192B versus
-     * the 1168B window; later camera/action/table reloads retain byte aliasing. */
+    /* Later camera, action and table fields are reloaded rather than cached, as retail does. */
     struct CameraPosePair {
         RwV3d first;
         RtQuat firstRotation;
@@ -1114,13 +1077,11 @@ void btlCameraApplyEncounterMode(u8 *camera)
     }
 }
 
-// Intent: Set a random skill camera pose from the table. [inferred]
+// Set a random skill camera pose from the table.
 // FUN_002282D0
 void btlCameraSetRandomSkillPose(u8 *camera)
 {
     BtlCamera *cameraWork = (BtlCamera *)camera;
-    /* measured: typing the repeated camera.action field gives nd 261;
-     * retain the final byte-addressed owner reload. */
     typedef struct {
         f32 x;
         f32 y;
@@ -1172,7 +1133,7 @@ void btlCameraSetRandomSkillPose(u8 *camera)
     btlCameraFrameActionPair(camera);
 }
 
-// Intent: Tick the skill pose while the unit is free. [inferred]
+// Tick the skill pose while the unit is free.
 // FUN_00228480
 void btlCameraTickUnitPose(u8 *camera) {
     if (datCalcEnemyHasTableFlag((u8 *)((BtlCamera *)camera)->action->unit->datUnit) == 0) {
@@ -1180,7 +1141,7 @@ void btlCameraTickUnitPose(u8 *camera) {
     }
 }
 
-// Intent: Set the fixed camera pose with a 0.75 s duration. [inferred]
+// Set the fixed camera pose with a 0.75 s duration.
 // FUN_002284D0
 void btlCameraSetFixedPose(u8 *camera)
 {
@@ -1206,7 +1167,7 @@ void btlCameraSetFixedPose(u8 *camera)
     btlCameraSetDuration(camera, 0.75f);
 }
 
-// Intent: Set a random record camera pose. [inferred]
+// Set a random record camera pose.
 // FUN_00228580
 void btlCameraSetRandomRecordPose(void)
 {
@@ -1244,7 +1205,7 @@ void btlCameraSetRandomRecordPose(void)
     btlCameraSetDuration(DAT_0076449c + 0x24, duration);
 }
 
-// Intent: Set a random selected camera pose from the pose table. [inferred]
+// Set a random selected camera pose from the pose table.
 // FUN_002286C0
 void btlCameraSetRandomSelectedPose(void)
 {
@@ -1282,7 +1243,7 @@ void btlCameraSetRandomSelectedPose(void)
     btlCameraSetDuration(DAT_0076449c + 0x24, duration);
 }
 
-// Intent: Apply a camera pose from the fixed table entry. [inferred]
+// Apply a camera pose from the fixed table entry.
 // FUN_00228800
 void btlCameraApplyTablePose(s32 cameraAddress)
 {
@@ -1304,7 +1265,7 @@ void btlCameraApplyTablePose(s32 cameraAddress)
     btlCameraCopyPoseSnapshot((f32 *)((u8 *)cameraAddress + 0x9C), (f32 *)&values.position);
 }
 
-// Intent: Set the recorded camera pose from the pose table. [inferred]
+// Set the recorded camera pose from the pose table.
 // FUN_00228890
 void btlCameraSetRecordedPose(void)
 {
@@ -1346,12 +1307,10 @@ void btlCameraSetRecordedPose(void)
     btlCameraSetDuration(DAT_0076449c + 0x24, duration);
 }
 
-// Intent: Start a random effect camera sequence for the unit. [inferred]
+// Start a random effect camera sequence for the unit.
 // FUN_002289B0
 void btlCameraStartRandomEffect(u8 *camera)
 {
-    /* measured: repeated typed camera.action loads produce 188B versus
-     * the 176B window; retain the final byte-addressed owner reload. */
     u16 characterId;
     u32 variantOffset;
     u32 characterOffset;
@@ -1368,20 +1327,18 @@ void btlCameraStartRandomEffect(u8 *camera)
     btlCameraSetupActionGeometry(MEMBER(u8 *, camera, BtlCamera, action), NULL, NULL, 0.0f, 3);
 }
 
-// Intent: Tick the camera effect list. [inferred]
+// Tick the camera effect list.
 // FUN_00228A60
 void btlCameraTickEffects(void)
 {
     btlCameraUpdateEffectList();
 }
 
-// Intent: Set a random camera pose from a party member. [inferred]
+// Set a random camera pose from a party member.
 // FUN_00228A80
 void btlCameraSetRandomPartyPose(u8 *camera)
 {
     BtlCamera *cameraWork = (BtlCamera *)camera;
-    /* measured: repeated typed camera.action loads produce 652B versus
-     * the 640B window; subsequent owner reloads remain byte-addressed. */
     typedef struct {
         f32 x;
         f32 y;
@@ -1456,7 +1413,7 @@ void btlCameraSetRandomPartyPose(u8 *camera)
     btlCameraSetupActionGeometry((u8 *)cameraWork->action, NULL, NULL, 0, 0x100);
 }
 
-// Intent: Tick the effect list when the unit is active. [inferred]
+// Tick the effect list when the unit is active.
 // FUN_00228D00
 void btlCameraTickEffectsIfActive(u8 *camera) {
     if (btlActionHasNoTargetClass((u32)((BtlCamera *)camera)->action) != 0) {
@@ -1464,13 +1421,11 @@ void btlCameraTickEffectsIfActive(u8 *camera) {
     }
 }
 
-// Intent: Set the camera pose for the actor. [inferred]
+// Set the camera pose for the actor.
 // FUN_00228D50
 void btlCameraSetActorPose(u8 *camera)
 {
     BtlCamera *cameraWork = (BtlCamera *)camera;
-    /* measured: repeated typed camera.action loads give nd 5;
-     * retain the final byte-addressed owner reload. */
     typedef struct {
         f32 x;
         f32 y;
@@ -1537,7 +1492,7 @@ void btlCameraSetActorPose(u8 *camera)
     btlCameraSetupActionGeometry((u8 *)cameraWork->action, NULL, NULL, 0, 0x100);
 }
 
-// Intent: Set the camera pose from the snapshot table or the frame. [inferred]
+// Set the camera pose from the snapshot table or the frame.
 // FUN_00228F60
 void btlCameraSetSnapshotPose(u8 *camera)
 {
@@ -1566,19 +1521,12 @@ void btlCameraSetSnapshotPose(u8 *camera)
     btlCameraCopyPoseSnapshot((f32 *)((u8 *)camera + 0x9C), (f32 *)&values.position);
 }
 
-/* 2444/2448 bytes; all 56 resolved code relocations exact. */
-// Intent: Frame the camera on the actor and target pair with a full pose set. [inferred]
+/* Frame the camera on the actor and target pair with a full pose set. */
 // FUN_00229020
 void btlCameraFramePair(u8 *camera)
 {
     BtlCamera *cameraWork = (BtlCamera *)camera;
-    /* measured: typing all repeated owner fields produces 2452B versus
-     * the 2448B window; later camera/action/table reloads retain byte aliasing. */
-    /* measured: separate switch-default assignments lose the shared allowCut
-     * block (2456B vs 2448B window, nd 1592); retain its common label. */
-    /* Earlier typed target-array indexing reversed one addu. The access-site
-     * targets[index] form below now preserves whole-file MATCH alongside the
-     * per-access owner typing used here. */
+    /* The switch defaults all branch to one shared allowCut label. */
     RwV3d firstCenter;
     RwV3d secondCenter;
     RwV3d lookAt;
@@ -1810,15 +1758,15 @@ allow_cut:
     btlCameraSetDuration(camera, 1.5f);
 }
 
-/* measured: baseline moves the action copy ahead of the initial store (three words); a MEMBER phase store has the same residual. */
-/* measured: btlEncounterStartSequence MATCH -> MISMATCH without this pragma. */
+/* measured: without this pragma the action copy is scheduled ahead of the initial store, unlike
+ * retail. */
 #pragma opt_propagation off
-// Intent: Start the encounter presentation sequence (formation, camera state, packets). [inferred]
+// Start the encounter presentation sequence (formation, camera state, packets).
 // FUN_002299B0
 void btlEncounterStartSequence(u8 *action)
 {
-    /* measured: typing all repeated owner fields produces 668B versus
-     * the 656B window; later battle/action reloads retain byte aliasing. */
+    /* measured: retail reloads the battle and action fields later on instead of reusing earlier
+     * values. */
     u8 *sequenceAction;
     u32 payload[8];
     s32 formation;
@@ -1914,16 +1862,14 @@ void btlEncounterStartSequence(u8 *action)
     btlFormationSetPlacement(formation);
 }
 
-/* measured: close opt_propagation after btlEncounterStartSequence (nd 0). */
-/* measured: btlActionRunPresentation MATCH -> MISMATCH without this pragma. */
+/* measured: btlActionRunPresentation only matches retail with propagation turned back on here. */
 #pragma opt_propagation on
-// Intent: Finish the encounter step; return 1 while the action is still active. [inferred]
+// Finish the encounter step; return 1 while the action is still active.
 // FUN_00229C40
 s32 btlEncounterFinishStep(u8 *action)
 {
     BtlAction *sequenceActionWork = (BtlAction *)action;
-    /* measured: repeated typed action fields produce 356B versus
-     * the 352B window; retain the later flags and unit-pointer accesses. */
+    /* measured: retail reloads the later flags and unit pointers instead of reusing earlier values. */
     u8 *pairedAction;
     u8 *pairedUnit;
     u8 *battle;
@@ -1955,9 +1901,9 @@ s32 btlEncounterFinishStep(u8 *action)
     return 1;
 }
 
-// Intent: Queue formation, motion and status packets for eligible party targets, then restore their positions. [inferred]
+// Queue formation, motion and status packets for eligible party targets, then restore their
+// positions.
 // FUN_00229DA0
-/* 2312/2320 bytes; 75 resolved code relocations and nine switch entries exact. */
 void btlActionRunPresentation(u8 *action)
 {
     BtlAction *returnTargetOwner;
@@ -1965,8 +1911,7 @@ void btlActionRunPresentation(u8 *action)
     BtlPacket *sequencePacketOwner;
     BtlAction *targetOwner;
     BtlAction *sequenceActionWork = (BtlAction *)action;
-    /* measured: typing all repeated action/packet fields produces 2396B
-     * versus the 2320B window; the corresponding reloads retain byte aliasing. */
+    /* measured: retail reloads repeated action and packet fields instead of caching them. */
     s32 formation;
     u8 *packet;
     u8 *initialAnimation;
@@ -2228,7 +2173,7 @@ void btlActionRunPresentation(u8 *action)
     btlFormationSetPlacement((u32)formation);
 }
 
-// Intent: Wait until the target presentation finishes, then clear its flag. [inferred]
+// Wait until the target presentation finishes, then clear its flag.
 // FUN_0022A6B0
 s32 btlEncounterWaitCleared(s64 *actionUid) {
     u8 *battle;
@@ -2243,17 +2188,14 @@ s32 btlEncounterWaitCleared(s64 *actionUid) {
     return 1;
 }
 
-/* The scan records the last affected entry; when none exists, retail tests
-   `last` without a store (an unwritten saved register at 0022a80c). The C
-   keeps that exact test of the uninitialised local. */
-// Intent: Queue staggered recovery motions and formation updates for affected active units. [inferred]
+/* Queues staggered recovery motions and formation updates for affected active units; if no entry is
+ * affected, retail tests the uninitialised `last`, so the C does too. */
 // FUN_0022A730
 void btlActionRunMotionSequence(u8 *action)
 {
     BtlAction *otherOwner;
     BtlUnit *unitOwner;
-    /* measured: typing all repeated owner fields produces 1192B versus
-     * the 1184B window; later action/unit reloads retain byte aliasing. */
+    /* measured: retail reloads the later action and unit fields instead of caching them. */
     extern u8 *btlUnitCreateMotionRequestPacket(u8 *unit, u16 value);
     extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCenter, f32 *outTop, f32 *outBottom, u32 options);
     extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
@@ -2369,7 +2311,7 @@ void btlActionRunMotionSequence(u8 *action)
     }
 }
 
-// Intent: Wait for the presentation to finish, then clear the release flags. [inferred]
+// Wait for the presentation to finish, then clear the release flags.
 // FUN_0022ABD0
 s32 btlEncounterReleaseFlags(s64 *actionUid) {
     u8 *battle;
@@ -2390,7 +2332,7 @@ s32 btlEncounterReleaseFlags(s64 *actionUid) {
     return 1;
 }
 
-// Intent: Start the camera state packet and effect counter for the encounter. [inferred]
+// Start the camera state packet and effect counter for the encounter.
 // FUN_0022ACB0
 void btlEncounterStartCameraState(u8 *action)
 {
@@ -2406,7 +2348,7 @@ void btlEncounterStartCameraState(u8 *action)
     btlPacketEnqueue(messagePacket, 3);
 }
 
-// Intent: Wait for the release events to finish. [inferred]
+// Wait for the release events to finish.
 // FUN_0022AD40
 s32 btlEncounterWaitReleaseEvents(s64 *actionUid) {
     u8 *battle;
@@ -2425,13 +2367,12 @@ s32 btlEncounterWaitReleaseEvents(s64 *actionUid) {
     return 1;
 }
 
-// Intent: Clear boss slot overrides and queue the acting unit's animation, status and formation reset. [inferred]
+// Clear boss slot overrides and queue the acting unit's animation, status and formation reset.
 // FUN_0022AE00
 void btlEncounterResetSlots(u8 *action)
 {
     BtlAction *sequenceActionWork = (BtlAction *)action;
-    /* measured: typing all repeated owner fields gives nd 412;
-     * later battle/action reloads retain their byte-addressed aliasing. */
+    /* measured: retail reloads the battle state and action pointers byte-addressed after each call. */
     union {
         LargeBattleHitResult result;
         u8 data[0x20];

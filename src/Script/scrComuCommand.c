@@ -1,4 +1,3 @@
-/* Source unit: src/Script/scrComuCommand_0024a0b0.c */
 #include "type.h"
 #include "datPersona_internal.h"
 
@@ -6,10 +5,7 @@ u16 cmmCommunityGetTableHead();
 void scrSetReturnInt();
 
 
-
-
-// Returns the community table head id [inferred].
-/* script command 0x3008 (no p4flow name) */
+// Script command 0x3008: returns the community table head id.
 // FUN_0024A0B0
 u32 cmmGetTableHead(void)
 {
@@ -21,8 +17,7 @@ u32 cmmGetTableHead(void)
 }
 
 
-
-// Returns the lead persona id [inferred].
+// Returns the lead persona id.
 // FUN_0025CFD0
 u32 scrGetLeadPersonaId(void)
 {

@@ -41,7 +41,6 @@ extern f32 D_00761438;
 extern u32 datCalcRandomBelow(u32);
 
 
-
 extern void *D_00609CE0[];
 extern void *D_00609D20[];
 extern f32 D_00881400[];
@@ -71,8 +70,6 @@ extern s32 datCalcIsGuarding(u16 *);
 extern u16 cmmCommunityForArcana(s64);
 extern u8 *iGpffffb42c;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001eec60-001eff50 */
-
 extern s32 btlAiGetGlobal(void);
 extern s32 btlAiSetGlobal(void);
 extern void btlTargetInitSpring(u8 *, f32);
@@ -96,8 +93,7 @@ typedef struct RouteNode {
     struct RouteNode *neighbors[32];
     f32 distances[32];
 } RouteNode;
-/* measured: direct arrays, a separate node alias and edge-array locals all lose MATCH.
- * MEMBER retains the original byte-stride loads while naming the two edge arrays. */
+/* Edge arrays are read with a byte-stride index. */
 #define ROUTE_NEIGHBOR(n, i) MEMBER(RouteNode *, (u8 *)(n) + (i) * 4, RouteNode, neighbors)
 #define ROUTE_DISTANCE(n, i) MEMBER(f32, (u8 *)(n) + (i) * 4, RouteNode, distances)
 /* Test whether a route node is already linked into the open search list. */
@@ -124,32 +120,19 @@ static inline s32 btlTargetRouteInClosedList(RouteNode *scan, RouteNode *node)
 }
 #pragma push
 #pragma pop
-/* measured probe: preserve the retail filter branch chain */
-#pragma push
-/* measured probe: close the filter branch chain */
-#pragma pop
-/* measured probe: preserve retail conditional branch shape */
-#pragma push
-/* measured probe: close conditional branch shape */
-#pragma pop
-/* measured: optimization_level 1 probe for retail GP-load scheduling. */
-/* measured: close optimization_level 1 probe for btlAiGetGlobal. */
-/* measured: opt_propagation off probe for e320 GP-load order. */
-/* measured: closes opt_propagation probe for btlAiSetGlobal. */
-/* 1468/1472 bytes; all four call relocations resolve exactly. */
-/* measured: third 001ec5e0 probe tests opt_propagation off for FPU-zero placement. */
-/* measured: closes opt_propagation probe for btlTargetInitSpring. */
+/* measured: preserves the retail filter branch chain. */
 #pragma push
 #pragma pop
-/* The first pass through the route loop reads `cur`, `last` and `seg[1]`
-   before anything has written them (001ee71c/001ee730); retail uses the
-   stack slots as they are. The C keeps those reads of the uninitialised
-   locals. opt_loop_invariants hoists &pts[n] (retail $s5) and pts[0].z
-   (retail $f20) out of the subdivision loop. */
+/* measured: preserves the retail conditional branch shape. */
 #pragma push
 #pragma pop
-/* measured: object 172B vs window 176B, normalized_diff 2; the remaining
-   residual is the best-node register assignment. Committed at nd 2. */
+/* measured: optimization_level 1 and opt_propagation off reproduce retail's GP-load order. */
+#pragma push
+#pragma pop
+/* The first route-loop pass reads cur, last and seg[1] uninitialised as retail does; invariant
+ * hoisting lifts &pts[n] and pts[0].z out of the loop. */
+#pragma push
+#pragma pop
 // FUN_001EEC60
 /* Remove the lowest-score node from the open list and return it. */
 u8 *btlRouteExtractBestOpenNode(void) {
@@ -319,15 +302,14 @@ s32 btlRouteFindPath(u8 *route, f32 *start, f32 *end, f32 radius)
     return found;
 }
 
+/* Fill route with points along an arc around centerXZ from startXZ to endXZ, blending the look-at
+ * rotation and the distance from the center at each step. */
 // FUN_001EF110
-/* 904/912 bytes; all eighteen relocations resolve exactly.
-   Stage both endpoint loads before either store to preserve overlap. */
-/* Generate eight XZ samples by interpolating endpoint rotations and distances about a center. */
+/* Generates eight XZ samples by interpolating endpoint rotations and distances about a center; both
+ * endpoint loads happen before either store so overlapping buffers work. */
 s32 btlRouteBuildArc(u8 *route, const f32 *startXZ,
                   const f32 *endXZ, const f32 *centerXZ)
 {
-    /* Measured site, typed-local and stride forms changed retail code generation;
-     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     BtlTargetRotationInterpolation interpolation;
     BtlCameraQuaternion rotation;
     BtlCameraQuaternion startRotation;
@@ -451,8 +433,6 @@ s32 btlUnitSlotValueOrOne(s32 unitId)
 
 /* Average levels on the genus-mask sides after excluding statuses; the 16-bit sum wraps and empty results become one. */
 // FUN_001EF4D0
-/* measured: preserve retail count-result branch shape while probing ef4d0. */
-/* Average eligible side levels with 16-bit accumulation; empty and zero results become one. */
 s32 btlSideAverageLevel(s32 sideMask, s32 excludedStatus)
 {
     u8 *current;
@@ -491,9 +471,9 @@ s32 btlSideAverageLevel(s32 sideMask, s32 excludedStatus)
     return value;
 }
 
-/* measured: close ef4d0 branch-shape probe. */
+/* Return the average battle stat of the active units on the sides in sideMask, skipping units that
+ * have excludedStatus. Returns at least 1. */
 // FUN_001EF5F0
-/* measured: preserve retail count-result branch shape while probing ef5f0. */
 /* Average an eligible side stat with 16-bit accumulation; empty and zero results become one. */
 s32 btlSideAverageBattleStat(s32 sideMask, s32 stat, s32 excludedStatus)
 {
@@ -533,7 +513,7 @@ s32 btlSideAverageBattleStat(s32 sideMask, s32 stat, s32 excludedStatus)
     return value;
 }
 
-/* measured: close ef5f0 branch-shape probe. */
+/* Count the active, targetable units on the sides in sideMask that do not have excludedStatus. */
 // FUN_001EF720
 /* Count active targetable actions on the selected sides that lack the supplied status mask. */
 s32 btlSideCountNotBad(s32 sideMask, s32 excludedStatus)
@@ -562,7 +542,7 @@ s32 btlSideCountNotBad(s32 sideMask, s32 excludedStatus)
     return count;
 }
 
-/* measured: object 224B / window 224B / normalized_diff 0; direct pointer/index locals reproduce retail order. */
+/* Direct pointer and index locals reproduce retail evaluation order. */
 // FUN_001EF7E0
 /* Honor encounter overrides, otherwise roll the turn-indexed chance after an enemy defeat. */
 s32 btlEncountRollChance(void)
@@ -632,13 +612,12 @@ s32 btlCurrentUnitId(void) {
     return ((BtlSoundEncounterRecord *)((u8 *)(((BtlBattleState *)iGpffffb3ac)->encounterRecord) ))->trackRule;
 }
 
+/* Choose an ailing party ally for the actor to help, based on the actor's community rank, and store
+ * it in the action's assistance slot. Return nonzero if a target was chosen. */
 // FUN_001EF9C0
-/* 904/912 bytes; all fifteen relocations resolve exactly. */
 /* Select a community-enabled status-assistance target, preferring the selected action. */
 s32 btlActionPickStatusTarget(u8 *action)
 {
-    /* Measured site, typed-local and stride forms changed retail code generation;
-     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 rank;
     u8 *status1Targets[4];
     u8 *status100000Targets[4];
@@ -744,12 +723,12 @@ check:
     return 0;
 }
 
+/* Pick a random eligible party ally for an enemy action, relaxing the status and community checks
+ * when the skill has the override flag. Return NULL if there are no candidates. */
 // FUN_001EFD50
 /* Choose an eligible party action, with skill flag 0x80 bypassing the usual community/status filters. */
 u8 *btlActionPickRandomCandidate(u8 *action)
 {
-    /* Measured site, typed-local and stride forms changed retail code generation;
-     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s16 skill;
     u8 *candidate;
     s32 count;
@@ -802,12 +781,13 @@ u8 *btlActionPickRandomCandidate(u8 *action)
     return (u8 *)candidates[datCalcRandomBelow(count)];
 }
 
+/* Choose a random eligible party member to follow up on the given action, based on community rank
+ * and a chance roll, and return its action (or 0 if none qualifies or the cooldown script value is
+ * still running). */
 // FUN_001EFF50
 /* Choose an eligible community counter target after cooldown and per-unit probability checks. */
 s32 btlActionPickCounterTarget(u8 *action)
 {
-    /* Measured site, typed-local and stride forms changed retail code generation;
-     * MEMBER names the proven field while preserving byte-pointer aliasing. */
     s32 bonus;
     s32 roll;
     u8 *candidate;

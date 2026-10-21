@@ -199,37 +199,30 @@ typedef struct {
     f32 x, y, z;
 } FldAreaNormal;
 
- 
 
-/* measured probe: O1 test for target byte-copy register allocation. */
+/* measured: O1 gives retail's register allocation for the byte copy. */
 #pragma optimization_level 1
-/* measured probe: restore optimization level after target O1 test. */
 #pragma optimization_level 2
-/* measured: VU0 MMI builtins and O1 reproduce the target's pcpyld/sq packet. */
+/* measured: VU0 MMI builtins reproduce retail's pcpyld/sq packet build. */
 #pragma enable_vu0_registers on
-/* measured: bind MMI packet registers as in retail. */
+/* measured: retail binds the MMI packet registers. */
 #pragma vu0_mmi_reg_binding on
-/* measured: O1 preserves the target's packet construction order. */
+/* measured: O1 keeps retail's packet construction order. */
 #pragma optimization_level 1
-/* measured: restore the file's O2 baseline after the target. */
 #pragma optimization_level 2
-/* measured: stop binding MMI packet registers after the target. */
 #pragma vu0_mmi_reg_binding off
-/* measured: stop VU0 register mode after the target. */
+/* measured: restores the unit setting after the MMI packet function. */
 #pragma enable_vu0_registers off
 
 #pragma enable_vu0_registers on
 #pragma vu0_mmi_reg_binding on
 #pragma optimization_level 1
-/* measured: closes the cluster pcpyld pragma scope and restores the file's -O2
-   baseline. */
 #pragma optimization_level 2
 #pragma vu0_mmi_reg_binding off
 #pragma enable_vu0_registers off
 
 /* Unit setting: propagation off; reapply it after the preserved optimization-level resets. */
 #pragma opt_propagation off
-
 
 
 /* Sky2's complete 0x40-byte vertex record, with its native quadword
@@ -256,13 +249,8 @@ typedef struct {
 } GridDrawWork;
 
 
-/* measured: the inner mode/index selection assigns a scratch `p` and `base = p`
-   follows the if/else: that copy keeps the join block alive so the two inner
-   exits branch to it (retail's b -> b trampoline) instead of folding to the
-   work setup. `slot` is a named local recomputed per store so the addu keeps
-   index-first operand order and retail's repeated load. */
-/* Test whether both field readiness state words are nonzero. */
-/* measured: expanding either call changes FldNpcControlUpdate allocation and branches (6344 executable bytes versus the matched body). */
+/* measured: tests whether both field readiness state words are nonzero; kept as an inline wrapper
+ * because expanding the call changes FldNpcControlUpdate's register allocation and branches. */
 static inline s32 fldBothReady(void)
 {
     extern int D_007EF9F8[];
@@ -271,15 +259,13 @@ static inline s32 fldBothReady(void)
     return D_007EF9F8[0] != 0 && D_007EFA04[0] != 0;
 }
 
-/* measured 2026-10-12: fnalign 277 -> 0. Per-phase object/work snapshots and
- * vector lifetimes preserve retail's frame and register allocation. CSE shares
- * constants; disabling constant pullout avoids cross-phase hoists. */
+/* Per-phase object/work snapshots and vector lifetimes preserve retail's frame; disabling constant
+ * pullout avoids cross-phase hoists. */
 #pragma push
-/* measured: baseline removal gives nd4536; lifetimes remains required after common-subexpression toggle removal. */
+/* measured: lifetimes keeps retail's frame and register allocation. */
 #pragma opt_lifetimes on
-/* measured: restoring constant pullout changes nd4341 back to MATCH; whole-baseline removal was nd4536. */
+/* measured: retail does not hoist constants across phases. */
 #pragma opt_pulloutconstants off
-/* measured: baseline propagation leaves nd13 in look-state argument setup; inline flag expression is unchanged. */
 extern float D_00756520[];
 extern float D_00756524[];
 extern float D_00756528[];
@@ -1048,18 +1034,15 @@ s32 FldNpcControlUpdate(u8 *task)
 #pragma pop
 
 #pragma optimization_level 2
-/* measured: optimization_level 1 preserves the retail FPU accumulator order. */
+/* measured: retail's FPU accumulator order needs optimization level 1. */
 #pragma optimization_level 1
-/* measured: close optimization_level 1 FPU accumulator probe. */
 #pragma optimization_level 2
-/* measured: the level reset restores propagation; retaining the unit setting avoids nd8. */
+/* measured: the level reset turns propagation back on, so the unit setting is reapplied. */
 #pragma opt_propagation off
-/* measured: opt_propagation off probe preserves retail's handle-load/result
-   initialization order for the state predicate. */
-// Kept in bucket: diff 8 when moved; cause not diagnosed (pragma replay checked, no explanation found).
+/* measured: propagation off keeps retail's order of loading the handle and initializing the result
+ * for the state check. */
 // FUN_0018BEA0
 /* Return whether the actor is turning toward or away from its stored heading. */
-/* measured: baseline original nd8; typed work and earlier state snapshot nd9; retain propagation off. */
 s32 fldNpcControlIsTurning(u8 *task)
 {
     u8 *work;
@@ -1069,8 +1052,7 @@ s32 fldNpcControlIsTurning(u8 *task)
     work = ((KwlnTask *)task)->work;
     result = 0;
     state = ((FldNpcControlWork *)work)->state;
-    /* A structured || test differed by 22 normalized bytes; keep the shared
-     * success/return labels that match the retail branch chain. */
+    /* Shared success/return labels follow retail's branch chain; a structured || test does not. */
     if (state == 5) {
         goto ready;
     }
@@ -1088,39 +1070,12 @@ typedef struct MaterialTextureContext {
     RwTexture *texture;
 } MaterialTextureContext;
 
-/* At the -O2 file baseline this function is normalized_diff 2: retail reads
-   `mfc1 $a1` and `or $a1,$a1,$v1` where -O2 colours both one register lower.
-   The bracket is closed back to the -O2 baseline immediately below the body.
-   measured: optimization_level 1 for this function alone, plus materialising
-   the 2147483648.0f constant into a named local AFTER the func_003ef650 call
-   rather than inline, gives object 136B/window 144B, normalized_diff 0. */
+/* measured: retail's register choice around the float-to-int conversion is only reproduced at O1,
+ * with the 2147483648.0f constant loaded into a local after the call. */
 #pragma optimization_level 1
-/* measured: restore optimization level after FldMipmapSetFixedParam. */
 #pragma optimization_level 2
-/* measured: reapply the unit setting after the level reset (support/map residuals nd7/142). */
+/* measured: the level reset turns propagation back on, so the unit setting is reapplied. */
 #pragma opt_propagation off
-/* MATCHED from a 40-word reconstruction.  Two source shapes carried it.
-   The dungeon chain's dead final arm is `else if (dungeon < 0xA0) { res = 0; }`,
-   not an empty arm: b210 drops the redundant store (res is already 0 on that
-   path) but keeps the `slti $at, $s3, 0xa0` exactly as retail does, while a
-   genuinely empty arm is removed compare and all, which cost three
-   instructions and shifted every later branch displacement (40 words).  The
-   first arm's range test is spelled `dungeon <= 5`, not `dungeon < 6`: both
-   lower to `slti ..., $s3, 6`, but only the `<=` form puts the result in
-   $at, which is what retail's branch-if-true uses; `< 6`, `6 > dungeon`,
-   `!(dungeon >= 6)` and `(dungeon < 6) != 0` all pick $v0.  The declaration
-   of calGetDayEntryByPhase above is also load-bearing - its first argument is a
-   32-bit id and its second an unsigned flag word, not the s64/s32 pair m2c
-   printed, and the s64 form costs a dsll32/dsra32 pair at every call site in
-   this unit. */
-/* MATCHED: the dispatch reads the pair at iGpffff9db0 with only the first
-   word cached - retail reloads *(s32 *)(ctx + 4) at every test, so the
-   long (major, minor) chains are written out rather than staged in a
-   local.  The story flag is `s8`, which re-extends on each read the way
-   retail does, and the sub-state is `u8`, whose reads carry the andi. */
-/* MATCH: stage the s32 byte count without a conflicting callee prototype.
-   Unsigned elapsed subtraction preserves retail timer wrap. 332B/336B,
-   normalized_diff 0; only four zero-tail bytes are absent. */
 
 /* The supporter constructor allocates 0x14 bytes; its last word owns the script task. */
 typedef struct FldSupporterWork {
@@ -1133,10 +1088,8 @@ typedef struct FldSupporterWork {
 // Kept in bucket: diff 7 when moved; cause not diagnosed.
 /* Run the support procedure after its delay, then wait for that script to finish. */
 // FUN_0018DDE0
-/* Historical all-access-site typing produced 360B in the 336B window (normalized_diff 240).
- * The separate support pointer keeps the three remaining stores matched;
- * timerBits preserves the unsigned timer store and elapsed subtraction wraps. */
-/* measured: baseline removal leaves nd7 in script argument load order; retain propagation off. */
+/* A separate support pointer is used for the remaining stores; timerBits keeps the timer store
+ * unsigned so the elapsed subtraction wraps. */
 s32 FldSupporterUpdate(u8 *task)
 {
     u8 *work;
@@ -1215,17 +1168,11 @@ typedef struct FldMapShape {
     FldMapShapeAttribute attributes[3][3];
 } FldMapShape;
 
-/* k_maptest.c: dungeon map generation test. The input image contains the
-   button halfword; the map uses 16-byte cells and RGBA colors. Keep the
-   row byte offset alive across its sixteen columns. */
-// measured: probe propagation-off code shape with typed 16-bit operands
-// Kept in bucket: diff 142 when moved; cause not diagnosed.
+/* k_maptest.c: dungeon map generation test. The input image holds the button halfword; the map uses
+ * 16-byte cells and RGBA colors. */
 // FUN_0018F7B0
-/* Fill the unoccupied cells of a rotated map-test shape at (x, y).
- * Cell rows are 0x100 bytes; pattern flags and attributes have distinct strides.
- * measured: cell-pointer and cell-array stores differ; MapTestGrid member stores
- * preserve the original 240-byte function. The separate shape local keeps header loads matched. */
-/* measured: baseline removal leaves nd142 in row/cell address materialization; retain propagation off. */
+/* Fill the unoccupied cells of a rotated map-test shape at (x, y). Cell rows are 0x100 bytes;
+ * pattern flags and attributes use different strides. */
 void FldMapTestCellsFill(u8 *grid, s16 *shapeData, u16 x, u16 y, s16 rotation)
 {
     s32 rowIndex;

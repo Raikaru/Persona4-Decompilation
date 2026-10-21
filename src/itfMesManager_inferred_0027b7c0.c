@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/itfMesManager.c); members 0027b7c0-0027be00 */
 
 #include "include_asm.h"
 #include "type.h"
@@ -125,8 +124,8 @@ s32 itfMesWindowSendRelease(s32 handle)
     }
     return 1;
 }
-// Intent: Sends window op 8, which places the window's body and text lists for list node handle [inferred]
-/* Invoke the kind-specific procedure; a missing handler completes immediately. */
+// Sends window op 8, which lays out the window's body and text lists; a missing handler completes
+// immediately.
 // FUN_0027BB00
 s32 itfMesWindowSendLayoutLists(s32 handle)
 {

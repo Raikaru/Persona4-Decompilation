@@ -1,4 +1,3 @@
-/* Source unit: src/Kernel/h_malloc_00143ba0.c (1 function markers) */
 #include "include_asm.h"
 #include "type.h"
 
@@ -26,7 +25,8 @@ extern void gsPackTrxReg(u32* out, u32 x, u32 y);
 extern void gsPackTrxDir(u32* out, u32 value);
 
 
-// Intent: Upload a raster's texture tiles: read the TEX0 base from the raster, build the upload packet for the tile range and flush it [inferred]
+// Upload a raster's texture tiles: read the TEX0 base from the raster, build the upload packet for
+// the tile range and flush it.
 // FUN_00143BA0
 void gsUploadRasterTiles(RwRaster *source, u32 owner, s32 tileIndex, s32 tileCount)
 {
@@ -56,8 +56,7 @@ void gsUploadRasterTiles(RwRaster *source, u32 owner, s32 tileIndex, s32 tileCou
 }
 
 
-
-// Intent: Build a texture upload packet with a fixed 0x400 stride [inferred]
+// Build a texture upload packet with a fixed 0x400 stride.
 // FUN_00143C90
 void gsBuildTextureUploadFixedStride(u32 texture, void* packet, u32 source, s32 destinationX, s32 destinationY,
                    s32 width, s32 height, s32 sourceColumn, s32 sourceRow, s32 skipRows)
@@ -67,13 +66,9 @@ void gsBuildTextureUploadFixedStride(u32 texture, void* packet, u32 source, s32 
 }
 
 
-
-/* measured: ordinary stride locals, saved-Y lifetime and separate source
-   additions reproduce all 672 executable bytes and 11 relocations.
-   The numeric source address is u32 so address-boundary wrapping stays
-   defined. Packed u64 helper values are real DMA/GIF fields, not padding.
-   DMA tag slots intentionally leave their upper eight bytes untouched. */
-// Intent: Build a texture upload packet: DMA and GIF tags, BITBLTBUF, TRXPOS, TRXREG and TRXDIR for each column [inferred]
+/* Builds a texture upload packet with DMA and GIF tags, BITBLTBUF, TRXPOS, TRXREG and TRXDIR for
+ * each column. The source address is u32 so wrapping stays defined, and DMA tag slots leave their
+ * upper eight bytes untouched. */
 // FUN_00143CF0
 void gsBuildTextureUploadPacket(u32 texture, u8* packetOut, u32 sourceBase, s32 sourceStride, s32 destinationX, s32 destinationY, s32 textureWidth, s32 textureHeight, s32 sourceColumn, s32 sourceRow, s32 skipRows)
 {
@@ -116,7 +111,7 @@ void gsBuildTextureUploadPacket(u32 texture, u8* packetOut, u32 sourceBase, s32 
     }
     gsPackDmaTag((u64*)packet, 0, 0, 0, 7, 0, 0);
 }
-// Intent: Store a 64-bit DMA tag word: id, quadword count and address [inferred]
+// Store a 64-bit DMA tag word: id, quadword count and address.
 // FUN_00143F90
 void gsPackDmaTag(u64* out, u32 scratchpad, s32 address, u32 interrupt, u32 tagId, u32 priority,
                    u32 quadwordCount)
@@ -133,8 +128,7 @@ void gsPackDmaTag(u64* out, u32 scratchpad, s32 address, u32 interrupt, u32 tagI
 }
 
 
-
-// Intent: Store a GIF tag (NLOOP, EOP, FLG, NREG) and its address [inferred]
+// Store a GIF tag (NLOOP, EOP, FLG, NREG) and its address.
 // FUN_00144000
 void gsPackGifTag(u32* out, u64 address, s32 registerCount, s32 format, s32 primitive, s32 primitiveEnable,
                    s32 endOfPacket, u32 loopCount)
@@ -147,8 +141,7 @@ void gsPackGifTag(u32* out, u64 address, s32 registerCount, s32 format, s32 prim
 }
 
 
-
-// Intent: Store a BITBLTBUF register pair (0x50): destination base, width and pixel format [inferred]
+// Store a BITBLTBUF register pair (0x50): destination base, width and pixel format.
 // FUN_00144060
 void gsPackBitbltBuf(u32* output, u32 image, u32 width, u32 height)
 {
@@ -163,8 +156,7 @@ void gsPackBitbltBuf(u32* output, u32 image, u32 width, u32 height)
 }
 
 
-
-// Intent: Store a TRXPOS register pair (0x51): destination X and Y and the transfer direction [inferred]
+// Store a TRXPOS register pair (0x51): destination X and Y and the transfer direction.
 // FUN_001440D0
 void gsPackTrxPos(u32* output, u32 flag, u32 image, u32 height)
 {
@@ -179,8 +171,7 @@ void gsPackTrxPos(u32* output, u32 flag, u32 image, u32 height)
 }
 
 
-
-// Intent: Store a TRXREG register pair (0x52): transfer width and height [inferred]
+// Store a TRXREG register pair (0x52): transfer width and height.
 // FUN_00144140
 void gsPackTrxReg(u32* out, u32 x, u32 y)
 {
@@ -193,8 +184,7 @@ void gsPackTrxReg(u32* out, u32 x, u32 y)
 }
 
 
-
-// Intent: Store a TRXDIR register pair (0x53): transfer direction [inferred]
+// Store a TRXDIR register pair (0x53): transfer direction.
 // FUN_001441A0
 void gsPackTrxDir(u32* out, u32 value)
 {

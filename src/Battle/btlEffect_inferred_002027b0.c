@@ -19,19 +19,12 @@ typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
 
-
-
-
-
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
 
 extern u8 *D_0076449C;
 extern s32 iGpffffb448;
 extern s32 D_0062656C[];
-
-
-
 
 
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -78,22 +71,13 @@ extern u8 D_00795080[];
 
 extern u8 D_006253B0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 002027b0-002027b0 */
-
-/* measured: caching D_00887300 in s0 reproduces retail's one-time
-   lui/addiu vtable materialization across these callback calls. */
-/* measured: close the vtable propagation probe and restore default state. */
-/* Keep the opacity base ahead of byte promotion, matching retail order. */
+/* measured: retail loads the vtable address once across these callback calls and computes the
+ * opacity base before byte promotion. */
 #pragma push
 #pragma pop
-/* Measured: 676/688 bytes, seven resolved relocations and twelve zero alignment bytes.
- * Snapshot inputs before providers; reload the skill fields and final output
- * metadata at their retail callback boundaries. */
 #pragma push
 #pragma pop
-/* measured: opt_rebuildconditionals off tested for callback completion. */
-/* measured: restore conditional rebuilding after callback completion. */
-// Intent: start the UI sequence for the battle UI task. [inferred]
+/* Starts the UI sequence for the battle UI task. */
 // FUN_002027B0
 s32 btlUiBeginSequence(void) {
     btlEncounterEntryClearRetracted(((BtlBattleState *)D_0076449C)->uiTask);

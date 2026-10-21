@@ -19,10 +19,6 @@ typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
 
-
-
-
-
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
 
@@ -32,7 +28,6 @@ extern s32 D_0062656C[];
 extern void btlPanelStartEntry(s32 task, s32 text);
 extern void btlPanelStartValues(s32 task, s32 unit, s32 window, s32 record);
 extern void btlPanelMarkEntryStarted(s32 task);
-
 
 
 extern s32 btlPacketStepEffectCounter(u8 *work);
@@ -81,22 +76,13 @@ extern u8 D_00795080[];
 
 extern u8 D_006253B0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00202340-00202340 */
-
-/* measured: caching D_00887300 in s0 reproduces retail's one-time
-   lui/addiu vtable materialization across these callback calls. */
-/* measured: close the vtable propagation probe and restore default state. */
-/* Keep the opacity base ahead of byte promotion, matching retail order. */
+/* measured: retail loads the D_00887300 vtable address once and keeps it in a saved register across
+ * these callback calls. */
 #pragma push
 #pragma pop
-/* Measured: 676/688 bytes, seven resolved relocations and twelve zero alignment bytes.
- * Snapshot inputs before providers; reload the skill fields and final output
- * metadata at their retail callback boundaries. */
 #pragma push
 #pragma pop
-/* measured: opt_rebuildconditionals off tested for callback completion. */
-/* measured: restore conditional rebuilding after callback completion. */
-// Intent: packet callback; steps an effect counter and redraws the effect entry. [inferred]
+/* Packet callback that steps an effect counter and redraws the effect entry. */
 // FUN_00202340
 s32 btlPacketStepEffectCounter(u8 *work)
 {

@@ -16,8 +16,7 @@ extern f32 D_00882238[];
 extern f32 D_0088223C[];
 extern f32 D_00882240[];
 extern f32 D_00882244[];
-/* measured: retail window 128 bytes; derived from complete retail disassembly. */
-/* measured: O1 probe preserves the retail comparison constants. */
+/* measured: O1 keeps the retail comparison constants in the slot-table check. */
 #pragma optimization_level 1
 // Returns 1 when the light-slot table is idle: every entry except slot 0 and slots 4-6 is zero.
 // FUN_00285330
@@ -41,7 +40,6 @@ s32 evtSlotTableIdle(void) {
     }
     return 1;
 }
-/* measured: restore the translation unit optimization level after evtSlotTableIdle. */
 #pragma optimization_level 2
 // Returns the command parameter as f32, biased by +2.0.
 // FUN_0028BF90
@@ -49,9 +47,10 @@ f32 evtCommandParamF32(s32 param) {
     return (f32)param + 2.0f;
 }
 
-/* measured: required for exact retail loop codegen in sceneLightSlotsReset. */
+/* measured: loop invariant hoisting reproduces the retail loop in sceneLightSlotsReset. */
 #pragma push
-/* measured: baseline 22 differing words; pointer loop 31, constant at store 22. */
+/* measured: retail hoists the default colour constants out of the slot reset loop, which needs
+ * loop-invariant hoisting on. */
 #pragma opt_loop_invariants on
 
 // Resets the first three light slots to default colours, mode 0, and no resource.
@@ -90,7 +89,6 @@ void sceneLightSlotsReset(void)
         entry->resource = NULL;
     }
 }
-/* measured: restore pragma state after sceneLightSlotsReset. */
 #pragma pop
 // Writes slot `slot` (0-2) of the light slot table: position, colour, and mode value.
 // FUN_0028CED0
@@ -99,8 +97,8 @@ void sceneLightSlotSet(s32 slot, s32 mode, s32 modeValue, f32 *secondColor,
     s32 slotOffset;
 
     if (slot < 3) {
-        /* Recover the containing slot from each interior alias; rebasing all writes
-         * to D_00882210 shortened retail's 336-byte window to 160 bytes (MISMATCH). */
+        /* Each write recovers the containing slot from its interior alias symbol, as retail
+         * addresses each field through a separate symbol. */
         slotOffset = slot << 6;
         ((SceneLightSlot *)((u8 *)D_00882218 + slotOffset - 0x8))->secondColor.x = secondColor[0];
         ((SceneLightSlot *)((u8 *)D_0088221C + slotOffset - 0xC))->secondColor.y = secondColor[1];

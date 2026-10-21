@@ -25,8 +25,6 @@ extern u8 *iGpffffb3cc; /* enemy visual records, stride 0xE8 */
 extern f32 D_005F6D20[];
 
 
-
-
 void btlActionFinishPresentation(BtlAction *action);
 BtlPacket *btlFormationCreateSlotPacket(u16 groupMask, u16 flags);
 s64 btlPacketEnqueue(u8 *context, u32 value);
@@ -49,20 +47,16 @@ s32 btlEffectFindUnitMatchingCallback(u8 *action, s32 conditionValue, s32 sideMa
 
 extern f32 D_0076144C;
 
-/* Source unit: src/promoted/code1_001a.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001a.c; members 001a0140-001a05f0 */
-
-/* Returns 1 when a target row of the action's target list carries a flag: kind 0
-   scans row +0xF8 for BTL_STATUS_DOWN (0x100000); kind 1 scans row +0x10E for 0x4
-   (the 0x4 setter is not identified; the damage calc writes 0x8/0x20/0x40 there). */
-/* measured: loop-invariant probe for 001A0140 preheader materialization. */
-/* measured: func_001a0140 MATCH -> MISMATCH without this pragma. */
+/* Returns 1 when a target in the action's target list carries a flag: kind 0 checks
+ * BTL_STATUS_DOWN, kind 1 checks hit flag 0x4 (setter unidentified). measured: retail hoists loop-
+ * invariant loads into the target-scan loop preheader; this function needs loop-invariant
+ * optimization on. */
 // FUN_001A0140
 #pragma opt_loop_invariants on
 s32 btlActionAnyTargetDownOrHitFlagged(u8 *action)
 {
-    /* measured: typed target-array indexing reverses two addu operands;
-     * the +0x38 array loads keep the retail base-first address shape. */
+    /* measured: retail adds the target-array base before the index, which only the byte-offset
+     * loads reproduce. */
     s32 targetIndex;
     u8 unitKind;
 
@@ -123,15 +117,14 @@ s32 btlActionAnyTargetDownOrHitFlagged(u8 *action)
     return 0;
 }
 
-/* measured: close loop-invariant probe for 001A0140. */
 /* Choose the two effect indices from the action flags and unit category. */
 // FUN_001A0290
 void btlActionGetEffectIndices(BtlAction *action, u16 skillId, u8 *effectIndices)
 {
     s16 *outputIndices = (s16 *)effectIndices;
 
-    /* measured: repeated typed output[1] stores retain output+2 in a saved
-     * register (300B vs 288B); keep the second output byte-addressed. */
+    /* measured: typed output[1] stores keep output+2 in a saved register; retail addresses the
+     * second output by byte offset. */
     s32 slotOffset;
     s32 category;
     BtlUnit *battleUnit;
@@ -180,8 +173,8 @@ void btlActionGetEffectIndices(BtlAction *action, u16 skillId, u8 *effectIndices
 void btlActionFinishPresentation(BtlAction *action)
 {
     BtlAction *typedListUnit;
-    /* measured: a repeated typed unit load saves listUnit+0x30 in s2
-     * (580B versus the 576B window); retain the second unit reload. */
+    /* measured: retail reloads the list unit a second time instead of keeping it in a saved
+     * register. */
     u8 *lookAtDeactivatePacket;
     u8 *ambientPacket;
     u8 *unitPacket;

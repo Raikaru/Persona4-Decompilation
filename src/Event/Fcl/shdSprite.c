@@ -1,4 +1,4 @@
-/* Original translation unit shdSprite.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit shdSprite.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "member_access.h"
 #include "sdk_sprite_loader.h"
@@ -34,9 +34,8 @@ typedef signed __int128 s128;
 typedef void (*shd_cb)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 
 
-// func_0046b0d0 is intentionally left undeclared (implicit old-style call,
-// exactly as in the P3 donor FUN_0040e580): a typed prototype makes mwcc
-// emit andi zero-extensions the retail never has.
+// func_0046b0d0 is deliberately left undeclared, as in the P3 donor FUN_0040e580; a typed prototype
+// adds zero-extensions that retail does not have.
 
 s32 strlen(const char *text);
 void chkmemAllocSiteTag(const void *file, s32 line);
@@ -61,9 +60,8 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern u8 D_00637280[];
 
 /* Build one owned pack containing the descriptor, sprite slots, copied names, and optional remaps.
- * Byte cursors copy the variable-size allocation; pointer casts retain its existing ABI. */
-/* Typed pack creation changed codegen; retain the allocation cursor and descriptor offsets.
- * ShdSpriteDescriptor is 0x10 bytes; ShdSpritePack has its copied descriptor at +4 and slots at +8. */
+ * Byte cursors walk the variable-size allocation; the copied descriptor sits after the header,
+ * followed by the slots. */
 // FUN_0025EF20
 u8 *sdkSpritePackCreate(u8 *descriptor)
 {
@@ -132,10 +130,8 @@ u8 *sdkSpritePackCreate(u8 *descriptor)
     return result;
 }
 
-/* Measured exact: object 288B / window 288B / normalized_diff 0.
-   A typed s32 *table preserves retail's table/index materialization order. */
-/* Advance asynchronous sprite loading in descriptor order; stop at the first incomplete sprite.
- * Keep the measured integer table access: descriptor count is +4, names +0, runtime slots +8. */
+/* Advance asynchronous sprite loading in descriptor order, stopping at the first incomplete sprite.
+ * A typed s32 table keeps retail's table/index load order. */
 // FUN_0025F110
 s32 shdSpriteEnsureLoaded(u8 *pack)
 {
@@ -222,8 +218,7 @@ s32 shdSpriteEntryWidth(s32 entryId, s32 entryOffset, u8 *pack)
     return (s32)sdkSpriteEntryWidth(sprite, (entryId & 0xFFFF) + entryOffset);
 }
 
-/* Integer handle returned by sdkSpr, not a floating-point result.
- * Measured: 136/144 bytes, nd0, two relocations, eight zero-tail bytes. */
+/* Returns an integer sprite handle, not a floating-point result. */
 // FUN_0025F360
 s32 shdSpriteSlotHandle(s32 entryId, s32 entryOffset, u8 *pack)
 {

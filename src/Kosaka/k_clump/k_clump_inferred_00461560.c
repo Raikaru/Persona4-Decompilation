@@ -158,8 +158,6 @@ extern f32 fGpffff81c4;
 extern f32 fGpffff81c8;
 extern f32 fGpffff81cc;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0046; members 00461560-00461be0 */
-
 typedef struct MovieNativeFrame {
     void *buffer;                 /* 0x00 */
     s32 displayFrame;              /* 0x04: copied from frameNumber by provider */
@@ -232,11 +230,11 @@ typedef struct MovieNativeWork {
     void *path;                    /* 0x218 */
     u32 field21c;
 } MovieNativeWork;
-/* measured: pass 1 also MATCHes under the propagation setting shared by
- * passes 2 and 3; no per-pass setting is needed. */
+/* measured: pass 1 uses the same propagation setting as passes 2 and 3. */
 #pragma opt_propagation off
-/* Draw the first material bucket groups with their blend modes, frustum culling, and alpha overrides. */
-/* measured: typed bucket and per-iteration entry aliases preserve MATCH where access-site tests did not. */
+/* Draw the first material bucket groups with their blend modes, frustum culling, and alpha
+ * overrides. measured: retail code uses a typed bucket pointer and a fresh entry pointer on each
+ * iteration. */
 // FUN_00461560
 void movieNativeDrawPass1(u8 *bucket)
 {
@@ -389,7 +387,6 @@ loop_00461560_fourth_test:
 }
 
 /* Draw the middle bucket group, excluding clumps with sentinel frames. */
-/* measured: a per-iteration entry alias preserves the pre-callback alpha test and whole-file MATCH. */
 // FUN_00461A40
 void movieNativeDrawPass2(u8 *bucket)
 {
@@ -444,7 +441,6 @@ loop_00461A40_test:
 }
 
 /* Draw the remaining material groups with their blend modes and sentinel checks. */
-/* measured: typed bucket and per-iteration entry aliases preserve MATCH where access-site tests did not. */
 // FUN_00461BE0
 void movieNativeDrawPass3(u8 *bucket)
 {

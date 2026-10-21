@@ -1,4 +1,3 @@
-/* Source unit: src/h_pad_00453570.c */
 #include "type.h"
 
 typedef enum

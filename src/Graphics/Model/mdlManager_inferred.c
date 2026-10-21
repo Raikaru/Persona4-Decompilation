@@ -49,12 +49,9 @@ extern void sdkListStateSetCount(u8 *state, s32 value);
 extern s32 sdkListStateGetCount(u8 *state);
 extern s32 sdkListStateGetScroll(u8 *state);
 extern s32 sdkListStateGetCursor(u8 *state);
-/* measured: the plain scroll-plus-cursor sum changes sdkLboxGetSelectedId's
- * addu operands (one differing byte). The shared operandOrderAddReversed
- * retains the expression's second-argument-first addition boundary. */
+/* measured: retail adds the cursor before the scroll in sdkLboxGetSelectedId, so
+ * operandOrderAddReversed keeps that operand order. */
 
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0047; members 00470c10-00470e20 */
 
 /* Selects reference-value mode and resets the entry's integer range. */
 // FUN_00470C10
@@ -132,7 +129,6 @@ void sdkLboxClear(u8 *task)
         jtbl_008873EC[0](node);
         node = next;
     }
-    /* measured: retain the typed work pointer across the release callbacks. */
     listWork->head = NULL;
     ((SdkLboxWork *)work)->unk148 = 0;
     ((SdkLboxWork *)work)->count = 0;
@@ -140,7 +136,6 @@ void sdkLboxClear(u8 *task)
     ((SdkLboxWork *)work)->scroll = 0;
     /* The embedded sdkListState extent is unknown; pass its proven +0x164 start. */
     sdkListStateSetCount(work + 0x164, 0);
-    /* The same retained pointer keeps the callback-result stores MATCH. */
     listWork->count = sdkListStateGetCount(work + 0x164);
     listWork->scroll = sdkListStateGetScroll(work + 0x164);
     listWork->cursor = sdkListStateGetCursor(work + 0x164);

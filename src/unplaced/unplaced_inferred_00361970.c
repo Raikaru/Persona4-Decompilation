@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 00361970-00362f00 */
 
 #include "include_asm.h"
 #include "member_access.h"
@@ -105,7 +104,7 @@ void cmpSystemMenuRelease(u8 *work)
     s8 messageSlot;
     u8 *spriteSlot;
 
-    /* measured: typed child/message reset stores retain addresses across destroy calls (184 versus 176 bytes). */
+    /* measured: retail recomputes the child/message reset addresses after each destroy call. */
     spriteIndex = 0;
     while (spriteIndex < 0x2A) {
         spriteSlot = (u8 *)&((RadarMenuWork *)work)->sprites[spriteIndex];
@@ -143,8 +142,8 @@ void radarStepBarWave(u8 *work)
     s16 bottomHeight;
     u8 *barBase;
 
-    /* measured: typing the repeated counter reads/stores changes 336 normalized bytes;
-     * retain the retail halfword reloads, with only their initial loads typed. */
+    /* measured: retail reloads the wave counter halfwords at each use; only the initial loads are
+     * typed. */
     ((RadarMenuWork *)(work))->topWaveFrame = ((RadarMenuWork *)work)->topWaveFrame + 1;
     if (((RadarMenuWork *)(work))->topWaveFrame >= 0x19) MEMBER(s16, work, RadarMenuWork, topWaveFrame) = 0;
     ((RadarMenuWork *)(work))->bottomWaveFrame = ((RadarMenuWork *)work)->bottomWaveFrame + 1;
@@ -175,7 +174,7 @@ void radarStepValueAnimation(u8 *work) {
     s32 animationIndex;
     u8 *record;
 
-    /* measured: typing the repeated slideElapsed accesses grows 128 to 140 bytes. */
+    /* measured: retail reloads slideElapsed at each use. */
     if (elapsed < 100) {
         MEMBER(s16, work, RadarMenuWork, slideElapsed) = elapsed + 1;
     }
@@ -232,9 +231,8 @@ void radarDrawColumn(s32 rowIndex, u8 *work)
     f32 nameY;
     u8 finalAlpha;
 
-    /* Earlier panel-index and subarray probes changed cursor-address scheduling.
-     * Keep the three interior field cursors in their original shape; the marker
-     * alpha now uses the matching full-work panels[20 + rowIndex] access. */
+    /* The three interior field cursors keep their original shape; the marker alpha reads panels[20
+     * + rowIndex]. */
     baseX = ((RadarMenuWork *)work)->x.f;
     baseY = ((RadarMenuWork *)work)->y.f;
     scale = (f32)((RadarMenuWork *)work)->alpha / 255.0f;
@@ -405,10 +403,8 @@ s32 cmpSystemMenuUpdate(u32 *phase, s32 *active, u8 *work)
     s16 selection;
     f32 alpha;
 
-    /* measured: typed messageSlot/configTask/topRow retain addresses across calls;
-     * together with the fade reload they change the body from 1872 to 1884 bytes.
-     * MEMBER keeps the measured repeated accesses byte-addressed; other work/query fields remain typed. */
-    /* measured: replacing the shared finish jumps with early returns grows 1872 to 1940 bytes. */
+    /* Cases jump to a shared finish label instead of returning early, which follows the retail
+     * control flow. */
     *active = 1;
     switch (*phase) {
     case 0:
@@ -591,8 +587,7 @@ s32 cmpPartyPanelStepRowMotion(u8 *motion)
     s16 step;
     s16 frame;
 
-    /* measured: repeated typed frame/duration/startY accesses cache addresses/values
-     * across the increment and output store (216 versus 208 bytes); preserve those reloads. */
+    /* measured: retail reloads frame, duration and startY around the increment and output store. */
     frame = ((CmpPartyRowMotion *)motion)->frame;
     if (frame < ((CmpPartyRowMotion *)motion)->duration) {
         MEMBER(s16, motion, CmpPartyRowMotion, frame) = frame + 1;

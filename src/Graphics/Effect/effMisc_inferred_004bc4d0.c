@@ -30,10 +30,8 @@ typedef struct {
 } Code1_004bColor;
 extern Code1_004bColor iGpffffbb64;
 
-/* Framed tail-jump compiler floors (24-byte save/restore/jump windows):
-   func_004bd628, func_004bd640, func_004bd658, func_004bd670,
-   func_004bd688, and func_004bd6a0.  Plain C cannot emit this ABI shape. */
-
+/* The six framed tail-jump wrappers func_004bd628 through func_004bd6a0 stay in assembly; plain C
+ * cannot emit that ABI shape. */
 
 
 extern u8 D_0071465C[];
@@ -55,9 +53,6 @@ extern BtlShuffleRenderPrimitive D_00887310_abs[];
 extern void (*jtbl_008873EC[])(void *);
 /* The six framed tail-jump wrappers listed above are intentionally retained
    as assembly fallbacks; all ordinary small wrappers below are source-backed. */
-
-/* Source unit: src/promoted/code1_004b.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_004b.c; members 004bc4d0-004bccf0 */
 
 typedef struct {
     s32 centerXBits;
@@ -125,13 +120,10 @@ void effMiscProgressAdvance(u8 *progress, f32 *elapsedStep)
     ((EffMiscProgress *)progress)->elapsed += *elapsedStep;
 }
 
-/* measured: opt_propagation off with `arg1 = arg1 << 3;` as its own statement keeps the
-   shift ahead of the table loads (retail sll/lw/lw/addu); with propagation on the shift
-   is folded into the address expression and emitted after the loads. */
-/* Interpolate two byte colors, optionally attenuating by the remaining fade. */
+/* measured: retail shifts keyIndex before the color table loads, which copy propagation would
+ * reorder. Interpolates two byte colors, optionally attenuated by the remaining fade. */
 // FUN_004BC540
-/* measured: func_004bc540 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline C nd 8B; adjacent-local declaration probe nd 15B; retain settings for owner MATCH. */
+/* measured: retail code generation needs copy propagation disabled for this function's color loads. */
 #pragma opt_propagation off
 void effMiscProgressBlendColor(u8 *progress, s32 keyIndex, f32 secondWeight, u8 *output)
 {
@@ -201,10 +193,8 @@ void effMiscProgressBlendColor(u8 *progress, s32 keyIndex, f32 secondWeight, u8 
     output[3] = (u8)channel;
 }
 
-/* measured: restore propagation for the rest of the unit. */
-/* Clear geometry colors and positions; kind selects the generated vertex count.
- * The two traversals clear colors and XYZ independently, then reset the bounds. */
-/* Preserve separate byte cursors alongside the typed progress and mesh pointers. */
+/* Clears geometry colors and positions in separate passes, then resets the bounds; kind selects the
+ * generated vertex count. */
 // FUN_004BCCF0
 void effMiscProgressResetWork(u8 *progress, u8 *geometry, u8 *unusedSource, s32 vertexCount)
 {

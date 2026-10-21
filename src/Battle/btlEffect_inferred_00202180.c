@@ -19,10 +19,6 @@ typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
 
-
-
-
-
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
 
@@ -33,7 +29,6 @@ extern void btlPanelSetCountdown(s32 task, s32 duration);
 extern s32 datCalcUnitClass(u8 *unit);
 extern void btlPanelStartEntry(s32 task, s32 text);
 extern void btlPanelMarkEntryStarted(s32 task);
-
 
 
 extern s32 btlPacketStepSpriteTable(u8 *work);
@@ -82,22 +77,13 @@ extern u8 D_00795080[];
 
 extern u8 D_006253B0[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0020; members 00202180-00202180 */
-
-/* measured: caching D_00887300 in s0 reproduces retail's one-time
-   lui/addiu vtable materialization across these callback calls. */
-/* measured: close the vtable propagation probe and restore default state. */
-/* Keep the opacity base ahead of byte promotion, matching retail order. */
+/* measured: retail loads the vtable address once across these callback calls and computes the
+ * opacity base before byte promotion. */
 #pragma push
 #pragma pop
-/* Measured: 676/688 bytes, seven resolved relocations and twelve zero alignment bytes.
- * Snapshot inputs before providers; reload the skill fields and final output
- * metadata at their retail callback boundaries. */
 #pragma push
 #pragma pop
-/* measured: opt_rebuildconditionals off tested for callback completion. */
-/* measured: restore conditional rebuilding after callback completion. */
-// Intent: packet callback; steps the sprite table for a unit, 16 or 32 ticks depending on class. [inferred]
+/* Packet callback that steps a unit's sprite table, using 16 or 32 ticks depending on its class. */
 // FUN_00202180
 s32 btlPacketStepSpriteTable(u8 *work)
 {
@@ -107,7 +93,6 @@ s32 btlPacketStepSpriteTable(u8 *work)
     u16 entryIndex;
     u8 *unit;
 
-    /* measured: typed selector/elapsed accesses hoist +4/+8 bases into saved registers (376 vs 352 bytes). */
     if ((((BtlPanelPacketWork *)work)->selector.index != 7) ||
         ((unit = (u8 *)((BtlPanelPacketWork *)work)->unit, ((s32)((BtlUnit *)unit)->flags3 & 0x4000) == 0)) ||
         ((s16)datCalcUnitClass((u8 *)((BtlUnit *)unit)->datUnit) != 4)) {

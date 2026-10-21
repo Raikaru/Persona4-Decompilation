@@ -1,5 +1,4 @@
 #include "include_asm.h"
-/* Source unit: src/Scene/resrcManager_001470e0.c */
 #include "type.h"
 
 typedef struct Resrc Resrc;
@@ -73,12 +72,10 @@ extern char D_005EFA70[];
 extern Resrc* resrcMngGetListHead(ResrcManager* resManager, u8 resType);
 extern void resrcMngDestroyRes(ResrcManager* resManager, Resrc* res);
 
-/* Ported from P3FES src/Scene/resrcManager.c FUN_003b5020 (verified MATCH
- * there). 003b5430 -> func_00147500, 003b5360 -> resrcMngDestroyRes,
- * RwFree (rwGlobals.memFuncs.RwFree slot 0096017c) -> DAT_008873ec. */
+/* Matches P3FES func_003b5020. */
 
 
-
+/* Allocate a zeroed ResrcManager and return it. */
 // FUN_00147070
 ResrcManager* resrcMngCreate()
 {

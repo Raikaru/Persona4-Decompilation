@@ -22,12 +22,10 @@ typedef struct {
 extern Code1_0049Color iGpffffbb64;
 
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 00494740-00494740 */
-
 extern void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049Color *color);
 extern void mdlEffectInterpolateRibbonColors(u8 *track, u32 *colors);
-/* Widen the ribbon index before selecting its retained count slot. */
-/* measured: expanding only the count-slot index changes the ribbon instruction/register sequence; vertex indices use plain casts. */
+/* Widen the ribbon index before selecting its retained count slot. measured: retail widens only the
+ * count-slot index this way; vertex indices use plain casts. */
 static inline u32 mdlEffectTrackIndex(u16 value)
 {
     return value;
@@ -42,38 +40,18 @@ typedef struct TrackVertex
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: b210 -O2 needs independent value propagation and loop-invariant
- * constant materialization for the retail register and instruction schedule. */
+/* measured: retail schedule needs value propagation off and loop-invariant constants hoisted. */
 #pragma push
 #pragma pop
-/* measured: probing opt_loop_invariants for the preheader -1 and loop branch. */
-/* measured: closes opt_loop_invariants at its prior file baseline. */
-/* measured: probing opt_propagation off for func_004940d0 load and branch order. */
-/* measured: probing opt_common_subs off for color byte reloads. */
-/* measured: closing opt_common_subs after func_004940d0 probe. */
-/* measured: closing opt_propagation after func_004940d0 probe. */
-/* func_004941f0, MATCH 2026-10-07. Counts are unsigned after the signed-short
-   loads; complete vector and packed-colour objects keep the VU transfers, and
-   the colour unpacks use effectVuUnpackColor10V0. `opt_loop_invariants on`
-   hoists the loop's vector addresses and 255.0f as retail does (measured:
-   without it the body differs by 65 words). `opt_pulloutconstants off`
-   stops IRO_CommonSubs from sharing the entry's 1.0f with the loop, so the
-   loop preheader rematerialises it as retail does. The first unpack reads its
-   word through a `const u32 *` local, which schedules the scale load after
-   the address. */
+/* func_004941f0: counts are unsigned after the signed-short loads, and colour unpacks use
+ * effectVuUnpackColor10V0; the loop preheader rematerialises 1.0f as retail does. */
 #pragma push
 #pragma pop
 #pragma push
-/* measured: func_00494740 MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists loop invariants in this function. */
 #pragma opt_loop_invariants on
-/* Advance one track's center history, build the tapered ribbon, and mirror
- * the cap vertices from the retained head tangent and side vector.
- * measured: b210 -O2, 2120/2128 bytes with eight zero tail bytes; all 104
- * relocations resolve to retail. Loop invariants retain the narrowed tail
- * bound. The scalar width expression preserves the cap width and VU input
- * as distinct lifetimes; all vector transfers declare their memory operands. */
-/* Shift center history, expand a tapered ribbon and rebuild its cap from the head tangent. */
-/* measured: a cached tail bound and structured tail loop still differ (baseline nd 563 bytes); retain loop hoisting. */
+/* Shift one track's center history, build the tapered ribbon, and rebuild its cap vertices from the
+ * head tangent and side vector. */
 // FUN_00494740
 void mdlEffectAdvanceRibbon(u8 *track, u16 trackIndex, u8 *point, f32 width) {
     extern void mdlEffectAxisAngleBasisVU(f32 angle);

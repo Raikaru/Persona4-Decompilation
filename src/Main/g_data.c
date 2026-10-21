@@ -1,4 +1,3 @@
-/* Source unit: src/Main/g_data_001059e0.c */
 #include "type.h"
 
 #define MAX_CHARACTER_LEVEL 99
@@ -21,13 +20,12 @@ static const u32 sPlayerExpThreshold[MAX_CHARACTER_LEVEL] =
     1162827, 1200335, 1238640, 1277752, 1317678, 1358428,
 };
 
-/* Ported from P3FES FUN_0016d280 (verified MATCH there), which is compiled
- * inside the donor's opt_loop_invariants on region. Removing it here measured
- * MATCH nd0 -> MISMATCH nd19 (table address no longer hoisted out of the
- * loop into the preheader). */
+/* measured: retail hoists the threshold table address out of the level scan loop. */
 #pragma opt_loop_invariants on
 
 
+/* Return the character level reached for the given experience total by scanning
+ * sPlayerExpThreshold, capping at MAX_CHARACTER_LEVEL. */
 // FUN_001059E0
 /* Map accumulated player experience to its level by scanning the complete threshold table. */
 u8 datLevelFromExp(s32 exp)
@@ -48,11 +46,6 @@ u8 datLevelFromExp(s32 exp)
     return MAX_CHARACTER_LEVEL;
 }
 extern s8 D_00641E60[];
-/* measured: b210 -O2 with loop-invariant hoisting gives 364B/368B,
-   normalized diff 0; the remaining retail word is zero tail padding.
-   Entries contain a signed 10-bit value and independent bit-14 category
-   and bit-15 required flags. Count/index and found/index declaration order
-   preserves the two retail register pairs; the shared constant 1 is hoisted. */
 /* Callers pass a signed-halfword selector and narrow the returned word themselves. */
 // FUN_00313690
 s32 datGetSelectorByte(s16 index)

@@ -1,4 +1,3 @@
-/* Source unit: src/frFontEx_00275a40.c */
 #include "type.h"
 #include "include_asm.h"
 #include "fr_font_internal.h"
@@ -9,7 +8,7 @@ extern void kAssertFail(const void *file, u32 line);
 extern char D_0063BAE8[];
 extern char D_0063BC78[];
 
-/* Font lock / busy flag (s16 at gp-0x58E0). */
+/* Font lock / busy flag. */
 extern s16 D_00763810;
 
 extern void frFontMoveListToFloat(int list, float x, float y);
@@ -28,7 +27,7 @@ extern s8 D_00764670; /* message-window slot state */
 /* Cleanup callback registered by the 002755xx draw wrappers. */
 extern void frFontExFreeText(s32 unused, int font);
 
-/* Anonymous gp globals (gp-relative stores in retail). */
+/* Anonymous gp globals. */
 extern s32 D_007645A0;
 extern s32 D_007645A8;
 
@@ -37,11 +36,8 @@ extern s32 D_007645A8;
  * the int-typed alias func_00275a40_typed, which is linked to the same address. */
 extern int func_00275a40_typed(int);
 
-/* Ported from the P3FES frFontEx module (frFontSetTextScale / FUN_003B2CB0
- * family, all verified MATCH there).  P4 moved the create call out of the
- * draw routine: frFontExSetScale is the scale-setter, frFontExLayoutText the
- * draw/position/color routine, frFontExCreateText and the frFontExDraw* functions
- * are create+draw wrappers, and frFontExFreeText is the cleanup callback. */
+/* Matches P3FES func_003B2CB0 family; P4 split create (frFontExCreateText, frFontExDraw*) from
+ * layout (frFontExLayoutText), with frFontExFreeText as cleanup. */
 
 /* Sets the scale of every glyph node in a text list. */
 // FUN_00274A20
@@ -377,17 +373,12 @@ int frFontExDrawTextDeferredOutB(f32 x, f32 y, f32 scale, int color, s8 chr, int
     return result;
 }
 
-/* Copies a string into a zero-filled buffer of maxlen bytes, truncating so the last byte stays zero. */
-/* Retail hoists the loop-invariant maxlen-1 bound into the preheader as a
-   $v1 temp; without opt_loop_invariants mwcc re-computes it in the loop
-   (measured nd22), and spelling the bound as an explicit local hoists it
-   but colors the temp $a1 instead of retail's $v1 (measured nd8, 7
-   temp-register words). The pragma reproduces retail exactly (nd1 = 1
-   padding word). */
-/* Zero-fill the destination and copy at most maxlen minus one source bytes, retaining a terminating zero. */
+/* Copies a string into a zero-filled buffer of maxlen bytes, truncating so the last byte stays
+ * zero. Retail hoists the loop-invariant maxlen-1 bound out of the loop. */
 // FUN_00275980
 #pragma push
-/* measured: baseline and reordered-bound copy loops differ (nd 46/48); retain invariant hoisting. */
+/* measured: retail hoists the maxlen-1 loop bound out of the loop, which needs invariant hoisting
+ * on. */
 #pragma opt_loop_invariants on
 
 void frFontExCopyString(char *src, char *dst, int maxlen)
@@ -411,7 +402,6 @@ s8 frFontExGlyphHeight(char index)
 {
     return D_00763808[index];
 }
-
 
 
 // FUN_002BB1C0

@@ -215,24 +215,19 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 #pragma push
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00452db0-00452db0 */
-
 extern void sdkPadRepeatButton(s32 slot, u16 button, s32 timerIndex);
 #pragma pop
-/* measured: restore O2 after func_00450e80. */
-/* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */
+/* measured: with propagation off, retail keeps the constant 3 as a live local and holds on to the
+ * computed pointer. */
 #pragma push
 #pragma pop
-/* 756/768 bytes; thirty-eight resolved relocations; twelve zero tail bytes.
- * Measured: propagation off retains the raw/cooked pointer allocation.
- * Analog values 0x5B..0xA5 are neutral; retain raw button bits 4..7. */
+/* Analog values 0x5B..0xA5 are neutral; raw button bits 4..7 are kept. */
 #pragma push
-/* measured: func_00452db0 MATCH -> MISMATCH without this pragma. */
-/* measured: baseline removal differs in 5 bytes; reuse typed button columns; initialize cooked destination before raw source also differ. */
+/* measured: with propagation enabled, the compiler reorders how the raw and cooked button pointers
+ * are set up, and the output no longer matches retail. */
 #pragma opt_propagation off
-// Intent: cooks the raw input of slot `slot`. Keeps the raw button bits 4..7, sets the analog direction bits outside the 0x5B..0xA5 neutral band, and runs the button repeat.
-/* Typed interior columns preserve MATCH where record-relative fields changed
- * the measured address/load order. Each column row retains the 0x4A stride. */
+// Cooks slot's raw input: keeps raw button bits 4..7, sets analog direction bits outside the
+// 0x5B..0xA5 neutral band, and runs button repeat. Record columns use a 0x4A stride.
 // FUN_00452DB0
 void sdkPadCookInput(s32 slot) {
     unsigned edgeOffset;
@@ -279,8 +274,8 @@ void sdkPadCookInput(s32 slot) {
     if ((s32)*rightY < 0x5B) {
         *cooked |= 0x10;
     }
-    /* The unsigned second offset preserves the retail stride recompute
-       after the analog-byte accesses, without extending recordOffset's lifetime. */
+    /* The second, unsigned offset recomputes the stride after the analog-byte reads, as retail
+     * does. */
     edgeOffset = (unsigned)slot * 0x4A;
     raw = D_008C02EC[slot].mask;
     edge = (u16 *)(D_008C02EE + edgeOffset);

@@ -27,19 +27,9 @@ extern u8 D_0063FC90[];
 extern void *(*D_008873F4[])(size_t numObj, size_t sizeObj, u32 hint);
 
 
-
-
-
-
-
-
-
-
 extern u8 D_0063F560[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_002e; members 002e23b0-002e2470 */
-
-/* measured: retain pair loads before stores and retail's written load order. */
+/* measured: retail loads each pair before storing it, in source order. */
 #pragma push
 #pragma pop
 /* Rebuild requests carry signed kind/order bytes and two word filters. */

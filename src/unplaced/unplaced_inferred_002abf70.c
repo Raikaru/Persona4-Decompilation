@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from absence of callee, caller or P3 twin evidence; members 002abf70-002ac2a0 */
 
 /* Unit optimizer settings shared by the neighboring functions. */
 #pragma opt_common_subs on
@@ -47,10 +46,10 @@ extern s32 fclDebugModelCreate(u8 *);
 extern s32 kwlnTaskIsLinked(s32 );
 #pragma push
 #pragma no_branch_likely off
-// Intent: Seq task update: advance the sequence work each step [inferred]
+// Seq task update: advances the sequence work each step.
 // FUN_002ABF70
 s32 seqYajiTaskUpdate(u8 *task) {
-    /* measured: remaining SeqYajiWork accesses retain b210 reload ordering; typed substitutions change instructions. */
+    /* measured: retail reloads the work fields in an order that typed accesses do not reproduce. */
     s32 selection;
     s8 state;
     u8 *work;
@@ -145,7 +144,7 @@ s32 seqYajiTaskUpdate(u8 *task) {
 
 #pragma push
 #pragma no_branch_likely off
-// Intent: Seq task destroy: dispatch the seq task's teardown handler [inferred]
+// Seq task destroy: dispatches the task's teardown handler.
 // FUN_002AC270
 void seqYajiTaskDestroy(u8 *task) {
     jtbl_008873EC[0]((((struct KwlnTask *)task)->work));
@@ -154,7 +153,7 @@ void seqYajiTaskDestroy(u8 *task) {
 
 #pragma push
 #pragma no_branch_likely off
-// Intent: Create the seq task and initialise its work block [inferred]
+// Create the seq task and initialise its work block.
 // FUN_002AC2A0
 void seqYajiTaskCreate(void) {
     u8 *p;

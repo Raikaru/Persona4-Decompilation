@@ -1,6 +1,5 @@
 #include "include_asm.h"
-/* Persona 4 USA decompilation - effDistortParticle.c */
-/* Translation unit recovered from embedded __FILE__ strings (retail asserts). */
+/* Original translation unit effDistortParticle.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "effect_instance_internal.h"
 #include "rw_camera_internal.h"
@@ -43,9 +42,8 @@ void DistortParticleUploadTexture(u8 *particle, s32 handle);
 void DistortParticleShareTexture(u8 *destination, u8 *source);
 extern s32 TnUploadStreamTagged();
 
-/* The header fills DistortParticleInstance::field_0x00; the copied settings
- * occupy +0x0C..+0x53 and the two running scroll values end at +0x5C.
- * Allocation/strides prove the record layouts; resource gaps stay opaque. */
+/* Header of a distort particle instance: copied settings occupy +0x0C..+0x53 and the two running
+ * scroll values end at +0x5C. */
 typedef struct DistortParticleHeader {
     union {
         s32 signedValue;
@@ -223,7 +221,7 @@ void DistortParticleFree(u8 *particle) {
 // Creates a distortion particle from a parent record: sizes the record buffer from the parent's block and shares its texture; asserts the parent block exists.
 // FUN_004AF920
 void *DistortParticleCreateFromParent(void *opaqueSource) {
-    /* Access-site typing differed by 218 normalized bytes; separate typed locals preserve the original reload lifetimes. */
+    /* Separate typed locals keep the original reload lifetimes of the parent and instance views. */
     u8 *parent = opaqueSource;
     s32 sourceCount;
     u32 recordCount;
@@ -264,13 +262,15 @@ void *DistortParticleCreateFromParent(void *opaqueSource) {
     return particle;
 }
 
-// Uploads the tagged texture for slot value through TnUploadStreamTagged and stores that call's result at +0x60.
+// Uploads the tagged texture for handle through TnUploadStreamTagged and stores the result in
+// texture.
 // FUN_004AFA60
 void DistortParticleUploadTexture(u8 *particle, s32 handle) {
     ((DistortParticleInstance *)particle)->texture = (u8 *)TnUploadStreamTagged(handle);
 }
 
-// Shares the texture object of handle with particle and bumps its reference count at +0x54; asserts that handle holds one.
+// Shares the source particle's texture object with destination and bumps its reference count;
+// asserts that the source holds one.
 // FUN_004AFAA0
 void DistortParticleShareTexture(u8 *destination, u8 *source) {
     u8 *texture;
@@ -288,7 +288,7 @@ void DistortParticleShareTexture(u8 *destination, u8 *source) {
 // Rebuilds the source block for id source with parameters options, then re-allocates the record table and seeds every record.
 // FUN_004AFB10
 void DistortParticleRebuildRecords(u8 *particle, u32 sourceId, u8 *parameters) {
-    /* Access-site typing differed by 212 normalized bytes; separate typed locals preserve the original reload lifetimes. */
+    /* Separate typed locals keep the original reload lifetimes. */
     u32 recordCount;
     u8 *record;
     u32 recordIndex;
@@ -323,7 +323,7 @@ void DistortParticleRebuildRecords(u8 *particle, u32 sourceId, u8 *parameters) {
     }
 }
 
-// Releases the source block at +0x5C through func_00492d00 when one is set.
+// Resets the source list's emitter ticks when a list is set.
 // FUN_004AFC50
 void DistortParticleReleaseSource(u8 *particle)
 {
@@ -336,10 +336,11 @@ void DistortParticleReleaseSource(u8 *particle)
     }
 }
 
-// Seeds one 0x1C-byte record from the particle's parameters: random offsets, sizes, scale and the fade value at +0x24.
+// Seeds one 0x1C-byte record from the particle's parameters: random phases, sizes, scale and fade
+// value.
 // FUN_004AFC80
 void DistortParticleSeedRecord(u8 *particle, u8 *record) {
-    /* Access-site typing differed by 295 normalized bytes; separate typed locals preserve the original reload lifetimes. */
+    /* Separate typed locals keep the original reload lifetimes. */
     f32 sizeVariation;
     f32 sizeFactor;
     f32 fadeVariation;
@@ -358,16 +359,8 @@ void DistortParticleSeedRecord(u8 *particle, u8 *record) {
     entry->scale = (1.0f - fadeVariation) + fadeVariation * effMiscRandFloat(0);
 }
 
-/* DistortParticleDrawSky, MATCH 2026-10-07. Rewritten from retail asm on the matched
-   effParticle sibling's pattern (ParticleDrawBillboards): one 64-byte sky vertex quad,
-   per-channel unsigned colour conversions, and the projected-depth formula.
-   The colour unpack asm names $2 and the COP2 pack stores the packed word to
-   its frame slot (both user-approved VU0 forms). Retail returns nothing, so
-   the prototype is void. (u32) address casts stop the CSE of options + 0x14/0x1C;
-   the render tables are read through u32 locals, which keeps them in $s1/$s0.
-   The mode-1 alpha byte is stored through a byte pointer so particle's sizes are
-   reloaded. The second size check indexes fGpffff80f0 as an array: IRO_CommonSubs
-   would otherwise hoist the shared read above the first size load. */
+/* Retail returns nothing, so DistortParticleDrawSky is void; the second size check indexes
+ * fGpffff80f0 as an array so the shared read is not hoisted above the first size load. */
 typedef struct DistortVertex {
     f32 x, y, z;
     f32 camZ;
@@ -394,7 +387,7 @@ typedef struct DistortUvLane { f32 coordinate; u8 pad04[0x1C]; } DistortUvLane;
 // FUN_004AFE20
 void DistortParticleDrawSky(u8 *particle, u8 *record, void *sourceRecord, void *position, void *colorScale, void *textureSize, s32 drawMode, s32 uvIndex)
 {
-    /* Access-site typing differed by 1319 normalized bytes; separate typed locals preserve the original reload lifetimes. */
+    /* Separate typed locals keep the original reload lifetimes. */
     extern void RpSkyRenderStateGet(s32 param, void *out);
     extern void RpSkyRenderStateSet(s32 param, s32 value);
     extern f32 cosf(f32 param);
@@ -639,7 +632,7 @@ void DistortParticleDrawSky(u8 *particle, u8 *record, void *sourceRecord, void *
 // Advances the record table: re-seeds each record whose source-side word at +0x10 is zero, then steps the live records by their +4 and +0x10 deltas.
 // FUN_004B0A80
 void DistortParticleUpdateRecords(u8 *particle) {
-    /* Access-site typing differed by 466 normalized bytes; separate typed locals preserve the original reload lifetimes. */
+    /* Separate typed locals keep the original reload lifetimes. */
     f32 sizeVariation;
     f32 sizeFactor;
     f32 fadeVariation;
@@ -693,7 +686,7 @@ void DistortParticleUpdateRecords(u8 *particle) {
 // Projects the live records: when bit 0 of the source word at +0xC is clear each record is drawn directly; when set, the matrix from TnSlotObject(0x15) is applied to each record first.
 // FUN_004B0CE0
 void DistortParticleProjectRecords(u8 *particle, s32 drawMode) {
-    /* Access-site typing differed by 444 normalized bytes; separate typed locals preserve the original reload lifetimes. */
+    /* Separate typed locals keep the original reload lifetimes. */
     s32 particleColor;
     s32 *pt;
     f32 textureSize[2];

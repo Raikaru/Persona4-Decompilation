@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from callee/caller votes (src/frFont.c); members 0026fba0-0026fca0 */
 
 #include "include_asm.h"
 #include "list_item_internal.h"
@@ -22,8 +21,8 @@ extern void frFontUpdateTextWork(u8 *context);
 extern u8 iGpffffa734;
 #pragma push
 #pragma optimization_level 2
-// Left func_: three text setters with one shape (frFontGetMode guard, sprintf of a DAT word from datPersonaNamePart0 or datPersonaNamePart1 at index 1, then frFontLayoutText). Their addresses are entries 0-2 of a function-pointer table at VA 0x63B994 in the retail data, and no source file names that table, so the owner of the index is not established and the words stay unnamed. [inferred]
-/* Format the first name part at index one into the active text context. */
+// Formats the first persona name part at index 1 into the active text context; one of three setters
+// listed in an unnamed function-pointer table.
 // FUN_0026FBA0
 s32 frFontAppendFirstPersonaNamePart(s32 unusedCommand, u8 *context)
 {

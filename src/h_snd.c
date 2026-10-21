@@ -1,4 +1,3 @@
-/* Source unit: src/h_snd_00459790.c */
 #include "type.h"
 #include "sdk_snd_internal.h"
 
@@ -30,7 +29,6 @@ static HsndSlotWork sSlotWork[HSND_SLOT_COUNT];
 extern u8 sSlotWork_alt[];
 
 #define HSND_CHANNEL_STARTING 1
-
 
 
 /* Advances one sound slot: start playback (state 2), then wait for it to finish (state 3). */
@@ -73,7 +71,6 @@ void hsndSlotUpdate(HsndSlotWork* slot)
 }
 
 
-
 /* Queues sound id for playback through the sound manager; always reports success. */
 // FUN_004599A0
 u8 hsndQueueSound(s16 id, s16 unused)
@@ -81,7 +78,6 @@ u8 hsndQueueSound(s16 id, s16 unused)
     sdkSndPlayCue(id, 1);
     return 1;
 }
-
 
 
 /* Reports whether the slot is in the starting state (HSND_CHANNEL_STARTING). */

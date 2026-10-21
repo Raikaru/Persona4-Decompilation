@@ -24,28 +24,23 @@ typedef struct {
 extern Code1_0049Color iGpffffbb64;
 
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0049; members 004940d0-004941f0 */
-
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
 #pragma push
 #pragma pop
-/* measured: b210 -O2 needs independent value propagation and loop-invariant
- * constant materialization for the retail register and instruction schedule. */
+/* measured: retail schedule needs value propagation off and loop-invariant constants hoisted. */
 #pragma push
 #pragma pop
-/* measured: probing opt_loop_invariants for the preheader -1 and loop branch. */
-/* measured: closes opt_loop_invariants at its prior file baseline. */
-/* measured: probing opt_propagation off for func_004940d0 load and branch order. */
-/* measured: func_004940d0 MATCH -> MISMATCH without this pragma. */
+/* measured: propagation off keeps retail's load and branch order in func_004940d0. */
 #pragma opt_propagation off
-/* measured: probing opt_common_subs off for color byte reloads. */
-/* measured: func_004940d0 MATCH -> MISMATCH without this pragma. */
+/* measured: common subexpression elimination must stay off so retail's reloads of the color bytes
+ * are kept. */
 #pragma opt_common_subs off
-/* Set the indexed ribbon and cap material colors, mapping fully opaque alpha to 254 temporarily. */
-/* measured: a complete color snapshot and isolated propagation removal still differ (best isolated nd 106 bytes); retain both toggles. */
+/* Set the indexed ribbon and cap material colors, mapping fully opaque alpha to 254 temporarily.
+ * measured: retail needs both common-subexpression elimination and propagation off; either one
+ * alone changes the color reloads. */
 // FUN_004940D0
 void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049Color *color)
 {
@@ -73,7 +68,6 @@ void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049C
     max_1 = 0xFF;
     if (c3 != max_1) {
         materialOffset = (materialIndex & 0xFFFF) * 4;
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         ribbonMaterial = *(ribbonMaterialEntry = (u8 **)(((MdlEffectMultipartGeometry *)ribbonModel)->materials + materialOffset));
         c0 = color->c0;
         c1 = color->c1;
@@ -86,7 +80,6 @@ void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049C
     } else {
         color->c3 = 0xFE;
         materialOffset = (materialIndex & 0xFFFF) * 4;
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         opaqueRibbonMaterial = *(opaqueRibbonMaterialEntry = (u8 **)(((MdlEffectMultipartGeometry *)ribbonModel)->materials + materialOffset));
         c0 = color->c0;
         c1 = color->c1;
@@ -102,7 +95,6 @@ void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049C
     c3 = color->c3;
     max_2 = 0xFF;
     if (c3 != max_2) {
-        /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
         capMaterial = *(capMaterialEntry = (u8 **)(((MdlEffectMultipartGeometry *)capModel)->materials + materialOffset));
         c0 = color->c0;
         c1 = color->c1;
@@ -115,7 +107,6 @@ void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049C
         return;
     }
     color->c3 = 0xFE;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     opaqueCapMaterial = *(opaqueCapMaterialEntry = (u8 **)(((MdlEffectMultipartGeometry *)capModel)->materials + materialOffset));
     c0 = color->c0;
     c1 = color->c1;
@@ -128,29 +119,22 @@ void mdlEffectSetRibbonMaterialColor(u8 *ribbons, u16 materialIndex, Code1_0049C
     color->c3 = max_2;
 }
 
-/* measured: closing opt_common_subs after func_004940d0 probe. */
-/* measured: func_004941f0 MATCH -> MISMATCH without this pragma. */
+/* measured: func_004941f0 only reproduces retail with common-subexpression elimination turned back
+ * on here. */
 #pragma opt_common_subs on
-/* measured: closing opt_propagation after func_004940d0 probe. */
-/* measured: func_004941f0 MATCH -> MISMATCH without this pragma. */
+/* measured: func_004941f0 needs opt_propagation back on; without it the generated code no longer
+ * matches retail. */
 #pragma opt_propagation on
-/* func_004941f0, MATCH 2026-10-07. Counts are unsigned after the signed-short
-   loads; complete vector and packed-colour objects keep the VU transfers, and
-   the colour unpacks use effectVuUnpackColor10V0. `opt_loop_invariants on`
-   hoists the loop's vector addresses and 255.0f as retail does (measured:
-   without it the body differs by 65 words). `opt_pulloutconstants off`
-   stops IRO_CommonSubs from sharing the entry's 1.0f with the loop, so the
-   loop preheader rematerialises it as retail does. The first unpack reads its
-   word through a `const u32 *` local, which schedules the scale load after
-   the address. */
+/* Counts are unsigned after the signed-short loads; the first unpack reads through a const u32
+ * pointer so the scale load follows the address. */
 #pragma push
-/* measured: func_004941f0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail hoists the loop's vector addresses and 255.0f out of the loop. */
 #pragma opt_loop_invariants on
-/* measured: func_004941f0 MATCH -> MISMATCH without this pragma. */
+/* measured: retail rematerialises 1.0f in the loop preheader instead of sharing the entry's copy. */
 #pragma opt_pulloutconstants off
-/* Interpolate the ribbon colors, then repeat its first row and the cap colors. */
-/* Interpolate four endpoint colors across each ribbon row and replicate the cap color row. */
-/* measured: isolated constant-pullout removal changes constant lifetimes (nd 536 bytes); retain the loop and pullout settings. */
+/* measured: retail does not pull constants out of the loop, so keep these loop and pullout
+ * settings. Interpolates four endpoint colors across each ribbon row and replicates the cap color
+ * row. */
 // FUN_004941F0
 void mdlEffectInterpolateRibbonColors(u8 *track, u32 *colors)
 {
@@ -187,10 +171,8 @@ void mdlEffectInterpolateRibbonColors(u8 *track, u32 *colors)
     work = (u8 *)((EffTrackRibbons *)track)->ribbon;
     RpGeometryLock(((RpAtomic *)((MdlEffectMultipartGeometry *)work)->model)->geometry, 8);
     rowCount = ((MdlEffectMultipartGeometry *)work)->partCount.signedValue;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     vertexCount = *(s16 *)&((MdlEffectMultipartGeometry *)work)->vertexCount;
     segmentCount = vertexCount / 3U;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     destination = (u8 *)((RpGeometry *)(u8 *)((RpAtomic *)MEMBER(u8 *, work, MdlEffectMultipartGeometry, model))->geometry)->colors;
     firstRow = destination;
     fractionStep = 1.0f / (f32)segmentCount;
@@ -276,9 +258,7 @@ void mdlEffectInterpolateRibbonColors(u8 *track, u32 *colors)
         ((RpGeometry *)geometry)->lockedSinceLastInst |= 1;
     }
     cap = (u8 *)((EffTrackRibbons *)track)->cap;
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     RpGeometryLock(((RpAtomic *)MEMBER(u8 *, cap, MdlEffectMultipartGeometry, model))->geometry, 8);
-    /* measured: access-site typing changed owner MATCH to MISMATCH; retain the byte-shaped load/store for MWCC aliasing and scheduling. */
     capColors = (u8 *)((RpGeometry *)(u8 *)((RpAtomic *)MEMBER(u8 *, cap, MdlEffectMultipartGeometry, model))->geometry)->colors;
     *(u32 *)capColors = colors[0];
     ((u32 *)capColors)[1] = colors[1];

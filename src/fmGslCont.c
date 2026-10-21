@@ -1,4 +1,3 @@
-/* Source unit: src/fmGslCont_0026e0e0.c */
 #include "type.h"
 /* The allocator prefix precedes the returned payload by one word. */
 typedef struct FmGslAllocation { u32 allocation; } FmGslAllocation;
@@ -12,14 +11,13 @@ extern u64 memcpy();
 extern u32 DAT_00764590;
 
 
-
 /* Both active and free pool lists use two 32-bit link addresses at +0/+4. */
 typedef struct FmGslLink {
     s32 previous;
     union { u32 word; s32 address; s32 *pointer; } next;
 } FmGslLink;
 
-// Intent: Pop the head node from a singly linked list and return its payload pointer, or NULL when empty [inferred]
+// Pops the head node from a singly linked list and returns its payload pointer, or NULL when empty.
 // FUN_0026E0E0
 int* fmGslContPopNode(int listAddress)
 {
@@ -42,8 +40,8 @@ int* fmGslContPopNode(int listAddress)
 }
 
 
-
-// Intent: Push a node onto a singly linked list; returns 1 when pushed, 0 when the node is NULL or already linked [inferred]
+// Push a node onto a singly linked list; returns 1 when pushed, 0 when the node is NULL or already
+// linked.
 // FUN_0026E120
 u32 fmGslContPushNode(int* payload, int listAddress)
 {
@@ -70,9 +68,7 @@ u32 fmGslContPushNode(int* payload, int listAddress)
 }
 
 
-
-
-// Intent: Free a node's block through the free callback and return 1 [inferred]
+// Free a node's block through the free callback and return 1.
 // FUN_0026E170
 u32 fmGslContFreeNode(int payloadAddress)
 {
@@ -82,8 +78,7 @@ u32 fmGslContFreeNode(int payloadAddress)
 }
 
 
-
-// Intent: Compute three sub-block pointers from a block header and store them in the output array [inferred]
+// Compute three sub-block pointers from a block header and store them in the output array.
 // FUN_0026E1A0
 void fmGslContSetupSubBlocks(int* block, int* subBlocks)
 {
@@ -101,10 +96,11 @@ void fmGslContSetupSubBlocks(int* block, int* subBlocks)
 }
 
 
-
-// Intent: Decode a bit-packed tree run into output bytes using per-run bit offsets, and record the emitted count [inferred]
+// Decode a bit-packed tree run into output bytes using per-run bit offsets, and record the emitted
+// count.
 // FUN_0026E1E0
-/* Packed bit offsets are copied unaligned; six-byte tree records encode branch indices and leaf bytes. The byte/halfword addressing preserves this on-disk encoding. */
+/* Packed bit offsets are copied unaligned; six-byte tree records encode branch indices and leaf
+ * bytes. */
 int fmGslContDecodeRun(int outputAddress, int runIndex, u64 unused, int* tables)
 {
     int treeAddress;
@@ -150,8 +146,7 @@ int fmGslContDecodeRun(int outputAddress, int runIndex, u64 unused, int* tables)
 }
 
 
-
-// Intent: Build a doubly linked free list at the supplied stride and reset the active pool head and tail [inferred]
+// Build a doubly linked free list at the supplied stride and reset the active pool head and tail.
 // FUN_002850F0
 void fmGslContPoolInit(u32* pool, u32* storage, int nodeCount, int stride)
 {
@@ -185,8 +180,7 @@ void fmGslContPoolInit(u32* pool, u32* storage, int nodeCount, int stride)
 }
 
 
-
-// Intent: Take the next node from a pool and link it at the tail; returns NULL when the pool is empty [inferred]
+// Take the next node from a pool and link it at the tail; returns NULL when the pool is empty.
 // FUN_00285170
 int* fmGslContPoolAlloc(int* pool)
 {
@@ -227,8 +221,7 @@ int* fmGslContPoolAlloc(int* pool)
 }
 
 
-
-// Intent: Unlink a node from its pool list, updating the head and tail [inferred]
+// Unlink a node from its pool list, updating the head and tail.
 // FUN_002851F0
 void fmGslContPoolUnlink(int* node, u32* pool)
 {

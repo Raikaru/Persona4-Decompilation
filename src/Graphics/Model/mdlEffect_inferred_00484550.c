@@ -12,7 +12,7 @@ typedef struct RwV3d
     f32 z;
 } RwV3d;
 
-// 64 bytes. Layout from P3FES include/rw/rwplcore.h.
+// Layout from P3FES RenderWare rwplcore.h.
 typedef struct RwMatrix
 {
     RwV3d right;   // 0x00
@@ -42,8 +42,6 @@ extern f32 fGpffff8044;
 
 
 extern void (*jtbl_008873EC[])(void *);
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0048; members 00484550-00484550 */
 
 /* Default primitive packed-color callback leaves unsupported kinds unchanged. */
 // FUN_00484550

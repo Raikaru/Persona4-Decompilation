@@ -45,11 +45,8 @@ typedef struct
 extern void FldEvent_StepGridCell();
 extern s32 *MT_Scene_GetFrameState(void);
 extern s32 FldStepIndex(void);
-/* measured: Cmd_PickEncounter needs this call unprototyped - retail masks $a2 (b)
-   before the two lhu loads and $a3 (a) after them, which is the default-
-   promotion order of an old-style call with a u16 local for b and an explicit
-   (u16) cast on a; any prototyped u16 parameter hoists the a3 mask before the
-   loads (nd4). Sole caller in this unit. */
+/* Cmd_PickEncounter calls this unprototyped so its u16 arguments are masked in retail's default-
+ * promotion order. */
 extern s32 Encount_PickEncounter(s32 field, s32 room, s32 encounter, s32 level);
 extern s32 kwlnTaskIsLinked(s32 target);
 extern s32 iGpffffb284;
@@ -120,31 +117,6 @@ extern FieldRenderStateSetFunction D_00887300[];
 extern s32 iGpffffba48;
 
 
-
-
-
-/* measured: ONE real defect, and it is the `slt $at` family. Retail emits
-   `slti $at,$v0,4; bnez $at` where b210 emits `slti $v0,$v0,4; bnez $v0`,
-   reusing the dead call result as the comparison destination. obj 92B vs
-   window 96B, so the reported count also includes one padding word.
-   `#pragma schedule off` and hoisting the call result into a local both leave
-   it unchanged.
-
-   Do NOT record this as a blanket floor. A census of the retail image shows the
-   $at form in 276 first-party functions that ALREADY MATCH, so it is reachable
-   from C -- it appears when the comparison feeds a short-circuit `&&`/`||`
-   chain, or when its source register is still live afterwards (see the matched
-   datCalc func_00231ef0: `if (arg1 > 99 && !(*(u16 *)arg0 & 4))` compiles to
-   `andi $v1; slti $at,$v1,0x64; bnez $at`). What is NOT reachable is this
-   shape: a single bare comparison on a dead call result, where b210 always
-   recycles the source register. 359 of the remaining first-party ASM functions
-   contain an $at comparison, so the distinction is worth knowing before writing
-/* SOLVED by tools/permute.py; this previously carried a `slt $at` floor note
-   and sat under #ifdef NON_MATCHING. The permuter found the shape from the
-   preserved body. */
-
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0017; members 00178560-001788e0 */
-
 struct RwMatrixTag {
     Vec3_00178590 right; u32 flags;
     Vec3_00178590 up; u32 pad1;
@@ -195,9 +167,8 @@ s32 Cmd_GetNearestEntryFacing(void) {
     return 1;
 }
 
-/* P4 flowscript library (build/p4flow/Field.json, index 0x1028): FLD_EFFECT_TRAESTO_START(), no parameters. Creates the transition task and waits for it. */
-/* Start the transition task once, then wait until the scheduler unlinks it. */
-/* The scheduler handle belongs to the canonical script work, not a separate command allocation. */
+/* Flowscript FLD_EFFECT_TRAESTO_START(), no parameters: starts the transition task once, then waits
+ * until the scheduler unlinks it. The handle lives in the script work. */
 // FUN_001786F0
 s32 K_Cmd_FLD_EFFECT_TRAESTO_START(void)
 {
@@ -217,8 +188,8 @@ s32 K_Cmd_FLD_EFFECT_TRAESTO_START(void)
     return 1;
 }
 
-/* P4 flowscript library (build/p4flow/Field.json, index 0x1016): CALL_BATTLE(encounterId, param2). Starts the encounter and yields until it returns. */
-/* Poll the encounter transition and expose its completion flags as script result codes. */
+/* Flowscript CALL_BATTLE(encounterId, param2): starts the encounter, yields until it returns, and
+ * reports its completion flags as script result codes. */
 // FUN_00178790
 s32 K_Cmd_CALL_BATTLE(void)
 {

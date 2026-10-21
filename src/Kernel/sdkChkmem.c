@@ -1,6 +1,6 @@
 #include "byte_address_internal.h"
 #include "include_asm.h"
-/* Original translation unit sdkChkmem.c (recovered from embedded __FILE__ assert strings; see tools/tu_audit.py). */
+/* Original translation unit sdkChkmem.c (from __FILE__ assert strings). */
 #include "type.h"
 
 typedef struct E8Node {
@@ -112,13 +112,9 @@ done:
     }
 }
 
-/* Measured: object 168B / retail window 176B / normalized_diff 0; the final
- * 8B are retail zero-tail words. Keeping the allocator unlink helper static
- * in its recovered sdkChkmem translation unit preserves its narrow clobber
- * set. Staging the pool load before byteAddressAdd preserves the retail load and
- * offset-first addu order at both class-index updates. */
-/* Remove allocation and class accounting before unlinking its header. */
-/* Separate typed header aliases retain the measured class-accounting reload order. */
+/* Kept static in this unit so the helper touches only a few registers; the pool is loaded before
+ * byteAddressAdd to keep retail's load order at both class-index updates. Remove allocation and
+ * class accounting before unlinking its header. */
 // FUN_0044E9E0
 static void chkmemUntrackBlock(u8 *block)
 {
@@ -151,9 +147,8 @@ static void chkmemUntrackBlock(u8 *block)
 
 // FUN_0044EA90
 void chkmemAllocSiteTag(const void *file, s32 line) {}
-/* measured: func_0044eaa0 matches with propagation disabled. The explicit
-   class-size temporary preserves retail's classBytes load order. */
-/* measured: baseline removal differs in 32 bytes; typed class-pool access; MEMBER block size and alignment reloads also differ. */
+/* measured: with propagation off and an explicit class-size temporary, classBytes loads in the same
+ * order as retail. */
 #pragma opt_propagation off
 /* Register a block and store its header immediately before the aligned payload. */
 /* The header back-pointer is payload-4 after variable alignment padding,
@@ -217,15 +212,8 @@ void chkmemSetLock(s32 locked) {
     D_00764AC0 = locked;
 }
 
-/* measured: func_0044ec60 (528B) floor at nd 34 — a saved-register rotation
-   plus the same classBytes/classCount accounting block floored in func_0044eaa0.
-   retail allocates block=temp_2 in $s2, aligned=temp_16_2/$s0 (reused), lock
-   in $s1; mwcc b210 puts block in $s0, aligned in $s1, lock in $s2. Declaration
-   order (8 orders probed), s32 vs u32 locked, cls local, and m2c decl order all
-   stayed at 34 (worse 51 with cls local). Same class-block scheduling floor as
-   func_0044eaa0 (locked->size RHS-first, classCount delta-before-pool-reload). */
-/* measured: preserves retail allocator reload order. */
-/* measured: baseline removal differs in 31 bytes; typed class-pool access; MEMBER block size and alignment reloads also differ. */
+/* measured: retail reloads the allocator and class-pool values in its own order, and re-reads the
+ * block size and alignment instead of reusing them. */
 #pragma opt_propagation off
 /* Allocate a sixteen-byte-aligned payload with tracked header and class totals. */
 /* The header back-pointer is payload-4 after variable alignment padding,
@@ -286,15 +274,10 @@ s32 chkmemAllocate(u32 size)
     }
     return allocationAddressOrSize;
 }
-/* measured: func_0044ec60 matches with propagation disabled. */
 #pragma opt_propagation on
 
-/* Measured after restoring the recovered same-TU static func_0044e920:
- * object 256B / retail window 256B / normalized_diff 0. Static clobber
- * visibility keeps `block` live in $v0 across unlink, which emits the clear
- * before the following $a0 move exactly as retail. */
-/* Recover the payload header, remove tracking, and free the underlying block. */
-/* Separate typed header aliases retain the measured class-accounting reload order. */
+/* Recover the payload header, remove tracking, and free the underlying block. Separate typed header
+ * aliases keep retail's class-accounting reload order. */
 // FUN_0044EE70
 void chkmemFree(u8 *allocation)
 {
@@ -342,16 +325,8 @@ void chkmemFree(u8 *allocation)
     }
 }
 
-/* measured: func_0044ef70 (464B) floor at nd 54 — a saved-register rotation
-   plus the classBytes/classCount pool-reload scheduling floor. retail allocates
-   class=temp_16_2 in $s0 and block=func_0043ece8 result in $s1; mwcc b210 puts
-   block in $s0 and class in $s1 (declaration order, 4 orders, did not move it).
-   The alignment computation and the GP-relative msg string iGpffffac30
-   (-0x53D0, "%s %d") now MATCH (added to symbol_data_addrs.txt with evidence).
-   Same class-block pool-reload-before-delta floor as func_0044eaa0 plus the
-   saved-register rotation family of func_0044ec60/func_0044f3a0. */
-/* measured: preserves retail expression and class-array reload order. */
-/* measured: baseline removal differs in 23 bytes; typed class-pool access; MEMBER block size and alignment reloads also differ. */
+/* measured: retail keeps the class-pool reloads ahead of the size/alignment arithmetic; propagation
+ * off preserves that expression and reload order. */
 #pragma opt_propagation off
 /* Allocate and register a payload with caller-specified alignment. */
 /* The header back-pointer is payload-4 after variable alignment padding,
@@ -411,19 +386,14 @@ s32 chkmemAllocAligned(s32 size, s32 alignment, s32 flags)
     block->classInfo.classes = D_00763D1C->classes;
     return payloadAddress;
 }
-/* measured: func_0044ef70 matches with propagation disabled. */
 #pragma opt_propagation on
 
-/* measured: typed header access and per-arm result joins preserve the
-   retail branch chain: 596 executable bytes / 608B, all 36 relocations
-   exact. Keep the unlink helper static void; its physical v0 preservation
-   is not a pointer-return contract. Retail copies up to the old header's
-   total size, not payload capacity, and returning failure diagnostics still
-   lead to a NULL-header write. These defects are intentionally preserved. */
-/* Replace an optional payload and copy the smaller of its old total size and size. */
+/* Replace an optional payload, copying the smaller of the old header's total size (not payload
+ * capacity) and size; retail's NULL-header write on failure is intentionally preserved. */
 // FUN_0044F140
 #pragma push
-/* measured: preserve retail scheduling and the branch join after nested restore. */
+/* measured: retail schedules this body unscheduled, keeping the branch join after the nested lock
+ * restore. */
 #pragma schedule off
 s32 chkmemReallocate(void *allocationPointer, u32 size)
 {

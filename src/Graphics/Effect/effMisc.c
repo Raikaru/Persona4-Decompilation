@@ -1,6 +1,5 @@
 /* Whole-file translation unit: src/Graphics/Effect/effMisc.c */
 
-/* Source unit: src/Graphics/Effect/effMisc_004bce50.c */
 #include "include_asm.h"
 #include "type.h"
 
@@ -46,7 +45,6 @@ typedef struct RwMatrix
 extern void effMiscAxisAngleMatrix(f32 angle, const RwV3d* axis, RwMatrix* matrix);
 
 
-
 extern void mdlRenderInitializeBuffers(void);
 extern f32 D_008872F8_abs[];
 extern void (*D_00887300[])();
@@ -62,7 +60,7 @@ extern Code45RenderState D_00712490[6];
 extern void (*D_008873FC[])(s32 param, u8* arg);
 extern s32 kwlnGetCamera(void);
 
-/* RwCamera::nearPlane (+0x80); public layout is documented in rw/core/bacamera.h. */
+/* Mirrors RwCamera::nearPlane; the public layout is in rw/core/bacamera.h. */
 typedef struct EffMiscCamera {
     u8 pad00[0x80];
     f32 nearPlane;
@@ -163,7 +161,6 @@ void effMiscQuatMultiplyVU(void)
 }
 
 
-
 /* Normalizes the four-component vector in vf10 using the VU reciprocal square root. */
 // FUN_004BCE80
 void effMiscNormalizeVU(void)
@@ -183,7 +180,6 @@ void effMiscNormalizeVU(void)
         : "vf2", "vf3", "ACC", "Q", "memory"
     );
 }
-
 
 
 // Builds a rotation basis in vf28 to vf31 from the quaternion in vf10 (VU0 asm body).
@@ -226,7 +222,6 @@ void effMiscBuildRotationVU(void)
 }
 
 
-
 // Builds a quaternion from three angles (half-angle sines and cosines combined) and loads it into vf10.
 // FUN_004BCF20
 void effMiscEulerToQuatVU(f32 angleX, f32 angleY, f32 angleZ)
@@ -265,7 +260,6 @@ void effMiscEulerToQuatVU(f32 angleX, f32 angleY, f32 angleZ)
 }
 
 
-
 /* Advances the four-word XOR/shift generator; NULL selects the shared generator. */
 // FUN_004BD050
 u32 effMiscRand(EffRandState* state)
@@ -297,13 +291,11 @@ u32 effMiscRand(EffRandState* state)
 }
 
 
-
 // FUN_004BD0B0
 f32 effMiscRandFloat(EffRandState* state)
 {
     return (f32)(effMiscRand(state) & 0xFFFFFF) / 16777216.0f;
 }
-
 
 
 /* Expands the seed into four words using XOR constants and byte rotations. */
@@ -330,7 +322,6 @@ void effMiscRandInit(EffRandState* state, u32 seed)
     x = x ^ 0x11BE81C7;
     state->x[3] = (x << 0x18) | (x >> 0x08);
 }
-
 
 
 // Builds a rotation about X by angle into a matrix and loads its rows into vf28 to vf31.
@@ -376,7 +367,6 @@ void effMiscRotateXVU(f32 angle)
         : "vf28", "vf29", "vf30", "vf31", "memory"
     );
 }
-
 
 
 // Writes the axis-angle rotation matrix for angle about the normalised axis into matrix; the axis is normalised through VU0 first and the pad words are zeroed.
@@ -488,7 +478,6 @@ void effMiscAxisAngleVU(const RwV3d* axis, f32 angle)
 }
 
 
-
 // Builds a rotation about Y by angle and loads its rows into vf24 to vf27.
 // FUN_004BD3C0
 void effMiscRotateYVU(f32 angle)
@@ -532,7 +521,6 @@ void effMiscRotateYVU(f32 angle)
         : "vf24", "vf25", "vf26", "vf27", "memory"
     );
 }
-
 
 
 // Multiplies the basis in vf28 to vf31 by the matrix in vf24 to vf27 (VU0 asm body).

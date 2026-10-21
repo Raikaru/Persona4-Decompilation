@@ -215,18 +215,17 @@ typedef struct Code45Im2DVertex {
 #pragma pop
 #pragma push
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0045; members 00452ce0-00452ce0 */
-
 extern void sdkPadUpdateRecord(void *record);
 extern void sdkPadCookInput(s32 slot);
 extern void sdkPadDispatchButtons(s32 slot);
 extern void sdkPadStepSequence(void);
 #pragma pop
-/* measured: restore O2 after func_00450e80. */
-/* measured: opt_propagation off preserves the constant 3 as a live local in $a0 and the computed pointer in $v1. */
+/* measured: with constant propagation off, retail keeps the constant 3 in a live local and holds
+ * the computed pointer across the call. */
 #pragma push
 #pragma pop
-// Intent: per-frame pad update for both slots: updates each record, cooks its input and dispatches its button edges, then resets the default analog centres to 0x80.
+// Per-frame pad update for both slots: updates each record, cooks its input, dispatches button
+// edges, then resets default analog centres to 0x80.
 // FUN_00452CE0
 void sdkPadUpdateAll(void) {
     s32 index;

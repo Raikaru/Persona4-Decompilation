@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Camp/h_camp.c; members 001228c0-00124210 */
 
 #include "model_motion_internal.h"
 #include "include_asm.h"
@@ -11,7 +10,7 @@
 #include "shd_misc_internal.h"
 #include "rw/plcore/barenderstate.h"
 
-/* Unit setting: propagation on; the backdrop draw retains its measured exception. */
+/* Propagation is on for this unit; the backdrop draw keeps its own setting. */
 #pragma opt_propagation on
 extern void (*jtbl_008873EC[])(void *);
 extern u8 D_005E50D0[];
@@ -49,8 +48,8 @@ extern void radarAnimateValue(u8 *work, s32 frame, s32 mode);
 extern s32 chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s32 calendarStateTask(u8 *unusedTask);
-/* Five initialization records at D_005E50D0 have a proven 0x20-byte stride. */
-/* sdkSpr.c allocates 0x2C-byte samples; coordinate, pivot and Q12 scale fields follow its renderer. */
+/* Five initialization records at D_005E50D0 use a 0x20-byte stride. sdkSpr.c allocates 0x2C-byte
+ * samples whose coordinate, pivot and Q12 scale fields follow its renderer. */
 typedef struct SdkSpriteSample {
     u32 packAddress, recordIndex;
     f32 x, y;
@@ -74,7 +73,6 @@ typedef struct CalendarRecordInit {
     s32 endFrame;
     u8 pad1C[4];
 } CalendarRecordInit;
-
 
 
 typedef struct CalendarSceneWork {
@@ -181,14 +179,10 @@ void calendarStateTaskDestroy(u8 *task)
     iGpffffb1dc = 0;
 }
 
-/* measured: b210 -O2 emits all 3220 executable retail bytes; the
-   remaining 12 bytes are zero alignment. Fresh float constants and
-   shared integer literals require propagation and constant extraction
-   off, with common-subexpression optimization enabled.
-   Proof: build/cos20335-continuation/field-ui/review-00122a40-closed. */
+/* measured: retail's fresh float constants and shared integer literals need propagation and
+ * constant extraction off, with common-subexpression optimization on. */
 // FUN_00122A40
 #pragma push
-/* measured: baseline and individual propagation/constant-extraction probes differ (nd 2413/2197/2413). */
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
 /* Animate and draw the calendar background, month/day digits and period indicators; restore fog state afterward. */
@@ -196,7 +190,8 @@ void calendarDrawBackdrop(void *unusedNode, void *work)
 {
     SdkSpriteSample *spriteSample;
 
-    /* Sprite positions (+8/+0xC), alpha (+0x10) and transform fields (+0x18..0x24) retain raw access: typing changed MWCC scheduling. */
+    /* Sprite positions, alpha and transform fields use raw offsets; typed access changed the
+     * generated code. */
     extern s32 (*D_00887304[])(RwRenderState state, void *value);
     extern s32 (*D_00887300[])(RwRenderState state, void *value);
     extern void sdkSpriteDrawOnceAux(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y, u8 alphaSubtract, u8 fade, f32 z, s32 setStates);
@@ -468,8 +463,10 @@ s16 clndGetDaysSinceApr5(void)
 }
 
 #pragma push
-/* measured: the named first-field load plus -O1 reproduce retail's argument setup order; exact match nd 0 (obj 104B/window 112B). */
-/* measured: opens optimization_level 1 to keep the +6 store and +4 load before the call conversion (nd 0). */
+/* measured: optimization level 1 keeps retail's argument setup order, with the +6 store and +4 load
+ * before the call conversion. */
+/* Copy the current date index and time slot into the calendar state, then store the day table value
+ * for that date and slot. */
 // FUN_00123850
 #pragma optimization_level 1
 /* Refresh the calendar date, period and day-table value from persistent game state. */
@@ -633,7 +630,7 @@ s8 calendarGetValueLowByte(void) {
 
     p = (CalendarState *)iGpffffb1dc;
     if (p != NULL) {
-        return *(s8 *)&p->field_08; /* low byte of field_08 */
+        return *(s8 *)&p->field_08;
     }
     return -1;
 }
@@ -677,7 +674,7 @@ s32 clndPromptUpdate(u8 *task)
 {
     CalendarPromptWork *promptWork;
 
-    /* The 12-byte prompt work stores state/window/icon at +0/+4/+8; typed access changed MWCC allocation. */
+    /* The 12-byte prompt work holds state, window and icon words. */
     s32 firstChoice;
     s32 retryChoice;
     s32 iconResult;

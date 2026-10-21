@@ -62,7 +62,6 @@ extern RwV3d D_0060A100;
 extern u8 *(*D_008873E8[])(s32 data, s32 value);
 
 
-
 extern f32 mdlGetLayerWeight(s32 model, s32 layer);
 extern void mdlSetLayerTime(void *model, s32 layer, f32 frameValue);
 
@@ -77,8 +76,6 @@ extern void btlUnitClearModelState(u8 *unit, s32 mode);
 extern void btlUnitApplyModelState(u8 *unit, s32 mode);
 
 
-
-
 extern u8 *btlPacketAlloc(s32 packetType, s32 workSize);
 extern s32 iGpffffb444;
 
@@ -91,24 +88,12 @@ extern u8 iGpffffa088;
 extern u32 iGpffffa0a8;
 extern u8 D_00794150[];
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_0019; members 0019aae0-0019ac20 */
-
-/* measured: optimization_level 1 with the index and value locals declared
-   before the loop reproduces func_00194470 exactly, object 284 bytes against
-   the 288-byte window at nd 0; -O2 reorders the initialisation. */
-/* measured: opt_propagation off is scoped to func_00194590. */
-/* measured: closes opt_propagation around func_00194590. */
-/* measured: opt_propagation off is scoped to func_001949d0. */
-/* measured: closes opt_propagation for func_001949d0. */
-/* measured: optimization_level 1 reproduces the retail loop initialisation order. */
+/* measured: optimization_level 1, with the index and value locals declared before the loop, keeps
+ * retail's initialisation order; -O2 reorders it. */
 #pragma push
 #pragma pop
-/* measured: opt_propagation off is scoped to func_001990d0. */
-/* measured: closes opt_propagation around func_001990d0. */
-/* measured: opt_propagation off is scoped to func_001998e0. */
-/* measured: closes opt_propagation around func_001998e0. */
-/* Measured: the hit ordinal is s64 and motion is u16. Propagation off
-   retains the entry mask and the late unsigned-halfword table index. */
+/* measured: the hit ordinal is s64 and motion is u16; with propagation off, retail keeps the entry
+ * mask and loads the unsigned-halfword table index late. */
 #pragma push
 #pragma pop
 // FUN_0019AAE0
@@ -117,7 +102,6 @@ void btlUnitHoldPendingMotionSpeed(u8 *packetWork)
     ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount = ((BtlUnit *)((BtlUnitPacketReference *)packetWork)->unit)->pendingPacketCount + 1;
 }
 
-/* measured: typing either remaining model-present test changes MATCH to MISMATCH; the initial test is typed. */
 /* Restart the current motion with the requested rate/options while preserving its frame. */
 // FUN_0019AB00
 u32 btlUnitMotionSpeedPacketUpdate(void *workData)
@@ -144,7 +128,8 @@ u32 btlUnitMotionSpeedPacketUpdate(void *workData)
         else
             narrowFrame = 0;
         savedFrame = narrowFrame;
-        /* measured: the capture keeps the motion lh before the unit-argument move; a separate assignment reverses them. */
+        /* The comma expression loads currentMotion before the unit argument is set up, matching
+         * retail's order. */
         btlUnitSetMotion((unit), ((motion = ((BtlUnit *)unit)->currentMotion, motion)), (frame), (rate), (option));
         if (*(s32 *)&typedUnit->flags2 & 2)
             mdlSetLayerTime(((BtlUnit *)unit)->layerHandle, 0, (f32)savedFrame);

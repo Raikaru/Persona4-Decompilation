@@ -18,8 +18,8 @@
 #include "btl_skill_internal.h"
 #include "member_access.h"
 
-/* Unit settings: extract loop invariants throughout the action callbacks.
- * measured: all 48 functions MATCH with the unhoisted pursuit exception below. */
+/* measured: retail hoists loop invariants throughout the action callbacks, except for the unhoisted
+ * pursuit routine below. */
 #pragma opt_loop_invariants on
 
 /* Enemy battle-table rows have a proven 0xE8 stride. The two movement
@@ -38,10 +38,8 @@ typedef struct BtlEnemyBattleParameters {
 } BtlEnemyBattleParameters;
 typedef char BtlEnemyBattleParametersSizeCheck[
     sizeof(BtlEnemyBattleParameters) == 0xE8 ? 1 : -1];
-/* Signed scheduling header of the same packet object as BtlPacket.
- * measured: replacing AttackUpdate's delay read/modify/write with BtlPacket.delay
- * (u16) changes one instruction (verifier normalized index 3727); retain the signed s16 load.
- * dependencyKind 4 waits for the packet whose uid is dependencyUid. */
+/* Signed scheduling header of the BtlPacket object; delay is read as s16. dependencyKind 4 waits
+ * for the packet whose uid is dependencyUid. */
 typedef struct BtlPacketTiming {
     s8 dependencyKind;  /* 0x00: 4 waits for dependencyUid */
     u8 pad01[7];
@@ -61,7 +59,6 @@ typedef struct BtlTarget BtlTarget;
 extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
 extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrameCount, f32 speed, u16 mode);
 
-/* Existing byte-view callers use these adapters to the provider definitions. */
 extern BtlPacket *btlTargetCreateTargetPacket(u32 action, u16 command, u32 argument, u32 extraArgument, u32 flags);
 
 extern void btlActionSetStateWithDelay(BtlAction *action, u16 state, u16 delay);
@@ -213,8 +210,8 @@ BtlPacket *btlFormationCreatePacket(u32 formation, u32 sourceUnit, u32 targetUni
 BtlPacket *btlSoundCreateChannelCuePacket(u16 channel, u16 cue, u16 variant);
 extern f32 D_0076144C; /* anchor-return speed multiplier */
 
-/* Source unit: src/promoted/code1_001a.c */
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in src/promoted/code1_001a.c; members 001a1450-001adb80 */
+/* Inferred translation unit with no __FILE__ evidence; its boundaries come from gaps in the
+ * instruction scheduling. */
 
 extern s32 btlActionAnyTargetDownOrHitFlagged(u8 *action);
 extern void btlActionGetEffectIndices(BtlAction *action, u16 skillId, u8 *effectIndices);
@@ -223,11 +220,10 @@ extern s32 btlActionLinkedUnitIsActive(BtlAction *action);
 /* Preserve offset-first target copies; canonical action-field rewrites changed TargetUpdate's allocation. */
 
 
-/* Candidate slots are action+0x98+i*4; byte origin preserves PursuitUpdate's measured narrow-index reads. */
+/* Candidate slots are 4-byte entries after the action header. */
 
-/* Readiness uses battle opening side (+0x1A) and a flag word (+0x290) absent from BtlBattleState. */
-/* Locate the selected hit result after the action target header. */
-/* measured: keeps the original stack frame and hit-row address lifetimes; expansion grows the frame by sixteen bytes; btlActionAttackUpdate plain expansion differs 1849 byte(s); btlActionSkillUpdate plain expansion differs 2469 byte(s). */
+/* measured: locates the selected hit result after the action target header; the inline wrapper
+ * keeps retail's stack frame and hit-row address lifetimes. */
 static inline u8 *btlActionGetIndexedHitResult(u8 *action, const u16 *index)
 {
     return action + (u32)*index * 0x20 + 0xF0;
@@ -278,32 +274,24 @@ static inline s32 btlActionUsesCloseCamera(u8 *unit, s32 noPartner)
 
 
 /* Add the six-frame lead-in for effect presentation. */
-/* measured: keeps the six-frame addiu ahead of the battle-state and actor loads; btlActionSkillUpdate plain expansion differs 13 byte(s). */
 static inline s32 btlActionAddEffectDelay(s32 frames)
 {
     s32 delay;
     delay = frames + 6;
     return delay;
 }
-/* Locate the selected fixed-stride hit row origin. */
-/* measured: keeps the hit-row index load and allocation; expansion removes an instruction and shifts later branches; btlActionSkillUpdate plain expansion differs 3099 byte(s). */
+/* Locate the selected fixed-stride hit row origin. measured: the inline wrapper keeps retail's hit-
+ * row index load and register allocation; writing it out inline drops an instruction. */
 static inline u8 *btlActionGetIndexedHitBase(u8 *action, const u16 *index)
 {
     return action + (*index << 5);
 }
-/* Read a formation address using the narrow slot index. */
-/* measured: keeps the battle-base load ahead of narrow-index masking and shifting; btlActionErrorUpdate plain expansion differs 10 byte(s). */
+/* Read a formation address using the narrow slot index. measured: retail loads the battle base
+ * before masking and shifting the narrow index, which only this inline wrapper reproduces. */
 static inline s32 btlActionGetFormationAddress(BtlBattleState *table, u16 index)
 {
     return (s32)table->formations[index];
 }
-/* measured: loop-invariant probe for 001A0140 preheader materialization. */
-/* measured: close loop-invariant probe for 001A0140. */
-/* measured: opt_propagation off plus one named local per address term. mwcc
-   keeps source operand order for `named + named` (addu off,base / addu idx,sum
-   as retail) but commutes an inline product on the left (`a * k + b` emits
-   addu b,a*k); the table base must be copied first so its lw leads the block. */
-/* measured: restore propagation for the rest of the unit. */
 /* Prepare command presentation, orient the unit lists, and initialize the command-panel wait state. */
 // FUN_001A1450
 void btlActionCommandInit(s64 *action)
@@ -417,8 +405,8 @@ loop_19_test:
     ((BtlAction *)action)->unk_420 = 0;
 }
 
-/* measured 001a17d0: obj 1192B/window 1200B (-8B, -0.7% inside, 2-instr slack); 0 words via `python3 tools/measure_guarded.py src/promoted/code1_001a.c func_001a17d0`, 0 edits (+28 reloc-only) 298/298 via `python3 tools/fnalign.py src/promoted/code1_001a.c func_001a17d0 --candidate /tmp/candF_f32.c --quiet`; Jal 36 both sides. Switch v4 &0xFFFF reverse 2,0/default (compiler checks 0 first, matching retail layout; was if/else with bne losing andi+beq+b); switch v10 numeric 1,2,3,10 (compiler checks 10,3,2,1, matching retail; was reverse 10,3,2/1 checking 1 first); s32 f (was u16, fixes $a0 vs $v1 + extra andi); tail before check9 (was 9 before tail, fixing 37/37 pure hole/lump exactly equal, 294/297 inside hiding swap, edits 120->0). Production MATCH. */
-/* Drive command-panel selection, temporary condition messages, and the ready/automatic transitions. */
+/* Switches list cases in the order retail tests them (state 0 first; kinds 10,3,2,1); the tail
+ * check comes before kind 9. */
 // FUN_001A17D0
 void btlActionCommandUpdate(u8 *action)
 {
@@ -804,12 +792,11 @@ void btlActionAnalyzeInit(BtlAction *action)
     ((BtlAction *)action)->unk_41c = 1;
 }
 
-/* measured: 1564/1568 bytes, 47 resolved relocations, four zero tail bytes.
- * Loop invariants hoist the first scan's true value and each unsigned wrap
- * bound as retail does. Stored short cursor and widened index stay distinct. */
+/* Loop invariants hoist the first scan's true value and each unsigned wrap bound; the stored short
+ * cursor and widened index stay distinct. */
 // FUN_001A24B0
-/* measured: typed argument aliases and named member reads retain 288 differing words at baseline. */
-/* Hide unrelated actors, browse distinct unit records, and restore presentation when analyze closes. */
+/* Hide unrelated actors, browse distinct unit records, and restore presentation when analyze
+ * closes. */
 void btlActionAnalyzeUpdate(u8 *action)
 {
     BtlAction *actionLayout = (BtlAction *)(action);
@@ -1060,18 +1047,12 @@ void btlActionSupportInit(void)
 {
 }
 
-/* MATCHED: 1072 bytes of code and the 64-byte table at 0x00746FD0 resolve
-   exactly.  This is D_005f6e20[10].update, a void action callback, so the
-   packet UID that func_00194590 returns is discarded here.  The u8
-   conversion plus the explicit signed guard reproduce retail's redundant
-   `bltz` range check - the two words an earlier pass could not place -
-   and opt_propagation off with opt_common_subs off keep that lowering
-   together with the repeated `(u8*)((BtlUnit *)unit)->datUnit` loads that retail
-   reloads rather than folding. */
-/* Clear the selected buff levels and enqueue their presentation, or choose status recovery/the next state. */
+/* D_005f6e20[10].update, a void action callback, so the packet UID from func_00194590 is discarded.
+ * The u8 conversion plus explicit signed guard reproduce retail's redundant range check. Clear the
+ * selected buff levels and enqueue their presentation, or choose status recovery/the next state. */
 // FUN_001A2D70
 #pragma push
-/* measured: typed action/unit aliases and MEMBER reads retain 228 or more differing words at baseline. */
+/* measured: retail recomputes repeated action and unit field loads instead of reusing them. */
 #pragma opt_common_subs off
 void btlActionSupportUpdate(u8 *action) {
     extern void btlActionSetState(u8 *, u16);
@@ -1761,23 +1742,16 @@ void btlActionPursuitInit(void)
 {
 }
 
-/* Recovered action selection. Configured b210 -O2 emits 1092 retail bytes
- * plus 12 zero alignment bytes. The workspace keeps the signed element in
- * actual halfword storage and both twelve-entry target lists at their observed
- * 16-byte alignment. Scalarization is disabled for this storage; propagation
- * is disabled to preserve the unit load before the element's signed-word
- * promotion. The affinity provider retains its canonical s32 input. */
-/* Keep the promoted shuffle count and output base at their explicit
- * phase boundaries. The index reference preserves each narrow read. */
-/* Select eligible targets, preserving the reference action when required,
- * then queue voice, cut-in and dependent formation packets. Both local
- * target lists hold twelve entries; single-target selection requires
- * a nonempty eligible set. */
+/* Select eligible targets, preserving the reference action when required, then queue voice, cut-in
+ * and dependent formation packets. Both local target lists hold twelve entries; single-target
+ * selection requires a nonempty eligible set. */
 #pragma push
-/* measured: MEMBER status reads reduce baseline to two words; affinity load/element lifetimes still swap. */
+/* measured: retail loads the unit before promoting the signed element, so propagation stays off. */
 #pragma opt_propagation off
-/* measured: the unit's invariant hoisting changes 21 bytes here; retain this callback's unhoisted loops. */
+/* measured: retail leaves this callback's loop-invariant loads inside the loops. */
 #pragma opt_loop_invariants off
+/* Choose targets for a pursuit follow-up skill, skipping dead, buffed or immune candidates and
+ * preferring ones without the bad status, then queue the action against them. */
 // FUN_001A43A0
 void btlActionPursuitUpdate(u8 *action)
 {
@@ -1927,10 +1901,8 @@ void btlActionReadyInit(void)
 }
 
 #pragma push
-/* measured: b210 -O2 with this scoped setting emits 1148/1152 exact bytes.
- * The ushort counter wrap and offset-first helper preserve retail's operation
- * order. All 39 code relocations and the 52-byte switch table were resolved. */
-/* measured: typed argument aliases and named member reads retain 236 differing words at baseline. */
+/* measured: common-subexpression elimination is off so the ushort counter wrap and offset-first
+ * helper keep retail's operation order. */
 #pragma opt_common_subs off
 /* Wait for the participating actions before dispatching the selected action
  * type and submitting its target-state and camera packets. */
@@ -2049,16 +2021,12 @@ donecheck:
 }
 #pragma pop
 
-/* Measured 2026-09-30 with the coherent motion-provider family: 2336 bytes,
- * zero instruction differences. Both motion locals use the provider's u16
- * selector domain; no wide temporary or local ABI override is needed.
- * Scoped lifetime optimization and preserved assignments retain the range
- * predicate and speed-table control flow. Position and rotation providers
- * consume three and four floats respectively. Action actors are kind 0/1,
- * created by 0019f5f0; the selector's other retail cases remain intact. */
+/* Both motion locals use the provider's u16 selector; action actors are kind 0/1, created by
+ * 0019f5f0. */
 // FUN_001A4C80
 #pragma push
-/* measured: typed aliases retain 174 words; removing either lifetime/dead-assignment setting also differs. */
+/* measured: retail keeps the range predicate and speed-table control flow that both lifetime and
+ * dead-assignment settings are needed for. */
 #pragma opt_lifetimes on
 #pragma opt_dead_assignments off
 /* Compute the source approach position and speed, retaining paired-target and encounter restrictions. */
@@ -2378,10 +2346,9 @@ void btlActionMoveTargetUpdate(BtlAction *action) {
     }
 }
 
-/* Measured: 656/656 bytes and 15 resolved relocations match retail.
- * Preserve unit/UID reloads across queue callbacks and the ordered distance test. */
+/* Unit and UID are reloaded across queue callbacks, and the distance test keeps its order. */
 #pragma push
-/* measured: named action/unit members retain 19 or more words; either toggle alone also differs. */
+/* measured: retail reloads unit and UID fields after each queue callback. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
 /* Return toward the anchor pose when necessary; otherwise dispatch the selected command immediately. */
@@ -2511,64 +2478,8 @@ void btlActionAttackInit(void)
 {
 }
 
-/* 2026-10-03 storage repair: preserve action/packet UIDs as doublewords
-   and select true 0x20-byte hit records. The old narrowing measurements above
-   are historical, not type evidence. See Large_Battle_storage_20261003.md.
-   2026-10-08: opt_loop_invariants on lowers fnalign from 837 to 752 edits.
- * 2026-10-09: 752 -> 709: the m2c label loops are while loops.
- * 696: range tests in retail's slti $at form.
- * 666: type sweep.
- * 660: swap sweep.
- * 652: type sweep.
- * 651: type sweep.
- * 646: temporary conversion lever (0, 2).
- * 642: temporary conversion lever (0, 2).
- * 2026-10-10: 642 -> 614 aligned edits by replacing seven undefined or
- * redundant sign-extension shifts with explicit signed-halfword/byte casts.
- * The local 001d15a0 provider returns s16; measured in battle lane scratch.
- * sdiff struct 413 -> 395: arg0 accessed through a u8 * local; the (u8 *)(s64 *) cast at every use made MWCC CSE and spill field addresses.
- * sdiff struct 395 -> 393: the two close-camera decisions through one inline helper (btlActionUsesCloseCamera) instead of m2c's switch/goto copies.
- * fnalign 575 -> 545: the 0x13/0x10 selection as a flag test with the 0x13 call first (no goto block_224), as in func_001a7720.
- * fnalign 545 -> 527: the tail state switch (cases 1,3,2 and default both set state 0x20) as in the matched-path sibling 001a7720, with the real btlActionSetState(BtlAction *, u16) prototype (retail daddiu per arm, one shared call).
- * fnalign 527 -> 521: btlCloseCamera reads the unit id before the switch, sends every failing path to one shared result = 0 (default arm, goto fail) and tests the 0x8000 flag first (retail polarity).
- * fnalign 521 -> 493: integer-cast +0x30 unit reads at selected sites (b210 does not CSE the address across calls, as retail).
- * fnalign 493 -> 455: integer-cast field-base reads (no cross-call address CSE).
- * fnalign 455 -> 453: integer-cast field-base reads (second pass).
- * 2026-10-12 measured: fnalign 453 -> 452; the hit-effect flag is a word (retail sw/lw), not s16.
- * 2026-10-12 measured: fnalign 452 -> 405; let the timing APIs narrow their u16 motion argument, without a shared masked temporary.
- * 2026-10-12 measured: fnalign 405 -> 343; captured regalloc requires the source unit before the phase locals. Sound query contracts now match their providers.
- * 2026-10-12 frame audit: fnalign 343 -> 340, frame 0x3C0 -> 0x3B0; voice option is s32 and the target count is already bounded by u16, so no masked spill is needed.
- * 2026-10-12 row lifetime: fnalign 340 -> 335; retain the unbiased target-plus-hit-stride base, restoring retail's separate row spill and +0xF0 payload address (frame 0x3C0).
- * 2026-10-12 UID accessor: fnalign 335 -> 331, frame 0x3C0 -> 0x3B0; inline packet UID reads eliminate the cross-call +0x58 address spill.
- * 2026-10-12 kind accessor: fnalign 331 -> 327, frame 0x3B0 -> 0x3A0; reload the source-unit kind directly rather than spilling its field address.
- * 2026-10-12 effect-unit accessor: fnalign 327 -> 325; inline unit reads in the effect phase replace one spilled-address reload with retail's direct +0x30 load.
- * 2026-10-12 paired-effect unit: fnalign 325 -> 322; the first paired-effect constructor reloads its unit through the existing accessor rather than a spilled field address.
- * 2026-10-12 target layout: fnalign 322 -> 318, frame 0x3A0 -> 0x380; type the target action's effect/flags at 0xDC/0xDE, removing both hoisted field-address spills.
- * 2026-10-12 target unit member: fnalign 318 -> 309, frame 0x380 -> 0x370; recover the target's +0x30 unit field and remove its cross-call address spill.
- * 2026-10-12 selected-action layout: fnalign 309 -> 239, frame 0x370 -> 0x340; the selected action shares the typed +0x30 unit member, eliminating three quadword field-address spills and the redundant accessor.
- * 2026-10-12 animation packet type: fnalign 239 -> 218, frame 0x340 -> retail 0x330; keep the constructor's BtlPacket pointer type, avoiding a coalesced 16-byte byte-pointer spill.
- * 2026-10-12 hit-count consumers: fnalign 218 -> 214; preserve the signed-halfword normalization of the byte-loaded hit count and its conditional snapshot, matching retail's two sign extensions.
- * 2026-10-12 captured spill order: fnalign 214 -> 93, every frameslots offset now agrees at 0x330; declare the surviving packet/result pointers beside their aliases (b210 graph replay preserves their spill choices).
- * 2026-10-12 count/selector joins: fnalign 93 -> 88; keep the repeat-count snapshot signed and the branch-selected effect-table index full-width, removing two non-retail masks.
- * 2026-10-12 row phases: fnalign 88 -> 82; use unsigned byte-address indices inside both loops and recompute the hit-result view after the repeat phase, separate from the retained hitRow snapshot.
- * 2026-10-12 opening scan index: fnalign 82 -> 74; narrow the row index independently from the masked loop bound, preserving retail's separate halfword normalizations.
- * 2026-10-12 opening packet contract: fnalign 74 -> 72; use the matched sibling's BtlPacket *(u32, u16) constructor signature to preserve native halfword argument evaluation.
- * 2026-10-12 paired-target flag: fnalign 72 -> 70; normalize the masked flag before inverting it, matching retail's sltu/xori sequence.
- * 2026-10-12 motion dispatch: fnalign 70 -> 62; recover the two-case switch instead of the empty negated if, preserving retail's two positive tests and default jump.
- * 2026-10-12 camera table order: fnalign 62 -> 56; place the table base before the native halfword index so b210 evaluates the global load before scaling, as in both retail camera checks.
- * 2026-10-12 animation timing dispatch: fnalign 56 -> 54; restore the two-case delay switch, including its explicit default packet-delay path.
- * 2026-10-12 distance-packet address word: fnalign 54 -> 52; read the existing unit-address word at the integer ABI boundary instead of hoisting a pointer-to-integer conversion across the distance branch.
- * 2026-10-12 result-packet address word: fnalign 52 -> 50; likewise read the selected unit as the constructor's native integer address, restoring source/target argument materialization order.
- * 2026-10-12 camera reaching definitions: fnalign 50 -> 23; assign the predicate in each successful case rather than eagerly initializing it, matching both retail constant/load order and the case-1 success jump.
- * 2026-10-12 reaction reaching definitions: fnalign 23 -> 15; retain the truthy byte/random gate values and the ID comparison's shared one until the common decision test, without an extra boolean-result block.
- * 2026-10-12 post-repeat row accessor: fnalign 15 -> 8; reread the halfword index through the byte-row accessor, then retain the caller's typed result snapshot. Retail's lhu/move and every 0x330-frame offset now agree.
- * 2026-10-12 effect-index API: fnalign 8 -> 6; the canonical callee consumes only the skill key's low halfword and remains byte-exact with u16. Its sole C caller now materializes the native halfword argument in retail order.
- * 2026-10-12 camera field origin: fnalign 6 -> 4; pass the first signed-halfword field to the strided reader, preserving the GP load and both retail index-first addu operands. Four branch-target differences remain.
- * 2026-10-12 selected-target join: fnalign 4 -> 3; select into a separate target local before handing it to the packet phase. The coalesced copy retains retail's intermediate branch-only join without emitting an instruction.
- * 2026-10-12 reaction short circuits: fnalign 3 -> 0; stage the real gate values and jump directly to reaction construction on each shortcut. Only the fallback predicate passes through the common boolean test.
- */
-/* measured: named action-member access retains 1624 differing words without invariant hoisting. */
-/* Build attack animation, repeated-hit, reaction and result packet chains with their frame dependencies. */
+/* Build attack animation, repeated-hit, reaction and result packet chains with their frame
+ * dependencies. */
 // FUN_001A59A0
 void btlActionAttackUpdate(s64 *actionWords) {
     u8 *actionBytes = (u8 *)actionWords;
@@ -2579,9 +2490,8 @@ void btlActionAttackUpdate(s64 *actionWords) {
     extern u8 *btlUnitCreateArcMovePacket();
     extern u8 *btlUnitCreateRotateTowardUnitPacket();
     extern u8 *btlCameraCreateSetStatePacket();
-    /* Retail's call at 0x001A6F38 returns the packet in $v0, consumed by
-       the +0/+8/+0x60 stores at 0x001A6F48..58. The provider's existing
-       void spelling omits that live return; this pointer result is required. */
+    /* Retail uses the returned packet pointer for the stores that follow, so the prototype returns
+     * a pointer. */
     extern u8 *btlCameraCreatePacketCommand(s32 value, s16 option, s32 first, s32 second);
     extern BtlPacket *btlFormationCreateMovePacket(u32 source, u32 target, f32 distance, u16 mode);
     extern u8 *btlFormationCreateWaitPacket();
@@ -3457,8 +3367,6 @@ void btlActionSkillInit(void)
 {
 }
 
-/* measured: typed argument aliases and named action/unit members retain 1788 or more baseline words. */
-/* Sequence skill presentation, linked-unit effects, per-target results and recovery using packet UIDs. */
 // FUN_001A7720
 void btlActionSkillUpdate(u8 *actionBytes) {
     BtlAction *targetActionRecord;
@@ -3489,7 +3397,7 @@ void btlActionSkillUpdate(u8 *actionBytes) {
     extern BtlPacket* btlMainCreateColorLerpPacket(u32 startColor, u32 targetColor, u32 duration);
     extern BtlPacket* btlCreateTimingPacket(u32 value);
     extern BtlPacket *btlMainCreateColorWorkPacket(s32 lightColor, s32 ambientColor, s32 fogColor, u32 duration, u16 flags);
-    /* lint: allow H011 -- retail zero-extends the mode with andi 0xffff: this caller saw a u16 parameter. */
+    /* lint: allow H011 -- retail zero-extends the mode, so this caller saw a u16 parameter. */
     extern BtlPacket *btlMainCreateFadePacket(s32 arg, u16 mode);
     extern BtlPacket* btlMainCreateTintPacket(u32 targetColor, u32 duration);
     extern BtlPacket* btlMainCreateColorFadePacket(s32 arg);
@@ -3504,9 +3412,9 @@ void btlActionSkillUpdate(u8 *actionBytes) {
     extern u32 btlFormationGetFlags(s32 record);
     extern BtlPacket *btlFormationCreatePacket(u32 formation, u32 sourceUnit, u32 targetUnit, u16 side, u32 flags);
     extern u16 btlTargetGetUnitIndex(BtlTarget *target);
-    extern s32 btlUnitSlotValueOrOne(u16 unitId); /* lint: allow H011 -- retail passes the lhu skill unconverted */
-    /* lint: allow H011 -- retail passes these u16 arguments without conversion:
-     * this caller saw u16 parameters (the definitions take u32/s32). */
+    extern s32 btlUnitSlotValueOrOne(u16 unitId); /* lint: allow H011 -- retail passes the lhu unit id unconverted */
+    /* lint: allow H011 -- retail passes these u16 arguments unconverted, though the definitions
+     * take u32/s32. */
     extern void btlFormationFormatName(u16 value, char *destination); /* lint: allow H011 -- retail passes the u16 unconverted */
     extern BtlPacket *btlMainCreateUnitTintPacket(BtlAction *action, u16 selector, u32 duration); /* lint: allow H011 -- retail passes the u16 unconverted */
     extern void btlTargetClearResultBuffer(u8 *result);
@@ -3949,13 +3857,13 @@ void btlActionSkillUpdate(u8 *actionBytes) {
     } else {
         skillKind = (s16)datCalcSkillElement(NULL, (u16)skill);
         switch (skillKind) {                           /* switch 1; irregular */
-        case 16:                                    /* switch 1 */
+        case 16:
             formationHandle = (s32)((s32)((BtlBattleState *)iGpffffb3ac)->formations[38]);
             break;
-        case 17:                                    /* switch 1 */
+        case 17:
             formationHandle = (s32)((s32)((BtlBattleState *)iGpffffb3ac)->formations[39]);
             break;
-        default:                                    /* switch 1 */
+        default:
             formationHandle = (s32)((s32)((BtlBattleState *)iGpffffb3ac)->formations[37]);
             break;
         }
@@ -4733,13 +4641,13 @@ void btlActionSkillUpdate(u8 *actionBytes) {
                 } else {
                     skillKindRow = (s16)datCalcSkillElement(NULL, skillKeyCopy);
                     switch (skillKindRow) {                /* switch 2; irregular */
-                    case 16:                            /* switch 2 */
+                    case 16:
                         targetElementCuePacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0x16));
                         break;
-                    case 17:                            /* switch 2 */
+                    case 17:
                         targetElementCuePacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0x19));
                         break;
-                    default:                            /* switch 2 */
+                    default:
                         targetElementCuePacket = (BtlPacketTiming *)(btlSoundCreateChannelCuePacket(0xC, 2, 0x15));
                         break;
                     }
@@ -4823,7 +4731,7 @@ void btlActionSkillUpdate(u8 *actionBytes) {
                         if (restoreMotionSpeed == 0) {
                             earlyMotionRecoveryPacket = (BtlPacketTiming *)(btlUnitCreateMotionRequestPacket(act->unit, windupFrames));
                         } else {
-                            /* Retail 001a9e5c/001ab480/001ab668 pass 1.0f in $f12. */
+                            /* Retail passes a speed of 1.0f here. */
                             earlyMotionRecoveryPacket = (BtlPacketTiming *)(btlUnitCreateMotionSpeedPacket((BtlUnit *)((u8*)((BtlAction *)actionBytes)->unit), 0, 1.0f, 0));
                         }
                         earlyMotionRecoveryPacket->dependencyKind = 5;
@@ -4937,19 +4845,19 @@ void btlActionSkillUpdate(u8 *actionBytes) {
                     if (act->targetCount == 1) {
                         skillKindUnit = (s16)datCalcSkillElement((u8 *)((BtlUnit *)act->unit)->datUnit, skillKeyCopy);
                         switch (skillKindUnit) {            /* switch 3; irregular */
-                        case 1:                         /* switch 3 */
+                        case 1:
                             motionIdRaw = 0x29;
                             break;
-                        case 2:                         /* switch 3 */
+                        case 2:
                             motionIdRaw = 0x2B;
                             break;
-                        case 3:                         /* switch 3 */
+                        case 3:
                             motionIdRaw = 0x2A;
                             break;
-                        case 4:                         /* switch 3 */
+                        case 4:
                             motionIdRaw = 0x2C;
                             break;
-                        default:                        /* switch 3 */
+                        default:
                             motionIdRaw = -1;
                             break;
                         }
@@ -5502,13 +5410,8 @@ void btlActionSummonInit(void)
 {
 }
 
-/* Measured 2026-09-28: 2384/2384 bytes, resolved code/data references and
- * all 70 sibling functions unchanged. Packed colors, the halfword skill
- * selector, and packet/ID lifetimes retain the 0x170 frame. The formation
- * filename is a 128-byte string; encounter insertion returns DatUnit*. */
+/* The formation filename is a 128-byte string; encounter insertion returns DatUnit*. */
 // FUN_001ABBB0
-/* measured: taking the indexed ID slot's address removes the sole baseline addu-order difference. */
-/* Play the summon presentation and initialize up to three new encounter actors and their resources. */
 void btlActionSummonUpdate(s64 *actionBytes)
 {
     typedef struct DatUnit DatUnit;
@@ -6081,8 +5984,6 @@ void btlActionErrorUpdate(u8 *action) {
 }
 
 /* Apply the selected endurance flag, or restore the saved state when no endurance skill is pending. */
-/* measured: access-site, typed-local and array forms change allocation (156 bytes);
- * retain the byte-origin load of the existing endurance-state storage member. */
 // FUN_001ACB10
 void btlActionEndureInit(u8 *action)
 {
@@ -6329,7 +6230,6 @@ void btlActionWaitUpdate(u8 *action) {
 }
 
 /* Focus the actors for an escape confirmation prompt and initialize its message phase. */
-/* measured: access-site, typed-local and array unit reads enlarge this function to 360 bytes. */
 // FUN_001AD280
 void btlActionEscapeMesInit(u8 *action)
 {
@@ -6365,7 +6265,6 @@ void btlActionEscapeMesInit(u8 *action)
 }
 
 /* Wait for presentation completion, obtain the escape answer, and release the prompt resources. */
-/* measured: access-site, typed-local and array phase reads enlarge this function to 356 bytes. */
 // FUN_001AD3E0
 void btlActionEscapeMesUpdate(u8 *action)
 {
@@ -6413,10 +6312,10 @@ void btlActionEscapeInit(void)
 {
 }
 
-/* measured: func_001ad550 MATCH -> MISMATCH without this pragma. */
+/* measured: retail's code for btlActionEscapeUpdate needs this optimizer setting. */
 // FUN_001AD550
-/* measured: cached escape distances and a separate collected-slot pointer retain 152 baseline words. */
-/* Collect eligible escaping actors and sequence their movement, hiding and encounter-end dependencies. */
+/* Collect eligible escaping actors and sequence their movement, hiding and encounter-end
+ * dependencies. */
 void btlActionEscapeUpdate(s64 *actionBytes)
 {
     #include "rw_types_internal.h"
@@ -6603,10 +6502,9 @@ void btlActionEscapeUpdate(s64 *actionBytes)
     btlActionSetState((BtlAction *)action, 0x20);
 }
 
-/* Measured: 644/656 bytes, 22 resolved relocations and 12 zero tail bytes.
- * Packet submissions retain callback-visible unit, UID and global reloads. */
+/* Packet submissions reload unit, UID and globals because queue callbacks may change them. */
 #pragma push
-/* measured: named members retain 68 or more baseline words; either toggle alone still differs. */
+/* measured: both optimizer settings are needed together to keep retail's named-member reloads. */
 #pragma opt_common_subs off
 #pragma opt_propagation off
 /* Release the prior linked model, select and initialize the new persona, and queue the change effects. */

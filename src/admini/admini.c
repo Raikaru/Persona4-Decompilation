@@ -1,9 +1,7 @@
-/* Source unit: src/admini/admini_00456690.c */
 #include "type.h"
 
 s32 func_004244c8(const char* format, ...);
 extern char D_00711708[];
-
 
 
 /* HDD file-device exit-test callback: print " HDD EOF \n" and always return zero. */

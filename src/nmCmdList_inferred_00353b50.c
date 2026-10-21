@@ -1,4 +1,3 @@
-/* Inferred unit: no __FILE__ evidence; boundaries from P3 twin src/Battle/battle.c; members 00353b50-0035c670 */
 #include "byte_address_internal.h"
 #include "operand_order_internal.h"
 #include "cmm_internal.h"
@@ -13,9 +12,8 @@
 #include "camp_menu_internal.h"
 #include "sdk_ot_node.h"
 
-/* Unit settings: configured optimizer baseline; the optimization_level scopes below
- * reset optimizer state, so their measured exceptions must remain after each reset.
- * measured: hoisting lifetime splitting leaves only 69/72 functions MATCH. */
+/* measured: optimization_level scopes below reset optimizer state, so each scope's exceptions are
+ * reapplied after the reset. */
 
 extern void datCommunityEntryStep(u8 *);
 extern void nmMesWindowDestroySlot(s8 );
@@ -140,8 +138,6 @@ typedef struct DatPortraitLabel {
 extern void datScreenWipeInit(u8 *, Float2 *, Float2 *);
 extern void datScreenWipeSetScale(u8 *, u8 *);
 extern void datScreenWipeSetTextureId(u8 *, u16 );
-
-
 
 
 extern s32 nLineIsIdle(void);
@@ -360,7 +356,8 @@ typedef struct {
     u8 unknown0040[0x100];
     const char *module;
 } CommunityPortrait;
-// Intent: Build the list of party member ids from the first three party slots, with the count in the first entry [inferred]
+// Builds the list of party member ids from the first three party slots, with the count in the first
+// entry.
 // FUN_00353B50
 s16 datBuildPartyIdList(s16 *ids)
 {
@@ -385,7 +382,7 @@ done:
     return len;
 }
 
-// Intent: Build the list of member ids from 2 to 8 that are unlocked, with the count in the first entry [inferred]
+// Builds the list of unlocked member ids from 2 to 8, with the count in the first entry.
 // FUN_00353C10
 s16 datBuildMemberIdList(s16 *ids)
 {
@@ -410,7 +407,8 @@ done:
     return len;
 }
 
-// Intent: Build the list of unlocked member ids from 2 to 8, leaving out member 5, with the count in the first entry [inferred]
+// Builds the list of unlocked member ids from 2 to 8, leaving out member 5, with the count in the
+// first entry.
 // FUN_00353CE0
 s16 datBuildMemberIdListExcluding5(s16 *ids)
 {
@@ -440,7 +438,7 @@ done:
     return len;
 }
 
-// Intent: Report whether a member id is unlocked by its story flag; member 1 is always unlocked [inferred]
+// Report whether a member id is unlocked by its story flag; member 1 is always unlocked.
 // FUN_00353DC0
 s32 datMemberIsUnlocked(s64 memberId)
 {
@@ -498,7 +496,7 @@ s32 datMemberIsUnlocked(s64 memberId)
     return result;
 }
 
-// Intent: Member notice channel poll: prepare the channel and return 1 while it is busy; when it is idle, release it and return 0 [inferred]
+// Poll the member notice channel: return 1 while it is busy; once idle, release it and return 0.
 // FUN_00353F50
 s32 datMemberNoticeTryBegin(s32 stepMode)
 {
@@ -510,28 +508,27 @@ s32 datMemberNoticeTryBegin(s32 stepMode)
     return 1;
 }
 
-// Intent: Unsuppress resource rendering [inferred]
 // FUN_00353FB0
 void resrcMngUnsuppressRender(void)
 {
     resrcMngSetRenderSuppressed(0);
 }
 
-// Intent: Suppress resource rendering [inferred]
 // FUN_00353FE0
 void resrcMngSuppressRender(void)
 {
     resrcMngSetRenderSuppressed(1);
 }
 
-// Intent: Return 0 when the current step value is a band boundary, otherwise 1 [inferred]
+// Return 0 when the current step value is a band boundary, otherwise 1.
 // FUN_00354010
 s32 FldStepNotAtBoundaryQuery(void)
 {
     return FldStepNotAtBoundary();
 }
 
-// Intent: Request leaving the community menu: queue the exit script op, clear the fade and render state, and return the exit result [inferred]
+// Leave the community menu: queue the exit sound, clear the line and render state, and return the
+// exit result.
 // FUN_00354030
 s32 datCommunityRequestExit(void)
 {
@@ -541,7 +538,7 @@ s32 datCommunityRequestExit(void)
     return nLineGetCurrentSet();
 }
 
-// Intent: Queue the cursor sound for a community menu move: indices 1 and 2 use one cue, 3 and 4 use another [inferred]
+// Play the cursor sound for a community menu move: directions 1 and 2 use one cue, 3 and 4 another.
 // FUN_00354080
 void datCommunityCursorFeedback(s32 direction)
 {
@@ -554,8 +551,8 @@ void datCommunityCursorFeedback(s32 direction)
     }
 }
 
-// Intent: Member notice state step: advance the notice from its opening states to its ready states, and clear the channel once it closes [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// Member notice state step: advances the notice from its opening states to its ready states, and
+// clears the channel once it closes.
 // FUN_003540F0
 s32 datMemberNoticeStep(u8 *task)
 {
@@ -600,7 +597,7 @@ s32 datMemberNoticeStep(u8 *task)
     return 0;
 }
 
-// Intent: Free the member notice work block and release its channel [inferred]
+// Free the member notice work block and release its message slot.
 // FUN_00354230
 void datMemberNoticeDestroy(u8 *task)
 {
@@ -611,8 +608,8 @@ void datMemberNoticeDestroy(u8 *task)
     (*D_008873EC)(work);
 }
 
-// Intent: Set up the member notice: set the member's notice flags, pick the message, and show the label and sub-label [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// Set up the member notice: set the member's notice flags, pick the message, and show the label and
+// sub-label.
 // FUN_00354280
 void datMemberNoticeSetup(u8 *notice, s32 memberId, s32 modeFlags)
 {
@@ -669,7 +666,7 @@ void datMemberNoticeSetup(u8 *notice, s32 memberId, s32 modeFlags)
     nmMesWindowShowSlotRecord(typedNotice->messageSlot, mode);
 }
 
-// Intent: Return the name label for a member id from the label table [inferred]
+/* Look up the name label for a party member id in the label table, asserting the id is in range. */
 // FUN_00354490
 u32 datMemberNameLabel(s32 memberId)
 {
@@ -686,7 +683,8 @@ s32 datCommunityDefaultSetting(void)
     return 50;
 }
 
-// Intent: Script command: open the member notice for the slot argument, or close it and return 1 once its state reaches 3 [inferred]
+// Script command: open the member notice for the slot argument, or close it and return 1 once its
+// state reaches 3.
 // FUN_00354500
 s32 datMemberNoticeScriptOpen(void) {
     s32 slot;
@@ -719,7 +717,7 @@ block_10:
     return 0;
 }
 
-// Intent: Script command: as datMemberNoticeScriptOpen, but the notice is set up in the second mode [inferred]
+// Script command: like datMemberNoticeScriptOpen, but sets up the notice in the second mode.
 // FUN_00354660
 s32 datMemberNoticeScriptOpenAlt(void) {
     s32 slot;
@@ -752,7 +750,7 @@ block_10_2:
     return 0;
 }
 
-// Intent: Reset the text slot and copy the string argument into it; a null string sets the slot to its empty state [inferred]
+// Reset the text slot and copy the string into it; a null string sets the slot to its empty state.
 // FUN_003547C0
 void datTextSlotSetString(s32 *slotWords, u8 *text)
 {
@@ -765,8 +763,8 @@ void datTextSlotSetString(s32 *slotWords, u8 *text)
     *slotWords = 0;
 }
 
-// Intent: Text slot loading state machine: request the file named in the slot, wait for it, then create its resource and wait for the resource to finish [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// Text slot loading state machine: requests the slot's file, waits for it, then creates its
+// resource and waits for the resource to finish.
 // FUN_00354830
 s32 datTextSlotLoadStep(u8 *slot) {
     DatTextSlot *typedSlot = (DatTextSlot *)slot;
@@ -815,8 +813,7 @@ block_15:
     return 0;
 }
 
-// Intent: Release the text slot's file handle and resource [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// Release the text slot's file handle and resource.
 // FUN_003549D0
 void datTextSlotRelease(u8 *slot)
 {
@@ -841,7 +838,8 @@ void datTextSlotRelease(u8 *slot)
     }
 }
 
-// Intent: Create the screen wipe task with its update and destroy callbacks, set its positions and attach the target range [inferred]
+// Create the screen wipe task with its update and destroy callbacks, set its positions and attach
+// the target range.
 // FUN_00354A50
 u8 *datScreenWipeTaskCreate(s32 parentAddress, u16 textureId) {
     Float2 initialPosition;
@@ -873,8 +871,8 @@ u8 *datScreenWipeTaskCreate(s32 parentAddress, u16 textureId) {
     return task;
 }
 
-// Intent: Draw one step of the screen wipe: advance its blend toward the target, then draw its quad with the render state table [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// Draws one step of the screen wipe: advances its blend toward the target, then draws its quad
+// using the render state table.
 // FUN_00354BA0
 void datScreenWipeDraw(u8 *task) {
     DatScreenWipe *typedWipe;
@@ -994,7 +992,8 @@ void datScreenWipeDraw(u8 *task) {
     D_00887310[0](4, &vertices[0], 4);
 }
 
-// Intent: Set the screen wipe's target range from the argument, or return it to the current position when the argument is null [inferred]
+// Set the screen wipe's target from the argument, or return it to the current position when the
+// argument is null.
 // FUN_00355070
 void datScreenWipeSetTarget(u8 *task, u8 *target) {
     u8 *work;
@@ -1014,7 +1013,7 @@ void datScreenWipeSetTarget(u8 *task, u8 *target) {
     ((DatScreenWipe *)work)->frame = 0;
 }
 
-// Intent: Initialise the screen wipe: set its current, start and end positions and reset its step counter [inferred]
+// Initialise the screen wipe's current, start and end positions and reset its frame counter.
 // FUN_003550D0
 void datScreenWipeInit(u8 *task, Float2 *start, Float2 *target)
 {
@@ -1038,8 +1037,8 @@ void datScreenWipeInit(u8 *task, Float2 *start, Float2 *target)
     ((DatScreenWipe *)work)->frame = 0;
 }
 
-// Intent: Set the screen wipe's texture from the member id and the day suffix, releasing the old text slot when the id changes [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// Sets the screen wipe's texture from the member id and the day suffix, and releases the old text
+// slot when the id changes.
 // FUN_00355190
 void datScreenWipeSetTextureId(u8 *task, u16 textureId)
 {
@@ -1084,7 +1083,7 @@ void datScreenWipeSetTextureId(u8 *task, u16 textureId)
     }
 }
 
-// Intent: Set the screen wipe's offset from the argument point [inferred]
+/* Store the given offset point in the screen wipe task's work data. */
 // FUN_003552D0
 void datScreenWipeSetOffset(u8 *task, Float2 offset)
 {
@@ -1094,14 +1093,13 @@ void datScreenWipeSetOffset(u8 *task, Float2 offset)
     b[0xB] = offset.y;
 }
 
-// Intent: Set the screen wipe's colour word [inferred]
 // FUN_00355300
 void datScreenWipeSetColor(u8 *task, s32 color)
 {
     ((DatScreenWipe *)((SdkTask *)task)->work)->color.s = color;
 }
 
-// Intent: Copy the screen wipe's start, current and end positions to the output points when they are non-null [inferred]
+// Copy the screen wipe's start, current and end positions to whichever output points are non-null.
 // FUN_00355310
 void datScreenWipeGetPositions(u8 *task, u8 *start, u8 *position, u8 *target) {
     u8 *work;
@@ -1121,7 +1119,7 @@ void datScreenWipeGetPositions(u8 *task, u8 *start, u8 *position, u8 *target) {
     }
 }
 
-// Intent: Set the screen wipe's scale from the argument, or reset it to 1.0 when the argument is null [inferred]
+// Sets the screen wipe's scale from the argument, or resets it to 1.0 when the argument is null.
 // FUN_00355370
 void datScreenWipeSetScale(u8 *task, u8 *scale)
 {
@@ -1137,7 +1135,7 @@ void datScreenWipeSetScale(u8 *task, u8 *scale)
     }
 }
 
-// Intent: Copy the screen wipe's scale to the output pair [inferred]
+// Copies the screen wipe's scale to the output pair.
 // FUN_003553B0
 void datScreenWipeGetScale(u8 *task, f32 *scale)
 {
@@ -1151,7 +1149,7 @@ void datScreenWipeGetScale(u8 *task, f32 *scale)
     scale[1] = ((DatScreenWipe *)work)->scaleY.f;
 }
 
-// Intent: Set the screen wipe's alpha byte [inferred]
+// Sets the screen wipe's alpha byte.
 // FUN_00355410
 /* The opacity component is a byte, as stored by the state and passed by every caller. */
 void datScreenWipeSetAlpha(u8 *task, u8 alpha)
@@ -1163,7 +1161,7 @@ void datScreenWipeSetAlpha(u8 *task, u8 alpha)
     ((DatScreenWipe *)work)->color.s = ((s32 *)work)[3];
 }
 
-// Intent: Return the screen wipe's texture when its texture load has finished, otherwise 0 [inferred]
+// Returns the screen wipe's texture once its load has finished, otherwise 0.
 // FUN_00355430
 s32 datScreenWipeTexture(u8 *task)
 {
@@ -1176,7 +1174,8 @@ s32 datScreenWipeTexture(u8 *task)
     return 0;
 }
 
-// Intent: Screen wipe task update: start the texture load when the id is set and the wipe is not loaded yet [inferred]
+// Screen wipe task update: steps the texture load while the id is set and the wipe is not yet
+// loaded.
 // FUN_00355460
 s32 datScreenWipeUpdate(u8 *task)
 {
@@ -1189,8 +1188,7 @@ s32 datScreenWipeUpdate(u8 *task)
     return 0;
 }
 
-// Intent: Screen wipe task destroy: release the wipe's texture handles and the work block [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// Screen wipe task destroy: releases the wipe's texture handles and the work block.
 // FUN_003554B0
 void datScreenWipeDestroy(u8 *task)
 {
@@ -1225,7 +1223,8 @@ void datScreenWipeDestroy(u8 *task)
 
 #pragma push
 #pragma optimization_level 1
-// Intent: Create the grid effect task with its update and destroy callbacks, store its kind, colour and offsets, and set its layout [inferred]
+// Creates the grid effect task with its update and destroy callbacks, stores its kind, colour and
+// offsets, and sets its layout.
 // FUN_00355550
 s32 datGridEffectCreate(s16 style, s32 color, s16 duration, s16 tailDuration,
                   s64 layout, s32 kind, s32 priority, s32 drawPriority)
@@ -1259,7 +1258,8 @@ s32 datGridEffectCreate(s16 style, s32 color, s16 duration, s16 tailDuration,
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Initialise the grid effect work block: clear its fifteen cell positions and set its update callback and state [inferred]
+// Initialises the grid effect work block: clears its fifteen cell positions and sets its update
+// callback and state.
 // FUN_003556A0
 void datGridEffectInit(u8 *effect, s64 layout, s32 priority)
 {
@@ -1284,7 +1284,8 @@ void datGridEffectInit(u8 *effect, s64 layout, s32 priority)
 
 #pragma push
 #pragma optimization_level 1
-// Intent: Set the grid effect's cell positions for its layout: layout 0 places every cell at the origin, layout 1 spreads them in a diamond around the centre [inferred]
+// Sets the cell positions for the layout: layout 0 puts every cell at the origin, layout 1 spreads
+// them in a diamond around the centre.
 // FUN_00355740
 void datGridEffectSetLayout(u8 *effect, s64 layout)
 {
@@ -1354,7 +1355,7 @@ void datGridEffectSetLayout(u8 *effect, s64 layout)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Grid effect task update: refresh the cell lookup and return -1 when the effect is marked done [inferred]
+// Grid effect task update: queues the draw node and returns -1 once the effect is marked done.
 // FUN_003558A0
 s32 datGridEffectUpdate(u8 *task)
 {
@@ -1373,10 +1374,8 @@ ret0:
 }
 #pragma pop
 
-/* Whether the frame counter at +0x10 has passed the style's threshold of the
-   duration at +0xC (3/4 for style 0, 1/2 for style 1). */
-/* measured: typing the frame/duration reads changes the inlined draw instructions; style remains typed. */
-/* Test the style-specific half-duration or three-quarter-duration transition threshold. */
+/* Whether the frame counter has passed the style's threshold of the duration (3/4 for style 0, 1/2
+ * for style 1). */
 static inline s32 datGridEffectPastThreshold(u8 *p)
 {
     switch (((DatGridEffect *)p)->style) {
@@ -1396,8 +1395,8 @@ static inline s32 datGridEffectPastThreshold(u8 *p)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Draw the grid effect's fifteen cells, each one fading in by its timer and drawn as a cell or a strip by its kind [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// Draws the grid effect's fifteen cells, each fading in by its timer and drawn as a cell or a strip
+// depending on its kind.
 // FUN_00355920
 void datGridEffectDraw(u8 *node, u8 *effect) {
     DatGridEffect *typedGrid;
@@ -1582,7 +1581,7 @@ void datGridEffectDraw(u8 *node, u8 *effect) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Grid effect task destroy: free the work block [inferred]
+// Grid effect task destroy: frees the work block.
 // FUN_00356140
 void datGridEffectDestroy(u8 *task)
 {
@@ -1592,10 +1591,12 @@ void datGridEffectDestroy(u8 *task)
 
 #pragma push
 #pragma optimization_level 2
-/* measured: baseline removal differs by 3 words; unstaged segments and a conditional mask expression also fail. */
+/* measured: retail keeps the staged segment count and mask test unpropagated, so propagation is off
+ * here. */
 #pragma opt_propagation off
-// Intent: Draw a grid effect strip at the packed position with the given opacity and size [inferred]
-/* measured: replacing the stack color-word alias with savedColor[0] loses whole-owner MATCH under the scoped propagation setting. */
+// Draws a grid effect strip at the packed position with the given opacity and size. measured: color
+// is kept in a one-element stack array alias, as retail spills it to the stack rather than using
+// savedColor[0] directly.
 // FUN_00356170
 void datGridEffectDrawStrip(s64 positionBits, f32 depth, f32 radius, s32 color,
                    f32 rotation, s32 segments, s32 masked)
@@ -1622,7 +1623,7 @@ void datGridEffectDrawStrip(s64 positionBits, f32 depth, f32 radius, s32 color,
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Draw a grid effect cell at the given position with the given opacity and size [inferred]
+// Draws a grid effect cell at the given position with the given opacity and size.
 // FUN_003561D0
 void datGridEffectDrawCell(Vec2f position, s32 color, f32 dummy,
                    f32 radius, f32 rotation, s32 masked)
@@ -1668,7 +1669,8 @@ void datGridEffectDrawCell(Vec2f position, s32 color, f32 dummy,
 #pragma push
 #pragma optimization_level 2
 // FUN_00356250
-/* measured: baseline removal differs by 293 words; reordered layout addresses and pointer traversal also fail. */
+/* measured: retail hoists the layout address computations out of the loop, so loop invariants are
+ * on. */
 #pragma opt_loop_invariants on
 void datCommunityMenuInit(u8 *menuWork)
 {
@@ -1807,8 +1809,8 @@ void datCommunityMenuInit(u8 *menuWork)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Community panel open step: move the panel from its closed state to open and report it as ready [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// measured: retail output depends on how the menu work fields are accessed, so a typed local
+// pointer is used. Advances the community panel from closed to open and reports it ready.
 // FUN_00356820
 s32 datCommunityPanelOpenStep(u8 *menuWork) {
     CommunityMenu *typedMenuWork = (CommunityMenu *)menuWork;
@@ -1829,8 +1831,9 @@ s32 datCommunityPanelOpenStep(u8 *menuWork) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Community panel update: animate the panel's radar values, advance its rotation, update its helpers and draw the community list; returns 0 while any entry is still animating [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// Community panel update: animates radar values, advances rotation, updates helpers and draws the
+// list; returns 0 while any entry is still animating. measured: direct field access changes the
+// output, so fields go through a local pointer and MEMBER where aliasing matters.
 // FUN_00356870
 s32 datCommunityPanelUpdate(u8 *menuWork)
 {
@@ -1884,19 +1887,11 @@ loop_test:
 
 #pragma push
 #pragma optimization_level 2
-/* Community-list renderer: 10536/10544 bytes, all 115 relocations exact.
- * Native byte-opacity contracts, the Vec2f output, and real RGBA/rectangle
- * objects replace the former decompiler carriers and expanded conversions.
- * Measured: lifetime analysis retains the phased register roles; disabling
- * propagation keeps packed text colors captured before callbacks, while
- * disabling literal extraction avoids extra call-crossing float constants.
- * The partial community layout preserves observed offsets without allocating data.
- * See docs/probe_archive/Community_menu_renderer_00356a10_20260930.md. */
-// Intent: Draw the community list: the entry layout, badges and text for the community menu [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+/* Draws the community list menu: entry layout, badges and text. */
 // FUN_00356A10
 #pragma push
-/* measured: baseline removal differs by 1508 words; named-member snapshots and independent lifetime/propagation/literal probes fail. */
+/* measured: retail captures packed text colours before callbacks and avoids call-crossing float
+ * constants, so propagation and constant pull-out are off. */
 #pragma opt_lifetimes on
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
@@ -2457,7 +2452,7 @@ void datCommunityListDraw(u8 *work) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Step each of the community menu's 108 entries once through their update function [inferred]
+// Step each of the community menu's 108 entries once through their update function.
 // FUN_00359340
 void datCommunityEntriesStep(u8 *menuWork) {
     s32 i;
@@ -2470,7 +2465,7 @@ void datCommunityEntriesStep(u8 *menuWork) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Bounce step: halve the community menu's vertical velocity and reverse its direction [inferred]
+// Bounce step: halve the community menu's zoom and reverse and halve its rotation.
 // FUN_003593B0
 void datCommunityBounceStep(u8 *menuWork)
 {
@@ -2481,8 +2476,8 @@ void datCommunityBounceStep(u8 *menuWork)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Push a value into a community history slot: move the current value to the previous one and store the new value [inferred]
-/* measured: replacing the two-array byte cursor with direct selection/history indexing loses whole-owner MATCH. */
+// measured: retail indexes both arrays through one shared byte cursor, not direct per-array
+// indexing. Moves the current selection to previousSelection and stores the new value.
 // FUN_003593E0
 s32 datCommunityPushValue(s32 menuAddress, s32 selectionIndex, s16 value)
 {
@@ -2498,9 +2493,13 @@ s32 datCommunityPushValue(s32 menuAddress, s32 selectionIndex, s16 value)
 #pragma push
 #pragma optimization_level 2
 #pragma opt_loop_invariants on
-/* measured: baseline removal differs by 66 words; a named animation pointer still fails. */
-// Intent: Select the community table for a mode: fill its 43 entries and the table's count and width; returns 0 when the mode is already set [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+/* measured: retail code generation needs these optimizer settings; removing them changes the
+ * output. Selects the community table for a mode, filling its 43 entries plus the table's count and
+ * width; returns 0 when the mode is already set. measured: direct field access changes the
+ * instructions, so locals are typed through field addresses. */
+/* Switch the community menu to a layout table for the given mode, saving each slot's current state
+ * as its animation start and loading new targets from the table. Return 0 if the mode is already
+ * active, otherwise 1. */
 // FUN_00359400
 s32 datCommunitySetTableMode(u8 *menuWork, s32 mode)
 {
@@ -2589,8 +2588,9 @@ table_loop_test:
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Report whether every community entry's threshold is met and the external check passes; returns 1 when the community list is ready [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// measured: plain struct field access changes the generated code, so fields are read through casts
+// of field addresses. Returns 1 when every community entry's threshold is met and the external
+// check passes.
 // FUN_003596A0
 s32 datCommunityIsReady(u8 *menuWork) {
     s32 flag = 1;
@@ -2609,8 +2609,8 @@ s32 datCommunityIsReady(u8 *menuWork) {
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Release the community menu: free its sprite nodes, destroy its wipe and helper tasks, and reset its count [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// measured: releases the community menu (frees sprite nodes, destroys wipe and helper tasks, resets
+// count); typing the fields directly changes the retail instructions.
 // FUN_00359720
 void datCommunityMenuRelease(u8 *menuWork)
 {
@@ -2658,8 +2658,8 @@ loop_test:
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Fill the community menu's visible record list from the kind table, keeping entries with a value and a passing flag [inferred]
-/* The kind-record tail is consumed here as eight flag/value pairs; its wider record variant is not established. Retain that tail cursor; typed output indexing was measured separately. */
+// Fills the community menu's visible record list from the kind table, keeping entries that have a
+// value and a passing flag. The kind-record tail is read as eight flag/value pairs.
 // FUN_003597F0
 void datCommunityFillVisibleRecords(u8 *menuWork)
 {
@@ -2696,9 +2696,11 @@ loop_test:
 #pragma push
 #pragma optimization_level 2
 #pragma opt_loop_invariants on
-/* measured: baseline removal differs by 50 words; a structured for-loop still fails. */
-// Intent: Set the five community slot positions: the active slots move to the off-screen start and the current slot to its resting position [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+/* measured: retail's loop code needs these optimizer settings; without them, even a structured for-
+ * loop produces different code. Sets the five community slot positions: active slots move to the
+ * off-screen start and the current slot moves to its resting position. measured: direct field
+ * access changes the instructions, so fields go through typed local addresses, with MEMBER at the
+ * alias-sensitive sites. */
 // FUN_003598D0
 void datCommunitySetSlotLayout(u8 *menuWork)
 {
@@ -2747,7 +2749,7 @@ loop_test:
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Reset the community entry's vertical offset and its target to fixed values [inferred]
+// Reset the community entry's rotation and zoom to fixed values.
 // FUN_003599A0
 void datCommunityResetOffset(u8 *menuWork)
 {
@@ -2756,36 +2758,10 @@ void datCommunityResetOffset(u8 *menuWork)
 }
 #pragma pop
 
-/* measured 003599c0: object 1173 instrs against retail 1190 stripped (1192 raw; -17, -1.4%; band
-   1156-1228) via `python3 tools/fnalign.py src/promoted/code1_0035.c func_003599c0 --candidate
-   /tmp/3599c0_fix6.c`, 853 edits (+2 reloc-only). Frame object 0x130 vs retail 0x120
-   (long-lived u16 spills quad, not half); calls 17/17 (11x0034f320 + 0046d730/0046b260/
-   0045d6e0/00275020/00246830 + D_00887300 jalr); lwc1 20/20, swc1 12/12. Float landmarks exact
-   (f25/f24/f26/f21/f22/f23/f28/f27/f20/f29/f30, shared madd products per 7r, descending float decls);
-   residual is int-color allocation (params stuck $s0/$s1), v30 stack spill, and CSE-held o-base
-   recomputes (first-3 via b, last-2 via o but CSE to b) plus conversion scheduling (object converts
-   before lui/lw, retail after). Fixes: e0=(s128)*(u16*)(e+0x3C) quad plus f0v direct (was missing
-   0x3C load, w3A word intermediate removed) for lhu/sh/sq; b-split f3/f2/f28/f27/f4b/f1c via o
-   to keep o live (addu +9 residual); f20 inside if(mode!=1) for second div (lui/mtc1 +1 each);
-   switch(mode) case1/case0 fallthrough shared (was (mode==1)||(mode==0) sltiu, now beq 3,2,1,0
-   with bodies loop,2,3 per M2C order 1/0,2,3); unsigned av for divu. Honest: slti for retail
-   slti, sltiu only where retail sltiu (isSelf ==), u8/u16 casts, s128 quad, indirect D_00887300[0];
-   prototypes per recon (0034f320 x13, 0045d6e0 x4, 00246830 returns u8 *). No sltiu-for-slti,
-   no s64 flat, no opt_propagation, no volatile, no asm.
-   Deficit-vs-composition (2026-09-20): deficit is 17; `deficit_scan` classes the large runs CROSS
-   (125 at 0x35a02c, 96 at 0x359cfc paired 2/92 nearby, 60 at 0x35a400), so the composition
-   223 missing / 212 extra (7 deletes, 11 inserts, 74 replaces with 71 <=13) is alignment artefact
-   of the repeated (u16) clamp + 0034f320 idiom, not unwritten code. Counterparts: obj 92
-   (164:256) against ret 96 (207:303) col[3]/rc/o2 block; obj 79+42 (383:462, 337:379) against
-   ret 125 (411:536) 0x11ec block; obj 21 (632:653) against ret 60 (656:716) 0x122c block.
-   Probes: f3 via b1 1173/854/223/212 unchanged; f0v load late 1175/852/223/212 (adds lq, worse).
-   No mass apply; body left unchanged, in band near finished.
-   2026-10-08: opt_propagation off lowers fnalign from 672 to 598 edits. */
-/* Party HUD panel draw. Each of the three panel groups has its own x/y/w/h
-   locals (separate live ranges, as retail). Panel x/y/alpha and the sprite
-   table go through shared byteAddressAdd (offset + base). The panel width
-   reads are spelled index-first, because retail recomputes index + arg1 for
-   each width read; the heights use the panel structure. */
+/* Party HUD panel draw. Each of the three panel groups has its own x/y/w/h locals (separate live
+ * ranges, as retail). Panel x/y/alpha and the sprite table go through shared byteAddressAdd (offset
+ * + base). The panel width reads are spelled index-first, because retail recomputes index + arg1
+ * for each width read; the heights use the panel structure. */
 
 
 typedef struct {
@@ -2802,19 +2778,20 @@ typedef struct {
 
 #pragma push
 #pragma optimization_level 2
-/* measured: baseline removal differs by 908 words; named-member origin snapshots and independent switch probes fail. */
+/* measured: retail's code depends on these optimizer settings; named-member snapshots and switch
+ * rewrites do not reproduce it. */
 #pragma opt_propagation off
 #pragma opt_pulloutconstants off
 #pragma opt_lifetimes on
-// Intent: Draw the party HUD panel: the three panel groups with their names, counts and modes, using the HUD sprite table [inferred]
+// Draw the party HUD panel: the three panel groups with their names, counts and modes, using the
+// HUD sprite table.
 // FUN_003599C0
 void datPartyHudDraw(s32 rowIndex, u8 *menuWork)
 {
     extern void sdkSpriteDrawSized(u8 *, f32, f32, f32, u8, u8, u8, u8, u16, u16, s16, f32, s16);
     extern void PrimDrawFlatRectangle(u8 *, u8 *, f32, s32);
-    /* H011: the callee masks its argument with 0xFFFF. */
-    /* H011: the u16 parameter is measured; the u32 definition (cmmMisc.c)
-       mismatches the name-sprite call. */
+    /* Declared here with a u16 parameter because the callee masks its argument with 0xFFFF, though
+     * cmmMisc.c defines it as taking u32. */
     extern u8 *cmmNameRecord(u16);
     extern s32 frFontExDrawTextWithCharWidth(f32, f32, f32, s32, s32, s32, u8 *, s32, s32);
     extern f32 sdkSpriteScaledWidth(u8 *);
@@ -3001,8 +2978,9 @@ void datPartyHudDraw(s32 rowIndex, u8 *menuWork)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Set up a screen wipe slot from one of the two slot entries: initialise its positions or move it to its target, then set its offset and colour [inferred]
-/* measured: the typed 0x1C-byte start/target/offset/color record changes address materialization; retain the color-table alias. */
+// measured: a typed start/target/offset/color record changes how retail forms addresses, so the
+// color-table alias stays. Sets up a screen wipe slot's positions or target, then its offset and
+// colour.
 // FUN_0035AC60
 void datScreenWipeSetupSlot(u8 *task, s32 slotIndex, s32 initialize, s32 reverse)
 {
@@ -3040,7 +3018,7 @@ void datScreenWipeSetupSlot(u8 *task, s32 slotIndex, s32 initialize, s32 reverse
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Create the portrait task with its update and destroy callbacks and set up its first slot [inferred]
+// Create the portrait task with its update and destroy callbacks and set up its first slot.
 // FUN_0035ADC0
 u8 *datPortraitTaskCreate(s32 parentAddress, s64 portraitId, s32 flags)
 {
@@ -3066,7 +3044,8 @@ u8 *datPortraitTaskCreate(s32 parentAddress, s64 portraitId, s32 flags)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Portrait task update: start the portrait's text load when the portrait is active and not yet loaded [inferred]
+// Portrait task update: start the portrait's text load when the portrait is active and not yet
+// loaded.
 // FUN_0035AEC0
 s32 datPortraitUpdate(u8 *task)
 {
@@ -3082,7 +3061,7 @@ s32 datPortraitUpdate(u8 *task)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Portrait task destroy: release the portrait's text slot and the work block [inferred]
+// Portrait task destroy: release the portrait's text slot and the work block.
 // FUN_0035AF10
 void datPortraitDestroy(u8 *task)
 {
@@ -3096,7 +3075,7 @@ void datPortraitDestroy(u8 *task)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Report whether the portrait is loaded and active [inferred]
+// Report whether the portrait is loaded and active.
 // FUN_0035AF60
 s32 datPortraitIsLoaded(u8 *task)
 {
@@ -3112,7 +3091,7 @@ s32 datPortraitIsLoaded(u8 *task)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Return the portrait's value once it is loaded and active, otherwise 0 [inferred]
+// Return the portrait's value once it is loaded and active, otherwise 0.
 // FUN_0035AFA0
 s32 datPortraitValue(u8 *task) {
     s32 ready;
@@ -3133,19 +3112,12 @@ s32 datPortraitValue(u8 *task) {
 
 #pragma push
 #pragma optimization_level 2
-/* Community portrait and selected-state passes. Measured whole-owner MATCH:
- * 2772 bytes plus twelve retail zero bytes; byte-opacity/RGBA and the complete
- * Sky2 vertex layout retain the actual ABI. The work pointer is captured on
- * entry, visibility is re-read after the camera query, and texture and mode
- * are loaded after their rendering callbacks. Keep the table addresses while
- * reloading their callback slots. Loop invariants and scoped lifetimes retain
- * the retail color conversions and row/index bases without synthetic padding.
- * See docs/probe_archive/Community_portrait_0035aff0_20260930.md. */
-// Intent: Draw the community portrait: its sprite and rendering passes for the selected state [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+/* Draws the community portrait sprite and its rendering passes for the selected state; visibility
+ * is re-read after the camera query. */
 // FUN_0035AFF0
 #pragma push
-/* measured: baseline removal differs by 427 words; precomputed vertex colors and independent switch probes fail. */
+/* measured: retail needs these loop-invariant, lifetime, constant and propagation settings for this
+ * renderer. */
 #pragma opt_loop_invariants on
 #pragma opt_lifetimes on
 #pragma opt_pulloutconstants off
@@ -3167,9 +3139,8 @@ f32 datCommunityPortraitDraw(u8 *task, u8 opacity)
     extern f32 datPortraitDirectionBlend(Float2 first, Float2 second, Float2 origin);
     extern f32 fGpffff81e0;
     extern f32 fGpffff82fc;
-    /* Full Sky2 layout from rw/sky2/rwplcore.h. The strip backends copy all
-     * 64 bytes. This renderer initializes only position, UV/reciprocal depth
-     * and RGBA; fog is disabled and the SDK declares normals unused. */
+    /* Full Sky2 vertex layout; the strip backends copy all 64 bytes, but only position,
+     * UV/reciprocal depth and RGBA are initialized here. */
     typedef struct {
         f32 x, y, z, cameraZ;
         f32 u, v, reciprocalZ, fogPadding;
@@ -3397,8 +3368,9 @@ f32 datCommunityPortraitDraw(u8 *task, u8 opacity)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Advance the portrait's move step: count its timer, step its interpolation ratio to a maximum of 1 and move its position along an arc to the target [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// measured: retail output depends on field-address typing, so plain field access is avoided.
+// Advances the portrait's move step: counts its timer, raises its interpolation ratio up to 1 and
+// moves its position along an arc to the target.
 // FUN_0035BAD0
 f32 datPortraitMoveStep(u8 *portraitWork)
 {
@@ -3432,8 +3404,9 @@ f32 datPortraitMoveStep(u8 *portraitWork)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Set the portrait's text value: reset its position and step, and write its text slot as a placeholder, a blank, or a numbered label when the value changes [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// Set the portrait's text value: reset its position and step, and write its text slot as a
+// placeholder, blank, or numbered label when the value changes. measured: retail output depends on
+// how field accesses alias, so some sites use MEMBER instead of direct struct fields.
 // FUN_0035BC10
 void datPortraitSetValue(u8 *task, s8 portraitId, s32 flags)
 {
@@ -3483,10 +3456,9 @@ unchanged: ;
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Blend the direction of two portrait points against a fixed normal, returning the clamped weighted projection [inferred]
+// Blend the direction of two portrait points against a fixed normal, returning the clamped weighted
+// projection.
 // FUN_0035BD20
-// MATCH: 332B/336B; retail ends with four zero bytes.
-// IDA-backed Float2 values and in-place weighted COP1 accumulation.
 f32 datPortraitDirectionBlend(Float2 first, Float2 second, Float2 origin)
 {
     struct Vector3 { Float2 xy; f32 z; } normal, direction;
@@ -3515,7 +3487,7 @@ f32 datPortraitDirectionBlend(Float2 first, Float2 second, Float2 origin)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Portrait text task update: start the text load once the portrait is active and not yet loaded [inferred]
+// Portrait text task update: start the text load once the portrait is active and not yet loaded.
 // FUN_0035BE70
 s32 datPortraitTextLoadUpdate(u8 *task)
 {
@@ -3531,7 +3503,7 @@ s32 datPortraitTextLoadUpdate(u8 *task)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Portrait text task destroy: release the text slot and the work block [inferred]
+// Portrait text task destroy: release the text slot and the work block.
 // FUN_0035BEC0
 void datPortraitTextDestroy(u8 *task)
 {
@@ -3545,8 +3517,9 @@ void datPortraitTextDestroy(u8 *task)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Create the portrait text task with its update and destroy callbacks and place it at its start position [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// Creates the portrait text task with its update and destroy callbacks and places it at its start
+// position. measured: direct field access changes the output, so alias-sensitive sites go through
+// MEMBER and typed field addresses.
 // FUN_0035BF10
 u8 *datPortraitTextTaskCreate(s32 parentAddress, u16 labelId, s32 flags)
 {
@@ -3574,8 +3547,9 @@ u8 *datPortraitTextTaskCreate(s32 parentAddress, u16 labelId, s32 flags)
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Draw the portrait text: its sprite pass with the portrait's colour, offset and opacity [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// Draws the portrait text sprite pass using the portrait's colour, offset and opacity. measured:
+// retail code differs when fields are accessed directly, so typed locals and field addresses are
+// used, with MEMBER at the alias-sensitive sites.
 // FUN_0035C040
 f32 datPortraitTextDraw(u8 *task, u8 opacity)
 {
@@ -3696,10 +3670,10 @@ f32 datPortraitTextDraw(u8 *task, u8 opacity)
 
 #pragma push
 #pragma optimization_level 2
-/* measured: baseline removal differs by 4 words; separate position snapshots and reversed declarations still fail. */
+/* measured: retail output needs propagation off for this function. */
 #pragma opt_propagation off
-// Intent: Set the portrait label for an id and flag set: choose the colour and suffix from the flags and write the label text, blank for ids without a day label [inferred]
-/* measured: direct fields change instructions; local/field-address typing retains MATCH, with MEMBER for the measured alias-sensitive sites. */
+// Sets the portrait label for an id and flag set: picks colour and suffix from the flags and writes
+// the label text, blank for ids without a day label.
 // FUN_0035C480
 void datPortraitSetLabel(s32 taskAddress, u16 labelId, s32 flags)
 {
@@ -3798,8 +3772,8 @@ done:
 
 #pragma push
 #pragma optimization_level 2
-// Intent: Copy the portrait's stored position into the caller's vector [inferred]
-/* Float2 work and the Vec2f output have the same packed two-float representation; keep the aggregate copy ABI. */
+// Copies the portrait's stored position into the caller's vector; the Float2 field and Vec2f share
+// a packed two-float layout, so an aggregate copy is used.
 // FUN_0035C670
 void datPortraitGetPosition(u8 *task, Vec2f *position)
 {

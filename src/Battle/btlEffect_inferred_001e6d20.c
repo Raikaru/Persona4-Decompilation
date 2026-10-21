@@ -87,10 +87,8 @@ extern s32 datCalcIsDead(s32 unit, s32 hpDelta);
 extern u8 *iGpffffb428;
 extern u8 *iGpffffb42c;
 
-/* Inferred unit: no __FILE__ evidence; boundaries from scheduler/gap breaks in former bucket code1_001e; members 001e6d20-001e6ea0 */
-
-/* AI script command 0x207b (p4flow AI.json AI_FUNCTION_007B). */
-/* Resolve kind 0 or 1 to its fixed side/status search and publish the matching action ID; retail assumes a result. */
+/* Resolve kind 0 or 1 to its fixed side/status search and publish the matching action ID; retail
+ * assumes a result. */
 // FUN_001E6D20
 s32 btlEffectScriptPickUnitByKind(void) {
     s32 first;
@@ -114,8 +112,8 @@ s32 btlEffectScriptPickUnitByKind(void) {
     return 1;
 }
 
-/* AI script command 0x207c (p4flow AI.json AI_FUNCTION_007C). */
-/* Find the lowest-current-HP living genus-1 action and publish its encoded ID; retail assumes one exists. */
+/* AI script command 0x207C: find the living genus-1 action with the lowest current HP and publish
+ * its encoded ID; retail assumes one exists. */
 // FUN_001E6DC0
 s32 btlEffectScriptPickLowestHpLivingSide1Unit(void) {
     BtlAction *currentFields;
@@ -150,8 +148,8 @@ s32 btlEffectScriptPickLowestHpLivingSide1Unit(void) {
     return 1;
 }
 
-/* AI script command 0x207d (p4flow AI.json AI_FUNCTION_007D). */
-/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate collection fails. */
+/* Select an AI candidate and return its encoded action ID (high bit set), or -1 when candidate
+ * collection fails. */
 // FUN_001E6EA0
 s32 btlEffectScriptPickWeakCandidateUnit(void) {
     u8 *work;
