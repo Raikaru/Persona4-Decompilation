@@ -4,7 +4,7 @@
 struct RpAtomic;
 
 extern s32 *D_008864B8[];
-extern void func_0039c730(void);
+extern void func_0039c730(u8 *arg0);
 extern void func_003d0970(u8 *arg0);
 extern void func_0039cb80(u8 *arg0);
 extern void func_0039d360(u8 *arg0);
@@ -96,7 +96,7 @@ extern void rpPTankSkyInsPosCCPSPR(void);
 void func_003a0260(u8 *arg0)
 {
     if (D_008864B8[0] != NULL) {
-        func_0039c730();
+        func_0039c730(arg0);
     }
     func_003d0970(arg0);
 }
@@ -114,7 +114,7 @@ void func_003a0260(u8 *arg0)
 void func_003a02a0(u8 *arg0)
 {
     if (D_008864B8[0] != NULL) {
-        func_0039c730();
+        func_0039c730(arg0);
     }
     func_0039cb80(arg0);
 }
@@ -132,7 +132,7 @@ void func_003a02a0(u8 *arg0)
 void func_003a02e0(u8 *arg0)
 {
     if (D_008864B8[0] != NULL) {
-        func_0039c730();
+        func_0039c730(arg0);
     }
     func_0039d360(arg0);
 }
@@ -150,7 +150,7 @@ void func_003a02e0(u8 *arg0)
 void func_003a0320(u8 *arg0)
 {
     if (D_008864B8[0] != NULL) {
-        func_0039c730();
+        func_0039c730(arg0);
     }
     func_0039dcc0(arg0);
 }
@@ -168,7 +168,7 @@ void func_003a0320(u8 *arg0)
 void func_003a0360(u8 *arg0)
 {
     if (D_008864B8[0] != NULL) {
-        func_0039c730();
+        func_0039c730(arg0);
     }
     func_0039e740(arg0);
 }
@@ -190,7 +190,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a0aa0);
 void func_003a1470(u8 *arg0)
 {
     if (D_008864B8[0] != NULL) {
-        func_0039c730();
+        func_0039c730(arg0);
     }
     func_003a03a0(arg0);
 }
@@ -208,7 +208,7 @@ void func_003a1470(u8 *arg0)
 void func_003a14b0(u8 *arg0)
 {
     if (D_008864B8[0] != NULL) {
-        func_0039c730();
+        func_0039c730(arg0);
     }
     func_003a0aa0(arg0);
 }

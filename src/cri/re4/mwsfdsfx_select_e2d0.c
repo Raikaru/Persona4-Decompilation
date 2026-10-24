@@ -2,7 +2,7 @@
 #include "cri_xpt.h"
 
 extern Uint32 func_00524d90();
-extern Uint32 func_00517eb8();
+extern Uint32 func_00517eb8(void *handle, Uint32 selector, Uint32 value, Uint32 option, Uint32 fifthWord);
 
 // FUN_0050E2D0
 Uint32 func_0050e2d0(Uint32 settings, Uint32 first, Uint32 second)
@@ -26,7 +26,7 @@ Uint32 func_0050e360(Uint32 settings, Uint32 first, Uint32 second)
 }
 
 // FUN_0050E3A8
-Uint32 func_0050e3a8(Uint32 settings, Uint32 a1, Uint32 a2, Uint32 a3)
+Uint32 func_0050e3a8(Uint32 settings, Uint32 a1, Uint32 a2, Uint32 a3, Uint32 a4)
 {
-	return func_00517eb8(*(Uint32 *)((Uint8 *)settings + 0x3c), a1, a2, a3);
+	return func_00517eb8(*(void **)((Uint8 *)settings + 0x3c), a1, a2, a3, a4);
 }

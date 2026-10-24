@@ -58,8 +58,8 @@ extern u8 *func_003d5790(s32 arg0, s32 arg1);
 extern s32 func_003db480(s32 *arg0, s32 arg1);
 extern s32 func_003dd530(u8 *arg0, s32 arg1);
 extern s32 D_0070B470[];
-extern void func_003d3e60(void);
-extern void func_003d0fa0(void);
+extern void func_003d3e60(u8 *arg0);
+extern void func_003d0fa0(u8 *arg0);
 extern void func_003cdfa0(u8 *arg0);
 extern s32 func_003e8930(s32 arg0, s32 arg1, void *arg2, void *arg3);
 extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
@@ -111,9 +111,9 @@ void RpMeshPS2AllInstanceCallBack(u8 *arg0) {
     s32 limit;
     limit = 0xFF;
     if (*(u8 *)(*(u8 **)(arg0 + 8)) == limit) {
-        func_003d3e60();
+        func_003d3e60(arg0);
     } else {
-        func_003d0fa0();
+        func_003d0fa0(arg0);
     }
 }
 /* measured: closes schedule around func_003d0930. */
@@ -1826,6 +1826,8 @@ s64 func_003de6a0(u8 *arg0, s32 arg1, s64 arg2) {
 
     *(s32 *)(arg0 + 0x38) = 3;
     bytes = arg2;
+    /* Retail passes incoming buffer in a1 and the count's low word in a2.
+     * An explicit s32 count adds dsll32/dsra32 (nd 116); preserve the match. */
     result = sceWrite(*(s32 *)(arg0 + 0x60));
     if (*(s32 *)(arg0 + 0x30) != 0) {
         if (result < 0) {

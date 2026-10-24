@@ -13,7 +13,7 @@ extern u8 *D_00882F40[];
 extern u8 *nmMesWindowCurrent(void);
 extern s32 nmMesWindowApplyStyle(s32* record, s32 style);
 extern void nmMesWindowSetCurrentRunning(int running);
-extern s32 itfMesWindowSetStyle(s32 handle, s16 kind);
+extern s32 itfMesWindowSetStyle(s32 handle, s32 kind);
 extern int itfMesWindowGetAnim(int handle);
 
 extern u32 DAT_0063F2B0_abs[];

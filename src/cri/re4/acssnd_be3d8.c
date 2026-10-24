@@ -1,10 +1,10 @@
 /* ACSS sound operation delegated to the decoder handle. */
 #include "cri_xpt.h"
 
-extern Uint32 func_004df068(Uint32 handle);
+extern Uint32 func_004df068(Uint32 handle, Uint32 loopFlag);
 
 // FUN_004BE3D8
-Uint32 func_004be3d8(Uint32 *object)
+Uint32 func_004be3d8(Uint32 *object, Uint32 loopFlag)
 {
-	return func_004df068(object[1]);
+	return func_004df068(object[1], loopFlag);
 }

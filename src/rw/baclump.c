@@ -68,7 +68,7 @@ extern void func_003c08c0(s32 arg0, s32 arg1);
 extern void func_003c3cc0(s32 arg0);
 extern void func_003e8440(s32 arg0);
 extern s32 func_003c3980(void);
-extern s32 func_003e5250(void);
+extern s32 func_003e5250(s32 arg0);
 extern void func_003cbcf0(s32 arg0, s32 arg1);
 extern s32 func_003e8960(s32 arg0);
 extern u8 *func_003b85e0(u8 *arg0);
@@ -202,7 +202,7 @@ s32 func_003bf280(s32 arg0, s32 *arg1)
 s32 func_003bf2d0(s32 arg0, s32 *arg1)
 {
     *arg1 += 0x10;
-    *arg1 += func_003e5250() + 0xc;
+    *arg1 += func_003e5250(arg0) + 0xc;
     return arg0;
 }
 

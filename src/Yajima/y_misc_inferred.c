@@ -584,9 +584,9 @@ s32 fclSelectBoundedFallback(s32 value, s32 limit, s32 enabled, s32 fallback)
     return result;
 }
 
-// Expand the name tags <P1>, <P2>, <R1>, <R2> in a text buffer according to mode.
+// Expand the name tags <P1>, <P2>, <R1>, <R2> using the four replacement names.
 // FUN_002B32D0
-u8 *fclExpandNameTags(u8 *text, s32 mode, u8 *secondName, u8 *thirdName, u8 *fourthName)
+u8 *fclExpandNameTags(u8 *text, u8 *firstName, u8 *secondName, u8 *thirdName, u8 *fourthName)
 {
     u8 fourthReplacement[0x80];
     u8 thirdReplacement[0x80];
@@ -603,7 +603,7 @@ u8 *fclExpandNameTags(u8 *text, s32 mode, u8 *secondName, u8 *thirdName, u8 *fou
     s32 initial;
     s32 inner;
 
-    strcpy(firstReplacement);
+    strcpy(firstReplacement, firstName);
     strcpy(secondReplacement, secondName);
     strcpy(thirdReplacement, thirdName);
     strcpy(fourthReplacement, fourthName);

@@ -58,3 +58,81 @@ handle and explicitly returns the transfer count.
 The actual bodies at `004e77c0`, `004e8058` and `004e3448` remain assembly
 fallbacks. The excluded, legacy `libadxe/htci.c` implementation is not the
 retail 64-bit interface and is intentionally unchanged.
+
+## Omitted live arguments
+
+The forty call-site findings comprise 38 calls in active upstream C and two
+in port-only active C. The latter are the unmarked RE4 reconstructions
+`SFD_Init` and `mwSfdExecDecSvrHndl`: upstream's authoritative retail owners
+remain assembly. These SDK reconstruction files must not be mistaken for
+matched upstream definitions merely because their text is in `src/`. Of the
+38 upstream sites, 37 are expressed directly in C; `003de6a0` is documented
+only, as detailed below.
+
+| Caller | Callee | Retail input |
+|---|---|---|
+| `004adfa0` | `004adb50` | incoming instance |
+| `002b32d0` | `00442830` | first replacement-name pointer, incoming `a1` |
+| `004eb228` | `004d4308` | incoming voice handle |
+| `003bf2d0` | `003e5250` | incoming object |
+| `003a0260` | `0039c730` | incoming object |
+| `003a02a0` | `0039c730` | incoming object |
+| `003a02e0` | `0039c730` | incoming object |
+| `003a0320` | `0039c730` | incoming object |
+| `003a0360` | `0039c730` | incoming object |
+| `003a1470` | `0039c730` | incoming object |
+| `003a14b0` | `0039c730` | incoming object |
+| `003de6a0` (documented only) | `004275a8` | incoming buffer and low-word byte count |
+| `003d0930` | `003d3e60` | incoming object, first branch |
+| `003d0930` | `003d0fa0` | incoming object, alternate branch |
+| `004f9130` | `004f8f60` | all three incoming key-scramble words |
+| `00438fa0` | `00438e60` | all three incoming syscall words |
+| `00438780` | `00439970` | incoming syscall word |
+| `00438760` | `00439770` | incoming syscall word |
+| `00438740` | `00439598` | both incoming syscall words |
+| `005242d0` | `00524318` | incoming analysis state |
+| `00278640` | `00440b68` | incoming style kind for the diagnostic format |
+| `004f94b8` | `004f9130` | all three incoming key-scramble words |
+| `004bd688` | `004f1278` | incoming flags pointer |
+| `004be3d8` | `004df068` | incoming loop flag, alongside loaded decoder |
+| `004d18b0` | `004f1278` | incoming flags pointer |
+| `004d3528` | `004e7258` | incoming filename, not a no-argument close-all |
+| `0050e3a8` | `00517eb8` | incoming fifth word in `t0` |
+| `004eb2b0` | `004eaa88` | incoming left/right sample output pointers |
+| `004e80c0` | `004e8058` | incoming filename; see result-width group |
+| `004f14c8` | `004e2750` | incoming CVFS handle; see result-width group |
+| `004f14b0` | `004e2690` | incoming CVFS handle |
+| `004f1448` | `004e2240` | incoming CVFS handle |
+| `004f1430` | `004e2170` | incoming CVFS handle, sectors and destination |
+| `004f1418` | `004e20a0` | incoming CVFS handle |
+| `00422460` | `00421580` | incoming interrupt cause |
+| `00422480` | `00421590` | incoming interrupt cause |
+| `004224a0` | `004215a0` | incoming interrupt cause |
+| `004224c0` | `004215b0` | incoming interrupt cause |
+| `SFD_Init` (port-only active C) | `00525488` | existing `p1`, read from `prm->prm1`, not a constant |
+| `mwSfdExecDecSvrHndl` (port-only active C) | `0050c5e8` | existing `mwply` handle |
+
+The four intentional audit exclusions remain unchanged: RE4 debug-name tails,
+the skin identity no-op, opcode-specific ignored sound packet tails, and
+inactive `NON_MATCHING` source. No invented padding arguments are added.
+
+### Write-wrapper codegen exception
+
+At `003de6c0`, `sceWrite` receives the unchanged incoming buffer in `a1` and
+the count in `a2`, while its delay slot preserves the original 64-bit count
+in `s1`. Adding both arguments with the actual 32-bit syscall count type
+changes the function (normalized diff 116). `micro_codegen.py` confirms that
+both a direct `(s32)` cast and a named 32-bit count produce the same extra
+`dsll32`/`dsra32` conversion; the retail call has neither instruction.
+Changing the syscall's count to 64-bit would introduce a conflicting ABI
+instead of fixing it. The original call remains with a short retail-input
+comment, and the port retains its two explicit syscall repair rows.
+
+## Style diagnostic width
+
+The style diagnostic forwards the full incoming kind, while its field store
+narrows to signed 16-bit. Keeping `kind` as a narrow formal moved the store's
+temporary into `a1` (normalized diff 4). The matching form uses a 32-bit
+formal in both style wrappers, an explicit `(s16)` only at the field store,
+and the actual 32-bit `itfMesWindowSetProcedure` declaration. All 125 functions
+in the three affected caller/owner units matched with this form.
