@@ -54,7 +54,7 @@ extern void FldRc_QueueScreenQuad(u8 *, u8 *,
                            f32, f32, f32, f32, f32,
                            void *, s32,
                            f32, f32, f32,
-                           s32, void *, f32);
+                           s32, f32);
 extern u8 D_005F1970[];
 extern u8 D_005F1974[];
 extern u8 D_005F1978[];
@@ -233,7 +233,6 @@ void FldSmapTileQueueQuad(u8 *queue, u8 *context, s32 tileType, s32 variant, s32
     f32 drawDepth;
     f32 quadWidth = (f32)width;
     f32 quadHeight = (f32)height;
-    f32 *uvData;
     s32 texture;
     s32 dictionary;
     s32 uvOffset;
@@ -259,10 +258,10 @@ void FldSmapTileQueueQuad(u8 *queue, u8 *context, s32 tileType, s32 variant, s32
     FldRc_QueueScreenQuad(drawQueue, drawContext,
                   drawX, drawY, drawDepth, quadWidth, quadHeight,
                   (void *)&iGpffff9f54, texture,
-                  *(uvData = &((FldSmapUvColumn *)(D_005F1970 + uvOffset))->coordinate),
+                  ((FldSmapUvColumn *)(D_005F1970 + uvOffset))->coordinate,
                   ((FldSmapUvColumn *)(D_005F1974 + uvOffset))->coordinate,
                   ((FldSmapUvColumn *)(D_005F1978 + uvOffset))->coordinate,
-                  drawFlags, uvData,
+                  drawFlags,
                   ((FldSmapUvColumn *)(D_005F197C + uvOffset))->coordinate);
 }
 #pragma pop

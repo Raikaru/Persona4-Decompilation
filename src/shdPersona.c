@@ -164,6 +164,8 @@ void shdPersonaDrawArcanaBadge(s64, f32, u8, u8 *, s32 *);
 void shdPersonaDrawAffinityPanel(Vec2f, f32, u8, u8 *, s32 *);
 void shdPersonaDrawGaugeBar(Vec2f, f32, u8, u8, u8, s16, s32);
 void PrimDrawFlatRectangle(u8 *, f32 *, f32, s32);
+/* Canonical nLine order is (position, alpha, setIndex, depthOffset). Reordering
+ * these calls changes evaluation/regalloc (nd 35); see docs/port/retail_argument_repairs.md. */
 void nLineDrawSet(Vec2f, f32, u8, s32);
 extern s32 (*D_00887300[])(s32, void *);
 extern char D_005E5810[];
@@ -2392,9 +2394,11 @@ void shdPersonaDrawByState(u8 *panel)
     case 0:
     case 2:
     case 4:
+        /* Retail: alpha/setIndex in GP arguments, opacity in f12. */
         nLineDrawSet(z, ((PersonaRenderWork *)panel)->opacity, ((PersonaRenderWork *)panel)->alpha, 0x10);
         return;
     case 3:
+        /* Retail: alpha/setIndex in GP arguments, opacity in f12. */
         nLineDrawSet(z, ((PersonaRenderWork *)panel)->opacity, ((PersonaRenderWork *)panel)->alpha, 0x23);
         return;
     case 1:
