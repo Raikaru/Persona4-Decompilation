@@ -29,7 +29,7 @@ typedef struct {
     s32 arg1;
     s32 count;
 } Code1B9Work;
-extern void sfsee_ExecHeadAnaly();
+extern void sfsee_ExecHeadAnaly(u8 *arg0);
 extern void sfsee_ExecFinAnaly(u8 *arg0);
 /* measured: ee-gcc -O2 -G0 matches the 16-byte retail window. */
 #pragma schedule on
@@ -105,7 +105,7 @@ void func_005242d0(u8 *arg0)
     if (*(s32 *)(arg0 + 0x36B0) == 0) {
         return;
     }
-    sfsee_ExecHeadAnaly();
+    sfsee_ExecHeadAnaly(arg0);
     sfsee_ExecFinAnaly(arg0);
 }
 // FUN_00524318

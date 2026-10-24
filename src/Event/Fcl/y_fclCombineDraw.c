@@ -5428,7 +5428,7 @@ void fclCombineDrawDetailPanel(u8 *task) {
     extern void strcpy(char *dst, const char *src);
     extern void strcat(char *dst, char *src);
     extern void frFontExCopyString(char *src, char *dst, s32 maxlen);
-    extern char *fclExpandNameTags(char *text, u8 *mode, u8 *secondName, u8 *thirdName, u8 *fourthName);
+    extern char *fclExpandNameTags(char *text, u8 *firstName, u8 *secondName, u8 *thirdName, u8 *fourthName);
     extern char *func_00243840(s32 task);
     char text[128];
     char convertedSuffix[64];

@@ -6,7 +6,7 @@ extern s32 D_00925BE0[];
 extern s32 func_004e22f8(void);
 extern u64 func_004e3448(void *handle);
 extern void func_004e2298(void);
-extern void func_004e2690(void);
+extern s32 func_004e2690(void *handle);
 extern s32 func_004f14c8(void *handle);
 typedef void (*Code1Callback)(void *);
 typedef struct {
@@ -30,16 +30,17 @@ extern void func_004f54a0(void);
 extern u8 *D_00743A50;
 extern s32 D_00743A54;
 extern s32 D_00743B58;
-extern void func_004e20a0(void);
+extern s32 func_004e20a0(void *handle);
 extern s32 func_004e2750(void *handle);
 extern void func_004f9a70(void);
 extern void func_004f26e8(s32 arg0, s32 arg1, s32 arg2);
-extern void func_004e2170(void);
-extern void func_004e2240(void);
+extern s32 func_004e2170(void *handle, s32 sectors, void *buffer);
+extern s32 func_004e2240(void *handle);
 extern void func_004e2108(s32 arg0);
 extern void func_004f53c0(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4);
 extern s32 D_0075D3E0[];
 extern s32 D_0075D3F8[];
+extern void rsu_ScrambleVariKey(s32 key, s32 first, s32 second);
 
 /* measured: without #pragma schedule on, MWCC emits lui/addiu/jr/nop with
    the jr $ra delay slot unfilled; retail fills the delay slot with the
@@ -106,16 +107,16 @@ void func_004f13c0(s32 arg2) {
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f13c0);
 #endif
 // FUN_004F1418
-void func_004f1418(void) {
-    func_004e20a0();
+s32 func_004f1418(void *handle) {
+    return func_004e20a0(handle);
 }
 // FUN_004F1430
-void func_004f1430(void) {
-    func_004e2170();
+s32 func_004f1430(void *handle, s32 sectors, void *buffer) {
+    return func_004e2170(handle, sectors, buffer);
 }
 // FUN_004F1448
-void func_004f1448(void) {
-    func_004e2240();
+s32 func_004f1448(void *handle) {
+    return func_004e2240(handle);
 }
 /* measured: ee-gcc 2.96 -O2 -G0, object 64B/window 80B, normalized_diff 10 with switch; archived if-chain is nd 13. Switch replaces xor/movn with branches, closer to retail's branch chain. If-chain, else-if, and u32/int variants stayed at nd 13. No slt $at entry guard or trailing dead-arm store pattern, so parent levers do not apply beyond the tried switch shape. Body at docs/probe_archive/GA4F_004f1460_body.c (if-chain baseline). */
 // FUN_004F1460 NONMATCHING
@@ -138,8 +139,8 @@ s32 func_004f1460(void) {
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f1460);
 #endif
 // FUN_004F14B0
-void func_004f14b0(void) {
-    func_004e2690();
+s32 func_004f14b0(void *handle) {
+    return func_004e2690(handle);
 }
 // FUN_004F14C8
 s32 func_004f14c8(void *handle) {
@@ -382,9 +383,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9040);
 /* measured: schedule on tested for return-zero epilogue order. */
 #pragma schedule on
 // FUN_004F9130
-s32 func_004f9130(void)
+s32 func_004f9130(s32 arg0, s32 arg1, s32 arg2)
 {
-    rsu_ScrambleVariKey();
+    rsu_ScrambleVariKey(arg0, arg1, arg2);
     return 0;
 }
 /* measured: restore schedule off after func_004f9130. */
@@ -428,13 +429,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f9410);
 // FUN_004F94B8
 /* measured: schedule on tested for the retail constant-before-save order. */
 #pragma schedule on
-s32 RSU_GenerateVariKey(s32 unused, s32 arg1)
+s32 RSU_GenerateVariKey(s32 arg0, s32 arg1, s32 arg2)
 {
     s32 value;
 
     value = -0x64;
     if (arg1 != 0) {
-        value = func_004f9130();
+        value = func_004f9130(arg0, arg1, arg2);
     }
     return value;
 }
