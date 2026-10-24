@@ -136,3 +136,17 @@ temporary into `a1` (normalized diff 4). The matching form uses a 32-bit
 formal in both style wrappers, an explicit `(s16)` only at the field store,
 and the actual 32-bit `itfMesWindowSetProcedure` declaration. All 125 functions
 in the three affected caller/owner units matched with this form.
+
+## Smap aggregate inputs
+
+`smapWorldToColumn` (`002b11c0`) and `smapWorldToRow` (`002b1210`)
+retain their by-value `RwV3d` definitions. MWCC implements that aggregate
+parameter through an address and emits the retail three-lane copy prologue.
+Changing the definitions to pointer parameters would remove that prologue.
+The two declarations and calls in `y_misc_inferred.c` instead use the same
+aggregate type as the definitions and the existing `y_symbol.c` callers.
+`YVec3f` in `y_smap.c` is already a typedef of `RwV3d`.
+
+The port still needs its pointer-ABI adaptation for these helpers on host
+compilers. That is a platform adaptation, not evidence that the matched
+aggregate-copy definitions should be replaced in the decomp.

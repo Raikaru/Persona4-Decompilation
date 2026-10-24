@@ -52,8 +52,8 @@ extern f32 sinf(f32 );
 extern u8 D_0063F3B0[];
 
 
-extern s32 smapWorldToColumn(u8 *);
-extern s32 smapWorldToRow(u8 *);
+extern s32 smapWorldToColumn(RwV3d position);
+extern s32 smapWorldToRow(RwV3d position);
 
 extern f32 smapPlayerOffsetX(s32 , f32 );
 extern f32 smapPlayerOffsetZ(s32 , f32 );
@@ -734,13 +734,13 @@ s32 mapSymbolTaskUpdate(u8 *task)
         out.y = out.y - 2.0f;
     } else if (((YSymbolMarker *)p)->mode == 1) {
         mapPosition = ((f32)smapWorldToColumn(
-                        mdlGetMatrix(D_007EFA00[0]) + 0x30) *
+                        *(RwV3d *)(mdlGetMatrix(D_007EFA00[0]) + 0x30)) *
                     18.0f) + 172.0f;
         out.x = mapPosition -
                 smapPlayerOffsetX(((ResrcRecord *)((u8 **)D_007EFA04)[0])->handle220,
                               18.0f);
         mapPosition = ((f32)smapWorldToRow(
-                        mdlGetMatrix(D_007EFA00[0]) + 0x30) *
+                        *(RwV3d *)(mdlGetMatrix(D_007EFA00[0]) + 0x30)) *
                     18.0f) + 9.0f;
         out.y = mapPosition -
                 smapPlayerOffsetZ(((ResrcRecord *)((u8 **)D_007EFA04)[0])->handle220,
