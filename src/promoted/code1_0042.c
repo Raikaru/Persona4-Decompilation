@@ -358,7 +358,7 @@ asm void func_00421570(void)
 }
 
 // FUN_00421580
-asm void _iEnableIntc(void)
+asm void _iEnableIntc(s32 cause)
 {
     .set noreorder
     .word 0x2403FFE6 /* addiu $v1, $zero, 65510 */
@@ -368,7 +368,7 @@ asm void _iEnableIntc(void)
 }
 
 // FUN_00421590
-asm void _iDisableIntc(void)
+asm void _iDisableIntc(s32 cause)
 {
     .set noreorder
     .word 0x2403FFE5 /* addiu $v1, $zero, 65509 */
@@ -378,7 +378,7 @@ asm void _iDisableIntc(void)
 }
 
 // FUN_004215A0
-asm void _iEnableDmac(void)
+asm void _iEnableDmac(s32 cause)
 {
     .set noreorder
     .word 0x2403FFE4 /* addiu $v1, $zero, 65508 */
@@ -388,7 +388,7 @@ asm void _iEnableDmac(void)
 }
 
 // FUN_004215B0
-asm void func_004215b0(void)
+asm void func_004215b0(s32 cause)
 {
     .set noreorder
     .word 0x2403FFE3 /* addiu $v1, $zero, 65507 */
@@ -1799,9 +1799,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_004223f8);
    reproduces the retail leaf wrapper's epilogue. */
 #pragma schedule on
 // FUN_00422460
-void func_00422460(void)
+void func_00422460(s32 cause)
 {
-    _iEnableIntc();
+    _iEnableIntc(cause);
     __asm__ volatile ("sync" : : : "memory");
 }
 /* measured: closes schedule on around func_00422460. */
@@ -1810,9 +1810,9 @@ void func_00422460(void)
    reproduces the retail leaf wrapper's epilogue. */
 #pragma schedule on
 // FUN_00422480
-void func_00422480(void)
+void func_00422480(s32 cause)
 {
-    _iDisableIntc();
+    _iDisableIntc(cause);
     __asm__ volatile ("sync" : : : "memory");
 }
 /* measured: closes schedule on around func_00422480. */
@@ -1821,9 +1821,9 @@ void func_00422480(void)
    reproduces the retail leaf wrapper's epilogue. */
 #pragma schedule on
 // FUN_004224A0
-void func_004224a0(void)
+void func_004224a0(s32 cause)
 {
-    _iEnableDmac();
+    _iEnableDmac(cause);
     __asm__ volatile ("sync" : : : "memory");
 }
 /* measured: closes schedule on around func_004224a0. */
@@ -1832,9 +1832,9 @@ void func_004224a0(void)
    reproduces the retail leaf wrapper's epilogue. */
 #pragma schedule on
 // FUN_004224C0
-void func_004224c0(void)
+void func_004224c0(s32 cause)
 {
-    func_004215b0();
+    func_004215b0(cause);
     __asm__ volatile ("sync" : : : "memory");
 }
 /* measured: closes schedule on around func_004224c0. */

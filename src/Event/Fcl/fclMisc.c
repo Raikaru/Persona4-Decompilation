@@ -28,7 +28,7 @@ extern void itfMesWindowSetState();
 extern void itfMesWindowRelease();
 extern void itfMesWindowClear();
 extern s32 itfMesWindowInstall(u8 *);
-extern s32 itfMesWindowSetStyle(s32, s16);
+extern s32 itfMesWindowSetStyle(s32, s32);
 extern void itfMesWindowSetFlagBits(s32, s32);
 extern s32 itfMesWindowBindRecord(s32, s32, s32);
 extern u8 *nmListAllocManager(s32, int (*)(), int (*)(), int (*)());

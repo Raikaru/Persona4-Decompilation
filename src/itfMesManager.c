@@ -22,7 +22,7 @@ extern int func_00243840(int value);
 extern char iGpffffa760;
 extern int iGpffffb444;
 
-extern void itfMesWindowApplyStyle(s32 handle, s16 kind, s32 unusedValue);
+extern void itfMesWindowApplyStyle(s32 handle, s32 kind, s32 unusedValue);
 
 /* Interior alias of each manager entry at +0xC, retaining its 0x20-byte stride. */
 typedef struct {
@@ -115,7 +115,7 @@ void *PrimAllocQueueNode();
 void PrimAppendNode();
 u8 *itfMesObjectSetRecord(u8 *window, u8 *record);
 s32 itfMesWindowBindRecord(s32 handle, s32 recordIndex, s32 rowIndex);
-s32 itfMesWindowSetStyle(s32 handle, s16 kind);
+s32 itfMesWindowSetStyle(s32 handle, s32 kind);
 void itfMesWindowRelease(s32 handle);
 void itfMesWindowSetFlagBits(s32 handle, s32 flags);
 void itfMesWindowClearFlagBits(s32 handle, s32 flags);
@@ -141,7 +141,7 @@ void itfMesWindowResetObject(u8 *window);
 void itfMesObjectSetString(u8 *window, s32 slotIndex, s32 textAddress, s32 length);
 void itfMesObjectSetNumber(u8 *window, s32 slotIndex, s32 value);
 void itfMesRecordFixup(u8 *record);
-void itfMesWindowSetProcedure(void *record, s16 kind);
+void itfMesWindowSetProcedure(void *record, s32 kind);
 extern char D_0063BED0[];
 s32 H_Cdvd_AcquireDirectory(char *path, s32 flags);
 void H_Cdvd_ReadSync(s32 cdvd);
@@ -1128,7 +1128,7 @@ u8 *itfMesObjectSetRecord(u8 *window, u8 *record)
 
 /* Select a procedure kind through the common style application path. */
 // FUN_00278610
-s32 itfMesWindowSetStyle(s32 handle, s16 kind)
+s32 itfMesWindowSetStyle(s32 handle, s32 kind)
 {
     itfMesWindowApplyStyle(handle, kind, 0);
     return 0;
@@ -1136,14 +1136,14 @@ s32 itfMesWindowSetStyle(s32 handle, s16 kind)
 
 /* Change the procedure kind only when no protected transition group is active. */
 // FUN_00278640
-void itfMesWindowApplyStyle(s32 handle, s16 kind, s32 unusedValue)
+void itfMesWindowApplyStyle(s32 handle, s32 kind, s32 unusedValue)
 {
     u8 *object;
 
     object = D_00881808[handle].window;
     if (!(((ItfMesWindow *)object)->flags.bits & 0x3300)) {
-        ((ItfMesWindow *)object)->kind.value = kind;
-        func_00440b68(D_0063BED0);
+        ((ItfMesWindow *)object)->kind.value = (s16)kind;
+        func_00440b68(D_0063BED0, kind);
         itfMesWindowSetProcedure(object + 0x114, kind);
     }
 }

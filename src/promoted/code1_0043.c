@@ -2,13 +2,13 @@
 #include "type.h"
 /* Toolchain-blocked: retail saves callee-saved registers with sd; MWCCPS2 3.0.1 emits sq. See build/ORCH_sd_toolchain_blocked.txt. */
 
-s32 func_00439598(void);
+s32 func_00439598(s32 arg0, s32 arg1);
 
-s32 func_00439770(void);
+s32 func_00439770(s32 arg0);
 
-s32 func_00439970(void);
+s32 func_00439970(s32 arg0);
 
-s32 func_00438e60(void);
+s32 func_00438e60(s32 arg0, s32 arg1, s32 arg2);
 
 extern s32 D_008AC780[];
 extern s32 D_0070FC58[];
@@ -319,8 +319,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438700);
    the jr $ra delay slot with addiu $sp, $sp, 0x10; baseline -O2 leaves it nop. */
 #pragma schedule on
 // FUN_00438740
-void func_00438740(void) {
-    func_00439598();
+void func_00438740(s32 arg0, s32 arg1) {
+    func_00439598(arg0, arg1);
 }
 /* measured: closes the schedule-on scope at the file baseline. */
 #pragma schedule off
@@ -331,8 +331,8 @@ void func_00438740(void) {
 #pragma schedule on
 
 // FUN_00438760
-void func_00438760(void) {
-    func_00439770();
+void func_00438760(s32 arg0) {
+    func_00439770(arg0);
 }
 /* measured: closes the schedule-on scope at the file baseline. */
 #pragma schedule off
@@ -343,8 +343,8 @@ void func_00438760(void) {
 #pragma schedule on
 
 // FUN_00438780
-void func_00438780(void) {
-    func_00439970();
+void func_00438780(s32 arg0) {
+    func_00439970(arg0);
 }
 /* measured: closes the schedule-on scope at the file baseline. */
 #pragma schedule off
@@ -370,8 +370,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_00438e60);
    the jr $ra delay slot with addiu $sp, $sp, 0x10; baseline -O2 leaves it nop. */
 #pragma schedule on
 // FUN_00438FA0
-void func_00438fa0(void) {
-    func_00438e60();
+void func_00438fa0(s32 arg0, s32 arg1, s32 arg2) {
+    func_00438e60(arg0, arg1, arg2);
 }
 /* measured: closes the schedule-on scope at the file baseline. */
 #pragma schedule off
