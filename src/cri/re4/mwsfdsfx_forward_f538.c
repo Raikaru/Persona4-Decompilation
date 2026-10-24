@@ -1,13 +1,13 @@
 /* Sofdec effects delegates through the active sub-effect at offset 0xa8. */
 #include "cri_xpt.h"
 
-extern Uint32 func_0052bbd8();
+extern Uint32 func_0052bbd8(Uint32 handle, float nearPlane, float farPlane);
 extern Uint32 func_0052bbf0();
 
 // FUN_0050F538
-Uint32 func_0050f538(Uint32 a0, Uint32 a1, Uint32 a2, Uint32 a3)
+Uint32 func_0050f538(Uint32 a0, float nearPlane, float farPlane)
 {
-	return func_0052bbd8(*(Uint32 *)((Uint8 *)a0 + 0xa8), a1, a2, a3);
+	return func_0052bbd8(*(Uint32 *)((Uint8 *)a0 + 0xa8), nearPlane, farPlane);
 }
 
 // FUN_0050F550

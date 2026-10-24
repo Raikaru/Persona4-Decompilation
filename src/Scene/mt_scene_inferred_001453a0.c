@@ -150,6 +150,8 @@ extern void (*jtbl_008873EC[])(void *);
 
 extern s32 D_00762EA0;
 
+/* Retail consumes a0/a1/f12 only. Removing the unused a2 zero below changes
+ * both callers (normalized_diff 54); retain this spelling for the match. */
 extern s32 FldFrameTask_Spawn(s32, s32, s32, f32 fparg0);
 
 extern s32 D_007642E4;
@@ -326,6 +328,7 @@ s32 MT_Scene_CreateModelCharShadowRes(u16 resourceId, u16 shadowModelId, void *m
     *(void **)&((ResrcRecord *)resource)->modelHandle164 = model;
     mdlTranslateMatrix((RwMatrix *)model, (const RwV3d *)zeroPosition, 0);
     RwMatrixUpdate((u8 *)mdlGetMatrix(MEMBER(void *, resource, ResrcRecord, modelHandle164)));
+    /* Retail: parent=0, resource key in a1, height=60 in f12; a2=0 is unread. */
     frameTask = FldFrameTask_Spawn(0, resourceTypeId & 0xFFFF, 0, 60.0f);
     *(s32 *)&((ResrcRecord *)resource)->handle220 = frameTask;
     *(void **)&((ResrcRecord *)resource)->handle224 = FldShadow_CreateCaster((u8 *)frameTask, shadowId, shadowModelId);
@@ -406,6 +409,7 @@ s32 MT_Scene_CreateModelNpcShadowRes(u16 resourceId, u16 shadowModelId, s32 mode
     }
     *(s32 *)&((ResrcHeader *)resource)->flags = *(s32 *)&((ResrcHeader *)resource)->flags | 0x10000000;
     *(s32 *)&((ResrcRecord *)resource)->modelHandle164 = model;
+    /* Retail: parent=0, resource key in a1, height=60 in f12; a2=0 is unread. */
     frameTask = FldFrameTask_Spawn(0, resourceTypeId & 0xFFFF, 0, 60.0f);
     *(s32 *)&((ResrcRecord *)resource)->handle228 = frameTask;
     *(void * *)&((ResrcRecord *)resource)->handle230 = FldShadow_CreateCaster((u8 *)frameTask, shadowId, shadowModelId);

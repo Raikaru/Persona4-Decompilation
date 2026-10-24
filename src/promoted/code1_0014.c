@@ -214,7 +214,7 @@ extern s32 mdlEffectCreateFromResource(s32 arg0);
 extern void mdlEffectStart(s32 arg0);
 extern s32 mdlEffectClone(s32 arg0);
 extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
-extern s32 FldFrameTask_Spawn(s32 arg0, s32 arg1, s32 arg2, f32 fparg0);
+extern s32 FldFrameTask_Spawn(s32 arg0, s32 arg1, f32 fparg0);
 extern void mdlEffectSetUniformScale(s32 arg0, f32 arg1);
 
 extern s32 D_007642E4;
