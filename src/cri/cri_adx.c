@@ -1,9 +1,9 @@
 /* Source unit: src/cri/cri_adx_004e7798.c (1 function markers) */
 #include "type.h"
 
-int htCiGetFileSize(void);
+s64 htCiGetFileSize(const char *filename);
 
-u64 func_004e8058(void);
+s64 func_004e8058(const char *filename);
 
 void RFTGT_Wait100MicroSec(void);
 
@@ -15,9 +15,9 @@ u32 func_00527960(int param_1,int param_2);
 #pragma optimization_level 3
 
 // FUN_004E7798
-long func_004e7798(void)
+s32 func_004e7798(const char *filename)
 {
-    return htCiGetFileSize();
+    return (s32)htCiGetFileSize(filename);
 }
 #pragma optimization_level 2
 
@@ -25,12 +25,12 @@ long func_004e7798(void)
 #pragma optimization_level 3
 
 // FUN_004E80C0
-long htci_filesize_upper(void)
+s32 htci_filesize_upper(const char *filename)
 {
-    long result;
+    s64 result;
 
-    result = func_004e8058();
-    return result >> 0x20;
+    result = func_004e8058(filename);
+    return (s32)(result >> 0x20);
 }
 #pragma optimization_level 2
 

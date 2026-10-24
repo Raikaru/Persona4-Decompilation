@@ -4,10 +4,10 @@
 
 extern s32 D_00925BE0[];
 extern s32 func_004e22f8(void);
-extern s32 func_004e3448(void);
+extern u64 func_004e3448(void *handle);
 extern void func_004e2298(void);
 extern void func_004e2690(void);
-extern void func_004f14c8();
+extern s32 func_004f14c8(void *handle);
 typedef void (*Code1Callback)(void *);
 typedef struct {
     Code1Callback callback;
@@ -31,7 +31,7 @@ extern u8 *D_00743A50;
 extern s32 D_00743A54;
 extern s32 D_00743B58;
 extern void func_004e20a0(void);
-extern void func_004e2750(void);
+extern s32 func_004e2750(void *handle);
 extern void func_004f9a70(void);
 extern void func_004f26e8(s32 arg0, s32 arg1, s32 arg2);
 extern void func_004e2170(void);
@@ -142,8 +142,8 @@ void func_004f14b0(void) {
     func_004e2690();
 }
 // FUN_004F14C8
-void func_004f14c8(s32 unused) {
-    func_004e2750();
+s32 func_004f14c8(void *handle) {
+    return func_004e2750(handle);
 }
 /* Floor: 9 differing words.  ee-gcc 2.96 -O2 -G0.  Retail calls func_004f14c8
    with `jal` and then runs the epilogue; this build turns the call into a
@@ -155,10 +155,12 @@ void func_004f14c8(s32 unused) {
    flags, not in the source. */
 // FUN_004F14E0 NONMATCHING
 #ifdef NON_MATCHING
-void func_004f14e0(s32 arg0) {
-    if (func_004e3448() == 0) {
-        func_004f14c8(arg0);
+u64 func_004f14e0(void *handle) {
+    u64 size = func_004e3448(handle);
+    if (size == 0) {
+        size = func_004f14c8(handle);
     }
+    return size;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_004f", func_004f14e0);
