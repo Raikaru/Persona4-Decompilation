@@ -38,3 +38,23 @@ repairs must remain in the port. The matrix implementation at `003e0870` is
 also upstream assembly. `FldNpcControlUpdate` (`0018a200`) already declares
 and calls `RwMatrixRotate(matrix, axis, heading, rwCOMBINEPOSTCONCAT)` at this
 pin; there is no remaining upstream alias or argument-order fix at that site.
+
+## File-size result widths
+
+`004e77c0` and the `004e8058` delegate retain the full 64-bit EE `v0`;
+`004e80c0` uses `dsra32` to return its signed upper word. The C declaration,
+temporary and call now preserve that width and the incoming filename.
+`004e7798` deliberately applies `dsll32`/`dsra32` to the low word: its C
+return remains signed 32-bit with an explicit narrowing cast.
+
+`004e3448` builds a 64-bit value from callback commands `0xc8` and `0xc9`
+(`dsll32` plus `daddu` at `004e34b8`–`004e34c4`). Its inherited declaration
+now preserves the full result and names the handle input. `004f14e0` returns
+that value unchanged when nonzero, otherwise the signed 32-bit result of
+`004f14c8`. Its guarded C attempt now states those semantics; production
+continues to use its existing assembly fallback. `004f14c8` forwards the
+handle and explicitly returns the transfer count.
+
+The actual bodies at `004e77c0`, `004e8058` and `004e3448` remain assembly
+fallbacks. The excluded, legacy `libadxe/htci.c` implementation is not the
+retail 64-bit interface and is intentionally unchanged.
