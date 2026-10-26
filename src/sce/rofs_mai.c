@@ -2423,20 +2423,6 @@ int RFMAI_DecrementReqCnt(int object)
 }
 #pragma optimization_level 2
 
-/* Source unit: src/cri/cri_adx_004f5860.c (1 function markers) */
-
-// FUN_004F5860
-asm s64 RFMAI_CnvU32plusU32toS64(u32 param_1,u32 param_2)
-{
-  .set noreorder
-  .word 0x0005103c
-  .word 0x0004203c
-  .word 0x0002103e
-  .word 0x03e00008
-  .word 0x0082102d
-  .word 0x00000000
-}
-
 /* Source unit: src/cri/cri_adx_004f5878.c (1 function markers) */
 
 // FUN_004F5878

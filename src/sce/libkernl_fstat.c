@@ -1,7 +1,9 @@
+#include "sdk_process_internal.h"
+
 /* libkernl.a glue.o: the EE device stat stub returns a fixed device mode. */
 
 // FUN_00421F98
-int fstat(const char *path, void *statbuf)
+int fstat(s32 descriptor, void *statbuf)
 {
     *(unsigned long long *)((char *)statbuf + 0x48) = 0;
     *(unsigned int *)((char *)statbuf + 4) = 0x2000;

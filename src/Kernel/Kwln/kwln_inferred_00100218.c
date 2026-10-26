@@ -1,3 +1,4 @@
+#include "sdk_process_internal.h"
 #include "runtime_allocator_internal.h"
 #include "sdk_dbprt.h"
 #include "include_asm.h"
@@ -9,7 +10,6 @@ typedef struct RwImage RwImage;
 
 extern u8 *D_00764298;
 extern void func_00440b68();
-extern void func_0042c0d8(u8 *value);
 extern u8 *kwlnProbeHeapBudget(void);
 extern void kwlnMainLoop(void);
 extern u8 D_00559810[];
@@ -124,9 +124,9 @@ extern u8 iGpffff85d0;
 // FUN_00100218
 /* measured: retail emits this wrapper as a bare jump, which needs tailcall on. */
 #pragma tailcall on
-void kwlnExitRuntime(u8 *object)
+void kwlnExitRuntime(s32 status)
 {
-    func_0042c0d8(object);
+    func_0042c0d8(status);
 }
 
 #pragma tailcall off

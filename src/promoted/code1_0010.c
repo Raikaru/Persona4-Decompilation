@@ -7,7 +7,6 @@
 typedef struct RwImage RwImage;
 
 extern u8 *D_00764298;
-extern void func_0042c0d8(void);
 extern u8 *kwlnProbeHeapBudget(void);
 extern void kwlnMainLoop(void);
 extern u8 D_00559810[];
