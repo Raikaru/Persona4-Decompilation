@@ -795,7 +795,7 @@ BtlPacket* btlMainCreateFadePacket(s32 arg, s16 mode)
 
 /* Snapshot sky tint on the first frame and blend toward the packet color until its duration expires. */
 // FUN_001B93C0
-u8 btlMainUpdateTintLerp(BtlMainLerpWork* work)
+u32 btlMainUpdateTintLerp(BtlMainLerpWork* work)
 {
     f32 currentFloat;
     f32 totalFloat;
