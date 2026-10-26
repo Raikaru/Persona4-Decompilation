@@ -22,7 +22,6 @@ extern Sint32 SFPTS_IsPtsQueFull(SFD sfd, Sint32 strm);
 extern Sint32 SFPTS_WritePtsQue(SFD sfd, Sint32 strm, SFPTS_ENT *in, Sint32 *full);
 extern Sint32 SFCON_IsSystemEndcodeSkip(SFD sfd);
 extern Sint32 (*SFPLY_SetPtsInfo)(SFPLY_PTSM *ptsm, SFPTS_ENT *ent);
-extern Sint32 MPS_SetErrFn(MPS mps, void (*fn)(void *obj, Sint32 code), void *obj);
 extern void MPS_SetPesFn(MPS mps, void *fn, void *obj);
 extern void MPS_SetPsMapFn(MPS mps, void *fn, void *obj);
 extern void MPS_SetSystemFn(MPS mps, void *fn, void *obj);

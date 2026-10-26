@@ -8,6 +8,8 @@
  * +0x4C4 (extra value). */
 void shdPersonaSetHandleValue(int task, u32 value);
 void shdPersonaSetExtraValue(int task, u32 value);
+/* Primitive queue dispatch supplies the node, then its Persona work argument. */
+void shdPersonaDrawPanels(u8 *node, u8 *work);
 
 /* Work block of the level-up child task (shdPersonaLevelUpCreate, 0x58 bytes). */
 typedef struct ShdPersonaLevelUpWork ShdPersonaLevelUpWork;
