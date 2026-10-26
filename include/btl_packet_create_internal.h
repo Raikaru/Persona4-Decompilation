@@ -6,6 +6,9 @@
 struct BtlAction;
 struct BtlPacket;
 struct BtlUnit;
+struct BtlMainLerpWork;
+
+u32 btlMainUpdateTintLerp(struct BtlMainLerpWork *work);
 
 /* Packet factories return the allocated packet so callers can attach the
  * action UID and dependency before submitting it to the dispatcher. */
