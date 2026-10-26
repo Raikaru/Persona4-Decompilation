@@ -171,8 +171,8 @@ changing the callee to suit a host wrapper.
 Three width repairs require changing the definition as well as its callers:
 `datCalcSetBadStatusById` forwards the complete unsigned status word;
 `sdkSndSetSlotTrack` accepts the complete slot index but explicitly narrows
-only the indexed accesses; `btlAICommandNomalStatusCheck` accepts its callback's
-wide query word and explicitly consumes its signed low halfword. The highlight
+only the indexed accesses; `btlAICommandNomalStatusCheck` retains a measured
+wide input view and explicitly consumes its signed low halfword. The highlight
 mode shared by the symbol and small-map wrappers is signed eight-bit. These
 are PS2 contracts, not host pointer-width accommodations.
 
@@ -302,3 +302,26 @@ omitted that live `a1`; the complete setter now shares the actual decoder and
 sound-joint types. The AHX owner reuses the existing ADXB layout rather than
 a second private prefix definition. This is distinct from the retained generic
 four-GP register forwarding views.
+
+### Weighted AI target-selector callback contracts
+
+The dispatcher at `001ded30` invokes the `00609ce0` table as
+`s32 (*)(u8 *, u32)`: one action pointer and one packed query word. Thirty
+forwarding callbacks at `001dc5c0`–`001dd090` instead declared a `u64` first
+input and a void result. On the EE each register still occupies one slot;
+on i386 that declaration consumes two stack words before the query.
+
+These callbacks now share their complete declarations in `btl_ai_internal.h`,
+accept the actual pointer/query pair, and return `btlAICommandSelectCandidates`'s
+status. The original instructions leave `a0` untouched, retain the query in
+`a1`, and do not overwrite `v0` after the selector returns. The two fixed-DOWN
+callbacks replace `a1` with `0x100000`; their dispatcher query is explicitly
+unused. Predicate casts and selection/filter constants are unchanged.
+
+The complete `btlAICommand.c` owner retains all 263 first-party `MATCH` results.
+This does not imply every callback's existing source view can be made uniform:
+`001db5e0` retains its measured wide formal for the original 64-bit shift
+sequence, while only the signed low 16 bits are observable. A host-only ABI
+normalization of that trailing query is separate from repairing the thirty
+incorrect wide-first-argument declarations.
+
