@@ -32,7 +32,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern s8 iGpffffb578;
 extern s32 iGpffffb55c;
 extern s32 iGpffffb57c;
-extern void itfMesWindowDrawEntry(s32, s32, s32, s32, s32, s32);
+extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32 slotIndex, s32 effect, s32 flags, s32 handle, s32 recordIndex);
 extern s32 itfMesWindowQueueEntry(f32 x, f32 y, f32 scale, s32 color, s32 slotIndex, s32 effect, s32 flags, s32 handle, s32 recordIndex, u8 *queue);
 extern u32 datEntryGetFlags(s16 itemId);
 extern u8 *nmListAppendNode(u8 *manager, s32 owner, s32 payloadSize);

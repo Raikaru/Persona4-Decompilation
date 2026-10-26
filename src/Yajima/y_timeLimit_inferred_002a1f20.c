@@ -1,3 +1,4 @@
+#include "kwln_draw_callbacks_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -27,7 +28,6 @@ extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *list, void *node);
 extern u8 D_00795E60[];
 extern u8 D_007966A0[];
-extern void yTimeLimitDrawCallback(u8 *);
 extern f32 fGpffff8204;
 extern u32 yTimeTrackAppendKey(s32, s32, s32, s32,
                          s32, f32 farg0, s32, s32, s32);

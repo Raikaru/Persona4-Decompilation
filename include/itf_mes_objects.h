@@ -153,4 +153,9 @@ typedef char ItfMesProcedureSizeCheck[sizeof(ItfMesProcedure) == 0x1C ? 1 : -1];
 typedef char ItfMesWindowSizeCheck[sizeof(ItfMesWindow) == 0x130 ? 1 : -1];
 typedef char ItfMesManagerEntrySizeCheck[sizeof(ItfMesManagerEntry) == 0x20 ? 1 : -1];
 
+
+/* Existing callers supply these inputs; unused inputs are retained explicitly. */
+void itfMesSlotReset(u8 *record, s32 unusedIndex);
+void itfMesRecordReset(u8 *record, s32 unusedIndex);
+
 #endif

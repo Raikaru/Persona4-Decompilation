@@ -1,3 +1,4 @@
+#include "sdk_snd_internal.h"
 #include "include_asm.h"
 #include "list_item_internal.h"
 #include "sdk_task_registration.h"
@@ -53,7 +54,7 @@ typedef struct { s32 a, b, c, d; } Quad4;
 typedef void (*Code1_0026Callback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 
 
-extern u8 *kwlnTaskGetWork();
+extern u8 *kwlnTaskGetWork(void* task);
 extern s32 kwlnTaskIsLinked();
 
 extern s32 sdkSpritePackCreate(u8 *descriptor);
@@ -71,7 +72,6 @@ extern u8 D_00638FA0[];
 extern u8 D_00638FB0[];
 extern void kAssertFail(void *file, s32 line);
 extern s32 cldTimeChangeUpdate(u8 *task);
-extern s32 sdkSndFadeOutChannel(s32, s32);
 extern s32 sdkSndStopChannel(s32 fadeFrames);
 extern void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
 extern s32 shdSpriteEnsureLoaded(u8 *pack);
@@ -150,7 +150,7 @@ static inline const s32 *contourOutlineCount(const s32 *words, s32 shape)
 /* Request a different day by setting bit 0 and recording the requested day. */
 // FUN_00266A40
 s32 cldDayChangeRequest(u32 unused, s32 day) {
-    u8 *work = kwlnTaskGetWork();
+    u8 *work = kwlnTaskGetWork((void*)(unused));
 
     if (((CldDayChangeRequest *)work)->currentDay != day) {
         ((CldDayChangeRequest *)work)->flags |= 1;
@@ -165,7 +165,7 @@ void cldDayChangeMarkDone(u8 *task) {
     u8 *work;
 
     if (kwlnTaskIsLinked(task) != 0) {
-        work = kwlnTaskGetWork(task);
+        work = kwlnTaskGetWork((void*)(task));
         ((CldDayChangeRequest *)work)->flags |= 2;
     }
 }
@@ -178,7 +178,7 @@ s32 cldDayChangeIsDone(s32 task)
     s32 flags;
 
     if (kwlnTaskIsLinked() != 0) {
-        work = kwlnTaskGetWork(task);
+        work = kwlnTaskGetWork((void*)(task));
         flags = ((CldDayChangeRequest *)work)->flags;
         if ((flags & 1) && !(flags & 4)) {
             return 0;
@@ -192,8 +192,8 @@ s32 cldDayChangeIsDone(s32 task)
 }
 
 // FUN_00266B70
-void mtSceneBuildSpriteTable(void) {
-    sdkSpritePackCreate(D_00637420);
+s32 mtSceneBuildSpriteTable(void) {
+    return (s32)sdkSpritePackCreate(D_00637420);
 }
 
 /* Load the period-change sprites, wait for readiness, then animate for sixty frames. */
@@ -206,7 +206,7 @@ s32 cldTimeChangeUpdate(u8 *task)
     s32 elapsedFrames;
     s32 state;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(task));
     calSplitDayOfYear(((CldTimeChangeWork *)work)->firstPeriod, &month, &day);
     state = ((CldTimeChangeWork *)work)->state;
     switch (state) {
@@ -250,7 +250,7 @@ void cldTimeChangeDraw(s32 unusedQueue, s32 task)
     s32 elapsedFrames;
     s32 alpha;
 
-    work = kwlnTaskGetWork(task);
+    work = kwlnTaskGetWork((void*)(task));
     firstPeriod = *(s32 *)&((CldTimeChangeWork *)work)->firstPeriod;
     secondPeriod = *(s32 *)&((CldTimeChangeWork *)work)->secondPeriod;
     if (calHasDayEntry(datGetDateIndex()) != 0) {
@@ -333,7 +333,7 @@ void mtSceneSpriteTableTaskDestroy(u8 *unusedTask) {
     u8 *work;
     s32 spriteHandle;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(unusedTask));
     spriteHandle = ((CldTimeChangeWork *)work)->sprites.handle;
     if (spriteHandle != 0) {
         sdkSpritePackDestroy((void *)spriteHandle);

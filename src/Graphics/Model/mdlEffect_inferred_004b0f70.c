@@ -42,7 +42,6 @@ extern u8 D_00714658[];
 
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *instance, s32 value);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
@@ -92,7 +91,7 @@ void DistortParticleUpdateAndAppendNode(u8 *instance)
     u8 *node;
     u8 *inner;
 
-    DistortParticleUpdateRecords();
+    DistortParticleUpdateRecords(instance);
     node = ((DistortParticleInstance *)instance)->list;
     if (node != NULL) {
         inner = ((MdlEffectEmitter *)node)->parameters;

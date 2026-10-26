@@ -31,7 +31,6 @@ extern s32 func_003e8930(s32 arg0, s32 arg1, void *arg2, void *arg3);
 extern s32 func_003c1ab0(s32 arg0, s32 arg1, void *arg2, void *arg3, void *arg4);
 extern s32 func_003c1b10(s32 arg0, void *arg1, void *arg2, void *arg3);
 extern s32 func_003c1b40(s32 arg0, void *arg1);
-extern s32 _rpSkinSplitDataStreamGetSize(s32 *arg0, s32 arg1, s32 arg2, s32 arg3);
 extern s32 _rpSkinGeometryNativeSize(s32 arg0);
 extern s32 func_003c1b60(s32 arg0, void *arg1);
 extern s32 func_003c2b70(s32 arg0, s32 arg1, void *arg2, void *arg3, void *arg4);
@@ -67,7 +66,7 @@ extern void func_003c0880(s32 arg0, s32 arg1);
 extern void func_003c08c0(s32 arg0, s32 arg1);
 extern void func_003c3cc0(s32 arg0);
 extern void func_003e8440(s32 arg0);
-extern s32 func_003c3980(void);
+extern s32 func_003c3980(u8 *arg0);
 extern s32 func_003e5250(s32 arg0);
 extern void func_003cbcf0(s32 arg0, s32 arg1);
 extern s32 func_003e8960(s32 arg0);
@@ -194,7 +193,7 @@ s32 func_003bf240(s32 arg0)
 s32 func_003bf280(s32 arg0, s32 *arg1)
 {
     *arg1 += 0x10;
-    *arg1 += func_003c3980() + 0xc;
+    *arg1 += func_003c3980((u8 *)(arg0)) + 0xc;
     return arg0;
 }
 

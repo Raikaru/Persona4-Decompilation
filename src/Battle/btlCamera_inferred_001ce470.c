@@ -38,7 +38,7 @@ struct RwMatrixTag {
     u32 pad3;
 };
 
-extern void btlCameraUpdateEffectList();
+extern void btlCameraUpdateEffectList(u8 *camera);
 extern void btlCameraFrameRotated(u8 *camera, f32 pitch, f32 yawStep, f32 distanceFactor);
 extern void btlCameraFrameRotatedWide(u8 *camera, f32 pitch, f32 yawStep, f32 distanceFactor);
 extern void btlMainApplyUnitBaseColors(u8 *unit);
@@ -78,7 +78,7 @@ extern u8 D_005F78C0[];
 extern u8 D_005F7AB0[];
 extern u32 datCalcRandomBelow(u32 limit);
 extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
-extern void btlUnitSetFlags(u8 *first, s32 second, s32 third, u8 *fourth, s32 fifth);
+extern void btlUnitSetFlags(u8 *first, s32 second);
 extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
 extern RwMatrix *RwMatrixRotate(RwMatrix *first, const RwV3d *second, f32 third, s32 fourth);
 extern RwV3d *func_003e4320(RwV3d *first, const RwV3d *second, const RwMatrix *third);
@@ -362,8 +362,7 @@ loop_test:
                         }
 search_done:
                         if (check == count) {
-                            btlUnitSetFlags(MEMBER(u8 *, current, BtlAction, unit), 2,
-                                          count, iGpffffb3ac, index);
+                            btlUnitSetFlags(MEMBER(u8 *, current, BtlAction, unit), 2);
                             ((BtlUnit *)((u8 *)((BtlAction *)current)->unit))->cols[1].alpha = 0;
                         }
                     }
@@ -502,8 +501,8 @@ void btlCameraFrameSpawn(u8 *camera, u8 *defaultScript)
 }
 
 // FUN_001CF140
-void btlCameraEffectListTickC(void) {
-    btlCameraUpdateEffectList();
+void btlCameraEffectListTickC(u8 *object) {
+    btlCameraUpdateEffectList(object);
 }
 
 /* measured: optimization level 1 keeps retail's register choice for the low-bit OR in this

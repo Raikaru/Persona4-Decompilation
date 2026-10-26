@@ -1,5 +1,6 @@
 #include "include_asm.h"
 #include "type.h"
+#include "cri_adxt_internal.h"
 /* Toolchain note: retail saves $s registers with sd; MWCCPS2 3.0.1 emits sq; toolchain-blocked, see build/ORCH_sd_toolchain_blocked.txt. */
 
 
@@ -7,7 +8,6 @@ extern u8 *D_00745888[];
 extern u8 *D_007458B8[];
 void func_00514d80(u8 *, u8 *, u8 *);
 extern void func_004d3cd8();
-extern s32 func_004d43f8();
 /* measured: without #pragma schedule on, MWCC leaves the jr $ra delay slot
    unfilled (nop) and retail fills it with the final addiu (nd 6 -> 0). */
 
@@ -141,13 +141,13 @@ INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513290);
 // FUN_005132A8
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_005132a8);
 
-/* measured: object 36B/window 40B/normalized_diff 6 (2 differing words, first diffs 16,18-20,22-23, 4B zero tail). */
-/* measured: second boolean as <1U (not ==0) fixes sltiu-vs-xori (was 3 words with xori $v0,$v0,1, now sltiu $v0,$v0,1 matching retail); >1U alternate stays at 3. */
-/* measured: remaining is ld-ra scheduling (same 2-word floor as func_00512fa0); no short chain (9/9 instrs), arg N/A, loop N/A. Updated from 3 to 2. */
+/* The typed handle reaches the state query unchanged. Both supported MWCC
+ * versions retain a six-byte residual: ld ra and the first sltiu are swapped.
+ * Keep the retail assembly while making the guarded reconstruction's input real. */
 // FUN_00513380 NONMATCHING
 #ifdef NON_MATCHING
-s32 sfadxt_IsEndDecinfo(void) {
-    return (func_004d43f8() < 2U) < 1U;
+s32 sfadxt_IsEndDecinfo(void *player) {
+    return (func_004d43f8(player) < 2U) < 1U;
 }
 #else
 INCLUDE_ASM("asm/nonmatchings/code1_0051", func_00513380);

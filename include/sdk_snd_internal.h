@@ -10,4 +10,9 @@ void sdkSndStartStreamSlot(s16 index, s16 stream, s16 value, s16 flags);
 s32 sdkSndStopStream(s16 index, s16 stream);
 s32 sdkSndStartStream(s16 index, s16 stream, s16 value, s16 flags);
 
+
+/* Existing callers supply these inputs; unused inputs are retained explicitly. */
+s32 sdkSndPlayCue(s32 cueId, s32 unusedFlags);
+s32 sdkSndFadeOutChannel(s32 channelIndex, s32 unusedFlags);
+
 #endif

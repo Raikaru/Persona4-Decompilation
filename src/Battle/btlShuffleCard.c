@@ -6,7 +6,7 @@
 #include "member_access.h"
 
 
-extern void sflDataSetupQuadPanel(void);
+extern void sflDataSetupQuadPanel(void* work);
 extern void pscResAcquireMiscCardW00(void);
 extern void btlShuffleCardUpdateCards(u8 *card);
 
@@ -15,13 +15,13 @@ extern void btlShuffleCardBindPacket(u8 *card, void *rotation);
 
 extern void sflResGetSecondaryVector(u8 *work, f32 *value);
 
-extern void sflDataSetupLayoutPanel(void);
+extern void sflDataSetupLayoutPanel(void* work);
 extern void pscModelSetPersonaCard(u8 *model, s32 personaId);
 extern void pscResAcquirePersonaCard(s32 personaId);
-extern void sflDataSetupFramePanel(void);
+extern void sflDataSetupFramePanel(void* work);
 extern void pscModelSetArcanaCard(u8 *model, u16 group, s32 index);
 extern void pscResAcquireArcanaCard(s32 group, s32 cardIndex);
-extern void pscModelInitPanel(void);
+extern void pscModelInitPanel(u8 *model);
 extern void pscResAcquireMiscCardW01(void);
 extern void sflResSetSecondaryVector(u8 *work, void *value);
 extern void sflResSetPrimaryVector(u8 *work, void *value);
@@ -92,7 +92,7 @@ void btlShuffleCardInit(u8 *card, u8 *specification)
 // FUN_0036DA40
 void btlShuffleCardSetupLayout(u8 *card, s32 personaId)
 {
-    sflDataSetupLayoutPanel();
+    sflDataSetupLayoutPanel(card);
     pscModelSetPersonaCard(card, personaId);
     pscResAcquirePersonaCard(personaId);
     btlShuffleCardUpdateCards(card);
@@ -104,7 +104,7 @@ void btlShuffleCardSetupFrame(u8 *card, s32 arcanaId, s32 index)
 {
     s32 resourceId;
 
-    sflDataSetupFramePanel();
+    sflDataSetupFramePanel(card);
     resourceId = arcanaId & 0xFFFF;
     pscModelSetArcanaCard(card, resourceId, index);
     pscResAcquireArcanaCard(resourceId, index);
@@ -116,7 +116,7 @@ void btlShuffleCardSetupFrame(u8 *card, s32 arcanaId, s32 index)
 // FUN_0036DB20
 void btlShuffleCardSetupQuad(u8 *card)
 {
-    sflDataSetupQuadPanel();
+    sflDataSetupQuadPanel(card);
     pscResAcquireMiscCardW00();
     btlShuffleCardUpdateCards(card);
 }
@@ -125,7 +125,7 @@ void btlShuffleCardSetupQuad(u8 *card)
 // FUN_0036DB60
 void btlShuffleCardReset(u8 *card)
 {
-    pscModelInitPanel();
+    pscModelInitPanel(card);
     pscResAcquireMiscCardW01();
     btlShuffleCardUpdateCards(card);
 }

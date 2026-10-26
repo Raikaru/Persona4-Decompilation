@@ -1,8 +1,9 @@
+#include "message_procedure_api.h"
+#include "kwln_draw_callbacks_internal.h"
 #include "type.h"
 
 extern void kwlnTaskGetWork(void* task);
 
-extern void itfMesFlushPending(void* a0);
 
 extern void yTimeLimitDraw(void* task);
 

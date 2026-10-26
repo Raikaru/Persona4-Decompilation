@@ -57,7 +57,6 @@ extern s32 datCalcGetLevelById(s32 unitId);
 
 extern u8 *kwlnGetCamera(void);
 extern void datPanelResetCursor(u8 *entry);
-extern void datPanelDrawByKind(s64 origin, f32 depth, s32 opacity, u8 *entry, s32 fullName);
 extern f32 iGpffff84a4;
 extern s32 resourceFindByName(const void *name);
 extern void kAssertFail(const void *file, s32 line);
@@ -705,7 +704,7 @@ void sflDataDrawByteValuePanel(s64 position, f32 depth, s32 opacity, u8 *state)
 /* Draw the stored party member through a kind-three panel command using the full-name style. */
 // FUN_00367940
 /* Draws the stored party entry through a packed 12-byte DatPanelEntry panel command. */
-void sflDataDrawPartyEntry(P4Pair position, f32 depth, s32 opacity, u8 *state) { u8 buf[12]; f32 factor; factor = depth; datPanelResetCursor(buf); ((DatPanelEntry *)buf)->kind = 3; ((DatPanelEntry *)buf)->style = 1; *(s16 *)buf = ((SflPersonaState *)state)->details.partyId; datPanelDrawByKind(*(s64 *)&position, factor, opacity, buf, 1); }
+void sflDataDrawPartyEntry(P4Pair position, f32 depth, s32 opacity, u8 *state) { u8 buf[12]; f32 factor; factor = depth; datPanelResetCursor(buf); ((DatPanelEntry *)buf)->kind = 3; ((DatPanelEntry *)buf)->style = 1; *(s16 *)buf = ((SflPersonaState *)state)->details.partyId; datPanelDrawByKind(*(FclVec2 *)&position, factor, opacity, buf, 1); }
 
 // Draws a right-aligned number from digit sprites beside an icon, one digit column per 16 px.
 // FUN_003679C0

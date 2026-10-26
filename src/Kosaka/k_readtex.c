@@ -27,7 +27,7 @@ extern void *func_003ef650(s32 owner, const void *name);
 extern void func_00440b68(const void *file, const void *message, s32 line);
 extern void *H_Cdvd_AcquireDirectory(const char *path, s32 flags);
 extern void H_Cdvd_Destroy(void *cdvd);
-extern s32 filerEnqueueRequest(s32, const void *, s32, s32, s32, s32, s32, s32, s64, s64);
+extern s32 filerEnqueueRequest(s32, const void *, s32, s32, s32, s32, s32, s32, s32, s32);
 extern void filerTakeCompletedRequest(s32 request, s32 *completed, s32 resultValue);
 extern s32 iGpffffa030;
 

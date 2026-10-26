@@ -153,7 +153,7 @@ typedef unsigned int u_long128 __attribute__((mode(TI)));
 extern void (*D_00887300[])(s32 arg0, s32 arg1);
 extern void RpSkyRenderStateSet(s32, s32);
 extern void FldNoiseEmitTagged(void);
-extern void func_003a2760(s32);
+extern void func_003a2760(u8 *object);
 extern void func_003e9390(s32);
 typedef struct RpMaterial *(*MaterialCallback)(struct RpMaterial *, void *);
 
@@ -693,7 +693,7 @@ void FldRainDestroy(u8 *task)
     release = jtbl_008873EC;
     release[0](((FldRainWork *)work)->drops.bytes);
     release[0](((FldRainWork *)work)->columnTimers.bytes);
-    func_003a2760(((FldRainWork *)work)->atomic.handle);
+    func_003a2760((u8 *)(((FldRainWork *)work)->atomic.handle));
     func_003e9390(((FldRainWork *)work)->frame.handle);
     if (((FldRainWork *)work)->matrix.handle != 0) {
         func_003e0f40(((FldRainWork *)work)->matrix.handle);

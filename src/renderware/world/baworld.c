@@ -149,13 +149,7 @@ struct rpWorldFindSectorData
  Globals (across program)
  */
 
-RwPluginRegistry    worldTKList =
-    { sizeof(RpWorld),
-      sizeof(RpWorld),
-      0,
-      0,
-      (RwPluginRegEntry *)NULL,
-      (RwPluginRegEntry *)NULL };
+extern RwPluginRegistry worldTKList;
 
 /****************************************************************************
  Local (static) Globals

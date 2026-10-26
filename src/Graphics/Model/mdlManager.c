@@ -1,3 +1,4 @@
+#include "mdl_effect_dispatch_internal.h"
 #include "byte_address_internal.h"
 #include "operand_order_internal.h"
 #include "model_motion_internal.h"
@@ -186,7 +187,7 @@ extern s64 DAT_00723cd8;
 extern void mdlDestroyModelObject(u8* model);
 extern void mdlEffectEmitTagPair(void);
 extern s32 mdlPrepareModel(u8* model);
-extern void* func_003bfae0(void);
+extern void* func_003bfae0(void *atomic);
 extern int RwCameraFrustumTestSphere(void* a, void* b);
 extern void* D_008872E0[];
 extern void mdlAllocAuxBlock(void* model);
@@ -605,7 +606,6 @@ typedef char MdlFrameRootOffset[(offsetof(MdlFrame, root) == 0xA0) ? 1 : -1];
 extern void func_003e9cb0(void* frame, void* transform, u32 combine);
 extern void mdlSetAttachedModelMatrices(Model* model, RwMatrix* matrix);
 extern void mdlDetachSlotModel(u8* model, u16 slotIndex);
-extern void mdlEffectListCallFlagged();
 extern void mdlNoopSecondaryEffect();
 extern void mdlInitObjectSlots(u8* state);
 extern void mdlSetAttachedSlotValue(u8* model, u16 slotIndex, s32 frameId);
@@ -1744,7 +1744,7 @@ void mdlSetupMatFXMaterial(int material)
     u32 pipeline;
     u32 effects;
 
-    effects = RpMatFXMaterialGetEffects();
+    effects = RpMatFXMaterialGetEffects(material);
     switch (effects) {
     case 1:
         pipeline = func_0039b6e0(0x10021);
@@ -1859,7 +1859,7 @@ void* mdlResolveLoopAnimation(void* interpolator, u8* layer)
             attachments = *(void* *)&((MdlLayerState *)layer)->attachments;
             if (attachments != 0) {
                 if (*(s32 *)&((MdlCloneAttachmentTable *)attachments)->primaryDraw != 0) {
-                    mdlEffectListCallFlagged(*(s32 *)&((MdlCloneAttachmentTable *)attachments)->primaryDraw, rawIndex);
+                    mdlEffectListCallFlagged((u32 *)*(s32 *)&((MdlCloneAttachmentTable *)attachments)->primaryDraw, rawIndex);
                 }
                 if (*(s32 *)&((MdlCloneAttachmentTable *)attachments)->secondaryDraw != 0) {
                     mdlNoopSecondaryEffect(*(s32 *)&((MdlCloneAttachmentTable *)attachments)->secondaryDraw);
@@ -4644,7 +4644,7 @@ s32 mdlPrepareModel(u8* model)
         return 1;
     }
     if ((flags & 0x2000) == 0) {
-        if (mdlAdvanceAuxLoad() == 0) {
+        if (mdlAdvanceAuxLoad(model) == 0) {
             return 0;
         }
         if (mdlSeUpdateRecord((void**)(model + 0x2D0)) == 0) {
@@ -5042,7 +5042,7 @@ void mdlSetResetCallback(void* model, int callback, int context)
 }
 
 extern void mdlUpdateBlendTrack(u8* state, u8* layer);
-extern void mdlEffectEmitMaskedTagPair(u32 a);
+extern void mdlEffectEmitMaskedTagPair(void);
 extern s64 iGpffffabe8;
 
 /* measured: propagation-off keeps the D_00887300_abs base address in one register instead of
@@ -5087,7 +5087,7 @@ void mdlApplyDrawState(void* drawObject, Model* model)
         iGpffffabe8 |= 0x80;
     }
     if (model->flags & 0x100000) {
-        mdlEffectEmitMaskedTagPair(model->flags);
+        mdlEffectEmitMaskedTagPair();
     }
     if (model->drawCallback != NULL) {
         ((void (*)(void*))model->drawCallback)((void*)model->drawData);
@@ -5307,7 +5307,7 @@ void* mdlDrawAtomicIfVisible(void* atomic, void* context)
         return atomic;
     }
     if (*(void* *)&*(u8 **)&((struct RpAtomic *)atomic)->geometry != 0) {
-        if (RwCameraFrustumTestSphere(D_008872E0[0], func_003bfae0()) != 0) {
+        if (RwCameraFrustumTestSphere(D_008872E0[0], func_003bfae0(atomic)) != 0) {
             ((FnVoidPtr)*(void **)&((struct RpAtomic *)atomic)->renderCallBack)(atomic);
         }
     }

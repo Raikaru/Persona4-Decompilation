@@ -81,7 +81,7 @@ extern void mdlEffectSeqStop(void);
 extern void MT_Scene_WrapObjectAngles(s32 object);
 extern float MT_Scene_GetCurveLength(char *path);
 extern s32 mtSceneIconSpawnTask(u16 resourceId, s32 iconIndex);
-extern s32 FldShadow_SetCasterFlag(s32, s32, s32);
+extern s32 FldShadow_SetCasterFlag(s32, s32);
 extern void memset(void *dst, s32 value, s32 size);
 extern f32 RwV3dNormalize();
 extern s64 D_0063B110;
@@ -1508,9 +1508,9 @@ s32 MT_Scene_SetResShadowCaster(u8 *resource, s32 enabled)
     }
     if (caster == 0) return 0;
     if (enabled == 1) {
-        FldShadow_SetCasterFlag(caster, 0, caster);
+        FldShadow_SetCasterFlag(caster, 0);
     } else {
-        FldShadow_SetCasterFlag(caster, 1, caster);
+        FldShadow_SetCasterFlag(caster, 1);
     }
     return 1;
 }
@@ -2126,7 +2126,7 @@ f32 MT_Scene_SampleCurveTable(u32 kind, f32 duration, f32 elapsed)
         f32 sampleY;
     } SceneCurveScratch;
     u8 *controlPoints;
-    u8 pathBuffer[0x138];
+    u8 pathBuffer[0x140];
 
     if (kind >= 6) {
         kAssertFail(D_0063B090, 0xA24);

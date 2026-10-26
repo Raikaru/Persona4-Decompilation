@@ -34,7 +34,7 @@ extern s32 func_003a2d90(s32 arg0);
 extern s32 func_003a15e0(s32 arg0);
 extern u8 *PTankAtomicDestruct(u8 *arg0);
 
-extern void func_003c02e0(void);
+extern void func_003c02e0(u8 *arg0);
 extern void func_003c42b0(void *arg0, s32 arg1);
 extern void (*jtbl_008873EC[])(u8 *arg0);
 extern s32 func_004115d0(void);
@@ -54,7 +54,6 @@ extern s32 func_003a7160(u8 *arg0);
 extern s32 func_003a6ba0(void);
 extern s32 func_003a7f80(void);
 extern u8 *func_003bfae0();
-extern s32 **_rpObjectGetMeshCacheResize();
 extern u8 *func_003cfa30();
 extern s32 func_003a8ca0(void);
 extern s32 func_003a92d0(void);
@@ -297,9 +296,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_003a", func_003a2390);
 // above; level 3 is what actually collapses the call.
 #pragma optimization_level 3
 // FUN_003A2760
-void func_003a2760(void)
+void func_003a2760(u8 *object)
 {
-    func_003c02e0();
+    func_003c02e0(object);
 }
 // measured: closing bracket for the schedule-on/O3 above; satisfies
 // decomp_lint P001 balance and restores the -O2 default.

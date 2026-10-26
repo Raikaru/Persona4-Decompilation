@@ -42,4 +42,7 @@ extern void* K_Clump_FindIntUsrDataFrameCb(void* object, void* data);
 extern void* K_Clump_CountIntUsrDataCb(void* object, void* data);
 extern void* K_Clump_IntUsrDataAtCb(void* object, void* data);
 
+/* The debug-menu context is evaluated by the caller but this root constructor ignores it. */
+s32 K_Clump_CreateLoadTask(s32 unusedContext);
+
 #endif

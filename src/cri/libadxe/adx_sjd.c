@@ -600,7 +600,6 @@ Sint32 ADXSJD_GetHdrLen(ADXSJD sjd)
 }
 
 // 100% matching!
-// FUN_004CEDA8
 Sint32 ADXSJD_GetFmtBps(ADXSJD sjd)
 {
     return ADXB_GetFmtBps(sjd->adxb);

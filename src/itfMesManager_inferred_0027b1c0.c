@@ -106,7 +106,7 @@ void itfMesWindowUpdateLists(u8 *window)
 {
     extern s32 frFontDrawListDefault(s32 list);
     extern s32 frFontDrawListMode(s32 list, s32 mode);
-    extern void itfMesWindowMarkRedraw(void);
+    extern void itfMesWindowMarkRedraw(s32 *window);
     extern s32 itfMesWindowSendDrawLists(s32 handle);
     s32 flags;
     u32 mask;
@@ -115,7 +115,7 @@ void itfMesWindowUpdateLists(u8 *window)
 
     flags = ((ItfMesWindow *)window)->flags.value;
     D_008817E8[0] &= 0xFFFD;
-    itfMesWindowMarkRedraw();
+    itfMesWindowMarkRedraw((s32 *)window);
     node = D_008817EC[0];
     goto node_check;
 node_body:

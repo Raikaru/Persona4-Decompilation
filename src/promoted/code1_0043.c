@@ -1,3 +1,5 @@
+#include "runtime_hooks_internal.h"
+#include "runtime_integer_internal.h"
 #include "include_asm.h"
 #include "type.h"
 /* Toolchain-blocked: retail saves callee-saved registers with sd; MWCCPS2 3.0.1 emits sq. See build/ORCH_sd_toolchain_blocked.txt. */
@@ -51,7 +53,6 @@ s32 func_004258b0(s32 *, s32, s32, s32 *, s32, s32 *, s32, s32, s32);
 s32 *func_0043eae8(s32 *);
 extern s32 D_00754EF0[];
 void bzero(u8 *, s32, s32);
-s64 func_00444210(s32, s32, s32);
 
 
 
@@ -572,7 +573,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043bec8);
 // FUN_0043C008
 /* measured: schedule on preserves the matched 8-byte zero-return helper. */
 #pragma schedule on
-s32 func_0043c008(void) {
+s32 func_0043c008(s32 unusedContext) {
     return 0;
 }
 /* measured: closes the schedule-on scope at the file baseline. */
@@ -628,8 +629,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_0043", func_0043c5e8);
 #ifdef NON_MATCHING
 /* measured: schedule on fills the call and return delay slots. */
 #pragma schedule on
-s32 atoi(s32 arg0) {
-    return (s32)func_00444210(arg0, 0, 0xA);
+s32 atoi(const char *text) {
+    return (s32)strtol(text, 0, 0xA);
 }
 /* measured: closes the schedule bracket at the file baseline. */
 #pragma schedule off

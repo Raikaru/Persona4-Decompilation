@@ -423,7 +423,7 @@ s32 FldRcAtomicFrustumTest(s32 atomic, s32 *visible)
 {
     u8 *camera;
 
-    func_003bfae0();
+    func_003bfae0(atomic);
     camera = ((u8 *)(uintptr_t)kwlnGetCamera());
     if (RwCameraFrustumTestSphere(camera, func_003bfae0(atomic)) != 0) {
         *visible = 1;

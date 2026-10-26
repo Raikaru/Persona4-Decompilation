@@ -38,7 +38,7 @@ typedef struct
     u8 blue;
     u8 alpha;
 } FieldColor_0017;
-extern s32 FldCharacterAnimSelect(void);
+extern s32 FldCharacterAnimSelect(s32 characterType);
 extern s32 FldRoomIsListed(u16 field, u16 room);
 extern u32 RpRandom(void);
 extern s32 FldStepIndex(void);
@@ -72,11 +72,6 @@ extern u8 D_00794E70[];
 extern s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, void *intersection,
                          f32 opacity, f32 depth, s32 fadeWithDepth, u8 *workData);
 extern u8 D_007EFA00[];
-extern void FldRc_QueueScreenQuad(u8 *, u8 *,
-                           f32, f32, f32, f32, f32,
-                           void *, s32,
-                           f32, f32, f32,
-                           s32, void *, f32);
 extern u8 D_005F1970[];
 extern u8 D_005F1974[];
 extern u8 D_005F1978[];
@@ -107,7 +102,7 @@ s32 FldPlayerRandomIdleAnimId(s32 characterType)
     u8 *scene;
     u8 *currentScene;
 
-    FldCharacterAnimSelect();
+    FldCharacterAnimSelect(characterType);
     if (characterType != 1)
         return 1;
     scene = iGpffff9db0;

@@ -13,7 +13,7 @@ extern s32 iGpffffbb9c;
 extern u8 *iGpffffbba0;
 /* gp - 0x445C = 0x00764c94: enable predicate, called through the pointer */
 extern s32 (*iGpffffbba4)(void);
-extern void mdlEffectSetChildScales();
+extern void mdlEffectSetChildScales(u8 *effect, f32 value);
 
 
 extern s32 iGpffffbb98;
@@ -41,7 +41,6 @@ extern u8 D_00714658[];
 
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *effect, s32 scale);
 extern f32 iGpffff836c;
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
@@ -57,6 +56,6 @@ extern void (*jtbl_008873EC[])(void *);
 // FUN_004B13D0
 void mdlEffectSetUniformScale(u8 *effect, f32 scale)
 {
-    mdlEffectSetChildScales();
+    mdlEffectSetChildScales(effect, scale);
 }
 

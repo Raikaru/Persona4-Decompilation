@@ -101,7 +101,7 @@ void fmGslContSetupSubBlocks(int* block, int* subBlocks)
 // FUN_0026E1E0
 /* Packed bit offsets are copied unaligned; six-byte tree records encode branch indices and leaf
  * bytes. */
-int fmGslContDecodeRun(int outputAddress, int runIndex, u64 unused, int* tables)
+int fmGslContDecodeRun(int outputAddress, int runIndex, int unused, int* tables)
 {
     int treeAddress;
     int bitsAddress;

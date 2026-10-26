@@ -803,7 +803,7 @@ void H_Cdvd_StreamOpenByPath(void* handle, const char* path)
     static char directory[256];
     void* stream;
 
-    stream = func_004d9020();
+    stream = func_004d9020(handle);
     H_Cdvd_BuildPathUppercase(path, uppercasePath);
     H_Cdvd_SplitPath(uppercasePath, fileName, directory);
     H_Cdvd_SelectDirectory(directory);
@@ -820,7 +820,7 @@ void H_Cdvd_StreamOpenHandle(void* handle, const char* path)
     static char fileName[256];
     static char directory[256];
 
-    func_004d9020();
+    func_004d9020(handle);
     H_Cdvd_BuildPathUppercase(path, uppercasePath);
     H_Cdvd_SplitPath(uppercasePath, fileName, directory);
     H_Cdvd_SelectDirectory(directory);

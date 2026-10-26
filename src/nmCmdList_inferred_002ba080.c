@@ -102,6 +102,8 @@ void nmMesWindowShowNumber(u8 *task, s16 row, s16 number, FclVec2 position,
     typedef struct {
         u32 word;
     } DigitStoredWord __attribute__((packed));
+    /* EE call sites pass the two packed color words in GP registers; passing
+     * FclDrawColor aggregates instead changes this function (normalized diff 911). */
     extern void fclSpriteStartEntrance(u8 *animation, FclVec2 position, u32 startColor, u32 endColor, u8 startAlpha,
                               u8 endAlpha, f32 height, f32 depth, s32 duration, s32 delay, s8 outgoing,
                               s8 reverse);

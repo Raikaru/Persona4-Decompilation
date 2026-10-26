@@ -1,3 +1,4 @@
+#include "scr_context_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -51,7 +52,7 @@ extern void mtMiscCollectType1Records(u8 *eventWork);
 
 /* Release hook called by active-script-handle cleanup; this retail implementation has no side effects. */
 // FUN_0029E980
-void scrProcessReleaseNoop(void)
+void scrProcessReleaseNoop(s32 unusedContext)
 {
 }
 

@@ -86,7 +86,6 @@ extern u8 *resrcMngGetColorValue(void);
 extern u8 *resrcMngGetColorTarget(void);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
-extern void btlUnitSetColor(u8 *unit, s32 col);
 extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
 extern f32 fGpffff80c8;
@@ -821,7 +820,7 @@ void btlMainApplyUnitBaseColors(u8 *unit)
         color[1] = ((BtlUnit *)unit)->cols[0].green;
         color[2] = ((BtlUnit *)unit)->cols[0].blue;
         color[3] = 0xFF;
-        btlUnitSetColor(unit, *(s32 *)color);
+        btlUnitSetColor((BtlUnit *)unit, *(RwRGBA *)color);
         goto done;
     }
     index = 0;
@@ -837,7 +836,7 @@ inner_loop:
     color[1] = ((BtlUnit *)unit)->cols[0].green;
     color[2] = ((BtlUnit *)unit)->cols[0].blue;
     color[3] = 0xFF;
-    btlUnitSetColor(unit, *(s32 *)color);
+    btlUnitSetColor((BtlUnit *)unit, *(RwRGBA *)color);
 next:
     unit = (u8 *)((BtlUnit *)unit)->nextUnit;
 inner_check:

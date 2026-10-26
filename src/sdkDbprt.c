@@ -67,7 +67,7 @@ extern s32 func_003ea370(s32 *);
 extern void chkmemSetLock(s32 );
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
-extern void func_00446ed8(void *buf, const void *fmt, void *va);
+extern void vsprintf(void *buf, const void *fmt, void *va);
 extern char iGpffffac30;
 extern char iGpffffac38[6]; /* gp -0x53C8: "%s %d" */
 
@@ -446,7 +446,7 @@ void H_Dbprt_FmtAt(s64 position, const char* format, ...) {
 
     originY = ((PackedVec2f *)&position)->xy.y;
     va_start(args, format);
-    func_00446ed8(text, format, args);
+    vsprintf(text, format, args);
     column = (s32)(((PackedVec2f *)&position)->xy.x);
     row = (s32)originY;
     characterIndex = 0;
@@ -493,7 +493,7 @@ void sdkDbprtQueueColoredText(s64 position, s32 color, s32 formatAddress, ...) {
     if (entry != NULL) {
         chkmemSetLock(0);
         va_start(args, formatAddress);
-        func_00446ed8(entry + 0x10, (void *)formatAddress, args);
+        vsprintf(entry + 0x10, (void *)formatAddress, args);
         ((HDbText3D *)entry)->x = ((PackedVec2f *)&position)->xy.x;
         ((HDbText3D *)entry)->y = y;
         ((HDbText3D *)entry)->cameraDepth = 0.0f;
@@ -531,7 +531,7 @@ void sdkDbprtQueueText(s64 position, const char *format, ...) {
     if (entry != NULL) {
         chkmemSetLock(0);
         va_start(args, format);
-        func_00446ed8(entry + 0x10, format, args);
+        vsprintf(entry + 0x10, format, args);
         ((HDbText3D *)entry)->x = ((PackedVec2f *)&position)->xy.x;
         ((HDbText3D *)entry)->y = y;
         ((HDbText3D *)entry)->cameraDepth = 0.0f;

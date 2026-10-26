@@ -162,4 +162,8 @@ typedef char BtlCameraSizeCheck[sizeof(BtlCamera) == 0x14C ? 1 : -1];
 typedef char BtlCameraPoseSequenceSizeCheck[sizeof(BtlCameraPoseSequence) == 0x44 ? 1 : -1];
 typedef char BtlCameraCommandSizeCheck[sizeof(BtlCameraCommand) == 0x10 ? 1 : -1];
 
+
+/* Existing callers supply these inputs; unused inputs are retained explicitly. */
+void btlCameraEnterRandomFrame(u8 *camera, s32 unusedOption);
+
 #endif

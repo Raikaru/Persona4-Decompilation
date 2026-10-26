@@ -175,12 +175,12 @@ void mapSymbolMarkerDraw(u8 *task, s64 position, f32 depth, s32 color)
 }
 /* Select the directional marker palette without changing its hidden state. */
 // FUN_002B3C50
-void mapSymbolMarkerSetHighlight(u8 *task, u8 mode)
+void mapSymbolMarkerSetHighlight(u8 *task, s8 mode)
 {
     u8 *marker;
 
     marker = ((KwlnTask *)task)->work;
-    ((MapSymbolMarker *)marker)->mode = mode;
+    ((MapSymbolMarker *)marker)->mode = (u8)mode;
 }
 
 /* Set the player marker suppression byte consumed by the marker task callback. */

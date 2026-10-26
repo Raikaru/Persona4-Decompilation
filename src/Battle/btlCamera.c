@@ -1,3 +1,4 @@
+#include "btl_camera_internal.h"
 #include "btl_unit_internal.h"
 #include "datCalc_internal.h"
 #include "btl_motion_internal.h"
@@ -148,8 +149,7 @@ extern f32 DAT_00761254;
 extern f32 DAT_00761188;
 extern f32 DAT_00761258;
 extern u8 *iGpffffb3ac;
-extern void btlCameraEnterRandomFrame(void *value, s32 option);
-extern void btlCameraUpdateEffectList(void);
+extern void btlCameraUpdateEffectList(u8 *camera);
 void btlCameraApplyPreset(u8* camera, f32 duration, s32 initialize);
 extern f32 fGpffff80e8;
 extern f32 fGpffff8180;
@@ -1977,9 +1977,9 @@ void btlCameraSpawnRandomEffect(u8 *camera)
         2);
 }
 // FUN_001CD6A0
-void btlCameraStopEffects(void)
+void btlCameraStopEffects(u8 *object)
 {
-    btlCameraUpdateEffectList();
+    btlCameraUpdateEffectList(object);
 }
 /* Choose an effect script based on whether all four party units remain alive. */
 // FUN_001CD6C0
@@ -2012,9 +2012,9 @@ loop_cond:
         2);
 }
 // FUN_001CD7B0
-void btlCameraStopEffectsAlt(void)
+void btlCameraStopEffectsAlt(u8 *object)
 {
-    btlCameraUpdateEffectList();
+    btlCameraUpdateEffectList(object);
 }
 /* Build four victory orbit keyframes with successive angle and distance changes. */
 // FUN_001CD7D0

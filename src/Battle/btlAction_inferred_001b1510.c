@@ -1,3 +1,5 @@
+#include "sdk_snd_internal.h"
+#include "btl_runtime_hooks_internal.h"
 #include "member_access.h"
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
@@ -30,14 +32,12 @@ typedef struct DatUnit DatUnit;
 typedef struct BtlAction BtlAction;
 extern void (*D_00887300[])();
 extern void btlEncounterEntrySetRetracted(u8 *);
-extern s32 btlEncountRollChance(u8 *);
 extern s32 btlShuffleSelectMember(u8 *, s16, s32);
 extern s32 datCalcGetBadStatus(s32);
 extern void btlEncounterStart(u8 *);
 extern s32 btlShuffleCreate(s32, u8 *);
 extern void btlShuffleCancel(s32);
 extern s32 datCalcGetLevel(s32);
-extern s32 btlIsLeaderStandardUnit(u8 *);
 extern void memset(void *dst, s32 value, s32 size);
 extern s32 iGpffffb3ac;
 extern u8 *iGpffffb3e0;
@@ -70,7 +70,6 @@ extern void btlFormationSetPlacement(s32);
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *);
 extern u32 kwlnTaskGetWork(s32);
 extern s32 hsndGetCurrentCue(s32);
-extern void sdkSndPlayCue(s32, s32);
 extern void btlEncounterSetFinish(s32 task);
 extern u32 datCalcIsDead(s32, s32);
 extern u8 *btlUnitRecordFindByActionUID(u64, u64);
@@ -161,7 +160,6 @@ extern s32 btlEncounterIsIntroDone(s32 task);
 extern u16 D_008C024C[];
 extern u16 D_008C024E[];
 extern s32 btlShuffleIsCanceled(s32 task);
-extern s32 btlEncounterIsInactive(s32);
 extern s32 btlShuffleIsBusy(s32 task);
 extern s32 fadeStatus(void);
 extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *, u32, s16, s16, u8, u8);

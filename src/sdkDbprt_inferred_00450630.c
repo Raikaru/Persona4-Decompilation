@@ -9,7 +9,7 @@ extern f32 fGpffff81f0;
 extern f32 D_008872F8_abs[];
 extern f32 D_008872FC_abs[];
 extern f32 fGpffff8200;
-extern void func_00446ed8(void *buf, const void *fmt, void *va);
+extern void vsprintf(void *buf, const void *fmt, void *va);
 extern void sdkDbprtDrawText(PackedColor4 color, PackedVec2f position, f32 depth, void *characters);
 extern s32 iGpffffb9e8;
 struct RwCamera;
@@ -434,7 +434,7 @@ void sdkDbprtPrint(PackedVec2f position, f32 z, const void *format, ...)
     count = __builtin_args_info(2);
     if (count >= 8) count = 0; else count = (8 - count) * 8;
     args = (char *)__builtin_next_arg(format) - count;
-    func_00446ed8(buffer, format, args);
+    vsprintf(buffer, format, args);
     sdkDbprtDrawText(scale.color, position, z, buffer);
 }
 
@@ -457,7 +457,7 @@ void sdkDbprtPrintColor(PackedColor4 color, PackedVec2f position, f32 z,
         count = remaining * 8;
     }
     args = (char *)__builtin_next_arg(format) - count;
-    func_00446ed8(buffer, format, args);
+    vsprintf(buffer, format, args);
     sdkDbprtDrawText(color, position, z, buffer);
 }
 

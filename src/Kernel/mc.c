@@ -1,3 +1,4 @@
+#include "kwln_draw_callbacks_internal.h"
 #include "operand_order_internal.h"
 #include "memcard_summary_internal.h"
 #include "member_access.h"
@@ -20,7 +21,6 @@ extern void PrimAppendNode(void *, void *);
 extern void PrimDrawFlatRectangle(void *, void *, f32, s32);
 extern void sdkSpritePackDestroy(u32 pack);
 extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
-extern void mcDrawDispatchCallback(void *, void *);
 extern void mcQueueDrawJob(s32);
 extern void mcIconWorkFree(void *allocation);
 extern void chkmemAllocSiteTag(const void *file, u32 line);
@@ -34,7 +34,7 @@ extern s32 shdSpriteEnsureLoaded(s32);
 extern s32 H_Cdvd_AcquireDirectory(const char *path, s32 flags);
 extern void func_00440b68(const void *, ...);
 extern void H_Memcard_SetRecordTable(void *);
-extern void shdWindowMarkDone(s32);
+extern void shdWindowMarkDone(u8 *object);
 extern s32 shdWindowTaskCreate(s32, s32, s32);
 extern u8 *datSaveBuildImage(s32, s32 *, s32);
 extern void memcpy(void *, void *, s32);
@@ -115,11 +115,11 @@ extern char D_0063ECB0[];
 extern char D_0063ECD0[];
 extern char D_0063ECF0[];
 extern char D_0063ED20[];
-extern s32 H_Memcard_LoadStep(s32);
-extern s32 shdWindowQueryState(s32);
+extern s32 H_Memcard_LoadStep(void);
+extern s32 shdWindowQueryState(u8 *object);
 extern void H_Memcard_SetAbort(void);
 extern s32 H_Memcard_CheckCard(void);
-extern s32 H_Memcard_ProbeCardStep(s32);
+extern s32 H_Memcard_ProbeCardStep(void);
 extern s32 H_Memcard_PrepareSaveFileStep(void);
 extern void H_Memcard_SetSeqMode9(void);
 extern void H_Memcard_SetSeqMode4(void);
@@ -232,7 +232,7 @@ void mcSetState(u8 *work, s32 state) {
         memset(work + 0x14, 0, 0x380);
         H_Memcard_SetRecordTable(work + 0x14);
         if (((McScreenState *)work)->window != 0) {
-            shdWindowMarkDone(((McScreenState *)work)->window);
+            shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
             screenState->window = 0;
         }
         screenState->window = shdWindowTaskCreate(0, 0, 0xF);
@@ -257,7 +257,7 @@ void mcSetState(u8 *work, s32 state) {
         H_Memcard_BeginLoad(slot, (void *)MEMBER(s32, buffer, McSaveBuffer, data), ((McSaveBuffer *)buffer)->size);
         ((McScreenState *)work)->saveBuffer = (s32)buffer;
         if (((McScreenState *)work)->window != 0) {
-            shdWindowMarkDone(((McScreenState *)work)->window);
+            shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
             screenState->window = 0;
         }
         screenState->window = shdWindowTaskCreate(0, 0, 0xF);
@@ -283,10 +283,10 @@ s32 mcLoadState(u8 *work) {
     state = ((McScreenState *)work)->operationState;
     switch (state) {
     case 0:
-        switch (result = H_Memcard_LoadStep(state)) {
+        switch (result = H_Memcard_LoadStep()) {
         case 100:
             if (((McScreenState *)work)->window != 0) {
-                shdWindowMarkDone(((McScreenState *)work)->window);
+                shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
                 screenState->window = 0;
             }
             func_00440b68(&D_0063EBF0);
@@ -301,7 +301,7 @@ s32 mcLoadState(u8 *work) {
         case -4:
         case -5:
             if (((McScreenState *)work)->window != 0) {
-                shdWindowMarkDone(((McScreenState *)work)->window);
+                shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 0);
@@ -317,7 +317,7 @@ s32 mcLoadState(u8 *work) {
         H_Memcard_SetAbort();
         /* fallthrough */
     case 0xB:
-        result = shdWindowQueryState(((McScreenState *)work)->window);
+        result = shdWindowQueryState((u8 *)(((McScreenState *)work)->window));
         if (result != 0) {
             screenState->window = 0;
         }
@@ -343,7 +343,7 @@ s32 mcLoadState(u8 *work) {
         ((McScreenState *)work)->delay = state;
         if (state >= 0xF) {
             if (((McScreenState *)work)->window != 0) {
-                shdWindowMarkDone(((McScreenState *)work)->window);
+                shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
                 screenState->window = 0;
             }
             return 1;
@@ -365,13 +365,13 @@ s32 mcCardProbeStep(u8 *work) {
     state = ((McScreenState *)work)->operationState;
     switch (state) {
     case 0:
-        switch (result = H_Memcard_ProbeCardStep(state)) {
+        switch (result = H_Memcard_ProbeCardStep()) {
         case 100:
             func_00440b68(&D_0063EC50);
             return 1;
         case -6:
             if (((McScreenState *)work)->window != 0) {
-                shdWindowMarkDone(((McScreenState *)work)->window);
+                shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 6);
@@ -383,7 +383,7 @@ s32 mcCardProbeStep(u8 *work) {
         case -5:
         case -9:
             if (((McScreenState *)work)->window != 0) {
-                shdWindowMarkDone(((McScreenState *)work)->window);
+                shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 0);
@@ -398,7 +398,7 @@ s32 mcCardProbeStep(u8 *work) {
         screenState->operationState = 0xB;
         /* fallthrough */
     case 0xB:
-        result = shdWindowQueryState(((McScreenState *)work)->window);
+        result = shdWindowQueryState((u8 *)(((McScreenState *)work)->window));
         if (result != 0) {
             screenState->window = 0;
         }
@@ -409,13 +409,13 @@ s32 mcCardProbeStep(u8 *work) {
     case 0xC:
         screenState->operationState = 0xD;
         if (((McScreenState *)work)->window != 0) {
-            shdWindowMarkDone(((McScreenState *)work)->window);
+            shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
             screenState->window = 0;
         }
         screenState->window = shdWindowTaskCreate(0, 0, 8);
         /* fallthrough */
     case 0xD:
-        result = shdWindowQueryState(((McScreenState *)work)->window);
+        result = shdWindowQueryState((u8 *)(((McScreenState *)work)->window));
         if (result != 0) {
             screenState->window = 0;
         }
@@ -465,7 +465,7 @@ s32 mcMemcardStep(u8 *work) {
         switch (result) {
         case 100:
             if (((McScreenState *)work)->window != 0) {
-                shdWindowMarkDone(((McScreenState *)work)->window);
+                shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 9);
@@ -487,14 +487,14 @@ s32 mcMemcardStep(u8 *work) {
             func_00440b68(&D_0063ECB0);
             ((McScreenState *)work)->operationFlags &= ~1;
             if (((McScreenState *)work)->window != 0) {
-                shdWindowMarkDone(((McScreenState *)work)->window);
+                shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 7);
             break;
         case 5:
             if (((McScreenState *)work)->window != 0) {
-                shdWindowMarkDone(((McScreenState *)work)->window);
+                shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 7);
@@ -502,7 +502,7 @@ s32 mcMemcardStep(u8 *work) {
         case -5:
             func_00440b68(&D_0063EC30, result);
             if (((McScreenState *)work)->window != 0) {
-                shdWindowMarkDone(((McScreenState *)work)->window);
+                shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 0);
@@ -511,7 +511,7 @@ s32 mcMemcardStep(u8 *work) {
         case -3:
             func_00440b68(&D_0063EC30, result);
             if (((McScreenState *)work)->window != 0) {
-                shdWindowMarkDone(((McScreenState *)work)->window);
+                shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 0);
@@ -520,7 +520,7 @@ s32 mcMemcardStep(u8 *work) {
         case -6:
             func_00440b68(&D_0063EC30, result);
             if (((McScreenState *)work)->window != 0) {
-                shdWindowMarkDone(((McScreenState *)work)->window);
+                shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 6);
@@ -533,7 +533,7 @@ s32 mcMemcardStep(u8 *work) {
         case -7:
             func_00440b68(&D_0063EC30, result);
             if (((McScreenState *)work)->window != 0) {
-                shdWindowMarkDone(((McScreenState *)work)->window);
+                shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 0x16);
@@ -546,14 +546,14 @@ s32 mcMemcardStep(u8 *work) {
     case 3:
         screenState->operationState = 4;
         if (((McScreenState *)work)->window != 0) {
-            shdWindowMarkDone(((McScreenState *)work)->window);
+            shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
             screenState->window = 0;
         }
         screenState->window = shdWindowTaskCreate(0, 0, 4);
         H_Memcard_SetAbort();
         /* fallthrough */
     case 4:
-        status = shdWindowQueryState(((McScreenState *)work)->window);
+        status = shdWindowQueryState((u8 *)(((McScreenState *)work)->window));
         if (status != 0) {
             screenState->window = 0;
         }
@@ -561,7 +561,7 @@ s32 mcMemcardStep(u8 *work) {
         case 1:
             screenState->operationState = 0;
             if (screenState->window != 0) {
-                shdWindowMarkDone(screenState->window);
+                shdWindowMarkDone((u8 *)(screenState->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 7);
@@ -577,7 +577,7 @@ s32 mcMemcardStep(u8 *work) {
         case 3:
             func_00440b68(&D_0063EC30, status);
             if (screenState->window != 0) {
-                shdWindowMarkDone(screenState->window);
+                shdWindowMarkDone((u8 *)(screenState->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 0);
@@ -589,14 +589,14 @@ s32 mcMemcardStep(u8 *work) {
         screenState->operationState = 6;
         ((McScreenState *)work)->operationFlags |= 1;
         if (((McScreenState *)work)->window != 0) {
-            shdWindowMarkDone(((McScreenState *)work)->window);
+            shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
             screenState->window = 0;
         }
         screenState->window = shdWindowTaskCreate(0, 0, 1);
         H_Memcard_SetAbort();
         /* fallthrough */
     case 6:
-        status = shdWindowQueryState(((McScreenState *)work)->window);
+        status = shdWindowQueryState((u8 *)(((McScreenState *)work)->window));
         if (status != 0) {
             screenState->window = 0;
         }
@@ -604,7 +604,7 @@ s32 mcMemcardStep(u8 *work) {
         case 1:
             screenState->operationState = 0;
             if (screenState->window != 0) {
-                shdWindowMarkDone(screenState->window);
+                shdWindowMarkDone((u8 *)(screenState->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 2);
@@ -619,7 +619,7 @@ s32 mcMemcardStep(u8 *work) {
         case 3:
             func_00440b68(&D_0063EC30, status);
             if (screenState->window != 0) {
-                shdWindowMarkDone(screenState->window);
+                shdWindowMarkDone((u8 *)(screenState->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 0);
@@ -628,7 +628,7 @@ s32 mcMemcardStep(u8 *work) {
         }
         break;
     case 9:
-        status = shdWindowQueryState(((McScreenState *)work)->window);
+        status = shdWindowQueryState((u8 *)(((McScreenState *)work)->window));
         if (status != 0) {
             screenState->window = 0;
         }
@@ -641,7 +641,7 @@ s32 mcMemcardStep(u8 *work) {
         H_Memcard_SetAbort();
         /* fallthrough */
     case 11:
-        status = shdWindowQueryState(((McScreenState *)work)->window);
+        status = shdWindowQueryState((u8 *)(((McScreenState *)work)->window));
         if (status != 0) {
             screenState->window = 0;
         }
@@ -661,13 +661,13 @@ s32 mcMemcardStep(u8 *work) {
         H_Memcard_SetAbort();
         if (((McScreenState *)work)->operationFlags & 1) {
             if (((McScreenState *)work)->window != 0) {
-                shdWindowMarkDone(((McScreenState *)work)->window);
+                shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 3);
         } else {
             if (((McScreenState *)work)->window != 0) {
-                shdWindowMarkDone(((McScreenState *)work)->window);
+                shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
                 screenState->window = 0;
             }
             screenState->window = shdWindowTaskCreate(0, 0, 8);
@@ -676,7 +676,7 @@ s32 mcMemcardStep(u8 *work) {
         D_008873EC[0]((void *)((McScreenState *)work)->saveBuffer);
         /* fallthrough */
     case 13:
-        status = shdWindowQueryState(((McScreenState *)work)->window);
+        status = shdWindowQueryState((u8 *)(((McScreenState *)work)->window));
         if (status != 0) {
             screenState->window = 0;
         }
@@ -715,21 +715,21 @@ s32 mcSaveState(s32 address) {
     case 16:
         MEMBER(s32, work, McScreenState, operationState) = 0x11;
         if (((McScreenState *)work)->window != 0) {
-            shdWindowMarkDone(((McScreenState *)work)->window);
+            shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
             MEMBER(s32, work, McScreenState, window) = 0;
         }
         MEMBER(s32, work, McScreenState, window) = shdWindowTaskCreate(0, 0, 0xB);
         H_Memcard_SetAbort();
         /* fallthrough */
     case 17:
-        status = shdWindowQueryState(((McScreenState *)work)->window);
+        status = shdWindowQueryState((u8 *)(((McScreenState *)work)->window));
         if (status != 0) {
             MEMBER(s32, work, McScreenState, window) = 0;
         }
         switch (status) {
         case 1:
             if (MEMBER(s32, work, McScreenState, window) != 0) {
-                shdWindowMarkDone(MEMBER(s32, work, McScreenState, window));
+                shdWindowMarkDone((u8 *)(MEMBER(s32, work, McScreenState, window)));
                 MEMBER(s32, work, McScreenState, window) = 0;
             }
             MEMBER(s32, work, McScreenState, window) = shdWindowTaskCreate(0, 0, 0xC);
@@ -808,13 +808,13 @@ read_failed:
     case 20:
         MEMBER(s32, work, McScreenState, operationState) = 0x15;
         if (((McScreenState *)work)->window != 0) {
-            shdWindowMarkDone(((McScreenState *)work)->window);
+            shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
             MEMBER(s32, work, McScreenState, window) = 0;
         }
         MEMBER(s32, work, McScreenState, window) = shdWindowTaskCreate(0, 0, 0xD);
         /* fallthrough */
     case 21:
-        status = shdWindowQueryState(((McScreenState *)work)->window);
+        status = shdWindowQueryState((u8 *)(((McScreenState *)work)->window));
         if (status != 0) {
             MEMBER(s32, work, McScreenState, window) = 0;
         }
@@ -825,14 +825,14 @@ read_failed:
     case 22:
         MEMBER(s32, work, McScreenState, operationState) = 0x17;
         if (((McScreenState *)work)->window != 0) {
-            shdWindowMarkDone(((McScreenState *)work)->window);
+            shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
             MEMBER(s32, work, McScreenState, window) = 0;
         }
         MEMBER(s32, work, McScreenState, window) = shdWindowTaskCreate(0, 0, 0x14);
         H_Memcard_SetAbort();
         /* fallthrough */
     case 23:
-        status = shdWindowQueryState(((McScreenState *)work)->window);
+        status = shdWindowQueryState((u8 *)(((McScreenState *)work)->window));
         if (status != 0) {
             MEMBER(s32, work, McScreenState, window) = 0;
         }
@@ -851,13 +851,13 @@ read_failed:
         MEMBER(s32, work, McScreenState, operationState) = 0xD;
         H_Memcard_SetAbort();
         if (((McScreenState *)work)->window != 0) {
-            shdWindowMarkDone(((McScreenState *)work)->window);
+            shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
             MEMBER(s32, work, McScreenState, window) = 0;
         }
         MEMBER(s32, work, McScreenState, window) = shdWindowTaskCreate(0, 0, 0xE);
         /* fallthrough */
     case 13:
-        status = shdWindowQueryState(((McScreenState *)work)->window);
+        status = shdWindowQueryState((u8 *)(((McScreenState *)work)->window));
         if (status != 0) {
             MEMBER(s32, work, McScreenState, window) = 0;
         }
@@ -876,13 +876,13 @@ read_failed:
         MEMBER(s32, work, McScreenState, operationState) = 0xF;
         H_Memcard_SetAbort();
         if (((McScreenState *)work)->window != 0) {
-            shdWindowMarkDone(((McScreenState *)work)->window);
+            shdWindowMarkDone((u8 *)(((McScreenState *)work)->window));
             MEMBER(s32, work, McScreenState, window) = 0;
         }
         MEMBER(s32, work, McScreenState, window) = shdWindowTaskCreate(0, 0, 0x16);
         /* fallthrough */
     case 15:
-        status = shdWindowQueryState(((McScreenState *)work)->window);
+        status = shdWindowQueryState((u8 *)(((McScreenState *)work)->window));
         if (status != 0) {
             MEMBER(s32, work, McScreenState, window) = 0;
         }

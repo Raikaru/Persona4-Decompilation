@@ -50,7 +50,6 @@ extern u8 *(*jtbl_008873E8[])(s32, s32);
 extern void chkmemAllocSiteTag(char *, s32);
 extern void kAssertFail(char *, s32);
 extern s32 mdlEffectSamplePackedColor(u8 *, u8 *, s32, s32);
-extern void GeometryBlockSetFrameMatrixCombined(void *, void *, void *, void *);
 extern void GeometryBlockBindResource(void *, u16);
 
 /* 4-byte color, copied field-by-field by retail. */
@@ -537,7 +536,7 @@ void FlashRotatingPackColors(u8 *input)
             }
             packedColor.b[3] = 0xFF;
         }
-        GeometryBlockSetFrameMatrixCombined(geometryOwner, input, input + 0x10, input + 0x20);
+        GeometryBlockSetFrameMatrixCombined((u8 *)(geometryOwner), (struct RwV3d *)(input), input + 0x10, (struct RwV3d *)(input + 0x20));
         if (((FlashParameters *)config)->geometryFlag != 0)
         {
             ((EffGeometryBlock *)geometryOwner)->kind = ((EffGeometryBlock *)geometryOwner)->kind | 1;
@@ -1042,7 +1041,7 @@ void FlashRadialPackColors(u8 *input)
             }
             packedColor.b[3] = 0xFF;
         }
-        GeometryBlockSetFrameMatrixCombined(geometryOwner, input, input + 0x10, input + 0x20);
+        GeometryBlockSetFrameMatrixCombined((u8 *)(geometryOwner), (struct RwV3d *)(input), input + 0x10, (struct RwV3d *)(input + 0x20));
         if (((FlashParameters *)config)->geometryFlag != 0)
         {
             ((EffGeometryBlock *)geometryOwner)->kind = ((EffGeometryBlock *)geometryOwner)->kind | 1;
@@ -1522,7 +1521,7 @@ void FlashEvolvingRadialPackColors(u8 *input)
             }
             packedColor.b[3] = 0xFF;
         }
-        GeometryBlockSetFrameMatrixCombined(geometryOwner, input, input + 0x10, input + 0x20);
+        GeometryBlockSetFrameMatrixCombined((u8 *)(geometryOwner), (struct RwV3d *)(input), input + 0x10, (struct RwV3d *)(input + 0x20));
         if (((FlashParameters *)config)->geometryFlag != 0)
         {
             ((EffGeometryBlock *)geometryOwner)->kind = ((EffGeometryBlock *)geometryOwner)->kind | 1;
@@ -2014,7 +2013,7 @@ void FlashTexturedPackColors(u8 *input)
             }
             packedColor.b[3] = 0xFF;
         }
-        GeometryBlockSetFrameMatrixCombined(geometryOwner, input, input + 0x10, input + 0x20);
+        GeometryBlockSetFrameMatrixCombined((u8 *)(geometryOwner), (struct RwV3d *)(input), input + 0x10, (struct RwV3d *)(input + 0x20));
         if (((FlashParameters *)config)->geometryFlag != 0)
         {
             ((EffGeometryBlock *)geometryOwner)->kind = ((EffGeometryBlock *)geometryOwner)->kind | 1;
@@ -2489,7 +2488,7 @@ void FlashCenteredStripPackColors(u8 *input)
             }
             packedColor.b[3] = 0xFF;
         }
-        GeometryBlockSetFrameMatrixCombined(geometryOwner, input, input + 0x10, input + 0x20);
+        GeometryBlockSetFrameMatrixCombined((u8 *)(geometryOwner), (struct RwV3d *)(input), input + 0x10, (struct RwV3d *)(input + 0x20));
         if (((FlashParameters *)config)->geometryFlag != 0)
         {
             ((EffGeometryBlock *)geometryOwner)->kind = ((EffGeometryBlock *)geometryOwner)->kind | 1;
@@ -2983,7 +2982,7 @@ void FlashBoxPackColors(u8 *input)
             }
             packedColor.b[3] = 0xFF;
         }
-        GeometryBlockSetFrameMatrixCombined(geometryOwner, input, input + 0x10, input + 0x20);
+        GeometryBlockSetFrameMatrixCombined((u8 *)(geometryOwner), (struct RwV3d *)(input), input + 0x10, (struct RwV3d *)(input + 0x20));
         if (((FlashParameters *)config)->geometryFlag != 0)
         {
             ((EffGeometryBlock *)geometryOwner)->kind = ((EffGeometryBlock *)geometryOwner)->kind | 1;
@@ -3420,7 +3419,7 @@ void FlashAgedBoxPackColors(u8 *input)
             }
             packedColor.b[3] = 0xFF;
         }
-        GeometryBlockSetFrameMatrixCombined(geometryOwner, input, input + 0x10, input + 0x20);
+        GeometryBlockSetFrameMatrixCombined((u8 *)(geometryOwner), (struct RwV3d *)(input), input + 0x10, (struct RwV3d *)(input + 0x20));
         if (((FlashParameters *)config)->geometryFlag != 0)
         {
             ((EffGeometryBlock *)geometryOwner)->kind = ((EffGeometryBlock *)geometryOwner)->kind | 1;
@@ -3924,7 +3923,7 @@ void FlashQuadCopyPackColors(u8 *input)
             }
             packedColor.b[3] = 0xFF;
         }
-        GeometryBlockSetFrameMatrixCombined(geometryOwner, input, input + 0x10, input + 0x20);
+        GeometryBlockSetFrameMatrixCombined((u8 *)(geometryOwner), (struct RwV3d *)(input), input + 0x10, (struct RwV3d *)(input + 0x20));
         if (((FlashParameters *)config)->geometryFlag != 0)
         {
             ((EffGeometryBlock *)geometryOwner)->kind = ((EffGeometryBlock *)geometryOwner)->kind | 1;

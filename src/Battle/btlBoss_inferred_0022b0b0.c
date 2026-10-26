@@ -1,3 +1,5 @@
+#include "btl_unit_internal.h"
+#include "sdk_snd_internal.h"
 #include "member_access.h"
 #include "rw_types_internal.h"
 #include "btl_skill_target_internal.h"
@@ -68,7 +70,6 @@ extern s32 datCalcAddHp(DatUnit *unit, s32 hpDelta);
 extern void datCalcClearBuffLevel(u8 *unit, s32 buffIndex);
 extern RtQuat *func_003dc740(RtQuat *out, const RwV3d *axis, f32 angle, s32 mode);
 extern void btlUnitSetRot(BtlUnit *unit, const RtQuat *rot);
-extern void btlUnitSetColor(BtlUnit *unit, RwRGBA col);
 extern u32 datCalcClearBadStatus(s32 unit, u32 badStatus);
 extern void btlUnitShowModel(u8 *unit);
 extern u32 datGetFlag(s32 bit);
@@ -141,7 +142,6 @@ u8 *H_Cdvd_GetArchiveEntry(u8 *request, s32 entryIndex, s32 *size);
 
 extern void (*jtbl_008873EC[])(void *value);
 extern void btlSoundFadeOutBgm(s16 fadeDuration);
-extern void sdkSndPlayCue(s32 value, s32 option);
 extern u32 datCalcRandomBelow(u32 limit);
 extern u8 D_0060A0E0[];
 extern s32 btlCurrentUnitId(void);
@@ -178,7 +178,7 @@ extern void btlFormationCopyRecord(int destination, u32 source);
 extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
 extern void btlTargetClearResultBuffer(u8 *result);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
-extern u8 *btlUnitCreateAnimPacket(u8 *unit, s32 id, s32 blendFrameCount, s32 speed, f32 mode);
+extern u8 *btlUnitCreateAnimPacket(u8 *unit, s32 id, s32 blendFrameCount, f32 mode, s32 speed);
 extern BtlPacket *btlFormationCreatePacket(u32 formation, u32 sourceUnit, u32 targetUnit, u16 side, u32 flags);
 extern void btlFormationSetPlacement(u32 formation);
 extern u8 D_006354B0[];
@@ -277,7 +277,7 @@ void btlActionRunFormationSequence(u8 *action)
     ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 1);
 
-    packet = btlUnitCreateAnimPacket(actor, 0x13, 0, 2, 1.0f);
+    packet = btlUnitCreateAnimPacket(actor,  0x13,  0,  1.0f,  2);
     ((BtlPacket *)packet)->dependencyKind = 4;
     ((BtlPacket *)packet)->dependencyUID = MEMBER(u64, anchor, BtlPacket, uid);
     ((BtlPacket *)packet)->delay = 2;
@@ -981,7 +981,6 @@ s32 btlFormationLookupSlot(u8 *unit, u16 slotIndex)
 void btlFormationClearSlots(void)
 {
     extern void H_Cdvd_Destroy(s32 cdvd);
-    extern void btlFormationSetPlacement(s32 value, u8 *option);
     s16 i;
     s32 value;
     s32 signedSlot;
@@ -1007,7 +1006,7 @@ void btlFormationClearSlots(void)
             index16 = i;
             signedSlot = (s32)(s64)(s16)index16;
             index = signedSlot * 4;
-            btlFormationSetPlacement(value, base);
+            btlFormationSetPlacement(value);
             base = DAT_0076449c;
             *(s32 *)&((BtlBattleState *)(base + index))->boss.formations[0] = 0;
         }
@@ -2088,7 +2087,7 @@ firstActionBody:
                                             (void *)&result, 1, 1),
                         1);
                     btlPacketEnqueue(
-                        btlUnitCreateAnimPacket(firstUnit, 2, 0, 0, 1.0f),
+                        btlUnitCreateAnimPacket(firstUnit,  2,  0,  1.0f,  0),
                         1);
                 }
             }
@@ -2122,7 +2121,7 @@ secondActionBody:
                                             (void *)&result, 1, 1),
                         1);
                     btlPacketEnqueue(
-                        btlUnitCreateAnimPacket(secondUnit, 2, 0, 0, 1.0f),
+                        btlUnitCreateAnimPacket(secondUnit,  2,  0,  1.0f,  0),
                         1);
                 }
             }

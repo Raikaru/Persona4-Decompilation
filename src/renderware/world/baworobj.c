@@ -9,7 +9,7 @@
 #define RpWorldAddLight func_003cbe80
 #define _rpMeshWrite func_003c5a90
 #define _rpMeshRead func_003c5d10
-#define _rpGeometryNativeRead func_003cebb0
+#define _rpGeometryNativeRead func_003ce560
 #define RpWorldSectorGetWorld func_003c9c20
 #define _rpMeshSize func_003c5fd0
 #define RwFrameUpdateObjects func_003e9680
@@ -1820,7 +1820,7 @@ writeGeometryNative(RwStream *stream,
             : Plugin data size (not used)
  On exit    : Stream pointer on success
  */
-// FUN_003CB7E0
+// FUN_003CB790
 #pragma schedule on
 static RwStream *
 readGeometryNative(RwStream *stream,
@@ -1911,6 +1911,8 @@ writeWorldSectorNative(RwStream *stream,
             : Plugin data size (not used)
  On exit    : Stream pointer on success
  */
+// FUN_003CB7E0
+#pragma schedule on
 static RwStream *
 readWorldSectorNative(RwStream *stream,
                       RwInt32 binaryLength __RWUNUSED__,

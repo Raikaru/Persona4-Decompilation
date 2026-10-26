@@ -71,7 +71,6 @@ extern f32 RwV3dNormalize(f32 *arg0, f32 *arg1);
 extern void chkmemAllocSiteTag(u8 *arg0, s32 arg1);
 extern u8 *(*jtbl_008873E8[])(s32 arg0, s32 arg1);
 extern void memset(u8 *arg0, s32 arg1, s32 arg2);
-extern s8 datCalcRandomBelow(s32 arg0);
 extern u8 D_00609498[];
 extern f32 D_006094B0[];
 extern f32 D_006094D0[];
@@ -81,7 +80,6 @@ extern void mdlEffectCopyCameraAim(u8 *arg0);
 extern void func_003dc740(void *arg0, void *arg1, f32 arg3, s32 arg2);
 
 
-extern u8 *kwlnGetCamera();
 extern void func_003e8110(u8 *arg0);
 extern void func_003e8120(u8 *arg0);
 extern void func_003e9cb0(s32 arg0, u8 *arg1, s32 arg2);

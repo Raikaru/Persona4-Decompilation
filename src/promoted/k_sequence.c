@@ -9,7 +9,6 @@ extern u8 *MT_Scene_GetFrameState(void);
 extern s32 FldRootCreate(s32 arg0, u16 arg1, u16 arg2, u16 arg3, s16 arg4,
                          s16 arg5, s32 arg6, u8 arg7, s64 arg8, s64 arg9,
                          s64 arg10, s64 arg11, s64 arg12, s64 arg13);
-extern void kAssertFail(const char *file, s32 line);
 extern s32 kwlnTaskGetTaskByName(void *path);
 extern void kwlnTaskDestroyWithHierarchy(s32 handle);
 extern s32 kwlnTaskIsLinked(s32 buf);

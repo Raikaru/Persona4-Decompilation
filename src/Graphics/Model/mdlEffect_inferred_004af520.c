@@ -22,7 +22,7 @@ extern PolygonWindColor iGpffffbb64;
 extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
 extern void PrimAppendNode();
-extern void ObjectParticleUpdateRecords();
+extern void ObjectParticleUpdateRecords(u8 *particle);
 extern f32 iGpffff8080;
 
 
@@ -106,7 +106,7 @@ void ObjectParticleAppendNode(u8 *instance) {
 void ObjectParticleUpdateAndAppendNode(u8 *instance) {
     u8 *emitter;
     u8 *inner;
-    ObjectParticleUpdateRecords();
+    ObjectParticleUpdateRecords(instance);
     emitter = ((ObjectParticleInstance *)instance)->list;
     if (emitter != NULL) {
         inner = ((MdlEffectEmitter *)emitter)->parameters;

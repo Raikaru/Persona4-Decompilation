@@ -29,7 +29,7 @@ typedef struct RwV3d RwV3d;
 typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
-extern s32 cmmCommunityForArcana(s16 arcanaValue);
+extern s32 cmmCommunityForArcana(s64 arcanaValue);
 extern u16 cmmCommunityRecordValue(s32 communityId);
 extern void btlSelectionResetSubList(u8 *selection, u8 *panel);
 extern u16 btlSelectionConfirmSubList(u8 *selection, u8 *panel);
@@ -46,7 +46,7 @@ extern u32 datGetItemNameId(s16 itemId);
 extern s32 btlTargetCanControlDamagePhase(void);
 
 
-extern u32 kwlnTaskGetWork();
+extern u32 kwlnTaskGetWork(void* task);
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
 extern s32 datPersonaGetLevel(u8 *persona);
@@ -692,7 +692,7 @@ void btlPanelInit(s32 unused, s32 actionAddress)
     u8 *taskWork;
     u8 *panel;
     u8 *selection;
-    taskWork = (u8 *)kwlnTaskGetWork();
+    taskWork = (u8 *)kwlnTaskGetWork((void*)(unused));
     panel = taskWork + 0x9C;
     ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->action = (u8 *)actionAddress;
     ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->state = 1;
@@ -734,26 +734,26 @@ void btlPanelSetActive(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
     u8 *taskWork;
 
-    taskWork = (u8 *)kwlnTaskGetWork((void *)task);
+    taskWork = (u8 *)kwlnTaskGetWork((void*)((void *)task));
     ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->state = 1;
 }
 
 // Return the panel task state.
 // FUN_002037E0
-u16 btlPanelGetState(void) {
-    return ((BtlPanelWork *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork())->panel)->state;
+u16 btlPanelGetState(u8 *object) {
+    return ((BtlPanelWork *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void*)(object)))->panel)->state;
 }
 
 /* Return whether the current panel list node is the embedded command-selection node. */
 /* measured: baseline propagation matches the unchanged selection test. */
 // FUN_00203810
-s32 btlPanelIsCommandSelectionActive(void)
+s32 btlPanelIsCommandSelectionActive(u8 *object)
 {
     u8 *taskWork;
     u8 *selectionAddress;
     s32 currentAddress;
 
-    taskWork = (u8 *)kwlnTaskGetWork();
+    taskWork = (u8 *)kwlnTaskGetWork((void*)(object));
     selectionAddress = taskWork + 0x9C;
     currentAddress = (s32)((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->list.current;
     selectionAddress += 0x40;
@@ -762,9 +762,9 @@ s32 btlPanelIsCommandSelectionActive(void)
 
 // Report whether the panel is ready (command frame below 2).
 // FUN_00203850
-s32 btlPanelIsReady(void)
+s32 btlPanelIsReady(u8 *object)
 {
-    return ((BtlPanelWork *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork())->panel)->commandFrame < 2;
+    return ((BtlPanelWork *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void*)(object)))->panel)->commandFrame < 2;
 }
 
 // FUN_00203880
@@ -775,10 +775,10 @@ void btlPanelOnTargetAction(s32 unusedTask, s32 unusedAction)
 
 // Set the panel task state to closing.
 // FUN_00203890
-void btlPanelSetClosing(void) {
+void btlPanelSetClosing(u8 *object) {
     u8 *taskWork;
 
-    taskWork = (u8 *)kwlnTaskGetWork();
+    taskWork = (u8 *)kwlnTaskGetWork((void*)(object));
     ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->state = 4;
 }
 
@@ -786,7 +786,7 @@ void btlPanelSetClosing(void) {
 // FUN_002038C0
 void btlPanelReset(s32 task) {
 
-    u8 *panel = (u8 *)kwlnTaskGetWork((void *)task) + 0x9C;
+    u8 *panel = (u8 *)kwlnTaskGetWork((void*)((void *)task)) + 0x9C;
     BtlPanelWork *panelWork = (BtlPanelWork *)panel;
 
     ((BtlPanelWork *)panel)->flags &= ~2;
@@ -1285,18 +1285,18 @@ void btlPanelClearFlag(s32 task)
     extern u32 kwlnTaskGetWork(void *task);
     u8 *taskWork;
 
-    taskWork = (u8 *)kwlnTaskGetWork((void *)task);
+    taskWork = (u8 *)kwlnTaskGetWork((void*)((void *)task));
     ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->gridFrame = 0;
     ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->flags &= ~1;
 }
 
 // Set the active bit of the panel's flags.
 // FUN_00204D90
-void btlPanelSetFlag(void)
+void btlPanelSetFlag(u8 *object)
 {
     u8 *taskWork;
 
-    taskWork = (u8 *)kwlnTaskGetWork();
+    taskWork = (u8 *)kwlnTaskGetWork((void*)(object));
     ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->flags = ((BtlPanelWork *)((BtlUiTaskWork *)taskWork)->panel)->flags | 0x1;
 }
 
@@ -1474,7 +1474,7 @@ void btlPanelDrawSkillEntry(u8 *work, s32 slot, f32 x, f32 y,
     Vec2f iconPosition;
     BtlSkillIconColor iconColor;
 
-    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)work)->task));
     unit = (u8 *)((BtlAction *)((BtlPanelWork *)work)->action)->unit->datUnit;
     skill = (s16)((BtlPanelWork *)(byteAddressAdd((u32)(slot * 2), work)))->skills[0];
     if (skill >= 0x1B8 || datCalcThresholdTrigger(unit, (u16)skill) != 0) {
@@ -1579,7 +1579,7 @@ void btlPanelDrawEntry(u8 *work, s32 slot, f32 x, f32 y,
         s32 word;
     } color;
 
-    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)work)->task));
     itemOffset = slot * 4;
     id = ((BtlPanelWork *)(((u8 *)((u32)((u32)itemOffset) + (u32)(work)))))->items[0].id;
     if (highlighted != 0) {
@@ -1654,7 +1654,7 @@ void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
     f32 digitX;
     const char *name;
 
-    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)work)->task));
     persona = (u8 *)datPersonaRosterSlot((s16)slot);
     if (slot == (s16)datPersonaGetLeadSlot()) {
         btlUiDrawSpriteFaded(glyphs, 13, 0x2B, -11.0f + x, 6.0f + y,
@@ -1716,7 +1716,7 @@ void btlPanelDrawPersonaName(u8 *work, s32 slot, f32 x, f32 y,
     u8 tone;
     const char *name;
 
-    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)work)->task));
     if (highlighted != 0) {
         tone = 0x1B;
     } else {
@@ -1760,7 +1760,7 @@ void btlPanelDrawListRow(u8 *panel, s32 index, f32 x, f32 y,
     u8 color;
     f32 lineY;
 
-    work = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)panel)->task);
+    work = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)panel)->task));
     if (selected != 0) color = 0x1B;
     else color = 0xFF;
     lineY = 8.0f + y;
@@ -1821,7 +1821,7 @@ void btlSelectionDrawList(u8 *state, u8 *selectionState, f32 inputScaleX, f32 sc
     list = (BtlSelection *)selectionState;
     scaleOrRowY = inputScaleX;
     drawSelection = callback;
-    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)state)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)state)->task));
     showScroll = 1;
     showPrompt = 1;
     if (MEMBER(s32, state, BtlPanelWork, flags) & 4) {
@@ -2072,7 +2072,7 @@ void btlSelectionDrawSlideIn(u8 *work, u8 *selection, f32 x, f32 y,
     Color4 color;
     BtlPanelRenderDispatch *renderer;
 
-    glyphs = (u8 *)kwlnTaskGetWork(((BtlPanelWork *)work)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)(((BtlPanelWork *)work)->task));
     btlUiSetOrigin(glyphs, x, y);
 
     progress = (f32)(((BtlPanelWork *)work)->slideFrame) / 4.0f;
@@ -2222,7 +2222,7 @@ s32 btlSelectionHandleInput(u8 *selection, s32 workAddress, u8 **nextPanel)
 
     work = (u8 *)(u32)workAddress;
     panelWork = (BtlPanelWork *)work;
-    if (((BtlPanelWork *)((BtlUiTaskWork *)(u32)kwlnTaskGetWork((void *)panelWork->task))->panel)->commandFrame < 2) {
+    if (((BtlPanelWork *)((BtlUiTaskWork *)(u32)kwlnTaskGetWork((void*)((void *)panelWork->task)))->panel)->commandFrame < 2) {
         return 1;
     }
     if (panelWork->cursorSlide != 0) {
@@ -2420,7 +2420,7 @@ void btlSelectionDrawCommands(u8 *selection, s32 workAddress, u8 *drawState)
 
     work = (u8 *)(u32)workAddress;
     origin = (f32 *)drawState;
-    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)work)->task));
     menuFlags = ((BtlBattleState *)iGpffffb3ac)->flags & 0x10000;
     if (((BtlPanelWork *)work)->list.current != work + 0x40 || *(u16 *)work != 1 || menuFlags != 0) {
         rotationProgress = (f32)((BtlPanelWork *)work)->stripFrame / 6.0f;
@@ -2636,7 +2636,7 @@ void btlSelectionDrawBar(u8 *unused, u8 *panel, f32 *origin)
     f32 eased;
     f32 top;
 
-    btlUiSetOrigin((u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)panel)->task), origin[0], origin[1]);
+    btlUiSetOrigin((u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)panel)->task)), origin[0], origin[1]);
     progress = (f32)((BtlPanelWork *)panel)->commandFrame / 2.0f;
     if (progress > 1.0f) {
         clamped = 1.0f;
@@ -2779,7 +2779,7 @@ void btlSelectionDrawSkillPanel(u8 *selection, s32 panelAddress, f32 *originOrRe
     u8 *glyphs;
     s16 slideFrame;
 
-    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)state)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)state)->task));
     btlUiSetOrigin(glyphs, originOrRenderer[0], originOrRenderer[1]);
     if (*(u16 *)state == 2) {
         btlUiDrawSpriteFaded(glyphs, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
@@ -2954,7 +2954,7 @@ void btlSelectionDrawItemPanel(u8 *selection, s32 panelAddress, f32 *originOrRen
     u8 *glyphs;
     s16 slideFrame;
 
-    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)state)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)state)->task));
     btlUiSetOrigin(glyphs, originOrRenderer[0], originOrRenderer[1]);
     if (*(u16 *)state == 2) {
         btlUiDrawSpriteFaded(glyphs, 9, 0x49, 77.0f, 314.0f, 0xFE, 0xFF, 0x22, 0xFF);
@@ -3122,7 +3122,7 @@ void btlSelectionDrawTitle(u8 *selection, u8 *panel, f32 *originOrRenderer)
 {
     u8 *glyphs;
 
-    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)panel)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)panel)->task));
     btlUiSetOrigin(glyphs, originOrRenderer[0], originOrRenderer[1]);
     btlUiDrawSpriteFaded(glyphs, 9, 0x1F, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     originOrRenderer = (f32 *)D_00887300;
@@ -3319,7 +3319,7 @@ void btlSelectionDrawCurrentLabel(u8 *selection, s32 workAddress, u8 *drawState)
     origin = (f32 *)drawState;
     work = (u8 *)(u32)workAddress;
     panelWork = (BtlPanelWork *)work;
-    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)work)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)work)->task));
     btlUiSetOrigin(glyphs, origin[0], origin[1]);
     if (*(u16 *)work != 2) {
         btlSelectionDrawList(work, selection, origin[0], origin[1], btlPanelDrawListRow);
@@ -3593,7 +3593,7 @@ void btlSelectionDrawSwapPanel(u8 *selection, u8 *panel, f32 *originOrRenderer)
 {
     u8 *glyphs;
 
-    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)panel)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)panel)->task));
     btlUiSetOrigin(glyphs, originOrRenderer[0], originOrRenderer[1]);
     btlUiDrawSpriteFaded(glyphs, 9, 0x22, 75.0f, (f32)0x13D, 0x1B, 0x1B, 0x1B, 0xFF);
     originOrRenderer = (f32 *)D_00887300;
@@ -3752,7 +3752,7 @@ void btlPanelDrawFrame(s32 unused, u8 *panel)
     f32 progress;
     f32 scale;
 
-    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)panel)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)panel)->task));
     if ((*(s32 *)glyphs & 1) != 0) {
         if (*(u16 *)panel != 0) {
             if (((BtlPanelWork *)panel)->personaSlot == -1) {
@@ -3811,7 +3811,7 @@ void btlPanelDrawBackdropGrid(s32 unused, u8 *panel)
     s16 growthFrame;
     f32 scale;
 
-    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)panel)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)panel)->task));
     if ((*(s32 *)glyphs & 1) != 0) {
         if (*(u16 *)panel != 0) {
             if (((BtlPanelWork *)panel)->personaSlot == -1) {
@@ -3868,7 +3868,7 @@ void btlPanelDrawSkyFrame(s32 unused, u8 *panel)
     void (**base)(u32, u32);
     u8 work[4];
 
-    glyphs = (u8 *)kwlnTaskGetWork((void *)((BtlPanelWork *)panel)->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((void *)((BtlPanelWork *)panel)->task));
     if (((*(u32 *)glyphs & 1) != 0) &&
         (*(u16 *)panel != 0) &&
         (((BtlPanelWork *)panel)->personaSlot == -1)) {
@@ -3932,7 +3932,7 @@ void btlSelectionMarkTargets(s32 task, u8 *action, u8 *targets, s16 skill)
     u8 *unit;
     u8 *targetAction;
 
-    taskWork = (u8 *)kwlnTaskGetWork((void *)task);
+    taskWork = (u8 *)kwlnTaskGetWork((void*)((void *)task));
     transition = taskWork + 0x710;
     ((BtlSelectionTransition *)((BtlUiTaskWork *)taskWork)->selection)->action = action;
     ((BtlSelectionTransition *)((BtlUiTaskWork *)taskWork)->selection)->previousAction = 0;
@@ -4022,7 +4022,7 @@ loop_condition:
 // FUN_0020BA00
 u16 btlSelectionGetTargetMark(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
-    return ((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void *)task))->selection)->state;
+    return ((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void*)((void *)task)))->selection)->state;
 }
 
 // Clears the target mark stored in the selection task.
@@ -4030,7 +4030,7 @@ u16 btlSelectionGetTargetMark(s32 task) {
 void btlSelectionClearTargetMark(s32 task)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    ((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void *)task))->selection)->state = 0;
+    ((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void*)((void *)task)))->selection)->state = 0;
 }
 
 /* Returns the formation entry for the selection task's current target; action callers use the
@@ -4039,7 +4039,7 @@ void btlSelectionClearTargetMark(s32 task)
 u32 btlSelectionGetFormationEntry(s32 task)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    return btlFormationCurrentEntry(((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void *)task))->selection)->targets);
+    return btlFormationCurrentEntry(((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void*)((void *)task)))->selection)->targets);
 }
 
 // Duplicate of btlSelectionGetFormationEntry.
@@ -4049,7 +4049,7 @@ u32 btlSelectionGetFormationEntry(s32 task)
 u32 btlSelectionGetFormationEntryAlt(s32 task)
 {
     extern u32 kwlnTaskGetWork(void *task);
-    return btlFormationCurrentEntry(((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void *)task))->selection)->targets);
+    return btlFormationCurrentEntry(((BtlSelectionTransition *)((BtlUiTaskWork *)(u8 *)kwlnTaskGetWork((void*)((void *)task)))->selection)->targets);
 }
 
 // Clears the buff flag on every party unit and marks the selection task as ready.
@@ -4058,7 +4058,7 @@ u32 btlSelectionGetFormationEntryAlt(s32 task)
  * iteration. */
 void btlSelectionResetUnitFlags(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
-    u8 *transition = (u8 *)kwlnTaskGetWork((void *)task) + 0x710;
+    u8 *transition = (u8 *)kwlnTaskGetWork((void*)((void *)task)) + 0x710;
     s32 mask = ~0x200;
     u8 *unit = ((BtlBattleState *)D_0076449C)->unitLists[0];
 
@@ -4157,7 +4157,7 @@ void btlSelectionDrawTargetFrame(u8 *unused, u8 *transition)
     s32 targetCount;
     s32 targetIndex;
 
-    glyphs = (u8 *)kwlnTaskGetWork((u8 *)transitionState->task);
+    glyphs = (u8 *)kwlnTaskGetWork((void*)((u8 *)transitionState->task));
     if ((*(u32 *)glyphs & 1) != 0) {
         if ((*(u16 *)transition & 1) == 0) {
             state = ((BtlSelectionTransition *)transition)->state;
@@ -4200,7 +4200,7 @@ void btlSelectionSetTargetFlag(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
     u8 *taskWork;
 
-    taskWork = (u8 *)kwlnTaskGetWork((void *)task);
+    taskWork = (u8 *)kwlnTaskGetWork((void*)((void *)task));
     ((BtlSelectionTransition *)((BtlUiTaskWork *)taskWork)->selection)->flags |= 1;
 }
 
@@ -4210,7 +4210,7 @@ void btlSelectionClearTargetFlag(s32 task) {
     extern u32 kwlnTaskGetWork(void *task);
     u8 *taskWork;
 
-    taskWork = (u8 *)kwlnTaskGetWork((void *)task);
+    taskWork = (u8 *)kwlnTaskGetWork((void*)((void *)task));
     ((BtlSelectionTransition *)((BtlUiTaskWork *)taskWork)->selection)->flags &= 0xFFFE;
 }
 

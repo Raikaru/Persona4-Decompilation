@@ -906,7 +906,7 @@ void effBlurFilterSubmitZeroTimerSlots(u8 *object) {
 
 // Allocates a small slot table (up to 40 entries) with zeroed timers and per-index base offsets.
 // FUN_004A9EA0
-void effBlurFilterAllocSlotsSmall(u8 *object) {
+u8 *effBlurFilterAllocSlotsSmall(u8 *object) {
     u8 *base;
     u32 count;
     u8 *alloc;
@@ -927,6 +927,7 @@ void effBlurFilterAllocSlotsSmall(u8 *object) {
         ((BlurFilterSlot *)item)->unk14 = ((BlurFilterConfiguration *)object)->unkD4;
         ((BlurFilterSlot *)item)->unk00.scalar = -(((BlurFilterConfiguration *)object)->unkC8 * (f32)i);
     }
+    return alloc;
 }
 
 // Frees a small slot table through the engine's free callback.

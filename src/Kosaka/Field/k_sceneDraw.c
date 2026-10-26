@@ -14,7 +14,7 @@ typedef struct Resrc
 
 extern Resrc* MT_Scene_GetRes(u16 resTypeId);
 extern u8* MT_Scene_GetResListHead(s32 resourceType);
-extern void RwMatrixRotate(void *, void *, s32, f32);
+extern void RwMatrixRotate(void *, void *, f32, s32);
 extern f32 fGpffff809c;
 extern f32 fGpffff838c;
 
@@ -348,11 +348,11 @@ void SceneDraw_ResetResource(u16 resTypeId)
     rotationAxisBits[0] = 0;
     rotationAxisBits[1] = one;
     rotationAxisBits[2] = 0;
-    RwMatrixRotate(firstMatrix, &rotationAxisBits[0], 2, -180.0f);
+    RwMatrixRotate(firstMatrix,  &rotationAxisBits[0],  -180.0f,  2);
     rotationAxisBits[0] = one;
     rotationAxisBits[1] = 0;
     rotationAxisBits[2] = 0;
-    RwMatrixRotate(firstMatrix, &rotationAxisBits[0], 2, -45.0f);
+    RwMatrixRotate(firstMatrix,  &rotationAxisBits[0],  -45.0f,  2);
     *(s32 *)&((SceneLightMatrix *)secondMatrix)->at.z = one;
     *(s32 *)&((SceneLightMatrix *)secondMatrix)->up.y = one;
     *(s32 *)&((SceneLightMatrix *)secondMatrix)->right.x = one;
@@ -369,11 +369,11 @@ void SceneDraw_ResetResource(u16 resTypeId)
     rotationAxisBits[0] = 0;
     rotationAxisBits[1] = one;
     rotationAxisBits[2] = 0;
-    RwMatrixRotate(secondMatrix, &rotationAxisBits[0], 2, -180.0f);
+    RwMatrixRotate(secondMatrix,  &rotationAxisBits[0],  -180.0f,  2);
     rotationAxisBits[0] = one;
     rotationAxisBits[1] = 0;
     rotationAxisBits[2] = 0;
-    RwMatrixRotate(secondMatrix, &rotationAxisBits[0], 2, -45.0f);
+    RwMatrixRotate(secondMatrix,  &rotationAxisBits[0],  -45.0f,  2);
     type = RESRC_GET_TYPE(resTypeId);
     if (type == RESRC_TYPE_MODELCHAR || type == RESRC_TYPE_MODELNPC)
     {
@@ -515,11 +515,11 @@ void SceneDraw_InitResList4(void)
     rotationAxisBits[0] = 0;
     rotationAxisBits[1] = one;
     rotationAxisBits[2] = 0;
-    RwMatrixRotate(firstMatrix, &rotationAxisBits[0], 2, -180.0f);
+    RwMatrixRotate(firstMatrix,  &rotationAxisBits[0],  -180.0f,  2);
     rotationAxisBits[0] = one;
     rotationAxisBits[1] = 0;
     rotationAxisBits[2] = 0;
-    RwMatrixRotate(firstMatrix, &rotationAxisBits[0], 2, -45.0f);
+    RwMatrixRotate(firstMatrix,  &rotationAxisBits[0],  -45.0f,  2);
     *(s32 *)&((SceneLightMatrix *)secondMatrix)->at.z = one;
     *(s32 *)&((SceneLightMatrix *)secondMatrix)->up.y = one;
     *(s32 *)&((SceneLightMatrix *)secondMatrix)->right.x = one;
@@ -536,11 +536,11 @@ void SceneDraw_InitResList4(void)
     rotationAxisBits[0] = 0;
     rotationAxisBits[1] = one;
     rotationAxisBits[2] = 0;
-    RwMatrixRotate(secondMatrix, &rotationAxisBits[0], 2, -180.0f);
+    RwMatrixRotate(secondMatrix,  &rotationAxisBits[0],  -180.0f,  2);
     rotationAxisBits[0] = one;
     rotationAxisBits[1] = 0;
     rotationAxisBits[2] = 0;
-    RwMatrixRotate(secondMatrix, &rotationAxisBits[0], 2, -45.0f);
+    RwMatrixRotate(secondMatrix,  &rotationAxisBits[0],  -45.0f,  2);
 }
 /* Return the first color of the NPC-light resource, when present. */
 // FUN_0014B000

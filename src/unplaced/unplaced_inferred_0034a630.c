@@ -123,7 +123,7 @@ void fclCombineSetModel(u8 *task, u16 modelId, s64 kind)
     extern void mdlDestroyModelObject(void *model);
     extern void datFreeBlock(void *block);
     extern u8 *datCloneEntryBlock(s8 entryIndex);
-    extern void RwMatrixRotate(void *object, void *value, s32 mode, f32 angle);
+    extern void RwMatrixRotate(void *object, void *value, f32 angle, s32 mode);
     extern void RwMatrixTranslate(void *object, void *value, s32 mode);
     extern void kwlnTaskDestroyWithHierarchy(void *task);
     extern u8 *cmbCardEffCreateSprite(void *parent, void *directory, s32 drawOrder);
@@ -166,7 +166,7 @@ void fclCombineSetModel(u8 *task, u16 modelId, s64 kind)
         MEMBER(u8 *, modelWork, FclCombineModelWork, resource) = datCloneEntryBlock(((FclCombineModelWork *)(modelWork))->kind);
         /* The cloned resource header supplies its model-data word at +8. */
         ((FclCombineModelWork *)modelWork)->modelData = ((FclModelResource *)(MEMBER(u8 *, modelWork, FclCombineModelWork, resource)))->modelData;
-        RwMatrixRotate(modelWork + 0x30, &rotationAxis, 0, 180.0f);
+        RwMatrixRotate(modelWork + 0x30,  &rotationAxis,  180.0f,  0);
         RwMatrixTranslate(modelWork + 0x30, &translation, 2);
         iGpffffb5a0 = 0;
         if (MEMBER(s8, modelWork, FclCombineModelWork, kind) == 0) {

@@ -927,7 +927,6 @@ BtlPacket* btlMainCreateColorFadePacket(s32 arg)
 
 
 typedef struct BtlUnit BtlUnit;
-extern void btlUnitSetColor(BtlUnit* unit, RwRGBA col);
 /* The word selector and row base stay separate because the base load comes before the index
  * arithmetic; work counters and list links are reloaded after callbacks. */
 extern u8 *iGpffffb3b8;

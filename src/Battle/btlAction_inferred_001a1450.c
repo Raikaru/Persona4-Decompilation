@@ -1,3 +1,5 @@
+#include "btl_boss_internal.h"
+#include "btl_ai_internal.h"
 #include "list_item_internal.h"
 #include "btl_skill_target_internal.h"
 #include "btl_packet_create_internal.h"
@@ -87,7 +89,7 @@ static inline s32 btlActionNormalizeUnitIndex(s32 value)
     }
     return value;
 }
-void btlSoundBumpStatusCounters(void);
+void btlSoundBumpStatusCounters(u8 *action);
 
 void btlTargetResolveSelectedSkill(u8 *context);
 void btlTargetResetCommandRecord(u8 *record);
@@ -182,7 +184,6 @@ s32 btlEffectFindUnitMatchingCallback(u8 *context, s32 value, s32 mode, s32 flag
 s32 btlTargetGetStatusEffectMsgCode(u8 *action, u8 *target);
 s32 datCalcSkillElement(u8 *unit, u16 skillId);
 u8 *btlSoundStopTaskStart(void);
-s32 btlAICommandNomalStatusCheck(u8 *action, s64 value);
 u32 btlCountUnitRecordsById(u32 id);
 u8 *btlCutinCreatePacket(u8 *request);
 extern void btlMessageStartLong(u8 *task, u8 *action);
@@ -1217,7 +1218,7 @@ fallback:
 // FUN_001A31A0
 void btlActionBadInit(u8 *action)
 {
-    btlSoundBumpStatusCounters();
+    btlSoundBumpStatusCounters(action);
     ((BtlAction *)action)->unk_41c = 1;
     ((BtlAction *)action)->unk_420 = 0;
 }
@@ -2189,7 +2190,7 @@ range_done:
                 s32 openingMotion;
                 targetUnit = (*(BtlAction **)action->unk_38)->unit;
                 subunit = (u8 *)((BtlUnit *)((u8 *)unit))->childUnit;
-                paired = btlActionHasNoTargetClass((u32)action);
+                paired = btlActionHasNoTargetClass((u32)((u32)action));
                 openingMotion = btlUnitOpeningMotionMode((s32)subunit, (u8 *)unit, (s16)skill, paired) & 0xFFFF;
                 canPosition = btlTargetCanSelectEntry(subunit, (s16)skill, paired);
                 btlUnitGetSphereWorldCenter((BtlUnit *)unit, &unitCenter);
@@ -3424,7 +3425,7 @@ void btlActionSkillUpdate(u8 *actionBytes) {
     extern s32 btlActionAnyTargetClearsDeathStatus(u8 *action);
     extern s32 btlActionTargetsHaveDamageResult(u8 *action, s32 mode);
     extern u32 btlActionAnyTargetHasSpecialResult(u8 *action);
-    extern s32 btlActionHasNoTargetClass();
+    extern s32 btlActionHasNoTargetClass(u32 action);
     extern s32 btlTargetGroupStateMatches(u8 *context);
     extern s32 btlTargetIsSlotAlive(u8 *context);
     extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
@@ -3452,7 +3453,6 @@ void btlActionSkillUpdate(u8 *actionBytes) {
     extern s32 btlUnitApplyPacketEffects(u8 *packet);
     extern s32 btlBossSkillRestoresMotionBeforeHits(u8 *action, s32 skillId);
     extern s32 btlUnitSkillBlocked(u8 *action, u8 *subordinate);
-    extern s32 btlBossActionBlocked();
     extern s32 btlBossSkillAllowed(u8 *action);
     extern u16 datCalcGetHp(s32 unit);
     extern s32 datCalcUsesWeaponProperties(s32 skillId);
@@ -3842,7 +3842,7 @@ void btlActionSkillUpdate(u8 *actionBytes) {
     skillFlag2 = (s32)(s32)((((DatSkillEntry *)iGpffffb3b8)[skillIndex].flags00 & 2)) != (s32)(0);
     altCamera = ((act->flags1A & 0x10) != 0) && skillFlag2 == 0;
     isKind3 = (s32)(s32)(act->kind == 3);
-    rotateFirst = (s32)(btlActionHasNoTargetClass(actionBytes));
+    rotateFirst = (s32)(btlActionHasNoTargetClass((u32)(actionBytes)));
     skillSpecial = (s32)(btlTargetIsEntryActive(skill));
     hasCutinPartner = (s32)(s32)(act->cutinPartner) != (s32)(0);
     reactionFormationPacket = 0;
@@ -4225,7 +4225,7 @@ void btlActionSkillUpdate(u8 *actionBytes) {
             chainUid = 0;
                     timingFrames = btlUnitMotionFrames(act->unit, 0x16U, 1.0f) + 6;
             if (!((((BtlSkillFlags *)(skillFlagsOffset + (s32)((u8 *)iGpffffb3bc)))->flags) & 0x40)) {
-                if ((s32)(btlActionHasNoTargetClass(actionBytes)) == (s32)(1)) {
+                if ((s32)(btlActionHasNoTargetClass((u32)(actionBytes))) == (s32)(1)) {
                     alternateFormationPacket = (BtlPacketTiming *)(btlFormationCreateStepPacket(actionBytes, 0, 1));
                     alternateFormationPacket->dependencyKind = 4;
                     alternateFormationPacket->dependencyUid = animPacket->uid;
@@ -6159,12 +6159,12 @@ void btlActionWaitUpdate(u8 *action) {
     u16 actionKind;
     u8 *packet;
     u8 *battleUnit;
-    void btlActionFinishPresentation();
+    void btlActionFinishPresentation(BtlAction *action);
     u8 *recoveryPacket;
 
     switch (MEMBER(u16, action, BtlAction, unk_6c)) {
     case 7:
-        btlActionFinishPresentation();
+        btlActionFinishPresentation((BtlAction *)action);
         packet = (u8 *)btlUnitCreateLookAtDeactivatePacket(0, 3);
         ((BtlPacketTiming *)packet)->actionUid = *(s64 *)action;
         btlPacketEnqueue(packet, 0);

@@ -66,7 +66,7 @@ typedef struct DatEntryRecord {
 } DatEntryRecord;
 
 /* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-extern u8 *datPersonaGetSkills(void);
+extern u8 *datPersonaGetSkills(DatPersonaRecord *persona);
 extern s32 datPersonaCollectLearnableSkills(u8 *persona, void *outputSkills, void *outputLevels);
 typedef struct {
     f32 x;
@@ -448,7 +448,7 @@ void datEntryDrawBadges(Vec2f position, f32 depth, u8 opacity, u8 *entry, s32 it
     } Color4;
     extern u8 D_005E4710[];
     extern u8 D_005E4730[];
-    void datEntryDrawFlagIcon(s64, f32, Color4, s16, s32, s32);
+    void datEntryDrawFlagIcon(Vec2f position, f32 depth, s32 packedColor, s16 itemId, s32 itemTexture, s32 badgeTexture);
     Color4 categoryColor;
     Color4 flagColor;
     Vec2f pos;
@@ -495,7 +495,7 @@ void datEntryDrawBadges(Vec2f position, f32 depth, u8 opacity, u8 *entry, s32 it
         flagColor.b[3] = opacity;
         pos.x = position.x + 3.0f;
         pos.y = position.y + 2.0f;
-        datEntryDrawFlagIcon(*(s64 *)&pos, depth, flagColor,
+        datEntryDrawFlagIcon(pos, depth, *(s32 *)&flagColor,
                       ((DatItemEntry *)entry)->itemId, itemTexture, badgeTexture);
     }
 }
@@ -790,7 +790,7 @@ void datPersonaFillSkillRows(s32 personaAddress, u8 *rows)
 
     // Old-style call with no argument; datPersonaGetSkills reads the record still held from the
     // caller's first argument.
-    table = datPersonaGetSkills();
+    table = datPersonaGetSkills((DatPersonaRecord *)(personaAddress));
     i = 0;
     while (i < 8) {
         index = (s32)i * 0xC;

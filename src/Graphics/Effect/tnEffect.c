@@ -139,13 +139,14 @@ void TnUploadStream(u8 *stream)
 
 // Uploads the supplied stream, then sets the object's low flag byte to 2 and its second flag byte to 0x11.
 // FUN_00481390
-void TnUploadStreamTagged(u8 *stream)
+u8 *TnUploadStreamTagged(u8 *stream)
 {
     u8 *obj = func_003ef2e0((u8 *)tmxUploadStream(stream, 1));
     s32 flags = (((TnTexture *)obj)->flags & ~0xFF) | 2;
 
     ((TnTexture *)obj)->flags = flags;
     ((TnTexture *)obj)->flags = (flags & 0xFFFF00FF) | 0x1100;
+    return obj;
 }
 
 // Calls the registered callback with (0, 0) when one is set.

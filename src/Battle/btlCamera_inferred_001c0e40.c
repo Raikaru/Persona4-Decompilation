@@ -1,3 +1,4 @@
+#include "btl_camera_internal.h"
 #include "member_access.h"
 #include "btl_unit_record_internal.h"
 #include "btl_camera_framing_internal.h"
@@ -535,7 +536,7 @@ void btlCameraFrameRandomEntry(u8 *camera, s32 notify, s32 unused)
 
 /* Build two world-space poses from a child-unit animation row and convert its frame count to seconds. */
 // FUN_001C1F70
-void btlCameraEnterRandomFrame(u8 *camera)
+void btlCameraEnterRandomFrame(u8 *camera, s32 unusedOption)
 {
 
     struct Frame {

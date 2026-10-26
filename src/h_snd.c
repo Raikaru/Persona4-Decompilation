@@ -1,3 +1,4 @@
+#include "h_snd_internal.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
 
@@ -21,11 +22,11 @@ typedef struct HsndSlotWork
 extern void sdkSndLoadDecodeFiles(s16 index, s16 fileIndex);
 extern s32 sdkSndIsDecodeSlotReady(s16 index);
 
-extern u8 sdkSndPlayCue(s16 id, s32 unused);
 
 #define HSND_SLOT_COUNT 6
 
-static HsndSlotWork sSlotWork[HSND_SLOT_COUNT];
+extern HsndSlotWork D_008D3ED0[HSND_SLOT_COUNT];
+#define sSlotWork D_008D3ED0
 extern u8 sSlotWork_alt[];
 
 #define HSND_CHANNEL_STARTING 1
@@ -73,7 +74,7 @@ void hsndSlotUpdate(HsndSlotWork* slot)
 
 /* Queues sound id for playback through the sound manager; always reports success. */
 // FUN_004599A0
-u8 hsndQueueSound(s16 id, s16 unused)
+u8 hsndQueueSound(s32 id, s32 unused)
 {
     sdkSndPlayCue(id, 1);
     return 1;

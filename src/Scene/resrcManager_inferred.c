@@ -1340,7 +1340,7 @@ void resrcMngSetEnvIntensity(s32 value)
 void resrcMngResetRenderSlots(void)
 {
     extern f32 fGpffff8198;
-    extern void RwMatrixRotate(void *, void *, s32, f32 fparg0);
+    extern void RwMatrixRotate(void *, void *, f32 fparg0, s32);
     s32 axisWords[3];
     f32 primaryValue;
     u8 *primaryResource;
@@ -1393,11 +1393,11 @@ void resrcMngResetRenderSlots(void)
     axisWords[0] = 0;
     axisWords[1] = 0x3F800000;
     axisWords[2] = 0;
-    RwMatrixRotate(matrix, &axisWords[0], 2, -180.0f);
+    RwMatrixRotate(matrix,  &axisWords[0],  -180.0f,  2);
     axisWords[0] = 0x3F800000;
     axisWords[1] = 0;
     axisWords[2] = 0;
-    RwMatrixRotate(matrix, &axisWords[0], 2, -45.0f);
+    RwMatrixRotate(matrix,  &axisWords[0],  -45.0f,  2);
 }
 
 /* measured: retail hoists loop-invariant constants out of the resource list loops in

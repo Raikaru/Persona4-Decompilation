@@ -73,13 +73,7 @@
  Local (static) Globals
  */
 
-static RwPluginRegistry materialTKList =
-    { sizeof(RpMaterial),
-      sizeof(RpMaterial),
-      0,
-      0,
-      (RwPluginRegEntry *)NULL,
-      (RwPluginRegEntry *)NULL };
+extern RwPluginRegistry materialTKList;
 
 extern RwModuleInfo materialModule;  /* P4: file static, at its retail address */
 

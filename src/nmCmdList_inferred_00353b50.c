@@ -16,11 +16,11 @@
  * reapplied after the reset. */
 
 extern void datCommunityEntryStep(u8 *);
-extern void nmMesWindowDestroySlot(s8 );
+extern void nmMesWindowDestroySlot(s64);
 extern void (*D_008873EC[])(void *);
-extern void datTextSlotRelease();
+extern void datTextSlotRelease(u8 *slot);
 extern s32 datGetDateIndex(void);
-extern s32 calGetDayWindowFlags(s64 );
+extern s32 calGetDayWindowFlags(s32);
 extern s32 datMemberIsUnlocked(s64 );
 extern s32 datGetFlag(s32 );
 extern u8 *kwlnTaskGetTaskByName(const void *);
@@ -182,9 +182,9 @@ extern s32 nmMesWindowCurrentOpenState(void);
 extern void nmMesWindowCloseCurrent(s32 );
 extern void nmMesWindowStepSlot(s32 , s32 );
 extern s32 nmMesWindowSlotStatus(s8 );
-extern void nmMesWindowCloseSlot(s8 , s32 );
+extern void nmMesWindowCloseSlot(s64, s32);
 extern s32 nmMesWindowResetCurrent(void);
-extern s32 fclMiscEnsureMesWindow(const void *);
+extern s32 fclMiscEnsureMesWindow(u8 *object);
 extern s32 fclMesWindowShowItemRecord(s32 );
 extern u8 D_0064A790[];
 extern void resrcMngSetRenderSuppressed(s32 );
@@ -754,7 +754,7 @@ block_10_2:
 // FUN_003547C0
 void datTextSlotSetString(s32 *slotWords, u8 *text)
 {
-    datTextSlotRelease();
+    datTextSlotRelease((u8 *)(slotWords));
     if (text == NULL) {
         *slotWords = 3;
         return;
@@ -1060,11 +1060,11 @@ void datScreenWipeSetTextureId(u8 *task, u16 textureId)
             suffix = 0x62;
         }
         if (id == 0) {
-            datTextSlotRelease(work + 0x144);
+            datTextSlotRelease((u8 *)(work + 0x144));
             ((DatScreenWipe *)work)->textSlot.state = 3;
         } else {
             sprintf(path, &D_0064B3F0, id, suffix);
-            datTextSlotRelease(work + 0x144);
+            datTextSlotRelease((u8 *)(work + 0x144));
             if ((u8 *)path == NULL) {
                 ((DatScreenWipe *)work)->textSlot.state = 3;
             } else {
@@ -3068,7 +3068,7 @@ void datPortraitDestroy(u8 *task)
     u8 *work;
 
     work = ((SdkTask *)task)->work;
-    datTextSlotRelease(work + 0x30);
+    datTextSlotRelease((u8 *)(work + 0x30));
     (*D_008873EC)(work);
 }
 #pragma pop
@@ -3510,7 +3510,7 @@ void datPortraitTextDestroy(u8 *task)
     u8 *work;
 
     work = ((SdkTask *)task)->work;
-    datTextSlotRelease(work + 0x30);
+    datTextSlotRelease((u8 *)(work + 0x30));
     (*D_008873EC)(work);
 }
 #pragma pop

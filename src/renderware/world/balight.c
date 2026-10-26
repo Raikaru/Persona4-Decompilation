@@ -82,13 +82,7 @@
  Local (static) Globals
  */
 
-static RwPluginRegistry lightTKList =
-    { sizeof(RpLight),
-      sizeof(RpLight),
-      0,
-      0,
-      (RwPluginRegEntry *)NULL,
-      (RwPluginRegEntry *)NULL };
+extern RwPluginRegistry lightTKList;
 
 extern RwModuleInfo lightModule;  /* P4: file static, at its retail address */
 

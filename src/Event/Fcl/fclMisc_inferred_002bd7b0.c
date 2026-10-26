@@ -1,3 +1,4 @@
+#include "sdk_snd_internal.h"
 #include "list_item_internal.h"
 #include "fcl_color.h"
 #include "include_asm.h"
@@ -54,7 +55,6 @@ extern s32 fadeStatus(void);
 extern s32 fclShopDrawIsReady(s32 task);
 extern void fclShopDrawSetMode(s32 task, s32 state);
 extern void func_003e9cb0(s32 frame, void *transform, s32 combine);
-extern void sdkSndPlayCue(s32, s32);
 extern s32 kwlnTaskGetTaskByName(void *name);
 extern u8 *kwlnGetCamera(void);
 extern s32 MT_Scene_GetCameraResFirst(void);
@@ -102,7 +102,7 @@ extern void fclFadeRectSetRenderStates(s32 unusedQueue, u8 *work);
 #pragma pop
 /* Reset the shared window record and install its message window with style 1. */
 // FUN_002BD7B0
-s32 fclMiscEnsureMesWindow(void)
+s32 fclMiscEnsureMesWindow(u8 *object)
 {
     FclAssistHandle *window;
     s32 handle;
@@ -117,7 +117,7 @@ s32 fclMiscEnsureMesWindow(void)
         window->unk0d = 1;
     }
     if (window->handle < 0) {
-        handle = itfMesWindowInstall();
+        handle = itfMesWindowInstall(object);
         window->handle = handle;
         itfMesWindowSetStyle(handle, 1);
         return 1;

@@ -87,15 +87,13 @@ typedef RwUInt32    RpIndexBuffer[RWINDEXBUFFERSIZE];
  Globals (across program)
  */
 
-RwModuleInfo        meshModule;
+extern RwModuleInfo meshModule;
 
 /****************************************************************************
  Local (static) Globals
  */
 
-static RpMeshStatic MeshStatic = {
-    (RwFreeList *) NULL         /* BuildMeshFreeList */
-};
+extern RpMeshStatic MeshStatic;
 
 static void
 MeshFreeListsDestroy(void)

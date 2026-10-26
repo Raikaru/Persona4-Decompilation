@@ -258,21 +258,9 @@ MACRO_STOP
  Globals (across program)
  */
 
-RwPluginRegistry    textureTKList =
-    { sizeof(RwTexture),
-      sizeof(RwTexture),
-      0,
-      0,
-      (RwPluginRegEntry *)NULL,
-      (RwPluginRegEntry *)NULL };
+extern RwPluginRegistry textureTKList;
 
-RwPluginRegistry    texDictTKList =
-    { sizeof(RwTexDictionary),
-      sizeof(RwTexDictionary),
-      0,
-      0,
-      (RwPluginRegEntry *)NULL,
-      (RwPluginRegEntry *)NULL };
+extern RwPluginRegistry texDictTKList;
 
 /****************************************************************************
  Local (static) Globals

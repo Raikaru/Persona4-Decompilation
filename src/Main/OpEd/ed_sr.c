@@ -1,3 +1,4 @@
+#include "sdk_snd_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 /* Original translation unit ed_sr.c (from __FILE__ assert strings). */
@@ -40,9 +41,8 @@ extern void fadeBeginTransition(s32 mode, s32 duration);
 extern s32 kwlnTaskGetTaskByName(void *name);
 extern s32 kwlnTaskIsLinked(s32 target);
 extern void kwlnTaskAddChild(void *parent, void *child);
-extern s32 sdkSndPlayCue(s32 a, s32 b);
 extern void sdkSndStopChannel(s32 fadeFrames);
-extern s32 mwPlayerCreateReset(s32 parent, s64 movieIndex, void *queueName);
+extern s32 mwPlayerCreateReset(s32 parent, s16 movieIndex, void *queueName);
 extern s32 mwPlayerGetCurrent(void);
 
 /* Data / jumptable globals. */

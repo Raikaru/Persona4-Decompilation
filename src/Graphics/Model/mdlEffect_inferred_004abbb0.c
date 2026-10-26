@@ -23,7 +23,7 @@ extern PolygonWindColor iGpffffbb64;
 extern u8 *mdlEffectCreateGridForRecord(u8 *parameters);
 extern u8 D_0071413C[];
 extern f32 iGpffff8080;
-extern void mdlDestroyModelObject();
+extern void mdlDestroyModelObject(u8* model);
 
 
 extern s32 D_00724C70;
@@ -133,8 +133,8 @@ loop_004abc50_check:
 #pragma pop
 /* Forward model destruction to mdlDestroyModelObject. */
 // FUN_004ABD60
-void mdlEffectDestroyModel(void)
+void mdlEffectDestroyModel(u8 *object)
 {
-    mdlDestroyModelObject();
+    mdlDestroyModelObject(object);
 }
 

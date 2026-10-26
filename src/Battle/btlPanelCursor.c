@@ -7,7 +7,7 @@
 extern u32 kwlnTaskGetWork(void *task);
 extern void btlUiSetTileOffset(u8 *work, s16 x, s32 y, f32 factor);
 extern void btlUiSetRenderMode(s32 mode);
-extern void btlUnitGaugeClear(u8 *work, s32 unused);
+extern void btlUnitGaugeClear(s32 unitAddress, s32 active);
 extern f32 btlGaugeHpRatio(u8 *unit);
 extern f32 func_003e41e0(f32 *out, f32 *in);
 extern void kAssertFail(void *file, s32 line);
@@ -72,7 +72,7 @@ void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
     control = work + 0x710;
     switch (((BtlPanelCursor *)cursor)->state) {
     case 1:
-        btlUnitGaugeClear(panel, 0);
+        btlUnitGaugeClear((s32)(panel), (s32)( 0));
         ((BtlPanelCursor *)cursor)->frame = 0;
         ((BtlPanelCursor *)cursor)->shape.segmentCount = 0;
         ((BtlPanelCursor *)cursor)->animation.ring.segmentAngle = 0;
@@ -83,7 +83,7 @@ void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
         break;
     case 2:
         if (*(u16 *)control & 2) {
-            btlUnitGaugeClear(panel, 0);
+            btlUnitGaugeClear((s32)(panel), (s32)( 0));
             ((BtlPanelCursor *)cursor)->frame = 0;
             ((BtlPanelCursor *)cursor)->shape.segmentCount = 0;
             ((BtlPanelCursor *)cursor)->animation.ring.segmentAngle = 0;
@@ -104,7 +104,7 @@ void btlPanelCursorDrawA(s32 task, u8 *cursor, u8 *panel, f32 *position)
             position[0] = typedCursor->position.x + delta[0];
             position[1] = typedCursor->position.y + delta[1];
             if (++typedCursor->frame == 4) {
-                btlUnitGaugeClear(panel, 0);
+                btlUnitGaugeClear((s32)(panel), (s32)( 0));
                 typedCursor->frame = 0;
                 ((BtlPanelCursor *)cursor)->shape.segmentCount = 0;
                 ((BtlPanelCursor *)cursor)->animation.ring.segmentAngle = 0;
@@ -187,7 +187,7 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
     control = work + 0x710;
     switch (((BtlPanelCursor *)cursor)->state) {
     case 1:
-        btlUnitGaugeClear(panel, 0);
+        btlUnitGaugeClear((s32)(panel), (s32)( 0));
         ((BtlPanelCursor *)cursor)->frame = 0;
         ((BtlPanelCursor *)cursor)->shape.segmentCount = 0;
         ((BtlPanelCursor *)cursor)->animation.ring.segmentAngle = 0;
@@ -198,7 +198,7 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
         break;
     case 2:
         if (*(u16 *)control & 2) {
-            btlUnitGaugeClear(panel, 0);
+            btlUnitGaugeClear((s32)(panel), (s32)( 0));
             ((BtlPanelCursor *)cursor)->frame = 0;
             ((BtlPanelCursor *)cursor)->shape.segmentCount = 0;
             ((BtlPanelCursor *)cursor)->animation.ring.segmentAngle = 0;
@@ -219,7 +219,7 @@ void btlPanelCursorDrawB(s32 task, u8 *cursor, u8 *panel, f32 *position)
             position[0] = typedCursor->position.x + delta[0];
             position[1] = typedCursor->position.y + delta[1];
             if (++typedCursor->frame == 4) {
-                btlUnitGaugeClear(panel, 0);
+                btlUnitGaugeClear((s32)(panel), (s32)( 0));
                 typedCursor->frame = 0;
                 ((BtlPanelCursor *)cursor)->shape.segmentCount = 0;
                 ((BtlPanelCursor *)cursor)->animation.ring.segmentAngle = 0;
@@ -313,7 +313,7 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
     control = work + 0x710;
     switch (((BtlPanelCursor *)cursor)->state) {
     case 1:
-        btlUnitGaugeClear(panel, 0);
+        btlUnitGaugeClear((s32)(panel), (s32)( 0));
         ((BtlPanelCursor *)cursor)->frame = 0;
         ((BtlPanelCursor *)cursor)->animation.scale = 1.5f;
         ((BtlPanelCursor *)cursor)->shape.distance = 10.0f;
@@ -323,7 +323,7 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
         break;
     case 2:
         if (*(u16 *)control & 2) {
-            btlUnitGaugeClear(panel, 0);
+            btlUnitGaugeClear((s32)(panel), (s32)( 0));
             ((BtlPanelCursor *)cursor)->frame = 0;
             ((BtlPanelCursor *)cursor)->animation.scale = 1.5f;
             ((BtlPanelCursor *)cursor)->shape.distance = 10.0f;
@@ -343,7 +343,7 @@ void btlPanelCursorDrawC(s32 task, u8 *cursor, u8 *panel, f32 *position)
             position[0] = typedCursor->position.x + delta[0];
             position[1] = typedCursor->position.y + delta[1];
             if (++typedCursor->frame == 4) {
-                btlUnitGaugeClear(panel, 0);
+                btlUnitGaugeClear((s32)(panel), (s32)( 0));
                 typedCursor->frame = 0;
                 ((BtlPanelCursor *)cursor)->animation.scale = 1.5f;
                 ((BtlPanelCursor *)cursor)->shape.distance = 10.0f;
@@ -458,7 +458,7 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
     control = work + 0x710;
     switch (((BtlPanelCursor *)cursor)->state) {
     case 1:
-        btlUnitGaugeClear(panel, 0);
+        btlUnitGaugeClear((s32)(panel), (s32)( 0));
         ((BtlPanelCursor *)cursor)->frame = 0;
         ((BtlPanelCursor *)cursor)->animation.scale = 1.5f;
         ((BtlPanelCursor *)cursor)->shape.distance = 10.0f;
@@ -468,7 +468,7 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
         break;
     case 2:
         if (*(u16 *)control & 2) {
-            btlUnitGaugeClear(panel, 0);
+            btlUnitGaugeClear((s32)(panel), (s32)( 0));
             ((BtlPanelCursor *)cursor)->frame = 0;
             ((BtlPanelCursor *)cursor)->animation.scale = 1.5f;
             ((BtlPanelCursor *)cursor)->shape.distance = 10.0f;
@@ -488,7 +488,7 @@ void btlPanelCursorDrawD(s32 task, u8 *cursor, u8 *panel, f32 *position)
             position[0] = typedCursor->position.x + delta[0];
             position[1] = typedCursor->position.y + delta[1];
             if (++typedCursor->frame == 4) {
-                btlUnitGaugeClear(panel, 0);
+                btlUnitGaugeClear((s32)(panel), (s32)( 0));
                 typedCursor->frame = 0;
                 ((BtlPanelCursor *)cursor)->animation.scale = 1.5f;
                 ((BtlPanelCursor *)cursor)->shape.distance = 10.0f;

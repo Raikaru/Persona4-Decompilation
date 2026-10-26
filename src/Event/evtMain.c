@@ -1,3 +1,5 @@
+#include "h_snd_internal.h"
+#include "evt_internal.h"
 #include "byte_address_internal.h"
 #include "field_transition_internal.h"
 #include "include_asm.h"
@@ -51,12 +53,8 @@ extern u8 D_0063C3C0[];
 extern u8 D_0063C3E0[];
 s32 mtMiscPlayFormattedCue();
 s32 sdkSndStopMainChannel();
-void sdkSndPlayCue();
-void hsndQueueSound();
 void sdkSndStopChannel();
 void sdkSndFadeOutChannelFrames();
-s32 mtMiscRequestSoundTrack();
-s32 mtMiscFadeOutSoundChannel();
 extern u8 D_0063C5F0[];
 extern u8 D_0063C610[];
 extern s32 (**D_00882204[])(s32, s32, s32, u8 *, u8 *);

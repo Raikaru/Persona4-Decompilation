@@ -13,7 +13,7 @@ void btlShuffleDestroyOverlayWork(u8 *unusedTask)
 {
     int work;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork(unusedTask);
     DAT_008873ec_abs[0](work);
 }
 
@@ -27,6 +27,6 @@ void btlResultDestroyHeroLevelUpWork(u8 *unusedTask)
 {
     int work;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork(unusedTask);
     DAT_008873ec_abs[0](work);
 }

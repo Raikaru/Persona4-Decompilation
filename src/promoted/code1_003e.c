@@ -63,7 +63,6 @@ s32 func_003e12f0(u8 *);
 s32 func_003e1740(u8 *);
 void func_003e1230(void *);
 void func_003ed7e0(void);
-void func_00410f40(s32);
 u8 *func_003e1cb0(u8 *, void *);
 void func_003e3dc0();
 void func_003e3d00();
@@ -78,8 +77,8 @@ extern s32 func_003e3830(u8 *arg0, s32 arg1);
 extern u8 D_0070B760[];
 extern u8 D_0070B710[];
 extern u8 D_0070B7A0[];
-extern void func_003e3870(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
-extern void func_003ef3a0(void);
+extern s32 func_003e3870(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4, s32 arg5);
+extern void func_003ef3a0(void *texture);
 extern f32 sqrtf(f32 x);
 extern void func_003df8c0(u8 *, u8 *, u8 *);
 extern void func_003e6db0();
@@ -125,18 +124,14 @@ extern u8 D_008873D8[];
 extern u8 D_008873DC[];
 extern u8 D_008873E0[];
 extern u8 D_008873E4[];
-extern void sprintf();
-extern void func_00446ed8();
-extern void strcpy();
+extern void vsprintf();
 extern void strncpy();
 extern void strcat();
 extern void func_00442a80();
 extern void func_00443010();
 extern void strcmp();
 extern void strncmp();
-extern void strlen();
 extern void func_00443f18();
-extern void sscanf();
 typedef struct {
     void *next;
     void *prev;
@@ -722,8 +717,8 @@ s32 func_003e50a0(s8 *arg0) {
 #pragma optimization_level 3
 // FUN_003E5220
 #pragma tailcall on
-void func_003e5220(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    func_003e3020(D_0070B710, arg0, arg1, arg2, arg3);
+s32 func_003e5220(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    return func_003e3020(D_0070B710, arg0, arg1, arg2, arg3);
 }
 /* measured: closes the function pragma bracket. */
 #pragma tailcall off
@@ -772,8 +767,8 @@ void func_003e5510(s32 arg0) {
 // FUN_003E5520
 /* measured: tailcall knob retains the func_003e5520 bracket. */
 #pragma tailcall on
-void func_003e5520(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
-    func_003e3020(D_0070B7A0, arg0, arg1, arg2, arg3);
+s32 func_003e5520(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
+    return func_003e3020(D_0070B7A0, arg0, arg1, arg2, arg3);
 }
 /* measured: closes the function pragma bracket. */
 #pragma tailcall off
@@ -880,7 +875,7 @@ Callback6770 func_003e6770(Callback6770 arg0, u8 *arg1)
 #pragma optimization_level 3
 // FUN_003E6A60
 s32 func_003e6a60(s32 arg0) {
-    func_003ef3a0();
+    func_003ef3a0((void *)arg0);
     return arg0;
 }
 /* measured: closes optimization_level 3 around func_003e6a60. */
@@ -974,8 +969,8 @@ extern u8 *RwCameraSetProjectionType(u8 *arg0, s32 arg1); /* P4: ported verbatim
 #pragma optimization_level 3
 // FUN_003E8410
 #pragma tailcall on
-void func_003e8410(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
-    func_003e3870(D_0070B710, arg0, arg1, arg2, arg3, arg4);
+s32 func_003e8410(s32 arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4) {
+    return func_003e3870(D_0070B710, arg0, arg1, arg2, arg3, arg4);
 }
 /* measured: closes optimization_level 3 around func_003e8410. */
 #pragma optimization_level 2

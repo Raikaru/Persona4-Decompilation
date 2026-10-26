@@ -1,3 +1,4 @@
+#include "sdk_snd_internal.h"
 
 #include "list_item_internal.h"
 #include "fcl_scale_transition.h"
@@ -168,7 +169,6 @@ s32 shopSystemUpdate(u8 *task)
     s32 kwlnTaskGetTaskByName(s8 *name);
     u8 *kwlnGetCamera(void);
     void K_View_SetFov(void *camera, f32 fov);
-    s32 sdkSndPlayCue(s16 task, ...);
     extern s8 D_0063FC68[];
     s8 state;
     u8 *work;

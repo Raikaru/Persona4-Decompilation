@@ -2136,7 +2136,7 @@ u8 channel;
 // Signed per-unit roll for a kind-6 skill (else 0): level and battle-stat base times a random
 // 90-110% factor, positive on the monster side.
 // FUN_002384B0
-s32 datCalcSkillRoll(s32 skillId, DatUnit *unitArg, s32 targetAddress)
+s32 datCalcSkillRoll(s32 skillId, DatUnit *unitArg, DatUnit *targetUnit, s32 unusedFlags)
 {
     /* measured: retail compiled this caller against the s32-returning prototype used elsewhere, so
      * the u8 return of datCalcGetBattleStat is not re-masked. */
@@ -2168,7 +2168,7 @@ s32 datCalcSkillRoll(s32 skillId, DatUnit *unitArg, s32 targetAddress)
     if (iGpffffb3b8[(skillId & 0xFFFF) * 0x28 + 0x24] != 6) {
         return 0;
     }
-    if (unitArg != (DatUnit *)targetAddress) {
+    if (unitArg != targetUnit) {
         kAssertFail(D_00635938, 0x9F9);
     }
     if (!(((DatUnit *)unitArg)->flags & 4)) {
@@ -4299,7 +4299,7 @@ one:
 // True when datCalcSkillAppliesToTarget holds and the skill's category is 9 or 10, or mode is 2 or
 // 4.
 // FUN_00241DE0
-s32 datCalcSkillAllowedForMode(DatUnit *source, DatUnit *target, s32 skillId, s32 channel, s32 mode)
+s32 datCalcSkillAllowedForMode(DatUnit *source, DatUnit *target, s32 skillId, s32 channel, s32 mode, s32 unusedFlags)
 {
     /* Skill rows are addressed by byte offset; DatSkillEntry in datCalc_internal.h documents the
      * 0x28-byte layout. */
@@ -4328,7 +4328,7 @@ s32 datCalcSkillAllowedForMode(DatUnit *source, DatUnit *target, s32 skillId, s3
 // Rolls a support-skill hit for source on target, with a chance set by passive flags 0x71, 0x72 and
 // 0x73 (5, 50, 32 or 0).
 // FUN_00241F00
-s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome)
+s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome, s32 unusedMode, s32 unusedFlags)
 {
     DatUnit *sourceRecord = (DatUnit *)source;
     /* Byte-pointer transport is retained; the field expressions name the established unit and table layouts. */
@@ -4451,7 +4451,7 @@ s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome)
 /* measured: retail loads the loop-invariant compare constant once before the loop instead of
  * rebuilding it in the body. */
 #pragma opt_loop_invariants on
-s32 datCalcRollSkillChance(u8 *source, u8 *target, s32 skillIdArg, s32 channel, s32 outcome)
+s32 datCalcRollSkillChance(u8 *source, u8 *target, s32 skillIdArg, s32 channel, s32 outcome, s32 unusedFlags)
 {
     DatUnit *sourceRecord = (DatUnit *)source;
     DatUnit *targetRecord = (DatUnit *)(target);

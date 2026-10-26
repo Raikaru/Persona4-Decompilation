@@ -180,9 +180,7 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
     extern void datScreenWipeGetPositions(u8 *, u8 *, u8 *, u8 *);
     extern void datScreenWipeGetScale(u8 *, f32 *);
     extern f32 btlShuffleCalcWave(f32, f32, f32, s32);
-    extern void shdDrawColourQuad(f32 depth, f32 color, f32 x, f32 y, f32 maskX,
-                              f32 maskY, f32 width, s32 height, s32 texture,
-                              s32 drawMask, s32 blendMode);
+    extern void shdDrawColourQuad(f32 depth, s32 height, f32 color, f32 x, f32 y, f32 maskX, f32 maskY, f32 width, s32 texture, s32 drawMask, s32 blendMode);
     extern void sflDataDrawEntry(DescriptorPair position, f32 depth, s32 opacity, s16 *state);
     extern s32 RpSkyRenderStateSet(s32 state, s32 value);
     extern s32 sdkSndStartChannel(s16 channelIndex, const char *path);
@@ -234,9 +232,9 @@ void btlLogoDraw(u8 *drawData, s32 workAddress, void *callback)
                 opacity = fGpffff838c * (f32)alpha;
                 overlayAlpha = (u8)(opacity * (1.0f - phase));
                 color = (s32)(overlayAlpha | 0xFFFFFF00U);
-                shdDrawColourQuad(0.0f, drawX, drawY, drawX, drawY,
-                              256.0f * scale[0], 512.0f * scale[1],
-                              color, texture, 0, 1);
+                shdDrawColourQuad(0.0f, 
+                              color,  drawX,  drawY,  drawX,  drawY, 
+                              256.0f * scale[0],  512.0f * scale[1],  texture,  0,  1);
                 RpSkyRenderStateSet(3, 0x717FB);
                 RpSkyRenderStateSet(2, 0x44);
             }

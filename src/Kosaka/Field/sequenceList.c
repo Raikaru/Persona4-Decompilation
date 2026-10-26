@@ -2,7 +2,7 @@
 /* Original translation unit sequenceList.c (from __FILE__ assert strings). */
 #include "type.h"
 
-extern void btlTaskCreate(void);
+extern void btlTaskCreate(s32 setupAddress);
 extern void btlSetFreeUnitsOnTeardown(void);
 
 extern s32 fclBankNoop(void);
@@ -126,9 +126,9 @@ void SeqSample_End(void)
 // Start callback for the BATTLE sequence (id 6); destroys the field resource archives before the
 // battle loads.
 // FUN_00102E70
-void K_Fldrc_DestroyArchives(void)
+void K_Fldrc_DestroyArchives(s32 setupAddress)
 {
-    btlTaskCreate();
+    btlTaskCreate(setupAddress);
     btlSetFreeUnitsOnTeardown();
 }
 
