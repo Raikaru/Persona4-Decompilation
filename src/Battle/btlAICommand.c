@@ -157,7 +157,7 @@ s32 btlCond_MYABLESKIL(u8 *action, u32 command) {
 
 /* Evaluate weakness on the opposite genus, excluding defeated units. */
 // FUN_001DB040
-void btlCond_ENWEAK_PAI(u8 *action, u32 value) {
+s32 btlCond_ENWEAK_PAI(u8 *action, u32 value) {
     u32 shift;
     {
         if ((((BtlAction *)action))->unit->genus != 0)
@@ -169,12 +169,12 @@ void btlCond_ENWEAK_PAI(u8 *action, u32 value) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 6, (code *)&btlCond_MYWEAK);
+    return btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 6, (code *)&btlCond_MYWEAK);
 }
 
 /* Evaluate weakness on the opposite genus, excluding defeated and down units. */
 // FUN_001DB0A0
-void btlCond_ENWEAK_ST_PAI(u8 *action, u32 value) {
+s32 btlCond_ENWEAK_ST_PAI(u8 *action, u32 value) {
     u32 shift;
     {
         if ((((BtlAction *)action))->unit->genus != 0)
@@ -186,12 +186,12 @@ void btlCond_ENWEAK_ST_PAI(u8 *action, u32 value) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 6, (code *)&btlCond_MYWEAK);
+    return btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 6, (code *)&btlCond_MYWEAK);
 }
 
 /* Evaluate the alternate weakness predicate on the opposite genus. */
 // FUN_001DB100
-void btlCond_ENWEAK_DW_PAI(s32 action, u32 value)
+s32 btlCond_ENWEAK_DW_PAI(s32 action, u32 value)
 {
   u32 shift;
 
@@ -205,9 +205,8 @@ void btlCond_ENWEAK_DW_PAI(s32 action, u32 value)
   done:
       ;
   }
-  btlEffectFindUnitMatchingCallback(action, value, 1 << (shift & 0xffff) & 0xffff, 0x80000, 7,
+  return btlEffectFindUnitMatchingCallback(action, value, 1 << (shift & 0xffff) & 0xffff, 0x80000, 7,
                  (code *)&btlCond_MYWEAK);
-  return;
 }
 
 
@@ -332,7 +331,7 @@ s32 btlAICommandNomalStatusCheck(u8 *action, s64 value) {
 
 /* Evaluate normal-affinity targets on the opposite genus. */
 // FUN_001DB620
-void btlCond_ENNOMAL(u8 *action, u32 value) {
+s32 btlCond_ENNOMAL(u8 *action, u32 value) {
     u32 shift;
     {
         if ((((BtlAction *)action))->unit->genus != 0)
@@ -344,12 +343,12 @@ void btlCond_ENNOMAL(u8 *action, u32 value) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOMAL);
+    return btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOMAL);
 }
 
 /* Evaluate normal-affinity targets, excluding defeated and down units. */
 // FUN_001DB680
-void btlCond_ENNOMAL_ST(u8 *action, u32 value) {
+s32 btlCond_ENNOMAL_ST(u8 *action, u32 value) {
     u32 shift;
     {
         if ((((BtlAction *)action))->unit->genus != 0)
@@ -361,12 +360,12 @@ void btlCond_ENNOMAL_ST(u8 *action, u32 value) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0xA, (code *)&btlCond_MYNOMAL);
+    return btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0xA, (code *)&btlCond_MYNOMAL);
 }
 
 /* Evaluate the alternate normal-affinity predicate on the opposite genus. */
 // FUN_001DB6E0
-void btlCond_ENNOMAL_DW(s32 action, u32 value)
+s32 btlCond_ENNOMAL_DW(s32 action, u32 value)
 {
   u32 shift;
 
@@ -380,9 +379,8 @@ void btlCond_ENNOMAL_DW(s32 action, u32 value)
   done:
       ;
   }
-  btlEffectFindUnitMatchingCallback(action, value, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0xb,
+  return btlEffectFindUnitMatchingCallback(action, value, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0xb,
                  (code *)&btlCond_MYNOMAL);
-  return;
 }
 
 
@@ -470,13 +468,13 @@ s32 btlCond_MYTAISEI(u8 *action, s16 value) {
 
 /* Evaluate affinity on units of the caller genus. */
 // FUN_001DB940
-void btlCond_FRTAISEI(u8 *action, u32 value) {
-    btlEffectFindUnitMatchingCallback((s32)action, value, (1 << ((((BtlAction *)action))->unit->genus)) & 0xFFFF, 0x80000, 0, (code *)&btlCond_MYTAISEI);
+s32 btlCond_FRTAISEI(u8 *action, u32 value) {
+    return btlEffectFindUnitMatchingCallback((s32)action, value, (1 << ((((BtlAction *)action))->unit->genus)) & 0xFFFF, 0x80000, 0, (code *)&btlCond_MYTAISEI);
 }
 
 /* Evaluate affinity on units of the opposite genus. */
 // FUN_001DB990
-void btlCond_ENTAISEI(u8 *action, u32 value) {
+s32 btlCond_ENTAISEI(u8 *action, u32 value) {
     u32 shift;
     {
         if ((((BtlAction *)action))->unit->genus != 0)
@@ -488,7 +486,7 @@ void btlCond_ENTAISEI(u8 *action, u32 value) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code *)&btlCond_MYTAISEI);
+    return btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code *)&btlCond_MYTAISEI);
 }
 
 /* measured: retail computes the bitmap index before the enemy load, which needs propagation off. */
@@ -511,7 +509,7 @@ s32 btlCond_MYNOTNOMAL(u8 *action, s16 value) {
 
 /* Evaluate non-normal affinity on units of the opposite genus. */
 // FUN_001DBA90
-void btlCond_ENNOTNOMAL(u8 *action, u32 value) {
+s32 btlCond_ENNOTNOMAL(u8 *action, u32 value) {
     u32 shift;
     {
         if ((((BtlAction *)action))->unit->genus != 0)
@@ -523,7 +521,7 @@ void btlCond_ENNOTNOMAL(u8 *action, u32 value) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOTNOMAL);
+    return btlEffectFindUnitMatchingCallback((s32)action, value, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0xA, (code *)&btlCond_MYNOTNOMAL);
 }
 
 /* Translate four wall-selector bits into the corresponding buff-status mask. */
