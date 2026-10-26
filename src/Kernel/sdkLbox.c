@@ -1,4 +1,5 @@
 /* Original translation unit sdkLbox.c (from __FILE__ assert strings). */
+#include "runtime_float_internal.h"
 #include "sdk_lbox_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -56,7 +57,6 @@ extern s32 sdkLboxUpdate(u8 *task);
 extern void sdkLboxDestroy(u8 *task);
 extern void sprintf(void *buf, const void *fmt, ...);
 extern s32 strlen(const void *str);
-extern s32 fptodp(f32 value);
 extern u8 iGpffffb06c;
 extern u8 iGpffffb070;
 extern u8 iGpffffb0c0;
@@ -196,12 +196,13 @@ loop_29_body:
                          (listbox->measure)(text);
             }
             break;
-        case 4:
-            cellWidth = fptodp(((SdkLboxEntry *)entry)->floatValue);
-            sprintf(text, &iGpffffb0c8, cellWidth);
+        case 4: {
+            u64 bits = fptodp(((SdkLboxEntry *)entry)->floatValue);
+            sprintf(text, &iGpffffb0c8, bits);
             entryWidth += ((SdkLboxWork *)work)->cellWidth +
                      (listbox->measure)(text);
             break;
+        }
         }
     } else {
         cellWidth = ((SdkLboxWork *)work)->cellWidth;
