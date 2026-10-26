@@ -140,7 +140,11 @@ command one forwards the status through `0042c0d8` to syscall `00421400`.
 The same status contract belongs to `kwlnExitRuntime`. These declarations
 share `sdk_process_internal.h`; they do not describe host POSIX calls.
 
-The complete six-owner witness reports 206 active C matches and 323 unchanged
-assembly-backed functions. The word-packing helper is newly active matching C;
-the other assembly entries are not claimed as new reconstructions.
+The complete six-owner witness reports 206 `MATCH` and 323 `ASM` results,
+with no failures. These are verifier statuses, not a count of newly recovered
+C functions: the existing CP0-reading assembly body at `0042ba70`, for
+example, also reports `MATCH`. The word-packing helper is newly active C;
+its real-C link increase from 8,103 to 8,104 and the complete linked image
+check are reported separately. No existing assembly entry is claimed as a
+new reconstruction.
 
