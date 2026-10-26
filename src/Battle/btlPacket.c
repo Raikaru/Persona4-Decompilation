@@ -1,24 +1,17 @@
+#include "btl_packet_callback_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "btl_unit_internal.h"
 
-typedef void (*BtlPacketCallback)(void* data);
-
-typedef struct BtlPacketCallbackWork BtlPacketCallbackWork;
-struct BtlPacketCallbackWork
-{
-    BtlPacketCallback callback;
-    void* data;
-};
 
 
 extern RwV3d D_00881430;
 
 
 // FUN_00194C60
-void btlPacketCallbackRun(BtlPacketCallbackWork* work)
+s32 btlPacketCallbackRun(BtlPacketCallbackWork* work)
 {
-    work->callback(work->data);
+    return work->callback(work->data);
 }
 
 

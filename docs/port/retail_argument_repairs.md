@@ -346,3 +346,24 @@ adapter: its argument is one 32-bit slot, and the extra argument slots are
 never consumed. That normalization is not a match-preserving source-formal
 change and must not be credited as an upstreamed literal removal.
 
+
+### Packet scheduler results and retained query-call views
+
+`btlMainUpdateTintLerp` at `001b93c0` returns the full unsigned scheduler word,
+not a byte. `btlPacketCallbackRun` at `00194c60` returns the signed completion
+word its installed callback leaves in `v0`; the callback typedef and work
+payload share `btl_packet_callback_internal.h`. This header does not inject
+the factory header's forward `BtlPacket` tag into the existing function-local
+packet layout, which MWCC otherwise resolves as an incomplete outer tag.
+The packet layout, stored function pointers and callback payload remain
+unchanged. The complete tint owner reports 27 `MATCH` results and the packet
+owner three, with no failures.
+
+Two existing target dispatchers retain measured wide-query call views:
+`001eb1d0` and `001eb4a0` explicitly extract the unsigned low 24 bits, so
+the meaningful query fits a host word. Changing only their callback local
+declarations and load casts from `s64` to `u32` changes 82 and 90 normalized
+bytes, respectively; the other 50 functions in the two owners still match.
+Those experiments were reverted. Their host indirect-ABI normalization is
+retained separately rather than claimed as a source-redundant repair.
+
