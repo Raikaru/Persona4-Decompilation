@@ -52,7 +52,6 @@ extern void ADXB_TakeSnapshot(ADXB adxb);
 extern void ADXB_RestoreSnapshot(ADXB adxb);
 extern void ADXB_AhxTermSupply(ADXB adxb);
 extern void ADXB_SetAhxDecSmpl(ADXB adxb, Sint32 nsmpl);
-extern void ADXB_SetAhxInSj(ADXB adxb, SJ sji);
 extern Sint32 ADX_DecodeFooter(Uint8 *data, Sint32 len, Sint16 *ofst);
 extern void ADXERR_CallErrFunc2(const Char8 *msg1, const Char8 *msg2);
 extern Sint32 SJRBF_GetBufSize(SJ sj);

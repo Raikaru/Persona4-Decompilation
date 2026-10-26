@@ -4,6 +4,7 @@
 #define CRI_ADX_B_H
 
 #include "cri_xpt.h"
+#include "cri_adxb_internal.h"
 #include "sj.h"
 
 typedef struct ADXPD_OBJ *ADXPD;

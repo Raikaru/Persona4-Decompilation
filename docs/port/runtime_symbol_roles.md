@@ -113,3 +113,10 @@ Vector normalization returns an `f32` length even at call sites that ignore
 it. Eleven existing void declarations now state that result, and one unused
 void declaration is removed; their parameter views are unchanged. All 295
 marked functions in the twelve affected units retain the retail bytes.
+
+
+The debug formatter's two register-save-area callers now use the real integer
+`vsprintf` result declaration and a shared string-format prototype. Their
+existing PS2 argument-list construction is unchanged; host native va_list
+adaptation remains a port responsibility. All four marked functions in that
+owner retain their retail bytes.
