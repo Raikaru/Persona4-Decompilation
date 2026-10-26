@@ -390,8 +390,8 @@ two-argument declaration from the earlier interface cohort.
 
 ### Actual AI condition table result contracts
 
-The retail condition table at `00609850` contains 78 twelve-byte rows with
-78 distinct callback addresses. Thirty-six targets had void source results:
+The retail condition table at `00609850` contains 78 twelve-byte rows: one
+null entry and 77 distinct non-null callbacks. Thirty-six targets had void source results:
 22 enemy-side wrappers and 14 allied-side wrappers. Each calls
 `btlEffectFindUnitMatchingCallback` at `001d94d0` and leaves its result in `v0`
 through the frame/register restoration and return. Returning that status
