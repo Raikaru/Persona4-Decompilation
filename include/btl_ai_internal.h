@@ -55,8 +55,41 @@ typedef struct BtlAiRecord {
     BtlAiWeightedCommand commands[3][5]; /* 0x2C; record stride 0xA4 */
 } BtlAiRecord;
 
-/* The selection callback receives a wide query word; this predicate consumes
- * its signed low halfword as an affinity index. */
+/* Weighted-target callbacks take a 32-bit action address and query and
+ * return the selector status. The fixed DOWN callbacks ignore the query. */
+s32 btlAICommandPickMyBad(u8 *action, u32 query);
+s32 btlAICommandPickNotMyBad(u8 *action, u32 query);
+s32 btlAICommandPickMyId(u8 *action, u32 query);
+s32 btlAICommandPickMyHansya(u8 *action, u32 query);
+s32 btlAICommandPickMyKyusyu(u8 *action, u32 query);
+s32 btlAICommandPickMyMukou(u8 *action, u32 query);
+s32 btlAICommandPickMyWeak(u8 *action, u32 query);
+s32 btlAICommandPickNotMyHansya(u8 *action, u32 query);
+s32 btlAICommandPickNotMyKyusyu(u8 *action, u32 query);
+s32 btlAICommandPickNotMyMukou(u8 *action, u32 query);
+s32 btlAICommandPickNotMyWeak(u8 *action, u32 query);
+s32 btlAICommandPickMyDown(u8 *action, u32 unusedQuery);
+s32 btlAICommandPickNotMyDown(u8 *action, u32 unusedQuery);
+s32 btlAICommandPickMyHansyaExcludingDown(u8 *action, u32 query);
+s32 btlAICommandPickMyKyusyuExcludingDown(u8 *action, u32 query);
+s32 btlAICommandPickMyMukouExcludingDown(u8 *action, u32 query);
+s32 btlAICommandPickMyWeakExcludingDown(u8 *action, u32 query);
+s32 btlAICommandPickNotMyHansyaExcludingDown(u8 *action, u32 query);
+s32 btlAICommandPickNotMyKyusyuExcludingDown(u8 *action, u32 query);
+s32 btlAICommandPickNotMyMukouExcludingDown(u8 *action, u32 query);
+s32 btlAICommandPickNotMyWeakExcludingDown(u8 *action, u32 query);
+s32 btlAICommandPickMyHansyaRequireDown(u8 *action, u32 query);
+s32 btlAICommandPickMyKyusyuRequireDown(u8 *action, u32 query);
+s32 btlAICommandPickMyMukouRequireDown(u8 *action, u32 query);
+s32 btlAICommandPickMyWeakRequireDown(u8 *action, u32 query);
+s32 btlAICommandPickNotMyId(u8 *action, u32 query);
+s32 btlAICommandPickMyHojo(u8 *action, u32 query);
+s32 btlAICommandPickNotMyHojo(u8 *action, u32 query);
+s32 btlAICommandPickMyNotNomal(u8 *action, u32 query);
+s32 btlAICommandPickMyNomal(u8 *action, u32 query);
+
+/* Measured input view: the wide formal retains retail's 64-bit shift
+ * sequence; only its signed low halfword is consumed as an affinity index. */
 s32 btlAICommandNomalStatusCheck(u8 *action, s64 value);
 
 #endif

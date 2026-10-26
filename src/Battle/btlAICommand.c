@@ -902,18 +902,18 @@ s32 btlCond_MPMAX(void) {
 }
 
 // FUN_001DC5C0
-void btlAICommandPickMyBad(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 0, btlCond_MYBAD);
+s32 btlAICommandPickMyBad(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 0, btlCond_MYBAD);
 }
 
 // FUN_001DC600
-void btlAICommandPickNotMyBad(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 1, btlCond_MYBAD);
+s32 btlAICommandPickNotMyBad(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 1, btlCond_MYBAD);
 }
 
 // FUN_001DC640
-void btlAICommandPickMyId(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 0, btlCond_MYID);
+s32 btlAICommandPickMyId(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 0, btlCond_MYID);
 }
 
 /* Matches P3FES func_002c3f00 (btlAI target-select loop); the index extern returns u32 so the call
@@ -951,43 +951,43 @@ u32 btlCond_MYAI(s32 action)
 
 
 // FUN_001DC7A0
-void btlAICommandPickMyHansya(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 0, btlCond_MYHANSYA);
+s32 btlAICommandPickMyHansya(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 0, btlCond_MYHANSYA);
 }
 
 // FUN_001DC7E0
-void btlAICommandPickMyKyusyu(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 0, btlCond_MYKYUSYU);
+s32 btlAICommandPickMyKyusyu(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 0, btlCond_MYKYUSYU);
 }
 
 // FUN_001DC820
-void btlAICommandPickMyMukou(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 0, btlCond_MYMUKOU);
+s32 btlAICommandPickMyMukou(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 0, btlCond_MYMUKOU);
 }
 
 // FUN_001DC860
-void btlAICommandPickMyWeak(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 0, btlCond_MYWEAK);
+s32 btlAICommandPickMyWeak(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 0, btlCond_MYWEAK);
 }
 
 // FUN_001DC8A0
-void btlAICommandPickNotMyHansya(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 1, btlCond_MYHANSYA);
+s32 btlAICommandPickNotMyHansya(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 1, btlCond_MYHANSYA);
 }
 
 // FUN_001DC8E0
-void btlAICommandPickNotMyKyusyu(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 1, btlCond_MYKYUSYU);
+s32 btlAICommandPickNotMyKyusyu(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 1, btlCond_MYKYUSYU);
 }
 
 // FUN_001DC920
-void btlAICommandPickNotMyMukou(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 1, btlCond_MYMUKOU);
+s32 btlAICommandPickNotMyMukou(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 1, btlCond_MYMUKOU);
 }
 
 // FUN_001DC960
-void btlAICommandPickNotMyWeak(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 1, btlCond_MYWEAK);
+s32 btlAICommandPickNotMyWeak(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 1, btlCond_MYWEAK);
 }
 
 /* Copy classified reverse targets or choose one candidate uniformly. Matches P3FES func_002c4200. */
@@ -1038,82 +1038,82 @@ s32 btlCond_APPOINT(u8 *action, u32 value)
 }
 
 // FUN_001DCB50
-void btlAICommandPickMyDown(u64 formation)
+s32 btlAICommandPickMyDown(u8 *formation, u32 unusedQuery)
 {
-    btlAICommandSelectCandidates(formation, BTL_STATUS_DOWN, 0, 0, 0, btlCond_MYBAD);
+    return btlAICommandSelectCandidates((s32)formation, BTL_STATUS_DOWN, 0, 0, 0, btlCond_MYBAD);
 }
 
 
 // FUN_001DCB90
-void btlAICommandPickNotMyDown(u64 formation)
+s32 btlAICommandPickNotMyDown(u8 *formation, u32 unusedQuery)
 {
-    btlAICommandSelectCandidates(formation, BTL_STATUS_DOWN, 0, 0, 1, btlCond_MYBAD);
+    return btlAICommandSelectCandidates((s32)formation, BTL_STATUS_DOWN, 0, 0, 1, btlCond_MYBAD);
 }
 
 
 // FUN_001DCBD0
-void btlAICommandPickMyHansyaExcludingDown(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 1048576, 0, 0, btlCond_MYHANSYA);
+s32 btlAICommandPickMyHansyaExcludingDown(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 1048576, 0, 0, btlCond_MYHANSYA);
 }
 
 // FUN_001DCC10
-void btlAICommandPickMyKyusyuExcludingDown(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 1048576, 0, 0, btlCond_MYKYUSYU);
+s32 btlAICommandPickMyKyusyuExcludingDown(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 1048576, 0, 0, btlCond_MYKYUSYU);
 }
 
 // FUN_001DCC50
-void btlAICommandPickMyMukouExcludingDown(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 1048576, 0, 0, btlCond_MYMUKOU);
+s32 btlAICommandPickMyMukouExcludingDown(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 1048576, 0, 0, btlCond_MYMUKOU);
 }
 
 // FUN_001DCC90
-void btlAICommandPickMyWeakExcludingDown(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 1048576, 0, 0, btlCond_MYWEAK);
+s32 btlAICommandPickMyWeakExcludingDown(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 1048576, 0, 0, btlCond_MYWEAK);
 }
 
 // FUN_001DCCD0
-void btlAICommandPickNotMyHansyaExcludingDown(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 1048576, 0, 1, btlCond_MYHANSYA);
+s32 btlAICommandPickNotMyHansyaExcludingDown(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 1048576, 0, 1, btlCond_MYHANSYA);
 }
 
 // FUN_001DCD10
-void btlAICommandPickNotMyKyusyuExcludingDown(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 1048576, 0, 1, btlCond_MYKYUSYU);
+s32 btlAICommandPickNotMyKyusyuExcludingDown(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 1048576, 0, 1, btlCond_MYKYUSYU);
 }
 
 // FUN_001DCD50
-void btlAICommandPickNotMyMukouExcludingDown(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 1048576, 0, 1, btlCond_MYMUKOU);
+s32 btlAICommandPickNotMyMukouExcludingDown(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 1048576, 0, 1, btlCond_MYMUKOU);
 }
 
 // FUN_001DCD90
-void btlAICommandPickNotMyWeakExcludingDown(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 1048576, 0, 1, btlCond_MYWEAK);
+s32 btlAICommandPickNotMyWeakExcludingDown(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 1048576, 0, 1, btlCond_MYWEAK);
 }
 
 // FUN_001DCDD0
-void btlAICommandPickMyHansyaRequireDown(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 1, 0, btlCond_MYHANSYA);
+s32 btlAICommandPickMyHansyaRequireDown(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 1, 0, btlCond_MYHANSYA);
 }
 
 // FUN_001DCE10
-void btlAICommandPickMyKyusyuRequireDown(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 1, 0, btlCond_MYKYUSYU);
+s32 btlAICommandPickMyKyusyuRequireDown(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 1, 0, btlCond_MYKYUSYU);
 }
 
 // FUN_001DCE50
-void btlAICommandPickMyMukouRequireDown(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 1, 0, btlCond_MYMUKOU);
+s32 btlAICommandPickMyMukouRequireDown(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 1, 0, btlCond_MYMUKOU);
 }
 
 // FUN_001DCE90
-void btlAICommandPickMyWeakRequireDown(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 1, 0, btlCond_MYWEAK);
+s32 btlAICommandPickMyWeakRequireDown(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 1, 0, btlCond_MYWEAK);
 }
 
 // FUN_001DCED0
-void btlAICommandPickNotMyId(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 1, btlCond_MYID);
+s32 btlAICommandPickNotMyId(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 1, btlCond_MYID);
 }
 
 /* Copies all classified targets or picks one candidate uniformly at random. Matches P3FES
@@ -1142,23 +1142,23 @@ u32 btlCond_RND(u32 action)
 
 
 // FUN_001DCFD0
-void btlAICommandPickMyHojo(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 0, (FormationCallback)btlCond_MYHOJO);
+s32 btlAICommandPickMyHojo(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 0, (FormationCallback)btlCond_MYHOJO);
 }
 
 // FUN_001DD010
-void btlAICommandPickNotMyHojo(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 1, (FormationCallback)btlCond_MYHOJO);
+s32 btlAICommandPickNotMyHojo(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 1, (FormationCallback)btlCond_MYHOJO);
 }
 
 // FUN_001DD050
-void btlAICommandPickMyNotNomal(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 0, btlCond_MYNOTNOMAL);
+s32 btlAICommandPickMyNotNomal(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 0, btlCond_MYNOTNOMAL);
 }
 
 // FUN_001DD090
-void btlAICommandPickMyNomal(u64 formation, u32 flags) {
-    btlAICommandSelectCandidates(formation, flags, 0, 0, 0, (FormationCallback)btlCond_MYNOMAL);
+s32 btlAICommandPickMyNomal(u8 *formation, u32 flags) {
+    return btlAICommandSelectCandidates((s32)formation, flags, 0, 0, 0, (FormationCallback)btlCond_MYNOMAL);
 }
 
 /* Copy all classified targets or choose the candidate with the highest current HP. The max-score
