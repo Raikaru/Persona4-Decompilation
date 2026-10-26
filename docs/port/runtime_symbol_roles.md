@@ -148,3 +148,21 @@ its real-C link increase from 8,103 to 8,104 and the complete linked image
 check are reported separately. No existing assembly entry is claimed as a
 new reconstruction.
 
+
+## Listbox formatting preserves the complete soft-double word
+
+`fptodp` at `0044dcd8` returns the raw IEEE binary64 representation in the
+complete 64-bit `v0` word. The direct listbox formatter at `0046ef50` forwards
+that value through `a2` to `sprintf`; a 32-bit prototype or temporary describes
+a truncation that retail does not perform. Both listbox formatting owners now
+use `runtime_float_internal.h` and keep the result in `u64` storage. The
+layout-measurement path uses a separate raw-bit temporary rather than widening
+the unrelated integer cell-width calculations.
+
+The colored debug-text path also retains the full raw word in PS2 source.
+Converting those bits to a native `double` for a host `va_list` forwarder is
+still a host ABI adaptation, not PS2 code. The existing port generator already
+repaired the narrow source declarations/temporaries; this source correction
+removes that private repair work rather than fixing a newly broken host path.
+Both complete owners retain all 19 first-party `MATCH` results.
+

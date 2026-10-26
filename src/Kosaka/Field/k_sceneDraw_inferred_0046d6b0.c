@@ -1,3 +1,4 @@
+#include "runtime_float_internal.h"
 #include "rw_camera_internal.h"
 #include "kwln_task_internal.h"
 #include "include_asm.h"
@@ -831,7 +832,6 @@ void sdkLboxDrawEntries(u8 *task) {
     ControllerWork *controller;
     extern char *strcpy(char *dst, const char *src);
     extern s32 strlen(const void *str);
-    extern s32 fptodp(f32 value);
     extern void sdkDbprtQueueColoredText(s64 task, s32 mode, const void *textArgument, ...);
     extern s32 iGpffffb064;
     extern char iGpffffb068;
@@ -905,7 +905,7 @@ void sdkLboxDrawEntries(u8 *task) {
                 break;
             }
             case 4: {
-                s32 v;
+                u64 v;
                 v = fptodp(((ControllerEntry *)entry)->realValue);
                 sprintf(text, &iGpffffb098, v);
                 rightEdge = ((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2;
@@ -953,7 +953,7 @@ void sdkLboxDrawEntries(u8 *task) {
             }
             case 4: {
                 s32 v;
-                s32 r;
+                u64 r;
                 v = (((ControllerWork *)work)->rectangle.x + ((ControllerWork *)work)->rectangle.width - 2) - (((ControllerWork *)work)->columnWidth * 8);
                 position[0] = (f32)v;
                 r = fptodp(((ControllerEntry *)entry)->realValue);
