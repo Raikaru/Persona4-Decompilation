@@ -2067,7 +2067,7 @@ s32 func_003df590(s64 arg0, ...) {
     va_list args;
     va_start(args, arg0);
     va_end(args);
-    return (s32)(((s64)arg0 << 0x20) >> 0x20);
+    return (s32)((s64)((u64)arg0 << 0x20) >> 0x20);
 }
 
 /* measured: closes the bracket noted above the marker. */

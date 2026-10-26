@@ -325,3 +325,24 @@ sequence, while only the signed low 16 bits are observable. A host-only ABI
 normalization of that trailing query is separate from repairing the thirty
 incorrect wide-first-argument declarations.
 
+
+### Variadic error callback low-word return
+
+The RenderWare error callback `003df590` saves its unused variadic registers,
+then returns the signed low word of its first input. Its measured `s64`
+formal is retained: an `s32` formal with a direct return loses the original
+`dsll32`/`dsra32` pair, while a narrow formal plus explicit unsigned widening
+emits an extra pair of shifts. These were isolated with `micro_codegen.py`,
+not inferred from host behavior.
+
+The matching expression now performs the left shift in `u64`, then interprets
+and arithmetically shifts the result before its signed low-word return. Negative
+inputs no longer undergo a signed left shift. This defined bit-manipulation
+spelling retains retail's two instructions and the complete owner reports
+60 `MATCH` plus 71 `ASM` results without failures.
+
+A host indirect signature such as `s32 (*)(s32, ...)` still needs a host ABI
+adapter: its argument is one 32-bit slot, and the extra argument slots are
+never consumed. That normalization is not a match-preserving source-formal
+change and must not be credited as an upstreamed literal removal.
+
