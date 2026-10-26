@@ -5,6 +5,7 @@
 #include "cri_xpt.h"
 
 typedef struct MPS_OBJ *MPS;
+typedef void (*MPS_ERROR_FN)(void *obj, Sint32 code);
 
 /* pack header (16 bytes, 8-byte aligned: holds the 64-bit SCR) */
 typedef struct {
@@ -31,7 +32,7 @@ typedef struct {
 
 typedef struct MPS_OBJ {
 	Sint32 used;              /* 0x00 */
-	void (*errfn)(void *obj); /* 0x04 */
+	MPS_ERROR_FN errfn;       /* 0x04 */
 	void *errobj;             /* 0x08 */
 	Sint32 errcode;           /* 0x0C */
 	Sint32 x10;               /* 0x10 (2) */
@@ -70,7 +71,7 @@ typedef struct MPS_OBJ {
 
 /* library work (mps_lib.c): header + num_hn handles */
 typedef struct {
-	void (*errfn)(void *obj); /* 0x00 */
+	MPS_ERROR_FN errfn;       /* 0x00 */
 	void *errobj;             /* 0x04 */
 	Sint32 errcode;           /* 0x08 */
 	Sint32 num_hn;            /* 0x0C */
@@ -81,6 +82,7 @@ extern MPSLIB_WORK *MPSLIB_libwork;
 
 Sint32 MPSLIB_CheckHn(MPS mps);
 Sint32 MPSLIB_SetErr(MPS mps, Sint32 code);
+Sint32 MPS_SetErrFn(MPS mps, MPS_ERROR_FN fn, void *obj);
 MPS MPS_Create(void);
 Sint32 MPS_Destroy(MPS mps);
 Uint32 MPS_CheckDelim(Uint8 *p);

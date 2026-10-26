@@ -38,11 +38,6 @@ const Char8 *MPS_GetVerStr(void)
 	return MPSLIB_version_str;
 }
 
-/* Library-level error (no handle): the callback gets the code as its second argument here (the
- * target materialises the code straight into r4 and keeps it live into the bctrl, which is what puts
- * the libwork pointer in r5 and lets the peephole fold `lwz r5, MPSLIB_libwork@l(r4)`); the public
- * MPSLIB_SetErr below passes the object only. */
-typedef void (*MPSLIB_ERRFN2)(void *obj, Sint32 code);
 
 // Library-level error: records the code and calls the library error callback with it.
 static Sint32 mpslib_SetLibErr(Sint32 code)
@@ -52,7 +47,7 @@ static Sint32 mpslib_SetLibErr(Sint32 code)
 	lw = MPSLIB_libwork;
 	lw->errcode = code;
 	if (code != 0 && lw->errfn != NULL) {
-		((MPSLIB_ERRFN2)lw->errfn)(lw->errobj, code);
+		lw->errfn(lw->errobj, code);
 	}
 	return code;
 }
@@ -67,12 +62,12 @@ static Sint32 mpslib_SetErr(MPS mps, Sint32 code)
 		lw = MPSLIB_libwork;
 		lw->errcode = code;
 		if (code != 0 && lw->errfn != NULL) {
-			lw->errfn(lw->errobj);
+			lw->errfn(lw->errobj, code);
 		}
 	} else {
 		mps->errcode = code;
 		if (code != 0 && mps->errfn != NULL) {
-			mps->errfn(mps->errobj);
+			mps->errfn(mps->errobj, code);
 		}
 	}
 	return code;
@@ -170,7 +165,7 @@ Sint32 MPSLIB_CheckHn(MPS mps)
 }
 
 // Installs the error callback library-wide (mps NULL) or per handle.
-Sint32 MPS_SetErrFn(MPS mps, void (*fn)(void *obj), void *obj)
+Sint32 MPS_SetErrFn(MPS mps, MPS_ERROR_FN fn, void *obj)
 {
 	MPSLIB_WORK *lw;
 

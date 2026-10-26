@@ -367,3 +367,23 @@ bytes, respectively; the other 50 functions in the two owners still match.
 Those experiments were reverted. Their host indirect-ABI normalization is
 retained separately rather than claimed as a source-redundant repair.
 
+
+### Stored error and draw callbacks
+
+The MPS library and per-handle error slots now share the actual
+`(void *object, Sint32 code)` callback type. `MPS_SetErrFn` uses that owning
+declaration, and both public error paths forward the code already live in
+`a1` at `00503870`–`005038e0`. The former object-only explanation described
+a different platform and is removed, along with the private two-argument
+cast. All 14 marked functions in the two affected SDK owners still match.
+The unmarked setter/error reconstructions retain authoritative retail assembly;
+this correction is not a claim of additional linked C.
+
+`PersonaRenderWork.drawCommand.callback` now states the node/work pair that
+`shdPersonaDrawPanels` actually receives. The install no longer erases its
+second argument through a one-input function-pointer cast, and the prototype
+belongs to `shdPersona_internal.h`. Stored pointer bits and record layout are
+unchanged; the complete owner retains all 104 first-party `MATCH` results.
+The analogous deferred-message queue callback already uses the shared
+two-argument declaration from the earlier interface cohort.
+
