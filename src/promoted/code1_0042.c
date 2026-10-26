@@ -7,6 +7,7 @@
  * syscall convention, cf. tools/decomp_lint.py H009 allowance).  Encoded
  * as .word literals because MWCC's assembler rejects the syscall mnemonic. */
 
+#include "sdk_process_internal.h"
 #include "include_asm.h"
 #include "type.h"
 
@@ -118,7 +119,7 @@ asm void func_004213f0(void)
 }
 
 // FUN_00421400
-asm void func_00421400(void)
+asm void func_00421400(s32 status)
 {
     .set noreorder
     .word 0x24030004 /* addiu $v1, $zero, 4 */
@@ -1725,9 +1726,8 @@ s32 func_00421fb0(void)
 /* measured: schedule on preserves the retail store/epilogue ordering. */
 #pragma schedule on
 // FUN_00421FB8
-s32 kill(s32 arg0, u8 *arg1)
+s32 kill(s32 arg0, s32 arg1)
 {
-    extern void func_0042c0d8(u8 *value);
     if (arg0 == 1) {
         func_0042c0d8(arg1);
     }

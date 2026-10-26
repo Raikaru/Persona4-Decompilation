@@ -443,6 +443,7 @@ src/cri/re4/uty_tmr.c
 src/cri/re4/uty_tmr_callbacks_b190.c
 src/cri/re4/uty_tmr_state_2d7e8.c
 src/sce/libkernl_fstat.c
+src/sce/rfmai_wordpack.c
 src/sce/rofs_forward_8558.c
 src/sce/rofs_forward_8600.c
 src/sce/rofs_forward_8698.c
