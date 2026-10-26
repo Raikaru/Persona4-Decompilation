@@ -129,17 +129,19 @@ void yListCreate(s32 filterA, s32 filterB, s8 kind, s8 order) {
 
 /* Create a filtered child item list without replacing the active-list handle. */
 // FUN_002E2590
-void yListCreateChild(s32 parent, s32 filterA, s32 filterB, s8 kind, s8 order) {
+void *yListCreateChild(s32 parent, s32 filterA, s32 filterB, s8 kind, s8 order) {
     u8 *work;
+    void *handle;
 
     chkmemAllocSiteTag(D_0063FC48, 0x82);
     work = D_008873F4[0](1, 0x1810, 0x40000);
-    (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_0063FC58), 0xF, 0, 0, comuDataApplyOwnedListRebuild, comuDataDestroyListRequest, (u8 *)(work));
+    handle = (void *)(s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_0063FC58), 0xF, 0, 0, comuDataApplyOwnedListRebuild, comuDataDestroyListRequest, (u8 *)(work));
     ((YListItemWork *)(work))->filterA = filterA;
     ((YListItemWork *)(work))->filterB = filterB;
     ((YListItemWork *)(work))->kind = kind;
     ((YListItemWork *)(work))->enabled = 1;
     ((YListItemWork *)(work))->order = order;
+    return handle;
 }
 /* Return the active item count, or minus one when no list task exists. */
 // FUN_002E2670

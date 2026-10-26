@@ -13,7 +13,7 @@ extern void SJRBF_Init(void);
 extern void UTY_MemsetDword(Uint32 *dst, Uint32 val, Uint32 ndw);
 extern void MEM_Copy(void *dst, const void *src, Uint32 nbytes);
 extern const Sint32 SFPLY_cond_dfl[SFD_COND_NUM];
-extern void SFTIM_Init(void *work);
+extern void SFTIM_Init(void *work, Sint32 vrate);
 extern void SFBUF_Init(void *work);
 extern Sint32 SFTRN_Init(SFTRN_TRIF_TBL *dst, SFTRN_TRIF_TBL *src);
 extern void SFPLY_Init(void);
@@ -156,7 +156,7 @@ Sint32 SFD_Init(register SFD_INIT_PRM *prm)
 	SFLIB_libwork.prm1 = p1;
 	SFLIB_libwork.x198 = 0;
 	SFLIB_InitErrInf(&SFLIB_libwork.err);
-	SFTIM_Init(SFLIB_libwork.tim);
+	SFTIM_Init(SFLIB_libwork.tim, p1);
 	SFBUF_Init(&SFLIB_libwork.buf);
 	SFLIB_libwork.x1fc = 0;
 	SFLIB_libwork.x200 = 0;

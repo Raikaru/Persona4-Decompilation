@@ -12,7 +12,6 @@
 #include "datPersona_internal.h"
 typedef struct BtlPacket BtlPacket;
 extern BtlPacket *btlFormationCreateNamedPacket(u32 formation, const char *text, u16 mode);
-u32 datCalcRandomBelow(u32 bound);
 typedef struct BtlTarget BtlTarget;
 extern BtlPacket *btlUnitCreateLookAtDeactivatePacket(BtlUnit *unit, u16 flags);
 extern BtlPacket *btlUnitCreateAnimPacket(BtlUnit *unit, s16 id, u16 blendFrames, f32 speed, u16 mode);
@@ -167,7 +166,6 @@ s32 btlEffectFindUnitMatchingCallback(u8 *arg0, s32 arg1, s32 arg2, s32 arg3, s3
 s32 btlTargetGetStatusEffectMsgCode(u8 *arg0, u8 *arg1);
 s32 datCalcSkillElement(u8 *arg0, u16 arg1);
 u8 *btlSoundStopTaskStart(void);
-s32 btlAICommandNomalStatusCheck(u8 *arg0, s64 arg1);
 u32 btlCountUnitRecordsById(u32 arg0);
 u8 *btlCutinCreatePacket(u8 *arg0);
 extern void btlMessageStartLong(u8 *arg0, u8 *arg1);
@@ -199,7 +197,6 @@ s32 btlActionGetCounter420(BtlAction *action);
 
 u8 *btlPacketCreateSpriteTable(u32 arg0, u16 arg1);
 extern void btlUnitInitChild(u8 *arg0, u16 arg1);
-extern s32 datGetFlag(s32 arg0);
 BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 arg4);
 BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
 extern f32 D_0076144C;

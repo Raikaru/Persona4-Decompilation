@@ -1,3 +1,4 @@
+#include "btl_runtime_hooks_internal.h"
 
 #include "datCalc_unit_internal.h"
 #include "member_access.h"
@@ -1221,7 +1222,7 @@ void btlEncounterSetFinish(s32 task)
 
 // Report whether no encounter task is active.
 // FUN_00213A50
-s32 btlEncounterIsInactive(void)
+s32 btlEncounterIsInactive(s32 unusedContext)
 {
     s32 flag;
 
@@ -2530,7 +2531,7 @@ void btlPanelInitRecord(u8 *panel, s32 task) {
 
 /* Empty panel hook; the retail body has no side effects. */
 // FUN_00216E50
-void btlPanelInitNoop(void)
+void btlPanelInitNoop(void *unusedWork)
 {
 }
 
@@ -2557,7 +2558,7 @@ void btlMessageDrawTimed(u8 *drawContext, u8 *panel)
     extern void itfMesWindowBindRecord(s32 drawContext, s32 panel, s32);
     extern void itfMesWindowMove(s32 drawContext, s32 panel, s32);
     extern void itfMesWindowSetFlagBits(s32 handle, s32 flags);
-    extern void itfMesWindowSetGlyphStyle(s32 drawContext, s32 panel, s32, s32, s32);
+    extern void itfMesWindowSetGlyphStyle(s32 drawContext, s32 panel, s32, s32, s64);
     extern s32 itfMesWindowDrawEntry(f32 x, f32 y, f32 scale, s32 color, s32,
                              s32, s32, s32, s32);
     extern s32 itfMesWindowRunEntry(s32 drawContext, s32 panel, s32, s32);

@@ -37,7 +37,7 @@ extern void poolFree(s32 address);
 extern void sequenceRequest(s32 sequenceId, void *parameters, s32 parameterSize, s32 delay);
 extern void datCarryOverPersistentState(void);
 extern s32 shdWindowTaskCreate(u8 *parentTask, s32 value, s32 entryIndex);
-extern s32 shdWindowQueryState(s32 input);
+extern s32 shdWindowQueryState(u8 *object);
 extern s32 mcIconTaskCreate(u8 *parent, s32 mode);
 extern s32 mcIconTaskPoll(void);
 extern void sdkSpriteFreeNode(void *node);
@@ -694,7 +694,7 @@ s32 clndPromptUpdate(u8 *task)
         *(u32 *)work = 2;
         goto block_20;
     case 2:
-        firstChoice = shdWindowQueryState(((CalendarPromptWork *)work)->windowTask);
+        firstChoice = shdWindowQueryState((u8 *)(((CalendarPromptWork *)work)->windowTask));
         if (firstChoice == 1) {
             promptWork->windowTask = shdWindowTaskCreate(task, 1, 0x12);
             *(u32 *)work = 4;
@@ -704,7 +704,7 @@ s32 clndPromptUpdate(u8 *task)
         }
         goto block_20;
     case 3:
-        retryChoice = shdWindowQueryState(((CalendarPromptWork *)work)->windowTask);
+        retryChoice = shdWindowQueryState((u8 *)(((CalendarPromptWork *)work)->windowTask));
         if (retryChoice == 1) {
             return -1;
         }
@@ -713,7 +713,7 @@ s32 clndPromptUpdate(u8 *task)
         }
         goto block_20;
     case 4:
-        if (shdWindowQueryState(((CalendarPromptWork *)work)->windowTask) == 1) {
+        if (shdWindowQueryState((u8 *)(((CalendarPromptWork *)work)->windowTask)) == 1) {
             ((CalendarPromptWork *)work)->iconTask = mcIconTaskCreate(task, 1);
             *(u32 *)work = 5;
         }
@@ -799,7 +799,6 @@ s32 clndSceneUpdate(u8 *task)
     extern s32 fadeBeginTransition(s32 mode, s32 duration);
     extern void calSetDefaultDayFlags(s32 clearSavedMask);
     extern void sdkSndStopMainChannel(void);
-    extern void sdkSndFadeOutChannel(s32 task, s32 secondInput);
     extern s32 logoTaskStart(void);
     extern s32 titleSoundReapTask(s32 task);
     extern s32 mwPlayerCreate(void *parent, s32 movieIndex, void *queueName);

@@ -83,7 +83,7 @@ extern f32 fGpffff817c;
 extern void btlCameraSetLimitFrame(u8 *camera, f32 suppliedLimit, s32 reverse, s32 preserveSide);
 extern void btlCameraFrameActorTarget(u8 *camera, f32 heightScale, f32 scale, f32 distanceOffset, f32 duration);
 extern u8 D_00629700[];
-void btlCameraUpdateFrame(void);
+void btlCameraUpdateFrame(u8 *camera);
 extern u8 *DAT_0076449c; /* active battle state */
 extern void btlCameraFrameAim(u8 *);
 extern void btlUnitFaceTarget(BtlUnit *unit, const RwV3d *target);
@@ -492,10 +492,10 @@ group1_party_done:
 
 // Per-frame camera tick; updates the view while updateFrame is set.
 // FUN_00224970
-void btlCameraTickFrame(void)
+void btlCameraTickFrame(u8 *object)
 {
     if (((BtlCameraControl *)(DAT_0076449c + 0xC00))->updateFrame != 0) {
-        btlCameraUpdateFrame();
+        btlCameraUpdateFrame(object);
     }
 }
 

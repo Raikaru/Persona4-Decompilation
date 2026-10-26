@@ -29,4 +29,8 @@ typedef struct BtlBossEndBgmLoad {
     s32 state;
 } BtlBossEndBgmLoad;
 
+
+/* Existing callers supply these inputs; unused inputs are retained explicitly. */
+s32 btlBossActionBlocked(u8 *action, s32 unusedSkillId);
+
 #endif

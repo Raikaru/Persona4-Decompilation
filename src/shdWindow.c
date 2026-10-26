@@ -188,7 +188,7 @@ s32 shdWindowTaskUpdate(u8 *sdkTaskBytes)
     u8 *unusedWork;
     u8 *drawNode;
 
-    work = (u8 *)kwlnTaskGetWork();
+    work = (u8 *)kwlnTaskGetWork(sdkTaskBytes);
     state = ((ShdWindowWork *)work)->state;
     switch (state) {
     case 0:
@@ -334,7 +334,7 @@ void shdWindowTaskDestroy(u8 *unusedTask)
 {
     int work;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork(unusedTask);
     DAT_008873ec_abs[0](work);
 }
 // Create the window task with its update and destroy callbacks.
@@ -352,8 +352,8 @@ void shdWindowTaskCreate(s32 parentTask, s32 value, s32 entryIndex)
 
 // Marks the window as finished by setting flag 4 in its flags.
 // FUN_0025E8B0
-void shdWindowMarkDone(void) {
-    u8 *work = (u8 *)kwlnTaskGetWork();
+void shdWindowMarkDone(u8 *object) {
+    u8 *work = (u8 *)kwlnTaskGetWork(object);
     s32 flags = ((ShdWindowWork *)work)->flags;
 
     if (!(flags & 4)) {
@@ -363,14 +363,14 @@ void shdWindowMarkDone(void) {
 
 // Return the window's completion state: 1 when finished, phase + 1 for the slide kind, 0 otherwise.
 // FUN_0025E8F0
-s32 shdWindowQueryState(void)
+s32 shdWindowQueryState(u8 *object)
 {
     u8 *work;
     s32 finished;
     s32 entryIndex;
     u16 kind;
 
-    work = (u8 *)kwlnTaskGetWork();
+    work = (u8 *)kwlnTaskGetWork(object);
     finished = 0;
     if (((ShdWindowWork *)work)->flags & 4) {
         finished = 1;

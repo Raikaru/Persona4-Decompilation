@@ -191,4 +191,7 @@ struct CmmRankUpSequence
     u8 *unk_58;              /* 0x58. Cast to a palette row (RankUpColor) by the renderer */
 };
 
+/* Test the date table using the seed word supplied by the script command. */
+s32 cmmDateTableHasEntry(s32 seed);
+
 #endif

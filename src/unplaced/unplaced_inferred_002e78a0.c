@@ -24,7 +24,7 @@ extern void (*jtbl_008873EC[])(void *);
 extern void kwlnTaskDestroyWithHierarchy(s32 task);
 extern u32 datGetMoney(void);
 s16 datGetDateIndex(void);
-void calSplitDayOfYear(s64 , s32 *, s32 *);
+void calSplitDayOfYear(s32, s32 *, s32 *);
 s32 fclAddClamped(s32 , s32 , s32 , s32 , s32 );
 void datSetMoney(s32 );
 /* Split the current calendar date and return its month byte. */

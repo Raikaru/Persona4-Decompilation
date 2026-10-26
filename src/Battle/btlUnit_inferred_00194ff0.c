@@ -66,7 +66,7 @@ extern f32 btlUnitGetGroupBounds(u32 groupFlags, u32 excludedFlags, RwV3d *outCe
                          f32 *outTop, f32 *outBottom, u32 options);
 extern void btlUnitGetGridSphereCenter(void *unit, void *dst);
 extern u32 datCalcChkBadStatus(s32 unit, u32 badStatus);
-extern s32 btlUnitGetEntryPosition(u8 *, f32 *, s32);
+extern s32 btlUnitGetEntryPosition(u8 *, f32 *);
 extern u8 *btlActionGetActiveOrQueueFront(void);
 extern void btlTargetBlendVectors(void *rotation, void *first, void *second);
 extern void btlUnitGetSphereWorldCenter(u8 *unit, f32 *dst);
@@ -149,7 +149,7 @@ void btlUnitGetAnchorPose(u8 *unit, u8 *outPosition, f32 *outRotation, f32 *outT
             }
             break;
         case 1:
-            if (btlUnitGetEntryPosition(unit, frame.vec, entryOffset) != 1) {
+            if (btlUnitGetEntryPosition(unit, frame.vec) != 1) {
                 activeAction = btlActionGetActiveOrQueueFront();
                 if ((activeAction != NULL) &&
                     ((activeUnit = (u8 *)((BtlAction *)activeAction)->unit),

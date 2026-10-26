@@ -8,7 +8,7 @@ typedef struct RwImage RwImage;
 
 extern u8 *D_00764298;
 extern void func_00440b68();
-extern void func_0042c0d8(void);
+extern void func_0042c0d8(u8 *value);
 extern u8 *kwlnProbeHeapBudget(void);
 extern void kwlnMainLoop(void);
 extern u8 D_00559810[];
@@ -123,9 +123,9 @@ extern u8 iGpffff85d0;
 // FUN_00100218
 /* measured: retail emits this wrapper as a bare jump, which needs tailcall on. */
 #pragma tailcall on
-void kwlnExitRuntime(void)
+void kwlnExitRuntime(u8 *object)
 {
-    func_0042c0d8();
+    func_0042c0d8(object);
 }
 
 #pragma tailcall off

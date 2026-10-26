@@ -260,7 +260,7 @@ void K_Clump_LoadDestroy(u8 *task)
 
 /* Create the directory-rewrite task with its 0x454-byte work block. */
 // FUN_001924D0
-s32 K_Clump_CreateLoadTask(void)
+s32 K_Clump_CreateLoadTask(s32 unusedContext)
 {
     void *mem;
 

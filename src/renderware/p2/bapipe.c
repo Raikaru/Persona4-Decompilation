@@ -68,7 +68,7 @@
  Globals (across program)
  */
 
-RwInt32             _rxPipelineGlobalsOffset;
+extern RwInt32 _rxPipelineGlobalsOffset;
 
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

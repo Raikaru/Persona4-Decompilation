@@ -132,15 +132,7 @@ struct __rwImage
  Local (static) Globals
  */
 
-static  RwPluginRegistry   imageTKList =
-{
-    sizeof(RwImage),
-    sizeof(RwImage),
-    0,
-    0,
-    (RwPluginRegEntry *)NULL,
-    (RwPluginRegEntry *)NULL
-};
+extern RwPluginRegistry imageTKList;
 
 extern RwModuleInfo imageModule;  /* P4: file static, at its retail address */
 

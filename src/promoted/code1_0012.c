@@ -1,3 +1,4 @@
+#include "h_snd_internal.h"
 #include "operand_order_internal.h"
 #include "byte_address_internal.h"
 #include "radar_menu_internal.h"
@@ -23,7 +24,7 @@ extern f32 fGpffff84a4;
 extern u8 iGpffffb1d8;
 extern u8 iGpffffb1d4;
 extern u8 iGpffffb1d0;
-extern f32 sinf();
+extern f32 sinf(f32 angle);
 extern void PrimDrawFlatRectangle(void *colorData, void *rectangleData, f32 depth, s32 preserveState);
 extern void PrimDrawPoints(void *colors, void *positions, f32 depth, s32 count,
                           s32 primitiveType, s32 preserveState);
@@ -85,7 +86,6 @@ extern void sdkListStateSetSecondaryMasks(void *state, s32 value, s32 itemCount,
 extern s32 sdkListStateHandleInput(void *state);
 extern s32 sdkListStateGetCursor(void *state);
 extern u16 D_008C024E[];
-extern void sprintf(void *, const char *, ...);
 extern s32 H_Cdvd_LookupRequest(void *pathAddress, s32 *slot);
 extern void *mdlCreateModelObjectFromMemory(u32 type, u16 id, void *memory, u32 size, u32 flags);
 extern s32 mdlPrepareModel(void *model);
@@ -93,8 +93,8 @@ extern u8 D_005E5560[];
 extern u8 D_005E5570[];
 extern void datCarryOverPersistentState(void);
 extern s32 shdWindowTaskCreate(u8 *parentTask, s32 value, s32 entryIndex);
-extern void shdWindowMarkDone(s32);
-extern s32 shdWindowQueryState(s32);
+extern void shdWindowMarkDone(u8 *object);
+extern s32 shdWindowQueryState(u8 *object);
 extern s32 mcIconTaskCreate(u8 *parent, s32 mode);
 extern s32 mcIconTaskPoll(void);
 extern s32 titleSlotSetMode(u8 *menu, s32 mode);
@@ -109,7 +109,7 @@ typedef struct {
 } B810Obj;
 
 extern s32 kwlnTaskIsLinked();
-extern void *kwlnTaskGetWork();
+extern void *kwlnTaskGetWork(void* task);
 extern void kwlnTaskDestroyWithHierarchy();
 
 typedef struct {
@@ -183,7 +183,6 @@ extern s32 titleTaskUpdate(u8 *task);
 extern void titleLoaderTeardown(u8 *unusedTask);
 extern void sdkSpritePackDestroy(s32 pack);
 extern void H_Cdvd_Destroy(s32 cdvd);
-extern void sdkSndStopChannel(s32 fadeFrames);
 extern void mdlDestroyModelObject(s32 model);
 extern void memset(void *, s32, s32);
 extern s16 datBuildPartyIdList(void *ids);
@@ -729,7 +728,7 @@ void titleDrawTaskView(void *unusedDrawData, void *task) {
     u8 *baseModel;
     u8 *fourthModel;
 
-    workWords = (u32 *)kwlnTaskGetWork(task);
+    workWords = (u32 *)kwlnTaskGetWork((void*)(task));
     titleTask = (TitleTask *)workWords;
     titleYawAxis = D_005E5628;
     titlePitchAxis = D_005E5638;
@@ -1721,7 +1720,7 @@ s32 fadeStatus(void);
 
 s32 taskLoadSlotModels(u8 *context);
 
-s32 titleMusicStreamStep(u8 *context);
+s32 titleSelectMenu(u8 *context);
 
 /* Drive title loading, camera setup, input, configuration and exit fades. */
 // FUN_0012AA70
@@ -1743,7 +1742,7 @@ s32 titleTaskUpdate(u8 *task)
     extern u8 *sdkSpritePackCreate(u8 *descriptor);
     extern s32 shdSpriteEnsureLoaded(u8 *pack);
     extern s32 taskLoadSlotModels(u8 *context);
-    extern s32 titleMusicStreamStep(u8 *context);
+    extern s32 titleSelectMenu(u8 *context);
     extern s32 titleChooseSceneVariant(u8 *unusedWork);
     extern s32 calReadDayFlagMask(void);
     extern void calWriteDayFlagMask(s32 mask);
@@ -1761,7 +1760,6 @@ s32 titleTaskUpdate(u8 *task)
     extern u8 *func_003e81c0(u8 *camera, f32 farClip);
     extern u8 *func_003e9cb0(u8 *frame, const void *transform, s32 combine);
     extern u8 *func_003e9c10(u8 *frame, const f32 *translation, s32 combine);
-    extern u8 hsndQueueSound(s16 id, s16 unused);
     extern void sdkSndFadeOutChannelFrames(s16 channelIndex, s32 requestValue, s32 fadeFrames);
 
     extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
@@ -1784,7 +1782,7 @@ s32 titleTaskUpdate(u8 *task)
     u8 *animation;
     TitleTask *titleWork;
 
-    work = (u8 *)kwlnTaskGetWork(task);
+    work = (u8 *)kwlnTaskGetWork((void*)(task));
     titleWork = (TitleTask *)work;
     initialRotation.packed = D_005E56F0;
     rotation = initialRotation;
@@ -1961,7 +1959,7 @@ s32 titleTaskUpdate(u8 *task)
             ((TitleTask *)(work))->fadeFrames = 0xD;
             ((TitleTask *)work)->currentState = 6;
         } else {
-            result = titleMusicStreamStep(work);
+            result = titleSelectMenu(work);
             switch (result) {
             case 0:
                 titleWork->sceneFrame = 0;
@@ -2078,7 +2076,7 @@ void titleDrawChildImage(s32 unused, s32 task)
     f32 *color;
     s32 *rectangle;
 
-    work = (u8 *)kwlnTaskGetWork(task);
+    work = (u8 *)kwlnTaskGetWork((void*)(task));
     state = ((TitleImageDrawWork *)work)->state;
     switch (state) {
     case 4:
@@ -2093,7 +2091,7 @@ void titleDrawChildImage(s32 unused, s32 task)
         backdrop.rectangle = D_005E5740;
         PrimDrawFlatRectangle(color, rectangle, 0.0f, 1);
         insetTask = ((TitleImageDrawWork *)work)->insetTask;
-        insetWork = (u8 *)kwlnTaskGetWork(insetTask);
+        insetWork = (u8 *)kwlnTaskGetWork((void*)(insetTask));
         if (kwlnTaskIsLinked(insetTask) == 0) {
             insetImage = 0;
         } else if (((TitleImageTaskWork *)insetWork)->state == 3) {
@@ -2115,7 +2113,7 @@ void titleDrawChildImage(s32 unused, s32 task)
         backdrop.rectangle = D_005E5750;
         PrimDrawFlatRectangle(color, rectangle, 0.0f, 1);
         fullTask = ((TitleImageDrawWork *)work)->fullTask;
-        fullWork = (u8 *)kwlnTaskGetWork(fullTask);
+        fullWork = (u8 *)kwlnTaskGetWork((void*)(fullTask));
         if (kwlnTaskIsLinked(fullTask) == 0) {
             fullImage = 0;
         } else if (((TitleImageTaskWork *)fullWork)->state == 3) {

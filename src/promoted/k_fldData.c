@@ -62,7 +62,6 @@ extern u8 D_005F1050[];
 extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 mode);
 extern void H_Cdvd_ReadSync(HCdvd *file);
 extern void *mdlCreateModelObjectFromMemory(u32 kind, u16 id, void *memory, u32 size, u32 flags);
-extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 NpcTable_RequestFixedTable(void);
 extern s32 FldEnemyOpenTable(void);
 extern s32 mdlPrepareModel(u8 *model);
@@ -77,7 +76,6 @@ extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path, s32
 extern u8 *filerTakeCompletedRequest(u8 *request, s32 *ready, s32 *source);
 extern s32 FldMipmapLoadTaskCreate(u8 *arg0);
 extern s32 kwlnTaskIsLinked(void *task);
-extern void kAssertFail(const void *msg, s32 id);
 extern s32 D_007E3710[];
 extern s32 D_007E3714[];
 extern s32 D_007E3718[];

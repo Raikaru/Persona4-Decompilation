@@ -28,7 +28,7 @@ extern Sint32 LSC_GetNumStm(void *lsc);
 extern void MWSFCRE_SetSupplySj(MWPLY mwply);
 extern void mwPlySfdStart(MWPLY mwply);
 extern void mwSfdPause(MWPLY mwply, Sint32 sw);
-extern void mwPlyChkSupply(void);
+extern void mwPlyChkSupply(MWPLY mwply);
 extern void MWSFSFX_DecideCompoMode(MWPLY mwply);
 extern void MWSFSEE_ChkSupply(MWPLY mwply);
 
@@ -393,7 +393,7 @@ Sint32 mwSfdExecDecSvrHndl(void *obj)
 				mwply->linkstm_req = 0;
 			}
 		} else {
-			mwPlyChkSupply();
+			mwPlyChkSupply(mwply);
 		}
 		if (SFD_GetHnStat(sfd) == 6) {
 			mwply->stat = MWSFD_STAT_PLAYEND;

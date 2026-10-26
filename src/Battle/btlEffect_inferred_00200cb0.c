@@ -1,3 +1,4 @@
+#include "btl_runtime_hooks_internal.h"
 #include "btl_ui_task_internal.h"
 #include "datCalc_internal.h"
 #include "btl_skill_target_internal.h"
@@ -28,7 +29,7 @@ extern void btlGaugeInit(u8 *unusedTask, u8 *gauge);
 extern void memset(void *destination, s32 value, u32 size);
 
 
-extern u32 kwlnTaskGetWork();
+extern u32 kwlnTaskGetWork(void* task);
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
 
@@ -87,16 +88,13 @@ extern void btlPanelDrawPersonaLevel(u8 *work, s32 slot, f32 x, f32 y,
 extern u8 *iGpffffb3ac;
 
 extern s32 D_00881444_abs[];
-extern void btlAdvantageInitNoop(void *);
 extern void btlEncounterUpdateEntries(void *state);
-extern void btlPanelInitNoop(void *);
 extern void btlEntryListPrune(void *head);
 extern void btlPanelUpdate(void *panel);
 extern f32 fGpffff8478;
 extern f32 fGpffffb478;
 extern void btlSelectionUpdateTransition(u8 *transition);
 extern void btlPanelLoadModels(void *panel);
-extern void btlGaugeInitNoop(void *);
 extern void PrimAppendNode(u8 *list, u8 *node);
 extern u8 D_00794810[];
 extern u8 D_00794870[];
@@ -162,7 +160,7 @@ s32 btlUiTaskInit(u8 *unusedTask)
 {
     u8 *work;
 
-    work = (u8 *)kwlnTaskGetWork();
+    work = (u8 *)kwlnTaskGetWork(unusedTask);
     /* measured: typed node addresses schedule argument setup ahead of the link clears. */
     btlAdvantageInitNoop(((BtlUiTaskWork *)work)->advantage);
     ((BtlUiTaskWork *)work)->advantageNode.unk00 = 0;
@@ -227,7 +225,7 @@ void btlUiTaskDestroy(u8 *unusedTask)
     u8 *work;
     s32 sprite;
     s32 slotIndex;
-    work = (u8 *)kwlnTaskGetWork();
+    work = (u8 *)kwlnTaskGetWork(unusedTask);
     btlEntryListFlush(((BtlUiTaskWork *)work)->damage);
     slotIndex = 0;
     goto loop_test;

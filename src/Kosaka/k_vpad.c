@@ -1,3 +1,4 @@
+#include "Kosaka/k_vpad_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "rw_atomic_layout_internal.h"
@@ -452,7 +453,7 @@ void Vpad_Activate(RuntimeWork* work)
 
 
 // FUN_004B5F70
-void Vpad_Noop(void)
+void Vpad_Noop(u8 *unusedTrack)
 {
 }
 

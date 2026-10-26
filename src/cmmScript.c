@@ -24,7 +24,7 @@ u16 cmmFindFreshReverseCandidate();
 u16 cmmFindReverseCandidate();
 
 extern s32 cmmCommunityFindActiveSlotInGroup(s32 group);
-extern s32 cmmCommunityGetCurrentEntryValue(s32 input);
+extern s32 cmmCommunityGetCurrentEntryValue(s32 entryId);
 extern void cmmCommunityAddTotal(s32 value);
 
 extern s32 cmmCommunityGetTotal(void);
@@ -33,7 +33,6 @@ extern void datAddMoney(s32 delta);
 
 extern s16 datGetDateIndex(void);
 extern s32 cmmDateTableFindIndex(s32 seed);
-extern s32 cmmDateTableHasEntry(s32 input);
 extern s32 cmmDateTableHasSpecialRecord(s32 date);
 extern s32 cmmDateTableReadColumn(s32 special, s32 date, s32 column);
 extern s32 cmmDateTableApplyColumnDelta(s32 date, s32 column);
@@ -44,7 +43,7 @@ extern void cmmCommunityAdvanceForm(s32 communityId);
 extern void cmmCommunitySetMarked(s32 communityId);
 extern void datDestroyTaskByName(void);
 extern void cmmCommunitySetCurrent(u16 communityId);
-extern s16 cmmResolveCounterpart(s16 value);
+extern s16 cmmResolveCounterpart(s64 value);
 extern s32 cmmDateTableAddCount(s32 value, s32 option);
 extern s16 cmmTopPersonaOfArcana(s16 value);
 extern u8* cmmMsgStreamEntry(s32 requestedKind, u16 communityId);

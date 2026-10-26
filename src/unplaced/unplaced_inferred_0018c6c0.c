@@ -1,3 +1,4 @@
+#include "sdk_snd_internal.h"
 
 #include "field_transition_internal.h"
 #include "sdk_lbox_internal.h"
@@ -30,7 +31,6 @@ extern s64 calGetDayEntryByPhase(s32 day, u32 phase);
 extern s32 clndIsDateInRange(s32 startMonth, s32 startDay, s32 endMonth, s32 endDay);
 extern s32 FldStepIndex(void);
 extern void sdkSndStopChannel(s32 fadeFrames);
-extern void sdkSndPlayCue(s16, s32);
 extern s32 iGpffffb264;
 extern u8 *iGpffff9db0;
 /* First two words select the current field area and its sub-area. */

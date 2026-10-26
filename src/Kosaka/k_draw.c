@@ -9,7 +9,7 @@
 extern u8 D_00887300_abs[];
 typedef s32 (*KDrawFunc)(RwRenderState state, void *value);
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
-extern void primAxisLine3D(f32 mat, u8 *length, s32 saveAndRestoreRenderState);
+extern void primAxisLine3D(u8 *length, f32 mat, s32 saveAndRestoreRenderState);
 extern void primCylinderLine3D(f32 *position, f32 radius, f32 height, u8 *color, s32 setStates);
 extern u8 iGpffff9dd4;
 typedef struct { u8 c[4]; } Rgba8;
@@ -300,7 +300,7 @@ void KDraw_DrawAxes(u8 *queue, u8 *work)
     (*tbl)((RwRenderState)0xC, (void *)1);
     RpSkyRenderStateSet(2, (void *)0x44);
     RpSkyRenderStateSet(3, (void *)0x717FB);
-    primAxisLine3D(60.0f, work, 1);
+    primAxisLine3D( work, 60.0f,  1);
     primSphereLine3D(work + 0x30, 20.0f, work + 0x48, 1);
 }
 /* Enqueue the axes callback only while the axes work is enabled. */

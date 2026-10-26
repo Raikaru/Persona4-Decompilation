@@ -33,13 +33,7 @@
  Globals (across program)
  */
 
-RwPluginRegistry    sectorTKList =
-    { sizeof(RpWorldSector),
-      sizeof(RpWorldSector),
-      0,
-      0,
-      (RwPluginRegEntry *)NULL,
-      (RwPluginRegEntry *)NULL };
+extern RwPluginRegistry sectorTKList;
 
 /****************************************************************************
  Local (static) Globals

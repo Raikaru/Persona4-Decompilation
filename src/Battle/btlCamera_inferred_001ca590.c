@@ -40,7 +40,7 @@ struct RwMatrixTag {
     u32 pad3;
 };
 
-extern void btlCameraUpdateEffectList();
+extern void btlCameraUpdateEffectList(u8 *camera);
 extern void btlMainApplyUnitBaseColors(u8 *unit);
 extern u32 btlCameraBuildFramePair(u8 *camera, s32 resultCode, s32 useAlternate,
                           P4CameraFrame *firstOut, P4CameraFrame *secondOut);
@@ -479,8 +479,8 @@ void btlCameraSpawnRandomWork(u8 *camera)
 }
 
 // FUN_001CB380
-void btlCameraEffectListTick(void) {
-    btlCameraUpdateEffectList();
+void btlCameraEffectListTick(u8 *object) {
+    btlCameraUpdateEffectList(object);
 }
 
 /* Apply actor base colors and start a randomly selected character camera script. */
@@ -503,8 +503,8 @@ void btlCameraSpawnEffectB(u8 *camera)
 }
 
 // FUN_001CB440
-void btlCameraEffectListTickAlt(void) {
-    btlCameraUpdateEffectList();
+void btlCameraEffectListTickAlt(u8 *object) {
+    btlCameraUpdateEffectList(object);
 }
 
 /* Use a character script for a no-target-class action; otherwise build flagged framing. */

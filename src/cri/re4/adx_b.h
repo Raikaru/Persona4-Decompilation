@@ -104,4 +104,14 @@ Sint32 ADXB_DecodeHeaderSpsd(ADXB adxb, void *buf, Sint32 bsize);
 Sint32 ADX_DecodeInfoSpsd(Uint8 *buf, Sint32 bsize, Sint16 *hdrlen, Sint8 *x0c, Sint8 *bps, Sint8 *x0f,
 			  Sint8 *nch, Sint32 *sfreq, Sint32 *nsmpl, Sint32 *fmt, Sint16 *x9c);
 
+/* AC3 decoder hooks used alongside the AHX hooks by ADXSJD. */
+void func_004c1ab8(ADXB adxb);
+void func_004c1a68(ADXB adxb, void *inputJoint);
+void ADXB_SetAc3DecSmpl(ADXB adxb, Sint32 sampleCount);
+
+/* Block-decoder metadata consumed by the stream-joint forwarding entries. */
+Sint32 ADXB_GetSfreq(ADXB adxb);
+Sint32 ADXB_GetNumChan(ADXB adxb);
+Sint32 ADXB_GetFmtBps(ADXB adxb);
+
 #endif

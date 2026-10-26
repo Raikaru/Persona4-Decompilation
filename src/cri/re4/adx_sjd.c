@@ -1,12 +1,9 @@
 /* CRI ADX stream-joint decoder (ADXSJD): feeds an ADXB block decoder from an input stream joint and
  * writes the PCM into one ring-buffer stream joint per channel */
-#include "cri_xpt.h"
-#include "sj.h"
-#include "adx_b.h"
+#include "adx_sjd_internal.h"
 #include <string.h>
 
 #define ADXSJD_MAX_OBJ 16
-#define ADXSJD_MAX_NCH 2
 
 /* ADXSJD_OBJ.stat */
 #define ADXSJD_STAT_STOP 0
@@ -18,35 +15,6 @@
 /* ADXB formats handled as raw (undecoded) streams */
 #define ADXSJD_IS_RAW_FMT(fmt) ((fmt) == 10 || (fmt) == 11 || (fmt) == 12 || (fmt) == 20 || (fmt) == 15)
 
-typedef struct {
-	Sint8 used;                /* 0x00 */
-	Sint8 stat;                /* 0x01 */
-	Sint8 nch;                 /* 0x02 */
-	Sint8 spsd;                /* 0x03 SPSD stream: the input must hold data before a block starts */
-	ADXB adxb;                 /* 0x04 */
-	SJ sji;                    /* 0x08 input */
-	SJ sjo[ADXSJD_MAX_NCH];    /* 0x0C outputs */
-	SJCK inck;                 /* 0x14 input chunk handed to the decoder */
-	SJCK outck[ADXSJD_MAX_NCH]; /* 0x1C output chunks being written */
-	Sint32 dec_nsmpl;          /* 0x2C samples decoded */
-	Sint32 dec_nbyte;          /* 0x30 input bytes consumed */
-	Sint32 decpos;             /* 0x34 decode position in samples */
-	Sint32 maxdecsmpl;         /* 0x38 */
-	Sint32 trap_nsmpl;         /* 0x3C (-1: none) */
-	Sint32 trap_cnt;           /* 0x40 */
-	Sint32 trap_dtlen;         /* 0x44 */
-	void (*trapfn)(void *obj); /* 0x48 */
-	void *trapobj;             /* 0x4C */
-	void (*outfn)(void *obj, Sint32 ch, Uint8 *data, Sint32 len); /* 0x50 */
-	void *outobj;              /* 0x54 */
-	Uint8 spsdinf[0x40];       /* 0x58 SPSD header copy */
-	Sint32 hdrlen;             /* 0x98 */
-	Sint32 lnksw;              /* 0x9C linked (concatenated) files */
-	Sint32 pad_nsmpl;          /* 0xA0 silence samples to insert before the output */
-	Sint32 skip_nsmpl;         /* 0xA4 output samples to discard */
-} ADXSJD_OBJ;
-
-typedef ADXSJD_OBJ *ADXSJD;
 
 extern void ADXCRS_Lock(void);
 extern void ADXCRS_Unlock(void);
@@ -60,15 +28,15 @@ extern void ADXB_Reset(ADXB adxb);
 extern void ADXB_ExecHndl(ADXB adxb);
 extern Sint32 ADXB_GetStat(ADXB adxb);
 extern void ADXB_EntryData(ADXB adxb, Uint8 *data, Sint32 len);
-extern Sint32 ADXB_DecodeHeader(ADXB adxb, Uint8 *data);
+extern Sint32 ADXB_DecodeHeader(ADXB adxb, Uint8 *data, Sint32 len);
 extern void ADXB_SetDefPrm(ADXB adxb);
-extern Sint32 ADXB_GetFormat(ADXB adxb);
+extern Sint16 ADXB_GetFormat(ADXB adxb);
 extern Sint32 ADXB_GetSfreq(ADXB adxb);
-extern Sint32 func_004c3c00(ADXB adxb);
+extern Sint32 ADXB_GetFmtBps(ADXB adxb);
 extern Sint32 ADXB_GetOutBps(ADXB adxb);
 extern Sint32 ADXB_GetBlkSmpl(ADXB adxb);
 extern Sint32 ADXB_GetTotalNumSmpl(ADXB adxb);
-extern Sint32 ADXB_GetNumLoop(ADXB adxb);
+extern Sint16 ADXB_GetNumLoop(ADXB adxb);
 extern Sint32 ADXB_GetLpStartPos(ADXB adxb);
 extern Sint32 ADXB_GetLpStartOfst(ADXB adxb);
 extern Sint32 ADXB_GetLpEndPos(ADXB adxb);
@@ -201,6 +169,7 @@ Sint32 ADXSJD_GetBlkSmpl(ADXSJD sjd)
 	return ADXB_GetBlkSmpl(sjd->adxb);
 }
 
+
 // Output bits per sample.
 // FUN_004CEDC0
 Sint32 ADXSJD_GetOutBps(ADXSJD sjd)
@@ -208,18 +177,8 @@ Sint32 ADXSJD_GetOutBps(ADXSJD sjd)
 	return ADXB_GetOutBps(sjd->adxb);
 }
 
-// Output channel count (2 when a Pro Logic II encoder upmixes mono).
-// FUN_004CF018
-Sint32 ADXSJD_GetNumChan(ADXSJD sjd)
-{
-	return func_004c3c00(sjd->adxb);
-}
 
-// Sampling rate in Hz of the current stream.
-Sint32 ADXSJD_GetSfreq(ADXSJD sjd)
-{
-	return ADXB_GetSfreq(sjd->adxb);
-}
+
 
 // Container type id of the current stream (ADXB_TYPE_*).
 Sint32 ADXSJD_GetFormat(ADXSJD sjd)
@@ -469,7 +428,7 @@ void adxsjd_decexec_start(ADXSJD sjd)
 	}
 	SJ_GetChunk(sji, SJ_CK_DATA, 0x7FFFFFFF, &sjd->inck);
 	if (ADXB_GetFormat(adxb) == ADXB_FMT_ADX && sjd->inck.len >= 4 &&
-	    (Uint16)*(Sint16 *)sjd->inck.data == 0x8001) {
+	    (Uint16)((((Uint8 *)sjd->inck.data)[0] << 8) | ((Uint8 *)sjd->inck.data)[1]) == 0x8001) {
 		sjd->stat = ADXSJD_STAT_END;
 		if (ADX_DecodeFooter(sjd->inck.data, sjd->inck.len, &ftrlen) == 0) {
 			if (ftrlen > sjd->inck.len) {
@@ -597,7 +556,7 @@ void adxsjd_decode_prep(ADXSJD sjd)
 		SJ_UngetChunk(sji, SJ_CK_DATA, &ck);
 		return;
 	}
-	hdrlen = ADXB_DecodeHeader(adxb, ck.data);
+	hdrlen = ADXB_DecodeHeader(adxb, ck.data, ck.len);
 	if (hdrlen == 0 || hdrlen > ck.len) {
 		SJ_UngetChunk(sji, SJ_CK_DATA, &ck);
 		return;
@@ -670,6 +629,7 @@ void ADXSJD_Start(ADXSJD sjd)
 void ADXSJD_TermSupply(ADXSJD sjd)
 {
 	ADXB_AhxTermSupply(sjd->adxb);
+	func_004c1ab8(sjd->adxb);
 }
 
 // Caps the samples decoded per server tick (ADXT: obufsize/svrfreq derived), also for the AHX path.
@@ -677,6 +637,7 @@ void ADXSJD_SetMaxDecSmpl(ADXSJD sjd, Sint32 nsmpl)
 {
 	sjd->maxdecsmpl = nsmpl;
 	ADXB_SetAhxDecSmpl(sjd->adxb, nsmpl);
+	ADXB_SetAc3DecSmpl(sjd->adxb, nsmpl);
 }
 
 // Changes the input stream joint (ADXT swaps between the file stream and a memory stream).
@@ -684,6 +645,7 @@ void ADXSJD_SetInSj(ADXSJD sjd, SJ sji)
 {
 	sjd->sji = sji;
 	ADXB_SetAhxInSj(sjd->adxb, sji);
+	func_004c1a68(sjd->adxb, (void *)sji);
 }
 
 // Decoder state (ADXSJD_STAT_STOP/PREP/DECODE/END/ERROR).

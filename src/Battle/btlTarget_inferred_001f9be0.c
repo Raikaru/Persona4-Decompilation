@@ -123,13 +123,13 @@ void btlVoiceFreePlaybackBuffers(void)
 
 /* Reserved special-hit notification hook; reflected and blocked skill outcomes call this empty retail body. */
 // FUN_001F9CD0
-void btlTargetSpecialHitNoop(void)
+void btlTargetSpecialHitNoop(u8 *unusedContext, u8 *unusedUnit, s32 unusedId)
 {
 }
 
 /* Leave affinity-knowledge bitmap checks enabled by always rejecting the bypass predicate. */
 // FUN_001F9CE0
-s32 btlTargetAffinityKnowledgeBypassNoop(void)
+s32 btlTargetAffinityKnowledgeBypassNoop(u8 *unusedAction, s32 unusedAffinity)
 {
     return 0;
 }

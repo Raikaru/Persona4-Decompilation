@@ -81,22 +81,22 @@ Sint32 ADX_DecodeSte4AsSte(Sint8 *src, Sint32 nfrm, Sint16 *outl, Sint16 *histl,
 	rr1 = histr[0];
 	rr2 = histr[1];
 	for (i = 0; i < nblk; i++) {
-		s = *(Sint16 *)src;
+		s = (Sint16)((((Uint8 *)src)[0] << 8) | ((Uint8 *)src)[1]);
 		if (s & 0x8000) {
 			return i * 2;
 		}
 		key = *scl;
 		sc_l = ((s ^ key) & 0x1FFF) + 1;
-		key = sadd + key * smul;
+		key = sadd + key * smul; *scl = key & 0x7FFF;
 		*scl = key;
 		*scl = *scl & 0x7FFF;
-		s = *(Sint16 *)(src + 0x12);
+		s = (Sint16)((((Uint8 *)src)[0x12] << 8) | ((Uint8 *)src)[0x13]);
 		if (s & 0x8000) {
 			return i * 2;
 		}
 		key = *scl;
 		sc_r = ((s ^ key) & 0x1FFF) + 1;
-		key = sadd + key * smul;
+		key = sadd + key * smul; *scl = key & 0x7FFF;
 		*scl = key;
 		*scl = *scl & 0x7FFF;
 		src += 2;
@@ -202,22 +202,22 @@ Sint32 ADX_DecodeSte4AsMono(Sint8 *src, Sint32 nfrm, Sint16 *outl, Sint16 *histl
 	rr1 = histr[0];
 	rr2 = histr[1];
 	for (i = 0; i < nblk; i++) {
-		s = *(Sint16 *)src;
+		s = (Sint16)((((Uint8 *)src)[0] << 8) | ((Uint8 *)src)[1]);
 		if (s & 0x8000) {
 			return i * 2;
 		}
 		key = *scl;
 		sc_l = ((s ^ key) & 0x1FFF) + 1;
-		key = *ps + key * smul;
+		key = *ps + key * smul; *scl = key & 0x7FFF;
 		*scl = key;
 		*scl = *scl & 0x7FFF;
-		s = *(Sint16 *)(src + 0x12);
+		s = (Sint16)((((Uint8 *)src)[0x12] << 8) | ((Uint8 *)src)[0x13]);
 		if (s & 0x8000) {
 			return i * 2;
 		}
 		key = *scl;
 		sc_r = ((s ^ key) & 0x1FFF) + 1;
-		key = *ps + key * smul;
+		key = *ps + key * smul; *scl = key & 0x7FFF;
 		*scl = key;
 		*scl = *scl & 0x7FFF;
 		src += 2;
@@ -300,13 +300,13 @@ Sint32 ADX_DecodeMono4(Sint8 *src, Sint32 nfrm, Sint16 *out, Sint16 *hist, Sint1
 	l1 = hist[0];
 	l2 = hist[1];
 	for (i = 0; i < nfrm; i++) {
-		s = *(Sint16 *)src;
+		s = (Sint16)((((Uint8 *)src)[0] << 8) | ((Uint8 *)src)[1]);
 		if (s & 0x8000) {
 			return i;
 		}
 		key = *scl;
 		sc = ((s ^ key) & 0x1FFF) + 1;
-		key = sadd + key * smul;
+		key = sadd + key * smul; *scl = key & 0x7FFF;
 		*scl = key;
 		*scl = *scl & 0x7FFF;
 		src += 2;

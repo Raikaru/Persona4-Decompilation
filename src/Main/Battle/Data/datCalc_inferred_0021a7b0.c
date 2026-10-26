@@ -1,3 +1,4 @@
+#include "btl_runtime_hooks_internal.h"
 
 #include "datCalc_unit_internal.h"
 #include "operand_order_internal.h"
@@ -94,10 +95,10 @@ extern s32 fadeStatus(void);
 extern u8 D_00796340[];
 extern s32 btlShuffleUpdateTask(u8 *sdkTaskBytes);
 extern void (*jtbl_008873EC[])(void *);
-extern void btlGaugeSetActive();
+extern void btlGaugeSetActive(u8 *gauge, s32 active);
 extern s32 btlShuffleTaskIsLoading(KwlnTask *task);
-extern void btlShuffleTaskRequestCancel(s32);
-extern void btlResultSimpleSetupEntries(s32);
+extern void btlShuffleTaskRequestCancel(u8 *object);
+extern void btlResultSimpleSetupEntries(u8 *object);
 extern void btlShuffleDrawSweep(s32 unusedTask, s32 *frameState);
 extern void btlUiSetScale(void *work, f32 x, f32 y);
 extern void btlGaugeDrawSegment(s32 task, u8 *gauge, f32 x, f32 y, f32 fill);
@@ -306,9 +307,9 @@ void btlGaugeInit(u8 *unusedTask, u8 *gauge)
 
 // Clear a unit's gauge state.
 // FUN_0021AE80
-void btlUnitGaugeClear(s32 unitAddress)
+void btlUnitGaugeClear(s32 unitAddress, s32 active)
 {
-    btlGaugeSetActive(unitAddress + 0xA3C);
+    btlGaugeSetActive((u8 *)(unitAddress + 0xA3C), (s32)( active));
 }
 
 // Draws a unit's gauge with its HP fraction and fill.
@@ -348,7 +349,7 @@ callback:
 // Refreshes the HP ratio of each party gauge; fields are accessed through byte pointers.
 // FUN_0021AFA0
 
-void btlGaugeRefreshAll(void)
+void btlGaugeRefreshAll(s32 unusedContext)
 {
     BtlUnit *gaugeUnit;
     u8 *p;
@@ -423,7 +424,7 @@ void btlGaugeInitValue(u8 *valueState, s32 value)
 }
 /* Gauge-component initialization hook called by btlUiTaskInit; retail deliberately leaves its state untouched. */
 // FUN_0021B1E0
-void btlGaugeInitNoop(void)
+void btlGaugeInitNoop(void *unusedWork)
 {
 }
 
@@ -728,7 +729,7 @@ s32 btlAdvantageGetRaster(void)
 
 /* Advantage-component initialization hook called by btlUiTaskInit; retail deliberately leaves its state untouched. */
 // FUN_0021BE70
-void btlAdvantageInitNoop(void)
+void btlAdvantageInitNoop(void *unusedWork)
 {
 }
 
@@ -1005,15 +1006,15 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
     BtlResultWork *resultState;
     BtlResultWork *resultWork;
     s32 task = (s32)sdkTaskBytes;
-    extern s32 btlShuffleTaskIsCancelRequested(s32 task);
+    extern s32 btlShuffleTaskIsCancelRequested(u8 *object);
     extern s32 btlShuffleTaskIsCancelRequestedFor(KwlnTask *task);
-    extern void btlShuffleTaskSetBusy(s32 task);
+    extern void btlShuffleTaskSetBusy(u8 *object);
     extern void btlXpPrepareAwards(u8 *awards, u8 *reward);
-    extern s32 btlResultSimpleSetDoneFlag(s32 task);
-    extern s32 btlShuffleTaskIsBusy(s32 task);
-    extern void btlShuffleTaskResetPhase(s32 task);
-    extern s32 btlResultSimpleIsDone(s32 task);
-    extern void btlResultSimpleOnConfirm(s32 task);
+    extern s32 btlResultSimpleSetDoneFlag(u8 *object);
+    extern s32 btlShuffleTaskIsBusy(u8 *object);
+    extern void btlShuffleTaskResetPhase(u8 *object);
+    extern s32 btlResultSimpleIsDone(u8 *object);
+    extern void btlResultSimpleOnConfirm(u8 *object);
     extern s32 btlLogoTitleCreate(s32 parent);
     extern s32 btlResultOverlayCreate(s32 parent);
     extern s32 btlResultSummaryCreate(s32 parent);
@@ -1044,7 +1045,7 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
             if ((flags & 2) != 0) {
                 ready = 1;
                 if ((((BtlResultWork *)(work))->awardFlags & 1) != 0 &&
-                    btlShuffleTaskIsCancelRequested(((BtlResultWork *)(work))->shuffleTask) != 0) {
+                    btlShuffleTaskIsCancelRequested((u8 *)(((BtlResultWork *)(work))->shuffleTask)) != 0) {
                     ready = 0;
                 }
                 if (btlShuffleTaskIsCancelRequestedFor((KwlnTask *)((BtlResultWork *)(work))->resultTask) != 0) {
@@ -1063,26 +1064,26 @@ s32 btlShuffleUpdateTask(u8 *sdkTaskBytes)
     case 3:
         flags = ((BtlResultWork *)(work))->awardFlags;
         if ((flags & 1) != 0) {
-            btlShuffleTaskSetBusy(((BtlResultWork *)(work))->shuffleTask);
+            btlShuffleTaskSetBusy((u8 *)(((BtlResultWork *)(work))->shuffleTask));
             resultWork->phase = 4;
         } else {
             btlXpPrepareAwards(work + 0x60, work + 8);
-            btlResultSimpleSetDoneFlag(((BtlResultWork *)(work))->resultTask);
+            btlResultSimpleSetDoneFlag((u8 *)(((BtlResultWork *)(work))->resultTask));
             resultWork->phase = 5;
         }
         break;
     case 4:
-        if (btlShuffleTaskIsBusy(((BtlResultWork *)(work))->shuffleTask) == 0) {
-            btlShuffleTaskResetPhase(resultWork->shuffleTask);
+        if (btlShuffleTaskIsBusy((u8 *)(((BtlResultWork *)(work))->shuffleTask)) == 0) {
+            btlShuffleTaskResetPhase((u8 *)(resultWork->shuffleTask));
             resultWork->shuffleTask = 0;
             btlXpPrepareAwards(work + 0x60, work + 8);
-            btlResultSimpleSetDoneFlag(((BtlResultWork *)(work))->resultTask);
+            btlResultSimpleSetDoneFlag((u8 *)(((BtlResultWork *)(work))->resultTask));
             resultWork->phase = 5;
         }
         break;
     case 5:
-        if (btlResultSimpleIsDone(((BtlResultWork *)(work))->resultTask) == 0) {
-            btlResultSimpleOnConfirm(resultWork->resultTask);
+        if (btlResultSimpleIsDone((u8 *)(((BtlResultWork *)(work))->resultTask)) == 0) {
+            btlResultSimpleOnConfirm((u8 *)(resultWork->resultTask));
             resultWork->resultTask = 0;
             flags = ((BtlResultWork *)(work))->awardFlags;
             if ((flags & 2) != 0) {
@@ -1207,9 +1208,9 @@ void btlShuffleCancel(s32 task)
 
     p = (u8 *)kwlnTaskGetWork((void *)task);
     if ((((BtlResultWork *)p)->awardFlags & 1) != 0) {
-        btlShuffleTaskRequestCancel(((BtlResultWork *)p)->shuffleTask);
+        btlShuffleTaskRequestCancel((u8 *)(((BtlResultWork *)p)->shuffleTask));
     }
-    btlResultSimpleSetupEntries(((BtlResultWork *)p)->resultTask);
+    btlResultSimpleSetupEntries((u8 *)(((BtlResultWork *)p)->resultTask));
     *(s32 *)p |= 2;
 }
 

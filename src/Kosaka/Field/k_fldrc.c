@@ -3,9 +3,9 @@
 
 /* Dummy externs anchored at the GP base let pointer-minus-offset expressions reach the "%03d",
  * "_%03d" and ".rws" path fragments gp-relatively, as retail does. */
-extern u32 gp0xffff9df8;
-extern u32 gp0xffff9e00;
-extern u32 gp0xffff9e08;
+extern char D_00762EE8[5];
+extern char D_00762EF0[6];
+extern char D_00762EF8[5];
 extern s32 iGpffffb204;
 extern char D_005efcc0[];
 extern char D_005efcd0[];
@@ -44,11 +44,11 @@ void* FldRc_CreateResource(s16 majorId, s16 minorId)
     {
         strcpy(path, D_005efcd0);
     }
-    sprintf(token, (const char*)&gp0xffff9df8 - 0x6208, majorId);
+    sprintf(token, D_00762EE8, majorId);
     strcat(path, token);
-    sprintf(token, (const char*)&gp0xffff9e00 - 0x6200, minorId);
+    sprintf(token, D_00762EF0, minorId);
     strcat(path, token);
-    strcat(path, (const char*)&gp0xffff9e08 - 0x61f8);
+    strcat(path, D_00762EF8);
     return FldResource_Create(path);
 }
 /* Visit every material in the atomic geometry and assign its mipmap texture. */

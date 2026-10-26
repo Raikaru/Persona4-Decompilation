@@ -1,3 +1,4 @@
+#include "sdk_snd_internal.h"
 #include "mt_scene_internal.h"
 /* Whole-file translation unit: src/Event/mt_misc.c */
 
@@ -13,7 +14,6 @@ extern void MT_Scene_SetResActiveById(u16, int);
 extern char DAT_0063c8a0[];
 extern char DAT_0063c8c0[];
 
-extern int sdkSndPlayCue();
 
 extern int sdkSndFadeOutChannelFrames();
 extern int sdkSndResetChannel();

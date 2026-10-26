@@ -139,7 +139,7 @@ u16 datPersonaGetRecordId(u16 partyId);
 typedef unsigned int ShdByte __attribute__((mode(QI)));
 
 void shdPersonaDispCtlSetHandle(u8 *task, s32 inputHandle);
-void shdPersonaDispCtlSetPosition();
+void shdPersonaDispCtlSetPosition(u8 *task, u8 *position);
 void sdkSpriteDrawOnceTinted(s32, s32, s32, f32, f32, u8, u8, u8, u8, f32, s32);
 void shdPersonaDispCtlSetOffsets(u8 *task, Vec2f *inputStart, Vec2f *inputTarget);
 void shdPersonaSetupChannels();
@@ -3537,9 +3537,9 @@ u8 shdPersonaGetAlpha(u8 *task)
 
 // Refreshes the display-control position from the child model task.
 // FUN_0011D0D0
-void shdPersonaRefreshDispCtlPosition(u8 *task)
+void shdPersonaRefreshDispCtlPosition(u8 *task, u8 *position)
 {
-    shdPersonaDispCtlSetPosition(*(s32 *)&((PersonaRenderWork *)((SdkTask *)task)->work)->model);
+    shdPersonaDispCtlSetPosition((u8 *)*(s32 *)(((SdkTask *)task)->work + 0x4F8), position);
 }
 
 // Stores a two-float origin position, or zeroes it when position is NULL.
@@ -3594,7 +3594,7 @@ s32 shdPersonaGetChildTask(u8 *task)
 s32 kwlnTaskGetTaskByName(void *name);
 s32 H_Cdvd_IsFileLoaded(s32 cdvd);
 s32 H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
-s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
+s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s32, s32);
 extern char D_005E4E60[];
 extern char D_005E4E90[];
 extern char iGpffff9c18;

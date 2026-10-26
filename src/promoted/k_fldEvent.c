@@ -15,7 +15,6 @@ struct RwMatrixTag;
 struct Resrc;
 struct DatUnitGenusBase;
 struct P4_0015_Vec3;
-void *mdlGetMatrix(void *);
 
 
 extern void (*jtbl_008873EC[])(void *);
@@ -42,7 +41,6 @@ s16 datGetEquippedItemByUnit(s16, s32);
 s32 FldEvent_TriggerUpdate(u8 *);
 s32 FldMap_IsCurrentInEitherBand(void);
 s32 FldStepIndex(void);
-s32 FldEvent_FindFirstRegionActor(f32, f32, void *);
 u8 *FldAmbientFlagPtr(void);
 s32 FldStepFileTask(s32);
 s32 FldRc_RequestPositionSlot(u8 *, f32 *);
@@ -58,15 +56,12 @@ s32 FldStepGetScriptSize(void);
 s32 scrStartProcedureChecked(s32, s32, s32, s32);
 s32 kwlnTaskIsLinked(void *);
 s32 *FldObjFindFree(void);
-/* lint: allow H011 -- kept local: owner-header prototype is not a drop-in for this TU yet; retype its callers first */
-s32 datUnitCreateEncounterGroup(s32);
 s32 FldEvent_FieldToBattle(u8 *);
 f32 RwV3dLength(f32 *);
 s32 MT_Scene_GetResListHead(s32);
 s32 FldNpcControlReady(s32);
 u32 K_FldEvent_IsPosWithinFov(const struct RwMatrix *, const struct RwV3d *, f32);
 void FldStepCopyTableEntry(s32, s32, s32);
-void kAssertFail(const void *, u32);
 void FldUnit_UpdateFieldState(void);
 s32 MT_Scene_AllResFlagSet(void);
 s16 mdlGetLayerAnimation(s32, s32);
@@ -78,7 +73,6 @@ void FldFrame_ClearStateFlags(s32, s32);
 void FldPlayerIconUpdatePos(u8 *);
 void FldPlayerIconSetActive(s32, s32);
 s32 FldEvent_StepMoveToward(u8 *);
-s32 fldNpcControlIsTurning();
 void FldNpcControlFacePlayer(s32);
 void FldNpcSetPositionLock(s32, s32);
 void FldNpcControlTurnBack(s32);
@@ -107,7 +101,6 @@ extern u32 D_007EFA04[];
 extern u8 *mdlGetClump(s32);
 extern s32 K_Clump_ClumpHasMatUsrData(u8 *, char *);
 extern u32 K_FldEvent_ArePosWithinDist(const struct RwV3d *, const struct RwV3d *, f32);
-extern s32 FldMap_IsCurrentInBandA(void);
 extern s32 FldMap_IsCurrentInBandB(void);
 
 extern s32 FldEvent_SelectEntryAtPosition(u8 *arg0);

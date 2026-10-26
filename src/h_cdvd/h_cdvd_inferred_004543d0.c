@@ -157,7 +157,7 @@ extern u8 D_008C031E[];
 extern void func_0042eae0(s32);
 extern void sceCdMmode(s32);
 extern void func_0042efe0(s32);
-extern void movieResetSlotFlags(s32);
+extern void movieResetSlotFlags(void);
 extern u8 D_008C8780[];
 extern u8 D_008D1B80[];
 extern u8 D_008D1B84[];
@@ -318,6 +318,6 @@ void H_Cdvd_ResetStreamState(void)
         index += 1;
     }
     *(s32 *)D_008D1CD4 = 0;
-    movieResetSlotFlags(index);
+    movieResetSlotFlags();
 }
 

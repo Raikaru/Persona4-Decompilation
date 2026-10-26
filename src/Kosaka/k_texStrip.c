@@ -1,3 +1,4 @@
+#include "Kosaka/k_texStrip_internal.h"
 #include "member_access.h"
 #include "include_asm.h"
 #include "Kosaka/k_clump_property_internal.h"
@@ -531,7 +532,7 @@ void K_TexStripBuildTaskDestroy(u8 *task)
 
 /* Allocate and start the resource texture-strip build task. */
 // FUN_00191610
-s32 K_TexStripBuildTaskCreate(void)
+s32 K_TexStripBuildTaskCreate(s32 unusedContext)
 {
     void *mem;
 
@@ -698,7 +699,7 @@ void K_TexStripLoadDestroy(u8 *task)
 
 /* Start texture loading at field ID 0x28 and texture ID one. */
 // FUN_00191BC0
-s32 K_TexStripLoadTaskCreate(void)
+s32 K_TexStripLoadTaskCreate(s32 unusedContext)
 {
     s32 ret;
     void *mem;
@@ -757,7 +758,7 @@ void K_TexStripCodeLogDestroy(u8 *task) {
 
 /* Allocate the two-word code-log task state and start the filename requester. */
 // FUN_00191D90
-s32 K_TexStripCodeLogTaskCreate(void)
+s32 K_TexStripCodeLogTaskCreate(s32 unusedContext)
 {
     void *mem;
 

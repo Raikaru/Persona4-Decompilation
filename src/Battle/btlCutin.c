@@ -242,11 +242,12 @@ s32 btlCutinPoll(void) {
 
 /* Queue the cut-in cancellation callback in a zero-work packet. */
 // FUN_001FA450
-void btlCutinCreateStartPacket(void) {
+u8 *btlCutinCreateStartPacket(void) {
     u8 *p = btlPacketAlloc(0xC02, 0);
 
     ((BtlPacket *)p)->flags &= 0xEE;
     *(void **)&((BtlPacket *)p)->updateFunc = (void *)btlCutinPoll;
+    return p;
 }
 
 /* Load the requested cut-in name resource, or create the special draw task from date and flag-dependent parameters. */

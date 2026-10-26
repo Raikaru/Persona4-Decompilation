@@ -98,7 +98,7 @@ void frFontRasterCreateCache(s32 count)
     }
     chkmemAllocSiteTag(D_0063bc88, 0x27);
     memory = D_008873e8_abs[0](size, 0x40000);
-    frFontRasterCacheWords = (s32 *)memory;
+    D_007645b8 = (u8 *)memory;
     memset((void *)memory, 0, (u32)size);
     ((FrFontRasterCache *)frFontRasterCacheBytes)->count = count;
     ((FrFontRasterCache *)frFontRasterCacheBytes)->entries = (s32)(frFontRasterCacheWords + 6);

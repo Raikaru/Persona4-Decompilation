@@ -1,3 +1,4 @@
+#include "evt_internal.h"
 /* Original translation unit y_fclCombineEvent.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -39,8 +40,8 @@ extern s32 evtPMFileReaderCreate(s32 eventId, s32 variantId, s32 value, s32 useA
 extern s32 evtPMFileReaderIsDone(s32 task);
 extern s32 evtPMFileReaderGetFirstEntry(s32 task, s32 *firstValue, s32 *secondValue, s32 *byteValue, s32 *halfwordValue);
 extern void fieldSceneLoad(s32 fieldId, s32 roomId);
-extern void fieldSceneRequestRoom(s32 roomId);
-extern void fieldSceneRequestSecondaryRoom(s32 roomId);
+extern void fieldSceneRequestRoom(s64 roomId);
+extern void fieldSceneRequestSecondaryRoom(s64 roomId);
 extern s32 fieldSceneLoadStep(void);
 extern s32 evtCreateEventTask(s32 a, s32 b, s32 c); /* lint: allow H011 -- caller stores the returned handle; the definition takes two arguments and ignores the third */
 extern s32 kwlnTaskIsLinked(s32 target);

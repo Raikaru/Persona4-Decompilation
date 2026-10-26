@@ -30,7 +30,7 @@ extern s32 btlShuffleDrawFlagB(u8 *task);
 extern s32 btlShuffleDrawFlagC(u8 *task);
 extern s32 btlShuffleDrawFlagD(u8 *task);
 extern void btlShuffleDrawSetAlpha(u8 *task, u8 alpha);
-extern void btlShuffleCalcSetBlend(u8 *, u8 *, u8 *);
+extern void btlShuffleCalcSetBlend(u8 *state, u8 *start, u8 *target, f32 delay, f32 duration);
 extern void btlShuffleCalcStoreTiming(u8 *state, u8 *points, s32 delay, s32 duration);
 extern void btlShuffleCalcInitMotion(u8 *state);
 extern void btlShuffleCalcInitRotation(u8 *state);
@@ -125,7 +125,7 @@ extern char D_0064EA80[];
 extern void datTextSlotSetString(s32 *slotWords, u8 *text);
 extern char D_0064EA20[];
 extern void kAssertFail(void *file, s32 line);
-extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, s32 endFrame, f32 curve);
+extern f32 btlShuffleCalcWave(f32 frame, f32 startFrame, f32 curve, s32 endFrame);
 extern s64 datGetDateIndex(void);
 extern s32 calGetDayWindowFlags(s16 day);
 extern char iGpffffa9d0;
@@ -134,8 +134,8 @@ extern u8 *H_Cdvd_AcquireDirectory(u8 *path, s32 flags);
 extern void func_00440b68();
 extern void btlShuffleCalcRotateVector(u8 *state, f32 frameOffset, u8 *output);
 extern void btlShuffleDrawReset(u8 *context);
-extern void btlShuffleCalcSetVectors(u8 *, s32, f32 *, f32 *, f32 *);
-extern void btlShuffleCalcRotatePointAroundAxis(u8 *, u8 *, u8 *, f32 *, u8 *, f32 fparg0);
+extern void btlShuffleCalcSetVectors(u8 *state, s32 delay, f32 *start, f32 *middle, f32 *target, f32 angle, f32 duration);
+extern void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, f32 angle, u8 *output);
 extern void sdkSpriteRelease(void *node);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
@@ -147,7 +147,7 @@ extern void btlShuffleCardAttachSprite(u8 *card, void *position);
 extern void btlShuffleCardBindPacket(u8 *card, void *rotation);
 extern void btlShuffleCardBindSlot(u8 *card, void *color);
 extern void memset(u8 *, s32, s32);
-extern void btlShuffleCardScaleVec(u8 *unit, f32 *src, f32 *scale, f32 dst);
+extern void btlShuffleCardScaleVec(u8 *unit, f32 *src, f32 dst, f32 *scale);
 extern void btlShuffleCalcFillTable(s32 cardIndex, s32 cardCount, void *screen);
 
 extern void btlShuffleDrawSpriteName(u8 *task, s32 cardIndex);
@@ -225,7 +225,7 @@ extern void *func_00410420(struct RxObjSpace3DVertex *vertices, u32 count, BtlSh
 extern s32 func_004106a0(BtlShufflePrimitive primitive);
 extern f32 DAT_007613f8;
 extern f32 iGpffff8218;
-extern void RwMatrixRotate(void *, void *, s32, f32 fparg0);
+extern void RwMatrixRotate(void *, void *, f32 fparg0, s32);
 extern f32 cosf(f32 fparg0);
 extern void RwMatrixScale(void *, void *, s32);
 
@@ -478,7 +478,7 @@ void btlShuffleDrawFrame(u8 *context) {
     goto loop_test;
 loop_body:
     btlShuffleCalcFillTable(cardIndex, cardCount, &screen);
-    btlShuffleCardScaleVec(context + cardIndex * 0xFB0, screen, position, 84.0f);
+    btlShuffleCardScaleVec(context + cardIndex * 0xFB0,  screen,  84.0f,  position);
     if (state->unk1F30C != 0) {
         delay = (f32)cardIndex * (2.0f - ((f32)(state->cardCount - 3) / 5.0f));
         btlShuffleDrawMoveCardB(context, cardIndex, origin, position, delay, 10.0f + delay);
@@ -713,7 +713,7 @@ void btlShuffleDrawCards(u8 *context) {
     btlShuffleDrawSetAlpha(card, record->opacity.output);
     if (state->flags & 0x80) {
         ShuffleVec3 axis = {0.0f, 0.0f, 1.0f};
-        RwMatrixRotate(m, &axis, 1, 180.0f);
+        RwMatrixRotate(m,  &axis,  180.0f,  1);
     }
     (*(BtlShuffleRenderStateSet *)renderStateBase)(rwRENDERSTATETEXTURERASTER, (void *)(u32)texture);
     func_00410420((struct RxObjSpace3DVertex *)frontVertices, 4, (BtlShuffleMatrix *)m, 3);
@@ -732,7 +732,7 @@ void btlShuffleDrawCards(u8 *context) {
     if (state->flags & 0x100) {
         ShuffleVec3 scale;
         fadeFrame = (f32)(u32)++state->pulse;
-        progress = btlShuffleCalcWave(fadeFrame, 0.0f, 1, 20.0f);
+        progress = btlShuffleCalcWave(fadeFrame,  0.0f,  20.0f,  1);
         if (state->pulse >= 20) {
             state->flags &= 0xFEFF;
         }
@@ -955,7 +955,7 @@ f32 btlShuffleDrawWaveScale(u8 *context, s32 cardIndex) {
     idx = cardIndex * 0xE8;
     frame = (f32)(u32)((ShuffleContext *)((u8 *)idx + (u32)context))->records[0].rotation.quaternion.frame;
     duration = (f32)(u32)((ShuffleContext *)((u8 *)idx + (u32)context))->records[0].rotation.quaternion.duration;
-    return btlShuffleCalcWave(frame, 0.0f, 0, duration);
+    return btlShuffleCalcWave(frame,  0.0f,  duration,  0);
 }
 /* measured: retail materializes the float constant address at optimization level 1 behavior. */
 #pragma optimization_level 2
@@ -1036,7 +1036,7 @@ void btlShuffleDrawMoveCard(u8 *context, s32 cardIndex, f32 delay, f32 duration,
     s32 idx = cardIndex * 0xE8;
     u8 *p = (u8 *)idx + (u32)context;
 
-    btlShuffleCalcSetBlend((u8 *)(context + idx + 0x1D6AC), (u8 *)start, (u8 *)target);
+    btlShuffleCalcSetBlend((u8 *)(context + idx + 0x1D6AC), (u8 *)start, (u8 *)target, delay, duration);
     ((ShuffleContext *)p)->records[0].motionState = 1;
 }
 
@@ -1047,7 +1047,7 @@ void btlShuffleDrawMoveCardB(u8 *context, s32 cardIndex, f32 *start, f32 *target
     s32 idx = cardIndex * 0xE8;
     u8 *p = (u8 *)idx + (u32)context;
 
-    btlShuffleCalcSetBlend((u8 *)(context + idx + 0x1D6AC), (u8 *)start, (u8 *)target);
+    btlShuffleCalcSetBlend((u8 *)(context + idx + 0x1D6AC), (u8 *)start, (u8 *)target, delay, duration);
     ((ShuffleContext *)p)->records[0].motionState = 2;
 }
 
@@ -1085,7 +1085,7 @@ void btlShuffleDrawSetLayout(u8 *context, s32 cardIndex) {
 
 /* Initialize a card orbit from its axis, center, and point. */
 // FUN_00375FA0
-void btlShuffleDrawInitCard(u8 *context, s32 cardIndex, s32 delay, u8 *duration, u8 *start, u8 *target) {
+void btlShuffleDrawInitCard(u8 *context, s32 cardIndex, s32 delay, u8 *duration, u8 *start, u8 *target, f32 angle, f32 blendDuration) {
     ShuffleVec3 v3;
     ShuffleVec3 v4;
     ShuffleVec3 v5;
@@ -1095,7 +1095,7 @@ void btlShuffleDrawInitCard(u8 *context, s32 cardIndex, s32 delay, u8 *duration,
     v4 = *(ShuffleVec3 *)start;
     v5 = *(ShuffleVec3 *)target;
     idx = cardIndex * 0xE8;
-    btlShuffleCalcSetVectors((u8 *)(context + idx + 0x1D6AC), delay, (f32 *)&v3, (f32 *)&v4, (f32 *)&v5);
+    btlShuffleCalcSetVectors((u8 *)(context + idx + 0x1D6AC), delay, (f32 *)&v3, (f32 *)&v4, (f32 *)&v5, angle, blendDuration);
     ((ShuffleContext *)((u8 *)idx + (u32)context))->records[0].motionState = 6;
 }
 
@@ -1184,7 +1184,7 @@ void btlShuffleDrawSetRotate(u8 *context, s32 cardIndex, f32 *output) {
         *(ShuffleVec3 *)output = ((ShuffleRecord *)p)->motion.bezier.points[3];
         return;
     case 6:
-        btlShuffleCalcRotatePointAroundAxis(p + 0x38, p + 0x2C, p + 0x44, output, p, ((ShuffleRecord *)p)->motion.orbit.endAngle);
+        btlShuffleCalcRotatePointAroundAxis(p + 0x38, p + 0x2C, p + 0x44, ((ShuffleRecord *)p)->motion.orbit.endAngle, (u8 *)output);
         return;
     case 7:
         *(ShuffleVec3 *)output = *(ShuffleVec3 *)&((ShuffleRecord *)p)->motion.vector.target;

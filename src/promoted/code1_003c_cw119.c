@@ -10,28 +10,19 @@
 
 /* gp - 0x48F8 = 0x007647F8 */
 extern s32 iGpffffb708;
-extern u8 func_003ca740[];
-extern u8 func_003ca780[];
-extern u8 func_003ca7a0[];
+extern s32 func_003ca740(u32 object);
+extern s32 func_003ca780(u32 object, u32 first, u32 second, u32 third);
+extern u32 func_003ca7a0(u32 object);
 
 
 
 extern u8 D_008872E0[];
 extern void *(*D_008873F8[])(s32 arg0, s32 arg1);
-extern s32 func_003ce560(s32 arg0, u8 *arg1);
 extern s32 func_003df240(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_003c5d10(s32 arg0, u8 *arg1, u8 *arg2);
 extern u8 *func_003c9c20(u8 *arg0);
 extern u8 *func_003cebb0(u8 *arg0, u8 *arg1);
 
-/* `movz $s0,$zero,$v0` is the b119 lowering of `call() ? arg0 : 0`. */
-// FUN_003CB790
-#pragma schedule on
-s32 func_003cb790(s32 arg0, s32 arg1, u8 *arg2) {
-    return func_003ce560(arg0, arg2) ? arg0 : 0;
-}
-/* measured: closes the schedule bracket; the unit default is off. */
-#pragma schedule off
 
 
 
@@ -98,7 +89,7 @@ typedef struct { f32 x, y, z, w; } Vec4f;
 typedef struct { u8 pad[0x54]; s32 field; } Cb720Obj;
 extern u16 D_008872E8[];
 extern u8 func_003cac30[];
-extern u8 func_003caef0[];
+extern u32 func_003caef0(u32 *object);
 extern u8 D_0070AFB0[];
 extern u8 D_0070B020[];
 extern u8 *(*D_0070B030)(u8 *arg0, s32 arg1);

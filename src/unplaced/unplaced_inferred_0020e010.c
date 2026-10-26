@@ -17,8 +17,8 @@
 #include "btl_panel_internal.h"
 #include "fr_font_internal.h"
 #include "datPersona_internal.h"
-extern void btlSelectionFlushEntries();
-extern u32 kwlnTaskGetWork();
+extern void btlSelectionFlushEntries(u8 *object);
+extern u32 kwlnTaskGetWork(void* task);
 extern f32 fGpffff815c;
 extern f32 fGpffff83b0;
 extern void btlEntryListFlush(u8 *head);
@@ -128,7 +128,7 @@ void btlSelectionDispatchTargetMode(s32 mode, u8 *row, u8 *unit)
     u16 targetState;
     u16 drawMode;
 
-    drawWork = (u8 *)kwlnTaskGetWork();
+    drawWork = (u8 *)kwlnTaskGetWork((void*)(mode));
     targetState = ((BtlSelectionRow *)row)->state;
     if (targetState == 0) {
         if (((BtlUnit *)unit)->genus == 0) {
@@ -202,7 +202,7 @@ void btlSelectionPushEntry(u8 *task, s32 unitHandle, s32 *entryData, f32 *positi
     f32 y;
     f32 z;
 
-    state = (u8 *)kwlnTaskGetWork(task);
+    state = (u8 *)kwlnTaskGetWork((void*)(task));
     list = (u8 **)(state + 0x75C);
     if (*(s32 *)entryData != 0 || ((BtlSelectionAmounts *)entryData)->sp != 0 ||
         ((BtlSelectionAmounts *)((u8 *)entryData))->kind != 0) {
@@ -246,8 +246,8 @@ void btlSelectionPushEntry(u8 *task, s32 unitHandle, s32 *entryData, f32 *positi
 
 // Flush the selection entry list.
 // FUN_0020E3F0
-void btlSelectionFlushEntries() {
-    btlEntryListFlush((u8 *)kwlnTaskGetWork() + 0x75C);
+void btlSelectionFlushEntries(u8 *object) {
+    btlEntryListFlush((u8 *)kwlnTaskGetWork((void*)(object)) + 0x75C);
 }
 
 // Draw an integer value as sprite glyphs, optionally right-aligned.
@@ -331,7 +331,7 @@ void btlTransitionStepSlide(u8 *task, u8 *transition, u8 *panel,
     s32 frame;
     f32 fade;
     f32 slide;
-    kwlnTaskGetWork(((BtlDamageState *)(task))->task);
+    kwlnTaskGetWork((void*)(((BtlDamageState *)(task))->task));
     frame = ((BtlSelectionEntry *)(transition))->frame;
     if (((BtlSelectionEntry *)(transition))->flags & 2) {
         if (frame < 3) fade = 0.0f;
@@ -384,7 +384,7 @@ void btlTransitionStepStretch(u8 *task, u8 *transition, u8 *panel, u8 *output)
     f32 stretch;
     f32 fade;
     f32 y;
-    work = (u8 *)kwlnTaskGetWork(((BtlDamageState *)(task))->task);
+    work = (u8 *)kwlnTaskGetWork((void*)(((BtlDamageState *)(task))->task));
     frame = ((BtlSelectionEntry *)transition)->frame;
     if (frame < 0) first = 0.0f;
     else if (frame < 4) first = (f32)frame / 4.0f;
@@ -444,7 +444,7 @@ void btlTransitionStepExpand(u8 *task, u8 *transition, u8 *panel, u8 *output)
     f32 fade;
     f32 offset;
     f32 y;
-    work = (u8 *)kwlnTaskGetWork(((BtlDamageState *)(task))->task);
+    work = (u8 *)kwlnTaskGetWork((void*)(((BtlDamageState *)(task))->task));
     frame = ((BtlSelectionEntry *)transition)->frame;
     if (frame < 0) first = 0.0f;
     else if (frame < 4) first = (f32)frame / 4.0f;
@@ -508,7 +508,7 @@ void btlTransitionStepPulse(u8 *task, u8 *transition, f32 x, f32 y)
     u8 *drawWork;
     s32 frame;
 
-    drawWork = (u8 *)kwlnTaskGetWork(((BtlDamageState *)(task))->task);
+    drawWork = (u8 *)kwlnTaskGetWork((void*)(((BtlDamageState *)(task))->task));
     frame = ((BtlSelectionEntry *)transition)->frame;
     if (frame < 0) {
         ringProgress = 0.0f;

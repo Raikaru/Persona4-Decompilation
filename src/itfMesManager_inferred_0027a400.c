@@ -8,8 +8,8 @@
 extern s32 D_0063BF80[];
 extern u16 D_008C024E[];
 
-extern void itfMesListSetColor();
-extern void itfMesListSetRangeFlag();
+extern void itfMesListSetColor(u8 *run, s32 firstLine, s32 lastLine, s32 value);
+extern void itfMesListSetRangeFlag(u8 *run, s32 firstLine, s32 lastLine, s32 value);
 
 
 extern s32 D_008815B0[];
@@ -77,15 +77,15 @@ done:
 
 // Forwards to itfMesListSetColor; entry used by the window procedure.
 // FUN_0027A490
-void itfMesListSetColorEntry(void)
+void itfMesListSetColorEntry(u8 *run, s32 firstLine, s32 lastLine, s32 value)
 {
-    itfMesListSetColor();
+    itfMesListSetColor(run, firstLine, lastLine, value);
 }
 
 // Forwards to itfMesListSetRangeFlag; entry used by the window procedure.
 // FUN_0027A4B0
-void itfMesListSetRangeFlagEntry(void)
+void itfMesListSetRangeFlagEntry(u8 *run, s32 firstLine, s32 lastLine, s32 value)
 {
-    itfMesListSetRangeFlag();
+    itfMesListSetRangeFlag(run, firstLine, lastLine, value);
 }
 

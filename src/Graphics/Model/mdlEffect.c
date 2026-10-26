@@ -1,3 +1,4 @@
+#include "mdl_effect_dispatch_internal.h"
 #include "rw_types_internal.h"
 #include "include_asm.h"
 #include "rw_geometry_internal.h"
@@ -6,6 +7,7 @@
 #include "mdl_effect_internal.h"
 #include "effect_instance_internal.h"
 #include "effect_update_internal.h"
+#include "effect_geometry_internal.h"
 extern void *mdlEffectCloneHelperInstance(void *opaqueSource);
 extern f32 effMiscRandFloat(EffRandState *state);
 extern void *WindCreateKindEntryAlt(void *source);
@@ -26,11 +28,11 @@ extern void mdlEffectListReleaseNodes(u32 *list);
 
 extern void mdlEffectFlushWithTable(s32 table, s32 effect);
 
-extern void mdlEffectStart();
+extern void mdlEffectStart(u8 *object);
 
 extern void mdlEffectSetPackedColor(void *object, s32 *packedColor);
 
-extern void mdlEffectSetUniformScale(float value, u8 data[][16]);
+extern void mdlEffectSetUniformScale(u8 *data, float value);
 extern void mdlEffectListReleaseHandles(u32 *list);
 extern void mdlEffectDestroy(int model);
 extern u32 mdlEffectCreateFromResource(u32 resource);
@@ -40,7 +42,7 @@ extern void mdlEffectAdvanceTrackQuad(int *player, u8 *track, float *output);
 
 
 extern void ParticleProjectVertices(u8 *particle, f32 scale);
-extern void func_00487fb0_evt(float value);
+extern void func_00487fb0_evt(u8 *particle, float scale);
 
 extern void EffEmitterApplyScale(u16 *emitter, f32 scale);
 
@@ -68,7 +70,7 @@ extern MdlCol iGpffffbb64;
 
 extern void effMiscNormalizeVU(void);
 extern void effMiscBuildRotationVU(void);
-typedef struct RwMatrixTag {
+typedef struct RwMatrix {
     RwV3d right;
     u32 flags;
     RwV3d up;
@@ -113,7 +115,7 @@ static inline u8 *mdlEffectCameraMatrix(u8 *base)
 
 extern void datEntryDrawGatedByFlag39(s32 port, s32 sequence, s32 duration, s32 flags);
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void mdlEffectDestroyModel(s32 input);
+extern void mdlEffectDestroyModel(u8 *object);
 extern void func_00182b40(void);
 extern void FldNoiseEmitPlain();
 /* measured: retail's register allocation for the byte copy only comes out at O1. */
@@ -163,7 +165,7 @@ void btlUiReleaseHandle(s32 *handleBlock) {
 
     handle = *handleBlock;
     if (handle != 0) {
-        mdlEffectDestroyModel(handle);
+        mdlEffectDestroyModel((u8 *)(handle));
     }
     jtbl_008873EC[0](handleBlock);
 }
@@ -441,7 +443,7 @@ void mdlEffectListInvokeEach(s32 context, u8 **list)
 
 /* Starts the effect of each node whose data block has flag bit 1 set. */
 // FUN_0047D840
-void mdlEffectListCallFlagged(u32 *list)
+void mdlEffectListCallFlagged(u32 *list, s32 unusedIndex)
 {
   int *node;
 
@@ -449,7 +451,7 @@ void mdlEffectListCallFlagged(u32 *list)
 
     if ((node[2] != 0) && ((((MdlEffectListData *)*node)->flags & 1) != 0)) {
 
-      mdlEffectStart(node[2]);
+      mdlEffectStart((u8 *)(node[2]));
     }
 
 
@@ -488,7 +490,7 @@ void mdlEffectListSetUniformScale(int *list,float *scale)
     average = (scale[0] + scale[1] + scale[2]) / 3.0f;
     for (current = *list; current != 0; current = ((MdlEffectListNode *)current)->next) {
         if (((MdlEffectListNode *)current)->handle != 0) {
-            mdlEffectSetUniformScale(average,(u8 (*)[16])((MdlEffectListNode *)current)->handle);
+            mdlEffectSetUniformScale((u8 *)((MdlEffectListNode *)current)->handle, average);
         }
     }
 }
@@ -614,7 +616,6 @@ extern void mdlEffectReleasePrimarySource(u8 *instance);
 extern void mdlEffectReleaseSecondarySource(u8 *instance);
 extern void mdlEffectAdvanceEmitter(void *object);
 extern void ParticleUpdateScaled(u8 *particle, f32 scale);
-void GeometryMatrixBuildCombined();
 extern char D_00713CE0[];
 
 typedef struct Code48InitialState {
@@ -674,22 +675,22 @@ void mdlEffectWrapTrackFrames(int instance, u32 frame)
 
 // Builds a matrix with GeometryMatrixBuild and passes it, with the model frame, to func_003e9cb0.
 // FUN_00484350
-void mdlEffectApplyGeometryMatrix(u8 *instance)
+void mdlEffectApplyGeometryMatrix(u8 *instance, RwV3d *translation, void *basis, f32 scale)
 {
     RwMatrix matrix;
 
-    GeometryMatrixBuild(&matrix);
+    GeometryMatrixBuild(&matrix, translation, basis, scale);
     func_003e9cb0(((MdlEffectRenderModel *)instance)->frame, &matrix, 0);
 }
 
 
 // Same as mdlEffectApplyGeometryMatrix, but builds the matrix with GeometryMatrixBuildCombined.
 // FUN_004843A0
-void mdlEffectApplyCombinedGeometryMatrix(u8 *instance)
+void mdlEffectApplyCombinedGeometryMatrix(u8 *instance, RwV3d *translation, void *basis, RwV3d *scale)
 {
     RwMatrix matrix;
 
-    GeometryMatrixBuildCombined(&matrix);
+    GeometryMatrixBuildCombined(&matrix, translation, basis, scale);
     func_003e9cb0(((MdlEffectRenderModel *)instance)->frame, &matrix, 0);
 }
 
@@ -858,9 +859,9 @@ void ParticleReleaseEmitterAndUpdate(u8 *instance)
 
 // Calls func_00487fb0_evt with 1.0f; the callee is not yet named.
 // FUN_00489E50
-void mdlEffectSetUnitWeight(void)
+void mdlEffectSetUnitWeight(u8 *particle)
 {
-  func_00487fb0_evt(1.0f);
+  func_00487fb0_evt(particle, 1.0f);
 }
 
 
@@ -902,7 +903,7 @@ void ParticleSetEmitterRotation(u8 *instance, u32 *rotation)
 // Stores scale in the particle, then calls EffEmitterApplyScale with the particle's emitter and the
 // same scale.
 // FUN_00489F50
-void mdlEffectSetScaleAndNotify(f32 scale, int instance)
+void mdlEffectSetScaleAndNotify(int instance, f32 scale)
 {
   ((EffParticleInstance *)instance)->scale.value = scale;
   EffEmitterApplyScale((u16 *)((EffParticleInstance *)instance)->emitter.bits, scale);
@@ -2365,8 +2366,8 @@ void WindSetVec3(u8 *instance, f32 *scale) {
 }
 
 
-extern void primQuad3D(f32 *pos, u8 *col, s32 size, f32 saveAndRestoreRenderState);
-extern void primAxisLine3D(f32 *mat, s32 length, f32 saveAndRestoreRenderState);
+extern void primQuad3D(f32 *pos, u8 *col, f32 saveAndRestoreRenderState, s32 size);
+extern void primAxisLine3D(f32 *mat, f32 saveAndRestoreRenderState, s32 length);
 extern s32 mdlEffectShareTrackInstance(s32 source);
 extern void TlpRelease(s32 work);
 extern s32 TlpAddRef(s32 work);
@@ -3053,8 +3054,8 @@ void mdlEffectDrawModelChildren(u8 *instance)
         matrixIndex = 0;
         while (matrixIndex < (u32)((MdlEffectSpriteInstance *)instance)->childCount) {
             if (mdlCopyIndexedMatrix(((MdlEffectSpriteInstance *)instance)->model, matrixIndex, frame) != 0) {
-                primQuad3D((f32 *)(frame + 0x30), frame + 0x4C, 1, 4.0f);
-                primAxisLine3D((f32 *)frame, 1, 30.0f);
+                primQuad3D((f32 *)(frame + 0x30),  frame + 0x4C,  4.0f,  1);
+                primAxisLine3D((f32 *)frame,  30.0f,  1);
             }
             matrixIndex += 1;
         }

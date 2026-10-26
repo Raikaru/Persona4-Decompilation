@@ -13,7 +13,7 @@ extern s32 iGpffffa7c8;
 s32 mtMiscResourceValue(s32 resourceId);
 
 
-extern void datSetFlag();
+extern void datSetFlag(s32 flagId, s32 enabled);
 extern s32 iGpffffb538;
 extern u8 D_00882ED0[];
 extern u8 D_00882EF0[];
@@ -71,7 +71,7 @@ s32 K_Cmd_FLAG_SELECT(void)
     datSetFlag(0x1207, 0);
     switch (selection) {
     case 0:
-        datSetFlag(0x1203);
+        datSetFlag(0x1203, 1);
         break;
     case 1:
         datSetFlag(0x1204, 1);

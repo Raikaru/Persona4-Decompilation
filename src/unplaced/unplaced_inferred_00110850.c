@@ -1,3 +1,4 @@
+#include "scr_context_internal.h"
 
 #include "list_item_internal.h"
 #include "include_asm.h"
@@ -15,7 +16,6 @@ extern u8 D_00797B7C[];
 extern s32 D_0079B40C[];
 extern s8 D_005E3A00[];
 s32 scrProcessGetHandleNoop(void);
-void scrProcessReleaseNoop(s32);
 void datSetFlag(s32, s32);
 s32 calReadDayFlagMask(void);
 void calWriteDayFlagMask(s32);
@@ -485,7 +485,7 @@ void datInitDefaultGameState(void)
     void datSetUnitSp(s16, s16);
     void datSetHeroExp(s16, u32);
     void datSetUnitRecordTailValue(s16, s16);
-    void datCalcSetBadStatusById(s16, s16);
+    void datCalcSetBadStatusById(s16 unitId, u32 badStatus);
     void datSetEquippedItemByUnit(s16, s16, s16);
     void datSetMoney(u32);
     void datSetPartyId(s32, s16);

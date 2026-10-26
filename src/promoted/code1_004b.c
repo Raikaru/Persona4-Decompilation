@@ -10,7 +10,6 @@
 #include "rw_camera_internal.h"
 
 typedef unsigned int u_long128 __attribute__((mode(TI)));
-extern s32 kwlnGetCamera(void);
 extern s32 iGpffffbb9c;
 /* gp - 0x4460 = 0x00764c90: base of a 0x1C-strided per-type handler table */
 extern u8 *iGpffffbba0;
@@ -72,7 +71,6 @@ extern u8 D_00714658[];
 extern void mdlEffectGetPositionVec(u8 *object, u32 *output);
 extern u8 D_007568C8[];
 extern u8 D_00756900[];
-extern void func_004bd6a0(u8 *, s32);
 extern void initVariables(u8 *);
 extern void func_00486330(u8 *, void *);
 extern void effMiscEulerToQuatVU(f32 angleX, f32 angleY, f32 angleZ);
@@ -83,7 +81,6 @@ extern void effMiscMatrixToQuatVU(f32 *matrix);
 extern u8 iGpffffb118;
 extern u8 D_00713408[];
 extern void chkmemAllocSiteTag(void *file, s32 line);
-extern void kAssertFail(void *file, s32 line);
 extern void *(*jtbl_008873E8[])(u32 arg0, u32 arg1);
 extern void memset(void *, s32, s32);
 extern void GeometryBlockSetTextureFromHandle(u8 *block, u16 *handle);

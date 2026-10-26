@@ -1,3 +1,4 @@
+#include "btl_boss_internal.h"
 #include "member_access.h"
 #include "btl_action_internal.h"
 #include "btl_effect_internal.h"
@@ -17,8 +18,8 @@ extern u8* DAT_0076449c;
 BtlPacket* btlPacketAlloc(u32 packetType, u32 workSize);
 u32 btlBossLoadPakInit(void* work);
 u32 btlBossLoadPakUpdate(void* work);
-extern s32 btlActionHasNoTargetClass();
-extern s32 btlActionSkillReachesTargets();
+extern s32 btlActionHasNoTargetClass(u32 action);
+extern s32 btlActionSkillReachesTargets(u8 *action);
 extern s32 btlCurrentUnitId();
 extern s32 btlActionGetQueueFront();
 extern void btlActionQueueMoveToBack(s32);
@@ -71,7 +72,7 @@ s32 btlBossTargetBlocked(u8* action)
     {
         return 1;
     }
-    if (btlActionHasNoTargetClass() == 0)
+    if (btlActionHasNoTargetClass((u32)(action)) == 0)
     {
         return 1;
     }
@@ -118,7 +119,7 @@ u32 btlBossFlagPairOk(s32 first, s32 second)
 
 /* Report unrestricted actions outside enabled boss enemy actions; otherwise invert the skill target-reach predicate. */
 // FUN_0022FD30
-s32 btlBossActionBlocked(u8* action)
+s32 btlBossActionBlocked(u8 *action, s32 unusedSkillId)
 {
     if ((*(s32 *)&((BtlBattleState *)DAT_0076449c)->flags & 0x200000) == 0)
     {
@@ -132,7 +133,7 @@ s32 btlBossActionBlocked(u8* action)
     {
         return 1;
     }
-    return !((u32)btlActionSkillReachesTargets());
+    return !((u32)btlActionSkillReachesTargets(action));
 }
 /* In boss battles, rebuild the action queue from living units' actions, adding extra slots for
  * multi-action flags. Then rotate the queue so the given preferred action is at the front if its

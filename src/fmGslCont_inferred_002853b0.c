@@ -59,10 +59,10 @@ s32 evtNoopCallback(void) {
     return 0;
 }
 
-/* Perform the event task lookup; this callback does not consume its result. */
+/* Return the event task lookup result to the caller. */
 // FUN_002853C0
-void evtLookupTask(void) {
-    kwlnTaskGetTaskByName(&iGpffffa790);
+s32 evtLookupTask(void) {
+    return (s32)kwlnTaskGetTaskByName(&iGpffffa790);
 }
 
 /* measured: retail hoists the lookup table address out of the search loop. */

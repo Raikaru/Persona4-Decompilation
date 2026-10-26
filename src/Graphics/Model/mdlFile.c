@@ -1,3 +1,4 @@
+#include "Kosaka/k_vpad_internal.h"
 #include "byte_address_internal.h"
 #include "operand_order_internal.h"
 #include "member_access.h"
@@ -10,8 +11,8 @@
 typedef int (*code)();
 extern code DAT_008873ec_abs[];
 extern u64 Vpad_Activate();
-extern u64 func_0047de90_wide(u32 *wrapper);
-extern u32 func_004b57a0_u32(u64 wrapper, u64 value);
+extern u32 func_0047de90_wide(u32 *wrapper);
+extern u32 func_004b57a0_u32(u32 wrapper, u32 value);
 extern u32 K_Clump_MatUsrDataGetInt();
 extern u32 func_004578b0_ptr(u32 wrapper,u8 *value);
 extern u8 DAT_00713200[];
@@ -55,7 +56,6 @@ void mdlReleaseSharedWrapper(int *wrapper)
 extern void (*iGpffffbb3c)();
 extern void (*jtbl_008873EC[])(void *);
 extern void Vpad_RefreshSelection(u8 *work);
-extern void Vpad_Noop(u8 *track);
 struct RuntimeWork;
 extern void Vpad_SetColor(struct RuntimeWork* work, const u8* color);
 extern f32 fGpffffbb4c;
@@ -107,11 +107,11 @@ void mdlSetAttachmentColor(u8* attachment, const u8* color)
 }
 
 
-/* Stores a value at +4 of the wrapper, computed from the wrapper and the 64-bit argument through two helpers. */
+/* Create the attachment instance from the wrapper's resource and the incoming owner. */
 // FUN_0047DE00
-void mdlSetWrapperValue(int wrapper,u64 value)
+void mdlSetWrapperValue(int wrapper,u32 value)
 {
-  u64 resource;
+  u32 resource;
 
   u32 result;
 

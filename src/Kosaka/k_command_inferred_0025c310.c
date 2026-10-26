@@ -14,8 +14,8 @@ extern char D_00635C60[];
 extern s32 iGpffffb480;
 
 s16 datGetDateIndex(void);
-void calSplitDayOfYear(s64 dateIndex, s32 *monthOut, s32 *dayOut);
-s32 calGetWeekdayOfDay(s64 dateIndex);
+void calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
+s32 calGetWeekdayOfDay(s32 dateIndex);
 
 
 extern u8 D_00635BF0[];
@@ -29,8 +29,8 @@ extern void PrimDrawRadialTriangle(s32 centerX, s32 centerY, void *color, s32 ra
 
 
 // FUN_0025C310
-void K_Cmd_TASK_LOOKUP(void) {
-    kwlnTaskGetTaskByName(D_006367C0);
+s32 K_Cmd_TASK_LOOKUP(void) {
+    return (s32)kwlnTaskGetTaskByName(D_006367C0);
 }
 
 /* Split the current calendar date and return its month component. */

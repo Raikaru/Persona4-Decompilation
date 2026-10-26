@@ -50,7 +50,7 @@ s16 datGetEquippedItemByUnit(s16, s32);
 s32 FldEvent_TriggerUpdate(u8 *);
 s32 FldMap_IsCurrentInEitherBand(void);
 s32 FldStepIndex(void);
-s32 FldEvent_FindFirstRegionActor(f32, f32, void *);
+s32 FldEvent_FindFirstRegionActor(void *, f32, f32);
 u8 *FldAmbientFlagPtr(void);
 s32 FldStepFileTask(s32);
 s32 FldRc_RequestPositionSlot(u8 *, f32 *);
@@ -355,7 +355,7 @@ s32 FldEvent_AcquirePointEntry(s32 task)
     s32 r;
 
     h = (s32 *)((SdkTask *)task)->work;
-    r = FldEvent_FindFirstRegionActor(250.0f, 90.0f, D_007EF9B0);
+    r = FldEvent_FindFirstRegionActor( D_007EF9B0, 250.0f,  90.0f);
     if (r == 0) {
         goto fail;
     }

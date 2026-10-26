@@ -24,7 +24,7 @@ u16 datPersonaRosterSlotFlags(s32 slotIndex);
 // Intent: writes the skill ids (arg1) and levels (arg2, optional) of persona record arg0's level-table entries it has not learned yet; returns the count.
 s32 datPersonaCollectLearnableSkills(DatPersonaRecord *persona, void *outputSkills, void *outputLevels);
 // Intent: passes skill slot arg1 of persona record arg0 to datCalcSkillSlotValue; fatal on bad id or slot.
-void datPersonaRunSkillSlot(u8 *persona, s32 slotIndex);
+s32 datPersonaRunSkillSlot(u8 *persona, s32 slotIndex);
 // Intent: skill-slot value of persona id arg0 at slot arg1, read through datCalcSkillSlotValue; fatal when out of range.
 u32 datPersonaGetSkillSlot(u16 partyId, s32 slotIndex);
 // Battle stat index for datPersonaGetStat, in in-game order St/Ma/En/Ag/Lu. Index 3 (AGI) is confirmed by turn-order callers in btlOrder_grouped; 0, 1, 2 and 4 are [inferred].

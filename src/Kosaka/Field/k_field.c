@@ -1,3 +1,5 @@
+#include "evt_internal.h"
+#include "scr_context_internal.h"
 #include "member_access.h"
 #include "field_scene_internal.h"
 #include "field_frame_internal.h"
@@ -448,7 +450,6 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 
 extern void resrcMngSetRenderSuppressed(s32 );
 extern s32 evtPMFileReaderCreate(s32 eventId, s32 variantId, s32 value, s32 useAllocatedTables);
-extern void scrDebugDumpWorkList(s32 );
 extern void FldResource_OpenPrimaryFile(u16 , u16 );
 extern u8 D_007D255A[];
 extern u8 D_007D255B[];

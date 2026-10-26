@@ -9,7 +9,7 @@
 #include "btl_result_ui_internal.h"
 
 void btlShuffleStartOverlay(void);
-extern u16 *kwlnTaskGetWork();
+extern u16 *kwlnTaskGetWork(void* task);
 void radarAnimateValue(void *work, s32 frame, s32 mode);
 s32 btlMainGetPhase(void);
 void shdScriptCategoryTaskCreate(void *parentTask, s32 categoryIndex, s32 increment);
@@ -476,7 +476,7 @@ s32 btlResultSimpleUpdate(u8 *task) {
     u32 state;
     s32 v;
 
-    work = (BtlResultSimpleWork *)kwlnTaskGetWork();
+    work = (BtlResultSimpleWork *)kwlnTaskGetWork((void*)(task));
     work->field08 = 0;
     work->field0C = 0;
     PrimAppendNode(&D_00795F20, &work->field08);
@@ -1085,7 +1085,7 @@ void btlResultSimpleTaskDestroy(u8 *unusedTask) {
     s32 i;
     s32 j;
 
-    p = (BtlResultSimpleWork *)kwlnTaskGetWork();
+    p = (BtlResultSimpleWork *)kwlnTaskGetWork((void*)(unusedTask));
     if (p->archiveAddress != 0) {
         H_Cdvd_Destroy((void *)p->archiveAddress);
         p->archiveAddress = 0;
@@ -1120,7 +1120,7 @@ s32 btlResultSimpleCreateTask(s32 parentTask) {
     result = (BtlResultSimpleWork *)work;
     memset(work, 0, 0x578);
     task = (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_006290F0), 0xF, 0, 0, btlResultSimpleUpdate, btlResultSimpleTaskDestroy, (u8 *)(work));
-    parentWork = kwlnTaskGetWork(parentTask);
+    parentWork = kwlnTaskGetWork((void*)(parentTask));
     *(s32 *)&result->state = 0;
     *(u16 * *)&result->field570 = parentWork;
     memset(work + 8, 0, 0x30);
@@ -1130,20 +1130,20 @@ s32 btlResultSimpleCreateTask(s32 parentTask) {
 }
 
 // FUN_002216B0
-void btlResultSimpleSetDoneFlag(void) {
+void btlResultSimpleSetDoneFlag(u8 *object) {
     u16 *work;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(object));
     *work |= 1;
 }
 
 // FUN_002216E0
 /* Choose the overlay or delayed-close path from the result flags. Typed frame/state stores retain the
  * existing halfword/word work-pointer representation. */
-void btlResultSimpleOnConfirm(void) {
+void btlResultSimpleOnConfirm(u8 *object) {
     u16 *work;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(object));
     if (work[0] & 0x80) {
         btlShuffleStartOverlay();
         *(s32 *)&((BtlResultSimpleWork *)work)->state = 5;
@@ -1154,21 +1154,21 @@ void btlResultSimpleOnConfirm(void) {
 }
 
 // FUN_00221740
-u16 btlResultSimpleIsDone(void) {
+u16 btlResultSimpleIsDone(u8 *object) {
     u16 *work;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(object));
     return work[0] & 1;
 }
 
 // FUN_00221770
 /* Choose date-dependent result resources, acquire both archives and request asynchronous asset setup. */
-void btlResultSimpleSetupEntries(void) {
+void btlResultSimpleSetupEntries(u8 *object) {
     s32 *dst;
     s32 i;
     BtlResultSimpleWork *work;
 
-    work = (BtlResultSimpleWork *)kwlnTaskGetWork();
+    work = (BtlResultSimpleWork *)kwlnTaskGetWork((void*)(object));
     {
         u32 r;
         r = (u32)calGetDayWindowFlags((s16)datGetDateIndex()) & 1;

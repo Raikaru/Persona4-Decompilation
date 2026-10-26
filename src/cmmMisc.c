@@ -1200,7 +1200,9 @@ s32 cmmReversedAtRank(s32 communityId) {
     u32 *table;
     u32 *levelTable;
 
-    /* Retail reuses raw communityId for this unprototyped call; keep that a0 value. */
+    /* Retail passes incoming a0 unchanged. The explicit s32 call adds a move
+     * under this function's separate-mask settings (normalized diff 175);
+     * canonicalizing the file's narrowing declarations also changes siblings. */
     extern s32 cmmCommunityHasRecord();
     if (cmmCommunityHasRecord() == 0) {
         return 0;
@@ -1467,10 +1469,9 @@ u8 *cmmDateTableFindSpecialRecord(u32 date) {
     }
     return NULL;
 }
-// Date table has entry: returns 1 when cmmDateTableFindIndex finds an ordinary entry for the seed. The seed local is never assigned in this body; the matched code passes the argument register through as-is.
+// Test for an ordinary date-table entry using the incoming seed word.
 // FUN_00249230
-s32 cmmDateTableHasEntry(void) {
-    s32 seed;
+s32 cmmDateTableHasEntry(s32 seed) {
     u8 *base8 = D_008814D0[0] + 8;
     s32 idx = cmmDateTableFindIndex(seed);
     u8 *p;

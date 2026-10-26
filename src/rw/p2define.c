@@ -99,7 +99,6 @@ extern s32 _rwSkyRasterClearRect(void *arg0, s32 *arg1);
 extern void memset(void *arg0, s32 arg1, s32 arg2);
 extern s32 iGpffffb9b0;
 extern s32 iGpffffb9ac;
-extern void func_00415920(void *arg0);
 extern s32 iGpffffb9b4;
 extern u8 iGpffffb984;
 extern u8 D_00753330[];

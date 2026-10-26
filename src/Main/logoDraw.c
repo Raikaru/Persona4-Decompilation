@@ -13,7 +13,7 @@ extern s32 H_Cdvd_IsFileLoaded(void *cdvd);
 
 extern s32 kwlnTaskIsLinked(s32);
 extern void kwlnTaskDestroyWithHierarchy(s32 task);
-extern s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
+extern s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s32, s32);
 extern void *PrimAllocQueueNode(void);
 extern void PrimAppendNode(void *, void *);
 extern void fadeBeginTransition(s32, s32);
@@ -22,7 +22,7 @@ extern s32 fadeStatus(void);
 extern s32 titleFileLoadStep(u8 *unusedTask);
 extern void titleLoaderDestroy(u8 *unusedTask);
 extern void titleDrawChildImage(void);
-extern void *kwlnTaskGetWork();
+extern void *kwlnTaskGetWork(void* task);
 extern void (*jtbl_008873EC[])(void *);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
@@ -70,7 +70,7 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
     u32 allocator;
     void *drawNode;
 
-    work = (LogoWork *)kwlnTaskGetWork();
+    work = (LogoWork *)kwlnTaskGetWork((void*)(sdkTaskBytes));
     state = work->state;
     switch (state) {
     case 0:
@@ -97,7 +97,7 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
         break;
     case 3:
         firstChildTask = work->task10;
-        firstChildWork = (s32 *)kwlnTaskGetWork(firstChildTask);
+        firstChildWork = (s32 *)kwlnTaskGetWork((void*)(firstChildTask));
         if (kwlnTaskIsLinked(firstChildTask) == 0) {
             firstChildReady = 0;
         } else if (*firstChildWork == 3) {
@@ -107,7 +107,7 @@ s32 logoTaskUpdate(u8 *sdkTaskBytes)
         }
         if (firstChildReady != 0) {
             secondChildTask = work->task14;
-            secondChildWork = (s32 *)kwlnTaskGetWork(secondChildTask);
+            secondChildWork = (s32 *)kwlnTaskGetWork((void*)(secondChildTask));
             if (kwlnTaskIsLinked(secondChildTask) == 0) {
                 secondChildReady = 0;
             } else if (*secondChildWork == 3) {
@@ -188,9 +188,9 @@ void logoTaskDestroy(u8 *unusedTask)
     s32 firstChildReady;
     s32 secondChildReady;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(unusedTask));
     firstChildTask = work->task10;
-    firstChildWork = kwlnTaskGetWork(firstChildTask);
+    firstChildWork = kwlnTaskGetWork((void*)(firstChildTask));
     if (kwlnTaskIsLinked(firstChildTask) == 0) {
         firstChildReady = 0;
     } else if (*firstChildWork == 3) {
@@ -202,7 +202,7 @@ void logoTaskDestroy(u8 *unusedTask)
         kAssertFail(&D_005E5730, 0xF8);
     }
     secondChildTask = work->task14;
-    secondChildWork = kwlnTaskGetWork(secondChildTask);
+    secondChildWork = kwlnTaskGetWork((void*)(secondChildTask));
     if (kwlnTaskIsLinked(secondChildTask) == 0) {
         secondChildReady = 0;
     } else if (*secondChildWork == 3) {

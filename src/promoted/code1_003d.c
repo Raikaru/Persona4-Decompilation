@@ -864,7 +864,7 @@ s32 func_003d5e40(u8 *arg0, f32 fparg0) {
    the 96-byte retail frame and call delay slot exactly. */
 #pragma schedule on
 // FUN_003D5F50
-void func_003d5f50(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
+u8 *func_003d5f50(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     s32 value;
     u8 *record;
 
@@ -876,6 +876,7 @@ void func_003d5f50(u8 *arg0, s32 arg1, s32 arg2, s32 arg3) {
     *(u8 **)(record + 0x38) = arg0;
     *(s32 *)(record + 0x34) = arg1;
     *(s32 *)(record + 0x30) = 1;
+    return record;
 }
 /* measured: closes the single-function schedule bracket for func_003d5f50. */
 #pragma schedule off

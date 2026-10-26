@@ -1,3 +1,4 @@
+#include "h_cdvd.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -13,20 +14,20 @@ extern u32 D_005DC974[];
 void func_00440b68();
 void sprintf();
 s32 H_Cdvd_AcquireDirectory();
-s32 H_Cdvd_IsFileLoaded();
+
 s32 H_Cdvd_LookupRequest();
 u8 *mdlEffectCreateFromResource();
 
 void mdlEffectFlushWithTable();
 void mdlEffectSetChildPositionVec();
 s32 mdlEffectIsFinished();
-s32 mdlEffectIsActive();
-void mdlEffectUpdate();
+s32 mdlEffectIsActive(u8 *object);
+void mdlEffectUpdate(u8 *object);
 
 extern void (*jtbl_008873EC[])(void *ptr);
 
 void mdlEffectDestroy();
-void H_Cdvd_Destroy();
+
 extern char D_005E4FC8[];
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 
@@ -84,7 +85,7 @@ s32 cutinDrawTaskUpdate(u8 *task)
         *(s32 *)work = 1;
         break;
     case 1:
-        if (H_Cdvd_IsFileLoaded(((CutinDrawWork *)work)->directory) != 0) {
+        if (H_Cdvd_IsFileLoaded((struct HCdvd *)(((CutinDrawWork *)work)->directory)) != 0) {
             sprintf(resourcePath, D_005E4FA0, ((CutinDrawWork *)work)->firstId,
                           ((CutinDrawWork *)work)->secondId);
             ((CutinDrawWork *)work)[0].effect.pointer = mdlEffectCreateFromResource(H_Cdvd_LookupRequest(resourcePath, 0));
@@ -97,7 +98,7 @@ s32 cutinDrawTaskUpdate(u8 *task)
         position.z = 0;
         if (((CutinDrawWork *)work)->drawEnabled != 0) {
             if (((CutinDrawWork *)work)->active != 0 && ((CutinDrawWork *)work)->resetRequested != 0) {
-                mdlEffectUpdate(((CutinDrawWork *)work)->effect.handle);
+                mdlEffectUpdate((u8 *)(((CutinDrawWork *)work)->effect.handle));
                 cutinWork->resetRequested = 0;
                 cutinWork->active = 0;
             }
@@ -108,7 +109,7 @@ s32 cutinDrawTaskUpdate(u8 *task)
             mdlEffectSetChildPositionVec(((CutinDrawWork *)work)->effect.handle, &position);
             mdlEffectCommitAndAdvance(effectWork->effect.pointer);
             mdlEffectFlushWithTable(D_005DC974, cutinWork->effect.handle);
-            if (mdlEffectIsActive(cutinWork->effect.handle) != 0) {
+            if (mdlEffectIsActive((u8 *)(cutinWork->effect.handle)) != 0) {
                 cutinWork->active = 1;
             }
             if (mdlEffectIsFinished(cutinWork->effect.handle) != 0) {
@@ -132,7 +133,7 @@ void cutinDrawTaskDestroy(u8 *task)
         mdlEffectDestroy(work->effect.handle);
     }
     if (work->directory != 0) {
-        H_Cdvd_Destroy(work->directory);
+        H_Cdvd_Destroy((struct HCdvd *)(work->directory));
         work->directory = 0;
     }
     (*jtbl_008873EC)(work);

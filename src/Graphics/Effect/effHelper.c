@@ -12,7 +12,7 @@ u8 *mdlEffectCreateUniqueModel(u8 *model, s32 size);
 s32 mdlLayerIsPresent(s32 model, s32 layer);
 u32 mdlCountIntUserData(s32 model);
 void mdlEffectDestroyWithNodes(u32 effect);
-void mdlEffectDestroyModel(s32 res);
+void mdlEffectDestroyModel(u8 *object);
 void *mdlFindOrCreateModelObject(u32 type, u16 id, u32 flags);
 void EffModelInit(s32 model);
 
@@ -142,7 +142,7 @@ void EffHelperFree(EffHlpWork *work)
     u32 entryIndex;
 
     if (work->res != 0) {
-        mdlEffectDestroyModel(work->res);
+        mdlEffectDestroyModel((u8 *)(work->res));
     }
     if (work->listAlloc != NULL) {
         for (entryIndex = 0; entryIndex < work->count; entryIndex++) {
@@ -175,7 +175,7 @@ void EffHelperRebindModel(EffHlpWork *work, EffHlpWork *src)
         kAssertFail(D_007144F8, 0x9F);
     }
     if (work->res != 0) {
-        mdlEffectDestroyModel(work->res);
+        mdlEffectDestroyModel((u8 *)(work->res));
     }
     work->res = (s32)mdlFindOrCreateModelObject(((EffHelperModel *)src->res)->modelId,
                                    ((EffHelperModel *)src->res)->modelVariant, 0);

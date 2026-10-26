@@ -1,3 +1,4 @@
+#include "btl_runtime_hooks_internal.h"
 #include "btl_ui_task_internal.h"
 #include "btl_skill_target_internal.h"
 #include "list_item_internal.h"
@@ -19,8 +20,7 @@ typedef struct BtlUnit BtlUnit;
 typedef struct BtlAction BtlAction;
 
 extern s32 btlPacketFinishEffect(void);
-extern void btlGaugeRefreshAll(s32);
-extern void btlSelectionFlushEntries();
+extern void btlSelectionFlushEntries(u8 *object);
 
 
 extern f32 fGpffff815c;
@@ -84,7 +84,7 @@ extern u8 D_006253B0[];
 
 extern void btlPacketHitStatusCheck(u8 *work);
 extern s32 btlPacketBuildHitFlags(u8 *work);
-extern void btlSelectionFlushEntries();
+extern void btlSelectionFlushEntries(u8 *object);
 /* measured: retail loads the vtable address once across these callback calls and computes the
  * opacity base before byte promotion. */
 #pragma push
@@ -123,7 +123,7 @@ u8 *btlPacketCreateHitDisplay(s32 source, s32 target, s32 id, u16 effect, u16 ta
 // FUN_00201EE0
 s32 btlPacketFinishEffect(void)
 {
-    btlSelectionFlushEntries(((BtlBattleState *)D_0076449C)->uiTask);
+    btlSelectionFlushEntries((u8 *)(((BtlBattleState *)D_0076449C)->uiTask));
     btlGaugeRefreshAll(((BtlBattleState *)D_0076449C)->uiTask);
     return 1;
 }

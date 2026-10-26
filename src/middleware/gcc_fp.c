@@ -67,7 +67,7 @@ static __inline__ int isinf(FloatParts *p) { return p->kind == 4; }
 
 // FUN_0044E830 NONMATCHING
 #ifdef NON_MATCHING
-u32 func_0044e830(f64 arg0)
+u32 __fixunsdfsi(f64 arg0)
 {
     FloatParts parts;
     __unpack_d((u32 *)&arg0, (u32 *)&parts);

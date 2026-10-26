@@ -1,3 +1,4 @@
+#include "evt_internal.h"
 /* Original translation unit evtEvent.c (from __FILE__ assert strings). */
 #include "type.h"
 #include "sdk_task_registration.h"
@@ -34,7 +35,7 @@ extern void evtRefreshNodeResources(u8 *);
 extern void func_00440b68(void *);
 extern u8 D_0063C2E0[];
 s32 evtNodeTaskUpdate(u8 *task);
-void evtLookupTask(void);
+s32 evtLookupTask(void);
 
 
 // Returns the work block of the event's task, or 0 when the event has no task yet.
@@ -208,7 +209,7 @@ void evtNodeTaskDestroy(u8 *task) {
 // Creates the event task with a 0x60-byte work block for the given major/minor ids and returns the
 // task handle.
 // FUN_002859E0
-s32 evtCreateEventTask(s32 majorId, s32 minorId)
+s32 evtCreateEventTask(s32 majorId, s32 minorId, s32 unusedSubId)
 {
     s32 task;
     EvtEventTask *taskWork;
@@ -230,12 +231,13 @@ s32 evtCreateEventTask(s32 majorId, s32 minorId)
 }
 // Creates the event task through evtLookupTask when no task named "evtEvent" exists.
 // FUN_00285AF0
-void evtEnsureEventTask(void) {
-    if (kwlnTaskGetTaskByName(D_0063C2F8) == 0) {
-        evtLookupTask();
+s32 evtEnsureEventTask(void) {
+    s32 task = (s32)kwlnTaskGetTaskByName(D_0063C2F8);
+    if (task == 0) {
+        task = evtLookupTask();
     }
+    return task;
 }
-
 // Returns the event's frame counter, or -1 when no event task exists.
 // FUN_00285B30
 s32 evtGetEventFrame(void) {

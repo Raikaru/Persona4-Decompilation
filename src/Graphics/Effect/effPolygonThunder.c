@@ -1494,7 +1494,7 @@ void ThunderPairedUpdateStrip(u8 *effect)
     extern void mdlEffectCopyCameraOrigin(f32 *output);
     extern void effMiscBuildRotationVU(void);
     extern f32 sinf(f32 angle);
-    extern void effMiscAxisAngleVU(f32 axis, f32 *angle);
+    extern void effMiscAxisAngleVU(f32 *angle, f32 axis);
     extern void func_003c22f0(u8 *geometry);
     extern f32 fGpffff8084;
     extern f32 fGpffff80d0;
@@ -1826,7 +1826,7 @@ void ThunderPairedUpdateStrip(u8 *effect)
             }
             __asm__ volatile("vadd.xyzw $vf10, $vf10, $vf12" : : : "$vf10");
             effectVuStore10(&step);
-            effMiscAxisAngleVU(swing * (two * (effMiscRandFloat(0) - half)), up.lane);
+            effMiscAxisAngleVU( up.lane, swing * (two * (effMiscRandFloat(0) - half)));
             effectVuLoad10(&step);
             __asm__ volatile(
                 "vmulax.xyzw $ACC, $vf28, $vf10x\n"

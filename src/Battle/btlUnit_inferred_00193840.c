@@ -598,7 +598,7 @@ loop2_check:
         goto loop2_body;
     }
     if (workSize > 0) {
-        (u8 *)((BtlPacket *)packet)->workData = packet + 0x90;
+        ((BtlPacket *)packet)->workData = packet + 0x90;
     }
     ((BtlPacket *)packet)->flags =
         (u8)(((BtlPacket *)packet)->flags | 0x31);

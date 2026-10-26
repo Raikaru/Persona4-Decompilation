@@ -42,10 +42,10 @@ static const SFTIM_TC2TIME_FN sftim_tc2time[SFTIM_TC2TIME_NUM][2] = {
 	{sftim_Tc2TimeN, sftim_Tc2TimeN},
 };
 
-Sint32 sftim_v_sample = 0;
-Sint32 sftim_v_time = 0;
-Sint32 sftim_a_sample = 0;
-Sint64 sftim_as_pts = 0;
+extern Sint32 sftim_v_sample;
+extern Sint32 sftim_v_time;
+extern Sint32 sftim_a_sample;
+extern Sint64 sftim_as_pts;
 
 // Playback speed in 1/1000 (1000 = normal).
 Sint32 SFTIM_GetSpeed(SFD sfd)

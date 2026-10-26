@@ -305,7 +305,7 @@ s32 datPersonaCollectLearnableSkills(DatPersonaRecord *persona, void *outputSkil
 // persona id or slot.
 // FUN_001097C0
 
-void datPersonaRunSkillSlot(u8 *persona, s32 slotIndex)
+s32 datPersonaRunSkillSlot(u8 *persona, s32 slotIndex)
 {
     DatPersonaRecord *personaRecord = (DatPersonaRecord *)(persona);
     u8 *skillTable;
@@ -317,7 +317,7 @@ void datPersonaRunSkillSlot(u8 *persona, s32 slotIndex)
         kAssertFail(D_005E4318, 0x1B8);
     }
     skillTable = iGpffffb3d8 + (u16)personaRecord->id * 0x20;
-    datCalcSkillSlotValue(0, ((u16 *)skillTable)[(u16)slotIndex]);
+    return datCalcSkillSlotValue(0, ((u16 *)skillTable)[(u16)slotIndex]);
 }
 
 // Returns the skill-slot value for the persona's slot via datCalcSkillSlotValue; fatal when the

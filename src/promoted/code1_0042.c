@@ -16,8 +16,8 @@ extern s32 D_0088DCD8[];
 extern void InitTLB();
 extern void func_00421800();
 extern s32 D_0070C684[];
-extern void func_00429d90();
-extern void func_0042a330();
+extern void func_00429d90(s32 command);
+extern void func_0042a330(s32 command, s32 size, void *buffer, s32 mode);
 extern void func_0042a940();
 extern void func_0042aba8();
 extern void func_0042e2b8();
@@ -2224,9 +2224,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_00429d90);
 /* measured: schedule on places the stack restore in the jr delay slot. */
 #pragma schedule on
 // FUN_00429E08
-void func_00429e08(void)
+void func_00429e08(s32 command)
 {
-    func_00429d90();
+    func_00429d90(command);
 }
 /* measured: end of the function-local scheduling override. */
 #pragma schedule off
@@ -2261,9 +2261,9 @@ INCLUDE_ASM("asm/nonmatchings/code1_0042", func_0042a870);
 /* measured: schedule on places the stack restore in the jr delay slot. */
 #pragma schedule on
 // FUN_0042A920
-void func_0042a920(void)
+void func_0042a920(s32 command, s32 size, void *buffer, s32 mode)
 {
-    func_0042a330();
+    func_0042a330(command, size, buffer, mode);
 }
 /* measured: end of the function-local scheduling override. */
 #pragma schedule off

@@ -16,4 +16,7 @@ typedef struct CalendarFade {
     s32 childTask;          /* 0x1C: polled until task state 3 */
 } CalendarFade;
 
+/* Root calendar task creation does not consume the provided menu context. */
+s32 calendarTaskCreate(s32 unusedContext);
+
 #endif

@@ -70,9 +70,9 @@ extern void datPortraitSetLabel(s32 taskAddress, u16 labelId, s32 flags);
 #pragma optimization_level 2
 #pragma opt_propagation on
 #pragma opt_loop_invariants off
-// Destroy the community overlay: free its eleven sprite nodes and release its work block.
+// Destroy the Config task: free its eleven sprite nodes and release its work block.
 // FUN_0035E820
-void datCommunityOverlayDestroy(u8 *task)
+void cmpConfigDestroy(u8 *task)
 {
     u8 *base;
     s32 spriteIndex;
@@ -311,10 +311,10 @@ s32 datCommunityRequestExit(void);
 void resrcMngSuppressRender(void);
 void resrcMngUnsuppressRender(void);
 
-// Community detail state machine: opens the detail panel, handles its cursor and actions; returns 1
-// when it closes or 2 when the fade ends.
+// Config input/state machine: open the options, handle selection and toggles, then close.
+// Returns 1 after closing or 2 after the exit fade.
 // FUN_0035F0C0
-s32 datCommunityDetailStep(u32 *phase, s32 *active, u8 *configWork)
+s32 cmpConfigStepInput(u32 *phase, s32 *active, u8 *configWork)
 {
     extern u16 D_008C024E[];
     extern u16 D_008C0276[];
@@ -363,7 +363,7 @@ s32 datCommunityDetailStep(u32 *phase, s32 *active, u8 *configWork)
         }
         cmpConfigSetMode(configWork, 2);
         *phase = 4;
-        /* fall through: process input as soon as the detail panel becomes ready */
+        /* fall through: process input as soon as the Config panel becomes ready */
     case 4:
         /* measured: retail reloads selected after each option call instead of keeping a typed field
          * address. */

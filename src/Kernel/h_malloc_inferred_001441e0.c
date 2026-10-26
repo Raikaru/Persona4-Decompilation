@@ -1,3 +1,4 @@
+#include "calendar_fade_internal.h"
 #include "field_scene_internal.h"
 #include "resrc_manager_internal.h"
 #include "kwln_task_internal.h"
@@ -501,7 +502,7 @@ void calendarTaskDestroy(u8 *task)
 
 // Allocate a calendar work block and create its task with the update and destroy callbacks.
 // FUN_00144AF0
-s32 calendarTaskCreate(void)
+s32 calendarTaskCreate(s32 unusedContext)
 {
     s32 work;
 

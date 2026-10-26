@@ -1,3 +1,4 @@
+#include "sdk_snd_internal.h"
 #include "include_asm.h"
 #include "sdk_sprite_loader.h"
 #include "sdk_task_registration.h"
@@ -23,15 +24,14 @@ extern u8 D_006376B0[];
 extern u8 D_006376C0[];
 extern u8 D_006376D0[];
 extern u8 D_00638EF0[];
-extern u8 *kwlnTaskGetWork();
+extern u8 *kwlnTaskGetWork(void* task);
 extern u8 *PrimAllocQueueNode();
 extern void PrimAppendNode(void *, void *);
-extern u8 *kwlnTaskGetWork();
+extern u8 *kwlnTaskGetWork(void* task);
 extern void sdkSpriteRelease(void *);
 void kAssertFail(const void *file, s32 line);
 void chkmemAllocSiteTag(const void *file, s32 line);
 
-s32 sdkSndFadeOutChannel();
 s32 sdkSndStopChannel();
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*jtbl_008873EC[])(void *);
@@ -41,8 +41,7 @@ void cldDayChangeDrawFrame(s32 unused, s32 task);
 s32 cldDayChangeUpdateState(u8 *task);
 void cldDayChangeAddRenderTask(s32 task, u8 *renderList);
 void cldDayChangeTaskDestroy(u8 *task);
-void shdEnableBlendFlag(s32 value, s32 option1, s32 option2, s32 option3,
-                   u8 *option4, s32 option5, s32 option6);
+void shdEnableBlendFlag(void);
 void shdDisableBlendFlag(void);
 void PrimDrawPoints(void *colors, void *positions, f32 depth, s32 count, s32 primitiveType,
                    s32 preserveState);
@@ -98,7 +97,7 @@ s32 cldDayChangeUpdateState(u8 *task) {
     u32 fileSize;
     u8 *blob;
 
-    work = (CldDayChangeWork *)kwlnTaskGetWork();
+    work = (CldDayChangeWork *)kwlnTaskGetWork((void*)(task));
     switch (work->state) {
     case 0:
         work->state = 1;
@@ -293,7 +292,7 @@ void cldDayChangeDrawPolygon(s32 x, s32 y, f32 depth, u32 rgb, s32 opacity,
         colors[i * 4 + 3] = c3;
         i += 1;
     }
-    shdEnableBlendFlag(x, y, c3, c2, points, c1, c0);
+    shdEnableBlendFlag();
     PrimDrawPoints(colors, vertices, depth, pointCount, 4, 1);
     shdDisableBlendFlag();
 }
@@ -662,7 +661,7 @@ void cldDayChangeDrawFrame(s32 unused, s32 task)
     f32 ratio;
     f32 value;
 
-    work = kwlnTaskGetWork(task);
+    work = kwlnTaskGetWork((void*)(task));
     state = ((CldDayChangeWork *)work)->state - 4;
     switch (state) {
     case 0:
@@ -709,7 +708,7 @@ void cldDayChangeTaskDestroy(u8 *task) {
     u8 *work;
     s32 sprites;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(task));
     sprites = ((CldDayChangeWork *)work)->sprites;
     if (sprites != 0) {
         sdkSpriteRelease((void *)sprites);

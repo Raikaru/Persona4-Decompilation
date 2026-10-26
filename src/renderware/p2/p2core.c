@@ -158,16 +158,16 @@ duff_clear(void *target, int bytes)
  */
 
 /* Default RxHeap size */
-RwInt32 _rxHeapInitialSize = RXHEAPPLATFORMDEFAULTSIZE;
+extern RwInt32 _rxHeapInitialSize;
 /* Default Maximum number of nodes allowed in a pipeline */
-RwInt32 _rxPipelineMaxNodes  = RXPIPELINEDEFAULTMAXNODES;
+extern RwInt32 _rxPipelineMaxNodes;
 
 /****************************************************************************
  Local (static) Globals
  */
 
-RwBool  RxPipelineInstanced   = FALSE;
-RxHeap *_rxHeapGlobal         = (RxHeap *)NULL;
+extern RwBool RxPipelineInstanced;
+extern RxHeap *_rxHeapGlobal;
 
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

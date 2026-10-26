@@ -1,3 +1,4 @@
+#include "evt_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -11,7 +12,6 @@ extern s32 iGpffffa7c8;
 
 s32 mtMiscResourceValue(s32);
 
-s32 sdkSndFadeOutChannel(s64, s32);
 
 extern void sndPlayAreaCue(void);
 extern s32 sndRequestAreaTrack();
@@ -54,14 +54,14 @@ extern void mtMiscCollectType2Records(u8 *);
 #pragma pop
 // Request trackId through sdkSndRequestTrack; the first argument is unused.
 // FUN_002981F0
-s32 mtMiscRequestSoundTrack(s32 unused, s32 trackId) {
+s32 mtMiscRequestSoundTrack(s32 unused, s32 trackId, s32 unusedChannel) {
     sdkSndRequestTrack(trackId);
     return 0;
 }
 
 // Fade out channel through sdkSndFadeOutChannel with a zero second argument.
 // FUN_00298220
-s32 mtMiscFadeOutSoundChannel(s64 channel) {
+s32 mtMiscFadeOutSoundChannel(s64 channel, s32 unusedCue) {
     sdkSndFadeOutChannel((s16) channel, 0);
     return 0;
 }

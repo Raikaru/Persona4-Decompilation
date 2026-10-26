@@ -24,7 +24,7 @@ extern void btlShuffleDrawTaskUpdate(u8 *work);
 
 extern void btlShuffleDrawQueueCardsB(u8 *context);
 
-extern u16 *kwlnTaskGetWork();
+extern u16 *kwlnTaskGetWork(void* task);
 
 extern s32 kwlnTaskGetTaskByName(void *name);
 
@@ -183,7 +183,7 @@ extern s32 btlShuffleSeqFlag(u8 *context);
 // FUN_0036E140
 s32 btlShuffleTaskUpdate(u8 *unusedTask)
 {
-    BtlShuffleTaskWork *work = (BtlShuffleTaskWork *)kwlnTaskGetWork();
+    BtlShuffleTaskWork *work = (BtlShuffleTaskWork *)kwlnTaskGetWork(unusedTask);
     s32 i;
     u16 flags;
     u16 cnt;
@@ -341,7 +341,7 @@ void btlShuffleQueueSeqDraw(u8 *queue, u16 *work)
 // FUN_0036E600
 void btlShuffleTaskDestroy(u8 *unusedTask)
 {
-    u8 *work = (u8 *)kwlnTaskGetWork();
+    u8 *work = (u8 *)kwlnTaskGetWork(unusedTask);
 
     if (datGetFlag(0x1430) == 0) {
         datSetFlag(0x1430, 1);
@@ -378,41 +378,41 @@ s32 btlShuffleTaskCreate(u8 *parent, u8 *selection)
 }
 
 // FUN_0036E7E0
-void btlShuffleTaskSetBusy(void)
+void btlShuffleTaskSetBusy(u8 *object)
 {
-    u16 *work = kwlnTaskGetWork();
+    u16 *work = kwlnTaskGetWork(object);
 
     *work |= BTL_SHUFFLE_FLAG_BUSY;
 }
 
 /* Start the ten-frame termination delay and reset its elapsed counter. */
 // FUN_0036E810
-void btlShuffleTaskResetPhase(void)
+void btlShuffleTaskResetPhase(u8 *object)
 {
-    u16 *work = kwlnTaskGetWork();
+    u16 *work = kwlnTaskGetWork(object);
 
     ((BtlShuffleTaskWork *)work)->frames = 0;
     *(u32 *)&((BtlShuffleTaskWork *)work)->phase = 5;
 }
 
 // FUN_0036E840
-u32 btlShuffleTaskIsBusy(void)
+u32 btlShuffleTaskIsBusy(u8 *object)
 {
-    return kwlnTaskGetWork()[0] & BTL_SHUFFLE_FLAG_BUSY;
+    return kwlnTaskGetWork(object)[0] & BTL_SHUFFLE_FLAG_BUSY;
 }
 
 // FUN_0036E870
-void btlShuffleTaskRequestCancel(void)
+void btlShuffleTaskRequestCancel(u8 *object)
 {
-    u16 *work = kwlnTaskGetWork();
+    u16 *work = kwlnTaskGetWork(object);
 
     *work |= BTL_SHUFFLE_FLAG_CANCEL_REQUESTED;
 }
 
 // FUN_0036E8A0
-u32 btlShuffleTaskIsCancelRequested(void)
+u32 btlShuffleTaskIsCancelRequested(u8 *object)
 {
-    return (kwlnTaskGetWork()[0] & BTL_SHUFFLE_FLAG_CANCEL_REQUESTED) != 0;
+    return (kwlnTaskGetWork(object)[0] & BTL_SHUFFLE_FLAG_CANCEL_REQUESTED) != 0;
 }
 
 // FUN_0036E8D0

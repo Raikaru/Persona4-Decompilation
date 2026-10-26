@@ -1,3 +1,4 @@
+#include "dat_panel_internal.h"
 
 #include "list_item_internal.h"
 #include "include_asm.h"
@@ -16,7 +17,6 @@ extern void sdkSpriteDrawSized(u8 *, f32 , f32 , f32 ,
                           u16 , s16 , f32 , s16 );
 extern void datEntryDrawRow(Vec2f , f32 , u8 , u8 *);
 extern void datPanelResetCursor(u8 *);
-extern void datPanelDrawByKind(Vec2f , f32 , s32 , u8 *, s32 );
 extern s32 datCalcGetLevelById(s32 );
 extern f32 fGpffff82cc; /* gp -0x7d34 */
 extern u8 D_0064B2E0[];

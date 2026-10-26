@@ -10,7 +10,7 @@ typedef struct FclBankPosition { f32 x, y; } FclBankPosition;
 extern char iGpffffa890[8];
 extern int iGpffffa898;
 
-extern void func_00446e88(u8 *, s32 *);
+extern s32 vprintf(u8 *, s32 *);
 extern u8 *nmListAppendNode(void *, void *, s32);
 typedef struct NmlistNode NmlistNode;
 typedef struct NmlistList NmlistList;
@@ -56,7 +56,7 @@ void fclBankLogf(u8 *fmt, ...)
     va_list args;
 
     va_start(args, fmt);
-    func_00446e88(fmt, (s32 *)args);
+    vprintf(fmt, (s32 *)args);
 }
 
 /* Cancel active non-retiring slots and drain the pending request list. */
@@ -191,11 +191,12 @@ s64 fclBankAcquire(int *node)
 
 /* Queue a descriptor and its high-byte request flags for bank acquisition. */
 // FUN_002E1230
-void fclBankQueueRequest(s32 descriptor, s64 flags)
+void *fclBankQueueRequest(s32 descriptor, s64 flags)
 {
     s32 i;
     FclBankSlot *slot;
     FclBankRequest *request;
+    void *node;
 
     slot = fclBankWork()->record->slots;
     i = 0;
@@ -206,9 +207,11 @@ void fclBankQueueRequest(s32 descriptor, s64 flags)
         slot++;
         i++;
     }
-    request = ((FclBankRequestNode *)nmListAppendNode((void *)iGpffffb588, 0, 0x14))->request;
+    node = nmListAppendNode((void *)iGpffffb588, 0, 0x14);
+    request = ((FclBankRequestNode *)node)->request;
     request->descriptor = descriptor;
     request->flags = (s16)(((s16)flags & 0xFF00) | 3);
+    return node;
 }
 
 /* Marks the other slots with matching request flags; returns 0 if any lacks flag 4. */

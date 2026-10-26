@@ -48,7 +48,6 @@ extern void memset(void *destination, s32 value, u32 size);
 
 extern u32 datCalcRandomBelow();
 extern u8 D_0060AB08[];
-extern void sdkSndPlayCue(s32 input, s32 value);
 extern u8 D_0060AC00[];
 extern u8 D_00618AC0[];
 extern u8 D_0061F000[];

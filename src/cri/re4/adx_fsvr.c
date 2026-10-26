@@ -9,6 +9,7 @@ extern void ADXCRS_Unlock(void);
 extern void cvFsExecServer(void);
 extern void ADXSTM_ExecServer(void);
 extern void ADXF_ExecServer(void);
+extern void func_004e4190(void);
 
 Sint32 adxt_fssvr_enter_cnt;
 Sint32 adxt_fssvr_exec_cnt;
@@ -24,7 +25,7 @@ void ADXT_ExecFsSvr(void)
 	}
 	adxt_fssvr_enter_cnt = 1;
 	ADXCRS_Unlock();
-	adxt_fssvr_enter_cnt = 3;
+	adxt_fssvr_enter_cnt = 2; func_004e4190(); adxt_fssvr_enter_cnt = 3;
 	cvFsExecServer();
 	adxt_fssvr_enter_cnt = 4;
 	ADXSTM_ExecServer();
@@ -34,5 +35,5 @@ void ADXT_ExecFsSvr(void)
 	ADXSTM_ExecServer();
 	adxt_fssvr_enter_cnt = 7;
 	cvFsExecServer();
-	adxt_fssvr_enter_cnt = 0;
+	adxt_fssvr_enter_cnt = 8; func_004e4190(); adxt_fssvr_enter_cnt = 0;
 }

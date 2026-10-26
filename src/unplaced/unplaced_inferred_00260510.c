@@ -43,7 +43,7 @@ typedef struct { s32 a, b, c, d; } Quad4;
 
 typedef void (*CalendarGlyphCallback)(f32, f32, f32, s32, u8, s8 *, s32, s32, u8 *);
 
-extern u8 *kwlnTaskGetWork();
+extern u8 *kwlnTaskGetWork(void* task);
 extern s32 kwlnTaskIsLinked();
 extern s32 sdkSpritePackCreate(u8 *);
 extern u8 D_00637420[];
@@ -89,7 +89,7 @@ void sdlSchedulerEnable(void)
 
     task = kwlnTaskGetTaskByName(D_00637348);
     if (task != 0) {
-        work = kwlnTaskGetWork(task);
+        work = kwlnTaskGetWork((void*)(task));
         ((SdlSchedulerWork *)work)->flags |= 1;
     }
 }
@@ -1035,7 +1035,7 @@ s32 cldDayChangeTaskUpdate(u8 *sdkTaskBytes)
     s32 holdFrame;
     u8 *work;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(sdkTaskBytes));
     calSplitDayOfYear(((CalendarDayChange *)work)->fromDay, &month, &day);
     switch (((CalendarDayChange *)work)->state) {
     case 0:
@@ -1259,7 +1259,7 @@ void calDrawDayStripCallback(s32 queue, u8 *task)
     s32 cellDay;
     s64 unusedWideDay;
 
-    work = kwlnTaskGetWork(task);
+    work = kwlnTaskGetWork((void*)(task));
     state = ((CalendarDayChange *)(work))->state;
     switch (state) {
     case 3:
@@ -1517,7 +1517,7 @@ void cldDayChangeStopTask(u8 *unusedTask)
     s32 spritePack;
     u8 *work;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(unusedTask));
     if (kwlnTaskIsLinked((u8 *)((CalendarDayChange *)work)->childTask) != 0) {
         kwlnTaskDestroyWithHierarchy(MEMBER(s32, work, CalendarDayChange, childTask));
     }

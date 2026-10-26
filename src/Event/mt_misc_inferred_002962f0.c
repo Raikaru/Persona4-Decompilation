@@ -178,7 +178,7 @@ void mtMiscCollectType4Records(MtMiscSceneSource *source, u8 *eventWork)
 void mtMiscCollectType5Records(MtMiscSceneSource *source, u8 *eventWork)
 {
   extern u8 *evtNodeCreate();
-  extern u8 *evtNodeAlloc(s32 source);
+  extern u8 *evtNodeAlloc(s32 kind, u8 *ownerAddress);
   s32 recordOffset;
   u8 *positionTarget;
   u8 *payloadTarget;
@@ -193,7 +193,7 @@ void mtMiscCollectType5Records(MtMiscSceneSource *source, u8 *eventWork)
   u8 *childNode;
   u8 *recordData;
   u8 *recordCursor;
-  parentNode = evtNodeAlloc(5);
+  parentNode = evtNodeAlloc(5, eventWork);
   if ((source->header->kind) < 6)
   {
     recordCount = source->countAC;
@@ -239,7 +239,7 @@ void mtMiscCollectType5Records(MtMiscSceneSource *source, u8 *eventWork)
 void mtMiscCollectType19Records(MtMiscSceneSource *source, u8 *eventWork)
 {
   extern u8 *evtNodeCreate();
-  extern u8 *evtNodeAlloc(s32 source);
+  extern u8 *evtNodeAlloc(s32 kind, u8 *ownerAddress);
   s32 recordOffset;
   u8 *positionTarget;
   u8 *payloadTarget;
@@ -257,7 +257,7 @@ void mtMiscCollectType19Records(MtMiscSceneSource *source, u8 *eventWork)
   u8 *childNode;
   u8 *recordData;
   u8 *recordCursor;
-  parentNode = evtNodeAlloc(0x13);
+  parentNode = evtNodeAlloc(0x13, eventWork);
   if ((source->header->kind) < 6)
   {
     recordCount = source->countAC;

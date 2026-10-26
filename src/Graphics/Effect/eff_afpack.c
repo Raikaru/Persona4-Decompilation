@@ -80,7 +80,7 @@ extern s32 D_00922DB4[];
 extern void PrimAppendNode(void* list, s32* node);
 extern void* D_00764C9C; /* instance-list tail */
 extern RuntimeListNode* D_00764CA0; /* instance-list head */
-extern void effAfterResetCommand(void* command, void* resource);
+extern void effAfterResetCommand(void* command);
 extern void effAfterRunCommands(void* work, void* unused);
 extern void func_00440b68(const void* msg, const void* file, s32 line);
 extern u8* H_Cdvd_AcquireDirectory(u8* path, s32 flags);
@@ -490,7 +490,7 @@ void AfPackStartSections(RuntimeListNode* node)
         ((AfPackCommand *)out)->start = ((RuntimeWork *)work)->commands.signedWords[i];
         off = i * 0x3C;
         ((AfPackCommand *)out)->target = (s32)((u8*)node->vertices + off);
-        effAfterResetCommand(out, work);
+        effAfterResetCommand(out);
         i++;
     }
     node->flags |= 1;

@@ -82,7 +82,7 @@ extern void btlSoundCancelPlayback(void);
 #pragma pop
 /* Cancel battle sound playback and complete the target callback. */
 // FUN_001F6090
-s32 btlTargetCancelPlayback(void)
+u32 btlTargetCancelPlayback(void *work)
 {
     btlSoundCancelPlayback();
     return 1;

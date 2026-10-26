@@ -14,8 +14,8 @@ extern void PrimAppendNode();
 extern s32 TnUploadStreamTagged();
 extern u8 *func_003c42b0(void *object, s32 value);
 extern void func_003ef3a0();
-extern void func_003a2760();
-extern void func_003c02e0();
+extern void func_003a2760(u8 *object);
+extern void func_003c02e0(u8 *arg0);
 extern void func_003e9390();
 extern void func_003c4220();
 extern void (*jtbl_008873EC[])(void *ptr);
@@ -153,7 +153,6 @@ typedef signed __int128 s128;
 void GeometryMatrixBuild(RwMatrix *matrix, RwV3d *translation, void *basis, f32 scale);
 void func_003e9cb0(void *frame, void *transform, u32 combine);
 
-void GeometryMatrixBuildCombined(RwMatrix *matrix, RwV3d *translation, void *basis, RwV3d *scale);
 extern u8 *GeometryCreateMultiPart(s32 partCount, s32 verticesPerPart, s32 trianglesPerPart, s32 flags);
 
 
@@ -392,9 +391,9 @@ void GeometryBlockDestroy(void *block) {
     s32 resource = ((EffGeometryBlock *)block)->atomicData.signedValue;
     if (resource != 0) {
         if (((EffGeometryBlock *)block)->kindData.half[0] & 2) {
-            func_003a2760(resource);
+            func_003a2760((u8 *)(resource));
         } else {
-            func_003c02e0(resource);
+            func_003c02e0((u8 *)(resource));
         }
     }
     resource = ((EffGeometryBlock *)block)->frameData.signedValue;
@@ -455,28 +454,24 @@ void GeometryBlockSetPartState(u8 *block, s32 state) {
     }
 }
 
-// Builds the matrix with GeometryMatrixBuild and sets it on the block's frame; the local prototype
-// declares no arguments.
+// Build the incoming transform and apply it to the block's frame.
 // FUN_00483660
-void GeometryBlockSetFrameMatrix(u8 *block)
+void GeometryBlockSetFrameMatrix(u8 *block, RwV3d *translation, void *basis, f32 scale)
 {
     RwMatrix matrix;
-    void GeometryMatrixBuild();
 
-    GeometryMatrixBuild(&matrix);
+    GeometryMatrixBuild(&matrix, translation, basis, scale);
     func_003e9cb0(((EffGeometryBlock *)block)->frameData.pointer, &matrix, 0);
 }
 
 
-// Builds the matrix with GeometryMatrixBuildCombined and sets it on the block's frame; the local
-// prototype declares no arguments.
+// Build the incoming combined transform and apply it to the block's frame.
 // FUN_004836B0
-void GeometryBlockSetFrameMatrixCombined(u8 *block)
+void GeometryBlockSetFrameMatrixCombined(u8 *block, RwV3d *translation, void *basis, RwV3d *scale)
 {
     RwMatrix matrix;
-    void GeometryMatrixBuildCombined();
 
-    GeometryMatrixBuildCombined(&matrix);
+    GeometryMatrixBuildCombined(&matrix, translation, basis, scale);
     func_003e9cb0(((EffGeometryBlock *)block)->frameData.pointer, &matrix, 0);
 }
 

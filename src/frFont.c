@@ -72,7 +72,7 @@ extern u32 DAT_00881514_abs[];
 extern u32 DAT_00881764_abs[];
 extern u32 DAT_00881768_abs[];
 
-void *(*jtbl_008873E8[])(u32 size, u32 align);
+extern void *(*jtbl_008873E8[])(u32 size, u32 align);
 extern void chkmemAllocSiteTag(const void *file, s32 line);
 extern s8 D_007645B0;
 
@@ -2525,13 +2525,11 @@ void frFontClearStateFlags(void)
     D_007637F8 = 0;
 }
 
-u32 frFontFlagMask = 0xffffffff;
-
-/* Masks `value` with the font flag mask (all bits set by default). */
+/* Test the font state flags set and cleared by the neighboring setters. */
 // FUN_00274650
 u32 frFontMaskFlags(u32 value)
 {
-    return frFontFlagMask & value;
+    return (u32)D_007637F8 & value;
 }
 
 /* Sets (enable != 0) or clears the given bits in the state flag word. */

@@ -16,7 +16,6 @@ extern void scrDiscardArgs(void *, ...);
 
 s32 mtMiscResourceValue(s32 resourceId);
 
-s32 sdkSndFadeOutChannel(s64, s32);
 
 extern s32 iGpffffb538;
 extern u8 D_00882ED0[];
@@ -30,7 +29,6 @@ extern char D_0063D050[];
 extern void sdkSndResetChannel(s32, s32);
 extern void sdkSndFadeOutChannelFrames(s32 channelIndex, s32 requestValue, s32 fadeFrames);
 void mdlEffectSeqStart(s32 duration, s16 sequenceId);
-s32 sdkSndPlayCue(s16, s32);
 s32 sdkSndStopMainChannel(void);
 s32 sdkSndStopChannel(s16 fadeFrames);
 
@@ -122,7 +120,7 @@ s32 K_Cmd_SND_STREAM_STOP_CH1(void) {
 // FUN_00299890
 /* p4flow Common 0x006F BGM (plays a sound cue with flag 1). */
 s32 K_Cmd_BGM(void) {
-    sdkSndPlayCue(scrGetParamInt(0), 1);
+    sdkSndPlayCue((s32)(s16)scrGetParamInt(0), 1);
     return 1;
 }
 

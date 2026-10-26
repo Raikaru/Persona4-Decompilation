@@ -33,7 +33,7 @@ extern char D_0064E460[];
 extern char D_0064E280[];
 
 extern f32 cosf(f32);
-extern void sflDataInitPanel(void);
+extern void sflDataInitPanel(u8 *work);
 extern void pscLightInitQuad(u8 *dst);
 extern f32 fGpffff8390;
 extern f32 fGpffff8394;
@@ -85,7 +85,7 @@ void pscModelInitPanel(u8 *model)
     RwV3d lowerRight;
     u8 color;
 
-    sflDataInitPanel();
+    sflDataInitPanel(model);
     ((PscModel *)model)->mode = 3;
     pscLightInitQuad(model + 0xE0);
     upperRight.x = 3.0f;
