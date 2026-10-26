@@ -75,15 +75,15 @@ s32 btlCond_MYMP(u8 *action, s32 conditionValue)
 
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
 // FUN_001D9890
-void btlCond_FRHP(u8 *action, u32 conditionValue) {
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x80000, 0, (code)btlCond_MYHP);
+s32 btlCond_FRHP(u8 *action, u32 conditionValue) {
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x80000, 0, (code)btlCond_MYHP);
 }
 
 /* Run the corresponding per-unit condition over the opposing side, excluding KO status. */
 // FUN_001D98E0
 /* opt_rebuildconditionals must be off for this wrapper, as for the same-shaped btlAICommand
  * func_001db990. */
-void btlCond_ENHP(u8 *action, u32 conditionValue) {
+s32 btlCond_ENHP(u8 *action, u32 conditionValue) {
     u32 shift;
     {
         if ((u8)((BtlAction *)action)->unit->genus != 0)
@@ -95,14 +95,14 @@ void btlCond_ENHP(u8 *action, u32 conditionValue) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYHP);
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYHP);
 }
 
 /* Run the corresponding per-unit condition over the opposing side, excluding KO status. */
 // FUN_001D9940
 /* measured: this wrapper needs opt_rebuildconditionals off, like the same-shaped btlAICommand
  * func_001db990; the goto form keeps the retail branch layout. */
-void btlCond_ENHP_O(u8 *action, u32 conditionValue) {
+s32 btlCond_ENHP_O(u8 *action, u32 conditionValue) {
     u32 shift;
     {
         if ((u8)((BtlAction *)action)->unit->genus != 0)
@@ -114,7 +114,7 @@ void btlCond_ENHP_O(u8 *action, u32 conditionValue) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCondCheckMaxHp);
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCondCheckMaxHp);
 }
 
 /* Compare the acting unit level with the inclusive lower bound in conditionValue. */
@@ -198,22 +198,22 @@ s32 btlCond_MYBAD(u8 *task, s32 mask) {
 }
 /* Search the allied side for the supplied status mask; a KO bit in the mask disables the separate KO exclusion. */
 // FUN_001D9B90
-void btlCond_FRBAD(u8 *action, u32 conditionValue)
+s32 btlCond_FRBAD(u8 *action, u32 conditionValue)
 {
     u32 mask;
 
     mask = (1 << (u8)((BtlAction *)action)->unit->genus) & 0xFFFF;
     if ((conditionValue & 0x80000) != 0) {
-        btlEffectFindUnitMatchingCallback((int)action, conditionValue, mask, 0, 0, btlCond_MYBAD);
+        return btlEffectFindUnitMatchingCallback((int)action, conditionValue, mask, 0, 0, btlCond_MYBAD);
     } else {
-        btlEffectFindUnitMatchingCallback((int)action, conditionValue, mask, 0x80000, 0, btlCond_MYBAD);
+        return btlEffectFindUnitMatchingCallback((int)action, conditionValue, mask, 0x80000, 0, btlCond_MYBAD);
     }
 }
 
 /* Search the opposing side for the supplied status mask; a KO bit in the mask disables the separate
  * KO exclusion. */
 // FUN_001D9C00
-void btlCond_ENBAD(u8 *action, u32 conditionValue)
+s32 btlCond_ENBAD(u8 *action, u32 conditionValue)
 {
     u32 shift;
     u32 sideIndex;
@@ -230,9 +230,9 @@ void btlCond_ENBAD(u8 *action, u32 conditionValue)
     }
     sideIndex = shift & 0xFFFF;
     if ((conditionValue & 0x80000) != 0) {
-        btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (sideIndex & 0xFFFF)) & 0xFFFF, 0, 0, btlCond_MYBAD);
+        return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (sideIndex & 0xFFFF)) & 0xFFFF, 0, 0, btlCond_MYBAD);
     } else {
-        btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (sideIndex & 0xFFFF)) & 0xFFFF, 0x80000, 0, btlCond_MYBAD);
+        return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (sideIndex & 0xFFFF)) & 0xFFFF, 0x80000, 0, btlCond_MYBAD);
     }
 }
 /* measured: opt_rebuildconditionals off forces the retail mode branch. Return true only when no
@@ -471,15 +471,15 @@ s32 btlCond_MYWEAK(u8 *action, s16 conditionValue) {
 
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
 // FUN_001DA330
-void btlCond_FRHANSYA(u8 *action, u32 conditionValue) {
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x80000, 0, (code)btlCond_MYHANSYA);
+s32 btlCond_FRHANSYA(u8 *action, u32 conditionValue) {
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x80000, 0, (code)btlCond_MYHANSYA);
 }
 
 /* Run the corresponding per-unit condition over the opposing side, excluding KO status. */
 // FUN_001DA380
 /* Needs opt_rebuildconditionals off, the same as btlAICommand func_001db990. The goto form is used
  * because if/else and switch produce different code. */
-void btlCond_ENHANSYA(u8 *action, u32 conditionValue) {
+s32 btlCond_ENHANSYA(u8 *action, u32 conditionValue) {
     u32 shift;
     {
         if ((u8)((BtlAction *)action)->unit->genus != 0)
@@ -491,19 +491,19 @@ void btlCond_ENHANSYA(u8 *action, u32 conditionValue) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYHANSYA);
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYHANSYA);
 }
 
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
 // FUN_001DA3E0
-void btlCond_FRKYUSYU(u8 *action, s32 conditionValue) {
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (u8)((BtlUnit *)(u8 *)(u8 *)((BtlAction *)(u8 *)action)->unit)->genus) & 0xFFFF, 0x80000, 0, (code)btlCond_MYKYUSYU);
+s32 btlCond_FRKYUSYU(u8 *action, s32 conditionValue) {
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (u8)((BtlUnit *)(u8 *)(u8 *)((BtlAction *)(u8 *)action)->unit)->genus) & 0xFFFF, 0x80000, 0, (code)btlCond_MYKYUSYU);
 }
 
 /* Run the corresponding per-unit condition over the opposing side, excluding KO status. */
 // FUN_001DA430
 /* Same branch shape as func_001da380; this wrapper needs opt_rebuildconditionals off. */
-void btlCond_ENKYUSYU(u8 *action, u32 conditionValue) {
+s32 btlCond_ENKYUSYU(u8 *action, u32 conditionValue) {
     u32 shift;
     {
         if ((u8)((BtlAction *)action)->unit->genus != 0)
@@ -515,18 +515,18 @@ void btlCond_ENKYUSYU(u8 *action, u32 conditionValue) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYKYUSYU);
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYKYUSYU);
 }
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
 // FUN_001DA490
-void btlCond_FRMUKOU(u8 *action, u32 conditionValue) {
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x80000, 0, (code)btlCond_MYMUKOU);
+s32 btlCond_FRMUKOU(u8 *action, u32 conditionValue) {
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x80000, 0, (code)btlCond_MYMUKOU);
 }
 /* Run the corresponding per-unit condition over the opposing side, excluding KO status. */
 // FUN_001DA4E0
 /* Same branch shape as func_001da380; the goto form keeps retail's branch layout, and this wrapper
  * needs opt_rebuildconditionals off. */
-void btlCond_ENMUKOU(u8 *action, u32 conditionValue) {
+s32 btlCond_ENMUKOU(u8 *action, u32 conditionValue) {
     u32 shift;
     {
         if ((u8)((BtlAction *)action)->unit->genus != 0)
@@ -538,18 +538,18 @@ void btlCond_ENMUKOU(u8 *action, u32 conditionValue) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYMUKOU);
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYMUKOU);
 }
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
 // FUN_001DA540
-void btlCond_FRWEAK(u8 *action, u32 conditionValue) {
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x80000, 0, (code)btlCond_MYWEAK);
+s32 btlCond_FRWEAK(u8 *action, u32 conditionValue) {
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x80000, 0, (code)btlCond_MYWEAK);
 }
 /* Run the corresponding per-unit condition over the opposing side, excluding KO status. */
 // FUN_001DA590
 /* measured: this wrapper needs opt_rebuildconditionals off to keep the same branch shape as
  * func_001da380. */
-void btlCond_ENWEAK(u8 *action, u32 conditionValue) {
+s32 btlCond_ENWEAK(u8 *action, u32 conditionValue) {
     u32 shift;
     {
         if ((u8)((BtlAction *)action)->unit->genus != 0)
@@ -561,7 +561,7 @@ void btlCond_ENWEAK(u8 *action, u32 conditionValue) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYWEAK);
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYWEAK);
 }
 /* Compare the selected skill element with conditionValue; the XOR expression implements equality. */
 // FUN_001DA5F0
@@ -573,13 +573,13 @@ s32 btlCond_MYUSEATTR(u8 *action, s32 conditionValue)
 }
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
 // FUN_001DA640
-void btlCond_FRUSEATTR(u8 *action, u32 conditionValue) {
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x80000, 0, (code)btlCond_MYUSEATTR);
+s32 btlCond_FRUSEATTR(u8 *action, u32 conditionValue) {
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x80000, 0, (code)btlCond_MYUSEATTR);
 }
 /* Run the corresponding per-unit condition over the opposing side, excluding KO status. */
 // FUN_001DA690
 /* Uses the same goto branch shape as func_001da380, and needs opt_rebuildconditionals off. */
-void btlCond_ENUSEATTR(u8 *action, u32 conditionValue) {
+s32 btlCond_ENUSEATTR(u8 *action, u32 conditionValue) {
     u32 shift;
     {
         if ((u8)((BtlAction *)action)->unit->genus != 0)
@@ -591,7 +591,7 @@ void btlCond_ENUSEATTR(u8 *action, u32 conditionValue) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYUSEATTR);
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x80000, 0, (code)btlCond_MYUSEATTR);
 }
 /* Accept the requested skill ID only for command kinds 1 and 2. */
 // FUN_001DA6F0
@@ -615,15 +615,15 @@ bool btlCond_MYUSESKIL(int action, int conditionValue)
 
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
 // FUN_001DA730
-void btlCond_FRUSESKIL(int action, u32 conditionValue)
+s32 btlCond_FRUSESKIL(int action, u32 conditionValue)
 {
-    btlEffectFindUnitMatchingCallback(action, conditionValue, 1 << ((BtlAction *)action)->unit->genus & 0xffff, 0x80000, 0, (code *)&btlCond_MYUSESKIL);
+    return btlEffectFindUnitMatchingCallback(action, conditionValue, 1 << ((BtlAction *)action)->unit->genus & 0xffff, 0x80000, 0, (code *)&btlCond_MYUSESKIL);
 }
 /* measured: retail's branch shape needs opt_rebuildconditionals off. Runs the per-unit condition
  * over the opposing side, excluding KO status. */
 /* Check the opposing side's non-KO units for one that passes the btlCond_MYUSESKIL skill-use test. */
 // FUN_001DA780
-void btlCond_ENUSESKIL(int action, u32 conditionValue)
+s32 btlCond_ENUSESKIL(int action, u32 conditionValue)
 {
     u32 shift;
 
@@ -634,7 +634,7 @@ void btlCond_ENUSESKIL(int action, u32 conditionValue)
 nonzero:
     shift = 0;
 done:
-    btlEffectFindUnitMatchingCallback(action, conditionValue, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0, (code *)&btlCond_MYUSESKIL);
+    return btlEffectFindUnitMatchingCallback(action, conditionValue, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0, (code *)&btlCond_MYUSESKIL);
 }
 /* Accept target classifications 1 and 2 for the action's selected skill. */
 // FUN_001DA7E0
@@ -655,14 +655,14 @@ u32 btlCond_MYGROUP(int action)
 
 /* Run the corresponding per-unit condition over the allied side, excluding KO status. */
 // FUN_001DA840
-void btlCond_FRGROUP(int action, u32 conditionValue)
+s32 btlCond_FRGROUP(int action, u32 conditionValue)
 {
-    btlEffectFindUnitMatchingCallback(action, conditionValue, 1 << ((BtlAction *)action)->unit->genus & 0xffff, 0x80000, 0, (code *)&btlCond_MYGROUP);
+    return btlEffectFindUnitMatchingCallback(action, conditionValue, 1 << ((BtlAction *)action)->unit->genus & 0xffff, 0x80000, 0, (code *)&btlCond_MYGROUP);
 }
 /* Runs the per-unit condition over the opposing side, excluding KO status; retail's branch shape
  * needs opt_rebuildconditionals off. */
 // FUN_001DA890
-void btlCond_ENGROUP(int action, u32 conditionValue)
+s32 btlCond_ENGROUP(int action, u32 conditionValue)
 {
     u32 shift;
 
@@ -673,7 +673,7 @@ void btlCond_ENGROUP(int action, u32 conditionValue)
 nonzero:
     shift = 0;
 done:
-    btlEffectFindUnitMatchingCallback(action, conditionValue, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0, (code *)&btlCond_MYGROUP);
+    return btlEffectFindUnitMatchingCallback(action, conditionValue, 1 << (shift & 0xffff) & 0xffff, 0x80000, 0, (code *)&btlCond_MYGROUP);
 }
 /* Test the action turn counter against an inclusive upper bound. */
 // FUN_001DA8F0
@@ -715,13 +715,13 @@ s32 btlCond_MYHREC(u8 *action)
 }
 /* Run the corresponding per-unit condition over the allied side, excluding KO and down status. */
 // FUN_001DAA00
-void btlCond_FRHANSYA_ST(u8 *action, u32 conditionValue) {
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x180000, 0, (code)btlCond_MYHANSYA);
+s32 btlCond_FRHANSYA_ST(u8 *action, u32 conditionValue) {
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x180000, 0, (code)btlCond_MYHANSYA);
 }
 /* Run the corresponding per-unit condition over the opposing side, excluding KO and down status. */
 // FUN_001DAA50
 /* Same branch shape as func_001da380; this wrapper needs opt_rebuildconditionals off. */
-void btlCond_ENHANSYA_ST(u8 *action, u32 conditionValue) {
+s32 btlCond_ENHANSYA_ST(u8 *action, u32 conditionValue) {
     u32 shift;
     {
         if ((u8)((BtlAction *)action)->unit->genus != 0)
@@ -733,17 +733,17 @@ void btlCond_ENHANSYA_ST(u8 *action, u32 conditionValue) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYHANSYA);
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYHANSYA);
 }
 /* Run the corresponding per-unit condition over the allied side, excluding KO and down status. */
 // FUN_001DAAB0
-void btlCond_FRKYUSYU_ST(u8 *action, u32 conditionValue) {
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x180000, 0, (code)btlCond_MYKYUSYU);
+s32 btlCond_FRKYUSYU_ST(u8 *action, u32 conditionValue) {
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x180000, 0, (code)btlCond_MYKYUSYU);
 }
 /* Run the corresponding per-unit condition over the opposing side, excluding KO and down status. */
 // FUN_001DAB00
 /* Needs opt_rebuildconditionals off; same branch shape as func_001da380. */
-void btlCond_ENKYUSYU_ST(u8 *action, u32 conditionValue) {
+s32 btlCond_ENKYUSYU_ST(u8 *action, u32 conditionValue) {
     u32 shift;
     {
         if ((u8)((BtlAction *)action)->unit->genus != 0)
@@ -755,18 +755,18 @@ void btlCond_ENKYUSYU_ST(u8 *action, u32 conditionValue) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYKYUSYU);
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYKYUSYU);
 }
 /* Run the corresponding per-unit condition over the allied side, excluding KO and down status. */
 // FUN_001DAB60
-void btlCond_FRMUKOU_ST(u8 *action, u32 conditionValue) {
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x180000, 0, (code)btlCond_MYMUKOU);
+s32 btlCond_FRMUKOU_ST(u8 *action, u32 conditionValue) {
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x180000, 0, (code)btlCond_MYMUKOU);
 }
 /* Run the corresponding per-unit condition over the opposing side, excluding KO and down status. */
 // FUN_001DABB0
 /* Uses the same goto branch shape as func_001da380; the if/else and switch forms produce different
  * code. */
-void btlCond_ENMUKOU_ST(u8 *action, u32 conditionValue) {
+s32 btlCond_ENMUKOU_ST(u8 *action, u32 conditionValue) {
     u32 shift;
     {
         if ((u8)((BtlAction *)action)->unit->genus != 0)
@@ -778,16 +778,16 @@ void btlCond_ENMUKOU_ST(u8 *action, u32 conditionValue) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYMUKOU);
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYMUKOU);
 }
 /* Run the corresponding per-unit condition over the allied side, excluding KO and down status. */
 // FUN_001DAC10
-void btlCond_FRWEAK_ST(u8 *action, u32 conditionValue) {
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x180000, 0, (code)btlCond_MYWEAK);
+s32 btlCond_FRWEAK_ST(u8 *action, u32 conditionValue) {
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << ((u8)((BtlAction *)action)->unit->genus)) & 0xFFFF, 0x180000, 0, (code)btlCond_MYWEAK);
 }
 /* Run the corresponding per-unit condition over the opposing side, excluding KO and down status. */
 // FUN_001DAC60
-void btlCond_ENWEAK_ST(u8 *action, u32 conditionValue) {
+s32 btlCond_ENWEAK_ST(u8 *action, u32 conditionValue) {
     u32 shift;
     {
         if ((u8)((BtlAction *)action)->unit->genus != 0)
@@ -799,7 +799,7 @@ void btlCond_ENWEAK_ST(u8 *action, u32 conditionValue) {
     done:
         ;
     }
-    btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYWEAK);
+    return btlEffectFindUnitMatchingCallback((int)action, conditionValue, (1 << (shift & 0xffff)) & 0xffff, 0x180000, 0, (code)btlCond_MYWEAK);
 }
 /* Compare the acting unit character ID with conditionValue. */
 // FUN_001DACC0

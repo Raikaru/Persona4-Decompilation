@@ -387,3 +387,26 @@ unchanged; the complete owner retains all 104 first-party `MATCH` results.
 The analogous deferred-message queue callback already uses the shared
 two-argument declaration from the earlier interface cohort.
 
+
+### Actual AI condition table result contracts
+
+The retail condition table at `00609850` contains 78 twelve-byte rows with
+78 distinct callback addresses. Thirty-six targets had void source results:
+22 enemy-side wrappers and 14 allied-side wrappers. Each calls
+`btlEffectFindUnitMatchingCallback` at `001d94d0` and leaves its result in `v0`
+through the frame/register restoration and return. Returning that status
+explicitly fixes the interface consumed by the existing signed-word dispatch.
+
+All 36 wrappers now return `s32`, and the existing condition owner header
+carries every declaration, including the nine previously local-only AI-command
+wrappers. Both complete source owners retain all 320 first-party `MATCH`
+results. Predicate casts, branch layouts, filters and argument widths are
+unchanged.
+
+`btlCond_ENGROUP` at `001da890` forwards its `u32` query unchanged in `a1`;
+it is the side-mask in `a2` that narrows to 16 bits. Its `btlCond_MYGROUP`
+predicate at `001da7e0` ignores the query, loads the action skill halfword at
+`+0x7e`, classifies the targets with zero selection/reverse inputs, and returns
+a full one/zero according to the classifier's low-halfword category. Query
+narrowing must not be invented from that unrelated mask or classification.
+
