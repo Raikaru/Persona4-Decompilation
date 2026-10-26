@@ -97,7 +97,7 @@ extern u8 *nmListAllocManager(s32 payloadSize, s32 onInsert, s32 onRemove, s32 o
 extern void nmListDestroyManager(void *manager);
 extern u8 *nmListAppendNode(void *manager, s32 owner, s32 payloadSize);
 extern void comuDataRemoveAndReleaseNode(void *owner, void *source, void *nodeStorage);
-extern void RwV3dNormalize(void *a, void *b);
+extern f32 RwV3dNormalize(void *a, void *b);
 extern void memcpy(void *dst, void *src, s32 size);
 extern void memset(void *dst, s32 value, s32 size);
 extern s32 func_0044b310(s32 a);

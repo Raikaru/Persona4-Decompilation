@@ -30,7 +30,7 @@ extern s32 shdSpriteDrawNow(f32, f32, f32, s32, u8, s32, s32, u8 *, s32);
 extern void datScreenPointToWorldPosition(void *output, s32 screenX, s32 screenY, f32 distance);
 extern void *kwlnGetCamera(void);
 extern u8 *func_003e9700(s32);
-extern void RwV3dNormalize(void *a, void *b);
+extern f32 RwV3dNormalize(void *a, void *b);
 extern void RwMatrixUpdate(void *);
 extern void RwMatrixScale(void *a0, void *a1, s32 a2);
 extern void RwMatrixMultiply(void *a, void *b, void *c);

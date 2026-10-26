@@ -1,3 +1,4 @@
+#include "runtime_allocator_internal.h"
 #include "include_asm.h"
 #include "type.h"
 typedef struct {
@@ -70,9 +71,6 @@ u8 *func_003e3f00(u8 *, u8 *, u8 *);
 void func_003e3e60();
 extern u8 *func_003df9f0(u8 *arg0, u8 *arg1);
 extern s32 func_003e1030(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
-extern void func_0043ece8(s32 arg0);
-extern void func_00441558(u8 *arg0, u8 *arg1);
-extern void func_0043c710(s32 arg0, s32 arg1);
 extern s32 func_003e3830(u8 *arg0, s32 arg1);
 extern u8 D_0070B760[];
 extern u8 D_0070B710[];
@@ -324,8 +322,8 @@ INCLUDE_ASM("asm/nonmatchings/code1_003e", func_003e18c0);
 
 // FUN_003E1AE0
 #pragma tailcall on
-void func_003e1ae0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4, s32 arg5, void *arg6) {
-    func_0043ece8(arg0);
+void *func_003e1ae0(u32 arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4, s32 arg5, void *arg6) {
+    return malloc(arg0);
 }
 /* measured: close typed tailcall probe. */
 #pragma tailcall off
@@ -334,8 +332,8 @@ void func_003e1ae0(s32 arg0, s32 arg1, s32 arg2, u8 *arg3, s32 arg4, s32 arg5, v
 /* measured: probe typed tailcall for callback trampoline. */
 #pragma schedule on
 #pragma tailcall on
-void func_003e1af0(u8 *arg0, u8 *arg1) {
-    func_00441558(arg0, arg1);
+void *func_003e1af0(void *arg0, u32 arg1) {
+    return realloc(arg0, arg1);
 }
 /* measured: close typed tailcall probe. */
 #pragma tailcall off
@@ -345,8 +343,8 @@ void func_003e1af0(u8 *arg0, u8 *arg1) {
 /* measured: probe typed tailcall for callback trampoline. */
 #pragma schedule on
 #pragma tailcall on
-void func_003e1b00(s32 arg0, s32 arg1) {
-    func_0043c710(arg0, arg1);
+void *func_003e1b00(u32 arg0, u32 arg1) {
+    return calloc(arg0, arg1);
 }
 /* measured: close typed tailcall probe. */
 #pragma tailcall off
