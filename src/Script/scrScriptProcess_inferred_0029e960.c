@@ -1,3 +1,4 @@
+#include "scr_context_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 #include "type.h"
@@ -51,7 +52,7 @@ extern void mtMiscCollectType1Records(u8 *eventWork);
 
 /* Initialization hook called after script-pool setup when no active handle exists; retail returns zero without side effects. */
 // FUN_0029E960
-s32 scrProcessInitNoop(void)
+s32 scrProcessInitNoop(s32 unusedContext)
 {
     return 0;
 }

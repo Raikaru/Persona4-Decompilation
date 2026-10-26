@@ -75,8 +75,8 @@ extern s32 uGpffffb230;
 
 static HSfdQueueEntry sSfdQueueEntries[1];
 /* Setup and resume share the single worker ID at 0x00764bc8. */
-static s32 sSfdThreadIds[HSFD_QUEUE_COUNT];
-static HSfdQueueSlot sSfdQueue[1];
+extern s32 sSfdThreadIds[HSFD_QUEUE_COUNT];
+extern HSfdQueueSlot sSfdQueue[1];
 static HSfdAsyncEntry sSfdEntries[HSFD_ENTRY_COUNT];
 
 

@@ -366,7 +366,6 @@ int btlEffectFindUnitMatchingCallback(int action, int conditionValue, int sideMa
 
     extern s32 datCalcElementBit(s16 element);
     extern s8 datCalcGetBuffStatus(u8 *unit, s32 buffIndex);
-    extern s32 btlTargetAffinityKnowledgeBypassNoop(u8 *value, s32 index);
     extern s32 datTestBitmapBit(u16 entryIndex, u16 bitIndex);
 
     (void)action;

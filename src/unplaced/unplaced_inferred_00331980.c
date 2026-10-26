@@ -39,7 +39,7 @@ extern s32 nmMesWindowShowSlotRecord(s8 , s32 );
 extern s32 datItemCount(s16 );
 extern s32 nmMesWindowSlotStatus(s8 );
 extern void nmMesWindowStepSlotRelease(s32 );
-extern void nmMesWindowDestroySlot(s8 );
+extern void nmMesWindowDestroySlot(s64);
 extern void wshopMaterialTalkCreate(u8 *);
 extern u8 D_00644ED0[];
 extern u8 D_00645090[];

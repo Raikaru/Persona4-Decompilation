@@ -11,10 +11,7 @@
 #pragma opt_propagation on
 #pragma opt_common_subs on
 #pragma opt_rebuildconditionals on
-typedef struct {
-    f32 x;
-    f32 y;
-} Vec2f;
+typedef FclVec2 Vec2f;
 
 void datPanelDrawCompareIcon(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 unusedKind);
 void drawUnitStatusPanel(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 showMaximum, s32 fullName);

@@ -2445,8 +2445,8 @@ s32 FldUnit_PulseTintStep(u8 *task)
     u8 *node;
     u8 *sourceColor;
     u8 modelColor[4];
-    u8 effectColor[3];
-    u8 markerColor[3];
+    u8 effectColor[4];
+    u8 markerColor[4];
     s32 variant;
     s32 i;
     work = ((KwlnTask *)task)->work;

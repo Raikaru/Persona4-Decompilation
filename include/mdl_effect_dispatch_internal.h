@@ -28,4 +28,8 @@ typedef struct MdlEffectRecordConstructor {
     u8 pad4[0x18];
 } MdlEffectRecordConstructor;
 
+
+/* Existing callers supply these inputs; unused inputs are retained explicitly. */
+void mdlEffectListCallFlagged(u32 *list, s32 unusedIndex);
+
 #endif

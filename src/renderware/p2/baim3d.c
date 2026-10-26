@@ -146,7 +146,7 @@ validate_vertices(void *indices, RwInt32 numIndices, RwInt32 numVertices)
 #if (!defined(SUPPRESS_IM3D))
 
 /* Temporarily non-static so fastim3d.c can get at it */
-RwModuleInfo        _rwIm3DModule;
+extern RwModuleInfo _rwIm3DModule;
 #endif /* (!defined(SUPPRESS_IM3D)) */
 
 /* Temporary, for debugging */

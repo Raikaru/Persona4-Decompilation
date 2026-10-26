@@ -5,7 +5,7 @@ extern void func_004f0638(void);
 extern void func_004f06b0(void);
 extern void func_004f0650(void);
 extern void func_004f06c8(void);
-extern Sint32 func_004f1278(Sint32 *flags);
+extern Sint32 SVM_TestAndSet(Sint32 *flags);
 extern Uint32 func_004c6a98();
 
 // FUN_004BD628
@@ -35,7 +35,7 @@ void func_004bd670(void)
 // FUN_004BD688
 Sint32 func_004bd688(Sint32 *flags)
 {
-	return func_004f1278(flags);
+	return SVM_TestAndSet(flags);
 }
 
 // FUN_004BD6A0

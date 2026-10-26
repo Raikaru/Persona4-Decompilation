@@ -40,7 +40,6 @@ extern void chkmemAllocSiteTag();
 extern void memcpy(void *dst, void *src, u32 size);
 extern u8 D_00713390[];
 extern s32 mdlEffectSamplePackedColor();
-extern void GeometryBlockSetFrameMatrixCombined(void *geometry, void *position, void *rotation, void *scale);
 extern void GeometryBlockBindResource(s32 block, s32 resourceId);
 extern f32 iGpffff8044;
 extern f32 fGpffff8044;
@@ -344,7 +343,7 @@ void RingUpdateRowColour(u8 *instance)
       colourStack[15] = 0xff;
     }
     if (((RpMaterial *)geometryBlock->material)->color.c[3] != 0) {
-      GeometryBlockSetFrameMatrixCombined(geometry, ring, ring + 0x10, ring + 0x20);
+      GeometryBlockSetFrameMatrixCombined((u8 *)(geometry), (struct RwV3d *)(ring), ring + 0x10, (struct RwV3d *)(ring + 0x20));
       if (((EffRingParameters *)parameters)->visible != 0) {
         *geometry = *geometry | 1;
       }
@@ -674,7 +673,7 @@ void RingUpdateLineSegment(u8 *instance)
             destinationQuad = (u_long128 *)(material + 0x10);
             *destinationQuad = ((EffRingInstance *)instance)->rotation;
             RingInstanceUpdateIfActive(((EffRingRandomBlock *)block)->sourceInstance);
-            GeometryBlockSetFrameMatrixCombined(geometry, instance, instance + 0x10, instance + 0x20);
+            GeometryBlockSetFrameMatrixCombined((u8 *)(geometry), (struct RwV3d *)(instance), instance + 0x10, (struct RwV3d *)(instance + 0x20));
             if (((EffRingParameters *)parameters)->visible != 0) {
                 ((EffGeometryBlock *)geometry)->kind = ((EffGeometryBlock *)geometry)->kind | 1;
             } else {
@@ -960,7 +959,7 @@ void RingUpdateRowColourAlt(u8 *instance)
       colourStack[15] = 0xff;
     }
     if (((RpMaterial *)geometryBlock->material)->color.c[3] != 0) {
-      GeometryBlockSetFrameMatrixCombined(geometry, ring, ring + 0x10, ring + 0x20);
+      GeometryBlockSetFrameMatrixCombined((u8 *)(geometry), (struct RwV3d *)(ring), ring + 0x10, (struct RwV3d *)(ring + 0x20));
       if (((EffRingParameters *)parameters)->visible != 0) {
         *geometry = *geometry | 1;
       }

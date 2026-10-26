@@ -150,3 +150,146 @@ aggregate type as the definitions and the existing `y_symbol.c` callers.
 The port still needs its pointer-ABI adaptation for these helpers on host
 compilers. That is a platform adaptation, not evidence that the matched
 aggregate-copy definitions should be replaced in the decomp.
+
+
+## Second mirror audit
+
+The second audit starts from decomp `854e43d2` and the PC mirror's 317
+literal repairs and 156 explicit passthrough records. The audit distinguishes
+an active marked C owner from guarded reconstruction text whose retail owner
+is still assembly. Correcting the latter does not establish a new C match.
+
+Live inputs and results are now stated at the owning interfaces: geometry
+matrix translation/basis/scale, particle weight, effect and task handles,
+model resource results, event handles, script-return values, and the stream
+buffer returned by the upload wrapper. GP/FP order is corrected where the
+whole owning unit retains the retail instruction sequence. In particular,
+`btlShuffleCalcRotatePointAroundAxis` keeps its original definition order
+`(center, axis, point, angle, output)`; its callers agree with it rather than
+changing the callee to suit a host wrapper.
+
+Three width repairs require changing the definition as well as its callers:
+`datCalcSetBadStatusById` forwards the complete unsigned status word;
+`sdkSndSetSlotTrack` accepts the complete slot index but explicitly narrows
+only the indexed accesses; `btlAICommandNomalStatusCheck` accepts its callback's
+wide query word and explicitly consumes its signed low halfword. The highlight
+mode shared by the symbol and small-map wrappers is signed eight-bit. These
+are PS2 contracts, not host pointer-width accommodations.
+
+The bank request chain uses a packed 32-bit descriptor, full-width request
+flags, and the actual appended-node pointer result. Merely narrowing the
+wrapper's first formal changed the font caller by 55 normalized bytes. The
+matching form also constructs the descriptor as a word in the font producer
+and keeps its flags wide. The font producer's already evaluated third key is
+explicitly an unused wrapper input; no value is invented or evaluated anew.
+All 46 functions in the three affected units retain their retail bytes.
+
+The guarded `sfadxt_IsEndDecinfo` reconstruction now names and forwards its
+player handle. Its existing assembly remains authoritative: both supported
+MWCC versions leave the same six-byte comparison/return-address-load scheduling
+residual. This is an input repair to guarded source, not a new C match.
+
+The generic packet callback `btlTargetCancelPlayback` now states its actual
+work-pointer callback signature and unsigned word result. Its body does not
+use the work pointer. Five queue/draw callbacks likewise share their actual
+two-argument node/work contract, including references that only take a callback
+address. Every newly named unused input was already evaluated and supplied by
+an existing caller; no padding value is invented.
+
+### Explicit caller inputs, including unused inputs
+
+Removing the three-input battle helpers' last operands changed their callers
+by 3213 normalized bytes; removing the skin plugin's supplied flag changed its
+caller by 129. Those attempts targeted the wrong side of the interface. The
+existing callers consistently supply these inputs. The three battle helpers,
+affinity bypass hook and skin opener now declare their complete contracts,
+including unused inputs. Their original calls and all 383 marked functions in
+the seven affected units retain the retail bytes.
+
+Nineteen other uniform caller-context contracts are now shared by the battle,
+script, calendar, clump/texture-strip, Vpad, message and runtime hook owners.
+`cmmDateTableHasEntry` consumes its explicit incoming seed rather than an
+uninitialized local. All 517 marked functions in their 25 affected units match.
+The auxiliary skill-message hook similarly accepts its existing skill ID;
+the MPEG flush wrapper accepts the existing address and byte-count inputs but
+flushes globally. All 75 marked functions in these final two units match.
+
+
+Fifteen further nonzero-arity contracts retain the reset index, sound flags,
+camera/boss context, event sub-ID, model index and skill-query tails supplied
+by every existing caller. The sound chain forwards a complete cue word through
+`hsndQueueSound` and `sdkSndPlayCue`; only the actual cue consumer truncates to
+signed 16 bits. `K_Cmd_BGM` retains its existing explicit low-halfword view.
+The model-list caller explicitly converts its stored word to the callee's
+pointer type. After resolving those views, all 1086 marked functions in the
+affected units match. A failed first attempt's 25/26-byte sound-wrapper
+residuals were input promotion, not return-value ABI differences.
+
+The three reported non-permutation aggregate aliases are also now canonical:
+battle unit colors use `RwRGBA`, Fcl transitions use `FclDrawColor`, and panel
+origins use the shared two-float aggregate. All 338 marked functions in their
+11 affected units match. The skill-roll target is an actual `DatUnit *`, not
+an integer address word; changing the caller to an integer cast caused a
+56-byte residual, while the proper pointer contract leaves all 109 functions
+in the data owner and skill caller matched.
+
+The audit's 156 explicit passthrough records are therefore source-redundant.
+This statement includes the two guarded SFADXT source repairs, not an assertion
+that their retained assembly fallbacks have become matching C.
+
+### Required noncanonical views
+
+The following direct canonical rewrites changed the retained retail bytes.
+Their original views remain; host argument-order or width adaptation is not
+evidence that a different PS2 instruction sequence should be accepted.
+
+| Caller / interface | Direct rewrite's normalized byte difference |
+|---|---:|
+| `cmmReversedAtRank`'s record query | 175 |
+| three packed digit-color views | 911 |
+| `btlShuffleEffUpdate` step-pose input order | 6 |
+| `ThunderBoltUpdateStrip` axis/angle order | 8 |
+| `ThunderOrbitBoltUpdateStrip` axis/angle order | 14 |
+| `mdlEffectUpdateParticleTrail` curve input order | 8 |
+| `FldEvent_StepMoveToward` heading input order | 8 |
+| `calDrawDateCell` number input order | 31 |
+| `evtInterpolateNodeMatrices` scalar input order | 20 |
+
+Canonicalizing the remaining integer-width views also changes extension,
+register lifetime or argument setup in their callers. The source keeps the
+existing explicit views instead of manufacturing unused inputs or weakening
+the byte comparison. Unused copied declarations from the audited prototype
+records are removed, not converted into additional generic ABI declarations.
+
+### SDK ownership and storage
+
+Known fixed-address RenderWare registries, the mesh freelist, pipeline state,
+script interpreter operands, the SFD queue and timing counters are declared
+as external retail storage. Their recovered addresses are in the normal data
+symbol map; there are no unused host-only initializer shadows. Field resource
+format strings use correctly sized character arrays at their retail addresses,
+which preserves GP-relative addressing.
+
+The duplicate generic SDK `RwMatrixMultiply` body is removed: the authoritative
+retail VU implementation already owns `003e05f0`. Native geometry reading is
+`003ce560`; geometry and world-sector chunk readers own `003cb790` and
+`003cb7e0` respectively, without a duplicate function owner.
+
+Optional SDK reconstructions now express the PS2 little-endian self-test,
+big-endian ADX header/footer and encrypted scale words, four-byte retry counter,
+file-server CD request pumping, AC3 lifecycle forwarding, registered thread
+callbacks and the already captured movie-player/timing inputs. Existing assembly fallbacks remain authoritative where those bodies
+are not marked C. These corrections must not be counted as newly matched
+functions. Native SIMD alignment, low-memory and MMIO mapping, host pointer
+conversion, video-player seams, allocation policy and widescreen layout remain
+port responsibilities.
+
+
+SDK code must also retain real link eligibility, not merely normalized byte
+matches. The first metadata placement put two previously linked getters in
+the monolithic SJD reconstruction, whose unowned/gapped code cannot be placed
+as an entirely third-party object. The strict gate caught 8099 instead of
+8101 linked functions even though every verify row matched. The four corrected
+metadata getters now use the existing contiguous `adx_sjd_forward_ed78.c` and
+`adx_sjd_leaf_cf010.c` address groups and share the exact RE4 object layout in
+`adx_sjd_internal.h`. No link floor or placement rule is relaxed.

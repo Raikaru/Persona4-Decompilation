@@ -63,7 +63,7 @@ typedef struct TitleFileWork {
 
 
 extern s32 kwlnTaskIsLinked();
-extern void *kwlnTaskGetWork();
+extern void *kwlnTaskGetWork(void* task);
 extern void kwlnTaskDestroyWithHierarchy();
 extern void func_003ef3a0(void *);
 extern s32 chkmemAllocSiteTag(const void *file, s32 line);
@@ -200,9 +200,9 @@ done:
 }
 
 #pragma optimization_level 2
-/* Process the three-entry title music selector and retain the previous cursor for animation. */
+/* Process the three-entry title menu and retain the previous cursor for animation. */
 // FUN_00124830
-s32 titleMusicStreamStep(u8 *context)
+s32 titleSelectMenu(u8 *context)
 {
     u8 listState[0x30];
     s32 previousCursor;
@@ -884,7 +884,7 @@ void titleLoaderTeardown(u8 *unusedTask)
     s32 model;
     s32 modelIndex;
 
-    context = kwlnTaskGetWork();
+    context = kwlnTaskGetWork((void*)(unusedTask));
     mode = ((TitleScene *)context)->mode;
     switch (mode) {
     case 2:
@@ -941,7 +941,7 @@ s32 titleLoaderReap(s32 task)
     if ((task == 0) || (kwlnTaskIsLinked() == 0)) {
         return -1;
     }
-    context = (TitleScene *)(kwlnTaskGetWork(task));
+    context = (TitleScene *)(kwlnTaskGetWork((void*)(task)));
     if (context->complete != 0) {
         kwlnTaskDestroyWithHierarchy(task);
     }
@@ -957,7 +957,7 @@ s32 titleFileLoadStep(u8 *unusedTask)
     u8 *work;
     s32 state;
     TitleFileWork *fileWork;
-    work = (u8 *)kwlnTaskGetWork();
+    work = (u8 *)kwlnTaskGetWork((void*)(unusedTask));
     fileWork = (TitleFileWork *)(work);
     state = ((TitleFileWork *)(work))->state;
     switch (state) {
@@ -985,7 +985,7 @@ void titleLoaderDestroy(u8 *unusedTask) {
     u8 *work;
     s32 resource;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(unusedTask));
     resource = ((TitleFileWork *)work)->resource;
     if (resource != 0) {
         func_003ef3a0((void *)resource);

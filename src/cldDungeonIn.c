@@ -1,3 +1,4 @@
+#include "sdk_snd_internal.h"
 /* Original translation unit cldDungeonIn.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -13,7 +14,6 @@ extern void cldDungeonInDrawFrame(void *unused, void *task);
 extern u8 D_007964F0[];
 extern void nmListDestroyManager(void *manager);
 extern void (*jtbl_008873EC[])(void *ptr);
-extern void sdkSndFadeOutChannel(s32 a, s32 b);
 extern void datSetFlag(s32 flagId, s32 enabled);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void chkmemAllocSiteTag(const void *file, s32 line);

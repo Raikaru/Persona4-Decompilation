@@ -11,10 +11,10 @@
 extern void (*jtbl_008873EC[])(void *);
 extern void sequenceRequest(s32 , void *, s32 , s32 );
 extern s32 shdWindowTaskCreate(u8 *, s32 , s32 );
-extern void shdWindowMarkDone(s32 );
-extern s32 shdWindowQueryState(s32 );
+extern void shdWindowMarkDone(u8 *object);
+extern s32 shdWindowQueryState(u8 *object);
 extern s32 kwlnTaskIsLinked();
-extern void *kwlnTaskGetWork();
+extern void *kwlnTaskGetWork(void* task);
 extern void kwlnTaskDestroyWithHierarchy();
 /* titleStartSoundTask allocates exactly 0x10 bytes; the step callback owns
  * the state, memcard result, countdown, and child window handle. */
@@ -43,7 +43,7 @@ s32 titleSoundReapTask(s32 task)
     if ((task == 0) || (kwlnTaskIsLinked() == 0)) {
         return -1;
     }
-    work = (TitleSoundWork *)(kwlnTaskGetWork(task));
+    work = (TitleSoundWork *)(kwlnTaskGetWork((void*)(task)));
     if (work->result != 0) {
         kwlnTaskDestroyWithHierarchy(task);
     }
@@ -93,7 +93,7 @@ s32 titleSoundStartStep(u8 *task) {
         ((TitleSoundWork *)work)->result = result;
         if (result != 0) {
             if (result == 0x64) {
-                shdWindowMarkDone(((TitleSoundWork *)work)->windowTask);
+                shdWindowMarkDone((u8 *)(((TitleSoundWork *)work)->windowTask));
                 return -1;
             }
             ((TitleSoundWork *)work)->state = 4U;
@@ -101,7 +101,7 @@ s32 titleSoundStartStep(u8 *task) {
         }
         goto block_20;
     case 4:
-        shdWindowMarkDone(((TitleSoundWork *)work)->windowTask);
+        shdWindowMarkDone((u8 *)(((TitleSoundWork *)work)->windowTask));
         if (((TitleSoundWork *)work)->result == -6) {
             soundWork->windowTask = shdWindowTaskCreate(task, 1, 0x15);
         } else {
@@ -110,13 +110,13 @@ s32 titleSoundStartStep(u8 *task) {
         ((TitleSoundWork *)work)->state = 5U;
         goto block_20;
     case 5:
-        windowState = shdWindowQueryState(((TitleSoundWork *)work)->windowTask);
+        windowState = shdWindowQueryState((u8 *)(((TitleSoundWork *)work)->windowTask));
         if (windowState == 1) {
-            shdWindowMarkDone(soundWork->windowTask);
+            shdWindowMarkDone((u8 *)(soundWork->windowTask));
             return -1;
         }
         if (windowState == 2) {
-            shdWindowMarkDone(soundWork->windowTask);
+            shdWindowMarkDone((u8 *)(soundWork->windowTask));
             ((TitleSoundWork *)work)->state = 1U;
         }
         goto block_20;

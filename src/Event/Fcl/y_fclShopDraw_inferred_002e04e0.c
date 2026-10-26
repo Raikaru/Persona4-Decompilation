@@ -9,6 +9,7 @@
 #include "sdk_task_registration.h"
 #include "type.h"
 #include "fr_font_internal.h"
+#include "fcl_bank_internal.h"
 #include "fcl_object_internal.h"
 #include "datPersona_internal.h"
 /* List-manager payload pointer: nmListAllocManager stores the allocation's payload address here. */
@@ -20,7 +21,6 @@ typedef struct NmlistManager {
 extern void fclSpriteStartPosition(u8 *animation, FclVec2 start, FclVec2 end, u32 mode, s32 duration, s32 delay);
 extern u8 *iGpffffb588;
 extern u8 *nmListAllocManager(s32 payloadSize, s32 onInsert, s32 onRemove, s32 onUpdate);
-extern s32 fclBankQueueRequest();
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern s32 resourceFindByName(const void *name);
 extern u8 D_0063FB50[];
@@ -265,7 +265,7 @@ s32 fclBankManagerCreate(void)
 
 /* Narrow the bank queue helper result to a signed halfword predicate. */
 // FUN_002E0DA0
-s64 fclBankTryQueueRequest(void)
+s64 fclBankTryQueueRequest(s32 descriptor, s64 flags, s64 unusedKey)
 {
-    return (s64)(fclBankQueueRequest() != 0) << 0x30 >> 0x30;
+    return (s64)(fclBankQueueRequest(descriptor, flags) != 0) << 0x30 >> 0x30;
 }

@@ -55,4 +55,8 @@ typedef struct BtlAiRecord {
     BtlAiWeightedCommand commands[3][5]; /* 0x2C; record stride 0xA4 */
 } BtlAiRecord;
 
+/* The selection callback receives a wide query word; this predicate consumes
+ * its signed low halfword as an affinity index. */
+s32 btlAICommandNomalStatusCheck(u8 *action, s64 value);
+
 #endif

@@ -20,4 +20,9 @@ typedef struct ScrContext {
 
 typedef char ScrContextSizeCheck[sizeof(ScrContext) == 0x158 ? 1 : -1];
 
+/* Process hooks retain the context word evaluated by their scheduler callers. */
+void scrDebugDumpWorkList(s32 unusedContext);
+s32 scrProcessInitNoop(s32 unusedContext);
+void scrProcessReleaseNoop(s32 unusedContext);
+
 #endif

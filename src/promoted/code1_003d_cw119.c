@@ -8,7 +8,6 @@
 extern void func_003cfa80(u8 *arg0, s32 arg1, f32 arg2, f32 arg3);
 extern u8 *func_003dda50(void *arg0, s32 arg1, s32 arg2, s32 arg3, s32 arg4);
 extern s32 func_004217e0(u8 *arg0);
-extern s32 **_rpObjectGetMeshCacheResize();
 extern s32 iGpffffb728;
 extern s32 iGpffffb730;
 extern s32 iGpffffb72c;
@@ -40,7 +39,7 @@ extern void func_003d0fa0(void);
 extern void func_003cdfa0(u8 *arg0);
 extern s32 func_003e8930(s32 arg0, s32 arg1, void *arg2, void *arg3);
 extern u8 *func_00412520();
-extern u8 **func_004125d0();
+extern u8 **func_004125d0(int param_1);
 extern s32 func_003d4f20(s32 arg0);
 extern void (*jtbl_008873EC[])();
 extern s32 func_003e2ab0();
@@ -307,7 +306,7 @@ s32 func_003d3460(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
         return 0;
     }
 
-    var_2 = (u8 **)(func_004125d0());
+    var_2 = (u8 **)(func_004125d0(arg0));
     if ((var_2 != NULL) && ((*(s32 *)((s8 *)(var_2) + (0x3C))) & 0x1C)) {
         return 0;
     }
@@ -337,7 +336,7 @@ s32 func_003d3460(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
         if (var_5_2 == 0) {
             return 0;
         }
-        var_2 = (u8 **)(func_004125d0(arg0, var_5_2));
+        var_2 = (u8 **)(func_004125d0(arg0));
     }
 
     (*(s32 *)((s8 *)(var_2) + (0x34))) = (s32) (arg1 * (arg3 * 3));
@@ -369,7 +368,7 @@ s32 func_003d35f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
         return 0;
     }
 
-    var_2 = (u8 **)(func_004125d0());
+    var_2 = (u8 **)(func_004125d0(arg0));
     if ((var_2 != NULL) && ((*(s32 *)((s8 *)(var_2) + (0x3C))) & 0x13)) {
         return 0;
     }
@@ -399,7 +398,7 @@ s32 func_003d35f0(s32 arg0, s32 arg1, s32 arg2, s32 arg3) {
         if (var_5_2 == 0) {
             return 0;
         }
-        var_2 = (u8 **)(func_004125d0(arg0, var_5_2));
+        var_2 = (u8 **)(func_004125d0(arg0));
     }
 
     (*(s32 *)((s8 *)(var_2) + (0x34))) = (s32) (arg1 * (arg3 * 2));

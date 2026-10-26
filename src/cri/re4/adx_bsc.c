@@ -782,7 +782,7 @@ void ADXB_EntryGetWrFunc(ADXB adxb, void (*func)(void *obj, Sint32 *pos, Sint32 
 // its header into the handle. Returns the header length, 0 if more data is needed, -1 if unknown.
 Sint32 ADXB_DecodeHeader(ADXB adxb, void *buf, Sint32 bsize)
 {
-	if (*(Uint16 *)buf == 0x8000) {
+	if ((Uint16)((((Uint8 *)buf)[0] << 8) | ((Uint8 *)buf)[1]) == 0x8000) {
 		return ADXB_DecodeHeaderAdx(adxb, buf, bsize);
 	}
 	if (ADXB_CheckSpsd(buf)) {

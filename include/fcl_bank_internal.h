@@ -37,4 +37,10 @@ static inline FclBankWork *fclBankWork(void)
     return (FclBankWork *)iGpffffb588;
 }
 
+/* Queue compares and stores the packed 32-bit descriptor and returns the
+ * appended node. Flags retain their complete incoming register word. The font front-end also evaluates a third
+ * key word that the request wrapper does not consume. */
+void *fclBankQueueRequest(s32 descriptor, s64 flags);
+s64 fclBankTryQueueRequest(s32 descriptor, s64 flags, s64 unusedKey);
+
 #endif

@@ -160,13 +160,7 @@ struct _rpMorphTarget
  Local (static) Globals
  */
 
-static RwPluginRegistry geometryTKList =
-    { sizeof(RpGeometry),
-      sizeof(RpGeometry),
-      0,
-      0,
-      (RwPluginRegEntry *) NULL,
-      (RwPluginRegEntry *) NULL };
+extern RwPluginRegistry geometryTKList;
 extern RwModuleInfo geometryModule;  /* P4: file static, at its retail address */
 
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

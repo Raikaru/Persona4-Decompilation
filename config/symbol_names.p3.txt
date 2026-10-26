@@ -149,7 +149,6 @@ ldexp = 0x00441D70; // type:func  evidence: p3:ldexp@0x005237b0 tier:4 (P3 Ghidr
 copysignf = 0x00441F40; // type:func  evidence: p3:copysignf@0x00523980 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)
 sprintf = 0x00442088; // type:func  evidence: p3:sprintf@0x00523ac8 tier:2 (P3 recovered-symbol address; not verifier-matched)
 sscanf = 0x00442100; // type:func  evidence: p3:sscanf@0x00523b40 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)
-__scan_string_with_context = 0x00442188; // type:func  evidence: p3:__scan_string_with_context@0x00523bc8 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)
 __stream_write_callback = 0x00442220; // type:func  evidence: p3:__stream_write_callback@0x00523c60 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)
 __stream_read_callback = 0x00442300; // type:func  evidence: p3:__stream_read_callback@0x00523d40 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)
 strcasecmp = 0x00442388; // type:func  evidence: p3:strcasecmp@0x00523dc8 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)

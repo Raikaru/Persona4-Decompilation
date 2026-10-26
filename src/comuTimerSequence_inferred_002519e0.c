@@ -1,3 +1,4 @@
+#include "kwln_draw_callbacks_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "cmm_internal.h"
@@ -26,7 +27,6 @@ extern s32 datPortraitIsLoaded(s32 task);
 extern s32 cmmRankUpCreate(s32 parentTask, s32 *context); /* lint: allow H011 -- caller stores the return value in work[7] as retail does; the definition is void. */
 extern void cmmRankUpSetEntryHold(s32 taskHandle, s32 hold);
 extern void cmmRankUpCopyState(s32 taskHandle, s32 kind, s32 stateIndex);
-extern void kwlnTaskGetWorkCallback(s32 *input);
 extern u8 D_00635BF0[];
 extern u8 D_007963D0[];
 extern u16 D_008C024E[];

@@ -1,3 +1,4 @@
+#include "rw_skin_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "Kosaka/k_clump_internal.h"
@@ -786,7 +787,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_003b", func_003b8ad0);
 // FUN_003B8D20
 /* measured: probe schedule for retail's 16-byte return body. */
 #pragma schedule on
-s32 func_003b8d20(void) {
+s32 func_003b8d20(s32 unusedFlags) {
     return 1;
 }
 /* measured: close schedule probe. */

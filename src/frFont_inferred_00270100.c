@@ -1,3 +1,4 @@
+#include "fcl_bank_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "fr_font_objects.h"
@@ -17,14 +18,13 @@ extern void frFontLayoutText(u8 *text, u8 *context);
 extern s32 D_008815B0[];
 
 extern void MT_Scene_SetResMotionSlot(u32 resourceId, s16 firstAnimation, s16 firstFrame, s16 nextAnimation, s16 nextFrame);
-extern s32 cmmCommunityFindActiveSlotInGroup(s64 group);
+extern s32 cmmCommunityFindActiveSlotInGroup(s32 group);
 extern u8 *cmmSlotNameRecord(s32 slotId);
 extern s32 cmmCommunityGetCurrentId(void);
 extern u8 *cmmNameRecord(s32 nameId);
 
 extern s32 MT_Scene_SpawnResIconTask(u32 resourceId, u32 icon);
 extern s32 calGetDayWindowFlags(s32 day);
-extern s64 fclBankTryQueueRequest(s64 value, s32 index, s64 count);
 extern void fclBankSetReadyFlag(void);
 
 extern u16 D_008817E8[];
@@ -53,7 +53,7 @@ s32 frFontQueueBankRequestCommand(s32 unusedCommand, u8 *context)
     FrFontContext *positionFieldsNextReload;
     FrFontContext *streamFieldsNextReload;
 
-    u32 flags;
+    u64 flags;
     s64 requestKey;
     s16 requestState;
     s64 primaryKey;
@@ -156,7 +156,7 @@ s32 frFontQueueBankRequestCommand(s32 unusedCommand, u8 *context)
                            (low & 0xFF));
         fclBankTryQueueRequest(
             requestState |
-            (((s64)((((s32)(s16)primaryKey) & 0xFF) << 0x10)) |
+            ((((((s32)(s16)primaryKey) & 0xFF) << 0x10)) |
              ((secondaryKey & 0xFF) << 8)),
             flags | 0x200,
             primaryKey);

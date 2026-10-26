@@ -176,7 +176,7 @@ void btlUiUpdateModelCurve(u8 *command)
             mdlCopyIndexedMatrix(*(u8 **)modelReference, reference->matrixIndex + 1, frame.secondMatrix + 0x10);
             frame.anchorPosition = *(Vec3 *)frame.secondMatrix;
             btlCameraLookAtQuat(&frame.anchorRotation, frame.secondMatrix, frame.rotationScratch, frame.basisScratch);
-            btlMainCurveReset((u16 *)(iGpffffb474 + 0x24), (f32 *)(&frame.anchorPosition));
+            btlMainCurveReset((u16 *)((u8 *)iGpffffb3ac + 0x24), (f32 *)(&frame.anchorPosition));
         }
     }
 }

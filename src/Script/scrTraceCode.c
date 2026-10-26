@@ -157,16 +157,16 @@ void kAssertFailAt(const void *msg, const void *file, u32 line);
 /* ------------------------------------------------------------------ */
 /* Statics                                                             */
 
-static ScrScriptWork* sCurrScript; // 00764600. Current script being executed
+extern ScrScriptWork* sCurrScript; // 00764600. Current script being executed
 
-static s32 sOpRightType; // 007645fc
-static s32 sOpLeftType;  // 007645f8
-static f32 sOpFRes;      // 007645f4
-static f32 sOpRightFVal; // 007645f0
-static f32 sOpLeftFVal;  // 007645ec
-static s32 sOpIRes;      // 007645e8
-static s32 sOpRightIVal; // 007645e4
-static s32 sOpLeftIVal;  // 007645e0
+extern s32 sOpRightType; // 007645fc
+extern s32 sOpLeftType;  // 007645f8
+extern f32 sOpFRes;      // 007645f4
+extern f32 sOpRightFVal; // 007645f0
+extern f32 sOpLeftFVal;  // 007645ec
+extern s32 sOpIRes;      // 007645e8
+extern s32 sOpRightIVal; // 007645e4
+extern s32 sOpLeftIVal;  // 007645e0
 
 /* ------------------------------------------------------------------ */
 /* Stack helpers                                                       */

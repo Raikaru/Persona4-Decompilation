@@ -12,7 +12,7 @@ void PrimAppendNode(void *list, void *node);
 s32 nLineSelectSet(s32);
 void nLineSetActive(s32);
 void resrcMngUnsuppressRender(void);
-void datGridEffectCreate(s32 style, u8 *color, s32 duration, s32 tailDuration, s32 layout, s32 kind, s32 priority, s32 drawPriority);
+void datGridEffectCreate(s32 style, u8 *color, s32 duration, s32 tailDuration, s64 layout, s32 kind, s32 priority, s32 drawPriority);
 void sdkListStateConfigure(void *, s32, s32, s32, s32);
 void sdkListStateSetSecondaryMasks(void *, s32, s32, s32, s32);
 s32 sdkListStateHandleInput(void *);

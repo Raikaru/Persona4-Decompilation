@@ -85,11 +85,6 @@ extern s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, v
                          f32 opacity, f32 depth, s32 fadeWithDepth, u8 *workData);
 extern u8 D_007EFA00[];
 extern s32 RpSkyRenderStateSet(s32 state, void *value);
-extern void FldRc_QueueScreenQuad(u8 *value, u8 *other,
-                           f32 flags, f32 data, f32 mode, f32 work, f32 count,
-                           void *position, s32 width,
-                           f32 height, f32 depth, f32 scale,
-                           s32 blend, void *context, f32 opacity);
 extern u8 D_005F1970[];
 extern u8 D_005F1974[];
 extern u8 D_005F1978[];

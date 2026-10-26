@@ -109,13 +109,9 @@ void ADXT_Init(void)
 		ADXRNA_EntryErrFunc(adxini_rnaerr_cbfn, NULL);
 		LSC_EntryErrFunc(adxini_lscerr_cbfn, NULL);
 		memset(adxt_obj, 0, sizeof(adxt_obj));
-		if (ADXM_IsSetupThrd() == 1 && adxt_vsync_svr_flag == 1) {
-			SVM_SetCbSvrId(2, 1, adxt_exec_tsvr, NULL);
-			adxt_svr_fs_id = SVM_SetCbSvr(4, adxt_exec_fssvr, NULL);
-			adxt_svr_main_id = SVM_SetCbSvr(5, adxt_exec_main_thrd, NULL);
-		} else {
-			adxt_svr_main_id = SVM_SetCbSvr(5, adxt_exec_main_nothrd, NULL);
-		}
+		SVM_SetCbSvrId(2, 1, adxt_exec_tsvr, NULL);
+		adxt_svr_fs_id = SVM_SetCbSvr(4, adxt_exec_fssvr, NULL);
+		adxt_svr_main_id = SVM_SetCbSvr(5, adxt_exec_main_thrd, NULL);
 		adxt_vsync_cnt = 0;
 		adxt_output_mono_flag = 0;
 		ADXT_SetDefSvrFreq(60);

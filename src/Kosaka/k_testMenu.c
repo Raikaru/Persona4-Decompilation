@@ -1,3 +1,5 @@
+#include "Kosaka/k_texStrip_internal.h"
+#include "Kosaka/k_clump_internal.h"
 #include "field_transition_internal.h"
 /* Whole-file translation unit (functions contiguous in retail). */
 #include "sdk_lbox_internal.h"
@@ -25,13 +27,8 @@ extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *task);
 extern s32 FldMapTestTaskCreate(u8 *parent);
 extern s32 K_Test_CreateLauncher(u8 *parentTask);
 extern void K_ReadTexTaskCreate(void);
-extern s32 FldRainTaskCreate(f32 parent, u8 *textureIndex, s32 distance, f32 acceleration, f32 speed, f32 spacing,
-                          s32 alpha, s32 trailLength, s32 spawnInterval);
+extern s32 FldRainTaskCreate(u8 *textureIndex, s32 distance, f32 parent, f32 acceleration, f32 speed, f32 spacing, s32 alpha, s32 trailLength, s32 spawnInterval);
 extern s32 FldPlayerIconTaskCreate(u8 *task);
-extern s32 K_Clump_CreateLoadTask(s32);
-extern s32 K_TexStripBuildTaskCreate(s32);
-extern s32 K_TexStripLoadTaskCreate(s32);
-extern s32 K_TexStripCodeLogTaskCreate(s32);
 
 /* The create routine allocates exactly 0xc bytes for the menu and child handles. */
 typedef struct TestMenuWork
@@ -77,8 +74,8 @@ s32 K_TestMenu_Update(u8 *task)
                 K_ReadTexTaskCreate();
                 break;
             case 3:
-                work->childTask = FldRainTaskCreate(200.0f, task, 0, D_00761624,
-                                                  D_0076151C, 30.0f, 0x30, 8,
+                work->childTask = FldRainTaskCreate( task,  0, 200.0f,  D_00761624, 
+                                                  D_0076151C,  30.0f,  0x30,  8, 
                                                   0xA);
                 break;
             case 4:

@@ -1,3 +1,4 @@
+#include "btl_runtime_hooks_internal.h"
 #include "scr_context_internal.h"
 #include "btl_skill_target_internal.h"
 #include "rw_geometry_internal.h"
@@ -80,7 +81,7 @@ extern s32 iGpffffb284;
 extern s32 iGpffffb280;
 extern s32 scrGetCmdTimer(void);
 extern u8 *scrGetContext(void);
-extern void datCalcIsDeadById(s16 unitId);
+extern u32 datCalcIsDeadById(s16 unitId);
 extern void datSetUnitHp(s16 unitId, s16 hp);
 extern void datCalcClearBadStatusById(s16 unitId, s32 mask);
 extern void KMisc_CreateScrShutdown(s32 scrTask);
@@ -131,7 +132,7 @@ extern f32 DAT_0076112c;
 
 
 extern s32 iGpffffb444;
-extern s32 datCalcIsStandardUnit(s32 unitFlags, s32 itemId);
+extern s32 datCalcIsStandardUnit(s32 unitFlags, s64 itemId);
 
 extern u8 *kwlnTaskGetTaskByName(void *name);
 extern void kwlnTaskDestroyWithHierarchy(s32 task);
@@ -501,7 +502,7 @@ loop_18_check:
 
 /* Test whether the selected leader uses standard unit data under the active battle flags. */
 // FUN_00193260
-s32 btlIsLeaderStandardUnit(void)
+s32 btlIsLeaderStandardUnit(u8 *unusedAction)
 {
     u8 *base;
     s32 flags;

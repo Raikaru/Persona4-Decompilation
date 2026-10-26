@@ -142,13 +142,7 @@ MACRO_STOP
  Globals (across program)
  */
 
-RwPluginRegistry    cameraTKList =
-    { sizeof(RwCamera),
-      sizeof(RwCamera),
-      0,
-      0,
-      (RwPluginRegEntry *)NULL,
-      (RwPluginRegEntry *)NULL };
+extern RwPluginRegistry cameraTKList;
 
 /****************************************************************************
  Local (static) Globals

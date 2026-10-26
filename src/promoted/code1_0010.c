@@ -5,12 +5,9 @@
 #include "sdk_ot_state_api.h"
 
 typedef struct RwImage RwImage;
-extern void strcpy(void *dst, void *src);
 
 extern u8 *D_00764298;
-extern void func_00440b68();
 extern void func_0042c0d8(void);
-extern void func_004ccb38(s32 arg0);
 extern u8 *kwlnProbeHeapBudget(void);
 extern void kwlnMainLoop(void);
 extern u8 D_00559810[];
@@ -80,7 +77,6 @@ extern void RpSkyRenderStateSet(s32 arg0, s32 arg1);
 extern void kwlnInitIop(void);
 extern void kwlnInitEngine(void);
 extern void kwlnInitSubsystems(void);
-extern void RpRandomSeed(s32 arg0);
 extern void RpRandomSeedMT(s32 arg0);
 extern s32 fclBankTaskUpdate(u8 *arg0);
 extern void fclBankTaskDestroy(u8 *arg0);
@@ -116,7 +112,6 @@ extern void sdkDbprtInit(s32 arg0);
 extern void kwlnTaskInitPool(s32 arg0);
 extern void H_Cdvd_ResetStreamState(void);
 extern void H_Cdvd_InitDevices(void);
-extern s32 kwlnGetCamera(void);
 extern u8 D_005DD680[];
 /* RenderWare keeps its engine instance in the `ourGlobals` array
    (retail 0x008872E0) and reaches device state through
@@ -154,7 +149,7 @@ typedef struct {
 extern u8 D_00796460[];
 extern u8 *PrimQueueDrawPrimitive(void *arg0, s32 arg1, void *arg2, s32 arg3);
 extern void sdkSndInit(void);
-extern void sdkSndSetSlotTrack(s32 arg0, s32 arg1);
+extern void sdkSndSetSlotTrack(s32 slotIndex, s16 trackId);
 extern void mdlRenderInitializeBuffers(void);
 extern void PrimCreatePools(s32 arg0, s32 arg1);
 extern void hMaestroCreateServicesTask(void);
@@ -165,13 +160,11 @@ extern void TnSetTableBase(s32 arg0);
 extern void TnInitModule(s32 arg0);
 extern void mdlEffectSetGlobalValue(s32 arg0);
 extern void AfPackInit(s32 arg0, s32 arg1);
-extern void func_004c6eb0(s32 arg0);
 extern s32 func_004c6f50(s32 arg0, s32 arg1, s32 arg2);
 extern void func_004c7188(s32 arg0);
 extern void func_004ca720(void);
-extern void func_004cc200(s32 arg0, s32 arg1);
 extern void func_004cc218(s32 arg0);
-extern void func_004cd470(s32 arg0, s32 arg1);
+extern void criSetVoiceCounts(s32 stereoVoices, s32 monoVoices);
 extern void mwPlyInitSfdFx(void *arg0);
 extern void func_004d8c78(void);
 extern void func_004f2798(s32 arg0, s32 arg1);

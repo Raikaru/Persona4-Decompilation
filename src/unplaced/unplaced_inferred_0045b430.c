@@ -1,3 +1,4 @@
+#include "runtime_hooks_internal.h"
 
 #include "include_asm.h"
 #include "type.h"
@@ -20,7 +21,6 @@ typedef struct MdlRenderSlot {
 extern void func_00430e28(void);
 extern void func_00430f80();
 extern void func_0043bb70();
-extern void func_0043c008(s32 value);
 extern void func_0043c010(s32 value);
 extern void func_0043c0c0();
 extern s32 func_0043bcb8();

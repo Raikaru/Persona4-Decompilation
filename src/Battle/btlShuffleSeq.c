@@ -20,7 +20,7 @@ extern s32 datGetFlag(s32 bit);
 extern s32 btlShuffleDrawStateB(u8 *record);
 extern s32 btlShuffleDrawStateC(u8 *record);
 extern s32 btlShuffleDrawStateD(u8 *record);
-extern void btlShuffleCardScaleVec(u8 *unit, f32 *src, f32 *scale, f32 dst);
+extern void btlShuffleCardScaleVec(u8 *unit, f32 *src, f32 dst, f32 *scale);
 extern void btlShuffleDrawMoveCard(u8 *context, s32 cardIndex, f32 delay, f32 duration, f32 *start, f32 *target);
 extern void btlShuffleDrawMoveCardB(u8 *context, s32 cardIndex, f32 *start, f32 *target, f32 delay, f32 duration);
 extern void btlShuffleDrawInitCard(u8 *a, s32 b, s32 c, f32 *d, f32 *e, f32 *f, f32 g, f32 h);
@@ -48,7 +48,7 @@ extern void btlShuffleDrawFrame(u8 *context);
 extern void btlShuffleDrawViewClearFlags(s32 drawWork);
 extern void btlShuffleEffRelease(s32 task);
 extern void btlShuffleDrawCardReset(s32 drawWork);
-extern void fclMiscEnsureMesWindow(s32 a);
+extern void fclMiscEnsureMesWindow(u8 *object);
 extern void fclMesWindowShowItemRecord(s32 record);
 extern void nmMesWindowStepCurrent(s32 release);
 extern s32 nmMesWindowCurrentOpenState(void);
@@ -328,7 +328,7 @@ void btlShuffleSeqMoveA(u8 *context, s32 cardIndex) {
 
     screen[0] = 316.0f;
     screen[1] = 211.0f;
-    btlShuffleCardScaleVec(context + cardIndex * 0xFB0, screen, position, 160.0f);
+    btlShuffleCardScaleVec(context + cardIndex * 0xFB0,  screen,  160.0f,  position);
     btlShuffleDrawMoveCard(context, cardIndex, 0.0f, 15.0f, NULL, position);
     rotation[3] = 0.0f;
     rotation[0] = 0.0f;
@@ -346,7 +346,7 @@ void btlShuffleSeqMoveB(u8 *context, s32 cardIndex) {
 
     screen[0] = 316.0f;
     screen[1] = 211.0f;
-    btlShuffleCardScaleVec(context + cardIndex * 0xFB0, screen, position, 160.0f);
+    btlShuffleCardScaleVec(context + cardIndex * 0xFB0,  screen,  160.0f,  position);
     btlShuffleDrawMoveCard(context, cardIndex, 0.0f, 0.0f, position, position);
     rotation[3] = 0.0f;
     rotation[0] = 0.0f;
@@ -630,7 +630,7 @@ done:
 void btlShuffleSeqClearA(u8 *context, s32 count) {
     ((BtlShuffleMessageState *)(context + 0x1F23C))->phase = 0;
     /* Keep the archive selector in its signed word representation. */
-    fclMiscEnsureMesWindow(((BtlShuffleContext *)context)->textureBlobs[1]);
+    fclMiscEnsureMesWindow((u8 *)(((BtlShuffleContext *)context)->textureBlobs[1]));
     fclMesWindowShowItemRecord(count);
 }
 

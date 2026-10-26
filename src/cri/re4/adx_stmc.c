@@ -209,10 +209,10 @@ void ADXSTMF_ExecHndl(ADXSTM stm)
 static void adxstmf_retry(ADXSTM stm)
 {
 	if (adxstmf_num_rtry >= 0) {
-		if (stm->rtry_cnt >= adxstmf_num_rtry) {
+		if (adxstmf_num_rtry < stm->x4c) {
 			stm->stat = ADXSTM_STAT_ERROR;
 		} else {
-			stm->rtry_cnt++;
+			stm->x4c++;
 		}
 	}
 }
@@ -259,7 +259,7 @@ void adxstmf_stat_exec(ADXSTM stm)
 				   stm->lim_nsct < ADXSTM_NSCT_INF) {
 				stm->stat = ADXSTM_STAT_END;
 			}
-			stm->rtry_cnt = 0;
+			stm->x4c = 0;
 		} else if (fstat == CVFS_STAT_ERROR) {
 			stm->rd_flg = 0;
 			func_004d1898();
@@ -425,7 +425,7 @@ Sint32 ADXSTM_Start(ADXSTM stm)
 {
 	ADXCRS_Lock();
 	stm->rd_byte = 0;
-	stm->rtry_cnt = 0;
+	stm->x4c = 0;
 	if (stm->nsct == 0) {
 		stm->stat = ADXSTM_STAT_END;
 	} else {

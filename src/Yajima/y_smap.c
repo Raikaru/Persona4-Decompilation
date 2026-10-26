@@ -76,7 +76,7 @@ extern s32 hMaestroDecodeIsReady(s32 state);
 extern s32 sdkSpriteRequestLoad(const u8 *name);
 extern void sdkSpriteFreeNode(void *node);
 extern void kAssertFail(void *file, s32 line);
-extern s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s64, s64);
+extern s32 filerEnqueueRequest(s32, const char *, s32, s32, s32, s32, s32, s32, s32, s32);
 extern s32 filerTakeCompletedRequest(s32, s32 *, s32);
 extern s32 smapLoadStep(u8 *task);
 extern s32 smapUpdateOverlay(u8 *task);
@@ -208,7 +208,7 @@ extern int smapWorldToRow(YVec3f);
 /* smapRefreshCells callees */
 extern u8 D_007E80A0[];
 extern s32 D_00764654;
-extern void mapSymbolMarkerSetHighlight(u8 *);
+extern void mapSymbolMarkerSetHighlight(u8 *task, s8 mode);
 extern void mapSymbolTargetSetState(u8 *, s8);
 extern void fclFadeRectSetControl(u8 *, s8);
 extern void mapSymbolPointSetState(u8 *, s8);
@@ -286,13 +286,16 @@ void smapResetVisibility(u8 *task) {
 
 /* Allocate the minimap resource-loader work and register its task. */
 // FUN_002AC6B0
-void smapCreate(void) {
+s32 smapCreate(void) {
     u8 *work;
+    s32 task;
 
     chkmemAllocSiteTag(D_0063EF60, 0xD5);
     work = D_008873F4[0](1, 0xC, 0x40000);
-    D_00764650 = (s32)(s32)kwlnTaskCreate((const void *)(D_0063EFC8), 0xF, 0, 0, smapLoadStep, smapResetVisibility, (u8 *)(work));
+    task = (s32)kwlnTaskCreate((const void *)(D_0063EFC8), 0xF, 0, 0, smapLoadStep, smapResetVisibility, (u8 *)(work));
+    D_00764650 = task;
     ((SMapLoadWork *)work)->phase = 0;
+    return task;
 }
 
 // FUN_002AC740
@@ -1301,7 +1304,7 @@ void smapRefreshCells(u8 *task, s8 mode)
     s16 column;
     s16 row;
 
-    mapSymbolMarkerSetHighlight(((SMapWork *)work)->playerMarker);
+    mapSymbolMarkerSetHighlight(((SMapWork *)work)->playerMarker, mode);
     for (markerIndex = 0; markerIndex < 15; markerIndex++) {
         s32 valid = 0;
         u8 *entry = D_007E8C00 + markerIndex * 0x750;

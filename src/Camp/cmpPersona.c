@@ -25,7 +25,7 @@ void sdkSpriteFreeNode(void *node);
 void kwlnTaskDestroyWithHierarchy(s32);
 void nmMesWindowResetCurrent(void);
 void datScreenWipeInit(s32, void*, void*);
-void datScreenWipeSetTarget(s32, void*, void*);
+void datScreenWipeSetTarget(s32, void*);
 void datScreenWipeSetColor(s32, s32);
 void kAssertFail(void*, s32);
 void cmpPersonaMenuStepAnimations(u8*);
@@ -1078,7 +1078,7 @@ void cmpPersonaStartScreenWipe(s32 task, s32 presetOrColor, s32 initialize, s32 
     if (initialize != 0) {
         datScreenWipeInit(task, start, target);
     } else {
-        datScreenWipeSetTarget(task, target, target);
+        datScreenWipeSetTarget(task, target);
     }
     datScreenWipeSetOffset(task, pair);
     datScreenWipeSetColor(task, presetOrColor);

@@ -105,14 +105,7 @@
  Local (static) Globals
  */
 
-static RwPluginRegistry rasterTKList =
- { sizeof(RwRaster),
-    sizeof(RwRaster),
-    0,
-    0,
-    (RwPluginRegEntry *) NULL,
-    (RwPluginRegEntry *) NULL
- };
+extern RwPluginRegistry rasterTKList;
 
 extern RwModuleInfo rasterModule;  /* P4: file static, at its retail address */
 

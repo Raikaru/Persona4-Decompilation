@@ -3,7 +3,7 @@
 
 
 extern s32 D_00925BE0[];
-extern s32 func_004e22f8(void);
+extern s32 func_004e22f8(void *handle);
 extern u64 func_004e3448(void *handle);
 extern void func_004e2298(void);
 extern s32 func_004e2690(void *handle);
@@ -36,8 +36,8 @@ extern void func_004f9a70(void);
 extern void func_004f26e8(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_004e2170(void *handle, s32 sectors, void *buffer);
 extern s32 func_004e2240(void *handle);
-extern void func_004e2108(s32 arg0);
-extern void func_004f53c0(void *arg0, s32 arg1, void *arg2, s32 arg3, s32 arg4);
+extern s32 func_004e2108(void *handle, s32 position, s32 type);
+extern s32 func_004f53c0(void *arg0, s32 arg1, void *arg2, void *arg3, s32 arg4);
 extern s32 D_0075D3E0[];
 extern s32 D_0075D3F8[];
 extern void rsu_ScrambleVariKey(s32 key, s32 first, s32 second);

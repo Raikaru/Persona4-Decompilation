@@ -140,9 +140,9 @@ extern u32 datCalcGetSp(void* unit);
 struct DatUnit;
 extern u16 datCalcMaxHp(struct DatUnit* unit);
 extern u16 datCalcMaxSp(struct DatUnit* unit);
-extern void datCalcGetBadStatusNoDown(void* unit);
+extern u32 datCalcGetBadStatusNoDown(void* unit);
 extern void datCalcInitUnit(void* unit, s16 id);
-extern void datCalcSetBadStatus(void*);
+extern void datCalcSetBadStatus(DatUnit *unit, u32 badStatus);
 extern u32 datCalcClearBadStatus(int unit, u32 badStatus);
 extern u32 datCalcIsDead(int unit, s32 hpDelta);
 
@@ -597,15 +597,15 @@ s32 datGetActiveRosterIndex(s32 character)
 
 /* Apply the bad-status reader to the selected protagonist or party character. */
 // FUN_00105340
-void datCalcGetBadStatusNoDownById(s16 unitId)
+u32 datCalcGetBadStatusNoDownById(s16 unitId)
 {
     if (unitId == 1)
     {
-        datCalcGetBadStatusNoDown((DatUnit *)D_007973C4);
+        return datCalcGetBadStatusNoDown((DatUnit *)D_007973C4);
     }
     else
     {
-        datCalcGetBadStatusNoDown(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
+        return datCalcGetBadStatusNoDown(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
     }
 }
 
@@ -902,17 +902,17 @@ void datSetUnitRecordTailValue(s16 unitId, s16 value)
     }
 }
 
-/* The retail initializer supplies a second halfword; this reset ignores it. */
+/* Forward the full incoming status mask to the selected unit. */
 // FUN_00105CE0
-void datCalcSetBadStatusById(s16 unitId, s16 unusedValue)
+void datCalcSetBadStatusById(s16 unitId, u32 badStatus)
 {
     if (unitId == 1)
     {
-        datCalcSetBadStatus((DatUnit *)D_007973C4);
+        datCalcSetBadStatus((DatUnit *)D_007973C4, badStatus);
     }
     else
     {
-        datCalcSetBadStatus(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit);
+        datCalcSetBadStatus(&((DatPartySlot *)D_00796E50)[unitId - 2].character.unit, badStatus);
     }
 }
 
@@ -1529,7 +1529,7 @@ void datFreeTaskWork(u8 *unusedTask)
 {
     int work;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork(unusedTask);
     DAT_008873ec_abs[0](work);
 }
 

@@ -202,7 +202,7 @@ ADXT ADXT_Create(Sint32 maxnch, void *work, Sint32 worksize)
 	adxt->autorcvr = 1;
 	adxt->x72 = 0;
 	adxt->timeofst = 0;
-	ADXT_SetLnkSw(adxt, 0);
+	ADXT_SetLnkSw(adxt, 0); adxt->ainf_sw = 1;
 	adxt->used = 1;
 	ADXCRS_Unlock();
 	return adxt;
@@ -297,7 +297,7 @@ void func_004d3f08(void)
 }
 
 /* start the decoder on the input stream joint sj (shared by the file stream and SJ starts) */
-static void adxt_start_sjd(ADXT adxt, SJ sj)
+void adxt_start_sjd(ADXT adxt, SJ sj)
 {
 	Sint32 i;
 
@@ -512,40 +512,12 @@ Sint32 adxt_GetNumSmpl(ADXT adxt)
 	return 0;
 }
 
-/* (dead-stripped) */
+// Sampling rate in Hz once the stream header is known.
 // FUN_004D4C08
-Sint32 ADXT_GetHdrLen(ADXT adxt)
+Sint32 adxt_GetSfreq(ADXT adxt)
 {
 	if (adxt == NULL) {
-		ADXERR_CallErrFunc1("E02080822 ADXT_GetHdrLen: parameter error");
-		return -1;
-	}
-	if (adxt->stat >= ADXT_ISTAT_PREP) {
-		return ADXSJD_GetHdrLen(adxt->sjd);
-	}
-	return 0;
-}
-
-/* (dead-stripped) */
-// FUN_004D4C90
-Sint32 ADXT_GetFmtBps(ADXT adxt)
-{
-	if (adxt == NULL) {
-		ADXERR_CallErrFunc1("E02080821 ADXT_GetFmtBps: parameter error");
-		return -1;
-	}
-	if (adxt->stat >= ADXT_ISTAT_PREP) {
-		return ADXSJD_GetFmtBps(adxt->sjd);
-	}
-	return 0;
-}
-
-// Sampling rate of the stream in Hz once the header is known, else 0.
-// FUN_004D4D18
-Sint32 adxt_GetHdrLen(ADXT adxt)
-{
-	if (adxt == NULL) {
-		ADXERR_CallErrFunc1("E02080819 ADXT_GetSfreq: parameter error");
+		ADXERR_CallErrFunc1("E02080819 adxt_GetSfreq: parameter error");
 		return -1;
 	}
 	if (adxt->stat >= ADXT_ISTAT_PREP) {
@@ -554,16 +526,47 @@ Sint32 adxt_GetHdrLen(ADXT adxt)
 	return 0;
 }
 
-// Channel count of the stream once the header is known, else 0.
-// FUN_004D4DA0
-Sint32 adxt_GetFmtBps(ADXT adxt)
+
+// Channel count once the stream header is known.
+// FUN_004D4C90
+Sint32 adxt_GetNumChan(ADXT adxt)
 {
 	if (adxt == NULL) {
-		ADXERR_CallErrFunc1("E02080820 ADXT_GetNumChan: parameter error");
+		ADXERR_CallErrFunc1("E02080820 adxt_GetNumChan: parameter error");
 		return -1;
 	}
 	if (adxt->stat >= ADXT_ISTAT_PREP) {
 		return ADXSJD_GetNumChan(adxt->sjd);
+	}
+	return 0;
+}
+
+
+// Header byte count once the stream header is known.
+// FUN_004D4D18
+Sint32 adxt_GetHdrLen(ADXT adxt)
+{
+	if (adxt == NULL) {
+		ADXERR_CallErrFunc1("E02080822 adxt_GetHdrLen: parameter error");
+		return -1;
+	}
+	if (adxt->stat >= ADXT_ISTAT_PREP) {
+		return ADXSJD_GetHdrLen(adxt->sjd);
+	}
+	return 0;
+}
+
+
+// Encoded bits per sample once the stream header is known.
+// FUN_004D4DA0
+Sint32 adxt_GetFmtBps(ADXT adxt)
+{
+	if (adxt == NULL) {
+		ADXERR_CallErrFunc1("E02080821 adxt_GetFmtBps: parameter error");
+		return -1;
+	}
+	if (adxt->stat >= ADXT_ISTAT_PREP) {
+		return ADXSJD_GetFmtBps(adxt->sjd);
 	}
 	return 0;
 }

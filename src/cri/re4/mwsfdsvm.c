@@ -1,3 +1,4 @@
+#include "cri_voice_internal.h"
 /* CRI Sofdec MW player server-manager glue (mwsfdsvm.c): registers the player's servers with the
  * SVM (main type 5, idle type 6, vsync type 2) and routes the player's error messages
  * (MWSFSVM_Error) to the SVM error callback. */
@@ -41,8 +42,8 @@ void MWSFSVM_Error(const Char8 *fmt, ...)
 	SVM_CallErr1(errstr);
 }
 
-// Re-entry guard for the server flags.
-// FUN_004CD470
+// Re-entry guard for the server flags. This SDK convenience wrapper has no
+// independent retail entry at 004cd470: that entry configures voice counts.
 Sint32 MWSFSVM_TestAndSet(Sint32 *flag)
 {
 	return SVM_TestAndSet(flag);
@@ -76,4 +77,10 @@ void MWSFSVM_Init(void)
 	mwg_vsync_fid = 0;
 	mwg_idle_fid = 0;
 	mwg_main_fid = 0;
+}
+
+// FUN_004CD470
+void criSetVoiceCounts(s32 stereoVoices, s32 monoVoices)
+{
+    criConfigureVoiceCounts(stereoVoices, monoVoices);
 }

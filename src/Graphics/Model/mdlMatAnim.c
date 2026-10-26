@@ -24,7 +24,7 @@ typedef s32 (*code)();
 extern code DAT_008873ec_abs[];
 extern void mdlReleaseU16Ref(s32 wrapper);
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
-extern void mdlDispatchTrackRows(u8 *leftTrack, u8 *leftTime, f32 rightTrack, f32 rightTime, f32 weight);
+extern void mdlDispatchTrackRows(u8 *leftTrack, f32 rightTrack, u8 *leftTime, f32 rightTime, f32 weight);
 extern u8 D_00713260[];
 extern u32 D_00713220[];
 
@@ -222,7 +222,7 @@ void mdlMatAnimUpdateList(u8 **list, f32 scale1, u8 **referenceList, f32 scale2,
         materialNode = (MdlMatAnimNode *)node;
         match = mdlMatAnimFindNodeByTable(referenceList, (s32 *)materialNode->table.bytes);
         if (match != NULL) {
-            mdlDispatchTrackRows(node, match, scale1, scale2, scale3);
+            mdlDispatchTrackRows(node,  scale1,  match,  scale2,  scale3);
         } else {
             tbl = materialNode->table.bytes;
             count = ((MdlMatAnimCollector *)tbl)->count;

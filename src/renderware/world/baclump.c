@@ -210,21 +210,9 @@ struct rpAtomicLightData
  Local (static) Globals
  */
 
-static RwPluginRegistry atomicTKList =
-    { sizeof(RpAtomic),
-      sizeof(RpAtomic),
-      0,
-      0,
-      (RwPluginRegEntry *)NULL,
-      (RwPluginRegEntry *)NULL };
+extern RwPluginRegistry atomicTKList;
 
-static RwPluginRegistry clumpTKList =
-    { sizeof(RpClump),
-      sizeof(RpClump),
-      0,
-      0,
-      (RwPluginRegEntry *)NULL,
-      (RwPluginRegEntry *)NULL };
+extern RwPluginRegistry clumpTKList;
 
 /* Retail uses gp-0x4950 for the camera offset and RpClumpRemoveLight, but
  * stores and reads the light registration/list offset at gp-0x494C. Keep

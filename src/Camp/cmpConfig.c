@@ -10,7 +10,7 @@ void kAssertFail(void*, s32);
 void sdkSpriteFreeNode(void *node);
 void PrimAppendNode(void* list, void* node);
 void datSetFlag(s32 flagId, s32 enabled);
-s32 datCommunityDetailStep(u32*, s32*, u8*);
+s32 cmpConfigStepInput(u32*, s32*, u8*);
 s32 nLineIsIdle(void);
 void chkmemAllocSiteTag(void* file, s32 line);
 void memset(void* dest, s32 value, s32 size);
@@ -35,14 +35,14 @@ void mdlEffectEmitMaskedTagPair(void);
 void effMiscDrawScreenColor(void*, s32);
 void mdlEffectEmitTagPair(void);
 void RpSkyRenderStateSet(s32 a, s32 b);
-void datCommunityOverlayDestroy(u8*);
+void cmpConfigDestroy(u8*);
 s32 cmpConfigUpdate(u8*);
 s32 cmpConfigSetMode(u8*, s32 mode);
 s32 cmpConfigSetOption(u8*, s32, s32);
 void cmpConfigUpdateFrame(u8*, u8*);
 void cmpConfigAnimateGraph(u8*);
 void cmpConfigDraw(u8 *);
-void cmpConfigDrawArrows(u8*, s32, s32);
+void cmpConfigDrawOnOff(u8*, s32, s32);
 extern void *(*D_008873F4[])(size_t, size_t, u32);
 extern void (*D_00887300[])(u32, u32);
 extern u8 D_0064D3C8[];
@@ -151,7 +151,7 @@ s32 cmpConfigCreate(void* parentTask, s32 mode) {
     if (work == NULL) {
         kAssertFail(D_0064D3C8, 0xC6);
     }
-    task = (s32)kwlnTaskCreateChild((void *)((s32)parentTask), (const void *)(D_0064D3D8), 0xC7, 0, 0, cmpConfigUpdate, datCommunityOverlayDestroy, (u8 *)(work));
+    task = (s32)kwlnTaskCreateChild((void *)((s32)parentTask), (const void *)(D_0064D3D8), 0xC7, 0, 0, cmpConfigUpdate, cmpConfigDestroy, (u8 *)(work));
     memset(work + 0x47C, 0, 0x30);
     ((CmpConfigWork *)work)->drawCallback = (s32)cmpConfigUpdateFrame;
     ((CmpConfigWork *)work)->nodeContext = work;
@@ -593,11 +593,11 @@ void cmpConfigDraw(u8 *work) {
             if (index != 6) {
                 u16 *timer = &menu->timers[index];
                 if (*timer >= 5) {
-                    cmpConfigDrawArrows(work, index, 0);
+                    cmpConfigDrawOnOff(work, index, 0);
                 } else {
                     if (pendingOption != -1) {
-                        cmpConfigDrawArrows(work, pendingOption, 1);
-                        cmpConfigDrawArrows(work, pendingOption, 2);
+                        cmpConfigDrawOnOff(work, pendingOption, 1);
+                        cmpConfigDrawOnOff(work, pendingOption, 2);
                     }
                     pendingOption = index;
                     *timer = *timer + 1;
@@ -632,8 +632,8 @@ void cmpConfigDraw(u8 *work) {
             }
         }
         if (pendingOption != -1) {
-            cmpConfigDrawArrows(work, pendingOption, 1);
-            cmpConfigDrawArrows(work, pendingOption, 2);
+            cmpConfigDrawOnOff(work, pendingOption, 1);
+            cmpConfigDrawOnOff(work, pendingOption, 2);
         }
         pos.x = (f32)0x26B + (baseX + menu->motion[15].position.x);
         pos.y = (f32)0x15B + (baseY + menu->motion[15].position.y);
@@ -715,7 +715,7 @@ void cmpConfigAnimateGraph(u8 *work)
  * and coordinates. */
 // FUN_0035DFB0
 /* Raw row-field addresses keep retail's address addition order; typed row pointers change it. */
-void cmpConfigDrawArrows(u8 *work, s32 optionIndex, s32 drawMode)
+void cmpConfigDrawOnOff(u8 *work, s32 optionIndex, s32 drawMode)
 {
     u8 color[4];
     f32 opacity;
@@ -849,7 +849,7 @@ s32 cmpConfigUpdate(u8* task) {
     if (work[4] & 1) {
         return 0;
     }
-    switch (datCommunityDetailStep(&((CmpConfigWork *)work)->detailState, &changed, work)) {
+    switch (cmpConfigStepInput(&((CmpConfigWork *)work)->detailState, &changed, work)) {
     case 0:
         if (changed != 0) {
             ((CmpConfigWork *)work)->nodeNext = 0;

@@ -1,3 +1,4 @@
+#include "runtime_hooks_internal.h"
 #include "include_asm.h"
 #include "type.h"
 /* Toolchain note: retail saves $s registers with sd; MWCCPS2 3.0.1 emits sq; toolchain-blocked, see build/ORCH_sd_toolchain_blocked.txt. */
@@ -5,7 +6,6 @@
 s32 func_0041e8d8(); /* old-style: retail callers leave $a0..$a3 materialized */
 void func_0041dff8(void);
 void _sceMpegFlushBuf(void);
-void func_0041e030();
 u8 **func_004117b0(s32);
 s32 func_00413700(s32);
 s32 func_00413b80(s32);
@@ -932,7 +932,7 @@ INCLUDE_ASM("asm/nonmatchings/code1_0041", func_0041dff8);
 /* measured: tailcall-on probe for the direct retail jump wrapper. */
 #pragma tailcall on
 // FUN_0041E030
-void func_0041e030()
+void func_0041e030(s32 unusedAddress, s32 unusedBytes)
 {
     _sceMpegFlushBuf();
 }

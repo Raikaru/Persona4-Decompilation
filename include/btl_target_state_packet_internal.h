@@ -16,6 +16,7 @@ typedef void (*BtlTargetStateHook)(u8 *work);
 typedef u32 (*BtlTargetStateUpdate)(void *work);
 void btlTargetActionAddPending(u8 *arg);
 u32 btlTargetStatePacketUpdate(void *arg);
+u32 btlTargetCancelPlayback(void *work);
 void btlTargetReleaseUnitPending(u8 *work);
 
 #endif

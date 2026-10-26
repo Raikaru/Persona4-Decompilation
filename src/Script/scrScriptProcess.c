@@ -1,3 +1,4 @@
+#include "scr_context_internal.h"
 #include "type.h"
 #include "scr_internal.h"
 #include "scr_data_internal.h"
@@ -114,7 +115,6 @@ u8* poolAlloc(s32 requestedSize);
 void poolFree(void* address);
 u32 kwlnTaskGetWork(void* task);
 s32 scrProcessGetHandleNoop(void);
-void scrProcessInitNoop(s32);
 void func_00440b68(char* fmt, ...);
 void H_Dbprt_FmtLog(char* fmt, ...);
 void itfMesWindowReleaseIfActive(s32 handle);
@@ -598,7 +598,7 @@ void scrReleaseWork(ScrScriptWork* work)
 
 // Debug dump: logs the live work count and walks the work list.
 // FUN_0029DDB0
-void scrDebugDumpWorkList(void)
+void scrDebugDumpWorkList(s32 unusedContext)
 {
     ScrScriptWork* s;
 

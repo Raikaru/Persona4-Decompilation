@@ -1,3 +1,4 @@
+#include "h_cdvd.h"
 #include "include_asm.h"
 #include "type.h"
 #include "h_cdvd_slot_internal.h"
@@ -115,7 +116,6 @@ extern void H_Cdvd_SlotRead(void);
 extern void H_Cdvd_SlotWrite(void);
 extern void adminiSeqExitTest(void);
 extern void H_Cdvd_SlotSeek(void);
-extern s32 H_Cdvd_ProbeFile(s32);
 extern u8 *H_Cdvd_FileContextPath(void);
 extern u8 D_00711800[];
 extern u8 D_00711810[];

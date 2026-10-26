@@ -31,7 +31,7 @@ extern u8 D_0063CFA0[];
 
 // lint: allow H011 -- measured: a u16 prototype changes func_00291a60, which passes ids as full-
 // width args.
-extern void mdlDetachSlotModel(u8 *eventWork, s32 model, u8 *slotIndex, s32 entryIndex);
+extern void mdlDetachSlotModel(u8 *eventWork, u16 model);
 extern u32 yTimeTrackAppendKey(s32 eventWork, s32 model, s32 slotIndex, s32 entryIndex,
                           s32 matrixIndex, f32, s32, s32,
                           s32);
@@ -161,7 +161,7 @@ void mtMiscDetachSlotModel(u8 *model, s32 slotIndex)
             attached = 1;
         }
         if (attached == 1) {
-            mdlDetachSlotModel(model, slotIndex & 0xFFFF, slot, attached);
+            mdlDetachSlotModel(model, slotIndex & 0xFFFF);
         }
     }
 }

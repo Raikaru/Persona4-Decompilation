@@ -49,7 +49,7 @@ extern s32 D_007246B0;
 extern s32 D_007246B4;
 extern u8 D_008872E0[];
 
-s32 func_00399530(void);
+s32 func_00399530(u32 *object, u32 *output);
 
 extern s32 D_007246EC;
 
@@ -1943,7 +1943,7 @@ s32 func_0039aa40(void)
 u8 *_rpMatFXPipelineWorldSectorSetup(u8 *arg0) {
     s32 pipeId;
 
-    if (*(s32 *)((u8 *)(func_003c9c20()) + 8) & 0x80) {
+    if (*(s32 *)((u8 *)(func_003c9c20(arg0)) + 8) & 0x80) {
         pipeId = func_0039b6e0(0x11010);
     } else {
         pipeId = func_0039b6e0(0x1100F);
@@ -1980,9 +1980,9 @@ u8 *_rpMatFXPipelineAtomicSetup(u8 *arg0) {
    reach the INCLUDE_ASM functions below, which it silently did before. */
 #pragma optimization_level 3
 // FUN_0039AB10
-void func_0039ab10(void)
+void func_0039ab10(u32 *object, u32 *output)
 {
-    func_00399530();
+    func_00399530(object, output);
 }
 /* measured: closes the bracket above at the -O2 baseline. */
 #pragma optimization_level 2

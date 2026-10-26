@@ -65,8 +65,8 @@ extern u8 D_0060A0E0[];
 extern f32 fGpffff82f8;
 extern f32 fGpffff80c8;
 extern f32 fGpffff8430;
-extern void primQuad3D(f32 *pos, u8 *col, s32 size, f32 saveAndRestoreRenderState);
-extern void primAxisLine3D(f32 *mat, s32 length, f32 saveAndRestoreRenderState);
+extern void primQuad3D(f32 *pos, u8 *col, f32 saveAndRestoreRenderState, s32 size);
+extern void primAxisLine3D(f32 *mat, f32 saveAndRestoreRenderState, s32 length);
 extern u8 *btlEncounterGetRecord(s32 index);
 extern void func_003e9cb0(void *frame, void *transform, s32 combine);
 extern s32 kwlnGetCamera(void);
@@ -315,8 +315,8 @@ void btlCameraDrawDebug(void)
       matrix.pos.x = scaledX;
       matrix.pos.y = scaledY;
       matrix.pos.z = normalization;
-      primQuad3D((f32 *) position, color, 1, 6.0f);
-      primAxisLine3D((f32 *) (&matrix), 1, 150.0f);
+      primQuad3D((f32 *) position,  color,  6.0f,  1);
+      primAxisLine3D((f32 *) (&matrix),  150.0f,  1);
     }
   }
 }

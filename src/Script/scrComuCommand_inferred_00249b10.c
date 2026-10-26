@@ -24,7 +24,7 @@ extern s32 cmmCommunityClearBroken(s32 communityId);
 extern s32 cmmCommunityAddScaledPoints(s32 communityId, s32 points);
 extern s32 cmmCommunityAddPoints(s32 communityId, s32 points, s32 resourceId);
 extern s64 datGetDateIndex(void);
-extern s32 calSplitDayOfYear(s64 dateIndex, s32 *monthOut, s32 *dayOut);
+extern s32 calSplitDayOfYear(s32 dateIndex, s32 *monthOut, s32 *dayOut);
 extern s32 cmmNthEligibleCommunity(s32 requestedIndex, s32 month, s32 day);
 extern s32 cmmCommunitySetTableHead(s32 value);
 

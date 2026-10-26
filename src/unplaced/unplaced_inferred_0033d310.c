@@ -1,3 +1,4 @@
+#include "evt_internal.h"
 
 #include "fcl_object_internal.h"
 #include "member_access.h"
@@ -44,8 +45,8 @@ extern s32 evtPMFileReaderIsDone(s32 );
 extern s32 evtPMFileReaderGetFirstEntry(s32 , s32 *, s32 *,
                          s16 *, s32 *);
 extern void fieldSceneLoad(s32 , s32 );
-extern void fieldSceneRequestRoom(s32 );
-extern void fieldSceneRequestSecondaryRoom(s32 );
+extern void fieldSceneRequestRoom(s64);
+extern void fieldSceneRequestSecondaryRoom(s64);
 extern s32 fieldSceneLoadStep(void);
 extern void kwlnTaskDestroyWithHierarchy(s32 );
 extern s32 kwlnTaskIsLinked(s32 );

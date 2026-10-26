@@ -24,7 +24,7 @@ extern s32 fclCalendarDay(void);
 extern s32 fclCalendarMonthOrder(u8);
 extern s32 nmMesWindowSlotStatus(s8);
 extern void nmMesWindowStepSlotRelease(s32);
-extern void nmMesWindowDestroySlot(s8);
+extern void nmMesWindowDestroySlot(s64);
 extern u8 D_00645240[];
 extern u8 D_006450E0[];
 extern u8 D_00647EE0[];

@@ -45,7 +45,7 @@ extern s32 H_Cdvd_IsFileLoaded(s32 cdvd);
 extern u8 *sdkOtQueueClumpPrimaryPass(u8 *list, s32 stateId);
 extern u8 *sdkOtQueueClumpSecondaryPass(u8 *list, s32 stateId);
 extern u8 *PrimQueueSkyStateEnter(u8 *list, s32 stateId);
-extern u8 *func_003e9d50(u8 *);
+extern void func_003e9d50(s32 frame, void *axis, f32 angle, s32 combine);
 extern void FldResource_BeginDrawState(u8 *command, u8 *resource);
 extern s32 K_Clump_CountIntUsrData(void *object, const char *name);
 extern void kAssertFail(const char *file, s32 line);

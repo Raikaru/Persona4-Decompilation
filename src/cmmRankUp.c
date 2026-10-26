@@ -1,3 +1,6 @@
+#include "h_snd_internal.h"
+#include "sdk_snd_internal.h"
+#include "h_cdvd.h"
 #include "rw_types_internal.h"
 #include "mt_scene_internal.h"
 /* Original translation unit cmmRankUp.c (from __FILE__ assert strings). */
@@ -56,7 +59,7 @@ extern void mdlComputeIndexedAttachMatrix(s32 model, s32 index, void *destinatio
 extern void FldPanel2dTaskCreate();
 extern void MT_Scene_SetResEnabled(s32 resource, s32 enabled);
 extern void func_003ef3a0(s32 value);
-extern void H_Cdvd_Destroy(s32 cdvd);
+
 extern void mdlSetLayerWeight(u8 *model, s32 layer, f32 speed);
 extern void *memset(void *destination, s32 value, size_t count);
 
@@ -184,12 +187,12 @@ extern code DAT_008873ec_abs[];
 /* Run active entry callbacks, clear ACTIVE on completed entries, then update the shared effect pool. */
 // FUN_00251D80
 void cmmRankUpRunQueue(s32 unused, s32 *task) {
-    extern s32 *kwlnTaskGetWork();
+    extern s32 *kwlnTaskGetWork(void* task);
     u8 *base;
     s32 i;
     CmmRankUpEntry *entry;
 
-    base = (u8 *)kwlnTaskGetWork(task);
+    base = (u8 *)kwlnTaskGetWork((void*)(task));
     entry = (CmmRankUpEntry *)base;
     for (i = 0; i < 0x10; i++) {
         if (entry->flags & 1) {
@@ -212,7 +215,7 @@ s32 cmmRankUpEnqueueTask(u8 *sdkTaskBytes) {
     s32 taskHandle = (s32)sdkTaskBytes;
     u8 *node;
 
-    kwlnTaskGetWork();
+    kwlnTaskGetWork((void*)(sdkTaskBytes));
     node = PrimAllocQueueNode();
     ((BtlRenderNode *)node)->callback = (void *)cmmRankUpRunQueue;
     ((BtlRenderNode *)node)->work = (void *)taskHandle;
@@ -226,7 +229,7 @@ void cmmRankUpDestroy(u8 *unusedTask)
 {
     int workHandle;
 
-    workHandle = kwlnTaskGetWork();
+    workHandle = kwlnTaskGetWork((void*)(unusedTask));
     DAT_008873ec_abs[0](workHandle);
 }
 
@@ -255,12 +258,12 @@ void cmmRankUpCreate(s32 parentTask, u32 *context) {
 #pragma push
 #pragma opt_loop_invariants on
 void cmmRankUpSetEntryHold(s32 taskHandle, s32 hold) {
-    extern u32 *kwlnTaskGetWork();
+    extern u32 *kwlnTaskGetWork(void* task);
     CmmRankUpEntry *entry;
     u32 flags;
     s32 i;
 
-    entry = (CmmRankUpEntry *)kwlnTaskGetWork();
+    entry = (CmmRankUpEntry *)kwlnTaskGetWork((void*)(taskHandle));
     for (i = 0; i < 0x10; i++) {
         flags = entry->flags;
         if (flags & 1) {
@@ -303,7 +306,7 @@ extern void MT_Scene_SetResEnabledById(s32 resTypeId, s32 enabled);
  * indexed table. */
 // FUN_00252050
 void cmmRankUpCopyState(s32 taskHandle, s32 kind, s32 stateIndex) {
-    extern u8 *kwlnTaskGetWork();
+    extern u8 *kwlnTaskGetWork(void* task);
     f32 stepAddresses[3];
     s32 copy2[0x87 * 2];
     s32 copy1[0x1B];
@@ -346,7 +349,7 @@ void cmmRankUpCopyState(s32 taskHandle, s32 kind, s32 stateIndex) {
         dstp2++;
     } while (v > 0);
 
-    p = kwlnTaskGetWork(taskHandle);
+    p = kwlnTaskGetWork((void*)(taskHandle));
     if (kind >= 3) {
         kAssertFail(D_00635CF8, 0x329);
     }
@@ -2404,7 +2407,7 @@ s32 cmmRankUpRender(u8 *task) {
     RankUpMatrix leavingMatrix;
     RankUpRectangle overlayRectangle;
 
-    context = (CmmRankUpSequence *)kwlnTaskGetWork(task);
+    context = (CmmRankUpSequence *)kwlnTaskGetWork((void*)(task));
     firstTexture = (s32)(datPortraitValue(context->portraitIdFirst));
     secondTexture = (s32)(datPortraitValue(context->portraitIdSecond));
     animationMode = (s32)(context->animationMode);
@@ -3043,7 +3046,7 @@ s32 cmmRankUpRender(u8 *task) {
 #pragma push
 #pragma opt_propagation off
 void cmmRankUpDrawSprite(s32 unused, u8 *task) {
-    extern u32 *kwlnTaskGetWork();
+    extern u32 *kwlnTaskGetWork(void* task);
     CmmRankUpSequence *work;
     u8 *colorByte;
     s32 remainingBytes;
@@ -3055,7 +3058,7 @@ void cmmRankUpDrawSprite(s32 unused, u8 *task) {
     f32 *drawColor;
     f32 alpha;
 
-    work = (CmmRankUpSequence *)kwlnTaskGetWork(task);
+    work = (CmmRankUpSequence *)kwlnTaskGetWork((void*)(task));
     colorByte = rgba;
     remainingBytes = 4;
     if (colorByte != NULL) {
@@ -3111,7 +3114,7 @@ extern char cGpffffa688;
 extern u8 *datPortraitTaskCreate(s32 parentAddress, s64 portraitId, s32 flags);
 extern void func_00440b68();
 extern u8 *H_Cdvd_AcquireDirectory();
-extern s32 H_Cdvd_IsFileLoaded();
+
 extern u8 *filerEnqueueRequest(s32 kind, const char *name, const char *path, s32 flags, s32 source, s32 buffer, s32 byteCount, const char *cacheName, s32 resultKind, s32 memoryKind);
 extern void *memcpy(void *destination, const void *source, u32 size);
 extern void *memset(void *destination, s32 value, u32 size);
@@ -3129,7 +3132,7 @@ extern void cmmRankUpPlayRankSound();
 extern s32 FldPanel2dRelease();
 extern void kwlnTaskDestroyWithHierarchy();
 extern s32 kwlnTaskGetTaskByName();
-extern s32 itfMesWindowInstall();
+extern s32 itfMesWindowInstall(u8 *record);
 extern void itfMesWindowReleaseIfActive();
 extern s32 nmMesWindowSlotStatus();
 extern void nmMesWindowRestartSlot();
@@ -3148,12 +3151,10 @@ extern char *strcpy(char *destination, const char *source);
 extern void frFontExCopyString(char *src, char *dst, s32 maxlen);
 extern void nmMesWindowSetSlotString(s8 slotIndex, s32 variable, void *text);
 extern s32 datGetFlag();
-extern void datSetFlag();
-extern void hsndQueueSound();
+extern void datSetFlag(s32 flagId, s32 enabled);
 extern void sdkSndSetMainChannelData();
 extern void sdkSndStopMainChannel();
 extern void sdkSndStopChannel();
-extern void sdkSndFadeOutChannel();
 extern void sdkSndRequestTrack();
 extern s32 cmmRankUpCardTaskUpdate(u8 *sdkTaskBytes);
 extern void cmmRankUpCardTaskDestroy(u8 *task);
@@ -3168,7 +3169,7 @@ typedef struct { s32 values[5]; } RankUpUnlockFlags;
 /* Report whether the rank-up task work has set its completion flag. */
 static inline s32 cmmRankUpAnimationComplete(u8 *task)
 {
-    CmmRankUpSequence *context = (CmmRankUpSequence *)kwlnTaskGetWork(task);
+    CmmRankUpSequence *context = (CmmRankUpSequence *)kwlnTaskGetWork((void*)(task));
     s32 complete = 0;
     if (context->unk_44 != 0) {
         complete = 1;
@@ -3199,7 +3200,7 @@ s32 cmmRankUpSequenceUpdate(u8 *task) {
     void *cardWork;
     s32 count;
     u8 *taskBytes = task;
-    context = (CmmRankUpSequence *)kwlnTaskGetWork(taskBytes);
+    context = (CmmRankUpSequence *)kwlnTaskGetWork((void*)(taskBytes));
     skill = 0;
     switch (context->relation) {
     case 0:
@@ -3238,7 +3239,7 @@ s32 cmmRankUpSequenceUpdate(u8 *task) {
         if (datPortraitIsLoaded(context->portraitIdSecond) == 0) {
             goto tail;
         }
-        if (H_Cdvd_IsFileLoaded(context->directory) == 0) {
+        if (H_Cdvd_IsFileLoaded((struct HCdvd *)(context->directory)) == 0) {
             goto tail;
         }
         context->relation = 4;
@@ -3324,7 +3325,7 @@ s32 cmmRankUpSequenceUpdate(u8 *task) {
         goto tail;
     case 9:
         context->relation = 10;
-        context->pulse120.low = (s8)itfMesWindowInstall(context->messageData);
+        context->pulse120.low = (s8)itfMesWindowInstall((u8 *)(context->messageData));
         context->unk_44 = 0;
         context->flags |= 2;
         rankOrFlags = context->animationMode;
@@ -3424,7 +3425,7 @@ s32 cmmRankUpSequenceUpdate(u8 *task) {
         unlockFlags = *(const RankUpUnlockFlags *)D_00636740;
         displayIndex = (s8)cmmRankUpSelectDisplayIndex(context->slot18.word, completedRankValue);
         if (displayIndex >= 2 && displayIndex <= 6 && (context->flags & 0x20) != 0) {
-            datSetFlag(unlockFlags.values[displayIndex - 2], 1);
+            datSetFlag((s32)(unlockFlags.values[displayIndex - 2]), (s32)( 1));
             switch (displayIndex) {
             case 2:
                 nmMesWindowShowSlotRecordStyle1(context->pulse120.low, 0xD);
@@ -3485,10 +3486,10 @@ s32 cmmRankUpSequenceUpdate(u8 *task) {
             break;
         }
         if (skill == 0x113) {
-            datSetFlag(0x1013, 1);
+            datSetFlag((s32)(0x1013), (s32)( 1));
         }
         if (skill == 0x112) {
-            datSetFlag(0x1012, 1);
+            datSetFlag((s32)(0x1012), (s32)( 1));
         }
         /* fallthrough */
     case 16:
@@ -3544,7 +3545,7 @@ void cmmRankUpSequenceDestroy(u8 *unusedTask) {
     u8 *list;
     s32 i;
 
-    context = (CmmRankUpSequence *)kwlnTaskGetWork();
+    context = (CmmRankUpSequence *)kwlnTaskGetWork((void*)(unusedTask));
     if (context->flags & 1) {
         FldPanel2dTaskCreate();
     }
@@ -3568,7 +3569,7 @@ void cmmRankUpSequenceDestroy(u8 *unusedTask) {
     if ((u32)context->unk_54 != 0) {
         func_003ef3a0((u32)context->unk_54);
     }
-    H_Cdvd_Destroy((u32)context->directory);
+    H_Cdvd_Destroy((struct HCdvd *)((u32)context->directory));
     (*freeWork)(context);
 }
 // Spawns the rank-up sequence task under value for resource option1 (must be nonzero), storing option2 and option3 as its load parameters; the task is destroyed by cmmRankUpSequenceDestroy.

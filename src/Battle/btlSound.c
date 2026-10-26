@@ -1,3 +1,4 @@
+#include "btl_skill_target_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "sdk_snd_internal.h"
@@ -370,7 +371,7 @@ BtlPacket* btlSoundCreateUnitFlagSetPacket(struct BtlUnit* unit)
 
 /* Create the zero-initialized wait packet used by the target-state callback. */
 // FUN_001F97B0
-void btlSoundCreateWaitPacket(void)
+BtlPacket* btlSoundCreateWaitPacket(void)
 {
     BtlPacket* packet;
     u32* work;
@@ -381,6 +382,7 @@ void btlSoundCreateWaitPacket(void)
     work = (u32*)packet->workData;
     work[0] = 0;
     work[1] = 0;
+    return packet;
 }
 extern s32 btlCdvdLoadPoll(void);
 extern s32 btlSoundLoadPoll(s32 *progress);
@@ -512,7 +514,7 @@ block_12:
 
 /* Create a polling packet with a zeroed sound-load progress counter. */
 // FUN_001FA8F0
-void btlSoundLoadTaskStart(void) {
+u8 *btlSoundLoadTaskStart(void) {
     u8 *packetBytes;
 
     packetBytes = (u8 *)btlPacketAlloc(0xC05, 4);
@@ -520,6 +522,7 @@ void btlSoundLoadTaskStart(void) {
     *(void **)&((BtlPacket *)packetBytes)->updateFunc = (void *)btlSoundLoadPoll;
     /* The typed packet payload is one progress word; this dereference is not an object-offset access. */
     *((s32 *)((BtlPacket *)packetBytes)->workData) = 0;
+    return packetBytes;
 }
 
 
@@ -551,12 +554,13 @@ s32 btlSoundStopStep(void) {
 
 /* Create the packet that stops pending cut-in sound-name work. */
 // FUN_001FA9C0
-void btlSoundStopTaskStart(void) {
+u8 *btlSoundStopTaskStart(void) {
     u8 *packetBytes;
 
     packetBytes = (u8 *)btlPacketAlloc(0xC06, 0);
     ((BtlPacket *)packetBytes)->flags &= 0xEE;
     *(void **)&((BtlPacket *)packetBytes)->updateFunc = (void *)btlSoundStopStep;
+    return packetBytes;
 }
 
 
@@ -581,12 +585,13 @@ s32 btlSoundReleaseStep(void) {
 
 /* Create the packet that releases cut-in name work. */
 // FUN_001FAA60
-void btlSoundReleaseTaskStart(void) {
+u8 *btlSoundReleaseTaskStart(void) {
     u8 *packetBytes;
 
     packetBytes = (u8 *)btlPacketAlloc(0xC07, 0);
     ((BtlPacket *)packetBytes)->flags &= 0xEE;
     *(void **)&((BtlPacket *)packetBytes)->updateFunc = (void *)btlSoundReleaseStep;
+    return packetBytes;
 }
 
 
@@ -736,11 +741,11 @@ void btlEncounterSetSequence(s32 start, s32 update, s32 argument)
 
 /* Check escape skill targets and return the corresponding failure condition. */
 // FUN_001FAE80
-s32 btlActionEscapeCondition(u8 *action, s32 skillId)
+s32 btlActionEscapeCondition(u8 *action, s32 skillId, s32 unusedMode)
 {
     extern void btlEffectCollectTargetUnits(u8 *action, u8 *selection, u8 sideFlags, u8 filterFlags,
                               u32 statusMask);
-    u8 targetBuffer[0x38];
+    u8 targetBuffer[0x40];
     s32 skillOffset;
     u8 *skill;
 
@@ -892,7 +897,7 @@ s32 btlConditionMessageId(s32 condition) {
 
 /* Check whether all selected targets already carry every requested buff bit. */
 // FUN_001FB1F0
-s32 btlBuffMaskCheckEntries(u8 *action, s32 skillId)
+s32 btlBuffMaskCheckEntries(u8 *action, s32 skillId, s32 unusedFlags)
 {
     BtlAction *actionState = (BtlAction *)(action);
     s32 effectMask;
@@ -961,7 +966,7 @@ done:
 
 /* Check whether the acting unit already carries every relevant requested buff bit. */
 // FUN_001FB360
-s32 btlBuffMaskCheckUnit(u8 *action, s32 skillId)
+s32 btlBuffMaskCheckUnit(u8 *action, s32 skillId, s32 unusedFlags)
 {
     s32 effectMask;
     s32 effectBit;

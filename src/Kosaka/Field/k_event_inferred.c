@@ -648,7 +648,7 @@ loop_test_0014cfd0:
 // FUN_0014D290
 void FldEventDrawMarker(u8 *queueNode, u8 *curve)
 {
-    extern void func_003bb5b0(u8 *queueNode, s32 curve, void *, s32 , f32 );
+    extern void func_003bb5b0(u8 *queueNode, s32 curve, f32 time, void *segment, s32 mode);
     extern s32 func_003bb330(u8 *queueNode);
     extern void func_003bb3a0(u8 *queueNode, s32 curve, void *);
     extern void primLine3D(void *queueNode, void *curve, void *, s32 );
@@ -674,12 +674,12 @@ void FldEventDrawMarker(u8 *queueNode, u8 *curve)
     segmentIndex = 0;
     while (segmentIndex < MEMBER(s32, curve, FldEventMarker, segmentCount)) {
         segmentCount = MEMBER(s32, curve, FldEventMarker, segmentCount);
-        func_003bb5b0(((FldEventMarker *)(curve))->curve, 0xA, segmentStart, 0,
-                      (1.0f / (f32)segmentCount) * (f32)segmentIndex);
+        func_003bb5b0(((FldEventMarker *)(curve))->curve,  0xA, 
+                      (1.0f / (f32)segmentCount) * (f32)segmentIndex,  segmentStart,  0);
         segmentCountFloat = (f32)((FldEventMarker *)curve)->segmentCount;
         inverseSegmentCount = (1.0f / (segmentCountFloat));
-        func_003bb5b0(MEMBER(u8 *, curve, FldEventMarker, curve), 0xA, segmentEnd, 0,
-                      inverseSegmentCount * (f32)(segmentIndex + 1));
+        func_003bb5b0(MEMBER(u8 *, curve, FldEventMarker, curve),  0xA, 
+                      inverseSegmentCount * (f32)(segmentIndex + 1),  segmentEnd,  0);
         primLine3D(segmentStart, segmentEnd, curve + 8, 1);
         segmentIndex += 1;
     }

@@ -1,3 +1,4 @@
+#include "rw_skin_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "Kosaka/k_clump_internal.h"
@@ -126,12 +127,10 @@ extern u32 RpRandom(void);
 extern u64 func_003b88c0(void);
 extern u64 func_003bf1c0(u64 value);
 extern u64 func_003bf1f0(u64 value);
-extern s32 func_003b8d20(void);
 /* Archived b210 near-miss (R3BB_003b7860); exact under b119 with schedule on. */
 // FUN_003B7860
 #pragma schedule on
 s32 func_003b7860(s32 arg0) {
-    extern s32 func_003b8d20(s32 arg0);
     extern s32 func_003e1220(s32 arg0, s32 arg1, s32 arg2, s32 arg3, void *arg4, s32 arg5);
     extern s32 func_003e8960(s32 arg0);
     extern void memset(void *arg0, s32 arg1, s32 arg2);

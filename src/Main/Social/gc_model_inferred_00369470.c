@@ -1,3 +1,4 @@
+#include "kwln_draw_callbacks_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "message_frame_internal.h"
@@ -23,7 +24,6 @@ typedef struct PersonaWork PersonaWork;
 
 extern u8 *PrimAllocQueueNode(void);
 extern void PrimAppendNode(u8 *list, u8 *node);
-extern void pscModelDrawCallback(void);
 extern f32 iGpffff84a4;
 extern void sdkSpriteDrawOnceTinted(s32 parent, s32 packAddress, s32 recordIndex, f32 x, f32 y,
                           u8 alphaSubtract, u8 red, u8 green, u8 blue,

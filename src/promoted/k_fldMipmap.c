@@ -21,7 +21,6 @@ extern u8 D_005F5400[];
 extern void *func_003ef6d0(void);
 extern void *func_003ef650(void *arg0, const void *arg1);
 extern void func_003ef3a0(void *arg0);
-extern void func_00440b68(void *arg0, const void *arg1, s32 arg2);
 extern void *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 extern s32 H_Cdvd_IsFileLoaded(void *arg0);
 extern s32 filerEnqueueRequest(s32, const void *, s32, s32, s32, s32, s32, s32, s32, s32);

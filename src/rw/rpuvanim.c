@@ -44,7 +44,7 @@ extern s32 func_003d7350(s32 value, s32 arg1);
 extern s32 func_003d77f0(s32 value, s32 arg1);
 extern s32 func_003d75b0(s32 value, s32 arg1);
 extern s32 UVAnimSize(s32 value);
-extern s32 func_003d8150(void);
+extern s32 func_003d8150(s32 arg0);
 extern s32 func_003e8930(s32, s32, s32 (*)(s32), s32 (*)(s32));
 extern s32 func_003c4310(s32, s32, s32 (*)(s32), s32 (*)(s32), s32 (*)(s32, s32));
 extern s32 func_003c4340(s32, s32 (*)(s32, s32), s32 (*)(s32, s32), s32 (*)(s32));
@@ -329,7 +329,7 @@ s32 UVAnimSize(s32 arg0)
     u32 index;
     u8 *entry;
 
-    if (func_003d8150() != 0) {
+    if (func_003d8150(arg0) != 0) {
         value = 0xC;
         entry = (u8 *)(arg0 + _rpUVAnimMaterialExtOffset);
         value += 4;

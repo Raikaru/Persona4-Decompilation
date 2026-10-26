@@ -99,7 +99,7 @@ extern u8* H_Cdvd_StreamGetSlot(HCdvdStreamContext* context, u32 index);
 extern ADXF func_004c85a0(const char* path, s32 mode);
 extern void func_004c8a60(ADXF adxf);
 extern void func_004d6f78(void* stream, const char* fileName);
-extern void* func_004d9020(void);
+extern void* func_004d9020(void *handle);
 extern void func_0050c008(void* handle, const char* fileName);
 extern void mwPlyStartFnameLp(void* mwply, const char* fname);
 

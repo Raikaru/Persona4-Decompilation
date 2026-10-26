@@ -21,7 +21,7 @@ typedef struct EffRandState
 
 extern u32 effMiscRand(EffRandState* state);
 
-static EffRandState sRandState; // 00922de0
+extern EffRandState sRandState; // 00922de0
 
 typedef struct RwV3d
 {

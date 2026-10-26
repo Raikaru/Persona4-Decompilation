@@ -1,3 +1,4 @@
+#include "h_snd_internal.h"
 #include "sdktask.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -10,7 +11,6 @@ extern void *memset(void *dst, s32 value, s32 size);
 extern u8 D_0063E8E0[];
 extern u8 D_0063E918[];
 extern void yTimeLimitReset(void);
-extern void hsndQueueSound(s32 id, s32 unused);
 extern s32 sdkSpriteRequestLoad(u8 *name);
 extern s32 hMaestroDecodeIsReady(s32 state);
 extern s32 kwlnTaskGetState(s32 task);

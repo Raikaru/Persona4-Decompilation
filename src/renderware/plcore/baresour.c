@@ -67,7 +67,7 @@
  Globals (across program)
  */
 
-RwModuleInfo resourcesModule;
+extern RwModuleInfo resourcesModule;
 
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

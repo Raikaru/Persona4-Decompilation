@@ -1,3 +1,4 @@
+#include "effect_geometry_internal.h"
 #include "operand_order_internal.h"
 #include "include_asm.h"
 /* Original translation unit effPolygonWind.c (from __FILE__ assert strings). */
@@ -147,7 +148,7 @@ extern void kAssertFail(void *, s32);
 extern s32 mdlEffectSamplePackedColor(u8 *, u8 *, s32, s32);
 /* lint-allow: declared without parameters and called with four; the real one-argument prototype in
  * mdlEffect.c changes codegen at all three call sites. */
-extern void mdlEffectApplyCombinedGeometryMatrix();
+extern void mdlEffectApplyCombinedGeometryMatrix(u8 *instance, struct RwV3d *translation, void *basis, struct RwV3d *scale);
 extern void mdlEffectAppendGeometryPrimitive();
 extern void memset(void *, s32, s32);
 extern void effMiscRotateXVU(f32);
@@ -642,7 +643,7 @@ void FunnelWindPackColors(u8 *effect)
             particleIndex += 1;
             particleAges += 0xC;
         }
-        mdlEffectApplyCombinedGeometryMatrix(instance, effect, effect + 0x10, effect + 0x20);
+        mdlEffectApplyCombinedGeometryMatrix((u8 *)(instance), (struct RwV3d *)( effect), (void *)( effect + 0x10), (struct RwV3d *)( effect + 0x20));
         if (((WindConfig *)config)->drawFlag != 0) {
             ((WindGeometryInstance *)instance)->flags = ((WindGeometryInstance *)instance)->flags | 1;
         } else {
@@ -1273,7 +1274,7 @@ void FallingFunnelWindPackColors(u8 *effect)
             particleIndex += 1;
             particleAges += 0xC;
         }
-        mdlEffectApplyCombinedGeometryMatrix(instance, effect, effect + 0x10, effect + 0x20);
+        mdlEffectApplyCombinedGeometryMatrix((u8 *)(instance), (struct RwV3d *)( effect), (void *)( effect + 0x10), (struct RwV3d *)( effect + 0x20));
         if (((WindConfig *)config)->drawFlag != 0) {
             ((WindGeometryInstance *)instance)->flags = ((WindGeometryInstance *)instance)->flags | 1;
         } else {
@@ -1870,7 +1871,7 @@ void SpiralWindPackColors(u8 *effect)
             particleIndex += 1;
             particleAges += 0xB;
         }
-        mdlEffectApplyCombinedGeometryMatrix(instance, effect, effect + 0x10, effect + 0x20);
+        mdlEffectApplyCombinedGeometryMatrix((u8 *)(instance), (struct RwV3d *)( effect), (void *)( effect + 0x10), (struct RwV3d *)( effect + 0x20));
         if (((WindConfig *)config)->drawFlag != 0) {
             ((WindGeometryInstance *)instance)->flags = ((WindGeometryInstance *)instance)->flags | 1;
         } else {

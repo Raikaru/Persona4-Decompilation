@@ -980,3 +980,7 @@ rpCollTreeStreamGetSize = 0x0038FB20; // type:func  evidence: inferred: compute 
 stdioScanStringStreamNoop = 0x004420F8; // type:func  evidence: inferred: zero-return stream callback installed by sscanf and __scan_string_with_context
 chkmemInitRenderWareMemoryFunctions = 0x0044F510; // type:func  evidence: inferred: Installs the current-task pool-owner callback and checked allocation/free/reallocation/zero-allocation callbacks, returning their table to RwEngineInit
 acsfdrGetElapsedTicks = 0x004BD750; // type:func  evidence: inferred: returns ACSFDR fader elapsed active-processing calls at +8, cleared by ACSFDR_FadeVol and incremented by ACSFDR_Process
+cmpConfigStepInput = 0x0035F0C0; // type:func  evidence: inferred: Config work state machine dispatches cmpConfig initialization, selection, option toggles and exit fades
+cmpConfigDestroy = 0x0035E820; // type:func  evidence: inferred: cmpConfigCreate installs this teardown callback, which frees eleven sprite nodes and Config work
+titleSelectMenu = 0x00124830; // type:func  evidence: inferred: handles the three-entry title menu cursor and returns its confirmed selection
+cmpConfigDrawOnOff = 0x0035DFB0; // type:func  evidence: inferred: draws the stock Config ON/OFF pill and slash widget for an option row

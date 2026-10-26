@@ -1,0 +1,18 @@
+// SDK entry identities checked against retail calls and the CRI source.
+ADXB_SetAhxInSj = 0x004C1C50; // type:func  evidence: file: cri/re4/adx_bahx.c dispatches the input-joint hook at 00714a08
+ADXB_AhxTermSupply = 0x004C1D10; // type:func  evidence: file: cri/re4/adx_bahx.c dispatches the end-of-input hook at 00714a10
+ADXB_GetSfreq = 0x004C3BC8; // type:func  evidence: file: cri/libadxe/adx_bsc.c returns the decoder sample rate; retail 004ced90 tail-calls this entry
+ADXB_GetNumChan = 0x004C3BD0; // type:func  evidence: file: cri/re4/adx_bsc.c returns decoder channel count, including the mono upmix case
+ADXB_GetFmtBps = 0x004C3C00; // type:func  evidence: file: cri/libadxe/adx_bsc.c format bits-per-sample getter; retail loads byte 13 of the decoder
+ADX_GetCoefficient = 0x004C54E8; // type:func  evidence: file: cri/re4/adx_dcd.c coefficient calculation; SDK symbol and the native differential manifest identify retail 004c54e8
+criSetVoiceCounts = 0x004CD470; // type:func  evidence: inferred: tail-forwards both sdkSndInit voice counts to criConfigureVoiceCounts at 004eb318
+ADXSJD_GetSfreq = 0x004CED90; // type:func  evidence: file: cri/re4/adx_sjd.c forwards through decoder offset 4 to ADXB_GetSfreq at 004c3bc8
+ADXSJD_GetNumChan = 0x004CEDA8; // type:func  evidence: file: cri/re4/adx_sjd.c channel-count getter forwards to ADXB_GetNumChan at 004c3bd0
+ADXSJD_GetHdrLen = 0x004CF010; // type:func  evidence: file: cri/re4/adx_sjd.c returns the signed header-byte count at offset 0x98
+ADXSJD_GetFmtBps = 0x004CF018; // type:func  evidence: file: cri/re4/adx_sjd.c bits-per-sample getter forwards to ADXB_GetFmtBps at 004c3c00
+ADXT_GetSfreq = 0x004D4BD0; // type:func  evidence: inferred: retail calls lock 004c54d8, adxt_GetSfreq 004d4c08, unlock 004c54e0
+ADXT_GetNumChan = 0x004D4C58; // type:func  evidence: inferred: retail calls lock 004c54d8, adxt_GetNumChan 004d4c90, unlock 004c54e0
+ADXT_GetHdrLen = 0x004D4CE0; // type:func  evidence: inferred: retail calls lock 004c54d8, adxt_GetHdrLen 004d4d18, unlock 004c54e0
+ADXT_GetFmtBps = 0x004D4D68; // type:func  evidence: inferred: retail calls lock 004c54d8, adxt_GetFmtBps 004d4da0, unlock 004c54e0
+criConfigureVoiceCounts = 0x004EB318; // type:func  evidence: inferred: configures stereo/mono PS2RNA voice counts and per-voice buffer size; does not test or set an SVM flag
+SVM_TestAndSet = 0x004F1278; // type:func  evidence: file: cri/re4/svm.c tests and sets a flag through the platform callback

@@ -1,3 +1,4 @@
+#include "h_cdvd.h"
 #include "byte_address_internal.h"
 
 #include "mt_scene_internal.h"
@@ -150,7 +151,7 @@ typedef struct SceneFieldModelResource {
 } SceneFieldModelResource;
 
 extern s32 iGpffffb210;
-extern void H_Cdvd_Destroy();
+
 extern s32 kwlnGetCurrentWorkValue(void);
 extern void fieldSceneUnload();
 extern void FldAuxBufferRelease(void);
@@ -196,7 +197,7 @@ extern u8 D_007D24F0[];
 extern u8 D_005EFFE0[];
 extern s32 FldLoadTaskUpdate(u8 *task);
 extern void fldLoadTaskOnDestroy(u8 *unusedTask);
-extern s32 H_Cdvd_IsFileLoaded();
+
 extern void MT_Scene_SetWorkPresentFlag(s32 task, s32 presentWork);
 extern u8 D_007E31E4[];
 extern u8 D_005F0650[];
@@ -208,7 +209,7 @@ extern void FldCellCreateResources(u16 parentId, u32 column, u32 row);
 extern s32 FldMap_IsCurrentInEitherBand(void);
 extern void FldFrame_SetStateFlags(s32 task, s32 value);
 extern void MT_Scene_ReleaseWork(s32 task);
-extern void mdlDestroyModelObject(s32 model);
+extern void mdlDestroyModelObject(u8 *model);
 /* measured: retail adds the offset first at two board scans and the preload-task lookup, so
  * byteAddressAdd is used there. */
 
@@ -2146,7 +2147,7 @@ void FldStepTaskDestroy(u8 *task)
     }
     modelObject = ((FldStepWork *)workBlock)->modelObject;
     if (modelObject != 0) {
-        mdlDestroyModelObject(modelObject);
+        mdlDestroyModelObject((u8*)(modelObject));
     }
     columnIndex = 0;
     goto loop_14_test;
@@ -2183,7 +2184,7 @@ s32 FldStepTaskCreate(s32 parent, s32 stepIndex, s32 entryValue) {
     taskResult = (s32)kwlnTaskCreateChild((void *)(parent), (const void *)(D_005F0650), 0xF, 0, 0, FldStepTaskUpdate, FldStepTaskDestroy, (u8 *)(allocation));
     ((FldStepWork *)allocation)->stepIndex = stepIndex;
     ((FldStepWork *)allocation)->entryValue = entryValue;
-    datSetFlag(0xC25, 0);
+    datSetFlag((s32)(0xC25), (s32)( 0));
     return taskResult;
 }
 
@@ -3201,7 +3202,7 @@ s32 FldStepPreloadCreateTasks(void) {
     }
     workBlock = ((SdkTask *)iGpffffb244)->work;
     stepWork = (FldStepWork *)workBlock;
-    if (H_Cdvd_IsFileLoaded(iGpffffb218) == 0) {
+    if (H_Cdvd_IsFileLoaded((struct HCdvd *)(iGpffffb218)) == 0) {
         return 0;
     }
     /* measured: retail reads both task slots through the typed work pointer. */
@@ -3240,7 +3241,7 @@ s32 FldStepPreloadFinish(void) {
         i++;
     }
     if (iGpffffb218 != 0) {
-        H_Cdvd_Destroy(iGpffffb218);
+        H_Cdvd_Destroy((struct HCdvd *)(iGpffffb218));
         iGpffffb218 = 0;
     }
     return 1;
@@ -3280,7 +3281,7 @@ s32 FldStepCopyLoadedFile(u8 *handle) {
     if (handle == NULL) {
         return 1;
     }
-    if (H_Cdvd_IsFileLoaded() != 0) {
+    if (H_Cdvd_IsFileLoaded((struct HCdvd *)(handle)) != 0) {
         chkmemAllocSiteTag(D_005F05E8, 0xC30);
         size = ((HCdvdRequest *)handle)->signedSize;
         /* measured: retail stores the allocated buffer through the typed work pointer. */
@@ -3292,7 +3293,7 @@ s32 FldStepCopyLoadedFile(u8 *handle) {
         copyDst = stepWork->scriptData;
         copySrc = request->data;
         memcpy(copyDst, copySrc, size);
-        H_Cdvd_Destroy(handle);
+        H_Cdvd_Destroy((struct HCdvd *)(handle));
         return 1;
     }
     return 0;
@@ -3300,12 +3301,12 @@ s32 FldStepCopyLoadedFile(u8 *handle) {
 
 // Format a numbered file path from the id and open it.
 // FUN_0015C590
-void FldStepLoadNumberedFile(s32 id) {
+s32 FldStepLoadNumberedFile(s32 id) {
     u8 path[0x80];
 
     sprintf(path, (const char *)D_005F0740, id);
     func_00440b68(&iGpffff9e28, D_005F05E8, 0xC49);
-    H_Cdvd_AcquireDirectory(path, 0);
+    return (s32)H_Cdvd_AcquireDirectory(path, 0);
 }
 
 // Return 1 when the id is zero or its file is loaded.
@@ -3315,7 +3316,7 @@ s32 FldStepLoadIdIsDone(s32 id)
     if (id == 0) {
         return 1;
     }
-    return H_Cdvd_IsFileLoaded() != 0;
+    return H_Cdvd_IsFileLoaded((struct HCdvd *)(id)) != 0;
 }
 
 /* Constant-success handle predicate; unlike the neighboring load query it never polls. */
@@ -3347,11 +3348,11 @@ s32 FldStepLoadHandleIsDone(u8 *handle)
     if (handle == NULL) {
         return 1;
     }
-    return H_Cdvd_IsFileLoaded(handle) != 0;
+    return H_Cdvd_IsFileLoaded((struct HCdvd *)(handle)) != 0;
 }
 
 // FUN_0015C730
 void FldStepLoadHandleDestroy(u8 *handle)
 {
-    H_Cdvd_Destroy(handle);
+    H_Cdvd_Destroy((struct HCdvd *)(handle));
 }

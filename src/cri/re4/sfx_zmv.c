@@ -222,10 +222,10 @@ void SFXZ_MakeCnvZTbl(SFXZ_OBJ *sfxz, void *src, void *tbl)
 	SJCK inf1;
 	SJCK out2;
 	SJCK inf2;
-	Uint32 zmf_c;
-	Uint32 zmf_b;
-	Uint32 zmf_a;
-	Uint32 n;
+	Uint64 zmf_c;
+	Uint64 zmf_b;
+	Uint64 zmf_a;
+	Uint64 n;
 	Char8 *p;
 	Uint32 zmf_dat;
 	Uint32 zmf_siz;
@@ -254,9 +254,9 @@ void SFXZ_MakeCnvZTbl(SFXZ_OBJ *sfxz, void *src, void *tbl)
 		if (p == NULL) {
 			zmf_dat = SFXZ_MAX_Z;
 		} else {
-			sscanf(p + n * (Uint32)src, "%lx %lx %lx", &zmf_a, &zmf_b, &zmf_c);
-			zmf_dat = zmf_b;
-			zmf_siz = zmf_c;
+			sscanf(p + (Sint32)((Uint32)n * (Uint32)src), "%lx %lx %lx", &zmf_a, &zmf_b, &zmf_c);
+			zmf_dat = (Uint32)zmf_b;
+			zmf_siz = (Uint32)zmf_c;
 		}
 	}
 	sfxzmv_MakeCnvZTbl(sfxz, zmf_dat, zmf_siz, tbl);

@@ -1,3 +1,4 @@
+#include "btl_skill_target_internal.h"
 #include "mdl_effect_internal.h"
 #include "member_access.h"
 #include "btl_target_internal.h"
@@ -49,7 +50,6 @@ extern s32 btlTargetClearFlaggedBuffs(u8 **);
 extern s32 btlTargetConsumeActionCost(u8 **);
 extern void btlSoundRequestPlayback(u16 channel, u32 playbackId); /* lint: allow H011 -- argument view used by the target packet callers, as in code1_001f */
 extern u32 btlActionCachedDispatch(void* context); /* lint: allow H011 -- packet callback view (u32 return), as in code1_001f */
-extern u32 btlTargetCancelPlayback(void* work); /* lint: allow H011 -- packet callback view (u32 return), as in code1_001f */
 extern f32 RwV3dLength(const RwV3d* vector);
 extern f32 func_003e41e0(f32* out, f32* in);
 extern f32 fabsf(f32 x);
@@ -691,7 +691,7 @@ void btlTargetClearWork(void* work)
 
 /* Matches P3FES func_002d8db0. */
 // FUN_001F0610
-s32 btlTargetSkillAuxiliaryMessageNoop(void)
+s32 btlTargetSkillAuxiliaryMessageNoop(s32 unusedSkillId)
 {
     return -1;
 }

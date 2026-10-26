@@ -1,3 +1,4 @@
+#include "btl_runtime_hooks_internal.h"
 #include "member_access.h"
 #include "btl_sound_internal.h"
 #include "btl_target_internal.h"
@@ -545,7 +546,7 @@ s32 btlSideCountNotBad(s32 sideMask, s32 excludedStatus)
 /* Direct pointer and index locals reproduce retail evaluation order. */
 // FUN_001EF7E0
 /* Honor encounter overrides, otherwise roll the turn-indexed chance after an enemy defeat. */
-s32 btlEncountRollChance(void)
+s32 btlEncountRollChance(u8 *unusedAction)
 {
     s32 *encounter;
     s32 flags;

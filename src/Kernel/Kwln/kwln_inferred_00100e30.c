@@ -1,3 +1,4 @@
+#include "kwln_render_state_internal.h"
 #include "sdk_dbprt.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -136,7 +137,7 @@ typedef struct {
 } Float2_0010;
 extern u8 D_00796460[];
 extern void sdkSndInit(void);
-extern void sdkSndSetSlotTrack(s32 slotIndex, s32 trackId);
+extern void sdkSndSetSlotTrack(s32 slotIndex, s16 trackId);
 extern void mdlRenderInitializeBuffers(void);
 extern void PrimCreatePools(s32 queueCount, s32 batchCount);
 extern void hMaestroCreateServicesTask(void);
@@ -153,7 +154,7 @@ extern void func_004c7188(s32);
 extern void func_004ca720(void);
 extern void func_004cc200(s32, s32);
 extern void func_004cc218(s32);
-extern void func_004cd470(s32, s32);
+extern void criSetVoiceCounts(s32 stereoVoices, s32 monoVoices);
 extern void mwPlyInitSfdFx(void *iprm);
 extern void func_004d8c78(void);
 extern void func_004f2798(s32, s32);
@@ -243,7 +244,7 @@ void kwlnInitSubsystems(void)
     func_004d32f8((s32)&D_00764D10[0]);
     func_004cc218(0);
     one = 5;
-    func_004cd470(one, one);
+    criSetVoiceCounts(one, one);
     func_004ca720();
     func_004d8c78();
     func_004cc200((s32)&kwlnLogStreamError, 0);

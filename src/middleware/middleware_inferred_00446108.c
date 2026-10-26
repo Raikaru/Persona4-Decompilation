@@ -4,7 +4,7 @@
 
 
 s32 vfprintf();
-s32 func_00444870();
+s32 _vfprintf_r();
 s32 func_00421da8();
 s32 func_0044a138();
 f32 func_0044b018(s32 arg0, f32 fparg0, f32 fparg1);
@@ -41,7 +41,7 @@ extern s32 (*D_008BE290[])(u32);
 extern void (*D_008BE294[])(u8 *);
 extern s32 (*D_008BE298[])(void *, u32);
 extern s32 (*D_008BE29C[])(s32, s32);
-s32 func_00446108();
+s32 __svfscanf_r();
 
 /* measured: retail is a frame'd tail jump (addiu $sp,-0x10 / sd $ra /
  * ld $ra / j func_00446108 / addiu $sp,0x10 in the delay slot). b210's

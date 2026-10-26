@@ -133,7 +133,7 @@ struct Data_00712508 {
 };
 extern struct Data_00712508 D_00712508[] __attribute__((aligned(8)));
 extern f32 fGpffff81f0;
-extern void RwMatrixRotate(void *, void *, s32, f32 fparg0);
+extern void RwMatrixRotate(void *, void *, f32 fparg0, s32);
 typedef struct RwMatrixTag RwMatrix;
 typedef enum RwOpCombineType {
     rwCOMBINEREPLACE = 0,
@@ -288,7 +288,7 @@ void primSphereLine3D(u8 *center, f32 radius, u8 *color, s32 preserveState) {
             ringCenter.z = ((RwV3d *)center)->z;
             primCircleLine3D(&ringCenter, ringRadius, color, &matrix[0][0], 0);
         }
-        RwMatrixRotate(&matrix[0][0], &rotationAxis, 2, 90.0f);
+        RwMatrixRotate(&matrix[0][0],  &rotationAxis,  90.0f,  2);
         sliceValue = 0.0f;
         for (arcIndexB = 0; arcIndexB < 9U; arcIndexB++) {
             sliceValue += fGpffff81f0;

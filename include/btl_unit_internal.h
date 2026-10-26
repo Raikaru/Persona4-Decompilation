@@ -124,4 +124,6 @@ typedef char BtlUnitColor44OffsetCheck[(u32)&((BtlUnit *)0)->unk44 == 0x44 ? 1 :
 typedef char BtlUnitColor48OffsetCheck[(u32)&((BtlUnit *)0)->unk48 == 0x48 ? 1 : -1];
 typedef char BtlUnitSizeCheck[sizeof(BtlUnit) == 0xA70 ? 1 : -1];
 
+void btlUnitSetColor(BtlUnit *unit, RwRGBA col);
+
 #endif

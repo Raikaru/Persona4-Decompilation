@@ -141,7 +141,9 @@ class SplitIndex:
 
 
 def canonical_names(root: Path, windows: dict) -> tuple[re.Pattern, dict[str, str]]:
-    text = (root / "config/symbol_addrs.txt").read_text(encoding="utf-8")
+    # Fresh splat reads this pinned table, not the live recovered names.
+    # A corrected or reused live name must not change an audited fallback.
+    text = (root / "config/asm_symbol_baseline.txt").read_text(encoding="utf-8")
     names = {}
     for name, value in re.findall(r"^([\w.$]+)\s*=\s*0x([0-9a-fA-F]+)", text, re.M):
         address = f"{int(value, 16):08x}"
@@ -179,14 +181,16 @@ def render(entry: dict, index: SplitIndex, retail: verify.RetailElf,
     if extractor.count_placeholder_words(lines) * 4 != size:
         raise RegenerationError(f"{relative}: fresh slice does not fill recorded 0x{size:x}-byte span")
     text = "".join(lines)
-    if recipe == "slice-canonical":
-        pattern, replacements = names
-        text = pattern.sub(lambda m: replacements[m[0]], text)
     for old, new in correction.get("symbol_spellings", []):
         pattern = r"(?<![\w.$])" + re.escape(old) + r"(?![\w.$])"
         text, count = re.subn(pattern, lambda m: new, text)
         if not count:
             raise RegenerationError(f"{relative}: historical symbol {old} no longer occurs")
+    # Historical spellings must still be present when their audited corrections
+    # are checked; canonicalizing the pinned names first would erase that proof.
+    if recipe == "slice-canonical":
+        pattern, replacements = names
+        text = pattern.sub(lambda m: replacements[m[0]], text)
     if "glabel" in correction:
         text, count = re.subn(r"^glabel \S+$", "glabel " + correction["glabel"], text, flags=re.M)
         if count != 1:

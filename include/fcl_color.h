@@ -28,4 +28,6 @@ static inline void fclWriteColorBytes(void *out, s32 red, s32 green,
     bytes[3] = color.c3;
 }
 
+void fclSpriteStartColorAt(s16 index, FclDrawColor start, FclDrawColor end, u8 mode, s16 duration, s32 delay);
+
 #endif

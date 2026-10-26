@@ -32,7 +32,7 @@ void itfMesWindowSetProcedure(s32 *record, s32 kind)
 
 // Resets a slot to empty (value 0, index 0xFFFF).
 // FUN_0027A630
-void itfMesSlotReset(u8 *record)
+void itfMesSlotReset(u8 *record, s32 unusedIndex)
 {
     ((ItfMesLabel *)record)->list.value = 0;
     ((ItfMesLabel *)record)->index = 0xFFFF;
@@ -40,7 +40,7 @@ void itfMesSlotReset(u8 *record)
 
 // Zeroes a window record and sets its trailing intensity byte to 0xFF.
 // FUN_0027A650
-void itfMesRecordReset(u8 *record)
+void itfMesRecordReset(u8 *record, s32 unusedIndex)
 {
     ((ItfMesRow *)record)->record.value = 0;
     ((ItfMesRow *)record)->list.value = 0;

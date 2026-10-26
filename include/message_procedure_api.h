@@ -18,4 +18,7 @@ void *itfMesWindowSubTablePtr(s32 handle);
 void fclMesWindowSetUserData(s32 handle, void *userdata);
 void msgWinStoreSlot(s32 window, s32 value);
 
+/* The draw callback supplies work; this operation flushes the global manager list. */
+u64 itfMesFlushPending(void *unusedWork);
+
 #endif

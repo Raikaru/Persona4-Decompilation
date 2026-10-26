@@ -240,7 +240,7 @@ Sint32 MPS_Init(Sint32 num_hn, void *work)
 	Sint32 ret;
 
 	cri_verstr_ptr = MPSLIB_version_str;
-	if (*(const Uint8 *)&test_wrok != 1) {
+	if (*(const Uint8 *)&test_wrok != 4) {
 		for (;;) {
 			((void (*)(void))-1)();
 		}

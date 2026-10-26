@@ -1,3 +1,4 @@
+#include "sdk_snd_internal.h"
 #include "fcl_scale_transition.h"
 #include "member_access.h"
 /* measured: this unit passes u8 colour channels to the draw calls without masking them; see
@@ -347,7 +348,7 @@ extern s32 datPersonaInsertRosterRecord(u8 *);
 extern s32 datPersonaSelectRosterMemberById(s32);
 extern void datPersonaRemoveSelectedRosterMember(void);
 extern void datPersonaInitRecord(u8 *, u16 );
-extern s64 fclFuseRollPersona(u16 *, u8 *, s64 );
+extern s64 fclFuseRollPersona(u16 *, u8 *, s32);
 /* The item id is an s16; the callee sign-extends its own table index. */
 extern s32 datGetSelectorByte(s16 );
 extern u8 fclCalendarMonth(void);
@@ -372,13 +373,13 @@ extern u8 D_00882FB1[];
 extern f32 datGetAverageRecordScore(void);
 extern void fclCombineDrawDetailFrame(u8 *, s32 );
 extern void fclCombineDrawActionList(u8 *);
-extern void fclCombineMoveChoiceCursor(u8 *, s32 , u8 *);
+extern void fclCombineMoveChoiceCursor(u8 *, s64, u8 *);
 extern s32 fclCombineMenuCreate(u8 *);
 extern s32 kwlnTaskIsLinked(s32 );
 extern void fadeBeginReturnTransition(s32, s32);
 extern s32 H_Cdvd_IsFileLoaded(void *);
 extern void fieldSceneLoad(s32, s32);
-extern void fieldSceneRequestRoom(s32);
+extern void fieldSceneRequestRoom(s64);
 extern s16 datCategoryRank(s16);
 extern s32 fclCombineEventSceneCreate(u8 *, s32, s32);
 extern void cmmCommunityAllocRecord(s32);
@@ -401,7 +402,6 @@ extern s32 evtGetEventFrame(void);
 extern s32 kwlnTaskIsLinked(s32);
 extern s32 kwlnTaskDestroyWithHierarchy(KwlnTask *);
 extern s32 hsndGetCurrentCue(void);
-extern void sdkSndPlayCue(s32, s32);
 extern void fclCombineConsumeMaterials(u8 *, s16 *);
 extern s32 fclDrawTaskCreate(u8 *);
 extern s32 fclCombineClaimSlot(u8 *);
@@ -7955,7 +7955,7 @@ static inline void fclCombineStartFade(u8 *task)
 // FUN_003097E0
 void fclCombineMenuResult(u8 *task) {
     FclCombineWork *menuState;
-    extern void fclCombineSetModel(s32, u16, s32);
+    extern void fclCombineSetModel(s32, u16, s64);
     extern s32 cmbCardEffSpawnChild(u8 *, u16 *, s32); /* lint: allow H011 -- keeps the caller's declared types. */
     extern s32 cmbCardEffCreateSprite(u8 *, void *, s32); /* lint: allow H011 -- keeps the caller's declared types. */
     extern s8 *cmbCardEffWork(s32); /* lint: allow H011 -- keeps the caller's types; the s8 return is dereferenced. */
@@ -7963,7 +7963,7 @@ void fclCombineMenuResult(u8 *task) {
     extern s32 fclCombineEventTaskCreate(u8 *, s8);
     extern void frFontExCopyString(void *, void *, s32);
     extern void fclCombineClearState(s32);
-    extern s32 cmmCommunityName(s32);
+    extern s32 cmmCommunityName(s64);
     extern void fclDrawSetState(u8 *, s8);
     extern void fclCombineRollOutcomeList(u8 *);
     extern u8 D_00641B50[];

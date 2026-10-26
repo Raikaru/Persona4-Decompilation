@@ -14,8 +14,8 @@ extern u32 D_0064E9C0[];
 extern u8 *kwlnGetCamera(void);
 extern u8 *func_003e9700(s32 a0);
 extern void func_003e42a0(void *a0, void *a1, void *a2);
-extern void RwV3dLength(void *a0);
-extern void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, u8 *angle, f32 output);
+extern f32 RwV3dLength(void *vector);
+extern void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, f32 angle, u8 *output);
 extern void RwV3dNormalize(f32 *a0, f32 *a1);
 extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
 extern void func_003dcc70(void *a0, void *a1, void *a2);
@@ -370,8 +370,8 @@ s32 btlShuffleCalcAdvanceTrack(u8 *state) {
         state + 0x2C,
         state + 0x20,
         state + 0x38,
-        state + 0xC,
-        0.0f + startv + ratio * diff);
+        0.0f + startv + ratio * diff,
+        state + 0xC);
     return 0;
 }
 /* Advance a vector track with the additional quadratic displacement term. The diff locals are
@@ -1111,7 +1111,7 @@ void btlShuffleCalcFillTable(s32 cardIndex, s32 cardCount, f32 *screen) {
 
 /* Measure the distance from a world-space point to the camera frame position. */
 // FUN_00373C20
-void btlShuffleCalcNormalizeOffset(u8 *point) {
+f32 btlShuffleCalcNormalizeOffset(u8 *point) {
     /* The camera frame is read as an address word; pointer-typed reads change argument-load
      * scheduling. */
     ShuffleVec3 cameraPosition;
@@ -1123,7 +1123,7 @@ void btlShuffleCalcNormalizeOffset(u8 *point) {
     difference.x = ((RwV3d *)point)->x - cameraPosition.x;
     difference.y = ((RwV3d *)point)->y - cameraPosition.y;
     difference.z = ((RwV3d *)point)->z - cameraPosition.z;
-    RwV3dLength(&difference);
+    return RwV3dLength(&difference);
 }
 
 /* Clamp normalized timing and optionally apply sine or one-minus-cosine easing. */

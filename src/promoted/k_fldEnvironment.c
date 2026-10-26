@@ -9,7 +9,6 @@ extern void FldFilterSetIndex(s32 arg0);
 extern s16 datGetDateIndex(void);
 extern u8 datGetTimeSlot(void);
 extern s64 calGetDayEntryByPhase(s32 arg0, u32 arg1);
-extern u32 datGetFlag(s32 arg0);
 extern s32 FldStepEntry(void);
 extern s32 FldMap_IsCurrentInEitherBand(void);
 
@@ -22,10 +21,7 @@ extern void MT_Scene_CallTaskHook(u8 *task);
 
 
 extern s32 FldRc_GetLoadSource(void);
-extern void strcpy(void *arg0, const char *arg1);
-extern void sprintf();
 extern s32 H_Cdvd_FileExists(void *arg0);
-extern void func_00440b68(char *arg0, const char *arg1, s32 arg2);
 extern u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 extern char D_005EFE78[];
 extern char D_005EFED0[];
@@ -38,7 +34,6 @@ extern s32 H_Cdvd_IsFileLoaded(u8 *arg0);
 extern u8 *H_Cdvd_LookupRequest(void *arg0, void *arg1);
 extern void memcpy(void *arg0, void *arg1, u32 arg2);
 extern void memset(void *arg0, s32 arg1, u32 arg2);
-extern u8 *kwlnGetCamera(void);
 extern void K_View_SetFov(void *arg0, f32 arg1);
 extern void func_003e9cb0(void *arg0, void *arg1, s32 arg2);
 extern s32 *MT_Scene_GetFrameState(void);

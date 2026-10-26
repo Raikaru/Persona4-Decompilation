@@ -1,3 +1,4 @@
+#include "dat_panel_internal.h"
 
 /* Unit optimizer settings; measured function exceptions remain scoped below. */
 #pragma opt_loop_invariants off
@@ -29,7 +30,7 @@ extern s32 radarEntryTypeIsActive(s16);
 extern s32 datIsSkillAvailable(s32);
 extern void shdPersonaSetFlags(u8 *, s32);
 extern void shdPersonaClearFlags(u8 *, s32);
-extern void shdPersonaRefreshDispCtlPosition(u8 *, void *);
+extern void shdPersonaRefreshDispCtlPosition(u8 *task, u8 *position);
 extern void shdPersonaSetChildDispCtlHandleAndColor(u8 *, s32, s32);
 extern void sdkListStateConfigure(u8 *, s32, s32, s32, s32);
 extern void sdkListStateSetActive(void *, s32);
@@ -59,7 +60,6 @@ extern void sdkSpriteDrawSized(u8 *, f32, f32, f32,
                           u8, u8, u8, u8, u16,
                           u16, s16, f32, s16);
 extern void datPanelResetCursor(u8 *);
-extern void datPanelDrawByKind(Vec2f, f32, s32, u8 *, s32);
 extern s32 datCalcGetLevelById(s32);
 extern f32 fGpffff82cc; /* gp -0x7d34 */
 extern void datEntryDrawByKind(Vec2f, u8, void *, s32, f32);
@@ -1253,14 +1253,14 @@ void radarSetPersonaHighlight(u8 *work, s32 mode) {
         highlightPosition.first = 0x43030000;
         highlightPosition.second = 0xC26C0000;
         shdPersonaSetFlags(((RadarPersonaMenuWork *)(work))->personaDisplay, 0x400E0);
-        shdPersonaRefreshDispCtlPosition(personaMenu->personaDisplay, &highlightPosition);
+        shdPersonaRefreshDispCtlPosition((u8 *)(personaMenu->personaDisplay), (u8 *)( &highlightPosition));
         shdPersonaSetChildDispCtlHandleAndColor(personaMenu->personaDisplay, -1, -0x7F00);
         return;
     case 1:
         normalPosition.first = 0x43030000;
         normalPosition.second = 0xC2600000;
         shdPersonaClearFlags(((RadarPersonaMenuWork *)(work))->personaDisplay, 0x400E0);
-        shdPersonaRefreshDispCtlPosition(personaMenu->personaDisplay, &normalPosition);
+        shdPersonaRefreshDispCtlPosition((u8 *)(personaMenu->personaDisplay), (u8 *)( &normalPosition));
         shdPersonaSetChildDispCtlHandleAndColor(personaMenu->personaDisplay, -1, 0xFFE92C00);
         return;
     }
@@ -1352,7 +1352,7 @@ s32 radarPersonaMenuUpdate(u32 *state, s32 *active, u8 *work) {
                     cmpPersonaStartScreenWipe(((RadarPersonaMenuWork *)(work))->screenWipe, 0, 0, 1);
                     shdPersonaSetDisplayState(((RadarPersonaMenuWork *)(work))->personaDisplay, 1U, (u32)datPersonaRosterSlot(((RadarPersonaMenuWork *)(work))->unk52), 0);
                     radarSetPersonaHighlight(work, 1);
-                    shdPersonaRefreshDispCtlPosition(personaMenu->personaDisplay, NULL);
+                    shdPersonaRefreshDispCtlPosition((u8 *)(personaMenu->personaDisplay), (u8 *)( NULL));
                     shdPersonaSetFlags(personaMenu->personaDisplay, 0x40000);
                     sdkSndStartStream(0, 0, 0, 1);
                 } else {

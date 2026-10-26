@@ -32,7 +32,7 @@ extern void *(*D_008873F4[])(size_t, size_t, u32);
 // lint: allow H011 -- measured: retail declared this old-style; a u16 prototype adds a mask on the
 // icon id.
 extern u8 *MT_Scene_GetRes();
-extern void mdlEffectStart(s32 a);
+extern void mdlEffectStart(u8 *object);
 /* Returns 0 or -1; the task dispatcher discards it, so the callback site casts. */
 extern s32 mtSceneIconTaskUpdate(u8 *unusedTask);
 extern u8 D_0063B558[];
@@ -68,7 +68,7 @@ s32 mtSceneIconTaskUpdate(u8 *unusedTask)
     u32 iconIndex;
     s32 request;
 
-    work = (u8 *)kwlnTaskGetWork();
+    work = (u8 *)kwlnTaskGetWork(unusedTask);
     switch (((MtSceneIconLoadWork *)work)->state) {
     case 0:
         iconIndex = ((MtSceneIconLoadWork *)work)->iconIndex;
@@ -111,7 +111,7 @@ void mtSceneIconTaskDestroy(u8 *unusedTask)
 {
     int workAddress;
 
-    workAddress = kwlnTaskGetWork();
+    workAddress = kwlnTaskGetWork(unusedTask);
     DAT_008873ec_abs[0](workAddress);
 }
 
@@ -132,12 +132,12 @@ s32 mtSceneIconSpawnTask(s32 resourceId, s32 iconIndex)
             kind = (((ResrcRecord *)icon)->resTypeId & 0xFFC00) >> 10;
             if (kind == 1) {
                 if ((s32)((ResrcRecord *)icon)->slotHandle[1] != 0) {
-                    mdlEffectStart((s32)((ResrcRecord *)icon)->slotHandle[1]);
+                    mdlEffectStart((u8 *)((s32)((ResrcRecord *)icon)->slotHandle[1]));
                     return 0;
                 }
             } else if (kind == 3) {
                 if ((s32)((ResrcRecord *)icon)->slotHandle[1] != 0) {
-                    mdlEffectStart((s32)((ResrcRecord *)icon)->slotHandle[1]);
+                    mdlEffectStart((u8 *)((s32)((ResrcRecord *)icon)->slotHandle[1]));
                     return 0;
                 }
             }

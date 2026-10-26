@@ -132,8 +132,6 @@ s32 itfMesRecordIsValid(u8 *record);
 u8 *itfMesObjectCreate(u8 *record);
 extern u8 DAT_008817E0_abs[];
 s32 frFontListKeepOrRelease(s32 list);
-void itfMesSlotReset(void *value, s32 index);
-void itfMesRecordReset(void *value, s32 index);
 void itfMesWindowSendRelease(s32 handle);
 void itfMesWindowClearObject(u8 *window, s32 clearLabel);
 void frFontMoveListTo(s32 list, s32 x, s32 y);
@@ -2179,7 +2177,7 @@ void itfMesClearSlots(int slotsAddress)
 
 /* Draw all active windows and advance the manager flush counter. */
 // FUN_0027B620
-u64 itfMesFlushPending(void)
+u64 itfMesFlushPending(void *unusedWork)
 {
     int current;
     u32 count;

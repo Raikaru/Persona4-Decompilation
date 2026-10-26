@@ -1,17 +1,17 @@
+#include "runtime_integer_internal.h"
 #include "include_asm.h"
 #include "type.h"
 /* Retail saves callee-saved registers with sd, but this compiler emits sq, so those functions
  * cannot match. */
 
 s32 vfprintf();
-s32 func_00444870();
+s32 _vfprintf_r();
 s32 func_00421da8();
 s32 func_0044a138();
 f32 func_0044b018(s32, f32 fparg0, f32 fparg1);
 extern s32 D_009389E0[];
 s32 kwlnTaskGetCurrent(void);
 s32 func_0044d4d0();
-u64 func_00443fd0(s32 *, s8 *, s8 **, s16);
 
 typedef struct {
     u8 *unk0;      /* 0x0 */
@@ -49,7 +49,7 @@ void chkmemFree(u8 *);
 s32 chkmemReallocate(void *, u32);
 s32 chkmemAllocZeroed(s32, s32);
 s32 chkmemGetCurrentTaskOwner(void);
-s32 func_00446108();
+s32 __svfscanf_r();
 
 /* measured: retail sets up a stack frame around the tail jump, which the compiler's tail-call pass
  * never emits. */

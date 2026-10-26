@@ -64,4 +64,11 @@ u16 datCalcMaxSp(DatUnit *unit);
 /* Returns 1 when the unit is flagged (flag 4) and its id's table entry has bit 0x80 set. */
 s32 datCalcEnemyHasExtendedFlag(DatUnit *unit);
 
+
+/* Existing callers supply these inputs; unused inputs are retained explicitly. */
+s32 datCalcSkillRoll(s32 skillId, DatUnit *unitArg, DatUnit *targetUnit, s32 unusedFlags);
+s32 datCalcSkillAllowedForMode(DatUnit *source, DatUnit *target, s32 skillId, s32 channel, s32 mode, s32 unusedFlags);
+s32 datCalcRollSupportSkillHit(u8 *source, u8 *target, s32 skillId, s32 outcome, s32 unusedMode, s32 unusedFlags);
+s32 datCalcRollSkillChance(u8 *source, u8 *target, s32 skillIdArg, s32 channel, s32 outcome, s32 unusedFlags);
+
 #endif

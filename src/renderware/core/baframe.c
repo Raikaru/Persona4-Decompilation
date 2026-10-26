@@ -94,13 +94,7 @@
  Globals (across program)
  */
 
-RwPluginRegistry    frameTKList =
-    { sizeof(RwFrame),
-      sizeof(RwFrame),
-      0,
-      0,
-      (RwPluginRegEntry *)NULL,
-      (RwPluginRegEntry *)NULL };
+extern RwPluginRegistry frameTKList;
 
 /****************************************************************************
  Local (static) Globals

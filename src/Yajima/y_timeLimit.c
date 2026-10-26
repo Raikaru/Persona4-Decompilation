@@ -66,7 +66,7 @@ u8 yTimeTrackClear(s32 track)
  * linear (zero rate), decaying (positive rate), or sine (negative rate) motion. */
 // FUN_002A27C0
 u32
-yTimeTrackAppendKey(f32 rate,s32 track,s32 startX,s32 startY,s32 endX,s32 endY,
+yTimeTrackAppendKey(s32 track,s32 startX,s32 startY,s32 endX,s32 endY,f32 rate,
             u8 delay,u8 hold,s16 durationFrames)
 {
   NameTweenState *state;

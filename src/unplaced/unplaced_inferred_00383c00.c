@@ -3146,7 +3146,7 @@ typedef struct BtlShuffleEffects {
 void btlShuffleUpdateRewardEffects(s32 *effectWork)
 {
     BtlShuffleEffects *drawWorkFields;
-    extern void mdlEffectDestroy(s32 drawWork, u8 *input);
+    extern void mdlEffectDestroy(s32 drawWork);
     extern void mdlEffectAdvanceAndFlushWithTable(void *table, s32 effect);
     extern u8 D_005DC824[];
     extern u8 D_005DC974[];
@@ -3162,7 +3162,7 @@ void btlShuffleUpdateRewardEffects(s32 *effectWork)
         if (++((BtlShuffleEffects *)drawWork)->timed[0].frame >= 0x5A) {
             handle = ((BtlShuffleEffects *)(drawWork))->timed[0].handle;
             if (handle != 0) {
-                mdlEffectDestroy(handle, timer);
+                mdlEffectDestroy(handle);
                 drawWorkFields->timed[0].handle = 0;
             }
             drawWorkFields->flags = drawWorkFields->flags & 0xFFFE;
@@ -3175,7 +3175,7 @@ void btlShuffleUpdateRewardEffects(s32 *effectWork)
         if (++((BtlShuffleEffects *)drawWork)->timed[1].frame >= 0x5A) {
             handle = ((BtlShuffleEffects *)(drawWork))->timed[1].handle;
             if (handle != 0) {
-                mdlEffectDestroy(handle, timer);
+                mdlEffectDestroy(handle);
                 drawWorkFields->timed[1].handle = 0;
             }
             ((BtlShuffleEffects *)(drawWork))->flags = ((BtlShuffleEffects *)(drawWork))->flags & 0xFFFD;
@@ -3188,7 +3188,7 @@ void btlShuffleUpdateRewardEffects(s32 *effectWork)
         if (++((BtlShuffleEffects *)drawWork)->timed[2].frame >= 0x5A) {
             handle = ((BtlShuffleEffects *)(drawWork))->timed[2].handle;
             if (handle != 0) {
-                mdlEffectDestroy(handle, timer);
+                mdlEffectDestroy(handle);
                 drawWorkFields->timed[2].handle = 0;
             }
             drawWorkFields->flags = drawWorkFields->flags & 0xFFFB;
@@ -3201,7 +3201,7 @@ void btlShuffleUpdateRewardEffects(s32 *effectWork)
         if (++((BtlShuffleEffects *)drawWork)->timed[3].frame >= 0x5A) {
             handle = ((BtlShuffleEffects *)(drawWork))->timed[3].handle;
             if (handle != 0) {
-                mdlEffectDestroy(handle, timer);
+                mdlEffectDestroy(handle);
                 drawWorkFields->timed[3].handle = 0;
             }
             ((BtlShuffleEffects *)(drawWork))->flags = ((BtlShuffleEffects *)(drawWork))->flags & 0xFFF7;
@@ -3214,7 +3214,7 @@ void btlShuffleUpdateRewardEffects(s32 *effectWork)
         if (++((BtlShuffleEffects *)drawWork)->timed[4].frame >= 0x5A) {
             handle = ((BtlShuffleEffects *)(drawWork))->timed[4].handle;
             if (handle != 0) {
-                mdlEffectDestroy(handle, timer);
+                mdlEffectDestroy(handle);
                 drawWorkFields->timed[4].handle = 0;
             }
             ((BtlShuffleEffects *)(drawWork))->flags = ((BtlShuffleEffects *)(drawWork))->flags & 0xFFEF;
@@ -3227,7 +3227,7 @@ void btlShuffleUpdateRewardEffects(s32 *effectWork)
         if (++((BtlShuffleEffects *)drawWork)->timed[5].frame >= 0x5A) {
             handle = ((BtlShuffleEffects *)(drawWork))->timed[5].handle;
             if (handle != 0) {
-                mdlEffectDestroy(handle, timer);
+                mdlEffectDestroy(handle);
                 drawWorkFields->timed[5].handle = 0;
             }
             ((BtlShuffleEffects *)(drawWork))->flags = ((BtlShuffleEffects *)(drawWork))->flags & 0xFFDF;

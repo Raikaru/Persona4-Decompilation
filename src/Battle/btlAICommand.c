@@ -52,9 +52,8 @@ extern u32 btlFormationCurrentEntry(u8 *formation);
 extern s32 datCalcSkillElement(u8 *unit, u16 skillId);
 extern s32 datCalcElementBit(s16 element);
 extern s8 datCalcGetBuffStatus(u8 *unit, s32 buffIndex);
-extern u32 datCalcUnderlyingSkillId(u32 personaSkillId);
+extern u32 datCalcUnderlyingSkillId(s64 personaSkillId);
 extern u32 *btlEffectFindUnitByIdAndStatus();
-extern s32 btlTargetAffinityKnowledgeBypassNoop(u8 *, s32);
 extern u32 datTestBitmapBit(u32 entryIndex, u32 bitIndex);
 extern void btlFormationEntryCopySelected(u8 *destination, u8 *source);
 extern u8 *D_0072449C;
@@ -327,8 +326,8 @@ s32 btlAICommandNomalCheckNoGate(u8 *formation, s32 index)
 
 
 // FUN_001DB5E0
-s32 btlAICommandNomalStatusCheck(u8 *action, s16 value) {
-    return !(datCalcGetElementAffinity((u8 *)(((BtlAction *)action))->unit->datUnit, (s32)value) & 0x7000000);
+s32 btlAICommandNomalStatusCheck(u8 *action, s64 value) {
+    return !(datCalcGetElementAffinity((u8 *)(((BtlAction *)action))->unit->datUnit, (s32)(s16)value) & 0x7000000);
 }
 
 /* Evaluate normal-affinity targets on the opposite genus. */

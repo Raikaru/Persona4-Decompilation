@@ -86,10 +86,7 @@ extern s32 btlActionSameGenusTargetsHaveDelta(u8 *action);
 extern s32 btlActionAnyTargetClearsDeathStatus(u8 *action);
 extern s32 btlActionTargetsHaveDamageResult(u8 *action, s32 mode);
 extern s32 btlActionHasNoTargetClass(u32 action);
-extern void btlTargetSpecialHitNoop(void);
 extern s32 btlConditionMessageId(s32 condition);
-extern s32 btlBuffMaskCheckEntries(u8 *action, s32 skillId);
-extern s32 btlBuffMaskCheckUnit(u8 *action, s32 skillId);
 /* Return whether any of the selected target actions reports a special hit. */
 static inline s32 btlTargetAnySpecialHit(u8 *action, s32 count)
 {
@@ -299,14 +296,11 @@ void btlTargetResolveSelectedSkill(u8 *context)
     /* H011: datCalc.c declares the C89-promoted s32 call interface before its K&R definition. */
     extern s32 datCalcResolveSkillHit(u8 *, u8 *, s32, s32);
     /* lint: allow H011 -- retail passes (context, unit, id); the empty callee ignores all arguments. */
-    extern void btlTargetSpecialHitNoop(u8 *, u8 *, s32);
     /* lint: allow H011 -- this call supplies a u16 code; the callee dispatches only its low 16 bits. */
     extern s32 btlConditionMessageId(u16);
     /* lint: allow H011 -- retail explicitly passes flags as the third argument; the callee leaves
      * it unused. */
-    extern s32 btlBuffMaskCheckEntries(u8 *, s32, s32);
     /* lint: allow H011 -- retail passes flags as the third argument; the callee leaves it unused. */
-    extern s32 btlBuffMaskCheckUnit(u8 *, s32, s32);
     extern s32 datCalcResolveSkillId(u8 *, s32);
     extern s32 datCalcHitResult(u8 *, u8 *, s32, s32, s32);
     /* lint: allow H011 -- retail forwards an already zero-extended skill word; the callee consumes its low 16 bits. */
@@ -533,7 +527,7 @@ void btlTargetResolveSelectedSkill(u8 *context)
             }
         }
         if (e4 == 0) {
-            r1 = datCalcSkillAllowedForMode(attacker, target, id, res, sub, flags);
+            r1 = datCalcSkillAllowedForMode((DatUnit *)attacker, (DatUnit *)target, id, res, sub, flags);
             r2 = datCalcRollSupportSkillHit(attacker, uctx, id, res, sub, flags);
             if (r1 != 0 || datCalcChkBadStatus((DatUnit *)uctx, 0x100000) != 0) {
                 counter = datCalcRollSkillChance(attacker, uctx, id, res, sub, flags);
@@ -594,7 +588,7 @@ void btlTargetResolveSelectedSkill(u8 *context)
             pm = (s32 *)(unit + (j << 5) + 0xF8);
             *pm = mask;
             MEMBER(s32, unit + (j << 5), BtlAction, targetBlock.hitRows[0].removedStatus) = mask2;
-            x = datCalcSkillRoll(id, attacker, target, flags);
+            x = datCalcSkillRoll(id, (DatUnit *)attacker, (DatUnit *)target, flags);
             t = ((DatSkillEntry *)(u8 *)((damageOffset) + ((u32)iGpffffb3b8)))->effectKind;
             switch (t) {
             case 0xC:

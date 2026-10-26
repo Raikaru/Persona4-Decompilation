@@ -14,7 +14,7 @@
 typedef struct RwMatrix RwMatrix;
 typedef struct RwV3d RwV3d;
 
-extern void mdlEffectDestroyModel(s32 input);
+extern void mdlEffectDestroyModel(u8 *object);
 extern void (*jtbl_008873EC[])(void *);
 
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
@@ -282,7 +282,7 @@ s32 *btlEplNewIdHandleFromUnit(u8 *effect) {
 // FUN_001FC5E0
 void btlEplFreeIdHandle(s32 *work) {
     if (*work != 0) {
-        mdlEffectDestroyModel(*work);
+        mdlEffectDestroyModel((u8 *)(*work));
     }
     jtbl_008873EC[0](work);
 }
@@ -436,9 +436,9 @@ void btlEplStepUnitFadeInOut(u8 *effect)
 
 /* Reserve saved-color work for the corresponding EPL fade callback; the allocation size matches its vector count. */
 // FUN_001FCE30
-void btlEplAllocColorPair(void) {
+void *btlEplAllocColorPair(void) {
     chkmemAllocSiteTag(D_00625230, 0x1D3);
-    (*jtbl_008873E8)(0x20, 0x40000);
+    return (*jtbl_008873E8)(0x20, 0x40000);
 }
 
 /* Release the saved color work through the battle allocator. */
@@ -735,9 +735,9 @@ void btlEplStepUnitRgbaFade(u8 *effect)
 
 /* Reserve saved-color work for the corresponding EPL fade callback; the allocation size matches its vector count. */
 // FUN_001FE010
-void btlEplAllocColorValueTarget(void) {
+void *btlEplAllocColorValueTarget(void) {
     chkmemAllocSiteTag(D_00625230, 0x2DF);
-    (*jtbl_008873E8)(0x20, 0x40000);
+    return (*jtbl_008873E8)(0x20, 0x40000);
 }
 
 /* Release the saved color work through the battle allocator. */
@@ -903,9 +903,9 @@ void btlEplStepColorValueTargetFade(u8 *effect)
 }
 /* Reserve saved-color work for the corresponding EPL fade callback; the allocation size matches its vector count. */
 // FUN_001FEB80
-void btlEplAllocColor(void) {
+void *btlEplAllocColor(void) {
     chkmemAllocSiteTag(D_00625230, 0x389);
-    (*jtbl_008873E8)(0x10, 0x40000);
+    return (*jtbl_008873E8)(0x10, 0x40000);
 }
 
 /* Release the saved color work through the battle allocator. */
@@ -1053,7 +1053,7 @@ s32 *btlEplNewWideIdHandleFromUnit(u8 *effect) {
 // FUN_001FF440
 void btlEplFreeWideIdHandle(s32 *work) {
     if (*work != 0) {
-        mdlEffectDestroyModel(*work);
+        mdlEffectDestroyModel((u8 *)(*work));
     }
     jtbl_008873EC[0](work);
 }
@@ -1336,7 +1336,7 @@ s32 *btlEplNewZeroedIdHandleFromUnit(u8 *effect) {
 // FUN_002001E0
 void btlEplFreeZeroedIdHandle(s32 *work) {
     if (*work != 0) {
-        mdlEffectDestroyModel(*work);
+        mdlEffectDestroyModel((u8 *)(*work));
     }
     jtbl_008873EC[0](work);
 }

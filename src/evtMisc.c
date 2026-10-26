@@ -9,7 +9,7 @@ extern u8 iGpffffa7a8;
 /* Old-style declaration: the donor source called this without a prototype, and
  * several call sites below pass an argument (a0 is set by the caller), which a
  * (void) prototype would forbid. */
-s32 *kwlnTaskGetWork();
+s32 *kwlnTaskGetWork(void* task);
 extern void (*jtbl_008873EC[])(void *);
 
 void chkmemAllocSiteTag(const void *file, s32 line);
@@ -186,7 +186,7 @@ s32 evtBlurFilterTaskUpdate(u8 *unusedTask) {
     s32 *work;
     s32 kind;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(unusedTask));
     kind = work[0];
     switch (kind) {
     case 0:
@@ -207,7 +207,7 @@ void evtBlurFilterTaskDestroy(u8 *unusedTask) {
     s32 *work;
     s32 kind;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(unusedTask));
     kind = work[0];
     switch (kind) {
     case 0:
@@ -228,7 +228,7 @@ void evtBlurFilterTaskDestroy(u8 *unusedTask) {
 // colours, alpha, timing) and creates the task under parentTask. Only the filter reference slot is
 // known; the filter allocation layout is still unknown.
 // FUN_0028D390
-void evtCreateBlurFilterTask(s32 parentTask, s32 type, u8 *record)
+s32 evtCreateBlurFilterTask(s32 parentTask, s32 type, u8 *record)
 {
     /* Packed RGB/options and the signed halfword fields use raw offsets; typed access changed
      * register allocation. */
@@ -347,7 +347,7 @@ void evtCreateBlurFilterTask(s32 parentTask, s32 type, u8 *record)
         task1[0] = 0;
         task1[1] = (s32)effBlurFilterDirectCreate(1, &frame.filter1);
         task1[3] = frame.filter1.params.valueB8;
-        (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task1));
+        return (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task1));
         break;
 
     case 2:
@@ -463,7 +463,7 @@ void evtCreateBlurFilterTask(s32 parentTask, s32 type, u8 *record)
             task2[1] = (s32)effBlurFilterDirectCreate(2, &frame.filter2);
         }
         task2[3] = frame.filter2.params.valueB8;
-        (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task2));
+        return (s32)kwlnTaskCreateChild((void *)(parentTask), (const void *)(D_0063C648), 0xF, 0, 0, evtBlurFilterTaskUpdate, evtBlurFilterTaskDestroy, (u8 *)(task2));
         break;
     }
 }
@@ -950,7 +950,7 @@ s32 evtTintTaskUpdate(u8 *unusedTask)
     u8 g;
     u8 b;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(unusedTask));
     work[0]++;
     progress = (f32)work[0] / (f32)work[11];
     if (progress > 1.0f) {
@@ -1007,10 +1007,10 @@ s32 evtTintTaskUpdate(u8 *unusedTask)
 // FUN_0028F360
 void evtTintTaskDestroy(u8 *unusedTask)
 {
-    extern s32 *kwlnTaskGetWork(void);
+    extern s32 *kwlnTaskGetWork(void* task);
     int work;
 
-    work = (s32)kwlnTaskGetWork();
+    work = (s32)kwlnTaskGetWork((void*)(unusedTask));
     DAT_008873ec_abs[0](work);
 }
 // Creates a tint task: copies five words of tint data and takes the colour from the kwln colour
@@ -1074,7 +1074,7 @@ s32 evtScriptLoadStep(u8 *unusedTask) {
     u32 resourceSize;
     u8 *scriptData;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(unusedTask));
     switch (work[0]) {
     case 0:
         if (work[0x43] != 0) {
@@ -1117,7 +1117,7 @@ s32 evtScriptLoadStep(u8 *unusedTask) {
 void evtScriptLoadDestroy(u8 *unusedTask) {
     s32 *work;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork((void*)(unusedTask));
     if (work[0x44] != 0 && kwlnTaskIsLinked(work[0x44]) != 0) {
         kwlnTaskDestroyWithHierarchy(work[0x44]);
     }
@@ -1150,7 +1150,7 @@ s32 evtScriptLoadRequest(s32 task, s32 procedureKind, s32 filename, s32 procedur
     if (kwlnTaskIsLinked(task) == 0) {
         kAssertFail(D_0063C638, 0x137E);
     }
-    work = kwlnTaskGetWork(task);
+    work = kwlnTaskGetWork((void*)(task));
     if (work[0] == 4) {
         work[2] = procedureKind;
         work[1] = procedureIndex;
@@ -1171,7 +1171,7 @@ s32 evtScriptLoadIsReady(s32 task) {
     if (kwlnTaskIsLinked(task) == 0) {
         kAssertFail(D_0063C638, 0x1393);
     }
-    if (kwlnTaskGetWork(task)[0] == 4) {
+    if (kwlnTaskGetWork((void*)(task))[0] == 4) {
         return 1;
     }
     return 0;

@@ -238,7 +238,7 @@ extern f32 D_008872F8[];
 // FUN_0014B1E0
 void SceneDraw_InitResList5(void) {
     extern f32 fGpffff8198;
-    extern void RwMatrixRotate(void *, void *, s32, f32 fparg0);
+    extern void RwMatrixRotate(void *, void *, f32 fparg0, s32);
     s32 rotationAxisBits[3];
     f32 firstIntensity;
     u8 *firstColorResource;
@@ -311,11 +311,11 @@ void SceneDraw_InitResList5(void) {
     rotationAxisBits[0] = 0;
     rotationAxisBits[1] = 0x3F800000;
     rotationAxisBits[2] = 0;
-    RwMatrixRotate(firstMatrix, &rotationAxisBits[0], 2, -180.0f);
+    RwMatrixRotate(firstMatrix,  &rotationAxisBits[0],  -180.0f,  2);
     rotationAxisBits[0] = 0x3F800000;
     rotationAxisBits[1] = 0;
     rotationAxisBits[2] = 0;
-    RwMatrixRotate(firstMatrix, &rotationAxisBits[0], 2, -45.0f);
+    RwMatrixRotate(firstMatrix,  &rotationAxisBits[0],  -45.0f,  2);
     *(s32 *)&((SceneLightMatrix *)secondMatrix)->at.z = 0x3F800000;
     *(s32 *)&((SceneLightMatrix *)secondMatrix)->up.y = 0x3F800000;
     *(s32 *)&((SceneLightMatrix *)secondMatrix)->right.x = 0x3F800000;
@@ -332,11 +332,11 @@ void SceneDraw_InitResList5(void) {
     rotationAxisBits[0] = 0;
     rotationAxisBits[1] = 0x3F800000;
     rotationAxisBits[2] = 0;
-    RwMatrixRotate(secondMatrix, &rotationAxisBits[0], 2, -180.0f);
+    RwMatrixRotate(secondMatrix,  &rotationAxisBits[0],  -180.0f,  2);
     rotationAxisBits[0] = 0x3F800000;
     rotationAxisBits[1] = 0;
     rotationAxisBits[2] = 0;
-    RwMatrixRotate(secondMatrix, &rotationAxisBits[0], 2, -45.0f);
+    RwMatrixRotate(secondMatrix,  &rotationAxisBits[0],  -45.0f,  2);
 }
 
 /* Return the first capture-camera matrix handle, or zero when the resource is absent. */

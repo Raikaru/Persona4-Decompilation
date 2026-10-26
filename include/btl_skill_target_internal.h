@@ -17,4 +17,18 @@ s32 btlTargetCanSelectEntry(u8 *context, s16 value, s32 option);
 s32 btlSideAverageLevel(s32 sideMask, s32 excludedStatus);
 s32 btlSideCountNotBad(s32 sideMask, s32 excludedStatus);
 
+/* These call sites supply flags/context words even where the release hook does
+ * not consume them. The formal inputs keep caller evaluation and the C ABI
+ * consistent without removing retail GP-register setup. */
+s32 btlBuffMaskCheckEntries(u8 *action, s32 skillId, s32 unusedFlags);
+s32 btlBuffMaskCheckUnit(u8 *action, s32 skillId, s32 unusedFlags);
+void btlTargetSpecialHitNoop(u8 *unusedContext, u8 *unusedUnit, s32 unusedId);
+s32 btlTargetAffinityKnowledgeBypassNoop(u8 *unusedAction, s32 unusedAffinity);
+
+s32 btlTargetSkillAuxiliaryMessageNoop(s32 unusedSkillId);
+
+
+/* Existing callers supply these inputs; unused inputs are retained explicitly. */
+s32 btlActionEscapeCondition(u8 *action, s32 skillId, s32 unusedMode);
+
 #endif

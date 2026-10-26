@@ -14,7 +14,6 @@ extern void (*D_008873ec[])(s32);
 
 void btlShuffleDrawViewRequestStep(u8 *drawWork, u8 input, u8 green, u8 blue);
 
-s32 datGetFlag(u32 bit);
 
 extern u8 *D_007246AC;
 void btlShuffleDrawViewRequestWhiteStep(u8 *drawWork);
@@ -42,7 +41,6 @@ extern u8 D_00795E30[];
 extern u8 D_00795EF0[];
 extern u8 D_0064EEB0[];
 extern void PrimAppendNode(u8 *list, u8 *node);
-extern void kAssertFail(void *file, s32 line);
 extern void sdkRenderStateSetDefault(void);
 extern void btlShuffleDrawRevealBands(u8 *drawWork);
 extern void btlShuffleDrawDetailBars(u8 *drawWork);
@@ -54,9 +52,7 @@ extern f32 D_00761470;
 extern f32 D_008872F8[];
 extern s32 (*D_00887300[])(RwRenderState state, void *value);
 extern s32 (*D_00887310[])(s32, void *, s32);
-extern s32 kwlnGetCamera(void);
 extern f32 cosf(f32 fparg0);
-extern void shdEnableBlendFlag(void);
 extern void shdDisableBlendFlag(void);
 extern u8 D_0064F0E0[];
 extern u8 D_0064EEF0[];

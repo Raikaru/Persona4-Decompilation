@@ -1,3 +1,4 @@
+#include "btl_unit_internal.h"
 #include "rw_types_internal.h"
 #include "member_access.h"
 #include "btl_skill_target_internal.h"
@@ -32,8 +33,7 @@ extern char D_007636C0[8];
 extern char D_007636C8[8];
 extern char D_007636D0[8];
 extern u8 D_0062E070[];
-extern void btlUnitSetColor(BtlUnit *unit, RwRGBA col);
-extern void btlCameraUpdateEffectList();
+extern void btlCameraUpdateEffectList(u8 *camera);
 
 
 extern u8 D_006290F0[];
@@ -142,7 +142,7 @@ extern void btlFormationCopyRecord(int destination, u32 source);
 extern BtlPacket *btlUnitCreateColorPacket(BtlUnit *unit, u32 targetColor, s16 startFrame, s16 duration, u8 mode, u8 flags);
 extern void btlTargetClearResultBuffer(u8 *result);
 extern BtlPacket *btlTargetCreateDataPacket(s32 source, s32 action, const void *result, u16 effect, u16 targetFlags);
-extern u8 *btlUnitCreateAnimPacket(u8 *unit, s32 id, s32 blendFrameCount, s32 speed, f32 mode);
+extern u8 *btlUnitCreateAnimPacket(u8 *unit, s32 id, s32 blendFrameCount, f32 mode, s32 speed);
 extern BtlPacket *btlUnitCreateMotionSettlePacket(BtlUnit *unit);
 extern BtlPacket *btlSoundCreateStreamPacket(u16 channel, const char *streamName);
 extern BtlPacket *btlFormationCreatePacket(u32 formation, u32 sourceUnit, u32 targetUnit, u16 side, u32 flags);
@@ -1329,9 +1329,9 @@ void btlCameraStartRandomEffect(u8 *camera)
 
 // Tick the camera effect list.
 // FUN_00228A60
-void btlCameraTickEffects(void)
+void btlCameraTickEffects(u8 *object)
 {
-    btlCameraUpdateEffectList();
+    btlCameraUpdateEffectList(object);
 }
 
 // Set a random camera pose from a party member.
@@ -1830,8 +1830,8 @@ void btlEncounterStartSequence(u8 *action)
             ((BtlPacket *)pairedPacket)->delay = 0x20;
             *(s64 *)&((BtlPacket *)pairedPacket)->actionUID = *(s64 *)&((BtlAction *)sequenceAction)->uid;
             btlPacketEnqueue(pairedPacket, 1);
-            pairedPacket = btlUnitCreateAnimPacket(*(u8 **)&((BtlAction *)pairedAction)->unit,
-                                     9, 0, 0, 1.0f);
+            pairedPacket = btlUnitCreateAnimPacket(*(u8 **)&((BtlAction *)pairedAction)->unit, 
+                                     9,  0,  1.0f,  0);
             ((BtlPacket *)pairedPacket)->delay = 0x20;
             *(s64 *)&((BtlPacket *)pairedPacket)->actionUID = *(s64 *)&((BtlAction *)sequenceAction)->uid;
             btlPacketEnqueue(pairedPacket, 0);
@@ -1951,7 +1951,7 @@ void btlActionRunPresentation(u8 *action)
     ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 0);
 
-    initialAnimation = btlUnitCreateAnimPacket((u8 *)sequenceActionWork->unit, 0xF, 0, 2, 1.0f);
+    initialAnimation = btlUnitCreateAnimPacket((u8 *)sequenceActionWork->unit,  0xF,  0,  1.0f,  2);
     ((BtlPacket *)initialAnimation)->actionUID = ((BtlAction *)action)->uid;
     ((BtlPacket *)initialAnimation)->duration = 0xC8;
     btlPacketEnqueue(initialAnimation, 0);
@@ -2036,8 +2036,8 @@ void btlActionRunPresentation(u8 *action)
 
         if (datCalcChkBadStatus((s32)*(u8 **)&((BtlUnit *)((u8 *)((BtlAction *)target)->unit))->datUnit,
                           0x100000) != 0) {
-            statusAnimation = btlUnitCreateAnimPacket((u8 *)targetOwner->unit,
-                                            0xB, 0, 0, 1.0f);
+            statusAnimation = btlUnitCreateAnimPacket((u8 *)targetOwner->unit, 
+                                            0xB,  0,  1.0f,  0);
             ((BtlPacket *)statusAnimation)->dependencyKind = 0xB;
             ((BtlPacket *)statusAnimation)->dependencyUID = ((BtlPacket *)formationPacket)->uid;
             ((BtlPacket *)statusAnimation)->actionUID = ((BtlAction *)action)->uid;
@@ -2125,7 +2125,7 @@ void btlActionRunPresentation(u8 *action)
     ((BtlPacket *)packet)->actionUID = ((BtlAction *)action)->uid;
     btlPacketEnqueue(packet, 0);
 
-    packet = btlUnitCreateAnimPacket((u8 *)sequenceActionWork->unit, 0xB, 0, 0, 1.0f);
+    packet = btlUnitCreateAnimPacket((u8 *)sequenceActionWork->unit,  0xB,  0,  1.0f,  0);
     ((BtlPacket *)packet)->dependencyKind = 4;
     ((BtlPacket *)packet)->dependencyUID = finishPacketOwner->uid;
     ((BtlPacket *)packet)->duration = 0x60;
@@ -2423,8 +2423,8 @@ void btlEncounterResetSlots(u8 *action)
     }
     {
         u8 *animationPacket;
-        animationPacket = btlUnitCreateAnimPacket((u8 *)sequenceActionWork->unit,
-                                 0xC, 0, 0, 1.0f);
+        animationPacket = btlUnitCreateAnimPacket((u8 *)sequenceActionWork->unit, 
+                                 0xC,  0,  1.0f,  0);
         *(s64 *)&((BtlPacket *)animationPacket)->actionUID = *(s64 *)&((BtlAction *)action)->uid;
         btlPacketEnqueue(animationPacket, 0);
     }

@@ -1,3 +1,4 @@
+#include "calendar_fade_internal.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
 /* Original translation unit calendar.c (from __FILE__ assert strings). */
@@ -40,7 +41,6 @@ extern void fadeBeginTransition(s32 mode, s32 duration);
 extern void datSetDateIndex(s32 date);
 extern void sequenceRequest(s32 sequenceId, void *parameters, s32 parameterSize, s32 delay);
 extern void calendarSyncFromDate(void);
-extern s32 calendarTaskCreate(s32 a);
 extern s32 kwlnTaskGetState(s32 task);
 extern void datSetTimeSlot(s32 timeSlot);
 extern s32 calGetWeekdayOfDay(s32 dateIndex);

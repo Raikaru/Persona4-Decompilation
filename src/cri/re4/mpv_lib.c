@@ -512,7 +512,7 @@ Sint32 MPV_Init(Sint32 nhn, void *work)
 	} else if (MPVDEC_CheckVersion("1.933", MPV_OBJ_SIZE_REAL, 0x80) != 0) {
 		ret = MPVERR_SetCode(NULL, 0xFF03FF07);
 	} else {
-		if (*(const Uint8 *)&test_wrok != 1) {
+		if (*(const Uint8 *)&test_wrok != 4) {
 			for (;;) {
 				((void (*)(void))-1)();
 			}

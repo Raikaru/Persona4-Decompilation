@@ -12,7 +12,7 @@ extern f32 fGpffff84a4;
 extern u8 iGpffffb1d8;
 extern u8 iGpffffb1d4;
 extern u8 iGpffffb1d0;
-extern f32 sinf();
+extern f32 sinf(f32 angle);
 extern void PrimDrawFlatRectangle(void *, void *, f32 , s32 );
 extern void PrimDrawPoints(void *, void *, f32 , s32 ,
                           s32 , s32 );
@@ -170,7 +170,6 @@ typedef struct {
 // FUN_00121DE0
 void fadeDrawWipe(void)
 {
-    extern f32 sinf(void *, f32 );
     FadeWipePacket rectangle;
     u8 *fade;
     s32 duration;
@@ -185,14 +184,14 @@ void fadeDrawWipe(void)
         duration = ((CalendarFade *)fade)->duration;
         if (((CalendarFade *)fade)->state >= 4) {
             ratio = (fGpffff84a4 * (f32)((CalendarFade *)fade)->counter) / (f32)duration;
-            result = sinf(fade, ratio);
+            result = sinf(ratio);
             leftEdge = 640.0f - (640.0f * result);
             left = (s32)leftEdge;
             right = 0x280;
         } else {
             left = 0;
             ratio = (fGpffff84a4 * (f32)((CalendarFade *)fade)->counter) / (f32)duration;
-            result = sinf(fade, ratio);
+            result = sinf(ratio);
             right = (s32)(640.0f * result);
         }
         rectangle.x = left;

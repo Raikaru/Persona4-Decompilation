@@ -115,7 +115,7 @@ s32 initDataReadStart(void)
 // FUN_00111990
 s32 initBootChainStep(u8 *task)
 {
-    typedef s32 (*StepCallback)(void);
+    typedef s32 (*StepCallback)(u8 *task);
     StepCallback callbacks[8];
     u32 *sourceCallbacks;
     u32 *copiedCallbacks;
@@ -153,7 +153,7 @@ s32 initBootChainStep(u8 *task)
             calendarStartTasks(0);
             return -1;
         }
-        ((InitBootChainWork *)work)->childTask = (s32)callbacks[((InitBootChainWork *)work)->stepIndex]();
+        ((InitBootChainWork *)work)->childTask = (s32)callbacks[((InitBootChainWork *)work)->stepIndex](task);
         ((InitBootChainWork *)work)->state = 2;
         break;
     case 2:

@@ -54,7 +54,7 @@ extern void func_003e8440(Camera* camera);
 void kwlnCameraResizeView(Camera* camera, CameraView* requestedView, f32 scale,
                    f32 aspectRatio)
 {
-    u32 displayInfo[4];
+    u32 displayInfo[6];
     CameraView* view;
     Raster* newFrameBuffer;
     Raster* newZBuffer;

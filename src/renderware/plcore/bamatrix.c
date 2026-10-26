@@ -1236,25 +1236,8 @@ RwMatrixUpdate(RwMatrix * matrix)
  * \see RwV3dTransformVector
  * \see RwV3dTransformVectors
  */
-RwMatrix *
-RwMatrixMultiply(RwMatrix * dst,
-                 const RwMatrix * src1, const RwMatrix * src2)
-{
-    RWAPIFUNCTION(RWSTRING("RwMatrixMultiply"));
-    RWASSERT(matrixModule.numInstances);
-    RWASSERT(dst);
-    RWASSERT(RWMATRIXALIGNMENT(dst));
-    RWASSERT(src1);
-    RWASSERT(RWMATRIXALIGNMENT(src1));
-    RWASSERT(src2);
-    RWASSERT(RWMATRIXALIGNMENT(src2));
-    RWASSERT(dst != src1);
-    RWASSERT(dst != src2);
-
-    RwMatrixMultiplyMacro(dst, src1, src2);
-
-    RWRETURN(dst);
-}
+/* PS2 sky2 supplies RwMatrixMultiply at 003e05f0 (src/promoted/code1_003e.c).
+ * The generic SDK implementation is not a second retail entry. */
 
 /**
  * \ingroup rwmatrix

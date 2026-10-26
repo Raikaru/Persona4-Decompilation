@@ -41,8 +41,8 @@ typedef struct { f32 x, y, z, w; } Vec4f;
 typedef struct { u8 pad[0x54]; s32 field; } Cb720Obj;
 
 extern u16 D_008872E8[];
-extern u8 func_003cac30[];
-extern u8 func_003caef0[];
+extern u8 *func_003cac30(u8 *object);
+extern u32 func_003caef0(u32 *object);
 extern u8 D_0070AFB0[];
 extern u8 D_008872E0[];
 /* gp - 0x4648 = 0x00764aa8 */
@@ -77,9 +77,9 @@ extern u8 *iGpffffb6f0;
 /* gp - 0x4940 = 0x007647B0 */
 extern s32 iGpffffb6c0;
 extern void func_003e9680(u8 *arg0);
-extern u8 func_003ca740[];
-extern u8 func_003ca780[];
-extern u8 func_003ca7a0[];
+extern s32 func_003ca740(u32 object);
+extern s32 func_003ca780(u32 object, u32 first, u32 second, u32 third);
+extern u32 func_003ca7a0(u32 object);
 u8 *func_003cbc10(u8 *arg0, u8 *arg1);
 void func_003f32d0();
 extern void (*jtbl_008873FC[])(u8 *arg0, u8 *arg1);
@@ -1120,8 +1120,8 @@ s32 func_003c8cc0(s32 arg0) {
 // FUN_003C8CE0
 /* measured: tailcall on preserves the indirect dispatch jump. */
 #pragma tailcall on
-void func_003c8ce0(void) {
-    ((void (*)(void))(*(void **)(*(u8 **)D_008872E4 + 0x68)))();
+s32 func_003c8ce0(s32 sector) {
+    return ((s32 (*)(s32))(*(void **)(*(u8 **)D_008872E4 + 0x68)))(sector);
 }
 /* measured: tailcall off closes the single-function bracket. */
 #pragma tailcall off
@@ -1589,7 +1589,7 @@ u8 *func_003cad40(u8 *arg0) {
     *(s32 *)(temp + 0) = 0;
     *(s16 *)(arg0 + 0x60) = (s16)(D_008872E8[0] - 1);
     *(u8 **)(temp + 4) = *(u8 **)(arg0 + 0x10);
-    *(u8 **)(arg0 + 0x10) = func_003cac30;
+    *(u8 **)(arg0 + 0x10) = (u8 *)func_003cac30;
     return arg0;
 }
 /* measured: schedule off closes the callback-store probe. */

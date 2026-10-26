@@ -39,10 +39,10 @@ extern u8 D_0064A480[];
 extern s32 fclBustupUpdate(u8 *);
 extern void fclBustupDraw(u8 *);
 extern s32 fclPackRgba(u8, u8, u8, u8);
-extern f32 fclEaseInterpolate(s32 , f32 , f32 , f32 , f32 );
+extern f32 fclEaseInterpolate(s64, f32, f32, f32, f32);
 extern s32 fclAddClamped(s32 , s32 , s32 , s32 , s8 );
 extern s16 fclSubClamped(s32 , s32 , s32 , s32 , s8 );
-extern s32 hMaestroDecodeIsReady(s32 , s32 );
+extern s32 hMaestroDecodeIsReady(s32);
 extern s32 sdkSpriteDrawQueued(f32, f32, f32, s32, u8, s32, void *, s32, s16, s16, f32, f32, f32, void *);
 extern u8 D_007955C0[];
 /* Unit setting: portrait task code uses propagation throughout. */
@@ -57,7 +57,7 @@ s32 fclBustupUpdate(u8 *task)
     p = (((struct KwlnTask *)task)->work);
     switch (((FclBustupWork *)p)->state) {
     case 0:
-        if (hMaestroDecodeIsReady(((FclBustupWork *)p)->sprite.handle, 3) == 0) {
+        if (hMaestroDecodeIsReady(((FclBustupWork *)p)->sprite.handle) == 0) {
             return 0;
         }
         ((FclBustupWork *)p)->state = 1;

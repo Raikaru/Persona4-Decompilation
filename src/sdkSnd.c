@@ -224,7 +224,7 @@ extern void kAssertFail(void *file, s32 line);
 extern void kAssertFailAt(const void *msg, const void *file, u32 line);
 extern void mwPlyInitSfdFx(void *);
 
-extern u32 hsndSlotIsStarting();
+extern u32 hsndSlotIsStarting(s32 slotIndex);
 extern void hsndSlotUpdate(HsndSlotWork *slot);
 
 s32 sdkSndStopChannelSlot(s32 channelIndex);
@@ -724,7 +724,7 @@ s32 sdkSndStartRequest(s32 channelIndex)
 
 /* Select a main-channel cue, restoring its volume if the same cue was fading. */
 // FUN_0045A3E0
-s32 sdkSndPlayCue(s16 cueId)
+s32 sdkSndPlayCue(s32 cueId, s32 unusedFlags)
 {
     s32 x, cur, v;
 
@@ -799,44 +799,44 @@ s32 sdkSndQueueSlotRequest(s32 slotIndex, void *input, u32 inputSize, void *inte
 
 // Sets the track id on slotIndex and marks it queued. Returns 1.
 // FUN_0045A730
-s32 sdkSndSetSlotTrack(s16 slotIndex, s16 trackId)
+s32 sdkSndSetSlotTrack(s32 slotIndex, s16 trackId)
 {
-    if (hsndSlotIsStarting() != 0)
+    if (hsndSlotIsStarting(slotIndex) != 0)
     {
-        if (LD16(D_008D3ED2, SLOT_IDX(slotIndex)) == trackId)
+        if (LD16(D_008D3ED2, SLOT_IDX((s16)slotIndex)) == trackId)
         {
             return 1;
         }
     }
     else
     {
-        if (D_008D3ED0[slotIndex].state == 3 &&
-            trackId != LD16(D_008D3ED2, SLOT_IDX(slotIndex)))
+        if (D_008D3ED0[(s16)slotIndex].state == 3 &&
+            trackId != LD16(D_008D3ED2, SLOT_IDX((s16)slotIndex)))
         {
             kAssertFailAt(D_007122D0, D_00712238, 0x2E5);
         }
     }
-    LD16(D_008D3EDC, SLOT_IDX(slotIndex)) = 0;
-    LD32(D_008D3ED8, SLOT_IDX(slotIndex)) = 0;
-    LD16(D_008D3ED4, SLOT_IDX(slotIndex)) = slotIndex;
-    LD16(D_008D3ED2, SLOT_IDX(slotIndex)) = trackId;
-    D_008D3ED0[slotIndex].state = 2;
+    LD16(D_008D3EDC, SLOT_IDX((s16)slotIndex)) = 0;
+    LD32(D_008D3ED8, SLOT_IDX((s16)slotIndex)) = 0;
+    LD16(D_008D3ED4, SLOT_IDX((s16)slotIndex)) = (s16)slotIndex;
+    LD16(D_008D3ED2, SLOT_IDX((s16)slotIndex)) = trackId;
+    D_008D3ED0[(s16)slotIndex].state = 2;
     return 1;
 }
 
 /* Apply the default fade duration before stopping and resetting an active channel. */
 // FUN_0045A8D0
-s32 sdkSndFadeOutChannel(s16 channelIndex)
+s32 sdkSndFadeOutChannel(s32 channelIndex, s32 unusedFlags)
 {
-    if (D_008D2B90[channelIndex].active != 0)
+    if (D_008D2B90[(s16)channelIndex].active != 0)
     {
-        func_004d8eb0(LD32(D_008D2BA0, SND_IDX(channelIndex)), 0x1E);
-        if (D_008D2B90[channelIndex].active != 0)
+        func_004d8eb0(LD32(D_008D2BA0, SND_IDX((s16)channelIndex)), 0x1E);
+        if (D_008D2B90[(s16)channelIndex].active != 0)
         {
-            func_004d8d90(LD32(D_008D2BA0, SND_IDX(channelIndex)));
-            LD16(D_008D2B9C, SND_IDX(channelIndex)) = 0;
-            D_008D2B90[channelIndex].active = 0;
-            LD16(D_008D2B98, SND_IDX(channelIndex)) = -1;
+            func_004d8d90(LD32(D_008D2BA0, SND_IDX((s16)channelIndex)));
+            LD16(D_008D2B9C, SND_IDX((s16)channelIndex)) = 0;
+            D_008D2B90[(s16)channelIndex].active = 0;
+            LD16(D_008D2B98, SND_IDX((s16)channelIndex)) = -1;
         }
     }
     return 1;

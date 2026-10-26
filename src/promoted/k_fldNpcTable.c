@@ -5,10 +5,7 @@
 extern u8 *MT_Scene_GetFrameState(void);
 extern void (*DAT_008873EC[])(void *);
 extern s32 FldRc_GetLoadSource(void);
-extern void strcpy(void *arg0, const char *arg1);
-extern s32 sprintf(char *buf, const char *fmt, ...);
 extern s32 H_Cdvd_FileExists(void *arg0);
-extern void func_00440b68(char *arg0, const char *arg1, s32 arg2, ...);
 extern u8 *H_Cdvd_AcquireDirectory(void *arg0, s32 arg1);
 extern u8 *gMtScene;
 extern char D_00762F20;
@@ -32,7 +29,6 @@ extern u8 *H_Cdvd_LookupRequest(void *arg0, u32 *arg1);
 extern s32 datGetDateIndex(void);
 extern s32 datGetTimeSlot(void);
 extern void calSplitDayOfYear(s16 year, s32 *month, s32 *day);
-extern s32 datGetFlag(s32 id);
 extern s32 clndIsDateInRange(s32 arg0, s32 arg1, s32 arg2, s32 arg3);
 
 

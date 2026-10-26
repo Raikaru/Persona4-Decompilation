@@ -1,3 +1,4 @@
+#include "kwln_draw_callbacks_internal.h"
 #include "include_asm.h"
 #include "type.h"
 #include "itf_mes_objects.h"
@@ -14,7 +15,6 @@ extern s32 D_008815B0[];
 
 
 extern u16 D_008817E8[];
-extern void itfMesFlushPendingCallback(s32 value);
 extern u8 D_007964C0[];
 extern u8 DAT_008817EC_abs[];
 extern u8 *D_008817EC[];
@@ -31,7 +31,7 @@ void itfMesWindowQueueCallback(s32 taskAddress)
     u8 *node;
 
     node = PrimAllocQueueNode();
-    *(void (**)(s32))&((PrimQueueNode *)node)->callback = itfMesFlushPendingCallback;
+    ((PrimQueueNode *)node)->callback = (void *)itfMesFlushPendingCallback;
     ((PrimQueueNode *)node)->argument.handle = taskAddress;
     PrimAppendNode(D_007964C0, node);
 }

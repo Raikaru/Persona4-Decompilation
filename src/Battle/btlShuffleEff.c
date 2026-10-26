@@ -19,7 +19,7 @@ extern void btlShuffleEffInitTrail(u8 *task, s32 slotIndex);
 
 extern u8 *mdlEffectCreateFromResource();
 extern void mdlEffectDestroy(u8 *model);
-extern void mdlEffectStart(s32 a);
+extern void mdlEffectStart(u8 *object);
 extern void mdlEffectSetChildPositionVec(void *object, void *position);
 extern void mdlEffectSetEulerRotation(u8 *object, f32 angleX, f32 angleY, f32 angleZ);
 extern void mdlEffectSetUniformScale(u8 *effect, f32 scale);
@@ -110,7 +110,7 @@ void btlShuffleEffEnd(u8 *task) {
     work = ((struct KwlnTask *)task)->work;
     for (i = 0; i < 9; i++) {
         if (((BtlShuffleEffectWork *)work)->activeMask & (u16)(1 << i)) {
-            mdlEffectStart((s32)((BtlShuffleEffectWork *)work)->slots[i].effect);
+            mdlEffectStart((u8 *)((s32)((BtlShuffleEffectWork *)work)->slots[i].effect));
         }
     }
 }
@@ -181,7 +181,7 @@ void btlShuffleEffInitTrail(u8 *task, s32 slotIndex) {
         slotOffset = slotIndex * 8;
         slotBase = (u8 *)(slotOffset + (s32)work);
         ((BtlShuffleEffectSlot *)(slotBase + 8))->frame = 0;
-        mdlEffectStart((s32)((BtlShuffleEffectSlot *)(slotBase + 8))->effect);
+        mdlEffectStart((u8 *)((s32)((BtlShuffleEffectSlot *)(slotBase + 8))->effect));
         switch (slotIndex) {
         case 0:
         case 1:

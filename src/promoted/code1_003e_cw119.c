@@ -155,18 +155,14 @@ extern void func_003e4520(void *arg0, s32 arg1);
 extern void func_003e4960();
 extern void func_003e4920();
 extern s32 func_003e47c0(s8 *arg0, s8 *arg1);
-extern void sprintf();
-extern void func_00446ed8();
-extern void strcpy();
+extern void vsprintf();
 extern void strncpy();
 extern void strcat();
 extern void func_00442a80();
 extern void func_00443010();
 extern void strcmp();
 extern void strncmp();
-extern void strlen();
 extern void func_00443f18();
-extern void sscanf();
 
 
 /* The archived b210 near miss carried 0x330404; retail loads 0x30404. Exact under b119 with schedule on. */

@@ -47,7 +47,7 @@ extern s32 D_005E42F8[];
 extern f32 D_005E42FC[];
 extern f32 D_005E4300[];
 extern s32 cmmRosterHasArcana(s32 value);
-extern u8 *cmmEntryValueRecord(void);
+extern u8 *cmmEntryValueRecord(s32 entryId);
 extern s32 datRankForPoints(s16 category, s16 points);
 extern s16 D_007973F4[];
 extern void *cmmKindRecord(s32 kindId);
@@ -1355,13 +1355,13 @@ s32 cmmCommunityGetTotal(void)
 
 // Community entry value: looks up the current entry's value through cmmEntryValueRecord, indexed by datRankForPoints over D_007973F4; asserts the index is positive. The extern passes an argument that this definition ignores.
 // FUN_00109100
-s32 cmmCommunityGetCurrentEntryValue(void)
+s32 cmmCommunityGetCurrentEntryValue(s32 entryId)
 {
     u8 *work;
     s16 id;
     s32 index;
 
-    work = cmmEntryValueRecord();
+    work = cmmEntryValueRecord(entryId);
     id = *(s16 *)work;
     index = (s16)datRankForPoints(id, D_007973F4[id]);
     if (index <= 0) {

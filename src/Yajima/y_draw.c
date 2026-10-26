@@ -239,7 +239,7 @@ extern f32 sdkSpriteScaledHeight(u8 *);
 extern u8 *sdkSpriteNewNode(u32 , u32 );
 extern void sdkSpriteFreeNode(void *node);
 extern void fclSpriteUpdateCulling(u8 *, s16, s16);
-extern f32 fclEaseInterpolate(s32, f32, f32, f32, f32);
+extern f32 fclEaseInterpolate(s64, f32, f32, f32, f32);
 extern s32 fclAddClamped(s32, s32, s32, s32, s8);
 extern s16 fclSubClamped(s32, s32, s32, s32, s8);
 extern void fclSpriteApplySkyPresetA(void);

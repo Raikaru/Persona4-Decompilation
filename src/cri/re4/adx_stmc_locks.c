@@ -3,7 +3,7 @@
 
 extern void SVM_Lock(void);
 extern void SVM_Unlock(void);
-extern Sint32 func_004f1278(Sint32 *flags);
+extern Sint32 SVM_TestAndSet(Sint32 *flags);
 
 // FUN_004D1880
 void func_004d1880(void)
@@ -20,7 +20,7 @@ void func_004d1898(void)
 // FUN_004D18B0
 Sint32 func_004d18b0(Sint32 *flags)
 {
-	return func_004f1278(flags);
+	return SVM_TestAndSet(flags);
 }
 
 // FUN_004D18C8

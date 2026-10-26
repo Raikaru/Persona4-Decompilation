@@ -28,7 +28,7 @@ extern s32 radarEntryTypeIsActive(s16 item);
 extern s32 datIsSkillAvailable(s32 skillId);
 extern void shdPersonaSetFlags(u8 *task, s32 inputFlags);
 extern void shdPersonaClearFlags(u8 *task, s32 inputFlags);
-extern void shdPersonaRefreshDispCtlPosition(u8 *, void *);
+extern void shdPersonaRefreshDispCtlPosition(u8 *task, u8 *position);
 extern void shdPersonaSetChildDispCtlHandleAndColor(u8 *task, s32 handle, s32 color);
 extern void sdkListStateConfigure(u8 *state, s32 value, s32 itemCount, s32 cursor, s32 scroll);
 extern void sdkListStateSetActive(void *state, s32 value);
@@ -60,7 +60,6 @@ extern void sdkSpriteDrawSized(u8 *sprite, f32 x, f32 y, f32 depth,
 extern void radarDrawHeaderFrame(u8 *work, PackedVec2f position, u8 alpha, u16 flags);
 extern void datEntryDrawRow(Vec2f position, f32 inputDepth, u8 opacity, u8 *inputEntry);
 extern void datPanelResetCursor(u8 *entry);
-extern void datPanelDrawByKind(Vec2f origin, f32 depth, s32 opacity, u8 *entry, s32 fullName);
 extern s32 datCalcGetLevelById(s32 unitId);
 extern f32 fGpffff82cc; /* gp -0x7d34 */
 extern void datEntryDrawByKind(Vec2f position, u8 opacity, void *entry, s32 flags, f32 depth);
@@ -100,8 +99,6 @@ extern s16 datBuildPartyIdList(s16 *ids);
 extern s32 FldUnit_SpawnPartyTask(u8 *requests);
 extern u8 *datScreenWipeTaskCreate(s32 parentAddress, u16 textureId);
 extern u8 *resourceFindByName(char *name);
-extern u8 *sdkSpriteNewNode(u32 packAddress, u32 recordIndex);
-extern void kAssertFail(void *file, s32 line);
 extern s32 radarSetMode(u8 *work, s32 value);
 extern u8 D_005E57F0[];
 extern u8 D_005E5810[];

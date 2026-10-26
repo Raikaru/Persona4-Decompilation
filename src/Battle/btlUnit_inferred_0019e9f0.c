@@ -114,7 +114,7 @@ extern s32 btlUnitIsMoving(u8 *unit);
 extern s32 btlUnitIdleAnimTick(u8 *action);
 extern u8 *btlUnitCreateLookAtPacket(u8 *unit, f32 *targetPos, s32 flags);
 extern s32 datCalcIsLowHp(u8 *unit);
-extern u8 *btlUnitCreateAnimPacket(u8 *unit, s32 id, s32 blendFrameCount, s32 speed, f32 mode);
+extern u8 *btlUnitCreateAnimPacket(u8 *unit, s32 id, s32 blendFrameCount, f32 mode, s32 speed);
 extern s32 datPersonaGetRosterSlot(s32 unitId);
 extern void btlActionSetState(u8 *action, u32 state);
 extern void func_001b08d0(void *);
@@ -683,8 +683,8 @@ s32 btlUnitIdleAnimTick(u8 *action)
             return 0;
         }
         if ((s16)btlUnitModelAnimFrame(*(u8 * *)&typedAction->unit) < 4) {
-            btlPacketEnqueue(btlUnitCreateAnimPacket(*(u8 * *)&typedAction->unit,
-                                         0x11, 4, 0, 1.0f),
+            btlPacketEnqueue(btlUnitCreateAnimPacket(*(u8 * *)&typedAction->unit, 
+                                         0x11,  4,  1.0f,  0),
                           0);
             typedAction->idleWeaponAnimTimer = -1;
         }

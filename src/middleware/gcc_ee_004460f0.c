@@ -1,6 +1,6 @@
 #include "type.h"
 
-extern void func_00446108(void);
+extern void __svfscanf_r(void);
 
 // FUN_004460F0
-void func_004460f0(void) { func_00446108(); }
+void func_004460f0(void) { __svfscanf_r(); }

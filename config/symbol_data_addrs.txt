@@ -179,7 +179,7 @@ D_00764028 = 0x00764028; // type:data evidence: GP(0x007690F0) - 0x50C8 = 0x0076
 D_00764030 = 0x00764030; // type:data evidence: GP(0x007690F0) - 0x50C0 = 0x00764030; retail func_0045b7c0 addiu $4,$28,-0x50C0; image bytes "%s %d"
 
 // btlEPL.c palette/blend family (func_001fc630/001fceb0/001fd790/001fe090/
-// 001fec00/001ff490/001fff40 — currently all INCLUDE_ASM floors, so the
+// 001fec00/001ff490/001fff40 â€” currently all INCLUDE_ASM floors, so the
 // relocation scanner cannot derive these). GP is 0x007690F0.
 D_0076129C = 0x0076129C; // type:data evidence: GP(0x007690F0) - 0x7E54; retail lwc1 -0x7E54($28) in func_001fc630/001ff490 etc.; image word 0x3B808081 = 1/255 (byte-to-float scale)
 D_00764C54 = 0x00764C54; // type:data evidence: GP(0x007690F0) - 0x449C; retail lbu -0x449C..-0x4499($28) (4 zero bytes) in func_001fc630 case 2
@@ -1092,3 +1092,24 @@ fGpffff84e4 = 0x007615d4; // type:data evidence: retail func_0016bdd0 lwc1 $f0,-
 fGpffff84e8 = 0x007615d8; // type:data evidence: retail func_0016bdd0 lwc1 $f0,-0x7B18($gp) at 0x0016D094; GP 0x007690F0; matched native relocation has zero addend
 uGpffff9f2c = 0x0076301c; // type:data evidence: retail func_0016bdd0 copies four colour bytes with lwc1 $f0,-0x60D4($gp) at 0x0016D9D8; GP 0x007690F0; matched native relocation has zero addend
 D_005F1698 = 0x005f1698; // type:data evidence: retail func_0016bdd0 lui/addiu $a0 at 0x0016C41C/0x0016C420, repeated at 0x0016C568/0x0016C56C and 0x0016C5E8/0x0016C5EC, before func_0046d730 calls
+
+// Canonical shared data identified by the PC mirror audit.
+sCurrScript = 0x00764600; // type:data evidence: current-script pointer shared with scrGetCmdTimer
+sOpRightType = 0x007645fc; // type:data evidence: script operation right type
+sOpLeftType = 0x007645f8; // type:data evidence: script operation left type
+sOpFRes = 0x007645f4; // type:data evidence: script floating result
+sOpRightFVal = 0x007645f0; // type:data evidence: script right floating operand
+sOpLeftFVal = 0x007645ec; // type:data evidence: script left floating operand
+sOpIRes = 0x007645e8; // type:data evidence: script integer result
+sOpRightIVal = 0x007645e4; // type:data evidence: script right integer operand
+sOpLeftIVal = 0x007645e0; // type:data evidence: script left integer operand
+sRandState = 0x00922de0; // type:data evidence: effect RNG state shared by fixed-address callers
+D_00762EE8 = 0x00762ee8; // type:data evidence: retail field resource path format %03d, GP-0x6208
+D_00762EF0 = 0x00762ef0; // type:data evidence: retail field resource path format _%03d, GP-0x6200
+D_00762EF8 = 0x00762ef8; // type:data evidence: retail field resource suffix .rws, GP-0x61f8
+sSfdThreadIds = 0x00764bc8; // type:data evidence: HSFD worker thread id read by sdkWrapPollRequests at GP-0x4528
+sSfdQueue = 0x00764bd0; // type:data evidence: HSFD worker queue shared with sdkWrapPollRequests at GP-0x4520
+sftim_as_pts = 0x00745b10; // type:data evidence: retail SFTIM conditional start-time and sample state at 00525b58/00525bb8
+sftim_a_sample = 0x00745b18; // type:data evidence: retail SFTIM conditional start-time and sample state at 00525b58/00525bb8
+sftim_v_time = 0x00745b1c; // type:data evidence: retail SFTIM conditional start-time and sample state at 00525b58/00525bb8
+sftim_v_sample = 0x00745b20; // type:data evidence: retail SFTIM conditional start-time and sample state at 00525b58/00525bb8

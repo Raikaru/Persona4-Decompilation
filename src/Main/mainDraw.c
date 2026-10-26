@@ -1,3 +1,4 @@
+#include "kwln_render_state_internal.h"
 /* Original translation unit mainDraw.c (from __FILE__ assert strings). */
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -44,7 +45,6 @@ extern u8 D_005DCAD0[];
 extern u8 D_005DCAE8[];
 extern u8 D_005DCAF8[];
 extern u8 D_005DCB10[];
-extern u8 D_001013A0[];
 extern void (*D_00793FA8[])(void);
 extern s32 D_00793FB0[];
 extern u16 D_00793FBA[];
@@ -559,7 +559,7 @@ void mainDrawStartClearOt(void) {
     chkmemAllocSiteTag(&D_005DCAE8, 0x13B);
     work = D_008873F4[0](1, 0x60, 0x40000);
     task = (s32)kwlnTaskCreate((const void *)(&D_005DCAF8), 0xA, 0, 0, mainDrawClearOtUpdate, 0, (u8 *)(work));
-    ((MainDrawClearWork *)work)->nodes[0].callback = &D_001013A0;
+    ((MainDrawClearWork *)work)->nodes[0].callback = (void *)kwlnApplyRenderStateConfig;
     ((MainDrawClearWork *)work)->nodes[0].argument = 0;
     *(void (**)(void))(work + 0x38) = mainDrawClearCameraAndSky;
     ((MainDrawClearWork *)work)->nodes[1].argument = 0;

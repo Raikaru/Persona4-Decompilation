@@ -1,0 +1,14 @@
+// Newlib entry roles checked against retail instructions and the newlib source.
+// EE long is 64-bit; native host raw-bit binding types are not source prototypes.
+_strtol_r = 0x00443FD0; // type:func  evidence: file: newlib libc/stdlib/strtol.c signed-long parser with +/-2^63 saturation and reentrant errno
+strtol = 0x00444210; // type:func  evidence: file: newlib libc/stdlib/strtol.c wrapper loads the current reent and calls 00443fd0
+_strtoul_r = 0x00444240; // type:func  evidence: file: newlib libc/stdlib/strtoul.c unsigned-long parser saturates at UINT64_MAX and stores ERANGE
+strtoul = 0x00444458; // type:func  evidence: file: newlib libc/stdlib/strtoul.c wrapper loads the current reent and calls 00444240
+_strtod_r = 0x00443068; // type:func  evidence: file: newlib libc/stdlib/strtod.c binary64 parser called by __svfscanf_r
+_dtoa_r = 0x0043CA70; // type:func  evidence: file: newlib libc/stdlib/dtoa.c decimal digit generator called by cvt at 00445e80
+_sscanf_r = 0x00442188; // type:func  evidence: file: newlib libc/stdio/sscanf.c constructs a string FILE and calls __svfscanf_r with incoming reent
+__svfscanf_r = 0x00446108; // type:func  evidence: file: newlib libc/stdio/vfscanf.c format scanner with eight-byte EE varargs slots
+_vfprintf_r = 0x00444870; // type:func  evidence: file: newlib libc/stdio/vfprintf.c reentrant formatter core calls cvt then _dtoa_r
+vprintf = 0x00446E88; // type:func  evidence: file: newlib libc/stdio/vprintf.c forwards stdout, format and argument list to vfprintf
+vsprintf = 0x00446ED8; // type:func  evidence: file: newlib libc/stdio/vsprintf.c string FILE wrapper calls vfprintf
+__fixunsdfsi = 0x0044E830; // type:func  evidence: file: GCC fp-bit.c double-to-unsigned32 conversion, unpack_d exponent<32 guard and low-word sign extension

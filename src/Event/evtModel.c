@@ -105,7 +105,7 @@ extern f32 func_0044b920(f32 value);
 extern s32 fptodp(f32 a);
 extern f32 dptofp(s32 a);
 
-extern u8 **kwlnTaskGetWork();
+extern u8 **kwlnTaskGetWork(void* task);
 extern void kAssertFail(void *file, s32 line);
 extern void *mdlGetMatrix(s32 model);
 extern void mdlSetBlendWeight(s32 model, f32 value);
@@ -670,7 +670,7 @@ s32 evtModelUpdateTask(u8 *unusedTask) {
     u8 *entry;
     s32 (*cb)(u8 **, u8 *);
 
-    list = (u8 **)kwlnTaskGetWork();
+    list = (u8 **)kwlnTaskGetWork((void*)(unusedTask));
     head = (u8 *)*list;
     node = (u8 *)((EvtModelQueue *)head)->head;
     while (node != NULL) {
@@ -700,7 +700,7 @@ void evtModelTaskDestroy(u8 *unusedTask) {
     u8 *next;
     s32 handle;
 
-    list = (u8 **)kwlnTaskGetWork();
+    list = (u8 **)kwlnTaskGetWork((void*)(unusedTask));
     head = (u8 *)*list;
     if (head != NULL) {
         node = (u8 *)((EvtModelQueue *)head)->head;
@@ -742,7 +742,7 @@ void evtModelFlushResource(s32 resourceId) {
 
     outer = kwlnTaskGetTaskByName(D_0063C958);
     if (outer != 0) {
-        list = (u8 **)kwlnTaskGetWork(outer);
+        list = (u8 **)kwlnTaskGetWork((void*)(outer));
         head = (u8 *)*list;
         if (head != NULL) {
             node = (u8 *)((EvtModelQueue *)head)->head;
@@ -787,7 +787,7 @@ void evtModelQueueMotion(u16 resourceId, s32 motion, f32 speed) {
         *newWork = newQueue;
         task = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, evtModelUpdateTask, evtModelTaskDestroy, (u8 *)(newWork));
     }
-    work = (u8 **)kwlnTaskGetWork(task);
+    work = (u8 **)kwlnTaskGetWork((void*)(task));
     memset(&parameters, 0, 0x2C);
     parameters.resourceId = resourceId;
     parameters.motion = motion;
@@ -839,7 +839,7 @@ void evtModelQueueTimedMotion(u16 resourceId, u16 duration, s32 motion, f32 spee
         *newWork = newQueue;
         task = (s32)kwlnTaskCreate((const void *)(D_0063C958), 0xF, 0, 0, evtModelUpdateTask, evtModelTaskDestroy, (u8 *)(newWork));
     }
-    work = (u8 **)kwlnTaskGetWork(task);
+    work = (u8 **)kwlnTaskGetWork((void*)(task));
     memset(&parameters, 0, 0x2C);
     parameters.resourceId = resourceId;
     parameters.duration = duration;

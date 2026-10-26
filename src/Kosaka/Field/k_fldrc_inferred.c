@@ -157,7 +157,7 @@ extern void (*jtbl_008873EC[])(void *);
 extern s32 D_00762EA0;
 
 extern s32 mdlEffectCreateFromResource(s32 resource);
-extern void mdlEffectStart(s32);
+extern void mdlEffectStart(u8 *object);
 extern s32 mdlEffectClone(s32 effect);
 extern void mdlEffectSetChildPositionVec(void *object, f32 *position);
 
@@ -718,7 +718,7 @@ loop_done_4:
         ((FldRcEffectWork *)byteAddressAdd(slotIndex * 2, work))->priority[0] = priority;
         ((FldRcEffectWork *)work)->cloneCount = ((FldRcEffectWork *)work)->cloneCount + 1;
     } else {
-        mdlEffectStart(((FldRcEffectWork *)work)->templateEffect);
+        mdlEffectStart((u8 *)(((FldRcEffectWork *)work)->templateEffect));
         mdlEffectSetChildPositionVec(*(void * *)&((FldRcEffectWork *)work)->templateEffect, position);
         *(s32 *)&((FldRcEffectWork *)work)->primaryElapsed = 0;
         primaryActive = 1;

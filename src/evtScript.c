@@ -11,7 +11,7 @@
 #include "fr_font_internal.h"
 #include "scene_event_internal.h"
 #include "scr_internal.h"
-extern void datSetFlag();
+extern void datSetFlag(s32 flagId, s32 enabled);
 extern void (*jtbl_008873EC[])(void *ptr);
 
 typedef int (*code)();
@@ -92,7 +92,7 @@ s32 evtNpcModelTaskUpdate(u8 *unusedTask) {
     u8 *eventWorkOrColor;
     u8 *workOrNode;
 
-    workOrNode = (u8 *)kwlnTaskGetWork();
+    workOrNode = (u8 *)kwlnTaskGetWork(unusedTask);
     modelOrResource = ((EvtNpcLoadWork *)(workOrNode))->model;
     if (mdlPrepareModel(modelOrResource) == 1) {
         MT_Scene_DestroyRes((u16)((( ((EvtNpcLoadWork *)(workOrNode))->slot + 0x384) & 0x3FF) | 0xC00));
@@ -125,7 +125,7 @@ void evtNpcModelTaskDestroy(u8 *unusedTask)
 {
     int work;
 
-    work = kwlnTaskGetWork();
+    work = kwlnTaskGetWork(unusedTask);
     DAT_008873ec_abs[0](work);
 }
 // Event command 0x3000 EVT_NPC_MODEL_LOAD (2 params): activates the NPC model resource when it
@@ -287,7 +287,7 @@ s32 evtRestartTaskUpdate(u8 *sdkTaskBytes)
     u8 *base;
     u8 *p;
 
-    base = (u8 *)kwlnTaskGetWork();
+    base = (u8 *)kwlnTaskGetWork(sdkTaskBytes);
     ((EvtRestartWork *)base)->frame += 1;
     if (D_008C024E[0] & 0x9FF) {
         datSetFlag(0x1211, 1);
@@ -301,7 +301,7 @@ s32 evtRestartTaskUpdate(u8 *sdkTaskBytes)
 // Restart task destroy: clears flag 0x1211 and frees the task's work block.
 // FUN_00298C10
 void evtRestartTaskDestroy(u8 *unusedTask) {
-    u8 *p = (u8 *)kwlnTaskGetWork();
+    u8 *p = (u8 *)kwlnTaskGetWork(unusedTask);
 
     datSetFlag(0x1211, 0);
     jtbl_008873EC[0](p);
