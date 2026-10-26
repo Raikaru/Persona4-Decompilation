@@ -120,3 +120,27 @@ The debug formatter's two register-save-area callers now use the real integer
 existing PS2 argument-list construction is unchanged; host native va_list
 adaptation remains a port responsibility. All four marked functions in that
 owner retain their retail bytes.
+
+## Word packing and kernel status words
+
+The `004f5860` high/low join now has a real C owner in
+`src/sce/rfmai_wordpack.c`, isolated from the mixed original `rofs_mai.c`.
+Its unsigned 64-bit shift and addition retain exactly the low 32 bits of
+each input and return the full signed 64-bit bit pattern. The original
+EE-GCC 2.96 compiler emits retail's five live instructions, including the
+addition in the return delay slot. MWCC emits two redundant high-word
+extension instructions; a signed-widening cast changes one opcode but does
+not remove them. This is compiler ownership, not a reason to widen the public
+inputs or keep a duplicate native implementation.
+
+The EE `fstat` stub at `00421f98` takes an ignored signed descriptor, not a
+path pointer. Its fixed device-mode word and 64-bit size-zero store are
+unchanged. `kill` at `00421fb8` takes a command and a signed status word;
+command one forwards the status through `0042c0d8` to syscall `00421400`.
+The same status contract belongs to `kwlnExitRuntime`. These declarations
+share `sdk_process_internal.h`; they do not describe host POSIX calls.
+
+The complete six-owner witness reports 206 active C matches and 323 unchanged
+assembly-backed functions. The word-packing helper is newly active matching C;
+the other assembly entries are not claimed as new reconstructions.
+
