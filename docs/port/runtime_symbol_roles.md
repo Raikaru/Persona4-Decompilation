@@ -11,6 +11,9 @@ not native host wrappers. Assembly fallbacks keep their audited address names.
 | 0035dfb0 | `cmpConfigDrawOnOff`: stock ON/OFF pill/slash widget |
 | 00124830 | `titleSelectMenu`: title selector, not a music-stream controller |
 | 0043c6b0 | `atoi`: signed base-10 parser result truncated to signed low 32 bits |
+| 0043c710 / 0043c738 | `calloc` / `_calloc_r`: current-reent wrapper / zeroed allocation core |
+| 0043ece8 / 0043ef80 | `malloc` / `_malloc_r`: current-reent wrapper / allocation core |
+| 00441558 / 00441580 | `realloc` / `_realloc_r`: current-reent wrapper / resize core, not `__pool_realloc` |
 | 00443fd0 / 00444210 | `_strtol_r` / `strtol`: signed 64-bit long parser / current-reent wrapper |
 | 00444240 / 00444458 | `_strtoul_r` / `strtoul`: unsigned 64-bit long parser / current-reent wrapper |
 | 00443068 | `_strtod_r`: reentrant binary64 parser |
@@ -88,3 +91,25 @@ words of the decoded data/size fields. The element offset is the signed low
 word of the 32-bit multiplication, not an unsigned pointer offset; retail
 `0052c244`/`0052c248` sign-extends that word. This preserves negative and
 wrapped offsets without changing the format strings to a host workaround.
+
+
+## Allocation widths and forwarding results
+
+Allocation counts and sizes are unsigned 32-bit words, as are guest pointers.
+The malloc/calloc/realloc wrappers load the active reent from `00710070`.
+At `0043c748`, `_calloc_r` uses the low word of `mult` as the allocation size;
+it does not perform a checked or wide multiply. Zeroing follows the original
+chunk's allocator-usable extent. `_realloc_r(NULL, size)` allocates, while size
+zero normalizes to a minimum chunk rather than freeing. The cores retain
+their audited assembly; a native mspace implementation is not PS2 source.
+
+RenderWare's three default allocator forwarding callbacks now return the real
+pointer and state numeric size/count inputs. The boot budget probe and memory
+checker use the shared allocator declarations, with explicit address-word
+casts where their existing bookkeeping stores a 32-bit allocation address.
+All 52 marked functions in the four affected units retain the retail bytes.
+
+Vector normalization returns an `f32` length even at call sites that ignore
+it. Eleven existing void declarations now state that result, and one unused
+void declaration is removed; their parameter views are unchanged. All 295
+marked functions in the twelve affected units retain the retail bytes.

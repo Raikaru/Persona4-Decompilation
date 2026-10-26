@@ -182,7 +182,7 @@ extern u8* DAT_007644D0;
 
 extern u16 datCalcThresholdKind(u8* unusedUnit, s32 skillId);
 
-extern void RwV3dNormalize(f32* a, f32* b);
+extern f32 RwV3dNormalize(f32* a, f32* b);
 
 extern u8* kwlnGetCamera(void);
 

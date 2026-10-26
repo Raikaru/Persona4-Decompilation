@@ -33,7 +33,7 @@ extern void effMiscProgressReset(void* progress);
 extern void chkmemAllocSiteTag(u8 *file, s32 line);
 extern void kAssertFail(u8 *file, s32 line);
 extern f32 RwV3dLength(void *a0);
-extern void RwV3dNormalize(f32 *a, f32 *b);
+extern f32 RwV3dNormalize(f32 *a, f32 *b);
 extern f32 Vpad_GetSegmentLength(void *work, s32 index);
 extern s32 effAfterHistoryIndex(const EffAfterQueue *work, s32 index);
 extern f32 effAfterSectionTurnFactor(u8 *work, s32 section);

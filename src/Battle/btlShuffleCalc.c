@@ -16,7 +16,7 @@ extern u8 *func_003e9700(s32 a0);
 extern void func_003e42a0(void *a0, void *a1, void *a2);
 extern f32 RwV3dLength(void *vector);
 extern void btlShuffleCalcRotatePointAroundAxis(u8 *center, u8 *axis, u8 *point, f32 angle, u8 *output);
-extern void RwV3dNormalize(f32 *a0, f32 *a1);
+extern f32 RwV3dNormalize(f32 *a0, f32 *a1);
 extern void func_003dc740(void *dst, void *src, s32 c, f32 d);
 extern void func_003dcc70(void *a0, void *a1, void *a2);
 extern s32 func_003e0f80(void);
