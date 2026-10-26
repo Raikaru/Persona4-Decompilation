@@ -122,7 +122,7 @@ typedef struct PersonaRenderWork {
         u8 drawNode[0x30];
         struct {
             s32 next, previous;
-            void (*callback)(u8 *);
+            void (*callback)(u8 *, u8 *);
             u8 padC[4];
             u8 *argument;
             u8 pad14[0x1C];
@@ -931,7 +931,6 @@ void shdPersonaSetPersonaId(u8 *task, s32 personaId)
 }
 
 
-void shdPersonaDrawPanels(u8 *, u8 *);
 void datRecordResetAll(u8 *record);
 extern char D_005E5810[];
 extern char D_005E5830[];
@@ -957,7 +956,7 @@ void shdPersonaTaskInit(u8 *task, s32 inputState, s32 inputOpenDuration, s32 inp
     ((PersonaRenderWork *)b)->phase = 0;
     ((PersonaRenderWork *)b)->flags = 0;
     memset(b + 0x540, 0, 0x30);
-    ((PersonaRenderWork *)b)->drawCommand.callback = (void (*)(u8 *))shdPersonaDrawPanels;
+    ((PersonaRenderWork *)b)->drawCommand.callback = shdPersonaDrawPanels;
     ((PersonaRenderWork *)b)->drawCommand.argument = b;
     *(s16 *)&((PersonaRenderWork *)MEMBER(u8 *, task, SdkTask, work))->queueIndex = 0xB1;
     ((PersonaRenderWork *)b)->model = shdPersonaModelCreate((s32)task, 0xF, 0, 0, -0x100);
