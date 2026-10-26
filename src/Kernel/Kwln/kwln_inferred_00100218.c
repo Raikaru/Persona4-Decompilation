@@ -1,3 +1,4 @@
+#include "runtime_allocator_internal.h"
 #include "sdk_dbprt.h"
 #include "include_asm.h"
 #include "sdk_task_registration.h"
@@ -140,7 +141,6 @@ asm void kwlnExitThread(void)
 /* Probe the allocation budget below 32 MiB after reserved/linker extents and
  * sixteen header bytes, release the probe, and return that budget. */
 // FUN_00100230
-extern s32 func_0043ece8(u8 *);
 extern void func_0043ed08(s32);
 extern u8 D_00559800[];
 extern u8 D_938A00[];
@@ -149,7 +149,7 @@ u8 *kwlnProbeHeapBudget(void) {
     s32 status;
     u8 *base;
     base = (u8 *)((u32)0x02000000 + (u32)((-0x2000 - (s32)&D_A0000) - (s32)&D_938A00));
-    status = func_0043ece8(base - 16);
+    status = (s32)malloc((u32)(base - 16));
     if (status == 0) {
         func_00440b68(&D_00559800);
     }

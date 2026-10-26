@@ -1,3 +1,4 @@
+#include "runtime_allocator_internal.h"
 #include "byte_address_internal.h"
 #include "include_asm.h"
 /* Original translation unit sdkChkmem.c (from __FILE__ assert strings). */
@@ -45,7 +46,6 @@ extern char D_007104E0[];
 extern char D_007104F0[];
 extern void kAssertFail(void *file, s32 line);
 extern void kAssertFailMsg(const char *file, s32 line, const char *msg, ...);
-extern s32 func_0043ece8(s32 size);
 extern s32 func_0042ba20(void);
 extern void func_0042ba70(void);
 extern void memcpy(void *dst, void *src, s32 size);
@@ -232,7 +232,7 @@ s32 chkmemAllocate(u32 size)
         kAssertFail(D_007104E0, 0x653);
     }
     allocationAddressOrSize = (size + 0x37) & -0x10;
-    block = (ChkMemEntry *)func_0043ece8(allocationAddressOrSize);
+    block = (ChkMemEntry *)malloc(allocationAddressOrSize);
     if (block == NULL) {
         kAssertFailMsg(D_007104E0, 0x65F, D_007104F0, D_00763D1C->bytes,
                       size);
@@ -347,7 +347,7 @@ s32 chkmemAllocAligned(s32 size, s32 alignment, s32 flags)
     sizeOrClassBytes += size;
     roundingSize = sizeOrClassBytes - 1;
     allocationSize = (-blockAlignment) & roundingSize;
-    block = (ChkMemEntry *)func_0043ece8(allocationSize);
+    block = (ChkMemEntry *)malloc(allocationSize);
     if (block == NULL) {
         kAssertFailMsg(D_007104E0, 0x69B, (const char *)&iGpffffac30,
                       D_00763D1C->bytes);
@@ -418,7 +418,7 @@ s32 chkmemReallocate(void *allocationPointer, u32 size)
             kAssertFail(D_007104E0, 0x653);
         }
         allocationSize = (size + 0x37) & ~0xF;
-        block = func_0043ece8(allocationSize);
+        block = (s32)malloc(allocationSize);
         if (block == 0) {
             kAssertFailMsg(D_007104E0, 0x65F, D_007104F0,
                           D_00763D1C->bytes, size);
@@ -439,7 +439,7 @@ s32 chkmemReallocate(void *allocationPointer, u32 size)
             kAssertFail(D_007104E0, 0x653);
         }
         newAllocationSize = (size + 0x37) & ~0xF;
-        newBlock = func_0043ece8(newAllocationSize);
+        newBlock = (s32)malloc(newAllocationSize);
         if (newBlock == 0) {
             kAssertFailMsg(D_007104E0, 0x65F, D_007104F0,
                           D_00763D1C->bytes, size);
@@ -484,7 +484,7 @@ s32 chkmemAllocZeroed(s32 count, s32 elementSize)
         kAssertFail(D_007104E0, 0x653);
     }
     allocationAddressOrSize = (size + 0x37) & ~0xF;
-    block = func_0043ece8(allocationAddressOrSize);
+    block = (s32)malloc(allocationAddressOrSize);
     if (block == 0) {
         kAssertFailMsg(D_007104E0, 0x65F, D_007104F0, D_00763D1C->bytes, size);
     }

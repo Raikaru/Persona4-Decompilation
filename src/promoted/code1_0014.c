@@ -538,7 +538,7 @@ static inline u32 fieldTransitionEntryActive(u32 index)
 }
 extern void fadeBeginTransition(s32 enabled, s32 mode);
 extern void H_Fade_SetCustomColor(s32 red, s32 green, s32 blue);
-extern void RwV3dNormalize(f32 *destination, f32 *source);
+
 extern u8 iGpffff9dd8[8];
 
 #pragma pop

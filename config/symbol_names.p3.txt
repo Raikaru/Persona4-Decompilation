@@ -140,7 +140,6 @@ __dtoa_b2d = 0x004406D8; // type:func  evidence: p3:__dtoa_b2d@0x00522118 tier:4
 __dtoa_d2b = 0x00440880; // type:func  evidence: p3:__dtoa_d2b@0x005222c0 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)
 __dtoa_ratio = 0x00440A00; // type:func  evidence: p3:__dtoa_ratio@0x00522440 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)
 qsort = 0x00440BB8; // type:func  evidence: p3:qsort@0x005225f8 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)
-__pool_realloc = 0x00441580; // type:func  evidence: p3:__pool_realloc@0x00522fc0 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)
 __flush_buffer = 0x00441B40; // type:func  evidence: p3:__flush_buffer@0x00523580 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)
 copysign = 0x00441CB0; // type:func  evidence: p3:copysign@0x005236f0 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)
 __isinf = 0x00441CF0; // type:func  evidence: p3:__isinf@0x00523730 tier:4 (P3 Ghidra-exported guess; no verifier/source/recovered evidence)

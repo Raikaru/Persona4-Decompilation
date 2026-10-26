@@ -57,7 +57,7 @@ extern f32 KDraw_MatrixYawDeg(u8* matrix);
 extern f32 KDraw_MatrixRollDeg(u8* matrix);
 extern s32 FldResource_FindFrameForId(s32 resource, s32 entryId, s32* flagsOut);
 extern s32 func_003e9700(s32);
-extern void RwV3dNormalize(f32* a, f32* b);
+extern f32 RwV3dNormalize(f32* a, f32* b);
 /* Layout and return types from the matrix API used by the field command. */
 typedef struct RwMatrixTolerance {
     f32 Normal;

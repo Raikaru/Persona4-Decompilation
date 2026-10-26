@@ -331,7 +331,7 @@ static inline u32 fldTransitionEntryActive(u32 index)
 }
 extern void fadeBeginTransition(s32 mode, s32 duration);
 extern void H_Fade_SetCustomColor(s32 r, s32 g, s32 b);
-extern void RwV3dNormalize(f32 *destination, f32 *source);
+extern f32 RwV3dNormalize(f32 *destination, f32 *source);
 extern u8 iGpffff9dd8[8];
 // FUN_0014DCD0
 void FldRc_SetAxesTargeted(u8 *task, s32 targeted)

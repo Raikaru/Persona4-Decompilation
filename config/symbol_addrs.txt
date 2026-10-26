@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2635 of 13102 symbols carry a recovered name.
+// 2640 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 kwlnExitRuntime = 0x00100218; // type:func
 kwlnExitThread = 0x00100220; // type:func
@@ -7801,8 +7801,8 @@ func_0043c5e8 = 0x0043C5E8; // type:func
 func_0043c6a0 = 0x0043C6A0; // type:func
 atoi = 0x0043C6B0; // type:func
 bzero = 0x0043C6D8; // type:func
-func_0043c710 = 0x0043C710; // type:func
-func_0043c738 = 0x0043C738; // type:func
+calloc = 0x0043C710; // type:func
+_calloc_r = 0x0043C738; // type:func
 func_0043c7f0 = 0x0043C7F0; // type:func
 quorem = 0x0043C840; // type:func
 _dtoa_r = 0x0043CA70; // type:func
@@ -7826,10 +7826,10 @@ func_0043eaf8 = 0x0043EAF8; // type:func
 func_0043eb20 = 0x0043EB20; // type:func
 func_0043eb40 = 0x0043EB40; // type:func
 func_0043eb98 = 0x0043EB98; // type:func
-func_0043ece8 = 0x0043ECE8; // type:func
+malloc = 0x0043ECE8; // type:func
 func_0043ed08 = 0x0043ED08; // type:func
 func_0043ed28 = 0x0043ED28; // type:func
-func_0043ef80 = 0x0043EF80; // type:func
+_malloc_r = 0x0043EF80; // type:func
 _mbtowc_r = 0x0043F668; // type:func
 memchr = 0x0043F698; // type:func
 func_0043f778 = 0x0043F778; // type:func
@@ -7857,8 +7857,8 @@ __dtoa_ratio = 0x00440A00; // type:func
 func_00440b68 = 0x00440B68; // type:func
 qsort = 0x00440BB8; // type:func
 func_004414f8 = 0x004414F8; // type:func
-func_00441558 = 0x00441558; // type:func
-__pool_realloc = 0x00441580; // type:func
+realloc = 0x00441558; // type:func
+_realloc_r = 0x00441580; // type:func
 __flush_buffer = 0x00441B40; // type:func
 copysign = 0x00441CB0; // type:func
 __isinf = 0x00441CF0; // type:func

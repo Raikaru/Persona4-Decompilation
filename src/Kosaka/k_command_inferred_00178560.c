@@ -88,7 +88,7 @@ extern void *mdlGetMatrix(void *model);
 extern s32 FldShadow_DrawProjection(u8 *camera, s32 raster, s32 collisionKind, void *intersection,
                          f32 opacity, f32 depth, s32 fadeWithDepth, u8 *workData);
 extern S_00178590 *FldEvent_GetNearestEntry(void);
-extern void RwV3dNormalize(void *, void *);
+extern f32 RwV3dNormalize(void *, void *);
 extern u8 D_007EFA00[];
 extern u8 D_005F1970[];
 extern u8 D_005F1974[];

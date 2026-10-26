@@ -38,7 +38,7 @@ extern s32 mdlCopyIndexedMatrix(void *model, s32 index, void *destination);
 extern void RwMatrixScale(void *input, f32 *value, s32 options);
 extern void RwMatrixMultiply(void *input, void *value, void *options);
 extern void RtQuatConvertFromMatrix(void *input, void *value);
-extern void btlTargetNormalizeVector(void *source, void *destination);
+extern f32 btlTargetNormalizeVector(void *source, void *destination);
 extern u32 mdlCountIntUserData(u32 model);
 extern void btlUnitClearModelState(void *unit, s32 mode);
 extern void btlUnitSetModelAnimFrame(void *unit, s32 frame);
