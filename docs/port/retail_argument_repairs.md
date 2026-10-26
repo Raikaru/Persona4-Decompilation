@@ -293,3 +293,12 @@ as an entirely third-party object. The strict gate caught 8099 instead of
 metadata getters now use the existing contiguous `adx_sjd_forward_ed78.c` and
 `adx_sjd_leaf_cf010.c` address groups and share the exact RE4 object layout in
 `adx_sjd_internal.h`. No link floor or placement rule is relaxed.
+
+
+The corrected AHX name exposes one further real input chain: `ADXSJD_SetInSj`
+(`004cdca0`) hands its saved incoming sound joint to `ADXB_SetAhxInSj`
+(`004c1c50`) before the AC3 setter. The one-input reconstruction declaration
+omitted that live `a1`; the complete setter now shares the actual decoder and
+sound-joint types. The AHX owner reuses the existing ADXB layout rather than
+a second private prefix definition. This is distinct from the retained generic
+four-GP register forwarding views.
