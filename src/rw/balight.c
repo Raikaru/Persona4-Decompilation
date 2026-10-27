@@ -10,17 +10,11 @@
 #include "type.h"
 
 /* Canonical grouped function declarations. */
-u64 func_003b7a80(u64 value);
-u64 func_003b82b0(u64 value);
 u32 func_003b83f0(int object);
 u32 func_003b8510(int object);
 u64 func_003b88c0();
-u64 func_003bf1c0(u64 value);
-u64 func_003bf1f0(u64 value);
 u64 func_003bf320(u64 value);
 u64 func_003c38a0(u64 value);
-u64 func_003cad80(u64 value);
-u64 func_003caee0(u64 value);
 u64 func_003e3800(u64 value);
 u64 func_003e3810(u64 value);
 u64 func_003e3820(u64 value);

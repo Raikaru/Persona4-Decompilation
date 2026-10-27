@@ -125,8 +125,6 @@ done:
 
 extern u32 RpRandom(void);
 extern u64 func_003b88c0(void);
-extern u64 func_003bf1c0(u64 value);
-extern u64 func_003bf1f0(u64 value);
 /* Archived b210 near-miss (R3BB_003b7860); exact under b119 with schedule on. */
 // FUN_003B7860
 #pragma schedule on
