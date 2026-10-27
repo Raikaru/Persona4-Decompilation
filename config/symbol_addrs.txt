@@ -1,7 +1,7 @@
 // Canonical Persona 4 USA function symbols.
 // Generated: placeholder func_<address> names, overridden by the
 // evidence-backed names curated in config/symbol_names.txt.
-// 2640 of 13102 symbols carry a recovered name.
+// 2642 of 13102 symbols carry a recovered name.
 _start = 0x00100008; // type:func
 kwlnExitRuntime = 0x00100218; // type:func
 kwlnExitThread = 0x00100220; // type:func
@@ -6021,7 +6021,7 @@ func_003bfd00 = 0x003BFD00; // type:func
 func_003bfdf0 = 0x003BFDF0; // type:func
 func_003bfe60 = 0x003BFE60; // type:func
 func_003bfe90 = 0x003BFE90; // type:func
-func_003bff30 = 0x003BFF30; // type:func
+RpClumpForAllAtomics = 0x003BFF30; // type:func
 func_003bffc0 = 0x003BFFC0; // type:func
 func_003c0050 = 0x003C0050; // type:func
 func_003c00e0 = 0x003C00E0; // type:func
@@ -6227,7 +6227,7 @@ func_003ce3a0 = 0x003CE3A0; // type:func
 func_003ce560 = 0x003CE560; // type:func
 func_003ce840 = 0x003CE840; // type:func
 func_003ce9e0 = 0x003CE9E0; // type:func
-func_003cebb0 = 0x003CEBB0; // type:func
+_rpWorldSectorNativeRead = 0x003CEBB0; // type:func
 func_003ceeb0 = 0x003CEEB0; // type:func
 PS2AllPipelineNodeInit = 0x003CF070; // type:func
 func_003cf140 = 0x003CF140; // type:func
