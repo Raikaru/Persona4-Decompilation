@@ -410,3 +410,35 @@ predicate at `001da7e0` ignores the query, loads the action skill halfword at
 a full one/zero according to the classifier's low-halfword category. Query
 narrowing must not be invented from that unrelated mask or classification.
 
+
+### Registered identity and stream-message callback interfaces
+
+Six RenderWare plugin callbacks are the two-instruction identity operation,
+but a physical 64-bit register move does not make their semantic interface
+`u64(u64)`. Registration and dispatch establish pointer-valued callbacks:
+
+| Addresses | Contract |
+|---|---|
+| `003b7a80`, `003cad80` | copy: `void *(void *, const void *, s32, s32)` |
+| `003bf1c0`, `003bf1f0`, `003caee0` | destructor: `void *(void *, s32, s32)` |
+| `003b82b0` | stream writer: `void *(void *, s32, const void *, s32, s32)` |
+
+The full interfaces share `rw_plugin_callbacks_internal.h`; every body still
+returns its first pointer unchanged. All 42 copied plugin declarations,
+including six in the inactive SkinSky unit, are removed. Active owners and
+registration callers use the owning header; otherwise unused copied
+declarations are not replaced with unnecessary includes.
+
+The SVM adapters `kwlnPrintStreamError` at `00100dd0` and `kwlnLogStreamError`
+at `00100e00` receive an unused object followed by a message pointer. Their
+shared owner states `(void *, char *)`, and the stdio owner declares the real
+integer-result variadic `printf`/`scePrintf` address entrypoints. The original
+message remains the format string, not a substituted `"%s"` call. The first
+adapter also retains its second `scePrintf` call for the existing separator.
+Four stale callback declarations are removed from startup owners.
+
+The complete twelve-owner witness reports 179 `MATCH` and 140 `ASM` results,
+with no failures: seven first-party matches and 172 third-party matches.
+These are verifier statuses; existing assembly-backed functions are not
+claimed as newly recovered C.
+
