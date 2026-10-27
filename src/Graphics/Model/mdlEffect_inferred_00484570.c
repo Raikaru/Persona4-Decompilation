@@ -40,7 +40,7 @@ typedef struct MdlEffectConstructorSlot {
     u8 pad4[0x3C];
 } MdlEffectConstructorSlot;
 typedef struct MdlEffectReleaseSlot {
-    s32 (*release)(s32);
+    void (*release)(s32);
     u8 pad4[0x3C];
 } MdlEffectReleaseSlot;
 extern MdlEffectConstructorSlot D_00713480[];
@@ -102,7 +102,7 @@ code1_0048_84570_after_check:
 /* Destroy the kind-specific payload, release source sections and free the record. */
 // FUN_004846D0
 void mdlEffectDestroyPrimitiveRecord(u8 *recordData) {
-    s32 (*releaseCallback)(s32);
+    void (*releaseCallback)(s32);
     u8 *record;
     MdlEffectPrimitiveRecord *primitive;
 

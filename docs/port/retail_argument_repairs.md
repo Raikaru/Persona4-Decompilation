@@ -442,3 +442,17 @@ with no failures: seven first-party matches and 172 third-party matches.
 These are verifier statuses; existing assembly-backed functions are not
 claimed as newly recovered C.
 
+
+### Model-effect release slot result
+
+The release column at `00713490` belongs to the 33-row, 64-byte-stride
+primitive dispatch table starting at `00713480`. Its twenty distinct non-null
+targets have void results. `mdlEffectDestroyPrimitiveRecord` at `004846d0`
+calls the release slot at `0048473c` and immediately forwards the saved record
+to source cleanup; it does not read the callback's `v0` result.
+
+Both `MdlEffectReleaseSlot.release` and the dispatcher's local
+`releaseCallback` therefore use `void (*)(s32)`, not an invented signed
+integer result. No argument, body, call order or stored-handle width changes.
+The complete two-function owner retains both first-party matches.
+
