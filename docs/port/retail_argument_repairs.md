@@ -485,3 +485,22 @@ both stale `void(void)` copies are removed, including the unused promoted
 copy. The callee algorithm and event consumer are unchanged. Complete
 comparison of the four owner/caller units retains 102 first-party matches.
 
+
+### Canonical callable identities
+
+`RpClumpForAllAtomics` at `003bff30` and `_rpWorldSectorNativeRead` at
+`003cebb0` are functions at canonical starts, not data objects. Their
+evidence-backed identities now live in the maintained `symbol_names.txt`
+overlay, from which reconciliation regenerates `type:func` entries. The
+reader's definition and declaration use its canonical name; arguments,
+results, bodies and addresses are unchanged.
+
+The relocation scanner deliberately emits generic `type:data` records, so
+editing its generated `symbols_recovered.txt` output would not survive
+regeneration. The authoritative function map now supplies the correct kind
+before those generic records are considered. This preserves the function
+kind previously supplied by the port's two explicit callable placements.
+Eleven further private data placements already have the same source-owned
+data addresses and kinds. The port can delete all thirteen duplicates
+without changing their addresses or weakening the duplicate-placement guard.
+
