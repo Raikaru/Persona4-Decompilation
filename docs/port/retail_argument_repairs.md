@@ -456,3 +456,16 @@ Both `MdlEffectReleaseSlot.release` and the dispatcher's local
 integer result. No argument, body, call order or stored-handle width changes.
 The complete two-function owner retains both first-party matches.
 
+
+### Model-effect child rotation slot result
+
+The same primitive table's rotation column is at `00713480 + 0x24`.
+All thirteen distinct non-null targets return void. The dispatcher
+`mdlEffectSetChildRotations` at `00486330` calls that slot at `004863c0`;
+`004863c8` immediately loads the next child without consuming `v0`.
+
+Its local callback and loaded double-pointer cast therefore use
+`void (*)(s32, void *)`. Only their result types change. VU operations,
+arguments, iteration and the final child-position refresh remain untouched.
+The complete ten-function transform owner retains all ten first-party matches.
+

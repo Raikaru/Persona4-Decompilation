@@ -412,7 +412,7 @@ void mdlEffectSetChildRotations(u8 *effect, u8 *value)
     u_long128 scratch[2];
     u8 *primitive;
     u8 *child;
-    s32 (*callback)(s32, void *);
+    void (*callback)(s32, void *);
 
     __asm__ volatile("lqc2 $vf10, 0(%0)" : : "r"(value) : "$vf10", "memory");
     __asm__ volatile("sqc2 $vf10, 0x50(%0)" : : "r"(effect) : "$vf10", "memory");
@@ -435,7 +435,7 @@ loop_00486330_body:
     effMiscQuatMultiplyVU();
     __asm__ volatile("sqc2 $vf10, 0(%0)" : : "r"(scratch) : "$vf10", "memory");
     primitive = ((MdlEffectNode *)child)->primitive;
-    callback = *(s32 (**)(s32, void *))(D_00713480 + (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x24);
+    callback = *(void (**)(s32, void *))(D_00713480 + (((MdlEffectPrimitiveRecord *)primitive)->kind << 6) + 0x24);
     if (callback != NULL) {
         callback(((MdlEffectPrimitiveRecord *)primitive)->instance.handle, scratch);
     }
