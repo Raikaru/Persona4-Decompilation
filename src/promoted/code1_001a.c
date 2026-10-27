@@ -201,7 +201,6 @@ BtlPacket *btlFormationCreatePacket(u32 arg0, u32 arg1, u32 arg2, u16 arg3, u32 
 BtlPacket *btlSoundCreateChannelCuePacket(u16 arg0, u16 arg1, u16 arg2);
 extern f32 D_0076144C;
 s32 btlStatusWindowShowSlot3Callback(u8 *arg0);
-void btlTaskSlotLinkedSlot3Callback(void);
 
 
 

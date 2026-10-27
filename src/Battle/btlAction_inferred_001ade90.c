@@ -13,6 +13,7 @@
 #include "type.h"
 #include "btl_target_state_packet_internal.h"
 #include "btl_action_internal.h"
+#include "btl_sound_internal.h"
 typedef struct BtlPacket BtlPacket;
 extern BtlPacket *btlFormationCreateNamedPacket(u32 resource, const char *path, u16 mode);
 u32 datCalcRandomBelow(u32 limit);
@@ -88,7 +89,6 @@ BtlPacket *btlFormationCreatePacket(u32, u32, u32, u16, u32);
 BtlPacket *btlSoundCreateChannelCuePacket(u16, u16, u16);
 extern f32 D_0076144C;
 s32 btlStatusWindowShowSlot3Callback(u8 *);
-void btlTaskSlotLinkedSlot3Callback(void);
 
 extern s32 btlActionLinkedUnitIsActive(BtlAction *action);
 extern void btlActionSkillUpdate(u8 *);
@@ -1031,7 +1031,7 @@ void btlActionEndInit(u8 *action)
         MEMBER(u16, action, BtlAction, flags) &= 0xFDFF;
     }
     if (btlStatusWindowShowSlot3Callback(action) != 0) {
-        *(void (**)(void))(action + 0x440) = btlTaskSlotLinkedSlot3Callback;
+        *(s32 (**)(void))(action + 0x440) = btlTaskSlotLinkedSlot3Callback;
         ((BtlAction *)action)->unk_43c = 0x21;
         btlActionSetState((BtlAction *)action, 0x16);
         return;
