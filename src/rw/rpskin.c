@@ -1,3 +1,4 @@
+#include "rw_plugin_callbacks_internal.h"
 /* Retail RenderWare plugin/core functions attributed to rpskin.c.
  * Originally in src/rprandom/rprandom_grouped.c; see
  * docs/sky2/rw_unit_attribution.json.
@@ -10,17 +11,11 @@
 #include "type.h"
 
 /* Canonical grouped function declarations. */
-u64 func_003b7a80(u64 value);
-u64 func_003b82b0(u64 value);
 u32 func_003b83f0(int object);
 u32 func_003b8510(int object);
 u64 func_003b88c0();
-u64 func_003bf1c0(u64 value);
-u64 func_003bf1f0(u64 value);
 u64 func_003bf320(u64 value);
 u64 func_003c38a0(u64 value);
-u64 func_003cad80(u64 value);
-u64 func_003caee0(u64 value);
 u64 func_003e3800(u64 value);
 u64 func_003e3810(u64 value);
 u64 func_003e3820(u64 value);
@@ -92,7 +87,7 @@ extern u8 *func_003b8410(u8 *arg0, u8 *arg1);
 /* measured: removing this pragma takes func_003b7a80 nd 0 -> nd 8: retail fills the jr $ra delay slot with move $v0,$a0; baseline -O2 emits move; jr; nop. */
 #pragma optimization_level 3
 // FUN_003B7A80
-u64 func_003b7a80(u64 value) { return value; }
+void *func_003b7a80(void *value, const void *source, s32 offset, s32 size) { return value; }
 #pragma optimization_level 2
 
 /* Source unit: src/rprandom/rprandom_003b82b0.c (1 function markers) */
@@ -320,7 +315,7 @@ fail_b7290:
 // FUN_003B8050
 INCLUDE_ASM("asm/nonmatchings/rprandom_grouped", func_003b8050);
 // FUN_003B82B0
-u64 func_003b82b0(u64 value) { return value; }
+void *func_003b82b0(void *value, s32 binaryLength, const void *object, s32 offset, s32 size) { return value; }
 #pragma optimization_level 2
 
 /* Source unit: src/rprandom/rprandom_003b83f0.c (1 function markers) */

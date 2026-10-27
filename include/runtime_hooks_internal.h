@@ -9,4 +9,8 @@ s32 func_0043c008(s32 unusedContext);
 /* MPEG's range wrapper flushes globally and does not consume the supplied range. */
 void func_0041e030(s32 unusedAddress, s32 unusedBytes);
 
+/* SVM error callbacks receive the object followed by the message/format. */
+void kwlnPrintStreamError(void *unused, char *message);
+void kwlnLogStreamError(void *unused, char *message);
+
 #endif

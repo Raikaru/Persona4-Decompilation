@@ -1,3 +1,4 @@
+#include "rw_plugin_callbacks_internal.h"
 #include "rw_skin_internal.h"
 #include "include_asm.h"
 #include "type.h"
@@ -54,9 +55,7 @@ extern s32 func_003e8960(s32 arg0);
 extern u8 *_rpSkinPipelinesAttach(u8 *arg0, s32 arg1);
 extern s32 func_003e8410(s32 arg0, s32 arg1, void *arg2, void *arg3, s32 arg4);
 extern s32 func_003c3920(s32 arg0, s32 arg1, void *arg2, void *arg3, s32 arg4);
-extern u64 func_003bf1c0(u64 value);
 extern s32 func_003bf1d0(s32 arg0);
-extern u64 func_003bf1f0(u64 value);
 extern s32 iGpffffb6b4;
 extern void (*D_00887300[])(s32, s32);
 extern void (*D_00887304[])(s32, void *);

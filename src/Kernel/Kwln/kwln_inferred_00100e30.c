@@ -1,3 +1,4 @@
+#include "runtime_hooks_internal.h"
 #include "kwln_render_state_internal.h"
 #include "sdk_dbprt.h"
 #include "include_asm.h"
@@ -160,8 +161,6 @@ extern void func_004d8c78(void);
 extern void func_004f2798(s32, s32);
 extern void func_004f34b0(s32);
 extern void func_004f5bf0(s32, s32, s32);
-extern void kwlnPrintStreamError(void);
-extern void kwlnLogStreamError(void);
 extern void scrReleaseActiveHandle(void);
 extern u8 D_00559840[];
 extern u8 D_005C4EC0[];

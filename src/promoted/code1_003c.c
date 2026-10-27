@@ -1,3 +1,4 @@
+#include "rw_plugin_callbacks_internal.h"
 #include "Kosaka/k_clump_internal.h"
 #include "rw_geometry_internal.h"
 #include "include_asm.h"
@@ -1808,9 +1809,7 @@ s32 func_003cb900(void) {
     extern void func_003ca890(void);
     extern void func_003cad40(void);
     extern void func_003cad90(void);
-    extern void func_003cad80(void);
     extern void func_003cae70(void);
-    extern void func_003caee0(void);
     extern void func_003caea0(void);
     extern void func_003cb1e0(void);
     extern void func_003cb250(void);
