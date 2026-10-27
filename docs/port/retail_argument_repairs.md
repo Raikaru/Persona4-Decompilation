@@ -469,3 +469,19 @@ Its local callback and loaded double-pointer cast therefore use
 arguments, iteration and the final child-position refresh remain untouched.
 The complete ten-function transform owner retains all ten first-party matches.
 
+
+### Linked-slot event completion callback store
+
+`btlTaskSlotLinkedSlot3Callback` at `001fad10` already has the real
+`s32(void)` definition: it returns the encounter callback result or the
+slot-three linked state. At `001fada0`, retail explicitly moves the saved
+result into `v0`. Its consumer `btlActionEventUpdate` at `001ac6a0` calls
+the action's `+0x440` slot and branches on `v0` at `001ac6bc`; zero resumes
+the saved state from `+0x43c`.
+
+The action initializer's stored function-pointer view now preserves that
+signed result. The declaration belongs to existing `btl_sound_internal.h`;
+both stale `void(void)` copies are removed, including the unused promoted
+copy. The callee algorithm and event consumer are unchanged. Complete
+comparison of the four owner/caller units retains 102 first-party matches.
+
