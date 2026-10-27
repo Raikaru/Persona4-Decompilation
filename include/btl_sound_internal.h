@@ -28,6 +28,9 @@ typedef struct BtlSoundPersonaVoice { s16 primary, secondary; } BtlSoundPersonaV
 /* Three encounter callbacks/argument words at battle + 0xB40. Their ABI is retained at each caller. */
 typedef struct BtlSoundEncounterSequence { s32 start, update, argument; } BtlSoundEncounterSequence;
 
+/* Slot-three event completion callback; zero resumes the saved action state. */
+s32 btlTaskSlotLinkedSlot3Callback(void);
+
 /* Skill rows advance by 0x28. Only the selection bytes and effect-mask word are understood here. */
 typedef struct BtlSoundSkill {
     u8 flags;
