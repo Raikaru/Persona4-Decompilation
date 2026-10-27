@@ -21,7 +21,7 @@ extern void *(*D_008873F8[])(s32 arg0, s32 arg1);
 extern s32 func_003df240(s32 arg0, s32 arg1, s32 arg2);
 extern s32 func_003c5d10(s32 arg0, u8 *arg1, u8 *arg2);
 extern u8 *func_003c9c20(u8 *arg0);
-extern u8 *func_003cebb0(u8 *arg0, u8 *arg1);
+extern u8 *_rpWorldSectorNativeRead(u8 *arg0, u8 *arg1);
 
 
 
@@ -368,7 +368,7 @@ typedef struct RpMeshHeaderLocal {
 
 // FUN_003CEBB0
 #pragma schedule on
-u8 *func_003cebb0(u8 *arg0, u8 *arg1) {
+u8 *_rpWorldSectorNativeRead(u8 *arg0, u8 *arg1) {
     u32 spBC;
     s32 spB8;
     s32 spB4;

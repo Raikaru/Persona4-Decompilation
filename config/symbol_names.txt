@@ -48,3 +48,7 @@ H_Cdvd_StreamGetSlot = 0x004556B0; // type:func  evidence: p3:H_Cdvd_StreamGetSl
 
 // battle_draw_2d task update callback: the retail task-name string outranks the p3 name.
 btlUpdateDraw2DTask = 0x00192790; // type:func  evidence: string:"battle_draw_2d"
+
+// Callable RenderWare source identities, kept here rather than editing relocation-scan output.
+RpClumpForAllAtomics = 0x003BFF30; // type:func  evidence: source:src/promoted/code1_003b_cw119.c FUN_003BFF30 and src/renderware/world/baclump.c iterate the atomic list at clump + 8, calling each atomic at node - 0x40
+_rpWorldSectorNativeRead = 0x003CEBB0; // type:func  evidence: caller:003cb7e0 readWorldSectorNative calls this reader and tests its result; declared by include/rw/worldp2null/native.h and used by src/renderware/world/baworobj.c
