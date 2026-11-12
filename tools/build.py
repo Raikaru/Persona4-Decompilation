@@ -116,10 +116,12 @@ def cfg():
             except ValueError as exc:
                 sys.exit(f"build: invalid {path.relative_to(REPO)}: {exc}")
     c["mwcc"] = os.environ.get("P4_MWCC", c.get("mwcc"))
+    V.apply_native_mwcc(c)
     c["mwcc_versions"] = V.compiler_versions(c)
     c["retail_elf"] = os.environ.get("P4_RETAIL_ELF", c.get("retail_elf"))
+    # mwld ships with the original compiler
     c["ld_exe"] = c.get("ld_exe") or (
-        str(Path(c["mwcc"]).with_name("mwldps2.exe")) if c.get("mwcc") else None
+        str(Path(c["mwcc_original"]).with_name("mwldps2.exe")) if c.get("mwcc_original") else None
     )
     default_optimization = TARGET.get("compiler", {}).get("optimization", "-O2")
     c["cflags"] = c.get("cflags", [default_optimization])
