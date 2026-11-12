@@ -38,6 +38,18 @@ Set the compiler paths in `tools/verify_config.local.json` and
 instructions. These local files are ignored by Git; do not change the shared
 configuration to suit your machine.
 
+### Native build 210 (optional)
+
+A native Linux/macOS build of b210, decompiled in
+[mweppc](https://github.com/sozud/mweppc), gives identical objects without wibo:
+
+```sh
+python3 tools/get_native_mwcc.py
+P4_MWCC_NATIVE=1 make    # or "mwcc_native": true in both *.local.json
+```
+
+b119 and ee-gcc are still required. In CI, set the variable `P4_MWCC_NATIVE=1`.
+
 ```sh
 make setup ISO="/path/to/Shin Megami Tensei - Persona 4 (USA).iso"
 make split

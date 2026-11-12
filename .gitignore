@@ -74,3 +74,6 @@ src/**/.*.h
 # A mis-quoted `--json --help` once wrote a JSON dump to a file literally named
 # `--help`; it was committed and kept being re-modified by later tool runs.
 /--help
+
+# tools/get_native_mwcc.py
+/tools/mwccps2-native/

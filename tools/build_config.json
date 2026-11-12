@@ -2,6 +2,8 @@
   "_comment": "Committed defaults only. Put machine-local absolute tool and retail paths in tools/build_config.local.json (gitignored), or use P4_MWCC/P4_RETAIL_ELF/P4_AS/P4_OBJCOPY/P4_LD. Override linker_backend with --linker-backend or P4_LINKER_BACKEND.",
   "linker_backend": "gnu",
   "mwcc": null,
+  "mwcc_native": false,
+  "_comment_mwcc_native": "Use the native b210 (tools/get_native_mwcc.py); P4_MWCC_NATIVE=1/0 overrides.",
   "retail_elf": null,
   "ld_exe": null,
   "mwcc_versions": {},

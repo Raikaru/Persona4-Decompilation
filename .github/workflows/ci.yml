@@ -5,6 +5,12 @@ on:
     branches: ["**"]
   pull_request:
   workflow_dispatch:
+    inputs:
+      mwcc:
+        description: b210 compiler (default = repository variable P4_MWCC_NATIVE)
+        type: choice
+        options: [default, original, native]
+        default: default
 
 permissions:
   contents: read
@@ -138,8 +144,17 @@ jobs:
     environment:
       name: p4-proprietary
     runs-on: ubuntu-latest
+    env:
+      # 1 = native b210
+      P4_MWCC_NATIVE: ${{ inputs.mwcc == 'native' && '1' || inputs.mwcc == 'original' && '0' || vars.P4_MWCC_NATIVE || '0' }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Get the native mwccps2
+        if: env.P4_MWCC_NATIVE == '1'
+        run: |
+          python3 tools/get_native_mwcc.py
+          echo "b210 compiler: native mwccps2" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Fetch private compiler and retail ELF
         env:
@@ -215,6 +230,7 @@ jobs:
             --env "P4_RETAIL_ELF=/opt/p4/$P4_PRIVATE_RETAIL_ELF_PATH" \
             --env "P4_EEGCC_ROOT=/opt/p4/$P4_PRIVATE_EEGCC_ROOT" \
             --env "P4_EEGCC_AS=/opt/p4/ee-binutils/bin/as" \
+            --env "P4_MWCC_NATIVE=$P4_MWCC_NATIVE" \
             --workdir /work \
             p4-decomp-ci \
             sh -ec '

@@ -237,6 +237,32 @@ def _parse_int(value: int | str) -> int:
     return value if isinstance(value, int) else int(value, 0)
 
 
+# Native b210 (tools/get_native_mwcc.py). b119 and ee-gcc units are unaffected.
+NATIVE_MWCC_DEFAULT = TOOLS / "mwccps2-native" / "mwccps2"
+
+
+def native_mwcc_enabled(cfg: dict) -> bool:
+    """P4_MWCC_NATIVE (1/0) wins over the configs' `mwcc_native` (true/false)."""
+    env = os.environ.get("P4_MWCC_NATIVE")
+    if env is not None and env != "":
+        return env.strip().lower() not in ("0", "false", "no", "off")
+    return bool(cfg.get("mwcc_native"))
+
+
+def apply_native_mwcc(cfg: dict) -> None:
+    """Use the native b210 if enabled; wins over P4_MWCC (set by the Docker image).
+    cfg["mwcc_original"] keeps the original path for build.py's mwld lookup."""
+    cfg["mwcc_original"] = cfg.get("mwcc")
+    if not native_mwcc_enabled(cfg):
+        return
+    path = Path(os.environ.get("P4_MWCC_NATIVE_PATH") or cfg.get("mwcc_native_path") or NATIVE_MWCC_DEFAULT)
+    if not path.is_absolute():
+        path = REPO / path
+    if not path.is_file():
+        _die(f"native mwccps2 enabled but {path} is missing: run tools/get_native_mwcc.py")
+    cfg["mwcc"] = str(path)
+
+
 def load_config() -> dict:
     """Load committed defaults, then local overrides, then P4 environment."""
     cfg: dict = {}
@@ -250,6 +276,7 @@ def load_config() -> dict:
     for key, env_name in (("mwcc", "P4_MWCC"), ("retail_elf", "P4_RETAIL_ELF")):
         if os.environ.get(env_name):
             cfg[key] = os.environ[env_name]
+    apply_native_mwcc(cfg)
     cfg["mwcc_versions"] = compiler_versions(cfg)
     missing = [key for key in ("mwcc", "retail_elf") if not cfg.get(key)]
     if missing:

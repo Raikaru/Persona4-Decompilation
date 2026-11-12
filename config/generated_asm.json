@@ -45,7 +45,7 @@
     "tools/slus21782_functions.json": "bb6362c8ff98699997fec2224714c41b39efcc85625979acbccdc71b063d3cbe",
     "tools/extract_nonmatching_asm.py": "78cde4a7fded07dff5fd8151ebdcef2aa903d864e8a217669e04d78f27bd40eb",
     "tools/asm.py": "258766a7b2394bbc522190abc0ade16abe657c2a1d65498f4f0b1f96a7e2d43d",
-    "tools/verify.py": "265fdfe28c1c8fa0c3b0a0b366c119348d34d3988d7d90c8e2976173ab79aa76"
+    "tools/verify.py": "9a39579682452fc47dd50f28b44460112a8961680dd2129b2e86e9d7bedf5145"
   },
   "generated": [
     {
